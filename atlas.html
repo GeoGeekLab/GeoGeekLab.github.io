@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="#f4f2ea" name="theme-color"/>
+<meta content="GeoGeek 1.6" name="application-name"/>
+<title>Atlas — GeoGeek</title>
+<link href="styles.css" rel="stylesheet"/>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-nav">
+<a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
+<button aria-controls="primaryNav" aria-expanded="false" class="nav-toggle" id="navToggle">Map</button>
+<nav aria-label="Primary" class="nav-links" id="primaryNav">
+<a href="field-notes.html">Field Notes</a>
+<a href="lab.html">Lab</a>
+<a aria-current="page" href="atlas.html">Atlas</a>
+<a href="elsewhere.html">Elsewhere</a>
+</nav>
+</header>
+<aside aria-label="Site index" class="sheet-index sheet-index-global" id="sheetIndex">
+<div class="sheet-index-title">SHEET INDEX</div>
+<a href="index.html"><span>00</span><b>Origin</b></a>
+<a href="field-notes.html"><span>01</span><b>Field Notes</b></a>
+<a href="lab.html"><span>02</span><b>Lab</b></a>
+<a aria-current="page" href="atlas.html"><span>03</span><b>Atlas</b></a>
+<a href="elsewhere.html"><span>04</span><b>Elsewhere</b></a>
+<div class="sheet-index-foot">COLLECTION · 1 : 25,000</div>
+</aside>
+<div aria-label="Scale of view" class="scale-ui" tabindex="0">
+<span>SCALE OF VIEW</span>
+<strong id="scaleText">1 : 250,000</strong>
+<em id="scaleLevel">SITE</em>
+<div aria-hidden="true" class="scale-legend">
+<i><b>1 : 250,000</b><small>SITE</small></i>
+<i><b>1 : 100,000</b><small>POSITION</small></i>
+<i><b>1 : 25,000</b><small>COLLECTION</small></i>
+<i><b>1 : 2,500</b><small>RECORD</small></i>
+<i><b>1 : 500</b><small>DETAIL</small></i>
+</div>
+</div>
+<div class="cursor-coord" data-label="VIEWPORT DATUM" id="cursorCoord">00.00° N · 000.00° E</div>
+<div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
+<main class="page-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
+<section class="page-title"><div><div class="eyebrow">SPACE / TIME / ORDER</div><h1>Atlas</h1></div><p class="page-intro">An archive has no neutral geometry. Every projection keeps one relation by letting another recede.</p></section>
+<div class="atlas-controls"><div class="projections"><button class="is-active" data-projection="space">Space</button><button data-projection="time">Time</button><button data-projection="type">Type</button><button data-projection="topic">Topic</button><button data-projection="trace">Trace</button></div><span class="atlas-status" id="atlasStatus">PROJECTION / SPACE · EDGE / FIELD</span></div>
+<section class="atlas-stage" id="atlasStage"><svg aria-hidden="true" class="atlas-links" id="atlasLinks"></svg><div aria-hidden="true" class="atlas-guides" id="atlasGuides"></div><div class="atlas-tooltip" id="atlasTip"><span>ATLAS</span><strong>Read the relations.</strong></div></section>
+<div class="atlas-foot"><p class="atlas-philosophy">No projection preserves everything.</p><p class="atlas-explain" id="atlasExplain">Space preserves co-presence within an authored field. Nearness here is a relation, not a proof.</p></div>
+</main>
+<footer class="footer">
+<div class="footer-brand">GeoGeek</div>
+<div class="footer-meta"><span>GEO TO SEE. GEEK TO BUILD.</span><span>SITUATED IN SPACE · REVISED IN TIME · 2026</span><a href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank">GitHub ↗</a></div>
+</footer>
+<script src="content.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
