@@ -40,7 +40,7 @@
     document.documentElement.lang = locale === 'zh' ? 'zh-CN' : 'en';
     document.body.dataset.locale = locale;
     const appMeta = $('meta[name="application-name"]');
-    if (appMeta) appMeta.content = 'GeoGeek 1.6';
+    if (appMeta) appMeta.content = 'GeoGeek';
     if (ui.pages?.[pageKey]?.title) document.title = ui.pages[pageKey].title;
 
     setText('.skip', ui.skip);

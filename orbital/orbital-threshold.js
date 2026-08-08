@@ -16,6 +16,7 @@ if (section) {
   const explore = document.getElementById('orbitalExplore');
   const orbitLabel = document.getElementById('orbitTraceLabel');
   const groundLabel = document.getElementById('groundTraceLabel');
+  const source = document.getElementById('orbitalSource');
 
   let locale = 'en';
   try { locale = localStorage.getItem('geogeek-language') === 'zh' ? 'zh' : 'en'; } catch {}
@@ -25,24 +26,26 @@ if (section) {
         title: '天行有迹，观地有时。',
         sub: '择一星，见其天之迹与地之迹。',
         explore: '入天行之器 ↗',
-        live: count => `${count.toLocaleString()} 星目 · 实时`,
+        live: count => `${count.toLocaleString()} 星目 · 活动星目`,
         demo: count => `${count} 星目 · 示意场`,
         selected: '所观',
         none: '移鼠择星',
         orbit: '天之迹',
-        ground: '地之迹'
+        ground: '地之迹',
+        source: '径向尺度 / 压缩 · CELESTRAK 活动星目 · NATURAL EARTH'
       }
     : {
         eyebrow: 'ORBITAL FIELD / EARTH IN VIEW',
         title: 'Every orbit is a moving point of view.',
         sub: 'Select one object to reveal its trace in orbit and on Earth.',
         explore: 'EXPLORE ORBIT ↗',
-        live: count => `${count.toLocaleString()} OBJECTS · LIVE`,
+        live: count => `${count.toLocaleString()} OBJECTS · ACTIVE CATALOG`,
         demo: count => `${count} OBJECTS · DEMO FIELD`,
         selected: 'SELECTED',
         none: 'MOVE TO READ THE FIELD',
         orbit: 'TRACE IN ORBIT',
-        ground: 'TRACE ON EARTH'
+        ground: 'TRACE ON EARTH',
+        source: 'RADIAL SCALE / COMPRESSED · CELESTRAK ACTIVE CATALOG · NATURAL EARTH'
       };
 
   section.querySelector('.orbital-eyebrow').textContent = copy.eyebrow;
@@ -53,6 +56,7 @@ if (section) {
   selectedName.textContent = copy.none;
   orbitLabel.textContent = copy.orbit;
   groundLabel.textContent = copy.ground;
+  if (source) source.textContent = copy.source;
 
   const controller = new AbortController();
   const engine = new GeoOrbitalField({
@@ -61,7 +65,6 @@ if (section) {
     mode: 'threshold',
     locale,
     signal: controller.signal,
-    maxObjects: 1200,
     onStatus: state => {
       status.textContent = state.live ? copy.live(state.count) : copy.demo(state.count);
       status.classList.toggle('is-live', !!state.live);

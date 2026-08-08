@@ -1,26 +1,12 @@
-/*
-  GeoGeek Orbital Field engine.
-
-  Architecture adapted from Satlas' public MIT-licensed approach to large orbital fields:
-  - browser worker propagation
-  - InstancedMesh rendering
-  - selection/highlight and trace reveal
-
-  Satlas: https://github.com/PremaanshVyas/satlas
-  Copyright (c) 2026 Premaansh Vyas
-  MIT License: ../THIRD_PARTY_LICENSES/SATLAS-MIT.txt
-
-  This file is a GeoGeek reimplementation for a static site. It does not use the Satlas API,
-  UI, branding, data pipeline, or React application.
-*/
+/* Portions derived from Satlas. Copyright (c) 2026 Premaansh Vyas.
+   MIT License: ../THIRD_PARTY_LICENSES/SATLAS-MIT.txt */
 
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 
 const R_EARTH_KM = 6371;
 const NATURAL_EARTH = 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m/cultural/ne_110m_admin_0_countries.json';
 const CELESTRAK = [
-  'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON',
-  'https://celestrak.org/NORAD/elements/gp.php?GROUP=resource&FORMAT=JSON'
+  'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON'
 ];
 
 const TYPE_COLORS = {
@@ -110,7 +96,7 @@ function addNaturalEarthBorders(group, signal) {
     .catch(() => {});
 }
 
-async function fetchCatalog(signal, maxObjects, mode) {
+async function fetchCatalog(signal) {
   let source = null;
   for (const endpoint of CELESTRAK) {
     try {
@@ -124,21 +110,13 @@ async function fetchCatalog(signal, maxObjects, mode) {
   }
   if (!source) throw new Error('Catalog unavailable');
 
-  const priorityRe = /ISS|SENTINEL|LANDSAT|TERRA\b|AQUA\b|EARTHCARE|ICESAT|GRACE|SWOT|SMAP|SMOS|NOAA|METOP|SUOMI|JPSS|HUBBLE|GALILEO|GPS|GLONASS|BEIDOU/i;
-  const priority = source.filter(item => priorityRe.test(item.OBJECT_NAME || ''));
-  const pool = mode === 'threshold'
-    ? source.filter(item => ['earth', 'weather', 'science'].includes(classify(item)))
-    : source;
-  const target = Math.max(100, maxObjects - priority.length);
-  const stride = Math.max(1, Math.ceil(pool.length / target));
-  const sampled = [...priority, ...pool.filter((_, index) => index % stride === 0)];
   const seen = new Set();
-  return sampled.filter(item => {
+  return source.filter(item => {
     const key = String(item.NORAD_CAT_ID || item.OBJECT_NAME || '');
     if (!key || seen.has(key)) return false;
     seen.add(key);
     return true;
-  }).slice(0, maxObjects).map(item => ({ ...item, __kind: classify(item) }));
+  }).map(item => ({ ...item, __kind: classify(item) }));
 }
 
 function makeDemoRecords(count) {
@@ -191,7 +169,6 @@ export class GeoOrbitalField {
     this.onHover = options.onHover || (() => {});
     this.onSelect = options.onSelect || (() => {});
     this.onDatum = options.onDatum || (() => {});
-    this.maxObjects = options.maxObjects || (this.mode === 'threshold' ? 1200 : 6000);
     this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.mobile = matchMedia('(max-width: 760px)').matches;
     this.scene = null;
@@ -228,11 +205,7 @@ export class GeoOrbitalField {
     this.installDemoField();
     this.resize();
     addNaturalEarthBorders(this.worldGroup, this.abort.signal);
-
-    const max = this.mobile
-      ? (this.mode === 'threshold' ? 360 : 1100)
-      : this.maxObjects;
-    fetchCatalog(this.abort.signal, max, this.mode)
+    fetchCatalog(this.abort.signal)
       .then(records => {
         if (!this.abort.signal.aborted) this.installLiveField(records);
       })
@@ -252,7 +225,7 @@ export class GeoOrbitalField {
     this.camera.lookAt(0, 0, 0);
 
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, this.mobile ? 1.15 : 1.5));
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, this.mobile ? 1.0 : 1.5));
     this.renderer.setClearColor(0x000000, 0);
 
     this.worldGroup = new THREE.Group();
@@ -336,7 +309,8 @@ export class GeoOrbitalField {
       this.mesh.geometry.dispose();
       this.mesh.material.dispose();
     }
-    const geometry = new THREE.IcosahedronGeometry(this.mode === 'threshold' ? 0.0085 : 0.0072, 0);
+    const pointSize = this.mode === 'threshold' ? (this.mobile ? 0.0063 : 0.0076) : (this.mobile ? 0.0058 : 0.0068);
+    const geometry = new THREE.IcosahedronGeometry(pointSize, 0);
     const material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.86, depthWrite: false });
     this.mesh = new THREE.InstancedMesh(geometry, material, count);
     this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -346,17 +320,37 @@ export class GeoOrbitalField {
     this.worldGroup.add(this.mesh);
   }
 
+  projectDisplayPosition(x, y, z) {
+    const r = Math.hypot(x, y, z);
+    if (!Number.isFinite(r) || r < 0.2) return null;
+    if (this.mode !== 'threshold') return [x, y, z];
+    const altitudeRatio = Math.max(0, r - 1);
+    const t = Math.log1p(Math.min(18, altitudeRatio) * 2) / Math.log1p(36);
+    const displayRadius = 1.045 + 0.72 * t;
+    const scale = displayRadius / r;
+    return [x * scale, y * scale, z * scale];
+  }
+
+  compressTrace(buffer) {
+    if (this.mode !== 'threshold' || !buffer?.length) return buffer;
+    const out = new Float32Array(buffer.length);
+    for (let i = 0; i < buffer.length; i += 3) {
+      const p = this.projectDisplayPosition(buffer[i], buffer[i + 1], buffer[i + 2]);
+      if (!p) continue;
+      out[i] = p[0]; out[i + 1] = p[1]; out[i + 2] = p[2];
+    }
+    return out;
+  }
+
   updateMesh(buffer) {
     if (!this.mesh || !buffer) return;
     const count = Math.min(this.mesh.count, Math.floor(buffer.length / 3));
     for (let i = 0; i < count; i += 1) {
-      const x = buffer[i * 3];
-      const y = buffer[i * 3 + 1];
-      const z = buffer[i * 3 + 2];
-      const r = Math.hypot(x, y, z);
-      const hidden = !Number.isFinite(r) || r < 0.2 || (this.mode === 'threshold' && r > 1.75);
-      DUMMY.position.set(hidden ? 0 : x, hidden ? 0 : y, hidden ? 0 : z);
-      const scale = hidden ? 0 : (this.records[i]?.__kind === 'earth' ? 1.25 : this.records[i]?.__kind === 'weather' ? 1.1 : 0.92);
+      const p = this.projectDisplayPosition(buffer[i * 3], buffer[i * 3 + 1], buffer[i * 3 + 2]);
+      const hidden = !p;
+      DUMMY.position.set(hidden ? 0 : p[0], hidden ? 0 : p[1], hidden ? 0 : p[2]);
+      const kind = this.records[i]?.__kind;
+      const scale = hidden ? 0 : (kind === 'earth' ? 1.18 : kind === 'weather' ? 1.08 : 0.92);
       DUMMY.scale.setScalar(scale);
       DUMMY.updateMatrix();
       this.mesh.setMatrixAt(i, DUMMY.matrix);
@@ -372,7 +366,8 @@ export class GeoOrbitalField {
     clearInterval(this.tickTimer);
     if (!this.active || this.demo || !this.worker) return;
     this.requestTick();
-    this.tickTimer = setInterval(() => this.requestTick(), this.reduced ? 2200 : 1000);
+    const cadence = this.reduced ? 2600 : (this.mobile ? 1500 : 1000);
+    this.tickTimer = setInterval(() => this.requestTick(), cadence);
   }
 
   setActive(active) {
@@ -399,7 +394,7 @@ export class GeoOrbitalField {
       this.groundLine.geometry.dispose();
       this.groundLine.material.dispose();
     }
-    this.orbitLine = makeLine(orbit, 0xd16339, 0.92, 9);
+    this.orbitLine = makeLine(this.compressTrace(orbit), 0xd16339, 0.92, 9);
     this.groundLine = makeLine(ground, 0xe8e2d6, 0.48, 8);
     if (this.orbitLine) this.worldGroup.add(this.orbitLine);
     if (this.groundLine) this.worldGroup.add(this.groundLine);
@@ -466,10 +461,11 @@ export class GeoOrbitalField {
         this.worldGroup.rotation.x = THREE.MathUtils.clamp(this.dragRotationStart.x + dy * Math.PI, -0.75, 0.75);
         this.rotationTarget = null;
       }
+      if (this.mobile) return;
       const now = performance.now();
-      if (now - this.lastHoverAt < 55) return;
+      if (now - this.lastHoverAt < 80) return;
       this.lastHoverAt = now;
-      this.pick();
+      this.pick(false);
     });
     canvas.addEventListener('pointerdown', event => {
       canvas.setPointerCapture?.(event.pointerId);
@@ -481,7 +477,10 @@ export class GeoOrbitalField {
       const moved = this.dragStart ? Math.hypot(event.clientX - this.dragStart.x, event.clientY - this.dragStart.y) : 0;
       this.dragging = false;
       this.dragStart = null;
-      if (moved < 7 && this.hoverIndex >= 0) this.select(this.hoverIndex);
+      if (moved < 9) {
+        if (this.mobile) { updatePointer(event); this.pick(true); }
+        else if (this.hoverIndex >= 0) this.select(this.hoverIndex);
+      }
     });
     canvas.addEventListener('pointerleave', () => {
       this.dragging = false;
@@ -497,7 +496,7 @@ export class GeoOrbitalField {
     window.addEventListener('resize', () => this.resize(), { signal: this.abort.signal });
   }
 
-  pick() {
+  pick(selectOnHit = false) {
     if (!this.camera || !this.mesh) return;
     this.raycaster.setFromCamera(this.pointer, this.camera);
     const satHits = this.raycaster.intersectObject(this.mesh, false);
@@ -511,15 +510,16 @@ export class GeoOrbitalField {
       }
       const o = index * 3;
       const geo = formatCoordFromXYZ(this.positions?.[o] || 0, this.positions?.[o + 1] || 0, this.positions?.[o + 2] || 0);
-      this.onHover({ index, record: this.records[index], ...geo });
-      return;
+      if (selectOnHit) this.select(index);
+      else this.onHover({ index, record: this.records[index], ...geo });
+      return index;
     }
     if (this.hoverIndex >= 0 && this.hoverIndex !== this.selectedIndex) {
       this.mesh.setColorAt(this.hoverIndex, TYPE_COLORS[this.records[this.hoverIndex]?.__kind] || TYPE_COLORS.other);
       if (this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true;
     }
     this.hoverIndex = -1;
-    this.onHover(null);
+    if (!this.mobile) this.onHover(null);
 
     const earthHits = this.raycaster.intersectObject(this.earth, false);
     if (earthHits.length) {
@@ -580,7 +580,7 @@ export class GeoOrbitalField {
 export async function mountOrbitalLab({ container, locale = 'en', signal, labels = {} }) {
   const isZh = locale === 'zh';
   container.innerHTML = `
-    <div class="orbital-lab-v16">
+    <div class="orbital-lab">
       <div class="orbital-lab-stage" id="orbitalLabStage">
         <canvas class="orbital-lab-canvas" id="orbitalLabCanvas" aria-label="${isZh ? '实时轨道场' : 'Live orbital field'}"></canvas>
         <div class="orbital-lab-status" id="orbitalLabStatus">${isZh ? '正在读取星目…' : 'READING CATALOG…'}</div>
@@ -595,8 +595,7 @@ export async function mountOrbitalLab({ container, locale = 'en', signal, labels
           <div><dt>${isZh ? '类别' : 'FIELD'}</dt><dd id="orbitalLabType">—</dd></div>
         </dl>
         <div class="orbital-trace-legend"><span><i class="trace-orbit"></i>${isZh ? '天之迹' : 'TRACE IN ORBIT'}</span><span><i class="trace-ground"></i>${isZh ? '地之迹' : 'TRACE ON EARTH'}</span></div>
-        <p>${isZh ? '星不独在天。其轨迹所经、地面所投与观测之时，共同决定何地可见、何物可知。' : 'A satellite is not only an object in space. Orbit, ground trace, and observation time together condition what can be seen.'}</p>
-        <a class="orbit-upstream" href="https://github.com/PremaanshVyas/satlas" target="_blank" rel="noreferrer">SATLAS SOURCE ↗</a>
+        <p>${isZh ? '择一星，查看当前位置、天之迹与地之迹。' : 'Select an object to inspect its current position, orbit trace, and ground trace.'}</p>
       </aside>
     </div>`;
 
@@ -615,8 +614,7 @@ export async function mountOrbitalLab({ container, locale = 'en', signal, labels
     mode: 'lab',
     locale,
     signal,
-    maxObjects: matchMedia('(max-width:760px)').matches ? 1100 : 6000,
-    onStatus: state => { status.textContent = state.live ? `${state.count.toLocaleString()} ${isZh ? '星目 · 实时' : 'OBJECTS · LIVE'}` : `${state.count} · DEMO FIELD`; },
+    onStatus: state => { status.textContent = state.live ? `${state.count.toLocaleString()} ${isZh ? '星目 · 活动星目' : 'SATELLITES · ACTIVE CATALOG'}` : `${state.count} · DEMO FIELD`; },
     onHover: info => {
       if (!info) { hover.hidden = true; return; }
       hover.hidden = false;

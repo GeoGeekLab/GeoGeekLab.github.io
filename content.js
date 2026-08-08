@@ -61,7 +61,7 @@ window.GEOGEEK_DATA = {
         lab: {
           label: '03 / LAB',
           title: 'Build the conditions of seeing.',
-          subtitle: 'An instrument is a theory made operable — useful when its limits remain visible.',
+          subtitle: 'Tools should make their scale, assumptions, and limits visible.',
           prototype: 'PROTOTYPE',
           prototypeTitle: 'The page as terrain',
           prototypeMeta: 'WEB · CARTOGRAPHY · INTERACTION',
@@ -92,7 +92,7 @@ window.GEOGEEK_DATA = {
           title: 'Lab — GeoGeek',
           eyebrow: 'MODEL / INSTRUMENT / LIMIT',
           heading: 'Lab',
-          intro: 'To build is to decide what becomes visible, computable, and actionable — and to leave the boundary in view.'
+          intro: 'Build tools that expose their scale, assumptions, and limits.'
         },
         atlas: {
           title: 'Atlas — GeoGeek',
@@ -234,8 +234,8 @@ window.GEOGEEK_DATA = {
         id: 'l04', group: 'observatory', status: 'Live', title: 'Orbital Commons',
         visual: 'orbit', featured: true,
         tags: ['Satlas', 'Orbit', 'Real-time'],
-        description: 'A Satlas-derived orbital field rebuilt for GeoGeek: browser-worker propagation, instanced objects, selection, orbital trace, and ground trace — with GeoGeek’s own interface and data pipeline.',
-        coord: 'LEO / MEO / GEO', instrument: 'orbit', instrumentKicker: 'ORBIT / CATALOG / GROUND', source: 'Satlas-derived architecture (MIT) · CelesTrak · satellite.js · Three.js'
+        description: 'The active satellite catalog as one navigable field: browser-worker propagation, instanced rendering, selection, orbit trace, and ground trace.',
+        coord: 'LEO / MEO / GEO', instrument: 'orbit', instrumentKicker: 'ORBIT / CATALOG / GROUND', source: 'CelesTrak · satellite.js · Three.js'
       },
       {
         id: 'l05', group: 'observatory', status: 'Live', title: 'Earth in Change',
@@ -256,14 +256,14 @@ window.GEOGEEK_DATA = {
         visual: 'pulse', featured: true,
         tags: ['Seismicity', 'Live Feed', 'USGS'],
         description: 'A live earthquake field rendered on a self-owned world view. Magnitude, depth, and recency become a changing pulse rather than a generic alert map.',
-        coord: 'M / km / t', instrument: 'pulse', instrumentKicker: 'EARTH / PULSE / EVENT', source: 'USGS Earthquake GeoJSON · GeoGeek renderer'
+        coord: 'M / km / t', instrument: 'pulse', instrumentKicker: 'EARTH / PULSE / EVENT', source: 'USGS Earthquake GeoJSON'
       },
       {
         id: 'l11', group: 'studies', status: 'Instrument', title: 'Image → Trace',
         visual: 'figure', featured: true,
         tags: ['Raster', 'Abstraction', 'Vector'],
         description: 'A small figure engine that turns a field-like image into contours, regions, and traces. It asks when an image begins to act like a map.',
-        coord: 'image → trace', instrument: 'figure', instrumentKicker: 'IMAGE / TRACE / ABSTRACTION', source: 'GeoGeek original'
+        coord: 'image → trace', instrument: 'figure', instrumentKicker: 'IMAGE / TRACE / ABSTRACTION', source: 'Browser Canvas / SVG'
       },
       {
         id: 'l12', group: 'studies', status: 'Atlas Base', title: 'World as Relation',
@@ -277,21 +277,21 @@ window.GEOGEEK_DATA = {
         visual: 'locate', featured: false,
         tags: ['Distance', 'Bearing', 'Cities'],
         description: 'A location exercise that returns error as distance and direction. The aim is not recall alone, but calibration: where did your mental map bend?',
-        coord: 'φ / λ', instrument: 'locate', instrumentKicker: 'PLACE / DISTANCE / BEARING', source: 'GeoGeek original · Natural Earth / world-atlas'
+        coord: 'φ / λ', instrument: 'locate', instrumentKicker: 'PLACE / DISTANCE / BEARING', source: 'Natural Earth / world-atlas'
       },
       {
         id: 'l08', group: 'play', status: 'Game', title: 'Zone',
         visual: 'zone', featured: false,
         tags: ['Boundary', 'Shape', 'Adjacency'],
         description: 'Find a named country from its position among neighbors. Shape matters, but relation to the surrounding field matters more.',
-        coord: '∂A', instrument: 'zone', instrumentKicker: 'BOUNDARY / REGION / RECOGNITION', source: 'GeoGeek original · Natural Earth / world-atlas'
+        coord: '∂A', instrument: 'zone', instrumentKicker: 'BOUNDARY / REGION / RECOGNITION', source: 'Natural Earth / world-atlas'
       },
       {
         id: 'l09', group: 'play', status: 'Game', title: 'Trace',
         visual: 'path', featured: false,
         tags: ['Adjacency', 'Route', 'Topology'],
         description: 'Cross the world by shared land borders. A route is not a line drawn over space; it is a sequence allowed by topology.',
-        coord: 'A ↔ B', instrument: 'path', instrumentKicker: 'ADJACENCY / PATH / TOPOLOGY', source: 'GeoGeek original · Natural Earth / world-atlas'
+        coord: 'A ↔ B', instrument: 'path', instrumentKicker: 'ADJACENCY / PATH / TOPOLOGY', source: 'Natural Earth / world-atlas'
       }
     ],
     elsewhere: [
@@ -558,8 +558,8 @@ window.GEOGEEK_DATA = {
         id: 'l04', group: 'observatory', status: '实时', title: '天行 · 星图',
         visual: 'orbit', featured: true,
         tags: ['Satlas', '轨道', '实时'],
-        description: '取 Satlas 开放架构之长，重作 GeoGeek 天行之器：工线程推演、实例化星目、择星、天之迹与地之迹皆可复察；界面与数据路径自成一体。',
-        coord: '近地 / 中轨 / 地静', instrument: 'orbit', instrumentKicker: '天 / 轨 / 星目', source: 'Satlas 派生架构（MIT）· CelesTrak · satellite.js · Three.js'
+        description: '将活动卫星星目置于同一可操作场中：Worker 推演、实例化绘制、择星、天之迹与地之迹。',
+        coord: '近地 / 中轨 / 地静', instrument: 'orbit', instrumentKicker: '天 / 轨 / 星目', source: 'CelesTrak · satellite.js · Three.js'
       },
       {
         id: 'l05', group: 'observatory', status: '实时', title: '地变',
@@ -580,14 +580,14 @@ window.GEOGEEK_DATA = {
         visual: 'pulse', featured: true,
         tags: ['地震', '实时', 'USGS'],
         description: '以自有世界视图承接实时震讯；震级、深度与新近性不作警报色块，而作地球脉动之象。',
-        coord: '震级 / 深度 / 时', instrument: 'pulse', instrumentKicker: '地 / 脉 / 事件', source: 'USGS Earthquake GeoJSON · GeoGeek 绘制'
+        coord: '震级 / 深度 / 时', instrument: 'pulse', instrumentKicker: '地 / 脉 / 事件', source: 'USGS Earthquake GeoJSON'
       },
       {
         id: 'l11', group: 'studies', status: '器', title: '由象成迹',
         visual: 'figure', featured: true,
         tags: ['栅格', '抽象', '矢量'],
         description: '以一小器试图像如何化为边界、区域与线迹。问其何时不复只是图像，而渐成可图之象。',
-        coord: '象 → 迹', instrument: 'figure', instrumentKicker: '象 / 迹 / 抽象', source: 'GeoGeek 自作'
+        coord: '象 → 迹', instrument: 'figure', instrumentKicker: '象 / 迹 / 抽象', source: 'Browser Canvas / SVG'
       },
       {
         id: 'l12', group: 'studies', status: '图基', title: '世界即关系',
@@ -601,21 +601,21 @@ window.GEOGEEK_DATA = {
         visual: 'locate', featured: false,
         tags: ['远近', '方位', '城市'],
         description: '不独问“知其名否”，而问心中之图偏向何处。每一次误点，都以距离与方位返照其误。',
-        coord: '纬 / 经', instrument: 'locate', instrumentKicker: '地 / 距 / 向', source: 'GeoGeek 自作 · Natural Earth / world-atlas'
+        coord: '纬 / 经', instrument: 'locate', instrumentKicker: '地 / 距 / 向', source: 'Natural Earth / world-atlas'
       },
       {
         id: 'l08', group: 'play', status: '游艺', title: '识域',
         visual: 'zone', featured: false,
         tags: ['界', '形', '邻'],
         description: '按名识其国域。轮廓固可辨，然其邻接、方位与所处之场，更能成其地理。',
-        coord: '界域', instrument: 'zone', instrumentKicker: '界 / 域 / 识', source: 'GeoGeek 自作 · Natural Earth / world-atlas'
+        coord: '界域', instrument: 'zone', instrumentKicker: '界 / 域 / 识', source: 'Natural Earth / world-atlas'
       },
       {
         id: 'l09', group: 'play', status: '游艺', title: '通达',
         visual: 'path', featured: false,
         tags: ['邻接', '路径', '拓扑'],
         description: '惟由共界而行，自一国至一国。路不是覆在地图上的线，而是由相邻关系所允许的次第。',
-        coord: '甲 ↔ 乙', instrument: 'path', instrumentKicker: '邻 / 行 / 通', source: 'GeoGeek 自作 · Natural Earth / world-atlas'
+        coord: '甲 ↔ 乙', instrument: 'path', instrumentKicker: '邻 / 行 / 通', source: 'Natural Earth / world-atlas'
       }
     ],
     elsewhere: [

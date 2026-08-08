@@ -274,7 +274,6 @@ body.origin-active .scale-ui:hover, body.origin-active .scale-ui:focus-within { 
 .footer-meta { display: grid; gap: 9px; text-align: right; color: var(--muted); font: 650 11px/1.35 var(--mono); }
 .footer-meta a:hover { color: var(--signal); }
 
-/* Bilingual typography: the Chinese mode uses a restrained Song/Sans contrast, not literal translated styling. */
 html[lang="zh-CN"] body { letter-spacing: 0; }
 html[lang="zh-CN"] .brand,
 html[lang="zh-CN"] .display,
@@ -302,12 +301,10 @@ html[lang="zh-CN"] .reader .excerpt { font-style: normal; line-height: 1.72; }
 html[lang="zh-CN"] .reader .body { line-height: 1.92; }
 html[lang="zh-CN"] .atlas-philosophy { font-style: normal; letter-spacing: .025em; }
 
-/* Lab grouping */
 .lab-group-label { display: flex; align-items: center; gap: 18px; padding: 38px 0 10px; border-bottom: 1px solid var(--line-soft); color: var(--muted); font: 700 11px/1 var(--mono); letter-spacing: .10em; text-transform: uppercase; }
 .lab-group-label:first-child { padding-top: 18px; }
 .lab-group-label i { height: 1px; flex: 1; background: linear-gradient(90deg, var(--line), transparent); }
 
-/* Lab instruments */
 #contourCanvas { transition: opacity .35s var(--ease); }
 #contourCanvas.is-paused { opacity: .20; }
 
@@ -369,7 +366,6 @@ html[lang="zh-CN"] .atlas-philosophy { font-style: normal; letter-spacing: .025e
 .flow-caption span { display: block; margin-bottom: 7px; color: #89968d; font: 700 11px/1 var(--mono); letter-spacing: .08em; }
 .flow-caption strong { color: var(--atlas-fg); font: 500 clamp(17px,1.5vw,23px)/1.25 var(--serif); }
 
-/* Geo games: original implementations using public geographic geometry. */
 .game-layout { height: 100%; display: grid; grid-template-columns: minmax(0,1fr) 330px; }
 .game-map-wrap { position: relative; min-width: 0; min-height: 430px; overflow: hidden; background: #101913; }
 .game-map { display: block; width: 100%; height: 100%; min-height: 430px; cursor: crosshair; }
@@ -412,7 +408,6 @@ html[lang="zh-CN"] .orbit-panel > strong,
 html[lang="zh-CN"] .earth-controls > strong,
 html[lang="zh-CN"] .flow-caption strong { font-style: normal; letter-spacing: .02em; }
 
-/* Responsive and motion preferences */
 @media (min-width: 1260px) {
   .home-section, .page-shell { padding-left: max(var(--pad), calc(var(--rail-w) + 40px)); }
 }
@@ -505,7 +500,6 @@ html { scroll-behavior: auto; }
 
 
 
-/* GeoGeek 1.4 — project visuals */
 .home-project-grid, .project-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 28px; }
 .lab-group-block { margin-top: 42px; }
 .project-card { position: relative; border: 1px solid var(--line); border-radius: 26px; overflow: hidden; background: linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,.08)); box-shadow: 0 18px 60px rgba(31,34,27,.08); transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease; }
@@ -524,7 +518,7 @@ html { scroll-behavior: auto; }
 .preview-art { position: absolute; inset: 0; }
 .preview-art::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(241,239,231,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(241,239,231,.05) 1px, transparent 1px); background-size: 58px 58px; opacity: .45; }
 .preview-art::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(110% 90% at 18% 20%, rgba(166,70,36,.14), transparent 42%), radial-gradient(120% 95% at 86% 8%, rgba(255,255,255,.06), transparent 36%); }
-.preview-stamp { position: absolute; left: 18px; bottom: 14px; z-index: 2; color: rgba(241,239,231,.82); font-size: 10px; letter-spacing: .24em; text-transform: uppercase; font-weight: 500; }
+.preview-stamp { position: absolute; left: 18px; bottom: 14px; z-index: 2; color: rgba(241,239,231,.82); font-size: 11px; letter-spacing: .24em; text-transform: uppercase; font-weight: 500; }
 .preview-terrain .contour, .preview-flow .stream, .preview-orbit .orbit-arc { position: absolute; border: 1px solid rgba(241,239,231,.38); border-radius: 50%; }
 .preview-terrain .c1 { inset: 14% 8% 28% 6%; opacity: .34; } .preview-terrain .c2 { inset: 22% 20% 12% 14%; opacity: .38; } .preview-terrain .c3 { inset: 40% 34% 18% 24%; opacity: .44; } .preview-terrain .c4 { inset: 58% 10% 6% 46%; opacity: .24; }
 .preview-evidence .node, .preview-pulse .quake, .preview-game .target-dot { position: absolute; width: 11px; height: 11px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 4px rgba(166,70,36,.16); z-index: 2; }
@@ -573,7 +567,6 @@ html { scroll-behavior: auto; }
 @media (max-width: 760px) { .project-copy { padding: 18px; } .project-card p { font-size: 14.5px; } .project-meta { flex-direction: column; gap: 6px; } .project-foot { align-items: flex-start; } .figure-canvas, .figure-svg { inset: 16px; width: calc(100% - 32px); height: calc(100% - 32px); } .pulse-map-wrap, .figure-stage { min-height: 420px; } }
 
 
-/* Project media system */
 .project-visual { isolation:isolate; }
 .project-visual::after { content:''; position:absolute; inset:0; pointer-events:none; z-index:8; background:linear-gradient(180deg, transparent 58%, rgba(4,7,5,.46)); }
 .project-probe { position:absolute; inset:0; z-index:9; opacity:0; pointer-events:none; transition:opacity .18s ease; }
@@ -582,7 +575,7 @@ html { scroll-behavior: auto; }
 .project-probe i { left:var(--probe-x,50%); top:0; bottom:0; width:1px; }
 .project-probe b { top:var(--probe-y,50%); left:0; right:0; height:1px; }
 .project-probe::before { content:''; position:absolute; left:var(--probe-x,50%); top:var(--probe-y,50%); width:28px; height:28px; border:1px solid rgba(166,70,36,.78); border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 5px rgba(166,70,36,.07); }
-.project-probe span { position:absolute; left:min(calc(var(--probe-x,50%) + 12px), calc(100% - 98px)); top:min(calc(var(--probe-y,50%) + 10px), calc(100% - 26px)); padding:3px 6px; background:rgba(8,12,10,.72); color:rgba(241,239,231,.78); font-size:10px; letter-spacing:.12em; white-space:nowrap; }
+.project-probe span { position:absolute; left:min(calc(var(--probe-x,50%) + 12px), calc(100% - 98px)); top:min(calc(var(--probe-y,50%) + 10px), calc(100% - 26px)); padding:3px 6px; background:rgba(8,12,10,.72); color:rgba(241,239,231,.78); font-size:11px; letter-spacing:.12em; white-space:nowrap; }
 .live-earth-preview { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; opacity:.62; }
 .project-visual-earth .preview-art::before { z-index:2; }
 .project-visual-earth .preview-art::after { z-index:3; }
@@ -608,7 +601,6 @@ html { scroll-behavior: auto; }
 @media(max-width:760px){ .world-map-wrap{min-height:380px;} .project-probe{display:none;} }
 @media(prefers-reduced-motion:reduce){ .orbit-live-point{animation:none;} }
 
-/* GeoGeek 1.6 — Orbital Threshold / Satlas-derived orbital architecture */
 .orbital-threshold {
   position: relative;
   z-index: 4;
@@ -689,9 +681,8 @@ html { scroll-behavior: auto; }
 .orbital-copy p:not(.orbital-eyebrow) { margin: 14px 0 0; color: #9ca8a0; font-size: 14px; line-height: 1.6; }
 .orbital-copy > a { padding: 12px 0 9px; border-top: 1px solid rgba(241,239,231,.18); border-bottom: 1px solid rgba(241,239,231,.18); color: #cbd2cc; font: 700 11px/1 var(--mono); letter-spacing: .08em; white-space: nowrap; }
 .orbital-copy > a:hover, .orbital-copy > a:focus-visible { color: var(--atlas-fg); border-color: var(--signal); outline: none; }
-.orbital-source { padding: 11px clamp(24px,3vw,46px) 13px; border-top: 1px solid rgba(241,239,231,.065); color: rgba(180,191,183,.42); font-size: 10px; }
+.orbital-source { padding: 11px clamp(24px,3vw,46px) 13px; border-top: 1px solid rgba(241,239,231,.065); color: rgba(180,191,183,.42); font-size: 11px; }
 
-/* While the threshold is the active field, chrome changes coordinate system with it. */
 body.orbital-active .site-nav {
   color: var(--atlas-fg);
   border-bottom-color: rgba(241,239,231,.08);
@@ -717,8 +708,7 @@ body.orbital-active .scale-legend small { color: #7e8b82; }
 body.orbital-active .cursor-coord { border-color: rgba(241,239,231,.10); background: rgba(11,17,14,.78); color: #b0bbb2; }
 body.orbital-active .cursor-coord::after { color: #6f7e74; }
 
-/* Lab: the deeper version of the same orbital engine. */
-.orbital-lab-v16 { height: 100%; display: grid; grid-template-columns: minmax(0,1fr) 330px; }
+.orbital-lab { height: 100%; display: grid; grid-template-columns: minmax(0,1fr) 330px; }
 .orbital-lab-stage { position: relative; min-height: 460px; overflow: hidden; background: #0b110e; cursor: crosshair; }
 .orbital-lab-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
 .orbital-lab-status { position: absolute; left: 18px; top: 18px; color: #849188; font: 700 11px/1 var(--mono); letter-spacing: .075em; }
@@ -738,7 +728,7 @@ body.orbital-active .cursor-coord::after { color: #6f7e74; }
   .orbital-stage { min-height: 520px; }
   .orbital-copy { grid-template-columns: 1fr; align-items: start; }
   .orbital-copy > a { justify-self: start; }
-  .orbital-lab-v16 { grid-template-columns: 1fr; grid-template-rows: minmax(430px,1fr) auto; }
+  .orbital-lab { grid-template-columns: 1fr; grid-template-rows: minmax(430px,1fr) auto; }
   .orbital-lab-panel { border-left: 0; border-top: 1px solid rgba(241,239,231,.11); }
 }
 @media (max-width: 760px) {
@@ -773,3 +763,74 @@ body.orbital-active .cursor-coord { opacity: 0 !important; }
 .orbital-threshold-canvas { z-index: 1; }
 .orbital-grid { z-index: 2; }
 .orbital-status, .orbital-datum, .orbital-selected, .orbital-trace-key { z-index: 4; }
+
+
+@media (max-width: 760px) {
+  :root { --pad: 20px; }
+  body { -webkit-text-size-adjust: 100%; }
+  .site-nav { padding-left: max(18px, env(safe-area-inset-left)); padding-right: max(18px, env(safe-area-inset-right)); }
+  .nav-toggle { min-width: 48px; min-height: 44px; }
+  .nav-links {
+    inset: 64px 0 0;
+    min-height: calc(100svh - 64px);
+    align-content: start;
+    padding: 18px max(22px, env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left));
+    border-bottom: 0;
+  }
+  .nav-links a, .nav-links .lang-switch { min-height: 48px; display: flex; align-items: center; }
+  body.orbital-active .nav-links { background: rgba(11,17,14,.985); border-color: rgba(241,239,231,.10); }
+  body.orbital-active .nav-links a { border-bottom-color: rgba(241,239,231,.09); color: #cbd3cc; }
+  body.orbital-active .nav-links .lang-switch { color: #8f9c93; }
+
+  .scale-ui {
+    top: 76px; right: 12px; padding: 8px 10px; border: 1px solid rgba(21,32,25,.10);
+    border-radius: 14px; background: rgba(244,242,234,.88); backdrop-filter: blur(10px);
+  }
+  .scale-ui > span { display: none; }
+  .scale-ui > strong, .scale-ui > em { display: block; }
+  body.orbital-active .scale-ui { border-color: rgba(241,239,231,.10); background: rgba(11,17,14,.76); }
+
+  .orbital-threshold { padding: 0; }
+  .orbital-shell { border: 0; border-radius: 0; min-height: 100svh; grid-template-rows: minmax(64svh, 1fr) auto auto; }
+  .orbital-stage { min-height: 520px; }
+  .orbital-status { max-width: 56%; line-height: 1.5; }
+  .orbital-datum { max-width: 40%; }
+  .orbital-hover { display: none !important; }
+  .orbital-selected { bottom: 18px; padding: 12px 0 0 13px; background: linear-gradient(90deg, rgba(11,17,14,.68), transparent); }
+  .orbital-selected strong { font-size: clamp(19px, 5.8vw, 27px); }
+  .orbital-copy h2 { max-width: 12ch; }
+  .orbital-copy > a { min-height: 44px; display: inline-flex; align-items: center; }
+  .orbital-source { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+
+  .project-card:hover { transform: none; box-shadow: 0 18px 60px rgba(31,34,27,.08); }
+  .project-cta, .lab-enter, .projections button { min-height: 44px; }
+  .project-visual { aspect-ratio: 4 / 3; }
+
+  .atlas-controls { position: sticky; top: 64px; z-index: 7; margin: 24px -20px 14px; padding: 10px 20px; background: rgba(23,33,27,.96); border-top: 1px solid rgba(241,239,231,.08); border-bottom: 1px solid rgba(241,239,231,.08); }
+  .projections { width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .projections::-webkit-scrollbar { display: none; }
+  .projections button { flex: 0 0 auto; padding: 0 14px; }
+  .atlas-status { display: none; }
+  .atlas-stage { height: 66svh; min-height: 460px; }
+  .atlas-node { width: 18px; height: 18px; border-width: 1.5px; }
+  .atlas-node[data-type="place"]::before { width: 20px; }
+  .atlas-node[data-type="place"]::after { height: 20px; }
+  .atlas-tooltip { left: 14px; right: 14px; bottom: 14px; max-width: none; padding: 14px 16px; border: 1px solid rgba(241,239,231,.10); background: rgba(12,18,14,.84); backdrop-filter: blur(10px); }
+  .atlas-tooltip strong { font-size: 18px; }
+
+  .instrument-head { padding-top: max(18px, env(safe-area-inset-top)); }
+  .instrument-close { min-width: 44px; min-height: 44px; }
+  .instrument-stage { min-height: 0; }
+  .orbital-lab { min-height: 100%; grid-template-rows: minmax(54svh, 1fr) auto; }
+  .orbital-lab-stage { min-height: 54svh; }
+  .orbital-lab-hover { display: none !important; }
+  .orbital-lab-panel { padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 420px) {
+  .display { font-size: clamp(66px, 23vw, 98px); }
+  .hero-tagline { font-size: clamp(23px, 7vw, 30px); }
+  .orbital-stage { min-height: 500px; }
+  .orbital-copy { padding-left: 18px; padding-right: 18px; }
+  .home-section, .page-shell { padding-left: 18px; padding-right: 18px; }
+}

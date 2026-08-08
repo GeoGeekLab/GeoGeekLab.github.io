@@ -1,16 +1,5 @@
-/*
-  GeoGeek orbital propagation worker.
-
-  Portions of the worker architecture are derived from Satlas:
-  https://github.com/PremaanshVyas/satlas
-  Copyright (c) 2026 Premaansh Vyas
-  Licensed under the MIT License. See ../THIRD_PARTY_LICENSES/SATLAS-MIT.txt.
-
-  Adaptation notes:
-  - accepts CelesTrak OMM/GP JSON instead of Satlas' TLERecord type;
-  - emits Earth-fixed globe coordinates so GeoGeek's cartographic globe stays aligned;
-  - adds paired orbit / ground-trace output for the TRACE interaction.
-*/
+/* Portions derived from Satlas. Copyright (c) 2026 Premaansh Vyas.
+   MIT License: ../THIRD_PARTY_LICENSES/SATLAS-MIT.txt */
 
 'use strict';
 
