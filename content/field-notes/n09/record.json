@@ -1,0 +1,76 @@
+{
+  "ref": "notes:n09",
+  "kind": "notes",
+  "id": "n09",
+  "data": {
+    "date": "2026.04.24",
+    "published": "2026.04.24",
+    "webEdition": "2026.08.09",
+    "typeKey": "archive",
+    "seriesKey": "scale",
+    "slug": "global-cropland-dynamics-2015-2024",
+    "sourceUrl": "https://mp.weixin.qq.com/s/5XEYT-OT-P1E1r_rUS3-1w",
+    "figures": 3,
+    "featured": false
+  },
+  "atlas": {
+    "type": "note",
+    "x": 0.36,
+    "y": 0.55,
+    "traceX": 0.36,
+    "traceY": 0.55,
+    "text": {
+      "en": {
+        "topic": "Scale",
+        "place": "Global",
+        "spatialField": "Scale & Extrapolation"
+      },
+      "zh": {
+        "topic": "尺度",
+        "place": "全球范围",
+        "spatialField": "尺度与外推"
+      }
+    }
+  },
+  "relations": {
+    "trace": []
+  },
+  "text": {
+    "en": {
+      "type": "Archive Essay",
+      "title": "Global Cropland Dynamics, 2015–2024",
+      "tags": [
+        "Cropland",
+        "Landsat",
+        "Global Change"
+      ],
+      "read": "5 min",
+      "excerpt": "A new Landsat-based annual cropland dataset shows where farmland expanded, where it contracted, and how trade, conflict, drought, and land conversion left different regional signatures.",
+      "series": "Scale & Extrapolation",
+      "status": "Archived",
+      "source": "GeoGeek · WeChat",
+      "published": "2026.04.24",
+      "webEdition": "2026.08.09",
+      "slug": "global-cropland-dynamics-2015-2024",
+      "sourceUrl": "https://mp.weixin.qq.com/s/5XEYT-OT-P1E1r_rUS3-1w"
+    },
+    "zh": {
+      "type": "旧文",
+      "title": "贸易战和俄乌冲突如何改写全球粮仓：马里兰大学发布全球耕地数据",
+      "tags": [
+        "耕地",
+        "Landsat",
+        "全球变化"
+      ],
+      "read": "3 分钟",
+      "excerpt": "2015到2024年，全球农田面积净增约6%——从12.38亿公顷增加到13.12亿公顷。然而同期全球人口增长约9%，导致人均农田面积反而从0.166公顷降至0.161公顷，降幅约3%。 。这是 马里兰大学在 《Remote Sensing of Environment》发表…",
+      "series": "尺度与外推",
+      "status": "归档",
+      "source": "GeoGeek · 微信公众号",
+      "published": "2026.04.24",
+      "webEdition": "2026.08.09",
+      "slug": "global-cropland-dynamics-2015-2024",
+      "sourceUrl": "https://mp.weixin.qq.com/s/5XEYT-OT-P1E1r_rUS3-1w"
+    }
+  }
+}

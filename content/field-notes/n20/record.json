@@ -1,0 +1,78 @@
+{
+  "ref": "notes:n20",
+  "kind": "notes",
+  "id": "n20",
+  "data": {
+    "date": "2026.03.29",
+    "published": "2026.03.29",
+    "webEdition": "2026.08.09",
+    "typeKey": "archive",
+    "seriesKey": "scale",
+    "slug": "extrapolation-risk-global-scale-studies",
+    "sourceUrl": "https://mp.weixin.qq.com/s/RLL1spztqKcSmIUIWvwcpw",
+    "figures": 5,
+    "featured": true
+  },
+  "atlas": {
+    "type": "note",
+    "x": 0.4509,
+    "y": 0.745,
+    "traceX": 0.4509,
+    "traceY": 0.745,
+    "text": {
+      "en": {
+        "topic": "Scale",
+        "place": "Global",
+        "spatialField": "Scale & Extrapolation"
+      },
+      "zh": {
+        "topic": "尺度",
+        "place": "全球范围",
+        "spatialField": "尺度与外推"
+      }
+    }
+  },
+  "relations": {
+    "trace": [
+      "notes:n16"
+    ]
+  },
+  "text": {
+    "en": {
+      "type": "Archive Essay",
+      "title": "Extrapolation Risk in Global-Scale Studies",
+      "tags": [
+        "Global Mapping",
+        "Extrapolation",
+        "Validation"
+      ],
+      "read": "9 min",
+      "excerpt": "A global map can look continuous while its evidence remains local. Three questions matter: the input data, the validation design, and the boundary of extrapolation.",
+      "series": "Scale & Extrapolation",
+      "status": "Archived",
+      "source": "GeoGeek · WeChat",
+      "published": "2026.03.29",
+      "webEdition": "2026.08.09",
+      "slug": "extrapolation-risk-global-scale-studies",
+      "sourceUrl": "https://mp.weixin.qq.com/s/RLL1spztqKcSmIUIWvwcpw"
+    },
+    "zh": {
+      "type": "旧文",
+      "title": "从Nature|Science文章看全球尺度研究中的外推风险",
+      "tags": [
+        "全球制图",
+        "外推",
+        "验证"
+      ],
+      "read": "10 分钟",
+      "excerpt": "几天前，我曾写过一篇关于 Bastin 等（2019，Science） 《 The global tree restoration potential 》质疑风波的推文。提出了一个问题：当一个全球尺度的地图看起来完整、精确，甚至具备直接的政策吸引力时，它的证据基础是否真的足以…",
+      "series": "尺度与外推",
+      "status": "归档",
+      "source": "GeoGeek · 微信公众号",
+      "published": "2026.03.29",
+      "webEdition": "2026.08.09",
+      "slug": "extrapolation-risk-global-scale-studies",
+      "sourceUrl": "https://mp.weixin.qq.com/s/RLL1spztqKcSmIUIWvwcpw"
+    }
+  }
+}

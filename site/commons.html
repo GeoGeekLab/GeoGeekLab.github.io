@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#f4f2ea" name="theme-color"/>
+<meta content="GeoGeek" name="application-name"/>
+<title>Commons — GeoGeek</title>
+<link href="styles.css" rel="stylesheet"/>
+</head>
+<body data-page-key="commons">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-nav">
+<a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
+<button aria-controls="siteMap" aria-expanded="false" class="nav-toggle" id="navToggle">Map</button>
+<nav aria-label="Primary" class="nav-links" id="primaryNav">
+<a href="field-notes.html">Field Notes</a>
+<a href="lab.html">Lab</a>
+<a href="atlas.html">Atlas</a>
+<a href="elsewhere.html">Elsewhere</a>
+</nav>
+</header>
+<aside aria-label="Site index" class="sheet-index sheet-index-global" id="sheetIndex">
+<div class="sheet-index-title">SHEET INDEX</div>
+<a data-sheet-link="origin" href="index.html"><span>00</span><b>Origin</b></a>
+<a data-sheet-link="now" href="index.html#now"><span>01</span><b>Coordinates</b></a>
+<a aria-current="page" data-sheet-link="commons-gateway" href="commons.html"><span>01A</span><b>Commons</b></a>
+<a data-sheet-link="field-notes" href="field-notes.html"><span>02</span><b>Field Notes</b></a>
+<a data-sheet-link="lab" href="lab.html"><span>03</span><b>Lab</b></a>
+<a data-sheet-link="atlas" href="atlas.html"><span>04</span><b>Atlas</b></a>
+<a data-sheet-link="elsewhere" href="elsewhere.html"><span>05</span><b>Elsewhere</b></a>
+<div class="sheet-index-foot">COMMON FIELD · GEOGRAPHIC</div>
+</aside>
+<div aria-label="Scale of view" class="scale-ui" tabindex="0">
+<span>INFORMATION SCALE</span><strong id="scaleText">1 : 25,000</strong><em id="scaleLevel">COLLECTION</em><small class="scale-mode">RELATIVE</small>
+<div class="scale-legend"><i><b>1 : 250,000</b><small>SITE</small></i><i><b>1 : 100,000</b><small>POSITION</small></i><i><b>1 : 25,000</b><small>COLLECTION</small></i><i><b>1 : 2,500</b><small>RECORD</small></i><i><b>1 : 500</b><small>DETAIL</small></i></div>
+</div>
+<div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
+<main class="page-shell commons-page" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
+<section class="page-title"><div><div class="eyebrow">VISITS / POSITION / RELATION</div><h1>Commons</h1></div><p class="page-intro">A shared geographic field of visits, places, observations, and the distances between them.</p></section>
+
+<section class="commons-summary" aria-label="Commons summary">
+<div class="commons-status-line"><span class="instrument-status" data-state="demo" id="commonsStatus">DEMO FIELD</span><p id="commonsDefinition">VISITS count anonymous browser sessions. LOCATION appears only after an explicit coarse-location contribution.</p></div>
+<div class="commons-metrics" id="commonsMetrics">
+<article><span>VISITS</span><strong id="metricVisits">—</strong></article>
+<article><span>LOCATED VISITS</span><strong id="metricLocated">—</strong></article>
+<article><span>PLACES</span><strong id="metricPlaces">—</strong></article>
+<article><span>OBSERVATIONS</span><strong id="metricObservations">—</strong></article>
+<article><span>ACTIVE NOW</span><strong id="metricActive">—</strong></article>
+</div>
+</section>
+
+<section class="commons-workspace">
+<header class="commons-toolbar">
+<div class="commons-layer-controls" aria-label="Map layers">
+<button class="is-active" data-commons-layer="visits" aria-pressed="true">VISITS</button>
+<button class="is-active" data-commons-layer="observations" aria-pressed="true">OBSERVATIONS</button>
+<button class="is-active" data-commons-layer="now" aria-pressed="true">NOW</button>
+<button class="is-active" data-commons-layer="relations" aria-pressed="true">RELATIONS</button>
+</div>
+<div class="commons-time-controls">
+<span>TIME</span>
+<div class="commons-horizon" aria-label="Time range"><button data-horizon="24h">24H</button><button data-horizon="7d">7D</button><button class="is-active" data-horizon="30d">30D</button><button data-horizon="all">ALL</button></div>
+</div>
+</header>
+<div class="commons-map-layout">
+<div class="commons-map-stack">
+<div class="commons-map-frame">
+<div class="commons-map-status" id="commonsMapStatus">READING COMMON FIELD…</div>
+<svg id="commonsMap" role="img" aria-label="World map of anonymous visitor places" viewBox="0 0 1200 680" preserveAspectRatio="xMidYMid meet"></svg>
+<div class="commons-map-legend" aria-label="Map legend"><span><i class="visit-dot"></i><b>VISIT</b></span><span><i class="observation-dot"></i><b>OBSERVATION</b></span><span><i class="now-dot"></i><b>NOW</b></span><span><i class="host-dot"></i><b>HOST</b></span></div>
+<div class="commons-map-source" id="commonsMapSource">Natural Earth / world-atlas · anonymous coarse locations</div>
+</div>
+<div class="commons-temporal-panel">
+<div class="commons-time-modes" aria-label="Temporal representation"><button class="is-active" data-time-mode="accumulated">ACCUMULATED</button><button data-time-mode="hourly">HOURLY</button><button data-time-mode="daynight">DAY / NIGHT</button></div>
+<div class="commons-hour-control" id="commonsHourControl" hidden><label for="commonsHour">HOUR <output id="commonsHourOutput">12 UTC</output></label><input id="commonsHour" type="range" min="0" max="23" step="1" value="12"/></div>
+<div class="commons-time-reference"><button class="is-active" data-time-ref="utc">UTC</button><button data-time-ref="local">LOCAL</button></div>
+</div>
+</div>
+<div class="commons-side-stack">
+<aside class="commons-inspector" id="commonsInspector" aria-live="polite">
+<span class="commons-inspector-kicker">RELATION</span>
+<h2>WUHAN / HOST</h2>
+<p>Select a place to read its relation.</p>
+</aside>
+<section class="commons-participate" id="commonsParticipate">
+<div class="commons-you">
+<div class="commons-block-head"><span>YOU ↔ HOST</span><h2>Your position stays private until you choose otherwise.</h2></div>
+<div class="commons-relation-readout" id="youHostReadout">
+<div><span>HOST</span><strong>Wuhan, China</strong><small>30.59° N · 114.30° E</small></div>
+<div><span>YOU</span><strong>NOT LOCATED</strong><small>DEVICE ONLY</small></div>
+<div><span>DISTANCE</span><strong>—</strong><small>GREAT-CIRCLE</small></div>
+<div><span>INITIAL BEARING</span><strong>—</strong><small>FROM YOU TO HOST</small></div>
+</div>
+<div class="commons-actions"><button class="primary" id="commonsLocate" type="button">LOCATE ME</button><button id="commonsLight" type="button" disabled>LIGHT THIS PLACE</button><button id="commonsClearLocation" type="button" hidden>CLEAR LOCAL POSITION</button></div>
+<p class="commons-privacy-note" id="commonsPrivacyText">Precise geolocation is used in this browser only. Public contribution is snapped to a coarse spatial cell before it leaves your device.</p>
+</div>
+<div class="commons-observe">
+<div class="commons-block-head"><span>OBSERVATION</span><h2>Leave one short observation from where you are.</h2></div>
+<form id="commonsObservationForm">
+<label><span>PLACE</span><input id="observationPlace" type="text" readonly value="Locate first"/></label>
+<label><span>NAME / OPTIONAL</span><input id="observationName" type="text" maxlength="32" autocomplete="nickname"/></label>
+<label><span>OBSERVATION</span><textarea id="observationText" maxlength="180" rows="3" placeholder="What is visible, changing, or felt where you are?"></textarea><small id="observationCount">0 / 180</small></label>
+<div class="commons-form-foot"><button id="observationSubmit" type="submit" disabled>CONTRIBUTE</button><span id="observationFeedback" role="status"></span></div>
+</form>
+</div>
+</section>
+</div>
+</div>
+</section>
+</main>
+<footer class="footer"><div class="footer-brand">GeoGeek</div><div class="footer-meta"><span>© 2026 GeoGeek</span><a href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank">GitHub ↗</a></div></footer>
+<script src="content.js"></script>
+<script src="archive-content.js"></script>
+<script src="core/site-model.js"></script>
+<script src="app.js"></script>
+<script src="core/modules.js"></script>
+<script src="core/semantic-scale.js"></script>
+<script src="commons/config.js"></script>
+<script src="commons/geo.js"></script>
+<script src="commons/demo-data.js"></script>
+<script src="commons/commons-data.js"></script>
+<script src="commons/commons.js"></script>
+</body>
+</html>

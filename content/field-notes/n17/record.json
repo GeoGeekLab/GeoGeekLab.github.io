@@ -1,0 +1,76 @@
+{
+  "ref": "notes:n17",
+  "kind": "notes",
+  "id": "n17",
+  "data": {
+    "date": "2026.04.11",
+    "published": "2026.04.11",
+    "webEdition": "2026.08.09",
+    "typeKey": "archive",
+    "seriesKey": "causality",
+    "slug": "causal-shapley-is-not-causal-identification",
+    "sourceUrl": "https://mp.weixin.qq.com/s/WuS6z8WvXjE3kAJMwXAGpw",
+    "figures": 0,
+    "featured": false
+  },
+  "atlas": {
+    "type": "note",
+    "x": 0.5817,
+    "y": 0.4052,
+    "traceX": 0.5817,
+    "traceY": 0.4052,
+    "text": {
+      "en": {
+        "topic": "Causality",
+        "place": "Non-spatial",
+        "spatialField": "Attribution & Causality"
+      },
+      "zh": {
+        "topic": "因果",
+        "place": "无位",
+        "spatialField": "归因与因果"
+      }
+    }
+  },
+  "relations": {
+    "trace": []
+  },
+  "text": {
+    "en": {
+      "type": "Archive Essay",
+      "title": "Causal Shapley Is Not Causal Identification",
+      "tags": [
+        "SHAP",
+        "Causal Inference",
+        "Interpretability"
+      ],
+      "read": "2 min",
+      "excerpt": "Adding a causal graph to Shapley attribution can change the decomposition, but it does not by itself identify a causal effect from observational data.",
+      "series": "Attribution & Causality",
+      "status": "Archived",
+      "source": "GeoGeek · WeChat",
+      "published": "2026.04.11",
+      "webEdition": "2026.08.09",
+      "slug": "causal-shapley-is-not-causal-identification",
+      "sourceUrl": "https://mp.weixin.qq.com/s/WuS6z8WvXjE3kAJMwXAGpw"
+    },
+    "zh": {
+      "type": "旧文",
+      "title": "Causal Shapley 不是因果识别",
+      "tags": [
+        "SHAP",
+        "因果推断",
+        "可解释性"
+      ],
+      "read": "3 分钟",
+      "excerpt": "在前面推文（ SHAP解释边界：从“模型归因”到“因果识别” 三篇 Nature 论文看 SHAP 的三重边界：归因、机制解释与因果识别 ）中，我强调： SHAP 不直接提供 causality 。",
+      "series": "归因与因果",
+      "status": "归档",
+      "source": "GeoGeek · 微信公众号",
+      "published": "2026.04.11",
+      "webEdition": "2026.08.09",
+      "slug": "causal-shapley-is-not-causal-identification",
+      "sourceUrl": "https://mp.weixin.qq.com/s/WuS6z8WvXjE3kAJMwXAGpw"
+    }
+  }
+}

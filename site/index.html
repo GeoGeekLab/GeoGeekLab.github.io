@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#f4f2ea" name="theme-color"/>
+<meta content="GeoGeek" name="application-name"/>
+<title>GeoGeek — Geo to see. Geek to build.</title>
+<link href="styles.css" rel="stylesheet"/>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-nav">
+<a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
+<button aria-controls="siteMap" aria-expanded="false" class="nav-toggle" id="navToggle">Map</button>
+<nav aria-label="Primary" class="nav-links" id="primaryNav">
+<a href="field-notes.html">Field Notes</a>
+<a href="lab.html">Lab</a>
+<a href="atlas.html">Atlas</a>
+<a href="elsewhere.html">Elsewhere</a>
+</nav>
+</header>
+<aside aria-label="Section index" class="sheet-index home-index" id="sheetIndex">
+<div class="sheet-index-title">SHEET INDEX</div>
+<a data-sheet-link="origin" href="#origin"><span>00</span><b>Origin</b></a>
+<a data-sheet-link="now" href="#now"><span>01</span><b>Coordinates</b></a>
+<a class="sheet-index-sub" data-sheet-link="commons-gateway" href="#commons-gateway"><span>01A</span><b>Commons</b></a>
+<a data-sheet-link="field-notes" href="#field-notes"><span>02</span><b>Field Notes</b></a>
+<a data-sheet-link="lab" href="#lab"><span>03</span><b>Lab</b></a>
+<a data-sheet-link="atlas" href="#atlas"><span>04</span><b>Atlas</b></a>
+<a data-sheet-link="elsewhere" href="#elsewhere"><span>05</span><b>Elsewhere</b></a>
+<div class="sheet-index-foot">SITE INDEX</div>
+</aside>
+<div aria-label="Scale of view" class="scale-ui" tabindex="0">
+<span>INFORMATION SCALE</span>
+<strong id="scaleText">1 : 250,000</strong>
+<em id="scaleLevel">SITE</em>
+<small class="scale-mode">RELATIVE</small>
+<div class="scale-legend">
+<i><b>1 : 250,000</b><small>SITE</small></i>
+<i><b>1 : 100,000</b><small>POSITION</small></i>
+<i><b>1 : 25,000</b><small>COLLECTION</small></i>
+<i><b>1 : 2,500</b><small>RECORD</small></i>
+<i><b>1 : 500</b><small>DETAIL</small></i>
+</div>
+</div>
+<div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
+<main id="main">
+<section class="hero hero-centered" data-scale="1 : 250,000" data-scale-level="SITE" id="origin">
+<div class="hero-copy">
+<p class="eyebrow hero-eyebrow">A PERSONAL ATLAS OF SPACE, TIME &amp; TRACE</p>
+<h1 class="display">GeoGeek</h1>
+<p class="hero-tagline">Geo to see. Geek to build.</p>
+<div aria-label="GeoGeek principles" class="hero-lexicon"><span>SPACE</span><i></i><span>TIME</span><i></i><span>PERSPECTIVE</span><i></i><span>TRACE</span></div>
+</div>
+<div class="hero-edge hero-edge-left">REFERENCE / ORIGIN</div>
+<div class="hero-edge hero-edge-right">SCROLL / CHANGE SCALE ↓</div>
+<div aria-hidden="true" class="map-corners"><i></i><i></i><i></i><i></i></div>
+</section>
+<section class="orbital-threshold" data-scale="1 : 250,000" data-scale-level="SITE" id="orbital-threshold" aria-label="Orbital field">
+  <div class="orbital-shell">
+    <div class="orbital-stage">
+      <canvas id="orbitalThresholdCanvas" class="orbital-threshold-canvas" aria-label="Interactive Earth orbital field"></canvas>
+      <div class="orbital-grid" aria-hidden="true"></div>
+      <div class="orbital-status" id="orbitalStatus">READING CATALOG…</div>
+      <div class="orbital-hover" id="orbitalHover" hidden></div>
+      <div class="orbital-datum" id="orbitalDatum">LAT / LON · —</div>
+      <div class="orbital-selected" id="orbitalSelected">
+        <span>SELECTED</span>
+        <strong id="orbitalSelectedName">MOVE TO READ THE FIELD</strong>
+        <small id="orbitalSelectedMeta"></small>
+        <em id="orbitalSelectedType"></em>
+      </div>
+      <div class="orbital-trace-key" aria-hidden="true">
+        <span><i class="trace-orbit"></i><b id="orbitTraceLabel">TRACE IN ORBIT</b></span>
+        <span><i class="trace-ground"></i><b id="groundTraceLabel">TRACE ON EARTH</b></span>
+      </div>
+    </div>
+    <div class="orbital-copy">
+      <div>
+        <p class="orbital-eyebrow">ORBITAL FIELD / EARTH IN VIEW</p>
+        <h2 id="orbitalPrompt">Every orbit is a moving point of view.</h2>
+        <p id="orbitalSub">Select one object to reveal its trace in orbit and on Earth.</p>
+      </div>
+      <a id="orbitalExplore" href="lab.html#l04">EXPLORE ORBIT ↗</a>
+    </div>
+    <div class="orbital-source" id="orbitalSource">RADIAL SCALE / COMPRESSED · CELESTRAK ACTIVE CATALOG · NATURAL EARTH</div>
+  </div>
+</section>
+<section class="home-section" data-scale="1 : 100,000" data-scale-level="POSITION" id="now">
+<div class="section-head"><div class="section-label">01 / CURRENT COORDINATES</div><div><h2>Every view begins somewhere.</h2><p>Field, object, method, and question locate the work for now.</p></div></div>
+<div class="now-grid">
+<article class="contour-target"><span>FIELD</span><h3>Relational geography.</h3><p>Space is read through boundary, adjacency, distance, scale, and encounter.</p></article>
+<article class="contour-target"><span>OBJECT</span><h3>Earth under observation.</h3><p>Measurements are conditioned by sensor, orbit, atmosphere, place, and time.</p></article>
+<article class="contour-target"><span>METHOD</span><h3>Geographic computation.</h3><p>GIS, remote sensing, visualization, and small instruments make assumptions operable.</p></article>
+<article class="contour-target"><span>CURRENT QUESTION</span><h3>What changes when the viewpoint changes?</h3><p>Scale, projection, representation, and observer alter what becomes legible.</p></article>
+</div>
+</section>
+<section class="home-commons" id="commons-gateway" data-scale="1 : 25,000" data-scale-level="COLLECTION" aria-label="Commons">
+  <header class="home-commons-head">
+    <div class="home-commons-title">
+      <span class="commons-gateway-kicker">COMMONS / SHARED FIELD</span>
+      <h2>You are somewhere too.</h2>
+      <p class="commons-gateway-copy">Locate yourself relative to Wuhan, or read the anonymous field left by other visitors.</p>
+    </div>
+    <div class="commons-gateway-actions">
+      <a class="commons-gateway-locate" id="homeCommonsLocate" href="commons.html#commonsParticipate">LOCATE</a>
+      <a class="commons-gateway-enter" id="homeCommonsEnter" href="commons.html">ENTER COMMONS ↗</a>
+    </div>
+  </header>
+  <div class="home-commons-metrics" aria-label="Commons visit summary">
+    <div><span id="homeCommonsVisitsLabel">VISITS</span><strong id="homeCommonsVisits">—</strong></div>
+    <div><span id="homeCommonsPlacesLabel">PLACES</span><strong id="homeCommonsPlaces">—</strong></div>
+    <div><span id="homeCommonsObservationsLabel">OBSERVATIONS</span><strong id="homeCommonsObservations">—</strong></div>
+    <div><span id="homeCommonsActiveLabel">ACTIVE NOW</span><strong id="homeCommonsActive">—</strong></div>
+  </div>
+  <div class="home-commons-toolbar">
+    <div>
+      <span class="home-commons-field-label">VISITS / SPACE × TIME</span>
+      <small id="homeCommonsMode">ANONYMOUS · COARSE LOCATION</small>
+    </div>
+    <div class="home-commons-horizon" aria-label="Commons time range">
+      <button type="button" data-home-commons-horizon="24h" aria-pressed="false">24H</button>
+      <button type="button" data-home-commons-horizon="7d" aria-pressed="false">7D</button>
+      <button type="button" class="is-active" data-home-commons-horizon="30d" aria-pressed="true">30D</button>
+      <button type="button" data-home-commons-horizon="all" aria-pressed="false">ALL</button>
+    </div>
+  </div>
+  <div class="home-commons-map-mount" id="homeCommonsMapMount">
+    <div class="commons-preview-loading">READING COMMON FIELD…</div>
+  </div>
+  <footer class="home-commons-foot">
+    <small class="commons-gateway-privacy">Location is private until you choose to light an approximate place.</small>
+    <span>◎ WUHAN / HOST</span>
+  </footer>
+</section>
+<section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="field-notes">
+<div class="section-head"><div class="section-label">02 / FIELD NOTES</div><div><h2>Thought kept with its conditions.</h2><p>Before a claim hardens, keep its place, scale, source, and uncertainty.</p></div></div>
+<div class="preview-list" id="latestNotes"></div>
+</section>
+<section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="lab">
+<div class="section-head"><div class="section-label">03 / LAB</div><div><h2>Build the conditions of seeing.</h2><p>Tools should make their scale, assumptions, and limits visible.</p></div></div>
+<div class="project-grid home-project-grid" id="homeProjects"></div>
+</section>
+<section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="atlas">
+<div class="section-head"><div class="section-label">04 / ATLAS</div><div><h2>One archive, several orders.</h2><p>Field, time, type, topic, trace, and geography preserve different relations.</p></div></div>
+<a class="atlas-preview contour-target" data-local-level="COLLECTION" data-local-scale="1 : 25,000" href="atlas.html" id="homeAtlas"><span class="atlas-caption">ATLAS · REPROJECT THE ARCHIVE ↗</span></a>
+</section>
+<section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="elsewhere">
+<div class="section-head"><div class="section-label">05 / ELSEWHERE</div><div><h2>Not everything that orients can be measured.</h2><p>A life exceeds its coordinates without leaving geography.</p></div></div>
+<div class="elsewhere-strip" id="lifePreview"></div>
+</section>
+</main>
+<footer class="footer">
+<div class="footer-brand">GeoGeek</div>
+<div class="footer-meta"><span>© 2026 GeoGeek</span><a href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank">GitHub ↗</a></div>
+</footer>
+<script src="content.js"></script>
+<script src="archive-content.js"></script>
+<script src="core/site-model.js"></script>
+<script src="app.js"></script>
+<script src="core/modules.js"></script>
+<script src="core/semantic-scale.js"></script>
+<script src="previews.js"></script>
+<script src="commons/config.js"></script>
+<script src="commons/visit-tracker.js"></script>
+</body>
+</html>

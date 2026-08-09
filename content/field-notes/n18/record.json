@@ -1,0 +1,78 @@
+{
+  "ref": "notes:n18",
+  "kind": "notes",
+  "id": "n18",
+  "data": {
+    "date": "2026.04.10",
+    "published": "2026.04.10",
+    "webEdition": "2026.08.09",
+    "typeKey": "archive",
+    "seriesKey": "causality",
+    "slug": "three-boundaries-of-shap-in-nature-papers",
+    "sourceUrl": "https://mp.weixin.qq.com/s/gtGFZcV6wDe0Zsmbm1aCPw",
+    "figures": 5,
+    "featured": false
+  },
+  "atlas": {
+    "type": "note",
+    "x": 0.4583,
+    "y": 0.4052,
+    "traceX": 0.4583,
+    "traceY": 0.4052,
+    "text": {
+      "en": {
+        "topic": "Causality",
+        "place": "Non-spatial",
+        "spatialField": "Attribution & Causality"
+      },
+      "zh": {
+        "topic": "因果",
+        "place": "无位",
+        "spatialField": "归因与因果"
+      }
+    }
+  },
+  "relations": {
+    "trace": [
+      "notes:n17"
+    ]
+  },
+  "text": {
+    "en": {
+      "type": "Archive Essay",
+      "title": "Three Boundaries of SHAP: Attribution, Mechanism, and Causal Identification",
+      "tags": [
+        "SHAP",
+        "Interpretability",
+        "Causality"
+      ],
+      "read": "4 min",
+      "excerpt": "Three Nature-family papers show that Shapley values can play very different epistemic roles depending on the surrounding evidence.",
+      "series": "Attribution & Causality",
+      "status": "Archived",
+      "source": "GeoGeek · WeChat",
+      "published": "2026.04.10",
+      "webEdition": "2026.08.09",
+      "slug": "three-boundaries-of-shap-in-nature-papers",
+      "sourceUrl": "https://mp.weixin.qq.com/s/gtGFZcV6wDe0Zsmbm1aCPw"
+    },
+    "zh": {
+      "type": "旧文",
+      "title": "三篇 Nature 论文看 SHAP 的三重边界：归因、机制解释与因果识别",
+      "tags": [
+        "SHAP",
+        "可解释性",
+        "因果"
+      ],
+      "read": "5 分钟",
+      "excerpt": "上一篇推文（ SHAP解释边界：从“模型归因”到“因果识别” ）中，我从 epistemic classification 的角度，将 SHAP 的解释划分为三个层次： model-based attribution、process-informed interpretati…",
+      "series": "归因与因果",
+      "status": "归档",
+      "source": "GeoGeek · 微信公众号",
+      "published": "2026.04.10",
+      "webEdition": "2026.08.09",
+      "slug": "three-boundaries-of-shap-in-nature-papers",
+      "sourceUrl": "https://mp.weixin.qq.com/s/gtGFZcV6wDe0Zsmbm1aCPw"
+    }
+  }
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#f4f2ea" name="theme-color"/>
+<meta content="GeoGeek" name="application-name"/>
+<title>Field Notes — GeoGeek</title>
+<link href="styles.css" rel="stylesheet"/>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-nav">
+<a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
+<button aria-controls="siteMap" aria-expanded="false" class="nav-toggle" id="navToggle">Map</button>
+<nav aria-label="Primary" class="nav-links" id="primaryNav">
+<a aria-current="page" href="field-notes.html">Field Notes</a>
+<a href="lab.html">Lab</a>
+<a href="atlas.html">Atlas</a>
+<a href="elsewhere.html">Elsewhere</a>
+</nav>
+</header>
+<aside aria-label="Site index" class="sheet-index sheet-index-global" id="sheetIndex">
+<div class="sheet-index-title">SHEET INDEX</div>
+<a href="index.html"><span>00</span><b>Origin</b></a>
+<a aria-current="page" href="field-notes.html"><span>01</span><b>Field Notes</b></a>
+<a href="lab.html"><span>02</span><b>Lab</b></a>
+<a href="atlas.html"><span>03</span><b>Atlas</b></a>
+<a href="elsewhere.html"><span>04</span><b>Elsewhere</b></a>
+<div class="sheet-index-foot">COLLECTION · RELATIVE 1 : 25,000</div>
+</aside>
+<div aria-label="Scale of view" class="scale-ui" tabindex="0">
+<span>INFORMATION SCALE</span>
+<strong id="scaleText">1 : 250,000</strong>
+<em id="scaleLevel">SITE</em>
+<small class="scale-mode">RELATIVE</small>
+<div class="scale-legend">
+<i><b>1 : 250,000</b><small>SITE</small></i>
+<i><b>1 : 100,000</b><small>POSITION</small></i>
+<i><b>1 : 25,000</b><small>COLLECTION</small></i>
+<i><b>1 : 2,500</b><small>RECORD</small></i>
+<i><b>1 : 500</b><small>DETAIL</small></i>
+</div>
+</div>
+<div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
+<main class="page-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
+<section class="page-title"><div><div class="eyebrow">OBSERVATION / CONDITION / REVISION</div><h1>Field Notes</h1></div><p class="page-intro">A note is a provisional coordinate: enough to return to a question, never enough to close it.</p></section>
+<div class="filters archive-filters" aria-label="Archive series">
+<button class="is-active" data-note-filter="all">All</button>
+<button data-note-filter="observation">Observation &amp; Proxies</button>
+<button data-note-filter="scale">Scale &amp; Extrapolation</button>
+<button data-note-filter="causality">Attribution &amp; Causality</button>
+<button data-note-filter="representation">Earth Representation</button>
+<button data-note-filter="practice">Research Practice</button>
+</div>
+<section class="archive-series-key" id="archiveSeriesKey" aria-label="Archive structure"></section>
+<aside class="wechat-archive-portal archive-channel" aria-labelledby="wechatArchiveTitle">
+  <div class="wechat-archive-copy">
+    <span class="record-section-label" id="wechatArchiveLabel">SOURCE CHANNEL</span>
+    <h2 id="wechatArchiveTitle">GeoGeek on WeChat</h2>
+    <p id="wechatArchiveCopy">The Chinese essays were first published on the GeoGeek WeChat public account.</p>
+  </div>
+  <figure class="wechat-archive-code">
+    <img src="assets/brand/wechat-qr.jpg" alt="GeoGeek WeChat public account QR code" loading="lazy" decoding="async"/>
+    <figcaption id="wechatArchiveScan">SCAN WITH WECHAT</figcaption>
+  </figure>
+</aside>
+<section id="noteList"></section>
+</main>
+<footer class="footer">
+<div class="footer-brand">GeoGeek</div>
+<div class="footer-meta"><span>© 2026 GeoGeek</span><a href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank">GitHub ↗</a></div>
+</footer>
+<script src="content.js"></script>
+<script src="archive-content.js"></script>
+<script src="core/site-model.js"></script>
+<script src="app.js"></script>
+<script src="core/modules.js"></script>
+<script src="core/semantic-scale.js"></script>
+<script src="commons/config.js"></script>
+<script src="commons/visit-tracker.js"></script>
+</body>
+</html>

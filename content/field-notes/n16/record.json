@@ -1,0 +1,78 @@
+{
+  "ref": "notes:n16",
+  "kind": "notes",
+  "id": "n16",
+  "data": {
+    "date": "2026.04.12",
+    "published": "2026.04.12",
+    "webEdition": "2026.08.09",
+    "typeKey": "archive",
+    "seriesKey": "observation",
+    "slug": "when-nature-disagrees-remote-sensing-observation",
+    "sourceUrl": "https://mp.weixin.qq.com/s/HXGZybmUO-kXAt5TMOuLeQ",
+    "figures": 4,
+    "featured": false
+  },
+  "atlas": {
+    "type": "note",
+    "x": 0.1391,
+    "y": 0.275,
+    "traceX": 0.1391,
+    "traceY": 0.275,
+    "text": {
+      "en": {
+        "topic": "Observation",
+        "place": "Non-spatial",
+        "spatialField": "Observation & Proxies"
+      },
+      "zh": {
+        "topic": "观测",
+        "place": "无位",
+        "spatialField": "观测之限"
+      }
+    }
+  },
+  "relations": {
+    "trace": [
+      "notes:n15"
+    ]
+  },
+  "text": {
+    "en": {
+      "type": "Archive Essay",
+      "title": "When Nature Disagrees with Nature: The Observation Problem in Remote Sensing",
+      "tags": [
+        "Amazon",
+        "Observation Geometry",
+        "Sampling"
+      ],
+      "read": "6 min",
+      "excerpt": "Two apparently conflicting studies of Amazon seasonality expose two different failures of remote sensing: seeing a signal created by geometry, and failing to sample enough of the phenomenon.",
+      "series": "Observation & Proxies",
+      "status": "Archived",
+      "source": "GeoGeek · WeChat",
+      "published": "2026.04.12",
+      "webEdition": "2026.08.09",
+      "slug": "when-nature-disagrees-remote-sensing-observation",
+      "sourceUrl": "https://mp.weixin.qq.com/s/HXGZybmUO-kXAt5TMOuLeQ"
+    },
+    "zh": {
+      "type": "旧文",
+      "title": "Nature反对Nature？问题在遥感观测",
+      "tags": [
+        "亚马孙",
+        "观测几何",
+        "采样"
+      ],
+      "read": "5 分钟",
+      "excerpt": "近年来，越来越多研究开始直接使用遥感数据，并越来越习惯把卫星时间序列当作地表变化的直接证据。但遥感里有一个很危险、也很容易被忽视的前提： 卫星看到的，并不总能直接等同于地表真的发生了什么。",
+      "series": "观测之限",
+      "status": "归档",
+      "source": "GeoGeek · 微信公众号",
+      "published": "2026.04.12",
+      "webEdition": "2026.08.09",
+      "slug": "when-nature-disagrees-remote-sensing-observation",
+      "sourceUrl": "https://mp.weixin.qq.com/s/HXGZybmUO-kXAt5TMOuLeQ"
+    }
+  }
+}

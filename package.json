@@ -1,0 +1,11 @@
+{
+  "name": "geogeek-site",
+  "private": true,
+  "version": "2.3.5",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "qa": "node scripts/qa.mjs",
+    "preview": "node scripts/preview.mjs"
+  }
+}

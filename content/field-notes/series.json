@@ -1,0 +1,32 @@
+{
+  "observation": {
+    "en": "Observation & Proxies",
+    "zh": "观测之限",
+    "topic_en": "Observation",
+    "topic_zh": "观测"
+  },
+  "scale": {
+    "en": "Scale & Extrapolation",
+    "zh": "尺度与外推",
+    "topic_en": "Scale",
+    "topic_zh": "尺度"
+  },
+  "causality": {
+    "en": "Attribution & Causality",
+    "zh": "归因与因果",
+    "topic_en": "Causality",
+    "topic_zh": "因果"
+  },
+  "representation": {
+    "en": "Earth Representation",
+    "zh": "地球表征",
+    "topic_en": "Representation",
+    "topic_zh": "表征"
+  },
+  "practice": {
+    "en": "Research Practice",
+    "zh": "研究实践",
+    "topic_en": "Practice",
+    "topic_zh": "研究实践"
+  }
+}

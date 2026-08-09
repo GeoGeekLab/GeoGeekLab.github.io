@@ -1,3 +1,11 @@
+# generated site
+dist/
+
+# local files
 .DS_Store
 Thumbs.db
-Desktop.ini
+*.log
+
+# generated local preview cache
+site/archive-content.js
+site/assets/field-notes/

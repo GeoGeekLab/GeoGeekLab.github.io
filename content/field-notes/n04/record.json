@@ -1,0 +1,78 @@
+{
+  "ref": "notes:n04",
+  "kind": "notes",
+  "id": "n04",
+  "data": {
+    "date": "2026.07.01",
+    "published": "2026.07.01",
+    "webEdition": "2026.08.09",
+    "typeKey": "archive",
+    "seriesKey": "practice",
+    "slug": "nature-remote-sensing-reviewer-skill",
+    "sourceUrl": "https://mp.weixin.qq.com/s/BTt-5Mf2HpTO_yUrK8UI1w",
+    "figures": 4,
+    "featured": false
+  },
+  "atlas": {
+    "type": "note",
+    "x": 0.7283,
+    "y": 0.3852,
+    "traceX": 0.7283,
+    "traceY": 0.3852,
+    "text": {
+      "en": {
+        "topic": "Practice",
+        "place": "Non-spatial",
+        "spatialField": "Research Practice"
+      },
+      "zh": {
+        "topic": "研究实践",
+        "place": "无位",
+        "spatialField": "研究实践"
+      }
+    }
+  },
+  "relations": {
+    "trace": [
+      "notes:n03"
+    ]
+  },
+  "text": {
+    "en": {
+      "type": "Archive Essay",
+      "title": "Distilling a Nature Remote-Sensing Reviewer",
+      "tags": [
+        "Remote Sensing",
+        "Peer Review",
+        "Validation"
+      ],
+      "read": "2 min",
+      "excerpt": "A lightweight reviewer skill assembled from public review files, focused on the points where remote-sensing papers most often lose credibility.",
+      "series": "Research Practice",
+      "status": "Archived",
+      "source": "GeoGeek · WeChat",
+      "published": "2026.07.01",
+      "webEdition": "2026.08.09",
+      "slug": "nature-remote-sensing-reviewer-skill",
+      "sourceUrl": "https://mp.weixin.qq.com/s/BTt-5Mf2HpTO_yUrK8UI1w"
+    },
+    "zh": {
+      "type": "旧文",
+      "title": "我把Nature期刊审稿人蒸馏了(遥感)：nature-remote-sensing-reviewer-skill",
+      "tags": [
+        "遥感",
+        "同行评审",
+        "验证"
+      ],
+      "read": "3 分钟",
+      "excerpt": "上周我们几个学术趴菜约了个饭，菜还没上齐，黑泥就先吐了半桌子。聊来聊去，话题 终究绕不过那个男人：审稿人 #2（Reviewer 2）。",
+      "series": "研究实践",
+      "status": "归档",
+      "source": "GeoGeek · 微信公众号",
+      "published": "2026.07.01",
+      "webEdition": "2026.08.09",
+      "slug": "nature-remote-sensing-reviewer-skill",
+      "sourceUrl": "https://mp.weixin.qq.com/s/BTt-5Mf2HpTO_yUrK8UI1w"
+    }
+  }
+}

@@ -6,7 +6,14 @@ Personal website for research notes, projects, and geographic experiments.
 
 https://geogeeklab.github.io/
 
-## Run locally
+## Build
 
 ```bash
-python -m http.server 8000
+node scripts/build.mjs
+```
+
+Serve `dist/` locally with any static HTTP server.
+
+## Third-party software
+
+See [`site/THIRD_PARTY_LICENSES.md`](site/THIRD_PARTY_LICENSES.md).
