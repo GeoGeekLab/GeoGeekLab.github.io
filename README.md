@@ -1,19 +1,18 @@
 # GeoGeek
 
-Personal website for research notes, projects, and geographic experiments.
+Personal website for field notes, maps, and geospatial experiments.
 
-## Website
+**Geo to see. Geek to build.**
 
 https://geogeeklab.github.io/
 
-## Build
+## Local
 
 ```bash
-node scripts/build.mjs
+npm run build
+npm run preview
 ```
 
-Serve `dist/` locally with any static HTTP server.
-
-## Third-party software
+## Third-party
 
 See [`site/THIRD_PARTY_LICENSES.md`](site/THIRD_PARTY_LICENSES.md).
