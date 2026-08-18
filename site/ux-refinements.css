@@ -1,0 +1,544 @@
+/* GeoGeek UX v4 — homepage refinement layer */
+:root {
+  --muted: #59655d;
+  --preview-surface: rgba(244,242,234,.84);
+}
+
+/* 1. Keep the original hero language. No added explanatory subtitle. */
+.hero.hero-centered { min-height: 96svh; }
+
+/* 2. Surface real records immediately after the hero. */
+.selected-work {
+  position: relative;
+  z-index: 2;
+  padding: clamp(62px,7vw,92px) var(--pad) clamp(68px,7.5vw,104px);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, rgba(244,242,234,.58), rgba(244,242,234,.18));
+}
+.selected-work-head {
+  display: grid;
+  grid-template-columns: minmax(180px,220px) minmax(0,1fr);
+  gap: clamp(30px,4vw,64px);
+  align-items: end;
+  margin-bottom: 30px;
+}
+.selected-work-kicker {
+  color: var(--muted);
+  font: 700 11px/1.2 var(--mono);
+  letter-spacing: .11em;
+}
+.selected-work-head h2 {
+  margin: 0;
+  font-size: clamp(31px,3.7vw,54px);
+  line-height: .98;
+  letter-spacing: -.045em;
+  font-weight: 560;
+}
+.selected-work-head a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  margin-top: 12px;
+  color: var(--signal);
+  font: 700 11px/1 var(--mono);
+  letter-spacing: .065em;
+}
+.selected-work-list { border-top: 1px solid var(--line); }
+.selected-work-list .preview-row {
+  min-height: 72px;
+  padding: 18px 0;
+  grid-template-columns: minmax(92px,120px) minmax(0,1fr) minmax(170px,auto);
+}
+.selected-work-list .preview-row strong { font-size: clamp(19px,2vw,27px); }
+.selected-work-list .preview-row small { color: var(--muted); }
+
+/* 3. Scale becomes a compact readout; detail is disclosed on intent. */
+.scale-ui {
+  min-width: 0;
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 7px 10px;
+  align-items: center;
+  padding: 9px 11px;
+  border: 1px solid rgba(21,32,25,.10);
+  background: rgba(244,242,234,.78);
+  backdrop-filter: blur(10px);
+  opacity: .82;
+  cursor: pointer;
+}
+.scale-ui > span,
+.scale-ui > .scale-mode { display: none; }
+.scale-ui > strong { font-size: 12px; }
+.scale-ui > em { font-size: 10px; }
+.scale-ui::before {
+  content: "SCALE";
+  grid-column: 1 / -1;
+  justify-self: end;
+  color: var(--muted);
+  font: 700 9px/1 var(--mono);
+  letter-spacing: .12em;
+}
+.scale-legend { top: calc(100% + 8px); }
+body.origin-active .scale-ui { opacity: .56; }
+body.orbital-active .scale-ui {
+  border-color: rgba(241,239,231,.14);
+  background: rgba(11,17,14,.76);
+}
+
+/* 4. Treat the orbital field as the signature interaction. */
+.orbital-stage { isolation: isolate; }
+.orbital-instruction {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: 19px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid rgba(241,239,231,.14);
+  background: rgba(11,17,14,.70);
+  backdrop-filter: blur(10px);
+  color: rgba(241,239,231,.80);
+  font: 700 10px/1 var(--mono);
+  letter-spacing: .10em;
+  pointer-events: none;
+  transition: opacity .28s var(--ease), transform .28s var(--ease);
+}
+.orbital-instruction i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #dc7753;
+}
+.orbital-instruction.is-dismissed {
+  opacity: 0;
+  transform: translate(-50%,5px);
+}
+.orbital-keyboard-note {
+  margin: 8px 0 0;
+  color: #aeb7af;
+  font: 650 10px/1.45 var(--mono);
+  letter-spacing: .045em;
+}
+#orbitalThresholdCanvas:focus-visible {
+  outline: 1px solid #dc7753;
+  outline-offset: -3px;
+}
+
+/* 5. Make Site Index read like an index/instrument, not a generic menu. */
+.site-map .spatial-browser-head > div > span { color: #aab5ad; }
+.site-map .spatial-browser-head h2 { letter-spacing: -.06em; }
+.site-map-node span { color: #a0aba3; }
+.map-inspector p { color: #aab5ad; }
+.map-scale button,
+.map-inspector-actions a,
+.map-inspector-actions button,
+.site-map-lang,
+.site-map-modes button { min-height: 44px; }
+.site-map-node::after {
+  content: "";
+  position: absolute;
+  inset: -12px -10px;
+}
+
+/* 6. Information-bearing metadata gets stronger contrast. */
+.home-section[data-scale="1 : 25,000"] .section-label::after { color: #68746c; }
+.project-meta,
+.note-meta,
+.lab-coord,
+.atlas-caption,
+.home-commons-field-label,
+.commons-gateway-privacy { color: var(--muted); }
+
+/* 7. Small visual controls keep large hit areas. */
+.nav-toggle { min-height: 44px; padding-inline: 14px; }
+.lang-switch { min-height: 44px; display: inline-flex; align-items: center; }
+.scale-step { min-height: 44px; }
+.home-commons-horizon button { min-height: 44px; min-width: 44px; }
+
+/* 8. Component-level responsiveness for home project cards. */
+.home-project-grid { container-type: inline-size; }
+@container (max-width: 760px) {
+  .home-project-grid .project-card-home { min-width: 0; }
+  .home-project-grid .project-copy { padding: 22px; }
+}
+
+/* Mobile: the scale readout becomes a bottom instrument rather than another top-right badge. */
+@media (max-width: 760px) {
+  .selected-work { padding: 54px 18px 62px; }
+  .selected-work-head { grid-template-columns: 1fr; gap: 14px; }
+  .selected-work-head h2 { font-size: clamp(30px,10vw,42px); }
+  .selected-work-list .preview-row {
+    min-height: 88px;
+    grid-template-columns: 74px minmax(0,1fr);
+    gap: 8px 14px;
+  }
+  .selected-work-list .preview-row small { grid-column: 2; text-align: left; }
+
+  .scale-ui {
+    top: auto !important;
+    right: 14px !important;
+    bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    padding: 8px 10px !important;
+    border-radius: 0 !important;
+    min-width: 0 !important;
+  }
+  .scale-ui::before { display: none; }
+  .scale-legend { right: 0 !important; top: auto !important; bottom: calc(100% + 8px); }
+
+  .orbital-instruction {
+    bottom: 76px;
+    min-height: 34px;
+    max-width: calc(100% - 28px);
+    white-space: nowrap;
+  }
+  .orbital-keyboard-note { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbital-instruction { transition: none; }
+}
+
+/* GeoGeek UX v4 — shared production refinement layer. */
+
+:root {
+  --preview-mobile-pad: 18px;
+  --preview-touch: 44px;
+}
+
+html { scroll-padding-top: 72px; }
+body { overflow-x: clip; }
+
+/* Remove the Commons sub-index entry without removing Commons itself. */
+.sheet-index-sub[data-sheet-link="commons-gateway"] { display: none !important; }
+
+/* Keep the two navigation systems distinct: Sheet Index = place, Scale = information depth. */
+.scale-ui {
+  transition: opacity .22s ease, transform .22s ease, background-color .22s ease, border-color .22s ease;
+}
+.scale-ui.is-near-footer,
+body.ux-index-open .scale-ui {
+  opacity: 0 !important;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+.scale-ui:focus-visible { outline: 1px solid var(--signal, #a64624); outline-offset: 3px; }
+
+/* Information-bearing muted text: preserve hierarchy without falling into decorative contrast. */
+.project-meta,
+.note-meta,
+.lab-coord,
+.atlas-caption,
+.home-commons-field-label,
+.commons-gateway-privacy,
+.collection-meta,
+.record-meta,
+.site-map-node span,
+.map-inspector p { color: var(--muted, #59655d); }
+
+/* Render cost: below-fold editorial sections can skip paint/layout until needed. */
+.home-section,
+.selected-work,
+.footer {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 820px;
+}
+
+/* Stable chrome + title continuity on browsers that support cross-document View Transitions. */
+@view-transition { navigation: auto; }
+.site-nav { view-transition-name: geogeek-site-nav; }
+body.ux-inner-page main h1:first-of-type { view-transition-name: geogeek-page-title; }
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; }
+::view-transition-old(geogeek-site-nav),
+::view-transition-new(geogeek-site-nav) { animation-duration: .18s; }
+::view-transition-old(geogeek-page-title) {
+  animation: preview-title-out .24s cubic-bezier(.2,.7,.2,1) both;
+}
+::view-transition-new(geogeek-page-title) {
+  animation: preview-title-in .34s cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes preview-title-out { to { opacity: 0; transform: translateY(-8px) scale(.985); } }
+@keyframes preview-title-in { from { opacity: 0; transform: translateY(10px) scale(.985); } }
+
+/* Conserve work when the browser explicitly signals data saving. */
+body.ux-data-saver .bg-field { display: none !important; }
+body.ux-data-saver canvas { image-rendering: auto; }
+
+/* ---------------- Mobile-first refinements ---------------- */
+@media (max-width: 760px) {
+  :root { --preview-mobile-pad: max(18px, env(safe-area-inset-left)); }
+
+  html { scroll-padding-top: 66px; }
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Navigation: compact, thumb-safe and safe-area aware. */
+  .site-nav {
+    min-height: 60px;
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-right: max(14px, env(safe-area-inset-right));
+    padding-bottom: 8px;
+    padding-left: max(14px, env(safe-area-inset-left));
+    background: linear-gradient(180deg, rgba(244,242,234,.96), rgba(244,242,234,.78));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .brand,
+  .nav-toggle,
+  .lang-switch { min-height: var(--preview-touch); }
+  .nav-toggle { min-width: 68px; padding-inline: 14px !important; }
+
+  /* Mobile Site Index becomes a true full-screen index rather than a desktop panel squeezed down. */
+  .site-map {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+  .site-map .spatial-browser {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+  .site-map .spatial-browser-head {
+    padding-top: max(18px, env(safe-area-inset-top)) !important;
+    padding-right: max(16px, env(safe-area-inset-right)) !important;
+    padding-left: max(16px, env(safe-area-inset-left)) !important;
+  }
+  .site-map-node,
+  .site-map-modes button,
+  .site-map-lang,
+  .map-scale button,
+  .map-inspector-actions a,
+  .map-inspector-actions button { min-height: var(--preview-touch) !important; }
+
+  /* Hero: still cinematic, but no longer consumes nearly two phone screens once browser chrome is counted. */
+  .hero.hero-centered {
+    min-height: 86svh !important;
+    padding-inline: var(--preview-mobile-pad) !important;
+  }
+  .hero-copy { width: min(100%, 640px); }
+  .hero-eyebrow {
+    max-width: 34ch;
+    margin-inline: auto;
+    line-height: 1.55;
+  }
+  .hero .display {
+    font-size: clamp(60px, 20.5vw, 94px) !important;
+    line-height: .88 !important;
+    letter-spacing: -.075em !important;
+  }
+  .hero-tagline { font-size: clamp(16px, 4.7vw, 20px) !important; }
+  .hero-lexicon {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 10px;
+    max-width: 330px;
+    margin-inline: auto;
+  }
+  .hero-edge { font-size: 9px !important; letter-spacing: .08em !important; }
+  .hero-edge-left { left: var(--preview-mobile-pad) !important; }
+  .hero-edge-right { right: var(--preview-mobile-pad) !important; }
+
+  /* Real content directly after hero: concise phone rhythm, not a desktop table collapsed to one column. */
+  .selected-work {
+    padding: 48px var(--preview-mobile-pad) 54px !important;
+  }
+  .selected-work-head { margin-bottom: 20px !important; }
+  .selected-work-head h2 {
+    max-width: 12ch;
+    font-size: clamp(30px, 9.8vw, 42px) !important;
+    line-height: 1.02 !important;
+  }
+  .selected-work-head a { margin-top: 8px !important; }
+  .selected-work-list .preview-row {
+    min-height: 96px !important;
+    padding: 17px 0 !important;
+  }
+  .selected-work-list .preview-row strong {
+    font-size: clamp(18px, 5.6vw, 23px) !important;
+    line-height: 1.12 !important;
+  }
+
+  /* Orbital signature interaction: prioritize the field, then place copy below it. */
+  .orbital-shell { min-width: 0; }
+  .orbital-stage {
+    min-height: min(64svh, 560px) !important;
+    max-height: 620px;
+  }
+  .orbital-copy {
+    padding-right: var(--preview-mobile-pad) !important;
+    padding-left: var(--preview-mobile-pad) !important;
+    gap: 20px !important;
+  }
+  .orbital-copy h2 {
+    max-width: 13ch;
+    font-size: clamp(30px, 9vw, 42px) !important;
+    line-height: 1.02 !important;
+  }
+  .orbital-copy > a {
+    min-height: var(--preview-touch);
+    display: inline-flex;
+    align-items: center;
+  }
+  .orbital-instruction {
+    bottom: max(72px, calc(env(safe-area-inset-bottom) + 60px)) !important;
+    min-height: 36px !important;
+    padding-inline: 12px !important;
+    letter-spacing: .075em !important;
+  }
+  .orbital-selected { max-width: calc(100% - 28px) !important; }
+  .orbital-status,
+  .orbital-datum,
+  .orbital-source { font-size: 9px !important; }
+
+  /* Editorial sections: one predictable reading column with less lateral competition. */
+  .home-section,
+  .home-commons {
+    padding-right: var(--preview-mobile-pad) !important;
+    padding-left: var(--preview-mobile-pad) !important;
+  }
+  .section-head,
+  .home-commons-head {
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 16px !important;
+  }
+  .section-head h2,
+  .home-commons-head h2 {
+    max-width: 14ch;
+    font-size: clamp(30px, 9.2vw, 42px) !important;
+    line-height: 1.02 !important;
+  }
+  .section-head p,
+  .home-commons-head p { max-width: 48ch; }
+  .now-grid,
+  .project-grid,
+  .home-project-grid {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+  .contour-target { min-width: 0; }
+
+  /* Commons: controls become a deliberate mobile dashboard. */
+  .commons-gateway-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    width: 100%;
+    gap: 8px !important;
+  }
+  .commons-gateway-actions a {
+    min-height: var(--preview-touch);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .home-commons-metrics {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  }
+  .home-commons-toolbar {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+  .home-commons-horizon {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+  }
+  .home-commons-horizon button {
+    min-width: 0 !important;
+    min-height: var(--preview-touch) !important;
+  }
+  .home-commons-map-mount {
+    min-height: min(58svh, 520px) !important;
+  }
+  .home-commons-foot {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+  }
+
+  /* Atlas and card-like entry surfaces stay large enough to feel intentional on touch. */
+  .atlas-preview { min-height: min(58svh, 520px) !important; }
+  .project-card-home a,
+  .preview-row,
+  .life-card a { -webkit-tap-highlight-color: rgba(166,70,36,.10); }
+
+  /* Compact scale = unobtrusive bottom readout. It disappears near footer or while Index is open. */
+  .scale-ui {
+    top: auto !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: max(12px, env(safe-area-inset-bottom)) !important;
+    min-height: 38px;
+    max-width: calc(100vw - 24px);
+    box-shadow: 0 8px 28px rgba(21,32,25,.08);
+  }
+  .scale-legend {
+    right: 0 !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: calc(100% + 8px) !important;
+    max-height: min(52svh, 360px);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* Collection/detail pages: keep controls usable and reduce horizontal compression. */
+  body.ux-inner-page main { min-width: 0; }
+  body.ux-inner-page main > section,
+  body.ux-inner-page main > article { min-width: 0; }
+  body.ux-inner-page [role="tablist"],
+  body.ux-inner-page .filters,
+  body.ux-inner-page .filter-row,
+  body.ux-inner-page .projection-controls {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.ux-inner-page [role="tablist"]::-webkit-scrollbar,
+  body.ux-inner-page .filters::-webkit-scrollbar,
+  body.ux-inner-page .filter-row::-webkit-scrollbar,
+  body.ux-inner-page .projection-controls::-webkit-scrollbar { display: none; }
+  body.ux-inner-page button,
+  body.ux-inner-page [role="button"] { touch-action: manipulation; }
+
+  .footer {
+    padding-right: max(var(--preview-mobile-pad), env(safe-area-inset-right)) !important;
+    padding-bottom: max(24px, env(safe-area-inset-bottom)) !important;
+    padding-left: max(var(--preview-mobile-pad), env(safe-area-inset-left)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero.hero-centered { min-height: 82svh !important; }
+  .hero .display { font-size: clamp(56px, 19.5vw, 82px) !important; }
+  .selected-work-list .preview-row {
+    grid-template-columns: 62px minmax(0,1fr) !important;
+    column-gap: 12px !important;
+  }
+  .selected-work-list .preview-row small { grid-column: 2 !important; }
+  .commons-gateway-actions { grid-template-columns: 1fr !important; }
+  .home-commons-metrics { gap: 0 !important; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  a, button { touch-action: manipulation; }
+  .site-map-node::after { inset: -14px -12px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  .scale-ui { transition: none; }
+}
