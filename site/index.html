@@ -6,14 +6,20 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#f4f2ea" name="theme-color"/>
 <meta content="GeoGeek" name="application-name"/>
+<link rel="icon" href="/favicon.ico" sizes="any"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
 <title>GeoGeek — Geo to see. Geek to build.</title>
 <link href="styles.css" rel="stylesheet"/>
+<link href="/ux-refinements.css" rel="stylesheet"/>
+<script src="/ux-preinit.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-nav">
 <a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
-<button aria-controls="siteMap" aria-expanded="false" class="nav-toggle" id="navToggle">Map</button>
+<button aria-controls="siteMap" aria-expanded="false" class="nav-toggle" id="navToggle">Index</button>
 <nav aria-label="Primary" class="nav-links" id="primaryNav">
 <a href="field-notes.html">Field Notes</a>
 <a href="lab.html">Lab</a>
@@ -25,7 +31,6 @@
 <div class="sheet-index-title">SHEET INDEX</div>
 <a data-sheet-link="origin" href="#origin"><span>00</span><b>Origin</b></a>
 <a data-sheet-link="now" href="#now"><span>01</span><b>Coordinates</b></a>
-<a class="sheet-index-sub" data-sheet-link="commons-gateway" href="#commons-gateway"><span>01A</span><b>Commons</b></a>
 <a data-sheet-link="field-notes" href="#field-notes"><span>02</span><b>Field Notes</b></a>
 <a data-sheet-link="lab" href="#lab"><span>03</span><b>Lab</b></a>
 <a data-sheet-link="atlas" href="#atlas"><span>04</span><b>Atlas</b></a>
@@ -58,6 +63,17 @@
 <div class="hero-edge hero-edge-right">SCROLL / CHANGE SCALE ↓</div>
 <div aria-hidden="true" class="map-corners"><i></i><i></i><i></i><i></i></div>
 </section>
+<section class="selected-work" data-scale="1 : 250,000" data-scale-level="SITE" id="selected-work" aria-labelledby="selectedWorkTitle">
+  <header class="selected-work-head">
+    <div class="selected-work-kicker" id="selectedWorkKicker">SELECTED / FIELD NOTES</div>
+    <div>
+      <h2 id="selectedWorkTitle">Recent records from the archive.</h2>
+      <a id="selectedWorkAll" href="field-notes.html">OPEN FIELD NOTES ↗</a>
+    </div>
+  </header>
+  <div class="preview-list selected-work-list" id="selectedWorkRows"></div>
+</section>
+
 <section class="orbital-threshold" data-scale="1 : 250,000" data-scale-level="SITE" id="orbital-threshold" aria-label="Orbital field">
   <div class="orbital-shell">
     <div class="orbital-stage">
@@ -76,12 +92,14 @@
         <span><i class="trace-orbit"></i><b id="orbitTraceLabel">TRACE IN ORBIT</b></span>
         <span><i class="trace-ground"></i><b id="groundTraceLabel">TRACE ON EARTH</b></span>
       </div>
+      <div class="orbital-instruction" id="orbitalInstruction" aria-hidden="true"><span>MOVE</span><i></i><span>SELECT</span><i></i><span>TRACE</span></div>
     </div>
     <div class="orbital-copy">
       <div>
         <p class="orbital-eyebrow">ORBITAL FIELD / EARTH IN VIEW</p>
         <h2 id="orbitalPrompt">Every orbit is a moving point of view.</h2>
         <p id="orbitalSub">Select one object to reveal its trace in orbit and on Earth.</p>
+        <p class="orbital-keyboard-note" id="orbitalAssist">KEYBOARD · FOCUS THE FIELD AND PRESS ENTER TO OPEN THE ORBIT INSTRUMENT</p>
       </div>
       <a id="orbitalExplore" href="lab.html#l04">EXPLORE ORBIT ↗</a>
     </div>
@@ -165,5 +183,6 @@
 <script src="previews.js"></script>
 <script src="commons/config.js"></script>
 <script src="commons/visit-tracker.js"></script>
+<script src="/ux-refinements.js"></script>
 </body>
 </html>
