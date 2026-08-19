@@ -206,3 +206,97 @@
 
   addEventListener('pagehide', () => window.GeoField?.pause?.(), { passive: true });
 })();
+
+/* GeoGeek UX v5 — mobile experience system */
+(() => {
+  'use strict';
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+  const mobileMQ = matchMedia('(max-width: 860px)');
+  const coarseMQ = matchMedia('(pointer: coarse)');
+
+  const getPageKind = () => {
+    const path = location.pathname.split('/').pop() || 'index.html';
+    if (/field-notes/i.test(path)) return 'field-notes';
+    if (/lab/i.test(path)) return 'lab';
+    if (/atlas/i.test(path)) return 'atlas';
+    if (/commons/i.test(path)) return 'commons';
+    if (/elsewhere/i.test(path)) return 'elsewhere';
+    if (/record/i.test(path) || document.body.classList.contains('archive-record-page') || $('.record-shell')) return 'record';
+    return 'home';
+  };
+
+  const pageKind = getPageKind();
+  document.body.dataset.pageKind = pageKind;
+
+  const applyMobileFlag = () => {
+    const active = mobileMQ.matches || coarseMQ.matches;
+    document.body.classList.toggle('ux-mobile-v5', active);
+  };
+  applyMobileFlag();
+  mobileMQ.addEventListener?.('change', applyMobileFlag);
+  coarseMQ.addEventListener?.('change', applyMobileFlag);
+
+  // Primary mobile dock for the five core destinations.
+  const ensureMobileDock = () => {
+    if (!document.body.classList.contains('ux-mobile-v5')) {
+      $('.mobile-dock')?.remove();
+      return;
+    }
+    if ($('.mobile-dock')) return;
+    const dock = document.createElement('nav');
+    dock.className = 'mobile-dock';
+    dock.setAttribute('aria-label', 'Primary');
+    const localeZh = document.documentElement.lang === 'zh-CN';
+    const items = [
+      ['index.html', localeZh ? '首页' : 'Home', 'home'],
+      ['field-notes.html', localeZh ? '地记' : 'Notes', 'notes'],
+      ['lab.html', localeZh ? '实验' : 'Lab', 'lab'],
+      ['atlas.html', localeZh ? '图集' : 'Atlas', 'atlas'],
+      ['elsewhere.html', localeZh ? '别处' : 'Elsewhere', 'elsewhere']
+    ];
+    const current = pageKind === 'record' || pageKind === 'commons' ? 'notes' : pageKind === 'field-notes' ? 'notes' : pageKind;
+    dock.innerHTML = items.map(([href, label, key]) => {
+      const active = current === key || (current === 'home' && key === 'home');
+      const url = new URL(href, location.href);
+      const lang = new URLSearchParams(location.search).get('lang');
+      if (lang) url.searchParams.set('lang', lang);
+      return `<a href="${url.pathname}${url.search}${url.hash}" data-dock="${key}"${active ? ' class="is-active" aria-current="page"' : ''}><span>${label}</span></a>`;
+    }).join('');
+    document.body.appendChild(dock);
+  };
+  ensureMobileDock();
+
+  const onLocaleMutation = new MutationObserver(() => {
+    if ($('.mobile-dock')) {
+      $('.mobile-dock').remove();
+      ensureMobileDock();
+    }
+  });
+  onLocaleMutation.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+
+  // Scroll-aware chrome: slightly condense the top bar after the reader commits to the page.
+  let raf = 0;
+  const syncScrollChrome = () => {
+    raf = 0;
+    document.body.classList.toggle('ux-nav-condensed', scrollY > 28);
+  };
+  addEventListener('scroll', () => {
+    if (raf) return;
+    raf = requestAnimationFrame(syncScrollChrome);
+  }, { passive: true });
+  syncScrollChrome();
+
+  // Improve mobile semantics with card affordances and page-specific classes.
+  document.body.classList.add(`ux-page-${pageKind}`);
+  if (pageKind === 'home') {
+    $('#selected-work')?.setAttribute('data-ux-shelf', 'selected-work');
+    $('#now')?.setAttribute('data-ux-shelf', 'coordinates');
+    $('#lab')?.setAttribute('data-ux-shelf', 'lab');
+    $('#elsewhere')?.setAttribute('data-ux-shelf', 'elsewhere');
+  }
+
+  // Ensure the mobile dock does not steal focus order before main content.
+  $('.mobile-dock')?.querySelectorAll('a').forEach(a => a.tabIndex = 0);
+})();
