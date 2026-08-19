@@ -542,3 +542,669 @@ body.ux-data-saver canvas { image-rendering: auto; }
   @view-transition { navigation: none; }
   .scale-ui { transition: none; }
 }
+
+/* =========================================================
+   GeoGeek UX v5 — mobile-first reframe
+   Goal: preserve framework, substantially improve mobile use.
+   ========================================================= */
+
+@media (max-width: 860px) {
+  body.ux-mobile-v5 {
+    --mobile-dock-h: calc(72px + env(safe-area-inset-bottom));
+    --mobile-chip-h: 42px;
+    --mobile-card-radius: 18px;
+    --mobile-surface: rgba(244,242,234,.92);
+    --mobile-surface-strong: rgba(244,242,234,.98);
+    --mobile-shadow: 0 10px 34px rgba(17, 26, 20, .09);
+    --mobile-border: rgba(21,32,25,.10);
+  }
+
+  body.ux-mobile-v5 main,
+  body.ux-mobile-v5 .page-shell,
+  body.ux-mobile-v5 .footer {
+    padding-bottom: calc(var(--mobile-dock-h) + 10px);
+  }
+
+  body.ux-mobile-v5 .scale-ui {
+    bottom: calc(var(--mobile-dock-h) + 10px) !important;
+  }
+
+  /* Top bar: lighter, calmer, more native-app-like. */
+  body.ux-mobile-v5 .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 24;
+    min-height: 58px;
+    gap: 10px;
+    border-bottom: 1px solid rgba(21,32,25,.08);
+    background: color-mix(in srgb, var(--bg) 88%, white);
+    box-shadow: 0 4px 22px rgba(21,32,25,.04);
+  }
+  body.ux-mobile-v5 .brand {
+    gap: 10px;
+    min-width: 0;
+  }
+  body.ux-mobile-v5 .brand span:last-child {
+    font-size: 14px;
+    letter-spacing: .01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  body.ux-mobile-v5 .nav-toggle {
+    min-width: 64px;
+    border-radius: 999px;
+    background: rgba(21,32,25,.04);
+    border: 1px solid rgba(21,32,25,.08);
+  }
+  body.ux-mobile-v5.ux-nav-condensed .site-nav {
+    min-height: 54px;
+    padding-top: max(6px, env(safe-area-inset-top));
+    padding-bottom: 6px;
+    box-shadow: 0 6px 18px rgba(21,32,25,.06);
+  }
+
+  /* Full-screen index becomes a true mobile navigation sheet. */
+  body.ux-mobile-v5 .site-map .spatial-browser {
+    background:
+      radial-gradient(circle at 110% 120%, rgba(166,70,36,.06), transparent 34%),
+      linear-gradient(180deg, rgba(244,242,234,.99), rgba(244,242,234,.96));
+  }
+  body.ux-mobile-v5 .site-map .spatial-browser-head {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    padding-bottom: 16px !important;
+    background: linear-gradient(180deg, rgba(244,242,234,.98), rgba(244,242,234,.92));
+    backdrop-filter: blur(12px);
+  }
+  body.ux-mobile-v5 .site-map .spatial-browser-head h2 {
+    font-size: clamp(26px, 8vw, 34px);
+    line-height: .96;
+  }
+  body.ux-mobile-v5 .site-map .spatial-browser-layout {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    min-height: 0;
+  }
+  body.ux-mobile-v5 .site-map .site-map-graph {
+    padding: 8px max(16px, env(safe-area-inset-right)) 18px max(16px, env(safe-area-inset-left)) !important;
+  }
+  body.ux-mobile-v5 .site-map-node {
+    border-radius: 14px;
+    border: 1px solid transparent;
+    padding-inline: 10px !important;
+    transition: background-color .18s ease, border-color .18s ease, transform .18s ease;
+  }
+  body.ux-mobile-v5 .site-map-node:active,
+  body.ux-mobile-v5 .site-map-node:hover,
+  body.ux-mobile-v5 .site-map-node.is-active {
+    background: rgba(21,32,25,.04);
+    border-color: rgba(21,32,25,.08);
+    transform: translateX(2px);
+  }
+  body.ux-mobile-v5 .site-map .map-inspector {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: 8px;
+    border-top: 1px solid rgba(21,32,25,.08);
+    background: linear-gradient(180deg, rgba(244,242,234,.82), rgba(244,242,234,.97));
+    backdrop-filter: blur(16px);
+  }
+
+  /* Homepage reframed around card rhythm and scroll-snap shelves. */
+  body.ux-mobile-v5 .hero.hero-centered {
+    min-height: min(80svh, 760px) !important;
+    padding-top: max(22px, env(safe-area-inset-top));
+    padding-bottom: 30px;
+  }
+  body.ux-mobile-v5 .hero-copy {
+    padding: 28px 18px 24px;
+    border: 1px solid rgba(21,32,25,.08);
+    background: linear-gradient(180deg, rgba(244,242,234,.56), rgba(244,242,234,.18));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.4);
+  }
+  body.ux-mobile-v5 .hero .display {
+    font-size: clamp(56px, 18vw, 82px) !important;
+  }
+  body.ux-mobile-v5 .hero-tagline {
+    margin-top: 16px;
+    font-size: clamp(18px, 4.8vw, 20px) !important;
+  }
+  body.ux-mobile-v5 .hero-lexicon {
+    margin-top: 18px;
+    gap: 8px;
+  }
+  body.ux-mobile-v5 .hero-lexicon span {
+    padding: 8px 10px;
+    border: 1px solid rgba(21,32,25,.08);
+    background: rgba(255,255,255,.35);
+  }
+  body.ux-mobile-v5 .hero-edge { opacity: .72; }
+
+  body.ux-mobile-v5 .selected-work,
+  body.ux-mobile-v5 .home-section,
+  body.ux-mobile-v5 .home-commons {
+    position: relative;
+  }
+  body.ux-mobile-v5 .selected-work-head,
+  body.ux-mobile-v5 .section-head,
+  body.ux-mobile-v5 .home-commons-head {
+    margin-bottom: 18px !important;
+  }
+  body.ux-mobile-v5 .selected-work-list,
+  body.ux-mobile-v5 .now-grid,
+  body.ux-mobile-v5 .home-project-grid,
+  body.ux-mobile-v5 .elsewhere-strip {
+    display: grid !important;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(82%, 1fr);
+    gap: 12px !important;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  body.ux-mobile-v5 .selected-work-list::-webkit-scrollbar,
+  body.ux-mobile-v5 .now-grid::-webkit-scrollbar,
+  body.ux-mobile-v5 .home-project-grid::-webkit-scrollbar,
+  body.ux-mobile-v5 .elsewhere-strip::-webkit-scrollbar { display: none; }
+
+  body.ux-mobile-v5 .selected-work-list .preview-row,
+  body.ux-mobile-v5 .now-grid > article,
+  body.ux-mobile-v5 .project-card-home,
+  body.ux-mobile-v5 .life-tile {
+    scroll-snap-align: start;
+    border: 1px solid var(--mobile-border);
+    border-radius: var(--mobile-card-radius);
+    background: var(--mobile-surface);
+    box-shadow: var(--mobile-shadow);
+  }
+  body.ux-mobile-v5 .selected-work-list .preview-row {
+    min-height: 190px !important;
+    align-content: start;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 18px !important;
+    border-bottom: 1px solid var(--mobile-border) !important;
+  }
+  body.ux-mobile-v5 .selected-work-list .preview-row time,
+  body.ux-mobile-v5 .selected-work-list .preview-row small {
+    text-align: left !important;
+  }
+  body.ux-mobile-v5 .selected-work-list .preview-row strong {
+    font-size: clamp(20px, 5.8vw, 24px) !important;
+    line-height: 1.15 !important;
+  }
+
+  body.ux-mobile-v5 .now-grid > article {
+    min-height: 220px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  body.ux-mobile-v5 .now-grid > article span {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(21,32,25,.045);
+  }
+
+  body.ux-mobile-v5 .project-card-home {
+    min-width: 0;
+    overflow: hidden;
+  }
+  body.ux-mobile-v5 .project-card-home .project-copy {
+    padding: 18px 18px 20px;
+  }
+  body.ux-mobile-v5 .project-card-home .project-visual {
+    min-height: 200px;
+  }
+  body.ux-mobile-v5 .project-card-home .project-cta {
+    min-height: 46px;
+  }
+  body.ux-mobile-v5 .atlas-preview {
+    height: min(52svh, 420px) !important;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  body.ux-mobile-v5 .elsewhere-strip {
+    background: transparent;
+  }
+  body.ux-mobile-v5 .life-tile {
+    min-height: 250px;
+  }
+
+  /* Orbital section: visual field first, controls and copy in a calmer stack. */
+  body.ux-mobile-v5 .orbital-shell {
+    gap: 16px !important;
+  }
+  body.ux-mobile-v5 .orbital-stage {
+    border-radius: 20px;
+    border: 1px solid rgba(241,239,231,.09);
+    overflow: hidden;
+    box-shadow: 0 14px 44px rgba(7,10,9,.22);
+  }
+  body.ux-mobile-v5 .orbital-copy {
+    padding-right: var(--preview-mobile-pad) !important;
+    padding-left: var(--preview-mobile-pad) !important;
+    gap: 14px !important;
+  }
+  body.ux-mobile-v5 .orbital-copy > a {
+    align-self: flex-start;
+    padding: 0 16px;
+    border: 1px solid rgba(241,239,231,.14);
+    background: rgba(255,255,255,.05);
+    border-radius: 999px;
+  }
+  body.ux-mobile-v5 .orbital-selected {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    bottom: 12px !important;
+    border-radius: 16px;
+    padding: 12px 14px !important;
+    backdrop-filter: blur(12px);
+  }
+  body.ux-mobile-v5 .orbital-status,
+  body.ux-mobile-v5 .orbital-datum {
+    top: 12px !important;
+    left: 12px !important;
+    right: auto !important;
+    border-radius: 999px;
+    padding: 8px 10px !important;
+  }
+  body.ux-mobile-v5 .orbital-datum { top: 52px !important; }
+  body.ux-mobile-v5 .orbital-source {
+    margin-top: -4px;
+    padding: 0 var(--preview-mobile-pad);
+    line-height: 1.5;
+  }
+
+  /* Home Commons becomes a structured dashboard. */
+  body.ux-mobile-v5 .home-commons-head,
+  body.ux-mobile-v5 .commons-summary,
+  body.ux-mobile-v5 .commons-workspace,
+  body.ux-mobile-v5 .commons-participate,
+  body.ux-mobile-v5 .commons-inspector,
+  body.ux-mobile-v5 .commons-temporal-panel,
+  body.ux-mobile-v5 .atlas-foot,
+  body.ux-mobile-v5 .wechat-archive-portal,
+  body.ux-mobile-v5 .record-conditions,
+  body.ux-mobile-v5 .record-detail {
+    border-radius: 18px;
+  }
+  body.ux-mobile-v5 .home-commons-head,
+  body.ux-mobile-v5 .commons-summary,
+  body.ux-mobile-v5 .commons-workspace,
+  body.ux-mobile-v5 .wechat-archive-portal {
+    border: 1px solid var(--mobile-border);
+    background: var(--mobile-surface-strong);
+    box-shadow: var(--mobile-shadow);
+  }
+  body.ux-mobile-v5 .home-commons-head {
+    padding: 18px;
+    gap: 18px !important;
+  }
+  body.ux-mobile-v5 .home-commons-metrics {
+    gap: 10px !important;
+  }
+  body.ux-mobile-v5 .home-commons-metrics > div,
+  body.ux-mobile-v5 .commons-metrics article {
+    border: 1px solid rgba(21,32,25,.08);
+    border-radius: 14px;
+    padding: 14px 12px;
+    background: rgba(255,255,255,.45);
+  }
+  body.ux-mobile-v5 .home-commons-toolbar,
+  body.ux-mobile-v5 .commons-toolbar {
+    padding: 0;
+    gap: 14px !important;
+  }
+  body.ux-mobile-v5 .home-commons-map-mount,
+  body.ux-mobile-v5 .commons-map-frame {
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  body.ux-mobile-v5 .commons-workspace {
+    margin-top: 20px !important;
+    padding: 16px;
+  }
+  body.ux-mobile-v5 .commons-map-layout,
+  body.ux-mobile-v5 .commons-side-stack {
+    gap: 16px !important;
+  }
+  body.ux-mobile-v5 .commons-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  body.ux-mobile-v5 .commons-actions button,
+  body.ux-mobile-v5 .commons-form-foot button {
+    min-height: 48px;
+  }
+  body.ux-mobile-v5 .commons-form-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  /* Inner-page headers and controls: more legible, less compressed. */
+  body.ux-mobile-v5 .page-title {
+    gap: 16px !important;
+    padding-bottom: 26px !important;
+  }
+  body.ux-mobile-v5 .page-title h1 {
+    font-size: clamp(36px, 11.8vw, 54px) !important;
+    line-height: .94 !important;
+    margin-top: 14px !important;
+  }
+  body.ux-mobile-v5 .page-title .page-intro {
+    max-width: none !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    color: var(--soft);
+  }
+
+  body.ux-mobile-v5 .archive-filters,
+  body.ux-mobile-v5 .projections,
+  body.ux-mobile-v5 .commons-layer-controls,
+  body.ux-mobile-v5 .commons-time-modes,
+  body.ux-mobile-v5 .commons-time-reference,
+  body.ux-mobile-v5 .commons-horizon {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.ux-mobile-v5 .archive-filters::-webkit-scrollbar,
+  body.ux-mobile-v5 .projections::-webkit-scrollbar,
+  body.ux-mobile-v5 .commons-layer-controls::-webkit-scrollbar,
+  body.ux-mobile-v5 .commons-time-modes::-webkit-scrollbar,
+  body.ux-mobile-v5 .commons-time-reference::-webkit-scrollbar,
+  body.ux-mobile-v5 .commons-horizon::-webkit-scrollbar { display: none; }
+  body.ux-mobile-v5 .archive-filters button,
+  body.ux-mobile-v5 .projections button,
+  body.ux-mobile-v5 .commons-layer-controls button,
+  body.ux-mobile-v5 .commons-time-modes button,
+  body.ux-mobile-v5 .commons-time-reference button,
+  body.ux-mobile-v5 .commons-horizon button {
+    flex: 0 0 auto;
+    min-height: var(--mobile-chip-h);
+    padding-inline: 14px;
+    border-radius: 999px;
+  }
+  body.ux-mobile-v5 .archive-filters {
+    position: sticky;
+    top: calc(58px + env(safe-area-inset-top));
+    z-index: 11;
+    margin: 0 -18px 22px !important;
+    padding: 10px 18px 12px !important;
+    background: linear-gradient(180deg, rgba(244,242,234,.96), rgba(244,242,234,.90));
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(21,32,25,.08);
+  }
+  body.ux-mobile-v5 .archive-series-key {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 8px !important;
+    margin-bottom: 18px;
+  }
+  body.ux-mobile-v5 .archive-series-key > span {
+    display: grid;
+    gap: 4px;
+    min-height: 74px;
+    padding: 12px;
+    border: 1px solid rgba(21,32,25,.08);
+    border-radius: 14px;
+    background: rgba(255,255,255,.5);
+  }
+  body.ux-mobile-v5 .archive-note-row,
+  body.ux-mobile-v5 .preview-list > .preview-row,
+  body.ux-mobile-v5 .lab-group-block .project-card,
+  body.ux-mobile-v5 .elsewhere-grid > a,
+  body.ux-mobile-v5 .wechat-archive-portal {
+    overflow: hidden;
+  }
+  body.ux-mobile-v5 .archive-note-row {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    margin-bottom: 12px;
+    padding: 18px !important;
+    border: 1px solid rgba(21,32,25,.08);
+    border-radius: 18px;
+    background: rgba(255,255,255,.56);
+    box-shadow: var(--mobile-shadow);
+  }
+  body.ux-mobile-v5 .archive-note-row h2 {
+    margin: 0;
+    font-size: clamp(22px, 6.2vw, 28px);
+    line-height: 1.12;
+  }
+  body.ux-mobile-v5 .archive-note-row .arrow {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(166,70,36,.08);
+  }
+  body.ux-mobile-v5 .wechat-archive-portal {
+    grid-template-columns: 1fr !important;
+    padding: 18px !important;
+    margin-top: 20px !important;
+  }
+  body.ux-mobile-v5 .wechat-archive-code {
+    justify-self: center;
+  }
+
+  /* Lab cards: one strong column, generous visual areas and clear actions. */
+  body.ux-mobile-v5 .lab-list { margin-top: 24px !important; }
+  body.ux-mobile-v5 .lab-group-block + .lab-group-block { margin-top: 28px; }
+  body.ux-mobile-v5 .lab-group-label {
+    margin-bottom: 12px;
+  }
+  body.ux-mobile-v5 .project-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  body.ux-mobile-v5 .project-card {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--mobile-shadow);
+  }
+  body.ux-mobile-v5 .project-card .project-visual {
+    min-height: 220px;
+  }
+  body.ux-mobile-v5 .project-card .project-copy {
+    padding: 18px;
+  }
+  body.ux-mobile-v5 .project-card .project-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  body.ux-mobile-v5 .project-card .project-cta,
+  body.ux-mobile-v5 .project-card .lab-enter {
+    justify-content: center;
+  }
+  body.ux-mobile-v5 .lab-principle {
+    margin-top: 28px !important;
+    padding: 18px 0 0;
+  }
+  body.ux-mobile-v5 .lab-principle p {
+    font-size: clamp(18px, 5.8vw, 24px) !important;
+    white-space: normal !important;
+  }
+
+  /* Atlas: sticky projection rail + taller field + explanatory card. */
+  body.ux-mobile-v5 .atlas-controls {
+    top: calc(58px + env(safe-area-inset-top)) !important;
+    margin: 18px calc(-1 * var(--preview-mobile-pad)) 16px !important;
+    padding: 10px var(--preview-mobile-pad) 12px !important;
+    background: linear-gradient(180deg, rgba(23,33,27,.96), rgba(23,33,27,.90));
+    backdrop-filter: blur(14px);
+  }
+  body.ux-mobile-v5 .atlas-status {
+    font-size: 10px;
+    line-height: 1.45;
+  }
+  body.ux-mobile-v5 .atlas-stage {
+    min-height: 60svh !important;
+    height: 60svh !important;
+    border-radius: 20px;
+    box-shadow: 0 16px 46px rgba(6,10,8,.20);
+  }
+  body.ux-mobile-v5 .atlas-foot {
+    margin-top: 14px;
+    padding: 16px;
+    border: 1px solid rgba(241,239,231,.08);
+    background: rgba(17,26,22,.52);
+  }
+
+  /* Record pages: stabilize reading and keep metadata readable. */
+  body.ux-mobile-v5 .record-heading {
+    padding-top: 18px !important;
+    padding-bottom: 28px !important;
+  }
+  body.ux-mobile-v5 .record-heading h1 {
+    font-size: clamp(34px, 10vw, 48px) !important;
+    line-height: 1.02 !important;
+    margin-bottom: 18px !important;
+  }
+  body.ux-mobile-v5 .record-meta {
+    gap: 10px;
+  }
+  body.ux-mobile-v5 .record-conditions,
+  body.ux-mobile-v5 .record-detail {
+    padding: 18px !important;
+    border: 1px solid rgba(21,32,25,.08);
+    background: rgba(255,255,255,.48);
+    box-shadow: var(--mobile-shadow);
+  }
+  body.ux-mobile-v5 .record-detail {
+    padding-top: 18px !important;
+  }
+
+  /* Elsewhere cards feel like touchable essays rather than dense list tiles. */
+  body.ux-mobile-v5 .elsewhere-grid {
+    margin-top: 24px !important;
+    gap: 14px !important;
+  }
+  body.ux-mobile-v5 .elsewhere-grid > a,
+  body.ux-mobile-v5 .elsewhere-grid .life-card,
+  body.ux-mobile-v5 .elsewhere-grid .life-tile {
+    border-radius: 18px;
+    border: 1px solid rgba(21,32,25,.08);
+    box-shadow: var(--mobile-shadow);
+    background: rgba(255,255,255,.58);
+  }
+
+  /* Bottom primary navigation dock: modern mobile affordance without changing the information architecture. */
+  body.ux-mobile-v5 .mobile-dock {
+    position: fixed;
+    left: max(10px, env(safe-area-inset-left));
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(10px, env(safe-area-inset-bottom));
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid rgba(21,32,25,.10);
+    border-radius: 24px;
+    background: rgba(244,242,234,.90);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 12px 36px rgba(21,32,25,.13);
+  }
+  body.ux-mobile-v5.ux-index-open .mobile-dock {
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+  }
+  body.ux-mobile-v5 .mobile-dock a {
+    min-height: 54px;
+    display: grid;
+    place-items: center;
+    gap: 4px;
+    border-radius: 18px;
+    color: var(--muted);
+    font: 650 10px/1 var(--mono);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  body.ux-mobile-v5 .mobile-dock a::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    opacity: .6;
+  }
+  body.ux-mobile-v5 .mobile-dock a[data-dock='lab']::before,
+  body.ux-mobile-v5 .mobile-dock a[data-dock='atlas']::before {
+    border-radius: 4px;
+  }
+  body.ux-mobile-v5 .mobile-dock a[data-dock='elsewhere']::before {
+    border-style: dashed;
+  }
+  body.ux-mobile-v5 .mobile-dock a.is-active {
+    color: var(--fg);
+    background: rgba(21,32,25,.06);
+  }
+  body.ux-mobile-v5 .mobile-dock a.is-active::before {
+    opacity: 1;
+    border-color: var(--signal);
+    background: rgba(166,70,36,.10);
+  }
+  body.ux-mobile-v5 .mobile-dock a span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  body.ux-mobile-v5 .mobile-dock {
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
+    gap: 4px;
+    padding: 6px;
+  }
+  body.ux-mobile-v5 .mobile-dock a {
+    min-height: 50px;
+    font-size: 9px;
+    letter-spacing: .04em;
+  }
+  body.ux-mobile-v5 .selected-work-list,
+  body.ux-mobile-v5 .now-grid,
+  body.ux-mobile-v5 .home-project-grid,
+  body.ux-mobile-v5 .elsewhere-strip {
+    grid-auto-columns: 88%;
+  }
+  body.ux-mobile-v5 .archive-series-key {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.ux-mobile-v5 .mobile-dock,
+  body.ux-mobile-v5 .site-map-node,
+  body.ux-mobile-v5 .site-nav {
+    transition: none !important;
+  }
+}
