@@ -1,0 +1,8 @@
+{
+  "homeInitialJsGzip": 71680,
+  "articleInitialJsGzip": 40960,
+  "collectionInitialJsGzip": 51200,
+  "metadataIndexGzip": 102400,
+  "sharedCssGzip": 81920,
+  "articleHtmlGzip": 153600
+}
