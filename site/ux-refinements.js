@@ -300,3 +300,121 @@
   // Ensure the mobile dock does not steal focus order before main content.
   $('.mobile-dock')?.querySelectorAll('a').forEach(a => a.tabIndex = 0);
 })();
+
+/* GeoGeek UX v5.1 — device-review corrections */
+(() => {
+  'use strict';
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const mobile = () => matchMedia('(max-width: 860px)').matches;
+
+  // Touch vocabulary: "MOVE" is a mouse instruction and reads incorrectly on phones.
+  const tuneOrbitalCue = () => {
+    if (!mobile()) return;
+    const cue = $('#orbitalInstruction');
+    if (!cue) return;
+    const spans = cue.querySelectorAll('span');
+    if (spans.length >= 3) {
+      spans[0].textContent = document.documentElement.lang === 'zh-CN' ? '轻触' : 'TAP';
+      spans[1].textContent = document.documentElement.lang === 'zh-CN' ? '选择' : 'SELECT';
+      spans[2].textContent = document.documentElement.lang === 'zh-CN' ? '轨迹' : 'TRACE';
+    }
+  };
+
+  // Auto-hide bottom dock while reading down; restore on upward intent or near page end.
+  let lastY = Math.max(0, scrollY);
+  let ticking = false;
+  const syncDock = () => {
+    ticking = false;
+    if (!mobile() || !document.body.classList.contains('ux-mobile-v5')) {
+      document.body.classList.remove('ux-dock-hidden');
+      lastY = Math.max(0, scrollY);
+      return;
+    }
+    const y = Math.max(0, scrollY);
+    const delta = y - lastY;
+    const nearTop = y < 96;
+    const nearBottom = y + innerHeight >= document.documentElement.scrollHeight - 120;
+    const indexOpen = document.body.classList.contains('ux-index-open') || document.body.classList.contains('site-map-open');
+    if (indexOpen || nearTop || nearBottom || delta < -7) {
+      document.body.classList.remove('ux-dock-hidden');
+    } else if (delta > 8 && y > 140) {
+      document.body.classList.add('ux-dock-hidden');
+    }
+    lastY = y;
+  };
+  addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(syncDock);
+  }, { passive: true });
+
+  // Site Index is a navigation surface on phones, so keep the body state synchronized
+  // even if the dialog implementation toggles classes asynchronously.
+  const syncSiteMapState = () => {
+    const dialog = $('#siteMap');
+    if (!dialog) return;
+    const open = dialog.open || dialog.hasAttribute('open');
+    document.body.classList.toggle('site-map-open', open);
+    if (open) document.body.classList.remove('ux-dock-hidden');
+  };
+
+  const observer = new MutationObserver(() => {
+    tuneOrbitalCue();
+    syncSiteMapState();
+  });
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['open'] });
+
+  tuneOrbitalCue();
+  syncDock();
+  syncSiteMapState();
+  addEventListener('resize', () => requestAnimationFrame(() => {
+    tuneOrbitalCue();
+    syncDock();
+    syncSiteMapState();
+  }), { passive: true });
+})();
+
+/* GeoGeek UX v5.2 — autonomous review behavior */
+(() => {
+  'use strict';
+  const mobile = () => matchMedia('(max-width: 860px)').matches;
+
+  // When Site Index opens, center its active information-scale step. This keeps the
+  // rail legible without forcing five compressed labels into one phone width.
+  const centerActiveScale = () => {
+    if (!mobile()) return;
+    const map = document.querySelector('#siteMap');
+    if (!map || !(map.open || map.hasAttribute('open'))) return;
+    const rail = map.querySelector('.map-scale');
+    const active = rail?.querySelector('.is-active');
+    if (!rail || !active) return;
+    requestAnimationFrame(() => {
+      try { active.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' }); }
+      catch { rail.scrollLeft = Math.max(0, active.offsetLeft - (rail.clientWidth - active.clientWidth) / 2); }
+    });
+  };
+
+  const observer = new MutationObserver(centerActiveScale);
+  observer.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open','class'] });
+  centerActiveScale();
+})();
+
+/* v5.2 final content-order pass */
+(() => {
+  'use strict';
+  const mq = matchMedia('(max-width: 860px)');
+  const portal = document.querySelector('.wechat-archive-portal.archive-channel');
+  const list = document.querySelector('#noteList');
+  if (!portal || !list) return;
+  const marker = document.createComment('wechat-archive-origin');
+  portal.parentNode?.insertBefore(marker, portal);
+  const sync = () => {
+    if (mq.matches) {
+      if (list.nextElementSibling !== portal) list.insertAdjacentElement('afterend', portal);
+    } else if (marker.parentNode && marker.nextSibling !== portal) {
+      marker.parentNode.insertBefore(portal, marker.nextSibling);
+    }
+  };
+  sync();
+  mq.addEventListener?.('change', sync);
+})();

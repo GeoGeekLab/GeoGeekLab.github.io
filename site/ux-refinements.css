@@ -1208,3 +1208,609 @@ body.ux-data-saver canvas { image-rendering: auto; }
     transition: none !important;
   }
 }
+
+/* =========================================================
+   GeoGeek UX v5.1 — mobile correction pass from device review
+   ========================================================= */
+@media (max-width: 860px) {
+  /* The floating information scale competes with browser chrome + dock on phones.
+     Keep the concept inside Site Index; remove the persistent overlay. */
+  body.ux-mobile-v5 .scale-ui { display: none !important; }
+
+  /* Keep header legible when the orbital section switches the desktop chrome dark. */
+  body.ux-mobile-v5.orbital-active .site-nav {
+    color: var(--fg) !important;
+    border-bottom-color: rgba(21,32,25,.08) !important;
+    background: rgba(244,242,234,.94) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+  }
+  body.ux-mobile-v5.orbital-active .brand { color: var(--fg) !important; }
+  body.ux-mobile-v5.orbital-active .brand-mark { border-color: var(--muted) !important; }
+  body.ux-mobile-v5.orbital-active .brand-mark::before,
+  body.ux-mobile-v5.orbital-active .brand-mark::after { background: var(--muted) !important; }
+  body.ux-mobile-v5.orbital-active .nav-toggle {
+    color: var(--fg) !important;
+    border-color: rgba(21,32,25,.09) !important;
+    background: rgba(21,32,25,.045) !important;
+  }
+
+  /* Hero now reveals the beginning of content on a normal phone viewport. */
+  body.ux-mobile-v5 .hero.hero-centered {
+    min-height: clamp(510px, 70svh, 650px) !important;
+  }
+  body.ux-mobile-v5 .hero-copy {
+    padding: 24px 16px 22px !important;
+  }
+  body.ux-mobile-v5 .hero .display {
+    font-size: clamp(54px, 17.2vw, 78px) !important;
+  }
+
+  /* Selected records remain a swipe shelf, but with a stronger first-card proportion. */
+  body.ux-mobile-v5 .selected-work-list {
+    grid-template-columns: none !important;
+    grid-auto-columns: min(88vw, 350px) !important;
+    scroll-padding-inline: 0;
+  }
+  body.ux-mobile-v5 .selected-work-list .preview-row {
+    min-height: 210px !important;
+    background: rgba(248,246,239,.96) !important;
+  }
+  body.ux-mobile-v5 .selected-work-list .preview-row strong {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+  }
+
+  /* Current Coordinates is explanatory content, not a carousel. Stack it cleanly. */
+  body.ux-mobile-v5 .now-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-auto-flow: row !important;
+    grid-auto-columns: auto !important;
+    gap: 10px !important;
+    overflow: visible !important;
+    scroll-snap-type: none !important;
+    border: 0 !important;
+  }
+  body.ux-mobile-v5 .now-grid > article,
+  body.ux-mobile-v5 .now-grid > article + article {
+    min-height: 0 !important;
+    padding: 17px 17px 18px !important;
+    border: 1px solid var(--mobile-border) !important;
+    border-radius: 16px !important;
+    background: rgba(248,246,239,.94) !important;
+    box-shadow: 0 6px 22px rgba(21,32,25,.055) !important;
+  }
+  body.ux-mobile-v5 .now-grid > article h3 {
+    margin: 36px 0 10px !important;
+    font-size: clamp(25px, 7.2vw, 31px) !important;
+    line-height: 1.02 !important;
+  }
+  body.ux-mobile-v5 .now-grid > article p {
+    max-width: 34em;
+    font-size: 15px !important;
+    line-height: 1.62 !important;
+  }
+
+  /* Orbital field: reduce viewport dominance and separate HUD zones. */
+  body.ux-mobile-v5 .orbital-stage {
+    min-height: clamp(390px, 50svh, 480px) !important;
+    height: clamp(390px, 50svh, 480px) !important;
+    max-height: 480px !important;
+  }
+  body.ux-mobile-v5 .orbital-instruction {
+    left: 12px !important;
+    top: 90px !important;
+    bottom: auto !important;
+    transform: none !important;
+    min-height: 34px !important;
+    max-width: calc(100% - 24px) !important;
+    border-radius: 999px;
+  }
+  body.ux-mobile-v5 .orbital-instruction.is-dismissed {
+    transform: translateY(-5px) !important;
+  }
+  body.ux-mobile-v5 .orbital-selected {
+    bottom: 12px !important;
+    padding: 11px 13px !important;
+  }
+  body.ux-mobile-v5 .orbital-selected strong {
+    font-size: clamp(20px, 6vw, 27px) !important;
+    line-height: 1.02 !important;
+  }
+  body.ux-mobile-v5 .orbital-copy {
+    padding-top: 20px !important;
+    padding-bottom: 18px !important;
+  }
+  body.ux-mobile-v5 .orbital-copy h2 {
+    font-size: clamp(31px, 9vw, 40px) !important;
+    line-height: 1.01 !important;
+  }
+  body.ux-mobile-v5 .orbital-source {
+    padding-bottom: 14px !important;
+  }
+
+  /* Commons home controls no longer need to make room for the removed floating scale. */
+  body.ux-mobile-v5 .home-commons {
+    padding-bottom: 32px !important;
+  }
+  body.ux-mobile-v5 .home-commons-horizon {
+    gap: 6px !important;
+  }
+
+  /* Elsewhere page: explicit vertical card stack. The previous flexible grid could collapse
+     the text column on narrow Android widths. */
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-auto-flow: row !important;
+    grid-auto-columns: auto !important;
+    width: 100% !important;
+    gap: 14px !important;
+    overflow: visible !important;
+  }
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 14px !important;
+    border: 1px solid rgba(21,32,25,.09) !important;
+    border-radius: 18px !important;
+    background: rgba(248,246,239,.94) !important;
+    box-shadow: 0 7px 24px rgba(21,32,25,.06) !important;
+  }
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card .visual {
+    width: 100% !important;
+    height: clamp(190px, 42svh, 300px) !important;
+    margin: 0 0 16px !important;
+    border-radius: 12px;
+  }
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card > div:last-child {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card h2 {
+    margin: 10px 0 12px !important;
+    max-width: 14ch;
+    font-size: clamp(30px, 9.5vw, 42px) !important;
+    line-height: 1.02 !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    writing-mode: horizontal-tb !important;
+  }
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card p {
+    max-width: 38em;
+    writing-mode: horizontal-tb !important;
+  }
+
+  /* Site Index: transform the spatial plot into a mobile list-map.
+     Desktop keeps the cartographic graph; phones prioritize navigation and legibility. */
+  body.ux-mobile-v5 .site-map .spatial-browser-shell {
+    display: block !important;
+    min-height: 100dvh !important;
+    padding: max(14px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom)) !important;
+    overflow: visible !important;
+  }
+  body.ux-mobile-v5 .site-map .spatial-browser-head {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto !important;
+    gap: 10px 12px !important;
+    padding: 6px 0 14px !important;
+    background: rgba(13,20,16,.97) !important;
+  }
+  body.ux-mobile-v5 .site-map .spatial-browser-head > div:first-child { min-width: 0; }
+  body.ux-mobile-v5 .site-map .spatial-browser-head h2 {
+    margin-top: 5px !important;
+    font-size: clamp(34px, 10vw, 44px) !important;
+    color: #f0eee7 !important;
+  }
+  body.ux-mobile-v5 .site-map .site-map-modes {
+    grid-column: 1 / -1;
+    order: 3;
+    width: 100%;
+    margin: 0 !important;
+  }
+  body.ux-mobile-v5 .site-map .site-map-close {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  body.ux-mobile-v5 .site-map .spatial-browser-bar {
+    display: grid !important;
+    gap: 10px !important;
+    padding: 12px 0 !important;
+  }
+  body.ux-mobile-v5 .site-map .site-map-route strong {
+    max-width: 100% !important;
+    white-space: normal !important;
+  }
+  body.ux-mobile-v5 .site-map .map-scale {
+    display: grid !important;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(112px, 1fr);
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 12px;
+    scrollbar-width: none;
+  }
+  body.ux-mobile-v5 .site-map .map-scale::-webkit-scrollbar { display: none; }
+  body.ux-mobile-v5 .site-map .map-scale button {
+    min-width: 112px !important;
+    min-height: 48px !important;
+  }
+  body.ux-mobile-v5 .site-map .spatial-browser-body {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  body.ux-mobile-v5 .site-map .site-map-viewport {
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: 0 !important;
+  }
+  body.ux-mobile-v5 .site-map .spatial-map-field {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 8px 0 !important;
+    overflow: visible !important;
+    background: none !important;
+  }
+  body.ux-mobile-v5 .site-map .spatial-map-field svg,
+  body.ux-mobile-v5 .site-map .site-map-origin-mark { display: none !important; }
+  body.ux-mobile-v5 .site-map .site-map-nodes {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+  }
+  body.ux-mobile-v5 .site-map .site-map-node,
+  body.ux-mobile-v5 .site-map .site-map-node.is-right-edge {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    max-width: none !important;
+    width: 100% !important;
+    min-height: 58px !important;
+    display: grid !important;
+    grid-template-columns: 18px 42px minmax(0,1fr) !important;
+    grid-template-rows: 1fr !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 8px 12px !important;
+    text-align: left !important;
+    border: 1px solid rgba(241,239,231,.09) !important;
+    border-radius: 14px !important;
+    background: rgba(241,239,231,.025) !important;
+  }
+  body.ux-mobile-v5 .site-map .site-map-node i,
+  body.ux-mobile-v5 .site-map .site-map-node.is-right-edge i {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    align-self: center !important;
+  }
+  body.ux-mobile-v5 .site-map .site-map-node span,
+  body.ux-mobile-v5 .site-map .site-map-node.is-right-edge span {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    color: #7f8d83 !important;
+  }
+  body.ux-mobile-v5 .site-map .site-map-node strong,
+  body.ux-mobile-v5 .site-map .site-map-node.is-record strong,
+  body.ux-mobile-v5 .site-map .site-map-node.is-right-edge strong {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    color: #d9dfda !important;
+    font-size: 14px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+  body.ux-mobile-v5 .site-map .site-map-node.is-current,
+  body.ux-mobile-v5 .site-map .site-map-node.is-selected {
+    border-color: rgba(209,99,57,.44) !important;
+    background: rgba(166,70,36,.10) !important;
+  }
+  body.ux-mobile-v5 .site-map .map-inspector {
+    position: relative !important;
+    bottom: auto !important;
+    max-height: none !important;
+    padding: 16px !important;
+    border-radius: 16px;
+    background: rgba(18,27,22,.82) !important;
+  }
+  body.ux-mobile-v5 .site-map .map-inspector h3 {
+    font-size: clamp(26px, 8vw, 36px) !important;
+  }
+  body.ux-mobile-v5 .site-map .map-structure-list {
+    max-height: 42svh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  body.ux-mobile-v5 .site-map .spatial-browser-foot {
+    padding: 14px 0 0 !important;
+    align-items: flex-end !important;
+  }
+  body.ux-mobile-v5 .site-map .spatial-browser-foot > span {
+    max-width: calc(100% - 62px) !important;
+  }
+
+  /* Bottom dock: reduce browser-chrome competition and auto-hide while reading downward. */
+  body.ux-mobile-v5 .mobile-dock {
+    min-height: 0;
+    padding: 5px !important;
+    border-radius: 21px !important;
+    transition: opacity .20s ease, transform .24s cubic-bezier(.2,.8,.2,1) !important;
+  }
+  body.ux-mobile-v5 .mobile-dock a {
+    min-height: 48px !important;
+    border-radius: 16px !important;
+  }
+  body.ux-mobile-v5 .mobile-dock a::before {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  body.ux-mobile-v5.ux-dock-hidden .mobile-dock,
+  body.ux-mobile-v5.site-map-open .mobile-dock {
+    opacity: 0 !important;
+    transform: translateY(calc(100% + 22px)) !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 430px) {
+  body.ux-mobile-v5 .selected-work-list { grid-auto-columns: 86vw !important; }
+  body.ux-mobile-v5 .archive-series-key { grid-template-columns: 1fr !important; }
+  body.ux-mobile-v5 .project-card .project-actions { grid-template-columns: 1fr !important; }
+}
+
+/* =========================================================
+   GeoGeek UX v5.2 — autonomous mobile review corrections
+   ========================================================= */
+@media (max-width: 860px) {
+  /* Field Notes: category statistics are useful context, but should not consume the
+     first screen. Turn them into a compact swipe rail. */
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: minmax(142px, 42vw) !important;
+    grid-template-columns: none !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 0 0 18px !important;
+    padding: 0 24px 2px 0 !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0 18px;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
+  }
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key::-webkit-scrollbar { display: none; }
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key > span {
+    scroll-snap-align: start;
+    min-height: 64px !important;
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    align-content: center;
+  }
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key > span b {
+    font-size: 11px !important;
+  }
+
+  /* Filter rail: explicit swipe affordance without truncating text into the viewport edge. */
+  body.ux-mobile-v5.ux-page-field-notes .archive-filters {
+    padding-right: 40px !important;
+    scroll-padding-right: 40px;
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
+  }
+
+  /* Atlas: mobile maps need decluttering. Keep the graph, reveal labels on selection. */
+  body.ux-mobile-v5.ux-page-atlas .atlas-node-label:not(.is-selected) {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+  body.ux-mobile-v5.ux-page-atlas .atlas-node-label.is-selected {
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-width: min(180px, 56vw) !important;
+    color: #eef1ee !important;
+    background: rgba(11,17,14,.94) !important;
+    box-shadow: 0 7px 24px rgba(0,0,0,.22);
+  }
+  body.ux-mobile-v5.ux-page-atlas .projections {
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 18px 46px;
+    padding-right: 46px !important;
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
+  }
+  body.ux-mobile-v5.ux-page-atlas .projections button {
+    scroll-snap-align: start;
+  }
+
+  /* Commons: do not hide key controls behind horizontal clipping. Mobile dashboard
+     controls are small enough to use deterministic grids. */
+  body.ux-mobile-v5.ux-page-commons .commons-summary {
+    overflow: hidden;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    width: 100% !important;
+    overflow: visible !important;
+    gap: 8px !important;
+    padding: 8px 0 0 !important;
+    border-bottom: 0 !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-metrics article,
+  body.ux-mobile-v5.ux-page-commons .commons-metrics article + article {
+    min-width: 0 !important;
+    flex: none !important;
+    padding: 11px 12px 12px !important;
+    border: 1px solid rgba(21,32,25,.08) !important;
+    border-radius: 13px !important;
+    background: rgba(255,255,255,.46) !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-metrics article:last-child {
+    grid-column: 1 / -1;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-metrics strong {
+    font-size: 22px !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-toolbar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-layer-controls {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-time-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-horizon {
+    display: grid !important;
+    grid-template-columns: repeat(4,minmax(0,1fr)) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    max-width: none !important;
+    overflow: visible !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-layer-controls button,
+  body.ux-mobile-v5.ux-page-commons .commons-horizon button {
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    padding-inline: 7px !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-temporal-panel {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+    padding: 9px !important;
+    overflow: visible !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-time-modes {
+    display: grid !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    gap: 5px !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-time-reference {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 5px !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-time-modes button,
+  body.ux-mobile-v5.ux-page-commons .commons-time-reference button {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding-inline: 5px !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-map-frame {
+    min-height: 300px !important;
+    border-radius: 16px !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-map-legend {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 34px !important;
+    max-width: none !important;
+    gap: 5px 10px !important;
+    justify-content: flex-start !important;
+  }
+  body.ux-mobile-v5.ux-page-commons .commons-map-source {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    max-width: none !important;
+    font-size: 9px !important;
+  }
+
+  /* Site Index scale is a navigable rail. Keep full labels and center the active one. */
+  body.ux-mobile-v5 .site-map .map-scale {
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0 30px;
+    padding-right: 28px;
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
+  }
+  body.ux-mobile-v5 .site-map .map-scale button {
+    scroll-snap-align: center;
+  }
+
+  /* Elsewhere: visual blocks should support the story, not dominate a phone screen. */
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card .visual {
+    height: clamp(160px, 32svh, 240px) !important;
+  }
+
+  /* Record reading: slightly narrower title measure and more breathing room before metadata. */
+  body.ux-mobile-v5.ux-page-record .record-heading h1 {
+    max-width: 11.5ch !important;
+    text-wrap: balance;
+  }
+  body.ux-mobile-v5.ux-page-record .record-deck {
+    max-width: 31em !important;
+  }
+}
+
+@media (max-width: 430px) {
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key {
+    grid-template-columns: none !important;
+    grid-auto-columns: minmax(140px, 46vw) !important;
+  }
+}
+
+/* v5.2 final visual pass */
+@media (max-width: 860px) {
+  /* Atlas field guide labels are context, not primary content on phones. */
+  body.ux-mobile-v5.ux-page-atlas .atlas-stage[data-mode="field"] .atlas-guide {
+    max-width: 84px;
+    color: rgba(190,201,193,.58) !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    letter-spacing: .04em !important;
+    text-align: center;
+    white-space: normal;
+    transform: translate(-50%,-50%) scale(.92) !important;
+  }
+
+  /* Keep the archive channel as a secondary destination after the actual notes on mobile. */
+  body.ux-mobile-v5.ux-page-field-notes .wechat-archive-portal.archive-channel {
+    margin-top: 28px !important;
+  }
+}
+
+@media (max-width: 860px) {
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .page-title { order: 0; }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .archive-filters { order: 1; }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .archive-series-key { order: 2; }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > #noteList { order: 3; }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .wechat-archive-portal.archive-channel { order: 4; }
+}
