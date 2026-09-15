@@ -132,7 +132,10 @@
       setAll('.hero-lexicon span', ui.hero?.lexicon || []);
       setText('.hero-origin-entry a', ui.hero?.origin);
       const heroOrigin = $('.hero-origin-entry a');
-      if (heroOrigin && ui.hero?.originAria) heroOrigin.setAttribute('aria-label', ui.hero.originAria);
+      if (heroOrigin) {
+        heroOrigin.href = locale === 'zh' ? '/origin/' : '/origin/en/';
+        if (ui.hero?.originAria) heroOrigin.setAttribute('aria-label', ui.hero.originAria);
+      }
       setText('.hero-edge-right', ui.hero?.right);
 
       const orbital = ui.orbitalThreshold || {};
