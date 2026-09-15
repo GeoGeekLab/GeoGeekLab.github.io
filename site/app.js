@@ -130,7 +130,9 @@
       setText('.hero-eyebrow', ui.hero?.eyebrow);
       setText('.hero-tagline', ui.hero?.tagline);
       setAll('.hero-lexicon span', ui.hero?.lexicon || []);
-      setText('.hero-edge-left', ui.hero?.left);
+      setText('.hero-origin-entry a', ui.hero?.origin);
+      const heroOrigin = $('.hero-origin-entry a');
+      if (heroOrigin && ui.hero?.originAria) heroOrigin.setAttribute('aria-label', ui.hero.originAria);
       setText('.hero-edge-right', ui.hero?.right);
 
       const orbital = ui.orbitalThreshold || {};

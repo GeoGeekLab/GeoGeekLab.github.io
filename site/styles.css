@@ -141,6 +141,9 @@ body.origin-active .scale-ui:hover, body.origin-active .scale-ui:focus-within { 
 .hero-tagline { margin: 46px 0 0; color: #202b24; font-family: var(--serif); font-style: italic; font-size: clamp(30px,4.1vw,68px); line-height: 1; letter-spacing: -.045em; white-space: nowrap; }
 .hero-lexicon { margin: 30px auto 0; display: flex; align-items: center; justify-content: center; gap: 13px; color: #6a756d; font: 600 12px/1 var(--mono); letter-spacing: .08em; }
 .hero-lexicon i { display: block; width: 18px; height: 1px; background: rgba(21,32,25,.22); }
+.hero-origin-entry { margin-top: 10px; text-align: center; }
+.hero-origin-entry a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; color: var(--muted); font: 650 11px/1 var(--mono); letter-spacing: .09em; text-decoration: none; transition: color .2s var(--ease), transform .25s var(--ease); }
+.hero-origin-entry a:hover, .hero-origin-entry a:focus-visible { color: var(--signal); transform: translateY(-1px); }
 .hero-edge { position: absolute; z-index: 3; bottom: 28px; color: #677169; font: 600 11px/1 var(--mono); letter-spacing: .055em; }
 .hero-edge-left { left: var(--pad); }
 .hero-edge-right { right: var(--pad); }
@@ -443,6 +446,8 @@ html[lang="zh-CN"] .flow-caption strong { font-style: normal; letter-spacing: .0
   .hero-tagline { margin-top: 34px; font-size: clamp(25px,7vw,34px); white-space: normal; }
   .hero-lexicon { max-width: 320px; flex-wrap: wrap; gap: 8px; font-size: 11px; }
   .hero-lexicon i { width: 11px; }
+  .hero-origin-entry { margin-top: 6px; }
+  .hero-origin-entry a { font-size: 10px; letter-spacing: .07em; }
   .hero-edge { bottom: 22px; font-size: 11px; }
   .hero-edge-left { left: 18px; }
   .hero-edge-right { right: 18px; }
