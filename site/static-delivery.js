@@ -33,31 +33,43 @@
     const pathname = location.pathname.replace(/\/+$/, '') || '/';
 
     const nav = document.querySelector('#primaryNav');
-    if (nav && !nav.querySelector('a[href="earth.html"], a[href="/earth.html"]')) {
-      const link = document.createElement('a');
-      link.href = '/earth.html';
+    if (nav) {
+      let link = nav.querySelector('a[href="earth.html"], a[href="/earth.html"]');
+      if (!link) {
+        link = document.createElement('a');
+        link.href = '/earth.html';
+        const lab = nav.querySelector('a[href="lab.html"], a[href="/lab.html"]');
+        if (lab) lab.insertAdjacentElement('afterend', link);
+        else nav.appendChild(link);
+      }
       link.textContent = earthLabel;
       if (pathname.endsWith('/earth.html')) link.setAttribute('aria-current', 'page');
-      const lab = nav.querySelector('a[href="lab.html"], a[href="/lab.html"]');
-      if (lab) lab.insertAdjacentElement('afterend', link);
-      else nav.appendChild(link);
     }
 
     const index = document.querySelector('#sheetIndex.sheet-index-global');
-    if (index && !index.querySelector('a[href="earth.html"], a[href="/earth.html"]')) {
-      const link = document.createElement('a');
-      link.href = '/earth.html';
-      link.innerHTML = `<span>03</span><b>${earthLabel}</b>`;
+    if (index) {
+      let link = index.querySelector('a[href="earth.html"], a[href="/earth.html"]');
+      let inserted = false;
+      if (!link) {
+        link = document.createElement('a');
+        link.href = '/earth.html';
+        link.innerHTML = `<span>03</span><b>${earthLabel}</b>`;
+        const lab = index.querySelector('a[href="lab.html"], a[href="/lab.html"]');
+        if (lab) lab.insertAdjacentElement('afterend', link);
+        else index.insertBefore(link, index.querySelector('.sheet-index-foot'));
+        inserted = true;
+      }
+      const label = link.querySelector('b');
+      if (label) label.textContent = earthLabel;
       if (pathname.endsWith('/earth.html')) link.setAttribute('aria-current', 'page');
-      const lab = index.querySelector('a[href="lab.html"], a[href="/lab.html"]');
-      if (lab) lab.insertAdjacentElement('afterend', link);
-      else index.insertBefore(link, index.querySelector('.sheet-index-foot'));
 
-      const ordered = [...index.querySelectorAll(':scope > a')];
-      ordered.forEach((item, i) => {
-        const number = item.querySelector('span');
-        if (number) number.textContent = String(i).padStart(2, '0');
-      });
+      if (inserted) {
+        const ordered = [...index.querySelectorAll(':scope > a')];
+        ordered.forEach((item, i) => {
+          const number = item.querySelector('span');
+          if (number && /^\d{2}$/.test(number.textContent || '')) number.textContent = String(i).padStart(2, '0');
+        });
+      }
     }
   };
 
