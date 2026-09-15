@@ -1,0 +1,1059 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#050505" />
+<meta name="color-scheme" content="dark" />
+<link rel="canonical" href="https://geogeeklab.github.io/origin/" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<title>GeoGeek Origin — 人与宇宙：从星尘到道</title>
+<meta name="description" content="人与宇宙：从星尘到道——一则关于来处、看见、自然与归途的交互叙事" />
+<meta property="og:title" content="人与宇宙：从星尘到道" />
+<meta property="og:description" content="一则关于来处、看见、自然与归途的交互叙事" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://geogeeklab.github.io/origin/" />
+<style>
+:root{
+  --bg:#050505;
+  --fg:#f2f0e9;
+  --soft:rgba(242,240,233,.86);
+  --muted:rgba(242,240,233,.70);
+  --faint:rgba(242,240,233,.16);
+  --line:rgba(242,240,233,.14);
+  --ease:cubic-bezier(.2,.72,.18,1);
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:auto}
+body{--ending:0;--ending-fade:1;--ending-text:1;--grain-opacity:.027;margin:0;background:var(--bg);color:var(--fg);font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;overflow-x:hidden}
+::selection{background:var(--fg);color:var(--bg)}
+button{font:inherit;color:inherit}
+
+/* persistent world */
+#cosmos{position:fixed;inset:0;z-index:0;width:100%;height:100%;pointer-events:none}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 48%,transparent 0,transparent 42%,rgba(0,0,0,.16) 69%,rgba(0,0,0,.64) 100%)}
+.grain{position:fixed;inset:-40%;z-index:2;pointer-events:none;opacity:.027;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitchTiles'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");animation:grain 10s steps(7) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(2.2%,-1.6%)}50%{transform:translate(-1.5%,2%)}75%{transform:translate(1.8%,1.1%)}100%{transform:translate(0,0)}}
+
+/* chrome */
+.brand{text-decoration:none;position:fixed;z-index:30;left:28px;top:24px;font:650 13px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;color:var(--fg);text-shadow:0 1px 12px #000}
+.brand span{color:var(--muted);font-weight:450;margin-left:8px}
+.count{position:fixed;z-index:30;right:28px;top:24px;font:650 12px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.13em;color:var(--muted);text-shadow:0 1px 12px #000}
+.count b{color:var(--fg);font-weight:650}
+.rail{position:fixed;z-index:30;right:31px;top:50%;width:1px;height:190px;transform:translateY(-50%);background:var(--line);overflow:hidden}
+.rail i{position:absolute;inset:0;background:var(--fg);transform:scaleY(0);transform-origin:top;will-change:transform}
+.hint{position:fixed;z-index:30;left:28px;bottom:24px;font:650 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.11em;color:var(--muted);text-transform:uppercase;text-shadow:0 1px 12px #000;transition:opacity .35s ease}
+.hint::after{content:"↓";color:var(--fg);margin-left:10px}
+.sound{position:fixed;z-index:31;right:53px;bottom:19px;min-width:42px;min-height:42px;border:0;background:transparent;padding:0;cursor:pointer;font:650 12px/42px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:var(--muted);text-shadow:0 1px 12px #000}
+.sound::before{content:"";position:absolute;left:50%;bottom:8px;width:23px;height:1px;background:var(--line);transform:translateX(-50%)}
+.sound[aria-pressed="true"]{color:var(--fg)}
+.sound[aria-pressed="true"]::before{background:var(--fg)}
+.sound:focus-visible,.dots button:focus-visible,.touchpoint:focus-visible{outline:1px solid rgba(255,255,255,.72);outline-offset:3px}
+
+/* continuous chapters */
+main{position:relative;z-index:4}
+.scene{position:relative;min-height:132svh;padding:11vh max(28px,7vw)}
+.scene.signature{min-height:176svh}
+.scene.final{min-height:176svh}
+.copy{position:sticky;top:50vh;transform:translate3d(0,calc(-50% + var(--drift,0px)),0);width:min(860px,78vw);opacity:1;filter:none;will-change:transform;pointer-events:none;text-shadow:0 1px 16px rgba(0,0,0,.86)}
+.scene[data-side="right"] .copy{margin-left:auto;text-align:right}
+.scene[data-side="right"] .kicker,.scene[data-side="right"] .quote{margin-left:auto}
+.scene[data-side="center"] .copy{margin-inline:auto;text-align:center;width:min(980px,84vw)}
+.scene[data-side="center"] .kicker,.scene[data-side="center"] .quote{margin-inline:auto}
+.scene[data-vpos="high"] .copy{top:35vh}
+.scene[data-vpos="low"] .copy{top:66vh}
+.scene.cover .copy{width:min(1100px,88vw)}
+
+/* readability */
+.eyebrow{font:650 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:26px}
+h1,h2,p,blockquote{margin:0}
+h1,h2{font-family:"Songti SC","STSong","Noto Serif SC",serif;font-weight:400;letter-spacing:-.055em;line-height:.96;text-wrap:balance}
+h1{font-size:clamp(68px,10.4vw,162px)}
+h2{font-size:clamp(53px,7.9vw,118px)}
+.kicker{margin-top:26px;font-size:clamp(17px,1.45vw,22px);line-height:1.82;letter-spacing:.015em;color:var(--soft);max-width:700px;text-wrap:pretty}
+.quote{margin-top:34px;font-family:"Songti SC","STSong","Noto Serif SC",serif;font-size:clamp(19px,1.6vw,25px);line-height:1.72;color:rgba(242,240,233,.92);max-width:760px}
+.source{display:block;margin-top:12px;font:650 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:var(--muted)}
+.micro{margin-top:34px;font:650 12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.cover .deck{margin-top:30px;font-family:"Songti SC","STSong",serif;font-size:clamp(18px,1.7vw,26px);line-height:1.7;color:var(--soft);letter-spacing:.05em}
+.cover .deck strong{color:var(--fg);font-weight:400}
+.cover .seal{display:inline-flex;align-items:center;gap:10px;margin-top:46px;font:650 12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.13em;color:var(--muted)}
+.cover .seal::before{content:"";width:28px;height:1px;background:var(--line)}
+.final h2{font-size:clamp(62px,9.3vw,142px)}
+.closing{margin-top:44px;font-family:"Songti SC","STSong",serif;font-size:clamp(20px,1.85vw,29px);line-height:1.8;color:var(--soft);letter-spacing:.06em}
+.mark{margin-top:72px;font:650 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+
+/* refinement — the ending removes interface before it removes meaning */
+.brand,.count,.rail,.dots,.sound{opacity:var(--ending-fade);transition:opacity .7s ease}
+.final .eyebrow,.final .closing,.final .mark{opacity:var(--ending-text);transition:opacity .8s ease}
+.final h2{opacity:1}
+.grain{opacity:var(--grain-opacity)}
+
+/* semantic interaction */
+.touchpoint{position:fixed;z-index:18;left:var(--touch-x,50%);top:var(--touch-y,50%);width:188px;height:188px;transform:translate(-50%,-50%);border:0;background:transparent;border-radius:50%;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .28s ease,left .6s var(--ease),top .6s var(--ease)}
+.touchpoint[data-enabled="true"]{opacity:1;pointer-events:auto}
+.touchpoint::before{content:"";position:absolute;inset:calc(50% - 4px);border:1px solid rgba(242,240,233,.42);border-radius:50%;opacity:0;transform:scale(.7);transition:opacity .25s ease,transform .35s var(--ease)}
+.touchpoint:hover::before,.touchpoint:focus-visible::before{opacity:1;transform:scale(1)}
+.stage-word{position:fixed;z-index:19;left:var(--touch-x,50%);top:calc(var(--touch-y,50%) + 118px);transform:translateX(-50%);font-family:"Songti SC","STSong",serif;font-size:17px;font-weight:600;letter-spacing:.25em;color:rgba(242,240,233,.86);opacity:0;pointer-events:none;text-shadow:0 1px 12px #000;transition:opacity .3s ease,left .6s var(--ease),top .6s var(--ease)}
+body[data-near="6"] .stage-word{opacity:1}
+.cursor{position:fixed;z-index:50;left:0;top:0;width:24px;height:24px;border:1px solid rgba(242,240,233,.34);border-radius:50%;pointer-events:none;transform:translate3d(-100px,-100px,0);transform-origin:center;mix-blend-mode:difference;opacity:0;will-change:transform,opacity;contain:layout style paint;transition:opacity .22s ease,border-color .22s ease}
+.cursor::before{content:"";position:absolute;left:50%;top:50%;width:2px;height:2px;border-radius:50%;background:rgba(242,240,233,.88);transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(242,240,233,.28)}
+.cursor::after{content:"";position:absolute;inset:-8px;border:1px solid rgba(242,240,233,.075);border-radius:50%;transform:scale(var(--cursor-halo,.86));opacity:var(--cursor-halo-alpha,.55);transition:opacity .22s ease}
+.cursor.is-magnetic{border-color:rgba(242,240,233,.62)}
+@media(pointer:fine) and (prefers-reduced-motion:no-preference){body,button{cursor:none}body:hover .cursor{opacity:1}}
+
+
+/* editorial composition — keep side text closer to the visual axis */
+@media(min-width:761px){
+  .scene[data-side="left"] .copy{margin-left:clamp(38px,4.2vw,82px)}
+  .scene[data-side="right"] .copy{margin-right:clamp(38px,4.2vw,82px)}
+  /* cover should lead from the left, not be auto-pulled toward the center */
+  .scene.cover[data-side="left"] .copy{margin-left:0;width:min(980px,80vw)}
+  .scene.cover h1{font-size:clamp(62px,9.2vw,144px);max-width:4.6em}
+  .scene.cover .deck{max-width:24em}
+}
+
+/* information rhythm: hierarchy arrives in beats, not as one fade */
+/* magnetic reading position + information-led type motion */
+.copy > .eyebrow,.copy > h1,.copy > h2,.copy > .deck,.copy > .kicker,.copy > .quote,.copy > .micro,.copy > .seal,.copy > .closing,.copy > .mark{
+  will-change:transform,opacity,filter;
+  transform-origin:50% 55%;
+}
+.copy > .eyebrow{opacity:var(--r-eye,1);transform:translate3d(0,var(--y-eye,0px),0);filter:blur(var(--b-eye,0px))}
+.copy > h1,.copy > h2{opacity:var(--r-title,1);transform:translate3d(0,var(--y-title,0px),0) scale(var(--s-title,1));filter:blur(var(--b-title,0px))}
+.copy > .deck,.copy > .kicker{opacity:var(--r-body,1);transform:translate3d(0,var(--y-body,0px),0);filter:blur(var(--b-body,0px))}
+.copy > .quote{opacity:var(--r-quote,1);transform:translate3d(0,var(--y-quote,0px),0);filter:blur(var(--b-quote,0px))}
+.copy > .micro,.copy > .seal{opacity:var(--r-micro,1);transform:translate3d(0,var(--y-micro,0px),0);filter:blur(var(--b-micro,0px))}
+.copy > .closing,.copy > .mark{transform:translate3d(0,var(--y-body,0px),0)}
+.scene.is-docked h1,.scene.is-docked h2{animation:typeDock .46s cubic-bezier(.16,.84,.22,1)}
+@keyframes typeDock{0%{transform:translate3d(0,2px,0) scale(.994)}58%{transform:translate3d(0,-1px,0) scale(1.006)}100%{transform:translate3d(0,0,0) scale(1)}}
+
+/* large hit targets, tiny visuals */
+.dots{position:fixed;z-index:32;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:0}
+.dots button{position:relative;width:32px;height:32px;padding:0;border:0;background:transparent;cursor:pointer}
+.dots button::before{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:rgba(242,240,233,.24);transform:translate(-50%,-50%);transition:transform .35s var(--ease),background .35s ease}
+.dots button.active::before{background:var(--fg);transform:translate(-50%,-50%) scale(1.7)}
+
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.keep{white-space:nowrap}
+.title-line{display:block;white-space:nowrap}
+.body-line{display:block;white-space:nowrap}
+.short-title{white-space:nowrap;max-width:none!important}
+
+/* sectional composition — tuned after viewport review */
+.scene[data-scene="1"] .copy{width:min(800px,61vw);margin-left:clamp(72px,6vw,116px)}
+.scene[data-scene="2"] .copy{width:min(820px,62vw);margin-right:clamp(78px,6.4vw,122px)}
+.scene[data-scene="3"] .copy{width:min(820px,62vw);margin-left:clamp(76px,6.2vw,120px)}
+.scene[data-scene="4"] .copy{width:min(820px,62vw);margin-right:clamp(80px,6.6vw,126px)}
+.scene[data-scene="5"] .copy{width:min(790px,60vw);margin-left:clamp(80px,6.6vw,126px)}
+.scene[data-scene="6"] .copy{width:min(900px,76vw)}
+.scene[data-scene="7"] .copy{width:min(820px,62vw);margin-right:clamp(86px,7vw,136px)}
+.scene[data-scene="8"] .copy{width:min(980px,80vw)}
+
+.scene[data-scene="1"] h2,
+.scene[data-scene="2"] h2,
+.scene[data-scene="3"] h2,
+.scene[data-scene="4"] h2,
+.scene[data-scene="5"] h2,
+.scene[data-scene="7"] h2{font-size:clamp(52px,7.05vw,108px);max-width:none}
+.scene[data-scene="6"] h2{font-size:clamp(58px,8vw,124px);max-width:none}
+.scene[data-scene="1"] .kicker,
+.scene[data-scene="2"] .kicker,
+.scene[data-scene="3"] .kicker,
+.scene[data-scene="4"] .kicker,
+.scene[data-scene="5"] .kicker,
+.scene[data-scene="7"] .kicker{max-width:780px}
+
+
+/* semantic line discipline */
+@media(min-width:761px){
+  .scene.cover h1.short-title{font-size:clamp(60px,8.6vw,138px);width:max-content}
+  .scene[data-scene="6"] h2.short-title{font-size:clamp(54px,6.8vw,106px);width:max-content;margin-inline:auto}
+  .scene[data-scene="8"] h2.short-title{font-size:clamp(58px,7.5vw,118px);width:max-content;margin-inline:auto}
+}
+
+@media(max-width:760px){
+  .brand{left:18px;top:18px;font-size:12px}.count{right:18px;top:19px}.rail{right:20px;height:150px}.hint{left:18px;bottom:18px}.sound{right:46px;bottom:8px}.dots{bottom:2px}
+  .scene{min-height:122svh;padding:12vh 36px 12vh 22px}.scene.signature{min-height:156svh}.scene.final{min-height:150svh}
+  .copy,.scene[data-side="center"] .copy,.scene.cover .copy{width:100%;margin:0;text-align:left}
+  .scene[data-side="right"] .copy{text-align:left;margin-left:0}.scene[data-side="right"] .kicker,.scene[data-side="right"] .quote{margin-left:0}
+  .scene[data-side="center"] .kicker,.scene[data-side="center"] .quote{margin-left:0;margin-right:0}
+  .scene[data-scene="1"] .copy,.scene[data-scene="2"] .copy,.scene[data-scene="3"] .copy,.scene[data-scene="4"] .copy,.scene[data-scene="5"] .copy,.scene[data-scene="6"] .copy,.scene[data-scene="7"] .copy,.scene[data-scene="8"] .copy{width:100%;margin-left:0;margin-right:0}
+  .title-line,.body-line,.keep,.short-title{white-space:normal}
+  .scene[data-vpos="high"] .copy,.scene[data-vpos="low"] .copy,.copy{top:59vh}
+  h1{font-size:clamp(59px,19.2vw,106px)}h2{font-size:clamp(45px,13.6vw,80px)}.final h2{font-size:clamp(51px,15vw,90px)}
+  .kicker{font-size:17px;line-height:1.75}.quote{font-size:19px;line-height:1.65}.source,.micro,.cover .seal,.mark{font-size:12px}.eyebrow,.hint,.count{font-size:12px}
+  .micro{margin-top:26px}.quote{margin-top:28px}.mark{margin-top:58px}
+  .stage-word{font-size:15px;top:calc(var(--touch-y,32%) + 92px)}
+  .touchpoint{width:150px;height:150px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}.grain{animation:none}.cursor{display:none}.copy{filter:none!important}.copy>*{filter:none!important}.touchpoint,.stage-word{transition:none!important}
+}
+</style>
+</head>
+<body data-near="0">
+<canvas id="cosmos" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<a class="brand" href="/" aria-label="返回 GeoGeek 首页">GEOGEEK <span>ORIGIN / 001</span></a>
+<div class="count"><b id="sceneNo">00</b> / 08</div>
+<div class="rail" aria-hidden="true"><i id="railMark"></i></div>
+<div class="hint" id="hint">向下，追溯来处</div>
+<button class="sound" id="soundToggle" type="button" aria-pressed="false" aria-label="开启空间声音">SOUND</button>
+<div class="stage-word" id="stageWord" aria-live="polite">一</div>
+<button class="touchpoint" id="touchpoint" type="button" aria-label="与当前星图互动" data-enabled="false" disabled tabindex="-1"></button>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+<nav class="dots" id="dots" aria-label="章节导航"></nav>
+<div class="sr-only" id="interactionStatus" aria-live="polite"></div>
+
+<main>
+  <section class="scene cover" data-scene="0" data-side="left" data-vpos="middle" data-hint="向下，追溯来处">
+    <div class="copy">
+      <div class="eyebrow">人与宇宙 / HUMAN × COSMOS</div>
+      <h1 class="short-title">从星尘到<span style="font-style:italic">道</span></h1>
+      <div class="deck"><strong>我本就是星尘</strong><br><span class="keep">探索宇宙，是寻找来处，也是归途</span></div>
+      <div class="seal">A GEOGEEK ORIGIN STORY</div>
+    </div>
+  </section>
+
+  <section class="scene" data-scene="1" data-side="left" data-vpos="low" data-hint="继续，向下">
+    <div class="copy">
+      <div class="eyebrow">01 / 星</div>
+      <h2><span class="title-line">最初，</span><span class="title-line">我们还不在这里</span></h2>
+      <p class="kicker"><span class="body-line">身体里的碳、氧、铁，皆曾在恒星深处生成；恒星逝去，它们便散入星际</span></p>
+      <blockquote class="quote">“We are made of star-stuff”<span class="source">— CARL SAGAN</span></blockquote>
+    </div>
+  </section>
+
+  <section class="scene" data-scene="2" data-side="right" data-vpos="high" data-hint="按住这颗星">
+    <div class="copy">
+      <div class="eyebrow">02 / 尘</div>
+      <h2><span class="title-line">恒星逝去，</span><span class="title-line">星尘仍在远行</span></h2>
+      <p class="kicker"><span class="body-line">它们落入尘埃，聚成行星，沉入海洋；很久以后，也进入我们的身体</span></p>
+      <div class="micro">按住中央星体 / PRESS & HOLD</div>
+    </div>
+  </section>
+
+  <section class="scene" data-scene="3" data-side="left" data-vpos="middle" data-hint="物质，成为记忆">
+    <div class="copy">
+      <div class="eyebrow">03 / 生</div>
+      <h2><span class="title-line">沉默之后，</span><span class="title-line">星尘有了生命</span></h2>
+      <p class="kicker"><span class="body-line">同样的物质，在生命里开始代谢、复制、感知；在漫长演化中，有了记忆，也有了眼睛</span></p>
+    </div>
+  </section>
+
+  <section class="scene" data-scene="4" data-side="right" data-vpos="middle" data-hint="移动，扰动此场">
+    <div class="copy">
+      <div class="eyebrow">04 / 望</div>
+      <h2><span class="title-line">宇宙的一部分，</span><span class="title-line">开始回望宇宙</span></h2>
+      <p class="kicker"><span class="body-line">我们从未置身宇宙之外——看见，本身就是宇宙正在发生的事</span></p>
+      <blockquote class="quote">“We are a way for the cosmos to know itself”<span class="source">— CARL SAGAN</span></blockquote>
+      <div class="micro">移动光标 / MOVE TO DISTURB THE FIELD</div>
+    </div>
+  </section>
+
+  <section class="scene" data-scene="5" data-side="left" data-vpos="middle" data-hint="人，不在自然之外">
+    <div class="copy">
+      <div class="eyebrow">05 / 道</div>
+      <h2><span class="title-line">人，本就在</span><span class="title-line">天地之间</span></h2>
+      <p class="kicker"><span class="body-line">若我们本就由天地所成，又如何能置身天地之外？</span></p>
+      <blockquote class="quote">“人法地，地法天，天法道，道法自然”<span class="source">— 老子《道德经》</span></blockquote>
+    </div>
+  </section>
+
+  <section class="scene signature" data-scene="6" data-side="center" data-vpos="low" data-hint="轻触这一点">
+    <div class="copy">
+      <div class="eyebrow">06 / 一</div>
+      <h2 class="short-title">从一，到万物</h2>
+      <p class="kicker"><span class="body-line">“道生一，一生二，二生三，三生万物”</span><span class="body-line">不是物理公式，而是古人对万物生成的一种言说</span></p>
+      <div class="micro">轻触中央一点 / TOUCH TO UNFOLD</div>
+    </div>
+  </section>
+
+  <section class="scene" data-scene="7" data-side="right" data-vpos="middle" data-hint="归">
+    <div class="copy">
+      <div class="eyebrow">07 / 归</div>
+      <h2><span class="title-line">望向远处，</span><span class="title-line">也是回望来处</span></h2>
+      <p class="kicker"><span class="body-line">我们追问宇宙的起源，也在辨认自己的来处</span><span class="body-line">望向星空，不是离开地球，而是把来处看得更清楚</span></p>
+    </div>
+  </section>
+
+  <section class="scene final" data-scene="8" data-side="center" data-vpos="middle" data-hint="">
+    <div class="copy">
+      <div class="eyebrow">08 / 归途</div>
+      <h2 class="short-title">我本就是星尘</h2>
+      <div class="closing">寻找来处，<span class="keep">也是归途</span></div>
+      <div class="mark">GEOGEEK · FROM STAR-STUFF TO TAO</div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+  const canvas = document.getElementById('cosmos');
+  const ctx = canvas.getContext('2d', { alpha:true, desynchronized:true });
+  const sections = [...document.querySelectorAll('.scene')];
+  const sceneNo = document.getElementById('sceneNo');
+  const railMark = document.getElementById('railMark');
+  const hint = document.getElementById('hint');
+  const dots = document.getElementById('dots');
+  const touchpoint = document.getElementById('touchpoint');
+  const stageWord = document.getElementById('stageWord');
+  const cursor = document.getElementById('cursor');
+  const soundToggle = document.getElementById('soundToggle');
+  const interactionStatus = document.getElementById('interactionStatus');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TAU = Math.PI * 2;
+  const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+  const lerp = (a,b,t) => a + (b-a)*t;
+  const smooth = t => t*t*(3-2*t);
+  const seeded = (i,k=1) => { const x=Math.sin(i*12.9898+k*78.233)*43758.5453; return x-Math.floor(x); };
+
+  let W=innerWidth,H=innerHeight,DPR=1;
+  let particles=[], ambient=[], targets=[], order=[], centers=[];
+  let narrative=0, endingProgress=0, activeScene=0, prevScene=-1;
+  let hold=false, holdPower=0, daoStage=0, daoPulse=0;
+  let raf=0, lastT=0, visible=true;
+  let mouse={x:innerWidth/2,y:innerHeight/2,tx:innerWidth/2,ty:innerHeight/2,px:innerWidth/2,py:innerHeight/2,vx:0,vy:0,speed:0,nx:0,ny:0,active:false};
+  let camera={x:0,y:0,tx:0,ty:0};
+  let touchAnchor={x:50,y:50};
+  let frameNo=0,nebulaSprites=[];
+  const fieldScratch={x:0,y:0};
+
+  // Magnetic chapter navigation. A small wheel / trackpad gesture commits to one
+  // reading position; landing between chapters is pulled to the nearest body position.
+  const scroller={y:scrollY,startY:scrollY,target:scrollY,startT:0,duration:0,active:false,driving:false,targetScene:0};
+  const wheelGesture={sum:0,lastT:0,locked:false,timer:0};
+  const maxScroll=()=>Math.max(0,document.documentElement.scrollHeight-H);
+  function syncScroller(){
+    scroller.y=scrollY;scroller.startY=scrollY;scroller.target=scrollY;scroller.active=false;scroller.driving=false;
+  }
+  function sceneScrollY(index){
+    const s=sections[clamp(index,0,sections.length-1)];
+    return clamp(s.offsetTop+s.offsetHeight*.5-H*.5,0,maxScroll());
+  }
+  function nearestSceneByScroll(y=scrollY){
+    let best=0,bestD=Infinity;
+    for(let i=0;i<sections.length;i++){const d=Math.abs(sceneScrollY(i)-y);if(d<bestD){bestD=d;best=i}}
+    return best;
+  }
+  function magnetEase(t){return 1-Math.pow(1-t,5)}
+  function dockScene(index){
+    sections.forEach((s,i)=>{if(i!==index)s.classList.remove('is-docked')});
+    const section=sections[index];if(!section)return;
+    section.classList.remove('is-docked');void section.offsetWidth;section.classList.add('is-docked');
+  }
+  function glideToScene(index,boost=true){
+    index=clamp(index,0,sections.length-1);
+    const dest=sceneScrollY(index);
+    if(reduced){scrollTo(0,dest);syncScroller();updateScrollState(true);dockScene(index);return}
+    const diff=Math.abs(dest-scrollY);
+    scroller.startY=scrollY;scroller.y=scrollY;scroller.target=dest;scroller.startT=performance.now();
+    // Adjacent pages feel almost immediate; long jumps remain controlled.
+    scroller.duration=clamp(245+diff*.055,260,470);
+    scroller.active=true;scroller.driving=true;scroller.targetScene=index;
+  }
+  function updateSmoothScroll(dt,t=performance.now()){
+    if(!scroller.active||reduced) return;
+    const p=clamp((t-scroller.startT)/Math.max(1,scroller.duration),0,1),e=magnetEase(p);
+    scroller.y=lerp(scroller.startY,scroller.target,e);
+    scrollTo(0,scroller.y);updateScrollState();
+    if(p>=1){
+      scrollTo(0,scroller.target);scroller.y=scroller.target;scroller.active=false;scroller.driving=false;updateScrollState();dockScene(scroller.targetScene);
+    }
+  }
+
+  const mobile = () => innerWidth < 760;
+  function particleCount(){
+    const cores=navigator.hardwareConcurrency||4;
+    const low=cores<=4 || (navigator.deviceMemory && navigator.deviceMemory<=4);
+    if(mobile()) return low?340:430;
+    return low?620:860;
+  }
+
+  const sceneAnchorsDesktop=[
+    [.72,.43],[.72,.48],[.29,.40],[.72,.49],[.29,.48],[.72,.49],[.50,.28],[.29,.48],[.50,.34]
+  ];
+  const sceneAnchorsMobile=[
+    [.53,.30],[.56,.28],[.50,.27],[.55,.27],[.50,.27],[.55,.27],[.50,.23],[.50,.27],[.50,.25]
+  ];
+  function anchorFor(i){
+    const a=(mobile()?sceneAnchorsMobile:sceneAnchorsDesktop)[i];
+    return {x:a[0]*W,y:a[1]*H};
+  }
+  function blendedAnchor(s){
+    const a=Math.floor(clamp(s,0,8)), b=Math.min(8,a+1), t=smooth(s-a);
+    const A=anchorFor(a),B=anchorFor(b);
+    return {x:lerp(A.x,B.x,t),y:lerp(A.y,B.y,t)};
+  }
+
+  function makeDots(){
+    sections.forEach((s,i)=>{
+      const b=document.createElement('button');
+      b.type='button';
+      b.setAttribute('aria-label',`去往第 ${String(i).padStart(2,'0')} 幕`);
+      b.addEventListener('click',()=>glideToScene(i,true));
+      dots.appendChild(b);
+    });
+  }
+  makeDots();
+
+  function buildCenters(){
+    centers=sections.map(s=>s.offsetTop+s.offsetHeight*.5);
+  }
+
+  function buildParticles(){
+    const count=particleCount();
+    const a0=anchorFor(0);
+    particles=Array.from({length:count},(_,i)=>({
+      x:a0.x+(seeded(i,2)-.5)*16,
+      y:a0.y+(seeded(i,3)-.5)*16,
+      z:80+(seeded(i,4)-.5)*80,
+      vx:0,vy:0,vz:0,
+      alpha:.18+seeded(i,5)*.72,
+      r:.32+seeded(i,6)*1.15,
+      phase:seeded(i,7)*TAU,
+      depthSeed:seeded(i,8)
+    }));
+    order=particles.map((_,i)=>i);
+    ambient=Array.from({length:mobile()?62:110},(_,i)=>({
+      x:seeded(i,20)*W,y:seeded(i,21)*H,z:seeded(i,22),
+      r:.22+seeded(i,23)*.8,a:.035+seeded(i,24)*.17,p:seeded(i,25)*TAU
+    }));
+    buildTargets();
+  }
+
+  function localDisk(i,count,radius,power=1.8,jitter=0){
+    const a=i*2.399963229728653;
+    const r=radius*Math.pow((i+.5)/count,1/power);
+    return {x:Math.cos(a)*r+(seeded(i,70)-.5)*jitter,y:Math.sin(a)*r+(seeded(i,71)-.5)*jitter};
+  }
+
+  function buildTargets(){
+    const count=particles.length;
+    targets=Array.from({length:9},()=>Array(count));
+    const R=Math.min(W,H);
+    for(let i=0;i<count;i++){
+      let a,rr,p,q,t,branch;
+      // 00 origin — dense star with deep halo
+      a=seeded(i,30)*TAU; rr=Math.pow(seeded(i,31),2.7)*R*.15;
+      targets[0][i]={x:Math.cos(a)*rr,y:Math.sin(a)*rr,z:lerp(-120,360,seeded(i,32)),alpha:.24+seeded(i,33)*.7};
+
+      // 01 star — sphere compressed by perspective
+      p=localDisk(i,count,R*.14,2,5);
+      targets[1][i]={x:p.x,y:p.y,z:lerp(-160,280,seeded(i,34)),alpha:.38+seeded(i,35)*.58};
+
+      // 02 dust — anisotropic explosion, some matter comes toward the viewer
+      a=seeded(i,36)*TAU + (seeded(i,37)-.5)*.24;
+      rr=Math.pow(seeded(i,38),.52)*Math.hypot(W,H)*.58;
+      targets[2][i]={x:Math.cos(a)*rr,y:Math.sin(a)*rr*.78,z:lerp(-300,620,seeded(i,39)),alpha:.10+seeded(i,40)*.64};
+
+      // 03 life — contour-like double spiral with layered depth
+      t=(i/count)*TAU*5.4;
+      rr=20+(i/count)*R*.31;
+      branch=(i%3-1)*10;
+      targets[3][i]={x:Math.cos(t)*rr+Math.cos(t+Math.PI/2)*branch,y:Math.sin(t)*rr*.62+Math.sin(t+Math.PI/2)*branch,z:lerp(-170,340,seeded(i,41)),alpha:.16+seeded(i,42)*.76};
+
+      // 04 observer — a lensing field: readable as attention, never as an eye icon
+      q=i/count;
+      if(q<.50){
+        const u=(q/.50)*2-1;
+        const branch=i%2?1:-1;
+        const x=u*R*.225;
+        const y=branch*(R*.036+u*u*R*.080)+Math.sin(u*TAU*1.4+i*.17)*R*.006;
+        targets[4][i]={x,y,z:lerp(-210,270,seeded(i,43)),alpha:.20+seeded(i,44)*.68};
+      }else if(q<.72){
+        const j=i-Math.floor(count*.50), c=Math.max(1,Math.floor(count*.22)), pp=localDisk(j,c,R*.088,1.55,5);
+        targets[4][i]={x:pp.x*.92+R*.014,y:pp.y*.34,z:lerp(-240,150,seeded(i,45)),alpha:.19+seeded(i,46)*.60};
+      }else{
+        a=seeded(i,47)*TAU;rr=R*(.12+seeded(i,48)*.25);
+        const shear=.20*Math.sin(a*2.0);
+        targets[4][i]={x:Math.cos(a+shear)*rr,y:Math.sin(a)*rr*.50,z:lerp(20,500,seeded(i,49)),alpha:.06+seeded(i,50)*.34};
+      }
+
+      // 05 Tao — relational field, one broken geodesic plus nucleus
+      const ringCount=Math.floor(count*.7);
+      if(i<ringCount){
+        const u=(i/ringCount)*TAU*.91-Math.PI*.2;
+        const rad=R*.19+(seeded(i,51)-.5)*12;
+        targets[5][i]={x:Math.cos(u)*rad,y:Math.sin(u)*rad,z:lerp(-140,250,seeded(i,52)),alpha:.18+seeded(i,53)*.68};
+      }else{
+        a=seeded(i,54)*TAU;rr=Math.pow(seeded(i,55),2)*R*.06;
+        targets[5][i]={x:Math.cos(a)*rr,y:Math.sin(a)*rr,z:lerp(-90,210,seeded(i,56)),alpha:.18+seeded(i,57)*.72};
+      }
+
+      // 06 overwritten by daoTargets
+      targets[6][i]={x:0,y:0,z:0,alpha:.6};
+
+      // 07 return — geodesic funnel
+      a=seeded(i,58)*TAU+(seeded(i,59)-.5)*.45;rr=Math.pow(seeded(i,60),1.62)*R*.46;
+      targets[7][i]={x:Math.cos(a)*rr,y:Math.sin(a)*rr*.48,z:lerp(-230,520,seeded(i,61)),alpha:.11+seeded(i,62)*.65};
+
+      // 08 return to point — residual depth remains
+      a=seeded(i,63)*TAU;rr=Math.pow(seeded(i,64),5.5)*R*.05;
+      targets[8][i]={x:Math.cos(a)*rr,y:Math.sin(a)*rr,z:lerp(-55,150,seeded(i,65)),alpha:i<28?.74:.07+seeded(i,66)*.2};
+    }
+    daoTargets(false);
+  }
+
+  function daoTargets(pulse=true){
+    if(!targets[6]) return;
+    const count=particles.length,R=Math.min(W,H);
+    const centersByStage=[
+      [{x:0,y:0,z:0}],
+      [{x:-46,y:0,z:-65},{x:46,y:0,z:65}],
+      [{x:0,y:-48,z:-45},{x:-54,y:38,z:65},{x:54,y:38,z:15}]
+    ];
+    if(daoStage<3){
+      const cs=centersByStage[daoStage];
+      for(let i=0;i<count;i++){
+        const c=cs[i%cs.length], a=seeded(i,80)*TAU, rr=Math.pow(seeded(i,81),2.3)*(daoStage===0?24:18);
+        targets[6][i]={x:c.x+Math.cos(a)*rr,y:c.y+Math.sin(a)*rr,z:c.z+lerp(-30,30,seeded(i,82)),alpha:.22+seeded(i,83)*.74};
+      }
+    }else{
+      for(let i=0;i<count;i++){
+        const a=seeded(i,84)*TAU;
+        const ring=seeded(i,85)<.58?R*(.10+seeded(i,86)*.15):R*(.02+seeded(i,87)*.30);
+        const warp=1+.22*Math.sin(a*3+seeded(i,88)*TAU);
+        targets[6][i]={x:Math.cos(a)*ring*warp,y:Math.sin(a)*ring*.78,z:lerp(-260,470,seeded(i,89)),alpha:.11+seeded(i,90)*.72};
+      }
+    }
+    stageWord.textContent=['一','二','三','万物'][daoStage];
+    if(pulse) daoPulse=1;
+  }
+
+  function buildNebulaSprites(){
+    nebulaSprites=Array.from({length:6},(_,i)=>{
+      const c=document.createElement('canvas'),S=224;c.width=c.height=S;
+      const g=c.getContext('2d');
+      const cx=S*(.46+(seeded(i,201)-.5)*.08),cy=S*(.50+(seeded(i,202)-.5)*.08);
+      const grad=g.createRadialGradient(cx,cy,0,cx,cy,S*.48);
+      grad.addColorStop(0,'rgba(232,235,229,.28)');
+      grad.addColorStop(.24,'rgba(207,218,216,.115)');
+      grad.addColorStop(.58,'rgba(146,161,165,.035)');
+      grad.addColorStop(1,'rgba(0,0,0,0)');
+      g.fillStyle=grad;g.fillRect(0,0,S,S);
+      return c;
+    });
+  }
+
+  function resize(){
+    DPR=Math.min(devicePixelRatio||1,mobile()?1.6:1.85);
+    W=innerWidth;H=innerHeight;
+    canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);
+    canvas.style.width=W+'px';canvas.style.height=H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    mouse.x=mouse.tx=W*.5;mouse.y=mouse.ty=H*.5;mouse.px=mouse.x;mouse.py=mouse.y;
+    buildNebulaSprites();buildParticles();buildCenters();syncScroller();updateScrollState(true);
+  }
+
+  function narrativeFromScroll(){
+    if(!centers.length) return 0;
+    const y=scrollY+H*.5;
+    if(y<=centers[0]) return 0;
+    if(y>=centers[8]) return 8;
+    for(let i=0;i<8;i++){
+      if(y>=centers[i]&&y<centers[i+1]){
+        const t=(y-centers[i])/(centers[i+1]-centers[i]);
+        return i+smooth(clamp(t,0,1));
+      }
+    }
+    return 8;
+  }
+
+  function endingFromScroll(){
+    const final=sections[8];
+    if(!final) return 0;
+    const y=scrollY+H*.5;
+    const start=final.offsetTop+final.offsetHeight*.53;
+    const end=Math.max(start+1,final.offsetTop+final.offsetHeight-H*.54);
+    return smooth(clamp((y-start)/(end-start),0,1));
+  }
+
+  const hints=sections.map(s=>s.dataset.hint||'');
+  function setActive(n){
+    if(n===prevScene) return;
+    prevScene=activeScene;activeScene=n;
+    document.body.dataset.near=n;
+    sceneNo.textContent=String(n).padStart(2,'0');
+    hint.textContent=hints[n];
+    hint.style.opacity=n===8?'0':'1';
+    [...dots.children].forEach((d,i)=>d.classList.toggle('active',i===n));
+    if(n===6 && prevScene!==6){daoStage=0;daoTargets(false);soundEngine.setDaoSilence(true)}
+    else if(prevScene===6 && n!==6){soundEngine.setDaoSilence(false)}
+    updateInteractionAvailability();
+  }
+
+  function updateInteractionAvailability(){
+    const enabled=activeScene===2||activeScene===6;
+    touchpoint.dataset.enabled=enabled?'true':'false';
+    touchpoint.disabled=!enabled;
+    touchpoint.tabIndex=enabled?0:-1;
+    touchpoint.setAttribute('aria-hidden',enabled?'false':'true');
+    touchpoint.setAttribute('aria-label',activeScene===2?'按住恒星，令物质向外弥散':activeScene===6?'轻触一点，令一展开为万物':'当前章节无可交互之处');
+  }
+
+  function updateScrollState(force=false){
+    narrative=narrativeFromScroll();
+    endingProgress=endingFromScroll();
+    const endingFade=1-endingProgress;
+    const endingText=1-clamp(endingProgress*1.45,0,1);
+    document.body.style.setProperty('--ending',endingProgress.toFixed(3));
+    document.body.style.setProperty('--ending-fade',endingFade.toFixed(3));
+    document.body.style.setProperty('--ending-text',endingText.toFixed(3));
+    document.body.style.setProperty('--grain-opacity',(.027*endingFade).toFixed(4));
+    const nearest=clamp(Math.round(narrative),0,8);
+    setActive(nearest);
+    railMark.style.transform=`scaleY(${clamp(narrative/8,0,1)})`;
+    const range=(v,a,b)=>smooth(clamp((v-a)/Math.max(.001,b-a),0,1));
+    sections.forEach((s,i)=>{
+      const delta=narrative-i,d=Math.abs(delta),flow=delta<0?1:-1;
+      // One chapter has an information score: locator → proposition → explanation → resonance → action
+      // On exit the same score reverses, so secondary information leaves first
+      const presence=1-clamp(d/.94,0,1);
+      const eye=range(presence,.05,.25);
+      const title=range(presence,.17,.43);
+      const body=range(presence,.39,.63);
+      const quote=range(presence,.58,.78);
+      const micro=range(presence,.72,.90);
+      const drift=clamp(delta,-1,1)*-8;
+      s.style.setProperty('--drift',`${drift.toFixed(1)}px`);
+      s.style.setProperty('--r-eye',eye.toFixed(3));s.style.setProperty('--r-title',title.toFixed(3));s.style.setProperty('--r-body',body.toFixed(3));s.style.setProperty('--r-quote',quote.toFixed(3));s.style.setProperty('--r-micro',micro.toFixed(3));
+      s.style.setProperty('--y-eye',`${(flow*(1-eye)*8).toFixed(1)}px`);s.style.setProperty('--b-eye',`${((1-eye)*.45).toFixed(2)}px`);
+      s.style.setProperty('--y-title',`${(flow*(1-title)*30).toFixed(1)}px`);s.style.setProperty('--b-title',`${((1-title)*1.25).toFixed(2)}px`);s.style.setProperty('--s-title',(0.978+title*.022).toFixed(4));
+      s.style.setProperty('--y-body',`${(flow*(1-body)*22).toFixed(1)}px`);s.style.setProperty('--b-body',`${((1-body)*.80).toFixed(2)}px`);
+      s.style.setProperty('--y-quote',`${(flow*(1-quote)*17).toFixed(1)}px`);s.style.setProperty('--b-quote',`${((1-quote)*.55).toFixed(2)}px`);
+      s.style.setProperty('--y-micro',`${(flow*(1-micro)*12).toFixed(1)}px`);s.style.setProperty('--b-micro',`${((1-micro)*.35).toFixed(2)}px`);
+    });
+    const a=blendedAnchor(narrative);
+    touchAnchor={x:a.x/W*100,y:a.y/H*100};
+    document.documentElement.style.setProperty('--touch-x',`${touchAnchor.x.toFixed(2)}%`);
+    document.documentElement.style.setProperty('--touch-y',`${touchAnchor.y.toFixed(2)}%`);
+    if(force) updateInteractionAvailability();
+  }
+
+  let nativeSnapTimer=0;
+  addEventListener('scroll',()=>{
+    updateScrollState();
+    if(!scroller.driving){
+      scroller.y=scrollY;scroller.startY=scrollY;scroller.target=scrollY;
+      clearTimeout(nativeSnapTimer);
+      // Scrollbar drags and other native scroll sources still settle on a reading position.
+      nativeSnapTimer=setTimeout(()=>{if(!scroller.driving&&!mobile())glideToScene(nearestSceneByScroll(scrollY),false)},130);
+    }
+  },{passive:true});
+  addEventListener('resize',()=>{clearTimeout(resize._t);resize._t=setTimeout(resize,110)},{passive:true});
+
+  // One light gesture = one intentional chapter. Repeated wheel packets from the
+  // same physical gesture are locked out until the fingers / wheel settle.
+  addEventListener('wheel',e=>{
+    if(reduced||mobile()||e.ctrlKey) return;
+    e.preventDefault();
+    const now=performance.now(),unit=e.deltaMode===1?16:e.deltaMode===2?H:1,raw=e.deltaY*unit;
+    if(now-wheelGesture.lastT>150){wheelGesture.sum=0;wheelGesture.locked=false}
+    wheelGesture.lastT=now;wheelGesture.sum+=raw;
+    clearTimeout(wheelGesture.timer);wheelGesture.timer=setTimeout(()=>{wheelGesture.sum=0;wheelGesture.locked=false},180);
+    if(wheelGesture.locked||Math.abs(wheelGesture.sum)<7) return;
+
+    const nearest=nearestSceneByScroll(scrollY),home=sceneScrollY(nearest),off=scrollY-home;
+    // If we are visibly between authored reading positions, the first nudge simply docks
+    // the closest page. When already docked, the same small nudge advances one chapter.
+    const misaligned=Math.abs(off)>Math.min(64,H*.075);
+    const direction=Math.sign(wheelGesture.sum||raw);
+    const target=misaligned?nearest:clamp(nearest+direction,0,sections.length-1);
+    wheelGesture.locked=true;wheelGesture.sum=0;glideToScene(target,true);
+  },{passive:false});
+
+  addEventListener('pointermove',e=>{
+    // Input only records intent; all visual writes happen once inside requestAnimationFrame.
+    mouse.tx=e.clientX;mouse.ty=e.clientY;mouse.active=true;
+  },{passive:true});
+  addEventListener('pointerleave',()=>{mouse.active=false;camera.tx=0;camera.ty=0},{passive:true});
+
+  touchpoint.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    if(activeScene===2){hold=true;touchpoint.setPointerCapture?.(e.pointerId);interactionStatus.textContent='物质正在向外弥散';soundEngine.interaction('dust')}
+    if(activeScene===6){daoStage=(daoStage+1)%4;daoTargets(true);interactionStatus.textContent=`此刻：${stageWord.textContent}`;soundEngine.interaction('dao',daoStage)}
+  });
+  touchpoint.addEventListener('pointerup',()=>{hold=false});
+  touchpoint.addEventListener('pointercancel',()=>{hold=false});
+  touchpoint.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();
+      if(activeScene===6){daoStage=(daoStage+1)%4;daoTargets(true);interactionStatus.textContent=`此刻：${stageWord.textContent}`;soundEngine.interaction('dao',daoStage)}
+      if(activeScene===2){hold=true;soundEngine.interaction('dust')}
+    }
+  });
+  touchpoint.addEventListener('keyup',()=>{hold=false});
+
+  addEventListener('keydown',e=>{
+    if(['ArrowDown','PageDown'].includes(e.key)){e.preventDefault();glideToScene(Math.min(activeScene+1,8),true)}
+    else if(['ArrowUp','PageUp'].includes(e.key)){e.preventDefault();glideToScene(Math.max(activeScene-1,0),true)}
+    else if(e.key==='Home'){e.preventDefault();glideToScene(0,true)}
+    else if(e.key==='End'){e.preventDefault();glideToScene(8,true)}
+  });
+
+  const soundEngine={
+    ctx:null,master:null,musicBus:null,padFilter:null,reverb:null,wet:null,dry:null,
+    voices:[],air:null,airGain:null,on:false,daoSilent:false,musicTimer:0,lastS:0,noteStep:0,
+    midi(n){return 440*Math.pow(2,(n-69)/12)},
+    chords:[
+      [38,45,50,53,57], // Dm
+      [38,45,50,52,57], // Dm(add9)
+      [34,41,46,50,53], // Bb
+      [41,48,53,57,60], // F/A
+      [36,43,48,50,52], // C(add9)
+      [38,45,50,53,57], // return to Dm
+      [38,45,50,57,64], // open fifths / one
+      [34,41,46,50,57], // return
+      [38,45,50,53,57]  // home
+    ],
+    init(){
+      if(this.ctx) return;
+      const AC=window.AudioContext||window.webkitAudioContext;if(!AC) return;
+      const ac=this.ctx=new AC();
+      const compressor=ac.createDynamicsCompressor();
+      compressor.threshold.value=-20;compressor.knee.value=20;compressor.ratio.value=2.2;compressor.attack.value=.025;compressor.release.value=.48;compressor.connect(ac.destination);
+      this.master=ac.createGain();this.master.gain.value=0;this.master.connect(compressor);
+
+      this.musicBus=ac.createGain();this.musicBus.gain.value=1;
+      this.padFilter=ac.createBiquadFilter();this.padFilter.type='lowpass';this.padFilter.frequency.value=780;this.padFilter.Q.value=.45;
+      this.dry=ac.createGain();this.dry.gain.value=.58;
+      this.wet=ac.createGain();this.wet.gain.value=.34;
+      this.reverb=ac.createConvolver();
+      const seconds=4.4,len=Math.floor(ac.sampleRate*seconds),imp=ac.createBuffer(2,len,ac.sampleRate);
+      for(let c=0;c<2;c++){
+        const d=imp.getChannelData(c);
+        for(let i=0;i<len;i++){
+          const t=i/len,decay=Math.pow(1-t,3.4);
+          d[i]=(Math.random()*2-1)*decay*(c?0.94:1);
+        }
+      }
+      this.reverb.buffer=imp;
+      this.musicBus.connect(this.padFilter);
+      this.padFilter.connect(this.dry).connect(this.master);
+      this.padFilter.connect(this.reverb).connect(this.wet).connect(this.master);
+
+      const initial=this.chords[0];
+      const types=['sine','sine','triangle','sine','sine'];
+      const gains=[.050,.038,.028,.024,.018];
+      const detunes=[-4,3,-7,5,-2];
+      this.voices=initial.map((m,i)=>{
+        const o=ac.createOscillator(),g=ac.createGain();
+        o.type=types[i];o.frequency.value=this.midi(m);o.detune.value=detunes[i];g.gain.value=gains[i];
+        o.connect(g).connect(this.musicBus);o.start();return {o,g};
+      });
+
+      // A very faint band of air keeps the music from feeling synthetic or empty.
+      const buf=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),data=buf.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*.16;
+      const noise=ac.createBufferSource();noise.buffer=buf;noise.loop=true;
+      const airFilter=ac.createBiquadFilter();airFilter.type='bandpass';airFilter.frequency.value=1900;airFilter.Q.value=.38;
+      this.airGain=ac.createGain();this.airGain.gain.value=.0032;
+      noise.connect(airFilter).connect(this.airGain).connect(this.reverb);noise.start();this.air=noise;
+    },
+    async toggle(){
+      this.init();if(!this.ctx) return;
+      if(this.ctx.state!=='running'){try{await this.ctx.resume()}catch(_){}}
+      this.on=!this.on;
+      const now=this.ctx.currentTime;
+      this.master.gain.cancelScheduledValues(now);
+      this.master.gain.setTargetAtTime(this.on ? .58 : 0,now,this.on ? .42 : .16);
+      soundToggle.setAttribute('aria-pressed',String(this.on));
+      soundToggle.setAttribute('aria-label',this.on?'关闭空间声音':'开启空间声音');
+      soundToggle.textContent=this.on?'SOUND · ON':'SOUND';
+      interactionStatus.textContent=this.on?'空间声音已开启':'空间声音已关闭';
+      if(this.on){this.interaction('wake',0);this.scheduleNote(true)}else{clearTimeout(this.musicTimer);this.musicTimer=0}
+    },
+    chordAt(s){
+      const a=Math.floor(clamp(s,0,8)),b=Math.min(8,a+1),t=smooth(clamp(s-a,0,1));
+      return this.chords[a].map((m,i)=>lerp(m,this.chords[b][i],t));
+    },
+    update(s,hold,ending=0){
+      if(!this.ctx||!this.on) return;
+      this.lastS=s;
+      const now=this.ctx.currentTime,chord=this.chordAt(s);
+      this.voices.forEach((v,i)=>{
+        v.o.frequency.setTargetAtTime(this.midi(chord[i]),now,1.3+i*.18);
+        const base=[.050,.038,.028,.024,.018][i];
+        v.g.gain.setTargetAtTime(base*(this.daoSilent ? .54 : 1)*(1+hold*.08),now,.7);
+      });
+      this.padFilter.frequency.setTargetAtTime(lerp(680,920,clamp(s/8,0,1))+(hold*90),now,.9);
+      const fade=1-clamp(ending,0,1);
+      const level=(this.daoSilent ? .32 : .58)*fade;
+      this.master.gain.setTargetAtTime(level,now,.55);
+      if(this.airGain)this.airGain.gain.setTargetAtTime(.0032*fade*(this.daoSilent ? .45 : 1),now,.7);
+    },
+    setDaoSilence(v){this.daoSilent=v},
+    scheduleNote(immediate=false){
+      clearTimeout(this.musicTimer);
+      if(!this.on) return;
+      const wait=immediate?1700:6200+Math.random()*3800;
+      this.musicTimer=setTimeout(()=>{
+        if(this.on&&!document.hidden)this.playFloatingNote();
+        this.scheduleNote(false);
+      },wait);
+    },
+    playFloatingNote(){
+      if(!this.ctx||!this.on) return;
+      const ac=this.ctx,now=ac.currentTime;
+      const chord=this.chordAt(this.lastS);
+      const pattern=[2,4,3,1,4,2,3,4],idx=pattern[this.noteStep++%pattern.length];
+      const baseMidi=chord[idx]+12+(this.noteStep%3===0?12:0);
+      [0,12].forEach((add,j)=>{
+        const osc=ac.createOscillator(),g=ac.createGain(),f=ac.createBiquadFilter();
+        osc.type=j?'sine':'triangle';osc.frequency.value=this.midi(baseMidi+add);osc.detune.value=j?5:-3;
+        f.type='lowpass';f.frequency.value=j?1800:1450;f.Q.value=.3;
+        g.gain.setValueAtTime(.0001,now);
+        g.gain.exponentialRampToValueAtTime(j ? .0045 : .009,now+.42);
+        g.gain.exponentialRampToValueAtTime(.0001,now+4.8+j*.8);
+        osc.connect(f).connect(g);g.connect(this.reverb);g.connect(this.dry);
+        osc.start(now);osc.stop(now+5.9+j*.8);
+      });
+    },
+    interaction(kind,stage=0){
+      if(!this.ctx||!this.on) return;
+      const ac=this.ctx,now=ac.currentTime;
+      const chord=this.chordAt(this.lastS);
+      let midi=kind==='wake'?chord[2]+12:kind==='dust'?chord[0]+12:(chord[Math.min(stage,4)]||chord[2])+12;
+      const osc=ac.createOscillator(),g=ac.createGain(),f=ac.createBiquadFilter();
+      osc.type='sine';osc.frequency.setValueAtTime(this.midi(midi),now);
+      if(kind==='dust')osc.frequency.exponentialRampToValueAtTime(this.midi(midi-5),now+1.4);
+      f.type='lowpass';f.frequency.value=kind==='dust'?720:1300;f.Q.value=.45;
+      g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(kind==='wake' ? .012 : .009,now+.12);g.gain.exponentialRampToValueAtTime(.0001,now+(kind==='dust'?2.4:2.8));
+      osc.connect(f).connect(g);g.connect(this.reverb);g.connect(this.dry);osc.start(now);osc.stop(now+3);
+    }
+  };
+  soundToggle.addEventListener('click',()=>soundEngine.toggle());
+
+  function interpolateTarget(i,s){
+    const a=Math.floor(clamp(s,0,8)),b=Math.min(8,a+1),t=smooth(s-a);
+    const A=targets[a][i],B=targets[b][i];
+    return {x:lerp(A.x,B.x,t),y:lerp(A.y,B.y,t),z:lerp(A.z,B.z,t),alpha:lerp(A.alpha,B.alpha,t)};
+  }
+
+  function project(local,anchor){
+    const perspective=760;
+    const z=clamp(local.z,-330,680);
+    const scale=perspective/(perspective+z);
+    const zn=clamp((z+330)/1010,0,1);
+    const near=1-zn;
+    const px=reduced?0:camera.x*(16+near*78);
+    const py=reduced?0:camera.y*(10+near*48);
+    return {x:anchor.x+local.x*scale+px,y:anchor.y+local.y*scale+py,scale,near};
+  }
+
+  function drawAmbient(t){
+    const fade=lerp(.52,.30,clamp(narrative/8,0,1))*(1-endingProgress*.98);
+    for(const s of ambient){
+      const near=1-s.z,tw=.72+.28*Math.sin(t*.00038+s.p);
+      const shiftX=reduced?0:camera.x*(6+near*28),shiftY=reduced?0:camera.y*(4+near*18);
+      ctx.beginPath();ctx.arc(s.x+shiftX,s.y+shiftY,s.r*(.7+near*.65),0,TAU);
+      ctx.fillStyle=`rgba(242,240,233,${s.a*tw*fade*(.55+near*.45)})`;ctx.fill();
+    }
+  }
+
+  function drawVolumetric(anchor,s,t){
+    const scene=Math.round(s),R=Math.min(W,H);
+    const strength=[.72,.84,1,.48,.54,.45,.25,.46,.28][scene]*(1-endingProgress);
+    if(strength<=.01||!nebulaSprites.length) return;
+    const focusW=clamp(1-Math.abs(s-4),0,1);
+    const speed=clamp(mouse.speed/1.2,0,1);
+    ctx.save();ctx.globalCompositeOperation='screen';
+    for(let k=0;k<6;k++){
+      const depth=.16+k/7,ang=seeded(k+scene*7,101)*TAU+t*.000012*(k%2?1:-1);
+      const dist=R*(.025+.095*seeded(k,102));
+      let x=anchor.x+Math.cos(ang)*dist+camera.x*(5+k*3.3);
+      let y=anchor.y+Math.sin(ang)*dist*.68+camera.y*(3+k*2.4);
+      const dx=x-mouse.x,dy=y-mouse.y,d=Math.hypot(dx,dy),zone=R*(.22+.035*k);
+      const lens=mouse.active?Math.pow(clamp(1-d/zone,0,1),2)*(.18+.82*focusW):0;
+      if(lens){
+        const inv=1/(d||1),nx=dx*inv,ny=dy*inv;
+        // Cursor acts like a weak moving mass: radial lens + a velocity-dependent tangential wake.
+        x+=nx*lens*(8+18*depth)+(-ny)*mouse.speed*lens*7;
+        y+=ny*lens*(6+14*depth)+( nx)*mouse.speed*lens*5;
+      }
+      const r=R*(.105+.055*seeded(k,103))*(1+lens*.10);
+      const aspect=.56+.20*seeded(k,104);
+      ctx.save();ctx.translate(x,y);ctx.rotate(ang*.18+mouse.vx*.003*lens);ctx.scale(1,aspect);
+      ctx.globalAlpha=(.055+.028*(1-depth))*strength*(1+lens*.55);
+      ctx.drawImage(nebulaSprites[k],-r,-r,r*2,r*2);
+      if(speed>.06&&lens>.02){ctx.globalAlpha*=.26*speed;ctx.drawImage(nebulaSprites[k],-r-mouse.vx*11,-r-mouse.vy*11,r*2,r*2)}
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function fieldWeight(s,i){const d=Math.abs(s-i);return clamp(1-d,0,1)}
+  const FIELD_PRESETS=[
+    {aspect:.50,twist:.02,wave:.018,focus:0,open:.02,alpha:.55},
+    {aspect:.46,twist:.06,wave:.022,focus:0,open:.02,alpha:.62},
+    {aspect:.70,twist:.18,wave:.030,focus:0,open:.08,alpha:.52},
+    {aspect:.63,twist:.38,wave:.070,focus:0,open:.05,alpha:.58},
+    {aspect:.48,twist:.16,wave:.025,focus:1,open:.12,alpha:.54},
+    {aspect:.93,twist:.09,wave:.018,focus:0,open:.18,alpha:.58},
+    {aspect:.78,twist:.22,wave:.026,focus:0,open:.06,alpha:.35},
+    {aspect:.50,twist:-.52,wave:.028,focus:0,open:.03,alpha:.42},
+    {aspect:.62,twist:0,wave:0,focus:0,open:0,alpha:0}
+  ];
+  function fieldProfile(s){
+    const a=Math.floor(clamp(s,0,8)),b=Math.min(8,a+1),t=smooth(s-a),A=FIELD_PRESETS[a],B=FIELD_PRESETS[b],o={};
+    for(const k of ['aspect','twist','wave','focus','open','alpha']) o[k]=lerp(A[k],B[k],t);
+    return o;
+  }
+  function fieldPoint(anchor,rn,a,p,t,focusX,focusY,out=fieldScratch){
+    const R=Math.min(W,H),rad=R*(.040+rn*.235);
+    const ripple=1+p.wave*Math.sin(a*5.0+rn*8.2+t*.00010)+p.wave*.55*Math.sin(a*2.2-rn*5.4);
+    const ang=a+p.twist*rn+p.wave*.8*Math.sin(a*3+t*.00008);
+    let x=anchor.x+Math.cos(ang)*rad*ripple;
+    let y=anchor.y+Math.sin(ang)*rad*ripple*p.aspect;
+    if(p.focus>.01){
+      const dx=(focusX-anchor.x)/Math.max(1,R),dy=(focusY-anchor.y)/Math.max(1,R);
+      const lens=(1-rn)*p.focus;
+      const velocityWarp=clamp(mouse.speed,0,1.4)*.012;
+      x+=dx*R*.080*lens*Math.sin(a*2.0)+mouse.vx*R*velocityWarp*lens*.0025;
+      y+=dy*R*.065*lens*Math.cos(a*2.0)+mouse.vy*R*velocityWarp*lens*.0020;
+    }
+    out.x=x;out.y=y;return out;
+  }
+  function drawGeoField(anchor,s,t){
+    if(endingProgress>.92) return;
+    const R=Math.min(W,H),p=fieldProfile(s),endFade=1-endingProgress;
+    const focusX=mouse.active?mouse.x:anchor.x,focusY=mouse.active?mouse.y:anchor.y;
+    ctx.save();
+    ctx.lineWidth=.62;
+    ctx.strokeStyle='rgba(224,228,221,.10)';
+    ctx.globalAlpha=p.alpha*endFade;
+
+    // One coordinate field persists through the entire story and only changes its geometry
+    for(let ring=1;ring<=7;ring++){
+      const rn=ring/7;
+      const gap=p.open*TAU;
+      const startA=-Math.PI*.5+gap*.5;
+      const span=TAU-gap;
+      ctx.beginPath();
+      const ringSteps=mobile()?46:62;
+      for(let k=0;k<=ringSteps;k++){
+        const a=startA+(k/ringSteps)*span;
+        const q=fieldPoint(anchor,rn,a,p,t,focusX,focusY);
+        k?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);
+      }
+      ctx.stroke();
+    }
+    for(let spoke=0;spoke<12;spoke++){
+      const a=-Math.PI*.5+(spoke/12)*TAU;
+      ctx.beginPath();
+      const spokeSteps=mobile()?18:24;
+      for(let k=0;k<=spokeSteps;k++){
+        const rn=.08+(k/spokeSteps)*.92;
+        const q=fieldPoint(anchor,rn,a,p,t,focusX,focusY);
+        k?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);
+      }
+      ctx.stroke();
+    }
+
+    // Measurement marks emerge from the same field rather than a new graphic system
+    const survey=fieldWeight(s,2)*.40+fieldWeight(s,3)*.22;
+    if(survey>.02){
+      ctx.globalAlpha=survey*endFade;
+      for(let j=0;j<12;j++){
+        const a=j/12*TAU;
+        const q=fieldPoint(anchor,.70,a,p,t,focusX,focusY);
+        const nx=-Math.sin(a),ny=Math.cos(a);
+        ctx.beginPath();ctx.moveTo(q.x-nx*3,q.y-ny*3);ctx.lineTo(q.x+nx*3,q.y+ny*3);ctx.stroke();
+      }
+    }
+
+    // The only deliberate exception: relationship itself becomes visible in the signature moment
+    const w6=fieldWeight(s,6)*endFade;
+    if(w6>.02){
+      ctx.globalAlpha=.56*w6;
+      if(daoStage===1){ctx.beginPath();ctx.moveTo(anchor.x-46,anchor.y);ctx.lineTo(anchor.x+46,anchor.y);ctx.stroke()}
+      if(daoStage===2){const pts=[[0,-48],[-54,38],[54,38]];ctx.beginPath();pts.forEach((pt,i)=>{const q=pts[(i+1)%3];ctx.moveTo(anchor.x+pt[0],anchor.y+pt[1]);ctx.lineTo(anchor.x+q[0],anchor.y+q[1])});ctx.stroke()}
+      if(daoStage===3){for(let j=0;j<18;j++){const a=seeded(j,120)*TAU,b=seeded(j,121)*TAU,r1=R*(.08+seeded(j,122)*.15),r2=R*(.08+seeded(j,123)*.15);ctx.beginPath();ctx.moveTo(anchor.x+Math.cos(a)*r1,anchor.y+Math.sin(a)*r1*.78);ctx.lineTo(anchor.x+Math.cos(b)*r2,anchor.y+Math.sin(b)*r2*.78);ctx.stroke()}}
+    }
+    ctx.restore();
+  }
+
+  function drawNucleus(anchor,s){
+    const alphas=[.96,.95,.88,.28,.9,.55,.76,.34,.98];
+    const a=Math.floor(clamp(s,0,8)),b=Math.min(8,a+1),t=smooth(s-a),alpha=lerp(alphas[a],alphas[b],t);
+    const pulse=1+daoPulse*.9;
+    ctx.save();ctx.globalCompositeOperation='screen';
+    const r=(2.3+endingProgress*.75)*pulse;const g=ctx.createRadialGradient(anchor.x,anchor.y,0,anchor.x,anchor.y,18*pulse);g.addColorStop(0,`rgba(255,255,255,${Math.min(1,alpha*.82+endingProgress*.18)})`);g.addColorStop(.18,`rgba(255,255,255,${alpha*.24})`);g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(anchor.x-24*pulse,anchor.y-24*pulse,48*pulse,48*pulse);ctx.beginPath();ctx.arc(anchor.x,anchor.y,r,0,TAU);ctx.fillStyle=`rgba(255,255,255,${alpha})`;ctx.fill();ctx.restore();
+  }
+
+  function frame(t){
+    if(!visible) return;
+    const dt=Math.min(32,t-lastT||16);lastT=t;frameNo++;
+    updateSmoothScroll(dt,t);
+    ctx.clearRect(0,0,W,H);
+
+    // One inertial pointer model drives cursor, camera, field and nebula. No DOM writes in pointermove.
+    const follow=reduced?1:1-Math.exp(-dt*.026);
+    mouse.px=mouse.x;mouse.py=mouse.y;
+    mouse.x+=((mouse.active?mouse.tx:W*.5)-mouse.x)*follow;mouse.y+=((mouse.active?mouse.ty:H*.5)-mouse.y)*follow;
+    mouse.vx=(mouse.x-mouse.px)/(dt||16);mouse.vy=(mouse.y-mouse.py)/(dt||16);
+    const instantSpeed=Math.hypot(mouse.vx,mouse.vy);mouse.speed+= (instantSpeed-mouse.speed)*(1-Math.exp(-dt*.018));
+    mouse.nx=(mouse.x/W-.5)*2;mouse.ny=(mouse.y/H-.5)*2;camera.tx=mouse.active?mouse.nx:0;camera.ty=mouse.active?mouse.ny:0;
+    camera.x+=((reduced?0:camera.tx)-camera.x)*(1-Math.exp(-dt*.0036));camera.y+=((reduced?0:camera.ty)-camera.y)*(1-Math.exp(-dt*.0036));
+
+    const anchor=blendedAnchor(narrative);
+    if(!reduced&&mouse.active){
+      const magneticScene=(activeScene===2||activeScene===6),dx=anchor.x-mouse.x,dy=anchor.y-mouse.y,dist=Math.hypot(dx,dy);const magnet=magneticScene?Math.pow(clamp(1-dist/145,0,1),2):0;
+      const cx=mouse.x+dx*magnet*.055,cy=mouse.y+dy*magnet*.055,angle=Math.atan2(mouse.vy,mouse.vx),stretch=1+clamp(mouse.speed*.055,0,.16),scale=1+magnet*.34;
+      cursor.style.transform=`translate3d(${(cx-12).toFixed(2)}px,${(cy-12).toFixed(2)}px,0) rotate(${angle.toFixed(3)}rad) scale(${(scale*stretch).toFixed(3)},${(scale/stretch).toFixed(3)})`;
+      cursor.style.setProperty('--cursor-halo',(0.86+magnet*.26).toFixed(3));cursor.style.setProperty('--cursor-halo-alpha',(0.45+magnet*.42).toFixed(3));cursor.classList.toggle('is-magnetic',magnet>.08);
+    }else cursor.classList.remove('is-magnetic');
+
+    holdPower+=((hold?1:0)-holdPower)*(1-Math.exp(-dt*.0045));daoPulse*=Math.pow(.91,dt/16.67);
+    soundEngine.update(narrative,holdPower,endingProgress);
+    drawAmbient(t);drawVolumetric(anchor,narrative,t);drawGeoField(anchor,narrative,t);
+
+    const sa=Math.floor(clamp(narrative,0,8)),sb=Math.min(8,sa+1),st=smooth(narrative-sa),A=targets[sa],B=targets[sb];
+    const nearScene2=clamp(1-Math.abs(narrative-2),0,1),nearScene4=clamp(1-Math.abs(narrative-4),0,1),collapse=endingProgress>0?smooth(endingProgress):0;
+    for(let i=0;i<particles.length;i++){
+      const p=particles[i],aa=A[i],bb=B[i];
+      let tx=lerp(aa.x,bb.x,st),ty=lerp(aa.y,bb.y,st),tz=lerp(aa.z,bb.z,st);p.drawAlpha=lerp(aa.alpha,bb.alpha,st);
+      if(collapse){tx*=1-collapse*.985;ty*=1-collapse*.985;tz=lerp(tz,0,collapse*.96)}
+      if(nearScene2>0&&holdPower>.001){const factor=1+holdPower*nearScene2*(.28+.34*(1-p.depthSeed));tx*=factor;ty*=factor;tz-=holdPower*(90+160*(1-p.depthSeed))}
+      if(nearScene4>0&&mouse.active&&!reduced){
+        const zc=clamp(tz,-330,680),scale=760/(760+zc),zn=clamp((zc+330)/1010,0,1),near=1-zn;
+        const sx=anchor.x+tx*scale+camera.x*(16+near*78),sy=anchor.y+ty*scale+camera.y*(10+near*48),dx=sx-mouse.x,dy=sy-mouse.y,dist=Math.hypot(dx,dy),radius=Math.min(230,Math.max(170,Math.min(W,H)*.24));
+        if(dist<radius){const f=smooth(1-dist/radius)*nearScene4,inv=1/(dist||1),nx=dx*inv,ny=dy*inv;tx+=nx*f*(7+mouse.speed*4)+(-ny)*f*mouse.speed*5;ty+=ny*f*(7+mouse.speed*3)+(nx)*f*mouse.speed*4;tz-=f*(18+mouse.speed*7)}
+      }
+      const breathe=Math.sin(t*.00034+p.phase)*(narrative<1.5?1.25:.5);tx+=Math.cos(p.phase)*breathe;ty+=Math.sin(p.phase)*breathe;
+      const stiffness=reduced?.16:lerp(.036,.052,clamp(Math.abs(narrative-Math.round(narrative))/.5,0,1));p.vx+=(tx-p.x)*stiffness;p.vy+=(ty-p.y)*stiffness;p.vz+=(tz-p.z)*stiffness;
+      const drag=Math.pow(.845,dt/16.67);p.vx*=drag;p.vy*=drag;p.vz*=drag;p.x+=p.vx;p.y+=p.vy;p.z+=p.vz;
+    }
+
+    // Depth changes slowly; sorting every third frame removes needless O(n log n) work without visible popping.
+    if(frameNo%3===0) order.sort((ia,ib)=>particles[ib].z-particles[ia].z);
+    for(const i of order){
+      const p=particles[i],z=clamp(p.z,-330,680),scale=760/(760+z),zn=clamp((z+330)/1010,0,1),near=1-zn;
+      const px=reduced?0:camera.x*(16+near*78),py=reduced?0:camera.y*(10+near*48),x=anchor.x+p.x*scale+px,y=anchor.y+p.y*scale+py;
+      const alpha=p.drawAlpha*(.58+near*.48)*(narrative>7.5?.88:1)*(1-endingProgress*.995),radius=clamp(p.r*scale*(.72+near*.74),.22,2.6);
+      ctx.beginPath();ctx.arc(x,y,radius,0,TAU);ctx.fillStyle=`rgba(244,242,235,${clamp(alpha,0,.96)})`;ctx.fill();
+    }
+    drawNucleus(anchor,narrative);raf=requestAnimationFrame(frame);
+  }
+
+
+  // Safari/iOS can suspend a freshly-created AudioContext; any explicit activation may unlock it.
+  ['pointerdown','keydown'].forEach(type=>addEventListener(type,()=>{if(soundEngine.ctx&&soundEngine.on&&soundEngine.ctx.state==='suspended')soundEngine.ctx.resume()},{passive:true}));
+  document.addEventListener('visibilitychange',()=>{
+    visible=!document.hidden;
+    if(visible){lastT=performance.now();if(!scroller.driving)syncScroller();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame)}
+    if(soundEngine.ctx){if(visible&&soundEngine.on)soundEngine.ctx.resume();else soundEngine.ctx.suspend()}
+  });
+
+  resize();
+  updateScrollState(true);
+  raf=requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
