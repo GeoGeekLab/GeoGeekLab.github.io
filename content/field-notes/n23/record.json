@@ -1,0 +1,75 @@
+{
+  "ref": "notes:n23",
+  "kind": "notes",
+  "id": "n23",
+  "data": {
+    "date": "2026.09.15",
+    "published": "2026.09.15",
+    "webEdition": "2026.09.15",
+    "typeKey": "essay",
+    "seriesKey": "representation",
+    "slug": "limits-of-ai-geospatial-foundation-models",
+    "figures": 0,
+    "featured": true
+  },
+  "atlas": {
+    "type": "note",
+    "x": 0.742,
+    "y": 0.332,
+    "traceX": 0.742,
+    "traceY": 0.332,
+    "text": {
+      "en": {
+        "topic": "GeoAI",
+        "place": "Cross-region",
+        "spatialField": "Earth Representation"
+      },
+      "zh": {
+        "topic": "GeoAI",
+        "place": "跨区域",
+        "spatialField": "地球表征"
+      }
+    }
+  },
+  "relations": {
+    "trace": [
+      "notes:n22"
+    ]
+  },
+  "text": {
+    "en": {
+      "type": "Field Note",
+      "title": "The Limits of AI: Geospatial Foundation Models Do Not Understand Geography",
+      "tags": [
+        "GeoAI",
+        "Geospatial Foundation Models",
+        "Geographic Reasoning"
+      ],
+      "read": "6 min · interactive",
+      "excerpt": "Geospatial foundation models can learn powerful spatial representations. Their harder test is geographic reasoning: scale, spatial dependence, regional heterogeneity, mechanism, and transfer beyond familiar places.",
+      "series": "Earth Representation",
+      "status": "Current",
+      "source": "GeoGeek · Web",
+      "published": "2026.09.15",
+      "webEdition": "2026.09.15",
+      "slug": "limits-of-ai-geospatial-foundation-models"
+    },
+    "zh": {
+      "type": "专题",
+      "title": "人工智能之不能：空间地理大模型不懂空间地理",
+      "tags": [
+        "GeoAI",
+        "空间地理大模型",
+        "地理推理"
+      ],
+      "read": "6 分钟 · 交互",
+      "excerpt": "空间地理大模型能够学习强大的空间表征，但更严格的检验是地理推理：尺度、空间依赖、区域异质性、机制解释，以及离开熟悉区域后的迁移能力。",
+      "series": "地球表征",
+      "status": "新作",
+      "source": "GeoGeek · Web",
+      "published": "2026.09.15",
+      "webEdition": "2026.09.15",
+      "slug": "limits-of-ai-geospatial-foundation-models"
+    }
+  }
+}
