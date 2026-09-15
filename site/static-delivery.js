@@ -2,7 +2,7 @@
   'use strict';
 
   // Static content is authoritative. JavaScript only enhances filtering,
-  // language navigation, and non-critical script delivery.
+  // language navigation, navigation continuity, and non-critical script delivery.
   const scheduleIdle = (fn) => {
     if ('requestIdleCallback' in window) window.requestIdleCallback(fn, { timeout: 1800 });
     else window.setTimeout(fn, 900);
@@ -26,6 +26,41 @@
   };
 
   const normalize = value => String(value || '').trim().toLowerCase();
+
+  const ensureEarthNavigation = () => {
+    const locale = document.documentElement.lang?.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+    const earthLabel = locale === 'zh' ? '地球' : 'Earth';
+    const pathname = location.pathname.replace(/\/+$/, '') || '/';
+
+    const nav = document.querySelector('#primaryNav');
+    if (nav && !nav.querySelector('a[href="earth.html"], a[href="/earth.html"]')) {
+      const link = document.createElement('a');
+      link.href = '/earth.html';
+      link.textContent = earthLabel;
+      if (pathname.endsWith('/earth.html')) link.setAttribute('aria-current', 'page');
+      const lab = nav.querySelector('a[href="lab.html"], a[href="/lab.html"]');
+      if (lab) lab.insertAdjacentElement('afterend', link);
+      else nav.appendChild(link);
+    }
+
+    const index = document.querySelector('#sheetIndex.sheet-index-global');
+    if (index && !index.querySelector('a[href="earth.html"], a[href="/earth.html"]')) {
+      const link = document.createElement('a');
+      link.href = '/earth.html';
+      link.innerHTML = `<span>03</span><b>${earthLabel}</b>`;
+      if (pathname.endsWith('/earth.html')) link.setAttribute('aria-current', 'page');
+      const lab = index.querySelector('a[href="lab.html"], a[href="/lab.html"]');
+      if (lab) lab.insertAdjacentElement('afterend', link);
+      else index.insertBefore(link, index.querySelector('.sheet-index-foot'));
+
+      const ordered = [...index.querySelectorAll(':scope > a')];
+      ordered.forEach((item, i) => {
+        const number = item.querySelector('span');
+        if (number) number.textContent = String(i).padStart(2, '0');
+      });
+    }
+  };
+
   const initStaticFilters = () => {
     const list = document.querySelector('[data-static-note-list]');
     if (!list) return;
@@ -70,6 +105,7 @@
     }
   };
 
+  ensureEarthNavigation();
   loadIdleScripts();
   initStaticFilters();
   initLanguageLinks();
