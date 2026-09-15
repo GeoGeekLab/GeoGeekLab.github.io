@@ -86,7 +86,7 @@ window.GEOGEEK_ARCHIVE = {
             "PERSPECTIVE",
             "TRACE"
           ],
-          "origin": "ORIGIN / WHY GEOGEEK ↗",
+          "origin": "ORIGIN / WHY GeoGeek ↗",
           "originAria": "Enter GeoGeek Origin: Why GeoGeek",
           "right": "SCROLL / CHANGE SCALE ↓"
         },
@@ -721,7 +721,7 @@ window.GEOGEEK_ARCHIVE = {
             "观",
             "迹"
           ],
-          "origin": "起点 / 关于 GEOGEEK ↗",
+          "origin": "起点 / 关于 GeoGeek ↗",
           "originAria": "进入 GeoGeek 起点：关于 GeoGeek",
           "right": "下行 / 易其尺度 ↓"
         },
