@@ -14,7 +14,7 @@ check(gitignore.includes('site/assets/field-notes/'),'Generated local figure pre
 
 const units=[];
 for(const e of fs.readdirSync(content,{withFileTypes:true})) if(e.isDirectory()) units.push(e.name);
-check(units.length===22,`Expected 22 field-note source units, found ${units.length}.`);
+check(units.length===23,`Expected 23 field-note source units, found ${units.length}.`);
 const refs=new Set(), slugs=new Set();
 for(const id of units){
   const dir=path.join(content,id); const metaPath=path.join(dir,'record.json');
@@ -57,8 +57,8 @@ try {
   vm.runInContext(fs.readFileSync(path.join(root,'site','content.js'),'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root,'site','archive-content.js'),'utf8'), context);
   check(context.window.GEOGEEK_SOURCE_PREVIEW === true,'Source preview flag missing.');
-  check(context.window.GEOGEEK_DATA?.en?.notes?.length === 22,'English source preview does not expose 22 field notes.');
-  check(context.window.GEOGEEK_DATA?.zh?.notes?.length === 22,'Chinese source preview does not expose 22 field notes.');
+  check(context.window.GEOGEEK_DATA?.en?.notes?.length === 23,'English source preview does not expose 23 field notes.');
+  check(context.window.GEOGEEK_DATA?.zh?.notes?.length === 23,'Chinese source preview does not expose 23 field notes.');
   const zh = context.window.GEOGEEK_DATA?.zh?.ui || {};
   check(zh.filters?.observation === '观测之限','Chinese archive series label fell back to English.');
   check(zh.filters?.scale === '尺度与外推','Chinese scale series label fell back to English.');
