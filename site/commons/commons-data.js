@@ -2,6 +2,10 @@
   'use strict';
   const config = window.GEOGEEK_COMMONS_CONFIG || { mode:'demo' };
   const demo = () => window.GeoCommonsDemo?.build?.(new Date()) || { mode:'demo', totalVisits:0, locatedVisits:0, places:[], observations:[], activeCount:0 };
+  const LOCAL_KEY = 'geogeek-commons-local';
+  const PUBLIC_PLACE_KEY = 'geogeek-commons-public-place';
+  const MAX_LOCAL_OBSERVATIONS = 500;
+  const MAX_LOCAL_PLACES = 200;
   let supabase = null;
   let presenceChannel = null;
   let presenceState = [];
@@ -27,7 +31,7 @@
     const url = new URL(`${config.supabaseUrl.replace(/\/$/, '')}/functions/v1/${config.functionName || 'commons'}`);
     if (method === 'GET') {
       url.searchParams.set('action', action);
-      Object.entries(payload).forEach(([k,v]) => v != null && url.searchParams.set(k, String(v)));
+      Object.entries(payload).forEach(([key, value]) => value != null && url.searchParams.set(key, String(value)));
     }
     const response = await fetch(url, {
       method,
@@ -42,27 +46,84 @@
     return response.json();
   }
 
-  function readLocalContributions() {
-    try { return JSON.parse(localStorage.getItem('geogeek-commons-local') || '{"places":[],"observations":[]}'); }
-    catch { return { places:[], observations:[] }; }
+  function emptyLocal() {
+    return { places: [], observations: [] };
   }
 
-  function writeLocalContributions(value) {
-    try { localStorage.setItem('geogeek-commons-local', JSON.stringify(value)); } catch {}
+  function normalizeLocal(value) {
+    const input = value && typeof value === 'object' ? value : emptyLocal();
+    return {
+      places: Array.isArray(input.places) ? input.places.slice(-MAX_LOCAL_PLACES) : [],
+      observations: Array.isArray(input.observations) ? input.observations.slice(-MAX_LOCAL_OBSERVATIONS) : []
+    };
+  }
+
+  function readLocalContributions() {
+    try {
+      return normalizeLocal(JSON.parse(localStorage.getItem(LOCAL_KEY) || '{"places":[],"observations":[]}'));
+    } catch {
+      return emptyLocal();
+    }
+  }
+
+  function reportStorageError(context) {
+    setTimeout(() => {
+      try { window.dispatchEvent(new CustomEvent('geogeek:commons-storage-error', { detail: { context } })); }
+      catch {}
+    }, 0);
+  }
+
+  function writeLocalContributions(value, context = 'contribution') {
+    try {
+      const normalized = normalizeLocal(value);
+      const serialized = JSON.stringify(normalized);
+      localStorage.setItem(LOCAL_KEY, serialized);
+      if (localStorage.getItem(LOCAL_KEY) !== serialized) throw new Error('Local storage verification failed');
+      return true;
+    } catch (error) {
+      console.warn('[GeoGeek Commons] Local persistence failed.', error);
+      reportStorageError(context);
+      return false;
+    }
+  }
+
+  function writePublicPlace(value) {
+    try {
+      const serialized = JSON.stringify(value);
+      localStorage.setItem(PUBLIC_PLACE_KEY, serialized);
+      if (localStorage.getItem(PUBLIC_PLACE_KEY) !== serialized) throw new Error('Public place verification failed');
+      return true;
+    } catch (error) {
+      console.warn('[GeoGeek Commons] Local position persistence failed.', error);
+      reportStorageError('location');
+      return false;
+    }
   }
 
   function mergeDemoWithLocal(snapshot) {
     const local = readLocalContributions();
-    const places = [...snapshot.places.map(p => ({...p}))];
-    const observations = [...snapshot.observations];
-    local.places.forEach(p => {
-      const existing = places.find(x => x.id === p.id);
-      if (existing) Object.assign(existing, p);
-      else places.push(p);
-    });
-    local.observations.forEach(o => observations.push(o));
-    places.forEach(p => { p.observations = observations.filter(o => o.placeId === p.id).length; });
-    return { ...snapshot, places, observations, locatedVisits: places.reduce((s,p)=>s+(p.visits||0),0) };
+    const placeMap = new Map((snapshot.places || []).map(place => [place.id, { ...place }]));
+    for (const place of local.places) {
+      const existing = placeMap.get(place.id);
+      if (existing) Object.assign(existing, place);
+      else placeMap.set(place.id, { ...place });
+    }
+
+    const observations = [...(snapshot.observations || []), ...local.observations];
+    const observationCounts = new Map();
+    for (const observation of observations) {
+      if (!observation?.placeId) continue;
+      observationCounts.set(observation.placeId, (observationCounts.get(observation.placeId) || 0) + 1);
+    }
+
+    const places = [...placeMap.values()];
+    for (const place of places) place.observations = observationCounts.get(place.id) || 0;
+    return {
+      ...snapshot,
+      places,
+      observations,
+      locatedVisits: places.reduce((sum, place) => sum + Number(place.visits || 0), 0)
+    };
   }
 
   async function init() {
@@ -88,11 +149,13 @@
     }
     try {
       const data = await request('snapshot', filters, 'GET');
-      return { mode:'live', ...data };
+      localSnapshot = { mode:'live', ...data };
+      return localSnapshot;
     } catch (error) {
       console.warn('[GeoGeek Commons] Snapshot failed.', error);
       const fallback = mergeDemoWithLocal(demo());
-      return { ...fallback, backendError:true };
+      localSnapshot = { ...fallback, backendError:true };
+      return localSnapshot;
     }
   }
 
@@ -102,7 +165,7 @@
       if (sessionStorage.getItem('geogeek-commons-visit-recorded') === '1') return { skipped:true };
     } catch {}
     if (!isLive()) return { demo:true };
-    const coarse = (() => { try { return JSON.parse(localStorage.getItem('geogeek-commons-public-place') || 'null'); } catch { return null; } })();
+    const coarse = (() => { try { return JSON.parse(localStorage.getItem(PUBLIC_PLACE_KEY) || 'null'); } catch { return null; } })();
     const result = await request('visit', {
       sessionId: sid,
       path: meta.path || location.pathname,
@@ -116,15 +179,19 @@
   async function light(place) {
     if (isLive() && !config.allowContributions) throw new Error('Commons contributions are disabled');
     const normalized = { ...place, id: place.id || `local-${place.lat.toFixed(2)}-${place.lon.toFixed(2)}`, visits:1, observations:0, lastSeen:new Date().toISOString(), firstSeen:new Date().toISOString(), active:true };
-    try { localStorage.setItem('geogeek-commons-public-place', JSON.stringify(normalized)); } catch {}
+    const positionPersisted = writePublicPlace(normalized);
     if (!isLive()) {
       const local = readLocalContributions();
-      const existing = local.places.find(p => p.id === normalized.id);
-      if (existing) { existing.visits = Math.max(1, existing.visits || 0); existing.lastSeen = normalized.lastSeen; }
-      else local.places.push(normalized);
-      writeLocalContributions(local);
+      const existing = local.places.find(item => item.id === normalized.id);
+      if (existing) {
+        existing.visits = Math.max(1, existing.visits || 0);
+        existing.lastSeen = normalized.lastSeen;
+      } else {
+        local.places.push(normalized);
+      }
+      const persisted = writeLocalContributions(local, 'place');
       await updatePresence(normalized);
-      return { mode:'demo', localOnly:true, place:normalized };
+      return { mode:'demo', localOnly:true, place:normalized, persisted: persisted && positionPersisted, storageError: !(persisted && positionPersisted) };
     }
     const result = await request('light', { sessionId:sessionId(), place:normalized });
     await updatePresence(normalized);
@@ -137,13 +204,14 @@
     if (!clean) throw new Error('Empty observation');
     if (!isLive()) {
       const local = readLocalContributions();
-      const id = `local-o-${Date.now()}`;
+      const id = `local-o-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       local.observations.push({ id, placeId:place.id, text:{ en:clean, zh:clean }, displayName:String(displayName || '').trim().slice(0,32), createdAt:new Date().toISOString(), status:'approved', localOnly:true });
-      const p = local.places.find(p => p.id === place.id);
-      if (p) p.observations = (p.observations || 0) + 1;
+      if (local.observations.length > MAX_LOCAL_OBSERVATIONS) local.observations.splice(0, local.observations.length - MAX_LOCAL_OBSERVATIONS);
+      const localPlace = local.places.find(item => item.id === place.id);
+      if (localPlace) localPlace.observations = Number(localPlace.observations || 0) + 1;
       else local.places.push({ ...place, visits:1, observations:1, firstSeen:new Date().toISOString(), lastSeen:new Date().toISOString(), active:true });
-      writeLocalContributions(local);
-      return { mode:'demo', localOnly:true, status:'approved' };
+      const persisted = writeLocalContributions(local, 'observation');
+      return { mode:'demo', localOnly:true, status:persisted ? 'approved' : 'storage-error', persisted, storageError:!persisted };
     }
     return request('observe', { sessionId:sessionId(), place, text:clean, displayName:String(displayName || '').trim().slice(0,32) });
   }
@@ -154,7 +222,7 @@
     presenceChannel = supabase.channel('geogeek-commons-presence', { config:{ presence:{ key } } });
     presenceChannel.on('presence', { event:'sync' }, () => {
       const raw = presenceChannel.presenceState();
-      presenceState = Object.values(raw).flat().map(x => x).filter(Boolean);
+      presenceState = Object.values(raw).flat().filter(Boolean);
       onChange?.(presenceState);
     });
     await new Promise(resolve => {
@@ -164,18 +232,37 @@
       presenceChannel.subscribe(status => {
         if (status === 'SUBSCRIBED') {
           let place = null;
-          try { place = JSON.parse(localStorage.getItem('geogeek-commons-public-place') || 'null'); } catch {}
+          try { place = JSON.parse(localStorage.getItem(PUBLIC_PLACE_KEY) || 'null'); } catch {}
           presenceChannel.track({ located:Boolean(place), place: place ? { id:place.id, lat:place.lat, lon:place.lon, label:place.label, timezone:place.timezone } : null, at:new Date().toISOString() }).finally(() => { clearTimeout(timer); finish(); });
-        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') { clearTimeout(timer); finish(); }
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          clearTimeout(timer);
+          finish();
+        }
       });
     });
-    return () => { if (presenceChannel) supabase.removeChannel(presenceChannel); presenceChannel = null; };
+    return () => {
+      if (presenceChannel) supabase.removeChannel(presenceChannel);
+      presenceChannel = null;
+    };
   }
 
   async function updatePresence(place) {
     if (!presenceChannel) return;
-    try { await presenceChannel.track({ located:Boolean(place), place: place ? { id:place.id, lat:place.lat, lon:place.lon, label:place.label, timezone:place.timezone } : null, at:new Date().toISOString() }); } catch {}
+    try { await presenceChannel.track({ located:Boolean(place), place: place ? { id:place.id, lat:place.lat, lon:place.lon, label:place.label, timezone:place.timezone } : null, at:new Date().toISOString() }); }
+    catch {}
   }
 
-  window.GeoCommonsData = { init, snapshot, recordVisit, light, observe, startPresence, updatePresence, isLive, sessionId, getConfig:()=>config };
+  window.GeoCommonsData = {
+    init,
+    snapshot,
+    recordVisit,
+    light,
+    observe,
+    startPresence,
+    updatePresence,
+    isLive,
+    sessionId,
+    getConfig: () => config,
+    getLocalLimits: () => ({ observations:MAX_LOCAL_OBSERVATIONS, places:MAX_LOCAL_PLACES })
+  };
 })();
