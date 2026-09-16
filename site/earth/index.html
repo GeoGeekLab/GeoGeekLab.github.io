@@ -5,34 +5,35 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#11120f">
   <title>Earth Observatory — GeoGeek</title>
-  <meta name="description" content="GeoGeek Earth Observatory: one live map for Earth observation, hazards, atmosphere, ocean, orbit, infrastructure and biodiversity.">
+  <meta name="description" content="GeoGeek Earth Observatory: one map for Earth observation, hazards, atmosphere, ocean, orbit, infrastructure and biodiversity, with explicit time semantics per layer.">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/maplibre-gl@6.6.0/dist/maplibre-gl.css'">
   <link rel="stylesheet" href="earth.css">
+  <link rel="stylesheet" href="earth-stability.css">
 </head>
 <body>
   <a class="skip" href="#map">Skip to map</a>
   <div class="app-shell">
     <header class="topbar">
       <a class="brand" href="/lab.html" aria-label="GeoGeek Lab"><span class="brand-mark" aria-hidden="true"></span><span>GeoGeek</span></a>
-      <div class="title-block"><span>LIVE FIELD / EARTH IN VIEW</span><strong>EARTH OBSERVATORY</strong></div>
-      <div class="top-actions"><button id="sidebarToggle" type="button" aria-expanded="true">LAYERS</button><a href="/lab.html">LAB ↗</a></div>
+      <div class="title-block"><span>LIVE + HISTORICAL FIELD / EARTH IN VIEW</span><strong>EARTH OBSERVATORY</strong></div>
+      <div class="top-actions"><button id="sidebarToggle" type="button" aria-expanded="false">LAYERS</button><a href="/lab.html">LAB ↗</a></div>
     </header>
     <aside class="source-panel" id="sourcePanel" aria-label="Earth data sources">
       <div class="panel-head"><div><span>ALL IN A MAP</span><strong><b id="sourceCount">50</b> SOURCES</strong></div><button id="panelClose" class="icon-button" type="button" aria-label="Close layers">×</button></div>
       <div class="search-row"><input id="sourceSearch" type="search" autocomplete="off" placeholder="SEARCH SOURCE / FIELD"></div>
-      <div class="status-key" aria-label="Source status legend"><span><i class="status-dot live"></i>LIVE</span><span><i class="status-dot config"></i>CONFIG</span><span><i class="status-dot source"></i>SOURCE</span></div>
+      <div class="status-key" aria-label="Source time semantics"><span><i class="status-dot live"></i>LIVE/NOW</span><span><i class="status-dot config"></i>DATE</span><span><i class="status-dot source"></i>REF</span></div>
       <div class="source-list" id="sourceList"></div>
-      <footer class="panel-foot"><span>VISIBLE ≠ TRUE</span><small>Every layer declares source, observation time, resolution and limit.</small></footer>
+      <footer class="panel-foot"><span>TIME IS LAYER-SPECIFIC</span><small>DATE layers follow the view date. LIVE/NOW layers use provider-current or recent data. REF layers are not controlled by the date selector.</small></footer>
     </aside>
     <main class="map-stage">
-      <div id="map" aria-label="Interactive live Earth map"></div>
+      <div id="map" aria-label="Interactive Earth data map"></div>
       <div class="map-readout" id="mapReadout">LAT — · LON — · ZOOM —</div>
       <div class="loading-strip" id="loadingStrip" hidden></div>
-      <section class="time-console" aria-label="Observation time">
-        <div class="time-label"><span>TIME / UTC</span><strong id="timeReadout">—</strong></div>
-        <div class="time-controls"><button id="prevDay" type="button">−24H</button><input id="dateInput" type="date" aria-label="Observation date"><button id="todayButton" type="button">NOW</button><button id="nextDay" type="button">+24H</button></div>
+      <section class="time-console" aria-label="Historical view date">
+        <div class="time-label"><span>VIEW DATE / UTC</span><strong id="timeReadout">—</strong></div>
+        <div class="time-controls"><button id="prevDay" type="button">−24H</button><input id="dateInput" type="date" aria-label="Historical view date"><button id="todayButton" type="button">NOW</button><button id="nextDay" type="button">+24H</button></div>
         <div class="active-readout"><span>ACTIVE</span><strong id="activeCount">0</strong></div>
       </section>
     </main>
@@ -44,7 +45,7 @@
       <a id="inspectorLink" class="source-link" href="https://geogeeklab.github.io/" target="_blank" rel="noreferrer">SOURCE ↗</a>
     </aside>
   </div>
-  <noscript>This instrument requires JavaScript to render interactive geospatial layers.</noscript>
+  <noscript><div class="earth-noscript"><strong>JavaScript is required for the interactive map.</strong><p>The Earth Observatory depends on client-side map rendering and live provider queries. You can return to the Lab and use the source catalogue links there.</p><a href="/lab.html">Return to Lab ↗</a></div></noscript>
   <script type="module" src="app.js"></script>
 </body>
 </html>
