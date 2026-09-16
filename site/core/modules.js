@@ -4,15 +4,32 @@
   const loaded = new Map();
   const scriptUrl = src => new URL(src, document.baseURI).href;
 
+  function cache(url, promise) {
+    const guarded = promise.catch(error => {
+      loaded.delete(url);
+      throw error;
+    });
+    loaded.set(url, guarded);
+    return guarded;
+  }
+
   function loadScript(src) {
     const url = scriptUrl(src);
     if (loaded.has(url)) return loaded.get(url);
-    const existing = [...document.scripts].find(script => script.src === url);
+    const existing = [...document.scripts].find(script => script.src === url && script.dataset.loadFailed !== 'true');
     if (existing?.dataset.loaded === 'true') return Promise.resolve(true);
     const promise = new Promise((resolve, reject) => {
       const script = existing || document.createElement('script');
-      const finish = () => { script.dataset.loaded = 'true'; resolve(true); };
-      const fail = () => reject(new Error(`Failed to load ${src}`));
+      const finish = () => {
+        script.dataset.loaded = 'true';
+        script.dataset.loadFailed = 'false';
+        resolve(true);
+      };
+      const fail = () => {
+        script.dataset.loadFailed = 'true';
+        if (!existing) script.remove();
+        reject(new Error(`Failed to load ${src}`));
+      };
       script.addEventListener('load', finish, { once: true });
       script.addEventListener('error', fail, { once: true });
       if (!existing) {
@@ -21,8 +38,7 @@
         document.head.appendChild(script);
       } else if (existing.readyState === 'complete') finish();
     });
-    loaded.set(url, promise);
-    return promise;
+    return cache(url, promise);
   }
 
   function loadModule(src) {
@@ -33,11 +49,14 @@
       script.type = 'module';
       script.src = src;
       script.addEventListener('load', () => resolve(true), { once: true });
-      script.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+      script.addEventListener('error', () => {
+        script.dataset.loadFailed = 'true';
+        script.remove();
+        reject(new Error(`Failed to load ${src}`));
+      }, { once: true });
       document.head.appendChild(script);
     });
-    loaded.set(url, promise);
-    return promise;
+    return cache(url, promise);
   }
 
   async function loadMap() {
@@ -69,8 +88,12 @@
     if (window.GeoMap) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    const map = await loadMap();
-    map?.open?.();
+    try {
+      const map = await loadMap();
+      map?.open?.();
+    } catch (error) {
+      console.warn('[GeoGeek] Site index failed to load; retry is available.', error);
+    }
   }, true);
 
   document.addEventListener('click', async event => {
@@ -79,13 +102,19 @@
     event.preventDefault();
     event.stopImmediatePropagation();
     const kind = button.dataset.instrument;
-    const instruments = await loadInstrument(kind);
-    instruments?.openByKind?.(kind, { updateUrl: true });
+    try {
+      const instruments = await loadInstrument(kind);
+      instruments?.openByKind?.(kind, { updateUrl: true });
+    } catch (error) {
+      console.warn(`[GeoGeek] Instrument ${kind} failed to load; retry is available.`, error);
+    }
   }, true);
 
   const requested = new URLSearchParams(location.search).get('instrument');
   if (requested && document.getElementById('instrumentDialog')) {
-    loadInstrument(requested).then(instruments => instruments?.openByKind?.(requested, { updateUrl: false }));
+    loadInstrument(requested)
+      .then(instruments => instruments?.openByKind?.(requested, { updateUrl: false }))
+      .catch(error => console.warn(`[GeoGeek] Requested instrument ${requested} failed to load.`, error));
   }
 
   const homeCommonsMount = document.getElementById('homeCommonsMapMount');
@@ -104,9 +133,19 @@
         item.classList.toggle('is-active', active);
         item.setAttribute('aria-pressed', String(active));
       });
-      if (started) await render();
+      if (started) {
+        try { await render(); }
+        catch (error) { console.warn('[GeoGeek] Commons preview failed; retry remains available.', error); }
+      }
     }));
-    const start = () => { if (started) return; started = true; render().catch(() => {}); };
+    const start = () => {
+      if (started) return;
+      started = true;
+      render().catch(error => {
+        started = false;
+        console.warn('[GeoGeek] Commons preview failed; retry remains available.', error);
+      });
+    };
     if ('IntersectionObserver' in window) {
       const observer = new IntersectionObserver(entries => {
         if (!entries.some(entry => entry.isIntersecting)) return;
@@ -119,7 +158,15 @@
 
   const orbital = document.getElementById('orbital-threshold');
   if (orbital) {
-    const startOrbital = () => loadModule('orbital/orbital-threshold.js').catch(() => {});
+    let started = false;
+    const startOrbital = () => {
+      if (started) return;
+      started = true;
+      loadModule('orbital/orbital-threshold.js').catch(error => {
+        started = false;
+        console.warn('[GeoGeek] Orbital field failed to load; retry remains available.', error);
+      });
+    };
     if ('IntersectionObserver' in window) {
       const observer = new IntersectionObserver(entries => {
         if (!entries.some(entry => entry.isIntersecting)) return;
