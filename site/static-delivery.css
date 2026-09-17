@@ -95,6 +95,12 @@
 }
 .static-related-link strong { font-size: .9rem; line-height: 1.35; font-weight: 500; }
 
+/* Origin EN — long supporting copy must wrap instead of being clipped by the scene viewport. */
+html[lang="en"] .scene .body-line,
+html[lang="en"] .scene .keep {
+  white-space: normal;
+}
+
 @media (max-width: 680px) {
   .static-selected-row,
   .static-note-row > a { grid-template-columns: 3.3rem minmax(0,1fr); }
