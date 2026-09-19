@@ -68,9 +68,9 @@ button{font:inherit;color:inherit}
 
 /* continuous chapters */
 main{position:relative;z-index:4}
-.scene{position:relative;min-height:132svh;padding:11vh max(28px,7vw)}
-.scene.signature{min-height:176svh}
-.scene.final{min-height:176svh}
+.scene{position:relative;min-height:188svh;padding:14vh max(28px,7vw)}
+.scene.signature{min-height:236svh}
+.scene.final{min-height:222svh}
 .copy{position:sticky;top:50vh;transform:translate3d(0,calc(-50% + var(--drift,0px)),0);width:min(860px,78vw);opacity:1;filter:none;will-change:transform;pointer-events:none;text-shadow:0 1px 16px rgba(0,0,0,.86)}
 .scene[data-side="right"] .copy{margin-left:auto;text-align:right}
 .scene[data-side="right"] .kicker,.scene[data-side="right"] .quote{margin-left:auto}
@@ -189,7 +189,7 @@ body[data-near="6"] .stage-word{opacity:1}
 
 @media(max-width:760px){
   .brand{left:18px;top:18px;font-size:15px}.brand-edition{display:none}.origin-nav{top:56px;font-size:10px;gap:12px}.count{right:18px;top:19px}.rail{right:20px;height:150px}.hint{left:18px;bottom:18px}.sound{right:46px;bottom:8px}.dots{bottom:2px}
-  .scene{min-height:122svh;padding:12vh 36px 12vh 22px}.scene.signature{min-height:156svh}.scene.final{min-height:150svh}
+  .scene{min-height:160svh;padding:15vh 36px 15vh 22px}.scene.signature{min-height:206svh}.scene.final{min-height:192svh}
   .copy,.scene[data-side="center"] .copy,.scene.cover .copy{width:100%;margin:0;text-align:left}
   .scene[data-side="right"] .copy{text-align:left;margin-left:0}.scene[data-side="right"] .kicker,.scene[data-side="right"] .quote{margin-left:0}
   .scene[data-side="center"] .kicker,.scene[data-side="center"] .quote{margin-left:0;margin-right:0}
@@ -676,12 +676,13 @@ body[data-near="6"] .stage-word{opacity:1}
     clearTimeout(wheelGesture.timer);wheelGesture.timer=setTimeout(()=>{wheelGesture.sum=0;wheelGesture.locked=false},180);
     if(wheelGesture.locked||Math.abs(wheelGesture.sum)<7) return;
 
-    const nearest=nearestSceneByScroll(scrollY),home=sceneScrollY(nearest),off=scrollY-home;
-    // If we are visibly between authored reading positions, the first nudge simply docks
-    // the closest page. When already docked, the same small nudge advances one chapter.
-    const misaligned=Math.abs(off)>Math.min(64,H*.075);
+    const nearest=nearestSceneByScroll(scrollY);
+    // Direction is authoritative: a downward gesture always settles on the next
+    // authored reading position; an upward gesture always settles on the previous one.
+    // Because wheel input is held while the gesture is classified, "nearest" remains
+    // the chapter where this physical gesture began, so a single gesture cannot skip.
     const direction=Math.sign(wheelGesture.sum||raw);
-    const target=misaligned?nearest:clamp(nearest+direction,0,sections.length-1);
+    const target=clamp(nearest+direction,0,sections.length-1);
     wheelGesture.locked=true;wheelGesture.sum=0;glideToScene(target,true);
   },{passive:false});
 
