@@ -2,11 +2,11 @@
 
 A personal lab for maps, field notes, and geospatial experiments.
 
-**Geo to see. Geek to build.**
+**Geo to see. Geek to build.**       https://geogeeklab.github.io/
 
 [![GeoGeek](site/assets/og-default.png)](https://geogeeklab.github.io/)
 
-https://geogeeklab.github.io/
+
 
 ## What's here
 
