@@ -481,12 +481,8 @@ async function staticizeHome(records) {
   const file = path.join(dist,'index.html');
   if (!(await exists(file))) return;
   let html = await read(file);
-  const rows = `<div class="static-selected-work" data-static-selected-work>${selectedRows(records)}</div><div id="selectedWorkRows" hidden aria-hidden="true"></div>`;
-  html = replaceElement(html, 'selectedWorkRows', rows);
-  if (!html.includes('static-orientation')) {
-    if (html.includes('data-static-selected-work')) html = html.replace('<div class="static-selected-work"', `${orientationBlock()}\n<div class="static-selected-work"`);
-    else html = html.replace(/(<h1\b[^>]*>\s*GeoGeek\s*<\/h1>)/i, `$1\n${orientationBlock()}`);
-  }
+  // Homepage IA intentionally omits the former orientation/selected-work interstitial.
+  // Keep static-delivery assets, but do not re-inject sections removed from site/index.html.
   html = addStaticAssets(html);
   await write(file, html);
 }
