@@ -598,7 +598,8 @@ async function patchGenericSeo() {
       continue;
     }
     const isArticle=/\/field-notes\/[^/]+\/$/.test(route);
-    if (!isArticle) {
+    const isOriginLanguagePage = route === '/origin/' || route === '/origin/cn/';
+    if (!isArticle && !isOriginLanguagePage) {
       const title=titleFromHtml(html,route);
       const websiteSchema = route === '/' ? { '@context':'https://schema.org','@type':'WebSite',name:'GeoGeek',url:`${SITE}/`,description:genericDescription(route),inLanguage:'en' } : null;
       html=patchSeo(html,{canonical,title,description:genericDescription(route),jsonLd:websiteSchema});

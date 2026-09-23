@@ -121,13 +121,23 @@ if(await exists(home)){
 }
 
 const originCanonical=path.join(dist,'origin','index.html');
+const originChinese=path.join(dist,'origin','cn','index.html');
 const originLegacy=path.join(dist,'origin','en','index.html');
 ok(await exists(originCanonical),'Origin English canonical route exists');
+ok(await exists(originChinese),'Origin Chinese route exists only at /origin/cn/');
 ok(await exists(originLegacy),'Legacy /origin/en/ compatibility route exists');
 if(await exists(originCanonical)){
   const html=await read(originCanonical);
   ok(/<html\b[^>]*\blang=(['"])en\1/i.test(html),'Origin canonical is English');
-  ok(html.includes('https://geogeeklab.github.io/origin/'),'Origin canonical metadata points to /origin/');
+  ok(/canonical[^>]+https:\/\/geogeeklab\.github\.io\/origin\//i.test(html),'Origin English canonical points to /origin/');
+  ok(/hreflang=(['"])zh-CN\1[^>]+\/origin\/cn\//i.test(html),'Origin English page links the Chinese Origin alternate');
+}
+if(await exists(originChinese)){
+  const html=await read(originChinese);
+  ok(/<html\b[^>]*\blang=(['"])zh-CN\1/i.test(html),'Origin Chinese page declares zh-CN');
+  ok(/canonical[^>]+https:\/\/geogeeklab\.github\.io\/origin\/cn\//i.test(html),'Origin Chinese canonical points to /origin/cn/');
+  ok(/hreflang=(['"])en\1[^>]+https:\/\/geogeeklab\.github\.io\/origin\//i.test(html),'Origin Chinese page links the English Origin alternate');
+  ok(!/geogeek-language|data-origin-locale/i.test(html),'Origin Chinese page is isolated from global language state');
 }
 if(await exists(originLegacy)){
   const html=await read(originLegacy);
@@ -142,6 +152,8 @@ for(const f of ['zh/feed.xml','zh/feed.json']) ok(!(await exists(path.join(dist,
 if(await exists(path.join(dist,'sitemap.xml'))){
   const sm=await read(path.join(dist,'sitemap.xml'));
   ok(!/hreflang|\/zh\//i.test(sm),'sitemap contains no language alternates or Chinese URLs');
+  ok(sm.includes(`${SITE}/origin/`),'sitemap includes English Origin canonical');
+  ok(sm.includes(`${SITE}/origin/cn/`),'sitemap includes the sole Chinese Origin route');
   ok(!sm.includes(`${SITE}/origin/en/`),'sitemap excludes legacy /origin/en/ redirect');
   for(const item of records) ok(sm.includes(`${SITE}/field-notes/${item.slug}/`),`sitemap includes EN: ${item.slug}`);
 }

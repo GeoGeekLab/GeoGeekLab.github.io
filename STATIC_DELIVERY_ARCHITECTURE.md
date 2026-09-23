@@ -15,6 +15,7 @@ This patch implements the P0–P2 program without replacing the existing framewo
 - English Field Note bodies are prerendered into route HTML.
 - Existing English routes remain `/field-notes/<slug>/`.
 - Legacy `/zh/field-notes/<slug>/` paths are noindex compatibility redirects to the English canonical route; they contain no article content.
+- The site is English-only except for one intentionally preserved standalone Chinese page at `/origin/cn/`. `/origin/` is the English canonical Origin page, and the two Origin pages use static reciprocal hreflang links without any global locale runtime.
 - `archive-content.js` keeps its existing compatibility shape but every `bodyHtml` value is emptied after the legacy QA passes.
 - `/data/field-notes.json` and `/data/site-index.json` contain metadata only.
 - `field-notes.html` receives a complete static list. The old JS target remains hidden for compatibility.
