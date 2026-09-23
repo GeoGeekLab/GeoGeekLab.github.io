@@ -65,90 +65,77 @@
 <div class="section-head coordinates-head">
   <div class="section-label">01 / CURRENT COORDINATES</div>
   <div>
-    <h2>Every view begins somewhere.<br>So does every fact.</h2>
-    <p>A working map for how GeoGeek reads the world: position, scale, representation, and what remains.</p>
+    <h2>Every view begins somewhere.</h2>
+    <p>Change the frame. Trace what remains.</p>
   </div>
 </div>
 
 <div class="coordinates-workbench epistemic-workbench">
-  <div class="coordinates-field contour-target" aria-label="GeoGeek epistemic coordinate field">
+  <div class="coordinates-field" aria-label="GeoGeek transformation field">
     <div class="coordinates-field-head">
-      <span>GEO / EPISTEMIC FIELD</span>
-      <small>POSITION × SCALE × REPRESENTATION × INVARIANT</small>
+      <span>GEO / FRAME TEST</span>
+      <small>PERSPECTIVE → TRANSFORM → INVARIANT → ROBUSTNESS</small>
     </div>
 
-    <div class="coordinates-plot epistemic-plot">
+    <div class="coordinates-plot">
       <svg class="coordinates-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <line class="coordinate-link coordinate-link-position" x1="52" y1="52" x2="19" y2="24"></line>
-        <line class="coordinate-link coordinate-link-scale" x1="52" y1="52" x2="81" y2="24"></line>
-        <line class="coordinate-link coordinate-link-representation" x1="52" y1="52" x2="22" y2="80"></line>
-        <line class="coordinate-link coordinate-link-invariant" x1="52" y1="52" x2="81" y2="79"></line>
+        <line class="coordinate-link coordinate-link-perspective" x1="50" y1="50" x2="18" y2="22"></line>
+        <line class="coordinate-link coordinate-link-transform" x1="50" y1="50" x2="82" y2="22"></line>
+        <line class="coordinate-link coordinate-link-invariant" x1="50" y1="50" x2="18" y2="78"></line>
+        <line class="coordinate-link coordinate-link-robustness" x1="50" y1="50" x2="82" y2="78"></line>
       </svg>
-
       <i class="coordinate-ring coordinate-ring-a" aria-hidden="true"></i>
       <i class="coordinate-ring coordinate-ring-b" aria-hidden="true"></i>
       <i class="coordinate-axis coordinate-axis-x" aria-hidden="true"></i>
       <i class="coordinate-axis coordinate-axis-y" aria-hidden="true"></i>
+      <span class="coordinate-target-label" aria-hidden="true">TARGET</span>
 
-      <div class="coordinate-node coordinate-node-position">
-        <b>01</b><span>POSITION</span><small>NO VIEW<br>FROM NOWHERE</small>
-      </div>
-
-      <div class="coordinate-node coordinate-node-scale">
-        <b>02</b><span>SCALE</span><small>TRUTH HAS<br>RESOLUTION</small>
-      </div>
-
-      <div class="coordinate-node coordinate-node-representation">
-        <b>03</b><span>REPRESENTATION</span><small>THE EARTH IS NOT<br>THE DATASET</small>
-      </div>
-
-      <div class="coordinate-node coordinate-node-invariant">
-        <b>04</b><span>INVARIANT</span><strong>WHAT SURVIVES<br>REPRESENTATION?</strong>
-      </div>
+      <div class="coordinate-node coordinate-node-perspective"><b>01</b><span>PERSPECTIVE</span></div>
+      <div class="coordinate-node coordinate-node-transform"><b>02</b><span>TRANSFORM</span></div>
+      <div class="coordinate-node coordinate-node-invariant"><b>03</b><span>INVARIANT</span></div>
+      <div class="coordinate-node coordinate-node-robustness"><b>04</b><span>ROBUSTNESS</span></div>
     </div>
 
     <div class="coordinates-field-foot">
-      <span>NO FACT WITHOUT COORDINATES</span>
-      <small>PLACE · TIME · SCALE · SENSOR · PROJECTION · MODEL</small>
+      <span>CHANGE THE FRAME</span>
+      <small>SCALE · PROJECTION · SENSOR · AGGREGATION · CLASSIFICATION · MODEL</small>
     </div>
   </div>
 
-  <div class="coordinates-register epistemic-register" aria-label="GeoGeek epistemic coordinates">
-    <article tabindex="0" data-coordinate="position">
-      <div class="coordinate-register-meta"><b>01</b><span>POSITION</span></div>
-      <h3>Every view begins somewhere.</h3>
-      <p>Observation is always situated: by place, time, instrument, orbit, and point of view.</p>
-      <small>WHERE · WHEN · SENSOR · ORBIT · VIEWPOINT</small>
+  <div class="coordinates-register epistemic-register" aria-label="GeoGeek working coordinates">
+    <article tabindex="0" data-coordinate="perspective">
+      <div class="coordinate-register-meta"><b>01</b><span>PERSPECTIVE</span></div>
+      <h3>Observation has a frame.</h3>
+      <p>Place, time, instrument, orbit, and convention condition what becomes observable.</p>
+      <small>PLACE · TIME · SENSOR · ORBIT · FRAME</small>
     </article>
 
-    <article tabindex="0" data-coordinate="scale">
-      <div class="coordinate-register-meta"><b>02</b><span>SCALE</span></div>
-      <h3>Truth has resolution.</h3>
-      <p>Change the grain, extent, or support and the object itself can change.</p>
-      <small>GRAIN · EXTENT · SUPPORT · GENERALIZATION</small>
-    </article>
-
-    <article tabindex="0" data-coordinate="representation">
-      <div class="coordinate-register-meta"><b>03</b><span>REPRESENTATION</span></div>
-      <h3>The Earth is not the dataset.</h3>
-      <p>Pixels, vectors, classes, projections, and models make the world computable by leaving something out.</p>
-      <small>PIXEL · VECTOR · CLASS · PROJECTION · MODEL</small>
+    <article tabindex="0" data-coordinate="transform">
+      <div class="coordinate-register-meta"><b>02</b><span>TRANSFORM</span></div>
+      <h3>Change the frame; the object may change.</h3>
+      <p>Rescale, reproject, aggregate, classify, or resample—and the same target can become a different object of analysis.</p>
+      <small>SCALE · PROJECTION · AGGREGATION · CLASSIFICATION · RESAMPLING</small>
     </article>
 
     <article tabindex="0" data-coordinate="invariant">
-      <div class="coordinate-register-meta"><b>04</b><span>INVARIANT</span></div>
-      <h3>What survives representation?</h3>
-      <p>When scale, projection, sensor, or model changes, what still belongs to the geography?</p>
-      <small>CHANGE THE VIEW → TRACE WHAT REMAINS</small>
+      <div class="coordinate-register-meta"><b>03</b><span>INVARIANT</span></div>
+      <h3>What survives the transform?</h3>
+      <p>Trace the relations, patterns, and structures that persist across relevant changes of scale, projection, sensor, or model.</p>
+      <small>TOPOLOGY · ORDER · PATTERN · STRUCTURE</small>
+    </article>
+
+    <article tabindex="0" data-coordinate="robustness">
+      <div class="coordinate-register-meta"><b>04</b><span>ROBUSTNESS</span></div>
+      <h3>Stable across relevant views.</h3>
+      <p>A pattern that persists across reasonable transformations carries more weight than one tied to a single representation.</p>
+      <small>TRANSFORM → COMPARE → REPEAT</small>
     </article>
   </div>
 </div>
 
-<div class="coordinates-manifesto" aria-label="GeoGeek working principles">
-  <span>THE WORLD PRECEDES THE MODEL.</span>
-  <span>EVERY MAP MAKES A CLAIM.</span>
-  <span>MAKE STATEMENTS THAT CAN BE WRONG.</span>
-  <span>THE EARTH RESISTS COMPRESSION.</span>
+<div class="coordinates-question">
+  <span>CURRENT QUESTION</span>
+  <strong>When does a pattern become geographic structure rather than an artifact of representation?</strong>
 </div>
 </section>
 <section class="home-commons" id="commons-gateway" data-scale="1 : 25,000" data-scale-level="COLLECTION" aria-label="Commons">

@@ -166,89 +166,296 @@ body.origin-active .scale-ui:hover, body.origin-active .scale-ui:focus-within { 
 .now-grid h3 { margin: 72px 0 12px; font-family: var(--serif); font-size: clamp(23px,2.25vw,32px); line-height: 1.04; font-weight: 400; letter-spacing: -.035em; }
 .now-grid p { margin: 0; max-width: 340px; color: var(--soft); font-size: 15px; line-height: 1.62; }
 
-/* current coordinates — research position, not four detached cards */
-.coordinates-section { overflow: clip; }
-.coordinates-head h2 { max-width: 920px; }
-.coordinates-head p { max-width: 760px; }
-.coordinates-workbench { display: grid; grid-template-columns: minmax(0,1.18fr) minmax(390px,.82fr); min-height: 610px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.coordinates-field { display: grid; grid-template-rows: auto minmax(430px,1fr) auto; min-width: 0; border-right: 1px solid var(--line); }
-.coordinates-field-head,.coordinates-field-foot { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 18px 22px; font-family: var(--mono); }
-.coordinates-field-head { border-bottom: 1px solid var(--line-soft); }
-.coordinates-field-foot { border-top: 1px solid var(--line-soft); }
-.coordinates-field-head span,.coordinates-field-foot span { color: var(--fg); font-size: 11px; font-weight: 650; letter-spacing: .09em; }
-.coordinates-field-head small,.coordinates-field-foot small { color: var(--muted); font: 560 10px/1.4 var(--mono); letter-spacing: .07em; text-align: right; }
-.coordinates-plot { position: relative; min-height: 430px; overflow: hidden; background:
-  linear-gradient(to right, transparent calc(50% - .5px), rgba(84,94,87,.12) 50%, transparent calc(50% + .5px)),
-  linear-gradient(to bottom, transparent calc(50% - .5px), rgba(84,94,87,.12) 50%, transparent calc(50% + .5px)); }
-.coordinates-plot::before { content:""; position:absolute; left:52%; top:52%; width:9px; height:9px; transform:translate(-50%,-50%); border-radius:50%; background:#a64624; box-shadow:0 0 0 7px rgba(166,70,36,.10),0 0 0 1px rgba(166,70,36,.35); z-index:3; }
-.coordinates-links { position:absolute; inset:0; width:100%; height:100%; overflow:visible; z-index:1; }
-.coordinate-link { vector-effect:non-scaling-stroke; stroke:rgba(84,94,87,.28); stroke-width:1; stroke-dasharray:2.5 4.5; transition:stroke .22s ease,stroke-width .22s ease; }
-.coordinate-ring { position:absolute; left:52%; top:52%; transform:translate(-50%,-50%); border:1px solid rgba(84,94,87,.17); border-radius:50%; pointer-events:none; }
-.coordinate-ring-a { width:min(42vw,420px); aspect-ratio:1; }
-.coordinate-ring-b { width:min(26vw,260px); aspect-ratio:1; }
-.coordinate-axis { position:absolute; left:52%; top:52%; background:rgba(84,94,87,.15); transform-origin:center; pointer-events:none; }
-.coordinate-axis-x { width:min(50vw,520px); height:1px; transform:translate(-50%,-50%) rotate(-7deg); }
-.coordinate-axis-y { width:1px; height:min(43vw,430px); transform:translate(-50%,-50%) rotate(12deg); }
-.coordinate-node { position:absolute; z-index:4; display:grid; gap:6px; min-width:138px; transition:transform .22s ease,opacity .22s ease; }
-.coordinate-node b { color:#a64624; font:650 10px/1 var(--mono); }
-.coordinate-node span { color:var(--muted); font:650 10px/1 var(--mono); letter-spacing:.085em; }
-.coordinate-node small { color:#5f6962; font:560 10px/1.45 var(--mono); letter-spacing:.04em; }
-.coordinate-node-field { left:12%; top:17%; }
-.coordinate-node-object { right:8%; top:16%; text-align:right; }
-.coordinate-node-method { left:15%; bottom:13%; }
-.coordinate-node-question { right:9%; bottom:12%; max-width:260px; text-align:right; }
-.coordinate-node-question strong { color:var(--fg); font:520 clamp(17px,1.7vw,24px)/1.1 var(--sans); letter-spacing:-.03em; }
-.coordinates-register { min-width:0; }
-.coordinates-register article { position:relative; min-height:152px; padding:19px 24px 20px 26px; border-bottom:1px solid var(--line-soft); outline:none; transition:background-color .18s ease,padding-left .18s ease; }
-.coordinates-register article:last-child { border-bottom:0; }
-.coordinates-register article::before { content:""; position:absolute; left:-1px; top:0; bottom:0; width:2px; background:#a64624; transform:scaleY(0); transform-origin:center; transition:transform .2s ease; }
-.coordinates-register article:hover,.coordinates-register article:focus-visible { background:rgba(166,70,36,.035); padding-left:32px; }
-.coordinates-register article:hover::before,.coordinates-register article:focus-visible::before { transform:scaleY(1); }
-.coordinate-register-meta { display:flex; align-items:center; gap:11px; margin-bottom:15px; font-family:var(--mono); }
-.coordinate-register-meta b { color:#a64624; font-size:10px; }
-.coordinate-register-meta span { color:var(--muted); font-size:10px; font-weight:650; letter-spacing:.08em; }
-.coordinates-register h3 { margin:0 0 8px; max-width:520px; font-family:var(--serif); font-size:clamp(22px,2vw,30px); line-height:1.04; font-weight:400; letter-spacing:-.035em; }
-.coordinates-register p { margin:0 0 14px; max-width:590px; color:var(--soft); font-size:14px; line-height:1.55; }
-.coordinates-register article > small { display:block; color:#7c857f; font:540 9px/1.45 var(--mono); letter-spacing:.055em; }
+/* current coordinates — perspective, transformation, invariance, robustness */
+.coordinates-section{
+  overflow:clip;
+  padding-top:clamp(82px,8vw,118px);
+  padding-bottom:clamp(108px,10vw,148px);
+}
+.coordinates-head{
+  margin-bottom:38px;
+}
+.coordinates-head > div:last-child{
+  min-width:0;
+  padding-right:min(13vw,220px);
+}
+.coordinates-head h2{
+  max-width:900px;
+  font-size:clamp(44px,4.55vw,68px);
+  line-height:.94;
+  letter-spacing:-.055em;
+  text-wrap:balance;
+}
+.coordinates-head p{
+  margin-top:15px;
+  max-width:560px;
+  font-family:var(--mono);
+  font-size:11px;
+  line-height:1.5;
+  letter-spacing:.075em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
 
-/* The register and the plot are one instrument: focus a coordinate, reveal its relation. */
-.coordinates-workbench:has(.coordinates-register article[data-coordinate="field"]:is(:hover,:focus-visible)) .coordinate-node-field,
-.coordinates-workbench:has(.coordinates-register article[data-coordinate="object"]:is(:hover,:focus-visible)) .coordinate-node-object,
-.coordinates-workbench:has(.coordinates-register article[data-coordinate="method"]:is(:hover,:focus-visible)) .coordinate-node-method,
-.coordinates-workbench:has(.coordinates-register article[data-coordinate="question"]:is(:hover,:focus-visible)) .coordinate-node-question { transform:translateY(-4px); }
-.coordinates-workbench:has(.coordinates-register article[data-coordinate="field"]:is(:hover,:focus-visible)) .coordinate-link-field,
-.coordinates-workbench:has(.coordinates-register article[data-coordinate="object"]:is(:hover,:focus-visible)) .coordinate-link-object,
-.coordinates-workbench:has(.coordinates-register article[data-coordinate="method"]:is(:hover,:focus-visible)) .coordinate-link-method { stroke:#a64624; stroke-width:1.5; }
-.coordinates-workbench:has(.coordinates-register article[data-coordinate="question"]:is(:hover,:focus-visible)) .coordinates-plot::before { box-shadow:0 0 0 12px rgba(166,70,36,.10),0 0 0 1px rgba(166,70,36,.55); }
+.coordinates-workbench{
+  display:grid;
+  grid-template-columns:minmax(0,1.02fr) minmax(420px,.98fr);
+  min-height:552px;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.coordinates-field{
+  display:grid;
+  grid-template-rows:auto minmax(420px,1fr) auto;
+  min-width:0;
+  border-right:1px solid var(--line);
+}
+.coordinates-field-head,
+.coordinates-field-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  padding:15px 18px;
+  font-family:var(--mono);
+}
+.coordinates-field-head{border-bottom:1px solid var(--line-soft)}
+.coordinates-field-foot{border-top:1px solid var(--line-soft)}
+.coordinates-field-head span,
+.coordinates-field-foot span{
+  color:var(--fg);
+  font-size:10px;
+  font-weight:650;
+  letter-spacing:.095em;
+}
+.coordinates-field-head small,
+.coordinates-field-foot small{
+  color:var(--muted);
+  font:560 9px/1.45 var(--mono);
+  letter-spacing:.055em;
+  text-align:right;
+}
 
+.coordinates-plot{
+  position:relative;
+  min-height:420px;
+  overflow:hidden;
+  background:
+    linear-gradient(to right,transparent calc(50% - .5px),rgba(84,94,87,.10) 50%,transparent calc(50% + .5px)),
+    linear-gradient(to bottom,transparent calc(50% - .5px),rgba(84,94,87,.10) 50%,transparent calc(50% + .5px));
+}
+.coordinates-plot::before{
+  content:"";
+  position:absolute;
+  z-index:3;
+  left:50%;
+  top:50%;
+  width:9px;
+  height:9px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:var(--signal);
+  box-shadow:0 0 0 7px rgba(166,70,36,.09),0 0 0 1px rgba(166,70,36,.35);
+}
+.coordinates-links{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  overflow:visible;
+}
+.coordinate-link{
+  vector-effect:non-scaling-stroke;
+  stroke:rgba(84,94,87,.25);
+  stroke-width:1;
+  stroke-dasharray:2.5 5;
+  transition:stroke .2s ease,stroke-width .2s ease;
+}
+.coordinate-ring{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(84,94,87,.15);
+  border-radius:50%;
+  pointer-events:none;
+}
+.coordinate-ring-a{width:min(31vw,390px);aspect-ratio:1}
+.coordinate-ring-b{width:min(19vw,235px);aspect-ratio:1}
+.coordinate-axis{
+  position:absolute;
+  left:50%;
+  top:50%;
+  background:rgba(84,94,87,.14);
+  transform-origin:center;
+  pointer-events:none;
+}
+.coordinate-axis-x{width:min(39vw,470px);height:1px;transform:translate(-50%,-50%) rotate(-7deg)}
+.coordinate-axis-y{width:1px;height:min(34vw,410px);transform:translate(-50%,-50%) rotate(12deg)}
+.coordinate-target-label{
+  position:absolute;
+  z-index:4;
+  left:50%;
+  top:calc(50% + 18px);
+  transform:translateX(-50%);
+  color:#78827b;
+  font:600 8px/1 var(--mono);
+  letter-spacing:.12em;
+}
+.coordinate-node{
+  position:absolute;
+  z-index:4;
+  display:flex;
+  align-items:baseline;
+  gap:7px;
+  min-width:0;
+  white-space:nowrap;
+  transition:transform .2s ease,color .2s ease;
+}
+.coordinate-node b{color:var(--signal);font:650 9px/1 var(--mono)}
+.coordinate-node span{color:var(--muted);font:650 10px/1 var(--mono);letter-spacing:.08em}
+.coordinate-node-perspective{left:9%;top:13%}
+.coordinate-node-transform{right:8%;top:13%}
+.coordinate-node-invariant{left:9%;bottom:12%}
+.coordinate-node-robustness{right:8%;bottom:12%}
+
+.coordinates-register{min-width:0}
+.coordinates-register article{
+  position:relative;
+  min-height:138px;
+  padding:17px 22px 18px 26px;
+  border-bottom:1px solid var(--line-soft);
+  outline:none;
+  transition:background-color .18s ease,padding-left .18s ease;
+}
+.coordinates-register article:last-child{border-bottom:0}
+.coordinates-register article::before{
+  content:"";
+  position:absolute;
+  left:-1px;
+  top:0;
+  bottom:0;
+  width:2px;
+  background:var(--signal);
+  transform:scaleY(0);
+  transform-origin:center;
+  transition:transform .18s ease;
+}
+.coordinates-register article:hover,
+.coordinates-register article:focus-visible{
+  background:rgba(166,70,36,.03);
+  padding-left:31px;
+}
+.coordinates-register article:hover::before,
+.coordinates-register article:focus-visible::before{transform:scaleY(1)}
+.coordinate-register-meta{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:11px;
+  font-family:var(--mono);
+}
+.coordinate-register-meta b{color:var(--signal);font-size:9px}
+.coordinate-register-meta span{color:var(--muted);font-size:10px;font-weight:650;letter-spacing:.08em}
+.coordinates-register h3{
+  margin:0 0 7px;
+  max-width:590px;
+  font-family:var(--serif);
+  font-size:clamp(21px,1.75vw,28px);
+  line-height:1.05;
+  font-weight:400;
+  letter-spacing:-.035em;
+}
+.coordinates-register p{
+  margin:0 0 11px;
+  max-width:620px;
+  color:var(--soft);
+  font-size:13px;
+  line-height:1.52;
+}
+.coordinates-register article > small{
+  display:block;
+  color:#7b857e;
+  font:540 8.5px/1.45 var(--mono);
+  letter-spacing:.05em;
+}
+
+.coordinates-workbench:has(.coordinates-register article[data-coordinate="perspective"]:is(:hover,:focus-visible)) .coordinate-node-perspective,
+.coordinates-workbench:has(.coordinates-register article[data-coordinate="transform"]:is(:hover,:focus-visible)) .coordinate-node-transform,
+.coordinates-workbench:has(.coordinates-register article[data-coordinate="invariant"]:is(:hover,:focus-visible)) .coordinate-node-invariant,
+.coordinates-workbench:has(.coordinates-register article[data-coordinate="robustness"]:is(:hover,:focus-visible)) .coordinate-node-robustness{
+  transform:translateY(-3px);
+}
+.coordinates-workbench:has(.coordinates-register article[data-coordinate="perspective"]:is(:hover,:focus-visible)) .coordinate-link-perspective,
+.coordinates-workbench:has(.coordinates-register article[data-coordinate="transform"]:is(:hover,:focus-visible)) .coordinate-link-transform,
+.coordinates-workbench:has(.coordinates-register article[data-coordinate="invariant"]:is(:hover,:focus-visible)) .coordinate-link-invariant,
+.coordinates-workbench:has(.coordinates-register article[data-coordinate="robustness"]:is(:hover,:focus-visible)) .coordinate-link-robustness{
+  stroke:var(--signal);
+  stroke-width:1.45;
+}
+
+.coordinates-question{
+  display:grid;
+  grid-template-columns:220px minmax(0,1fr);
+  gap:clamp(28px,4vw,58px);
+  align-items:start;
+  padding:22px 0 0;
+}
+.coordinates-question span{
+  color:var(--muted);
+  font:650 10px/1.4 var(--mono);
+  letter-spacing:.085em;
+}
+.coordinates-question strong{
+  max-width:920px;
+  color:var(--fg);
+  font-family:var(--serif);
+  font-size:clamp(23px,2.35vw,36px);
+  line-height:1.12;
+  letter-spacing:-.035em;
+  font-weight:400;
+}
+
+@media(max-width:1180px){
+  .coordinates-head > div:last-child{padding-right:150px}
+  .coordinates-workbench{grid-template-columns:minmax(0,1fr) minmax(380px,.9fr)}
+  .coordinates-field-head small{max-width:310px}
+}
 @media(max-width:980px){
-  .coordinates-workbench { grid-template-columns:1fr; }
-  .coordinates-field { border-right:0; border-bottom:1px solid var(--line); }
-  .coordinates-field-head,.coordinates-field-foot { padding-inline:18px; }
-  .coordinates-register { display:grid; grid-template-columns:1fr 1fr; }
-  .coordinates-register article:nth-child(odd) { border-right:1px solid var(--line-soft); }
-  .coordinates-register article:nth-last-child(-n+2) { border-bottom:0; }
+  .coordinates-head > div:last-child{padding-right:0}
+  .coordinates-workbench{grid-template-columns:1fr}
+  .coordinates-field{border-right:0;border-bottom:1px solid var(--line)}
+  .coordinates-field-head,.coordinates-field-foot{padding-inline:16px}
+  .coordinates-register{display:grid;grid-template-columns:1fr 1fr}
+  .coordinates-register article:nth-child(odd){border-right:1px solid var(--line-soft)}
+  .coordinates-register article:nth-last-child(-n+2){border-bottom:0}
+  .coordinates-question{grid-template-columns:1fr;gap:10px}
 }
 @media(max-width:640px){
-  .coordinates-head h2 { font-size:clamp(40px,13vw,58px); }
-  .coordinates-workbench { min-height:0; }
-  .coordinates-field { grid-template-rows:auto minmax(370px,1fr) auto; }
-  .coordinates-plot { min-height:370px; }
-  .coordinate-ring-a { width:310px; }
-  .coordinate-ring-b { width:190px; }
-  .coordinate-node { min-width:110px; }
-  .coordinate-node-field { left:6%; top:13%; }
-  .coordinate-node-object { right:5%; top:15%; }
-  .coordinate-node-method { left:7%; bottom:12%; }
-  .coordinate-node-question { right:5%; bottom:10%; max-width:170px; }
-  .coordinates-register { grid-template-columns:1fr; }
-  .coordinates-register article,.coordinates-register article:nth-child(odd) { border-right:0; border-bottom:1px solid var(--line-soft); }
-  .coordinates-register article:last-child { border-bottom:0; }
-  .coordinates-field-head small { display:none; }
-  .coordinates-field-foot { align-items:flex-start; flex-direction:column; gap:6px; }
-  .coordinates-field-foot small { text-align:left; }
+  .coordinates-section{padding-top:72px}
+  .coordinates-head h2{font-size:clamp(38px,11vw,54px)}
+  .coordinates-head p{font-size:10px}
+  .coordinates-workbench{min-height:0}
+  .coordinates-field{grid-template-rows:auto minmax(350px,1fr) auto}
+  .coordinates-plot{min-height:350px}
+  .coordinates-field-head small{display:none}
+  .coordinates-field-foot{align-items:flex-start;flex-direction:column;gap:6px}
+  .coordinates-field-foot small{text-align:left}
+  .coordinate-ring-a{width:290px}
+  .coordinate-ring-b{width:176px}
+  .coordinate-axis-x{width:330px}
+  .coordinate-axis-y{height:330px}
+  .coordinate-node-perspective{left:6%;top:11%}
+  .coordinate-node-transform{right:5%;top:11%}
+  .coordinate-node-invariant{left:6%;bottom:11%}
+  .coordinate-node-robustness{right:5%;bottom:11%}
+  .coordinates-register{grid-template-columns:1fr}
+  .coordinates-register article,
+  .coordinates-register article:nth-child(odd){border-right:0;border-bottom:1px solid var(--line-soft)}
+  .coordinates-register article:last-child{border-bottom:0}
+  .coordinates-question strong{font-size:clamp(22px,7vw,30px)}
 }
-
 
 .preview-list { border-top: 1px solid var(--line); }
 .preview-row, .note-row, .lab-row { position: relative; display: grid; align-items: center; border-bottom: 1px solid var(--line-soft); overflow: hidden; }
@@ -1995,82 +2202,3 @@ body[data-page-key="commons"] .scale-ui { top: 84px; }
   padding: 18px 0;
 }
 .archive-channel .wechat-archive-code img { width: 96px; height: 96px; }
-
-/* GeoGeek epistemic language */
-.epistemic-workbench .coordinate-node-invariant strong{
-  color:var(--fg);
-  font:520 clamp(16px,1.55vw,23px)/1.05 var(--sans);
-  letter-spacing:-.03em;
-}
-.coordinate-node-position{left:11%;top:15%}
-.coordinate-node-scale{right:8%;top:15%;text-align:right}
-.coordinate-node-representation{left:13%;bottom:12%}
-.coordinate-node-invariant{right:8%;bottom:10%;max-width:260px;text-align:right}
-.epistemic-register article{min-height:158px}
-.epistemic-register h3{font-size:clamp(23px,2.15vw,32px)}
-.epistemic-register p{max-width:620px}
-.coordinates-manifesto{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  border-bottom:1px solid var(--line);
-  border-left:1px solid transparent;
-}
-.coordinates-manifesto span{
-  min-height:74px;
-  display:flex;
-  align-items:center;
-  padding:0 18px;
-  border-right:1px solid var(--line-soft);
-  color:#667169;
-  font:600 10px/1.45 var(--mono);
-  letter-spacing:.07em;
-}
-.coordinates-manifesto span:first-child{padding-left:0}
-.coordinates-manifesto span:last-child{border-right:0}
-.epistemic-plot::after{
-  content:"WORLD → OBSERVATION → REPRESENTATION → MODEL → STATEMENT";
-  position:absolute;
-  left:50%;
-  bottom:17px;
-  transform:translateX(-50%);
-  color:rgba(84,94,87,.46);
-  font:550 9px/1 var(--mono);
-  letter-spacing:.08em;
-  white-space:nowrap;
-}
-.coordinates-workbench:has(.epistemic-register article[data-coordinate="position"]:is(:hover,:focus-visible)) .coordinate-node-position,
-.coordinates-workbench:has(.epistemic-register article[data-coordinate="scale"]:is(:hover,:focus-visible)) .coordinate-node-scale,
-.coordinates-workbench:has(.epistemic-register article[data-coordinate="representation"]:is(:hover,:focus-visible)) .coordinate-node-representation,
-.coordinates-workbench:has(.epistemic-register article[data-coordinate="invariant"]:is(:hover,:focus-visible)) .coordinate-node-invariant{
-  transform:translateY(-4px);
-}
-.coordinates-workbench:has(.epistemic-register article[data-coordinate="position"]:is(:hover,:focus-visible)) .coordinate-link-position,
-.coordinates-workbench:has(.epistemic-register article[data-coordinate="scale"]:is(:hover,:focus-visible)) .coordinate-link-scale,
-.coordinates-workbench:has(.epistemic-register article[data-coordinate="representation"]:is(:hover,:focus-visible)) .coordinate-link-representation,
-.coordinates-workbench:has(.epistemic-register article[data-coordinate="invariant"]:is(:hover,:focus-visible)) .coordinate-link-invariant{
-  stroke:#a64624;
-  stroke-width:1.5;
-}
-@media(max-width:980px){
-  .coordinates-manifesto{grid-template-columns:1fr 1fr}
-  .coordinates-manifesto span:nth-child(2){border-right:0}
-  .coordinates-manifesto span{border-bottom:1px solid var(--line-soft)}
-  .coordinates-manifesto span:nth-last-child(-n+2){border-bottom:0}
-  .coordinates-manifesto span:nth-child(odd){padding-left:0}
-}
-@media(max-width:640px){
-  .coordinates-head h2 br{display:none}
-  .coordinate-node-position{left:5%;top:12%}
-  .coordinate-node-scale{right:5%;top:13%}
-  .coordinate-node-representation{left:5%;bottom:12%}
-  .coordinate-node-invariant{right:5%;bottom:9%;max-width:170px}
-  .epistemic-plot::after{font-size:8px;letter-spacing:.035em}
-  .coordinates-manifesto{grid-template-columns:1fr}
-  .coordinates-manifesto span{
-    min-height:56px;
-    padding-left:0;
-    border-right:0;
-    border-bottom:1px solid var(--line-soft)!important;
-  }
-  .coordinates-manifesto span:last-child{border-bottom:0!important}
-}
