@@ -113,6 +113,14 @@ check(/<html\b[^>]*\blang=(['"])en\1/i.test(storySource),'GeoAI story must be st
 check(!/data-lang=|class=(['"])lang\1/i.test(storySource),'GeoAI story must not expose a language switch.');
 const originSource = fs.readFileSync(path.join(root,'site','origin','index.html'),'utf8');
 check(/<html\b[^>]*\blang=(['"])en\1/i.test(originSource),'Origin canonical must be statically English.');
+for (const [label, source] of [['Origin EN', originSource], ['Origin CN', fs.readFileSync(path.join(root,'site','origin','cn','index.html'),'utf8')]]) {
+  check(source.includes("const canvas = document.getElementById('cosmos');"), `${label}: cosmos canvas bootstrap missing`);
+  check(source.includes("const ctx = canvas.getContext('2d'"), `${label}: 2D canvas context bootstrap missing`);
+  check(source.includes("const sections = [...document.querySelectorAll('.scene')];"), `${label}: scene bootstrap missing`);
+  check(source.includes("const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;"), `${label}: motion-preference bootstrap missing`);
+  check(source.includes("const clamp = (v,a,b) => Math.max(a,Math.min(b,v));"), `${label}: animation math bootstrap missing`);
+}
+
 const originCnPath = path.join(root,'site','origin','cn','index.html');
 check(fs.existsSync(originCnPath),'The sole Chinese page must exist at /origin/cn/.');
 if (fs.existsSync(originCnPath)) {

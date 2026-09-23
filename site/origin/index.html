@@ -317,7 +317,24 @@ html[lang="en"] .scene[data-scene="8"] h2{font-size:clamp(52px,6.2vw,96px)}
 <script>
 (() => {
   'use strict';
-
+  const canvas = document.getElementById('cosmos');
+  const ctx = canvas.getContext('2d', { alpha:true, desynchronized:true });
+  const sections = [...document.querySelectorAll('.scene')];
+  const sceneNo = document.getElementById('sceneNo');
+  const railMark = document.getElementById('railMark');
+  const hint = document.getElementById('hint');
+  const dots = document.getElementById('dots');
+  const touchpoint = document.getElementById('touchpoint');
+  const stageWord = document.getElementById('stageWord');
+  const cursor = document.getElementById('cursor');
+  const soundToggle = document.getElementById('soundToggle');
+  const interactionStatus = document.getElementById('interactionStatus');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TAU = Math.PI * 2;
+  const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+  const lerp = (a,b,t) => a + (b-a)*t;
+  const smooth = t => t*t*(3-2*t);
+  const seeded = (i,k=1) => { const x=Math.sin(i*12.9898+k*78.233)*43758.5453; return x-Math.floor(x); };
 
   let W=innerWidth,H=innerHeight,DPR=1;
   let particles=[], ambient=[], targets=[], order=[], centers=[];
