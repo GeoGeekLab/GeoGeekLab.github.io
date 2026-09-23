@@ -97,10 +97,12 @@ h2{font-size:clamp(53px,7.9vw,118px)}
 .final h2{font-size:clamp(62px,9.3vw,142px)}
 .closing{margin-top:44px;font-family:"Songti SC","STSong",serif;font-size:clamp(20px,1.85vw,29px);line-height:1.8;color:var(--soft);letter-spacing:.06em}
 .mark{margin-top:72px;font:650 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.music-credit{margin-top:18px;font:560 10px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;color:rgba(242,240,233,.48);text-transform:uppercase}
+#originScore{display:none}
 
 /* refinement — the ending removes interface before it removes meaning */
 .brand,.origin-nav,.count,.rail,.dots,.sound{opacity:var(--ending-fade);transition:opacity .7s ease}
-.final .eyebrow,.final .closing,.final .mark{opacity:var(--ending-text);transition:opacity .8s ease}
+.final .eyebrow,.final .closing,.final .mark,.final .music-credit{opacity:var(--ending-text);transition:opacity .8s ease}
 .final h2{opacity:1}
 .grain{opacity:var(--grain-opacity)}
 
@@ -225,7 +227,11 @@ html[lang="en"] .scene[data-scene="8"] h2{font-size:clamp(52px,6.2vw,96px)}
 <div class="count"><b id="sceneNo">00</b> / 08</div>
 <div class="rail" aria-hidden="true"><i id="railMark"></i></div>
 <div class="hint" id="hint">DESCEND / TRACE THE ORIGIN</div>
-<button class="sound" id="soundToggle" type="button" aria-pressed="false" aria-label="Turn on spatial sound">SOUND</button>
+<button class="sound" id="soundToggle" type="button" aria-pressed="false" aria-label="Turn on soundtrack">SOUND</button>
+<audio id="originScore" preload="none" aria-hidden="true">
+  <source src="/assets/audio/origin-adrift.mp3" type="audio/mpeg" />
+  <source src="https://www.scottbuckley.com.au/library/wp-content/uploads/2022/02/AdriftAmongInfiniteStars.mp3" type="audio/mpeg" />
+</audio>
 <div class="stage-word" id="stageWord" aria-live="polite">ONE</div>
 <button class="touchpoint" id="touchpoint" type="button" aria-label="Interact with the current star field" data-enabled="false" disabled tabindex="-1"></button>
 <div class="cursor" id="cursor" aria-hidden="true"></div>
@@ -310,6 +316,7 @@ html[lang="en"] .scene[data-scene="8"] h2{font-size:clamp(52px,6.2vw,96px)}
       <h2 class="short-title">I am star-stuff</h2>
       <div class="closing">To seek our origins <span class="keep">is also to find our way home</span></div>
       <div class="mark">GeoGeek · FROM STAR-STUFF TO TAO</div>
+      <div class="music-credit">Music · “Adrift Among Infinite Stars” — Scott Buckley · CC BY 4.0</div>
     </div>
   </section>
 </main>
@@ -328,6 +335,7 @@ html[lang="en"] .scene[data-scene="8"] h2{font-size:clamp(52px,6.2vw,96px)}
   const stageWord = document.getElementById('stageWord');
   const cursor = document.getElementById('cursor');
   const soundToggle = document.getElementById('soundToggle');
+  const originScore = document.getElementById('originScore');
   const interactionStatus = document.getElementById('interactionStatus');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const TAU = Math.PI * 2;
@@ -722,134 +730,120 @@ html[lang="en"] .scene[data-scene="8"] h2{font-size:clamp(52px,6.2vw,96px)}
   });
 
   const soundEngine={
-    ctx:null,master:null,musicBus:null,padFilter:null,reverb:null,wet:null,dry:null,
-    voices:[],air:null,airGain:null,on:false,daoSilent:false,musicTimer:0,lastS:0,noteStep:0,
+    ctx:null,master:null,reverb:null,wet:null,dry:null,
+    on:false,daoSilent:false,lastS:0,score:originScore,scoreLevel:0,everStarted:false,
+    clipStart:44,clipEnd:362,
     midi(n){return 440*Math.pow(2,(n-69)/12)},
-    chords:[
-      [38,45,50,53,57], // Dm
-      [38,45,50,52,57], // Dm(add9)
-      [34,41,46,50,53], // Bb
-      [41,48,53,57,60], // F/A
-      [36,43,48,50,52], // C(add9)
-      [38,45,50,53,57], // return to Dm
-      [38,45,50,57,64], // open fifths / one
-      [34,41,46,50,57], // return
-      [38,45,50,53,57]  // home
-    ],
+    scoreWindow(){
+      const d=this.score?.duration;
+      if(Number.isFinite(d)&&d>0&&d<360) return {start:0,end:Math.max(1,d-.35)};
+      return {start:this.clipStart,end:this.clipEnd};
+    },
+    async prepareScore(){
+      const a=this.score;if(!a) return false;
+      if(a.readyState<1){
+        a.load();
+        await new Promise(resolve=>{
+          let settled=false;
+          const done=()=>{if(settled)return;settled=true;clearTimeout(timer);resolve()};
+          const timer=setTimeout(done,6000);
+          a.addEventListener('loadedmetadata',done,{once:true});
+          a.addEventListener('error',done,{once:true});
+        });
+      }
+      if(!Number.isFinite(a.duration)||a.duration<=0) return false;
+      const {start,end}=this.scoreWindow();
+      if(!this.everStarted){
+        const p=clamp(narrative/8,0,1);
+        const cue=start+(end-start)*Math.min(.90,p*.90);
+        try{a.currentTime=cue}catch(_){}
+      }else if(a.currentTime<start||a.currentTime>=end-.25){
+        try{a.currentTime=start}catch(_){}
+      }
+      return true;
+    },
     init(){
       if(this.ctx) return;
       const AC=window.AudioContext||window.webkitAudioContext;if(!AC) return;
       const ac=this.ctx=new AC();
       const compressor=ac.createDynamicsCompressor();
       compressor.threshold.value=-20;compressor.knee.value=20;compressor.ratio.value=2.2;compressor.attack.value=.025;compressor.release.value=.48;compressor.connect(ac.destination);
-      this.master=ac.createGain();this.master.gain.value=0;this.master.connect(compressor);
-
-      this.musicBus=ac.createGain();this.musicBus.gain.value=1;
-      this.padFilter=ac.createBiquadFilter();this.padFilter.type='lowpass';this.padFilter.frequency.value=780;this.padFilter.Q.value=.45;
-      this.dry=ac.createGain();this.dry.gain.value=.58;
-      this.wet=ac.createGain();this.wet.gain.value=.34;
+      this.master=ac.createGain();this.master.gain.value=.72;this.master.connect(compressor);
+      this.dry=ac.createGain();this.dry.gain.value=.72;
+      this.wet=ac.createGain();this.wet.gain.value=.30;
       this.reverb=ac.createConvolver();
-      const seconds=4.4,len=Math.floor(ac.sampleRate*seconds),imp=ac.createBuffer(2,len,ac.sampleRate);
+      const seconds=3.8,len=Math.floor(ac.sampleRate*seconds),imp=ac.createBuffer(2,len,ac.sampleRate);
       for(let c=0;c<2;c++){
         const d=imp.getChannelData(c);
-        for(let i=0;i<len;i++){
-          const t=i/len,decay=Math.pow(1-t,3.4);
-          d[i]=(Math.random()*2-1)*decay*(c?0.94:1);
-        }
+        for(let i=0;i<len;i++){const t=i/len,decay=Math.pow(1-t,3.6);d[i]=(Math.random()*2-1)*decay*(c?0.94:1)}
       }
       this.reverb.buffer=imp;
-      this.musicBus.connect(this.padFilter);
-      this.padFilter.connect(this.dry).connect(this.master);
-      this.padFilter.connect(this.reverb).connect(this.wet).connect(this.master);
-
-      const initial=this.chords[0];
-      const types=['sine','sine','triangle','sine','sine'];
-      const gains=[.050,.038,.028,.024,.018];
-      const detunes=[-4,3,-7,5,-2];
-      this.voices=initial.map((m,i)=>{
-        const o=ac.createOscillator(),g=ac.createGain();
-        o.type=types[i];o.frequency.value=this.midi(m);o.detune.value=detunes[i];g.gain.value=gains[i];
-        o.connect(g).connect(this.musicBus);o.start();return {o,g};
-      });
-
-      // A very faint band of air keeps the music from feeling synthetic or empty.
-      const buf=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),data=buf.getChannelData(0);
-      for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*.16;
-      const noise=ac.createBufferSource();noise.buffer=buf;noise.loop=true;
-      const airFilter=ac.createBiquadFilter();airFilter.type='bandpass';airFilter.frequency.value=1900;airFilter.Q.value=.38;
-      this.airGain=ac.createGain();this.airGain.gain.value=.0032;
-      noise.connect(airFilter).connect(this.airGain).connect(this.reverb);noise.start();this.air=noise;
+      this.dry.connect(this.master);
+      this.reverb.connect(this.wet).connect(this.master);
     },
     async toggle(){
-      this.init();if(!this.ctx) return;
-      if(this.ctx.state!=='running'){try{await this.ctx.resume()}catch(_){}}
-      this.on=!this.on;
-      const now=this.ctx.currentTime;
-      this.master.gain.cancelScheduledValues(now);
-      this.master.gain.setTargetAtTime(this.on ? .58 : 0,now,this.on ? .42 : .16);
-      soundToggle.setAttribute('aria-pressed',String(this.on));
-      soundToggle.setAttribute('aria-label',this.on?'Turn off spatial sound':'Turn on spatial sound');
-      soundToggle.textContent=this.on?'SOUND · ON':'SOUND';
-      interactionStatus.textContent=this.on?'Spatial sound is on':'Spatial sound is off';
-      if(this.on){this.interaction('wake',0);this.scheduleNote(true)}else{clearTimeout(this.musicTimer);this.musicTimer=0}
-    },
-    chordAt(s){
-      const a=Math.floor(clamp(s,0,8)),b=Math.min(8,a+1),t=smooth(clamp(s-a,0,1));
-      return this.chords[a].map((m,i)=>lerp(m,this.chords[b][i],t));
+      this.init();
+      if(this.ctx&&this.ctx.state!=='running'){try{await this.ctx.resume()}catch(_){}}
+      if(!this.score) return;
+      if(this.on){
+        this.on=false;this.score.pause();this.score.volume=0;this.scoreLevel=0;
+        soundToggle.setAttribute('aria-pressed','false');
+        soundToggle.setAttribute('aria-label','Turn on soundtrack');
+        soundToggle.textContent='SOUND';
+        interactionStatus.textContent='Soundtrack is off';
+        return;
+      }
+      interactionStatus.textContent='Loading soundtrack';
+      const ready=await this.prepareScore();
+      if(!ready){
+        soundToggle.setAttribute('aria-pressed','false');
+        soundToggle.setAttribute('aria-label','Turn on soundtrack');
+        interactionStatus.textContent='Soundtrack could not be loaded; interaction sound remains available';
+        return;
+      }
+      this.on=true;this.scoreLevel=0;this.score.volume=0;
+      try{await this.score.play()}catch(_){
+        this.on=false;
+        soundToggle.setAttribute('aria-pressed','false');
+        soundToggle.setAttribute('aria-label','Turn on soundtrack');
+        interactionStatus.textContent='Soundtrack could not be loaded; interaction sound remains available';
+        return;
+      }
+      this.everStarted=true;
+      soundToggle.setAttribute('aria-pressed','true');
+      soundToggle.setAttribute('aria-label','Turn off soundtrack');
+      soundToggle.textContent='SOUND · ON';
+      interactionStatus.textContent='Soundtrack is on';
+      this.interaction('wake',0);
     },
     update(s,hold,ending=0){
-      if(!this.ctx||!this.on) return;
       this.lastS=s;
-      const now=this.ctx.currentTime,chord=this.chordAt(s);
-      this.voices.forEach((v,i)=>{
-        v.o.frequency.setTargetAtTime(this.midi(chord[i]),now,1.3+i*.18);
-        const base=[.050,.038,.028,.024,.018][i];
-        v.g.gain.setTargetAtTime(base*(this.daoSilent ? .54 : 1)*(1+hold*.08),now,.7);
-      });
-      this.padFilter.frequency.setTargetAtTime(lerp(680,920,clamp(s/8,0,1))+(hold*90),now,.9);
-      const fade=1-clamp(ending,0,1);
-      const level=(this.daoSilent ? .32 : .58)*fade;
-      this.master.gain.setTargetAtTime(level,now,.55);
-      if(this.airGain)this.airGain.gain.setTargetAtTime(.0032*fade*(this.daoSilent ? .45 : 1),now,.7);
+      if(!this.on||!this.score) return;
+      const {start,end}=this.scoreWindow();
+      if(this.score.currentTime>=end){
+        try{this.score.currentTime=start}catch(_){}
+        this.scoreLevel=0;this.score.play().catch(()=>{});
+      }
+      const a=Math.floor(clamp(s,0,8)),b=Math.min(8,a+1),t=smooth(clamp(s-a,0,1));
+      const sceneGain=[.72,.80,.96,.88,.82,.72,.60,.76,.64];
+      const chapter=lerp(sceneGain[a],sceneGain[b],t);
+      const endingFade=1-clamp(ending,0,1);
+      const loopFade=clamp((end-this.score.currentTime)/6,0,1);
+      const target=.18*chapter*endingFade*loopFade*(this.daoSilent?.62:1)*(1-clamp(hold,0,1)*.16);
+      this.scoreLevel+=(target-this.scoreLevel)*.045;
+      this.score.volume=clamp(this.scoreLevel,0,.20);
     },
     setDaoSilence(v){this.daoSilent=v},
-    scheduleNote(immediate=false){
-      clearTimeout(this.musicTimer);
-      if(!this.on) return;
-      const wait=immediate?1700:6200+Math.random()*3800;
-      this.musicTimer=setTimeout(()=>{
-        if(this.on&&!document.hidden)this.playFloatingNote();
-        this.scheduleNote(false);
-      },wait);
-    },
-    playFloatingNote(){
-      if(!this.ctx||!this.on) return;
-      const ac=this.ctx,now=ac.currentTime;
-      const chord=this.chordAt(this.lastS);
-      const pattern=[2,4,3,1,4,2,3,4],idx=pattern[this.noteStep++%pattern.length];
-      const baseMidi=chord[idx]+12+(this.noteStep%3===0?12:0);
-      [0,12].forEach((add,j)=>{
-        const osc=ac.createOscillator(),g=ac.createGain(),f=ac.createBiquadFilter();
-        osc.type=j?'sine':'triangle';osc.frequency.value=this.midi(baseMidi+add);osc.detune.value=j?5:-3;
-        f.type='lowpass';f.frequency.value=j?1800:1450;f.Q.value=.3;
-        g.gain.setValueAtTime(.0001,now);
-        g.gain.exponentialRampToValueAtTime(j ? .0045 : .009,now+.42);
-        g.gain.exponentialRampToValueAtTime(.0001,now+4.8+j*.8);
-        osc.connect(f).connect(g);g.connect(this.reverb);g.connect(this.dry);
-        osc.start(now);osc.stop(now+5.9+j*.8);
-      });
-    },
     interaction(kind,stage=0){
       if(!this.ctx||!this.on) return;
-      const ac=this.ctx,now=ac.currentTime;
-      const chord=this.chordAt(this.lastS);
-      let midi=kind==='wake'?chord[2]+12:kind==='dust'?chord[0]+12:(chord[Math.min(stage,4)]||chord[2])+12;
+      const ac=this.ctx,now=ac.currentTime,daoNotes=[51,58,61,63];
+      const midi=kind==='wake'?63:kind==='dust'?51:daoNotes[Math.min(stage,3)];
       const osc=ac.createOscillator(),g=ac.createGain(),f=ac.createBiquadFilter();
       osc.type='sine';osc.frequency.setValueAtTime(this.midi(midi),now);
-      if(kind==='dust')osc.frequency.exponentialRampToValueAtTime(this.midi(midi-5),now+1.4);
-      f.type='lowpass';f.frequency.value=kind==='dust'?720:1300;f.Q.value=.45;
-      g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(kind==='wake' ? .012 : .009,now+.12);g.gain.exponentialRampToValueAtTime(.0001,now+(kind==='dust'?2.4:2.8));
-      osc.connect(f).connect(g);g.connect(this.reverb);g.connect(this.dry);osc.start(now);osc.stop(now+3);
+      if(kind==='dust')osc.frequency.exponentialRampToValueAtTime(this.midi(46),now+1.5);
+      f.type='lowpass';f.frequency.value=kind==='dust'?680:1250;f.Q.value=.42;
+      g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(kind==='wake'?.010:.008,now+.12);g.gain.exponentialRampToValueAtTime(.0001,now+(kind==='dust'?2.5:2.7));
+      osc.connect(f).connect(g);g.connect(this.dry);g.connect(this.reverb);osc.start(now);osc.stop(now+3);
     }
   };
   soundToggle.addEventListener('click',()=>soundEngine.toggle());
@@ -1073,6 +1067,7 @@ html[lang="en"] .scene[data-scene="8"] h2{font-size:clamp(52px,6.2vw,96px)}
     visible=!document.hidden;
     if(visible){lastT=performance.now();if(!scroller.driving)syncScroller();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame)}
     if(soundEngine.ctx){if(visible&&soundEngine.on)soundEngine.ctx.resume();else soundEngine.ctx.suspend()}
+    if(soundEngine.score&&soundEngine.on){if(visible)soundEngine.score.play().catch(()=>{});else soundEngine.score.pause()}
   });
 
   resize();
