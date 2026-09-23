@@ -24,11 +24,6 @@
         "topic": "Observation",
         "place": "Non-spatial",
         "spatialField": "Observation & Proxies"
-      },
-      "zh": {
-        "topic": "观测",
-        "place": "无位",
-        "spatialField": "观测之限"
       }
     }
   },
@@ -52,24 +47,6 @@
       "series": "Observation & Proxies",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.04.23",
-      "webEdition": "2026.08.09",
-      "slug": "proxy-of-a-proxy-remote-sensing",
-      "sourceUrl": "https://mp.weixin.qq.com/s/vXUu_S8iuWwPx0rDAxfaVw"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "遥感何以看见，又何以未见：Proxy of a Proxy",
-      "tags": [
-        "遥感",
-        "代理变量",
-        "证据"
-      ],
-      "read": "3 分钟",
-      "excerpt": "即使遥感反 演方法的精度R²高达0.90，但是你的论文结论却不一定对？这就是遥感研究中一个几乎都会踩到、却很少有人点破的陷阱——Proxy of a Proxy。 01｜什么是 Proxy of a Proxy？ 遥感应用研究通常并不能直接观测研究所关心的环境对象。 传感器首…",
-      "series": "观测之限",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.04.23",
       "webEdition": "2026.08.09",
       "slug": "proxy-of-a-proxy-remote-sensing",

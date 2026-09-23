@@ -24,11 +24,6 @@
         "topic": "Practice",
         "place": "Non-spatial",
         "spatialField": "Research Practice"
-      },
-      "zh": {
-        "topic": "研究实践",
-        "place": "无位",
-        "spatialField": "研究实践"
       }
     }
   },
@@ -49,24 +44,6 @@
       "series": "Research Practice",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.07.03",
-      "webEdition": "2026.08.09",
-      "slug": "nature-reviewer-skills-450-critique-patterns",
-      "sourceUrl": "https://mp.weixin.qq.com/s/bEhUU_KFBu60qZ7naYfTsA"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "nature-reviewer-skills：从 2.3 万条 Nature 评审意见中蒸馏出 450 类高频质疑模式",
-      "tags": [
-        "同行评审",
-        "研究实践",
-        "开源"
-      ],
-      "read": "3 分钟",
-      "excerpt": "nature-reviewer-skills ：一个覆盖材料、工程、化学与地球系统科学的多学科预审稿系统。",
-      "series": "研究实践",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.07.03",
       "webEdition": "2026.08.09",
       "slug": "nature-reviewer-skills-450-critique-patterns",

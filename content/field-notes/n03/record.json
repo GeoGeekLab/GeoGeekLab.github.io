@@ -24,11 +24,6 @@
         "topic": "Practice",
         "place": "Non-spatial",
         "spatialField": "Research Practice"
-      },
-      "zh": {
-        "topic": "研究实践",
-        "place": "无位",
-        "spatialField": "研究实践"
       }
     }
   },
@@ -51,24 +46,6 @@
       "series": "Research Practice",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.07.02",
-      "webEdition": "2026.08.09",
-      "slug": "distilling-nature-reviewers-earth-system-science",
-      "sourceUrl": "https://mp.weixin.qq.com/s/9WRjE7_zFe37Fje6fXbang"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "我把Nature期刊审稿人蒸馏了(地学篇)：大气，水文，生态，遥感",
-      "tags": [
-        "地球系统",
-        "同行评审",
-        "方法"
-      ],
-      "read": "3 分钟",
-      "excerpt": "上篇推文 介绍了 Nature 期刊遥感审稿人 Skill， 但很快发现一个更现实的问题： 真正有机会 进入 到 Nature 级别的遥感 研究，其核心往往并非遥感技术方法本身的创新，而是以对地观测数据为切入点，回答气候、水文、生态与大气等多过程耦合的地球系统科 学问题。 这…",
-      "series": "研究实践",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.07.02",
       "webEdition": "2026.08.09",
       "slug": "distilling-nature-reviewers-earth-system-science",
