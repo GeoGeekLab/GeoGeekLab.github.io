@@ -24,11 +24,6 @@
         "topic": "Observation",
         "place": "Non-spatial",
         "spatialField": "Observation & Proxies"
-      },
-      "zh": {
-        "topic": "观测",
-        "place": "无位",
-        "spatialField": "观测之限"
       }
     }
   },
@@ -51,24 +46,6 @@
       "series": "Observation & Proxies",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.04.22",
-      "webEdition": "2026.08.09",
-      "slug": "chl-a-retrieval-versus-biomass",
-      "sourceUrl": "https://mp.weixin.qq.com/s/TItej3ocOq31wNdDq_sidQ"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "遥感反演的是 Chl-a，论文却写浮游植物生物量：Proxy of a Proxy",
-      "tags": [
-        "海色遥感",
-        "反演",
-        "证据"
-      ],
-      "read": "3 分钟",
-      "excerpt": "在遥感应用研究中，论文常以某一可反演变量为基础，进而讨论与之相关的环境对象或环境状态。 例如， 叶绿素 a（Chl-a）常被用于讨论浮游植物生物量或藻华状态， 总悬浮物浓度（TSS/SPM）常用来推断水体浑浊度或颗粒物输运， 叶面积指数（LAI）反映植被冠层结构或生长状况， …",
-      "series": "观测之限",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.04.22",
       "webEdition": "2026.08.09",
       "slug": "chl-a-retrieval-versus-biomass",

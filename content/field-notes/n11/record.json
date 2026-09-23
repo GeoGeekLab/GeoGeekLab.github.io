@@ -24,11 +24,6 @@
         "topic": "Practice",
         "place": "Non-spatial",
         "spatialField": "Research Practice"
-      },
-      "zh": {
-        "topic": "研究实践",
-        "place": "无位",
-        "spatialField": "研究实践"
       }
     }
   },
@@ -49,24 +44,6 @@
       "series": "Research Practice",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.04.23",
-      "webEdition": "2026.08.09",
-      "slug": "qiusheng-wu-open-source-geospatial-learning",
-      "sourceUrl": "https://mp.weixin.qq.com/s/VreWu7RPufZNTkWdwvurcw"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "学GIS和RS，这位老师就是我的Andrew Ng（吴恩达）",
-      "tags": [
-        "GIS",
-        "遥感",
-        "开源"
-      ],
-      "read": "3 分钟",
-      "excerpt": "我想很多人和我一样。学 线性代数，靠Gilbert Strang。 学AI，靠Andrew Ng。 而在GIS和遥感的学习路上，让我有同样感觉的人，就是Qiusheng Wu（吴秋生）。",
-      "series": "研究实践",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.04.23",
       "webEdition": "2026.08.09",
       "slug": "qiusheng-wu-open-source-geospatial-learning",

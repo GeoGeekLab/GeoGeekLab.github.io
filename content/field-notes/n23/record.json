@@ -23,11 +23,6 @@
         "topic": "GeoAI",
         "place": "Cross-region",
         "spatialField": "Earth Representation"
-      },
-      "zh": {
-        "topic": "GeoAI",
-        "place": "跨区域",
-        "spatialField": "地球表征"
       }
     }
   },
@@ -49,23 +44,6 @@
       "excerpt": "Geospatial foundation models can learn powerful spatial representations. Their harder test is geographic reasoning: scale, spatial dependence, regional heterogeneity, mechanism, and transfer beyond familiar places.",
       "series": "Earth Representation",
       "status": "Current",
-      "source": "GeoGeek · Web",
-      "published": "2026.09.15",
-      "webEdition": "2026.09.15",
-      "slug": "limits-of-ai-geospatial-foundation-models"
-    },
-    "zh": {
-      "type": "专题",
-      "title": "人工智能之不能：空间地理大模型不懂空间地理",
-      "tags": [
-        "GeoAI",
-        "空间地理大模型",
-        "地理推理"
-      ],
-      "read": "6 分钟 · 交互",
-      "excerpt": "空间地理大模型能够学习强大的空间表征，但更严格的检验是地理推理：尺度、空间依赖、区域异质性、机制解释，以及离开熟悉区域后的迁移能力。",
-      "series": "地球表征",
-      "status": "新作",
       "source": "GeoGeek · Web",
       "published": "2026.09.15",
       "webEdition": "2026.09.15",

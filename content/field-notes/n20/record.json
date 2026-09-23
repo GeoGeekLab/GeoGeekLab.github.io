@@ -24,11 +24,6 @@
         "topic": "Scale",
         "place": "Global",
         "spatialField": "Scale & Extrapolation"
-      },
-      "zh": {
-        "topic": "尺度",
-        "place": "全球范围",
-        "spatialField": "尺度与外推"
       }
     }
   },
@@ -51,24 +46,6 @@
       "series": "Scale & Extrapolation",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.03.29",
-      "webEdition": "2026.08.09",
-      "slug": "extrapolation-risk-global-scale-studies",
-      "sourceUrl": "https://mp.weixin.qq.com/s/RLL1spztqKcSmIUIWvwcpw"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "从Nature|Science文章看全球尺度研究中的外推风险",
-      "tags": [
-        "全球制图",
-        "外推",
-        "验证"
-      ],
-      "read": "10 分钟",
-      "excerpt": "几天前，我曾写过一篇关于 Bastin 等（2019，Science） 《 The global tree restoration potential 》质疑风波的推文。提出了一个问题：当一个全球尺度的地图看起来完整、精确，甚至具备直接的政策吸引力时，它的证据基础是否真的足以…",
-      "series": "尺度与外推",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.03.29",
       "webEdition": "2026.08.09",
       "slug": "extrapolation-risk-global-scale-studies",
