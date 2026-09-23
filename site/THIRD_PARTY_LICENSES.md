@@ -1,5 +1,14 @@
 # Third-party notices
 
+## Scott Buckley — “Adrift Among Infinite Stars”
+
+Used as the background score for the GeoGeek Origin story.  
+Copyright: Scott Buckley  
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)  
+Source: https://www.scottbuckley.com.au/library/adrift-among-infinite-stars/
+
+Origin playback uses the 00:44–06:02 narrative window, with web-level fades, chapter-dependent volume ducking, and a reduced-bitrate deployment copy when FFmpeg is available. These playback/editing changes are made by GeoGeek.
+
 ## Satlas
 
 Portions of the orbital-field implementation are derived from Satlas.
