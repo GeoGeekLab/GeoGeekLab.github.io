@@ -1004,7 +1004,7 @@
     const drawProbe = (showMapped=false,strong=false) => {
       const m=mapPoint([probe.x,probe.y]);ctx.save();ctx.strokeStyle=soft+'.16)';ctx.lineWidth=.75;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(72,probe.y);ctx.lineTo(570,probe.y);ctx.moveTo(probe.x,52);ctx.lineTo(probe.x,390);ctx.stroke();ctx.setLineDash([]);
       ctx.fillStyle=ink+'.95)';ctx.strokeStyle=paper;ctx.lineWidth=2;ctx.beginPath();ctx.arc(probe.x,probe.y,4.5,0,Math.PI*2);ctx.fill();ctx.stroke();
-      if(showMapped){ctx.strokeStyle=signal+(strong?'.85)':'.55)');ctx.lineWidth=1;ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(probe.x,probe.y);ctx.lineTo(m[0],m[1]);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=signal+'.95)';ctx.strokeStyle=paper;ctx.lineWidth=2;ctx.beginPath();ctx.arc(m[0],m[1],4.5,0,Math.PI*2);ctx.fill();ctx.stroke();}ctx.restore();
+      if(showMapped){ctx.strokeStyle=signal+(strong ? '.85)' : '.55)');ctx.lineWidth=1;ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(probe.x,probe.y);ctx.lineTo(m[0],m[1]);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=signal+'.95)';ctx.strokeStyle=paper;ctx.lineWidth=2;ctx.beginPath();ctx.arc(m[0],m[1],4.5,0,Math.PI*2);ctx.fill();ctx.stroke();}ctx.restore();
     };
     const drawTrace = () => {
       drawTransform(.32);drawProbe(true,true);ctx.save();ctx.lineWidth=.9;
