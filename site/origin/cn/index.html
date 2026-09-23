@@ -12,6 +12,7 @@
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preload" as="audio" href="/assets/audio/origin-adrift.mp3" type="audio/mpeg" />
 <title>GeoGeek Origin — 人与宇宙：从星尘到道</title>
 <meta name="description" content="人与宇宙：从星尘到道——一则关于来处、看见、自然与归途的交互叙事" />
 <meta property="og:title" content="人与宇宙：从星尘到道" />
@@ -42,18 +43,16 @@ button{font:inherit;color:inherit}
 @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(2.2%,-1.6%)}50%{transform:translate(-1.5%,2%)}75%{transform:translate(1.8%,1.1%)}100%{transform:translate(0,0)}}
 
 /* chrome */
-.brand{text-decoration:none;position:fixed;z-index:30;left:28px;top:22px;display:flex;align-items:center;gap:10px;color:var(--fg);font:680 16px/1 Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;letter-spacing:-.03em;text-shadow:0 1px 12px #000}
+.brand{text-decoration:none;position:fixed;z-index:33;left:50%;top:20px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;color:var(--fg);font:680 16px/1 Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;letter-spacing:-.03em;text-shadow:0 1px 12px #000}
 .brand-mark{position:relative;width:14px;height:14px;border:1px solid rgba(242,240,233,.52);border-radius:50%;background:radial-gradient(circle at center,var(--signal) 0 2px,transparent 2.4px);flex:none}
 .brand-mark::before,.brand-mark::after{content:"";position:absolute;background:rgba(242,240,233,.52)}
 .brand-mark::before{left:6px;top:0;width:1px;height:14px}
 .brand-mark::after{left:0;top:6px;width:14px;height:1px}
-.brand-edition{margin-left:4px;color:var(--muted);font:450 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em}
-.origin-nav{position:fixed;z-index:32;top:20px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:18px;color:var(--muted);font:650 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.11em;text-transform:uppercase;text-shadow:0 1px 12px #000;white-space:nowrap}
+.brand-edition{display:none}
+.origin-nav{position:fixed;z-index:32;top:20px;left:calc(50% + 128px);transform:none;display:flex;align-items:center;gap:18px;color:var(--muted);font:650 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.11em;text-transform:uppercase;text-shadow:0 1px 12px #000;white-space:nowrap}
 .origin-nav a{color:inherit;text-decoration:none;min-height:32px;display:inline-flex;align-items:center;transition:color .2s ease,border-color .2s ease,background-color .2s ease}
 .origin-nav a:hover,.origin-nav a:focus-visible{color:var(--fg)}
 .origin-nav a:focus-visible{outline:1px solid rgba(255,255,255,.72);outline-offset:3px}
-.origin-nav .origin-home{min-height:38px;padding:0 13px;border:1px solid rgba(242,240,233,.20);background:rgba(242,240,233,.045);color:var(--fg);letter-spacing:.10em}
-.origin-nav .origin-home:hover,.origin-nav .origin-home:focus-visible{border-color:rgba(242,240,233,.42);background:rgba(242,240,233,.085)}
 .origin-nav .is-active{color:var(--fg);pointer-events:none}
 .origin-nav .divider{color:var(--faint)}
 .count{position:fixed;z-index:30;right:28px;top:24px;font:650 12px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.13em;color:var(--muted);text-shadow:0 1px 12px #000}
@@ -113,7 +112,7 @@ h2{font-size:clamp(53px,7.9vw,118px)}
 .touchpoint[data-enabled="true"]{opacity:1;pointer-events:auto}
 .touchpoint::before{content:"";position:absolute;inset:calc(50% - 4px);border:1px solid rgba(242,240,233,.42);border-radius:50%;opacity:0;transform:scale(.7);transition:opacity .25s ease,transform .35s var(--ease)}
 .touchpoint:hover::before,.touchpoint:focus-visible::before{opacity:1;transform:scale(1)}
-.stage-word{position:fixed;z-index:19;left:var(--touch-x,50%);top:calc(var(--touch-y,50%) + 118px);transform:translateX(-50%);font-family:"Songti SC","STSong",serif;font-size:17px;font-weight:600;letter-spacing:.25em;color:rgba(242,240,233,.86);opacity:0;pointer-events:none;text-shadow:0 1px 12px #000;transition:opacity .3s ease,left .6s var(--ease),top .6s var(--ease)}
+.stage-word{position:fixed;z-index:19;left:var(--touch-x,50%);top:calc(var(--touch-y,50%) + 84px);transform:translateX(-50%);font-family:"Songti SC","STSong",serif;font-size:17px;font-weight:600;letter-spacing:.25em;color:rgba(242,240,233,.86);opacity:0;pointer-events:none;text-shadow:0 1px 12px #000;transition:opacity .3s ease,left .6s var(--ease),top .6s var(--ease)}
 body[data-near="6"] .stage-word{opacity:1}
 .cursor{position:fixed;z-index:50;left:0;top:0;width:24px;height:24px;border:1px solid rgba(242,240,233,.34);border-radius:50%;pointer-events:none;transform:translate3d(-100px,-100px,0);transform-origin:center;mix-blend-mode:difference;opacity:0;will-change:transform,opacity;contain:layout style paint;transition:opacity .22s ease,border-color .22s ease}
 .cursor::before{content:"";position:absolute;left:50%;top:50%;width:2px;height:2px;border-radius:50%;background:rgba(242,240,233,.88);transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(242,240,233,.28)}
@@ -160,12 +159,13 @@ body[data-near="6"] .stage-word{opacity:1}
 .short-title{white-space:nowrap;max-width:none!important}
 
 /* sectional composition — tuned after viewport review */
-.scene[data-scene="1"] .copy{width:min(800px,61vw);margin-left:clamp(72px,6vw,116px)}
-.scene[data-scene="2"] .copy{width:min(820px,62vw);margin-right:clamp(78px,6.4vw,122px)}
+.scene[data-scene="1"] .copy{top:58vh;width:min(800px,61vw);margin-left:clamp(72px,6vw,116px)}
+.scene[data-scene="2"] .copy{top:43vh;width:min(820px,62vw);margin-right:clamp(78px,6.4vw,122px)}
 .scene[data-scene="3"] .copy{width:min(820px,62vw);margin-left:clamp(76px,6.2vw,120px)}
 .scene[data-scene="4"] .copy{width:min(820px,62vw);margin-right:clamp(80px,6.6vw,126px)}
 .scene[data-scene="5"] .copy{width:min(790px,60vw);margin-left:clamp(80px,6.6vw,126px)}
 .scene[data-scene="6"] .copy{width:min(900px,76vw)}
+.scene[data-scene="6"] .eyebrow{transform:translateY(-32px)}
 .scene[data-scene="7"] .copy{width:min(820px,62vw);margin-right:clamp(86px,7vw,136px)}
 .scene[data-scene="8"] .copy{width:min(980px,80vw)}
 
@@ -192,12 +192,14 @@ body[data-near="6"] .stage-word{opacity:1}
 }
 
 @media(max-width:760px){
-  .brand{left:18px;top:18px;font-size:15px}.brand-edition{display:none}.origin-nav{top:56px;font-size:10px;gap:12px}.count{right:18px;top:19px}.rail{right:20px;height:150px}.hint{left:18px;bottom:18px}.sound{right:46px;bottom:8px}.dots{bottom:2px}
+  .brand{left:50%;top:18px;transform:translateX(-50%);font-size:15px}.brand-edition{display:none}.origin-nav{top:56px;left:50%;transform:translateX(-50%);font-size:10px;gap:12px}.count{right:18px;top:19px}.rail{right:20px;height:150px}.hint{left:18px;bottom:18px}.sound{right:46px;bottom:8px}.dots{bottom:2px}
   .scene{min-height:160svh;padding:15vh 36px 15vh 22px}.scene.signature{min-height:206svh}.scene.final{min-height:192svh}
   .copy,.scene[data-side="center"] .copy,.scene.cover .copy{width:100%;margin:0;text-align:left}
   .scene[data-side="right"] .copy{text-align:left;margin-left:0}.scene[data-side="right"] .kicker,.scene[data-side="right"] .quote{margin-left:0}
   .scene[data-side="center"] .kicker,.scene[data-side="center"] .quote{margin-left:0;margin-right:0}
   .scene[data-scene="1"] .copy,.scene[data-scene="2"] .copy,.scene[data-scene="3"] .copy,.scene[data-scene="4"] .copy,.scene[data-scene="5"] .copy,.scene[data-scene="6"] .copy,.scene[data-scene="7"] .copy,.scene[data-scene="8"] .copy{width:100%;margin-left:0;margin-right:0}
+  .scene[data-scene="1"] .copy,.scene[data-scene="2"] .copy{top:59vh}
+  .scene[data-scene="6"] .eyebrow{transform:translateY(-18px)}
   .title-line,.body-line,.keep,.short-title{white-space:normal}
   .scene[data-vpos="high"] .copy,.scene[data-vpos="low"] .copy,.copy{top:59vh}
   h1{font-size:clamp(59px,19.2vw,106px)}h2{font-size:clamp(45px,13.6vw,80px)}.final h2{font-size:clamp(51px,15vw,90px)}
@@ -215,13 +217,13 @@ body[data-near="6"] .stage-word{opacity:1}
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-<nav class="origin-nav" aria-label="Origin 页面导航"><a class="origin-home" href="/" aria-label="返回 GeoGeek">← 返回 GEOGEEK</a><span class="divider" aria-hidden="true">·</span><a href="/origin/">EN</a><span class="divider" aria-hidden="true">/</span><a class="is-active" href="/origin/cn/" aria-current="page">中文</a></nav>
+<nav class="origin-nav" aria-label="Origin 语言导航"><a href="/origin/">EN</a><span class="divider" aria-hidden="true">/</span><a class="is-active" href="/origin/cn/" aria-current="page">中文</a></nav>
 <a class="brand" href="/" aria-label="返回 GeoGeek 首页"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span><span class="brand-edition">ORIGIN / 001</span></a>
 <div class="count"><b id="sceneNo">00</b> / 08</div>
 <div class="rail" aria-hidden="true"><i id="railMark"></i></div>
 <div class="hint" id="hint">向下，追溯来处</div>
 <button class="sound" id="soundToggle" type="button" aria-pressed="true" aria-label="关闭背景音乐">SOUND · ON</button>
-<audio id="originScore" preload="metadata" aria-hidden="true">
+<audio id="originScore" preload="auto" aria-hidden="true">
   <source src="/assets/audio/origin-adrift.mp3" type="audio/mpeg" />
   <source src="https://www.scottbuckley.com.au/library/wp-content/uploads/2022/02/AdriftAmongInfiniteStars.mp3" type="audio/mpeg" />
 </audio>
@@ -794,7 +796,7 @@ body[data-near="6"] .stage-word{opacity:1}
         interactionStatus.textContent='背景音乐载入失败，交互音效仍可使用';
         return;
       }
-      this.on=true;this.scoreLevel=0;this.score.volume=0;
+      this.on=true;this.scoreLevel=.065;this.score.volume=.065;
       try{await this.score.play()}catch(_){
         this.on=false;
         soundToggle.setAttribute('aria-pressed','false');
@@ -825,7 +827,7 @@ body[data-near="6"] .stage-word{opacity:1}
         interactionStatus.textContent='背景音乐未能载入';
         return false;
       }
-      this.scoreLevel=0;this.score.volume=0;
+      this.scoreLevel=.065;this.score.volume=.065;
       try{
         await this.score.play();
         this.everStarted=true;this.pendingStart=false;this.starting=false;
@@ -871,6 +873,8 @@ body[data-near="6"] .stage-word{opacity:1}
       osc.connect(f).connect(g);g.connect(this.dry);g.connect(this.reverb);osc.start(now);osc.stop(now+3);
     }
   };
+  // Start fetching the local score immediately; this removes most network/metadata lag.
+  originScore.load();
   soundToggle.addEventListener('click',()=>soundEngine.toggle());
 
   // Prefer soundtrack on. Audible autoplay can be blocked by browser policy;
