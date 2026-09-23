@@ -1,21 +1,18 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#050505" />
 <meta name="color-scheme" content="dark" />
 <link rel="canonical" href="https://geogeeklab.github.io/origin/" />
-<link rel="alternate" hreflang="zh-CN" href="https://geogeeklab.github.io/origin/" />
-<link rel="alternate" hreflang="en" href="https://geogeeklab.github.io/origin/en/" />
-<link rel="alternate" hreflang="x-default" href="https://geogeeklab.github.io/origin/" />
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-<title>GeoGeek Origin — 人与宇宙：从星尘到道</title>
-<meta name="description" content="人与宇宙：从星尘到道——一则关于来处、看见、自然与归途的交互叙事" />
-<meta property="og:title" content="人与宇宙：从星尘到道" />
-<meta property="og:description" content="一则关于来处、看见、自然与归途的交互叙事" />
+<title>GeoGeek Origin — From Star-Stuff to Tao</title>
+<meta name="description" content="From Star-Stuff to Tao — an interactive story about origins, perception, nature, and homecoming." />
+<meta property="og:title" content="From Star-Stuff to Tao" />
+<meta property="og:description" content="An interactive story about origins, perception, nature, and homecoming." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://geogeeklab.github.io/origin/" />
 <style>
@@ -172,6 +169,15 @@ body[data-near="6"] .stage-word{opacity:1}
 .scene[data-scene="5"] h2,
 .scene[data-scene="7"] h2{font-size:clamp(52px,7.05vw,108px);max-width:none}
 .scene[data-scene="6"] h2{font-size:clamp(58px,8vw,124px);max-width:none}
+html[lang="en"] .scene[data-scene="1"] h2,
+html[lang="en"] .scene[data-scene="2"] h2,
+html[lang="en"] .scene[data-scene="3"] h2,
+html[lang="en"] .scene[data-scene="4"] h2,
+html[lang="en"] .scene[data-scene="5"] h2,
+html[lang="en"] .scene[data-scene="7"] h2{font-size:clamp(46px,5.6vw,86px);line-height:.96}
+html[lang="en"] .cover h1{font-size:clamp(58px,7.4vw,112px);line-height:.92}
+html[lang="en"] .scene[data-scene="6"] h2,
+html[lang="en"] .scene[data-scene="8"] h2{font-size:clamp(52px,6.2vw,96px)}
 .scene[data-scene="1"] .kicker,
 .scene[data-scene="2"] .kicker,
 .scene[data-scene="3"] .kicker,
@@ -211,95 +217,95 @@ body[data-near="6"] .stage-word{opacity:1}
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-<nav class="origin-nav" aria-label="Origin 页面导航"><a href="/" data-origin-locale="zh">← 返回 GeoGeek</a><span class="divider" aria-hidden="true">·</span><a class="is-active" href="/origin/" data-origin-locale="zh" aria-current="page">中文</a><span class="divider" aria-hidden="true">/</span><a href="/origin/en/" data-origin-locale="en">EN</a></nav>
-<a class="brand" href="/" aria-label="返回 GeoGeek 首页"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span><span class="brand-edition">ORIGIN / 001</span></a>
+<nav class="origin-nav" aria-label="Origin page navigation"><a href="/">← GeoGeek HOME</a></nav>
+<a class="brand" href="/" aria-label="Return to the GeoGeek homepage"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span><span class="brand-edition">ORIGIN / 001</span></a>
 <div class="count"><b id="sceneNo">00</b> / 08</div>
 <div class="rail" aria-hidden="true"><i id="railMark"></i></div>
-<div class="hint" id="hint">向下，追溯来处</div>
-<button class="sound" id="soundToggle" type="button" aria-pressed="false" aria-label="开启空间声音">SOUND</button>
-<div class="stage-word" id="stageWord" aria-live="polite">一</div>
-<button class="touchpoint" id="touchpoint" type="button" aria-label="与当前星图互动" data-enabled="false" disabled tabindex="-1"></button>
+<div class="hint" id="hint">DESCEND / TRACE THE ORIGIN</div>
+<button class="sound" id="soundToggle" type="button" aria-pressed="false" aria-label="Turn on spatial sound">SOUND</button>
+<div class="stage-word" id="stageWord" aria-live="polite">ONE</div>
+<button class="touchpoint" id="touchpoint" type="button" aria-label="Interact with the current star field" data-enabled="false" disabled tabindex="-1"></button>
 <div class="cursor" id="cursor" aria-hidden="true"></div>
-<nav class="dots" id="dots" aria-label="章节导航"></nav>
+<nav class="dots" id="dots" aria-label="Chapter navigation"></nav>
 <div class="sr-only" id="interactionStatus" aria-live="polite"></div>
 
 <main>
-  <section class="scene cover" data-scene="0" data-side="left" data-vpos="middle" data-hint="向下，追溯来处">
+  <section class="scene cover" data-scene="0" data-side="left" data-vpos="middle" data-hint="DESCEND / TRACE THE ORIGIN">
     <div class="copy">
-      <div class="eyebrow">人与宇宙 / HUMAN × COSMOS</div>
-      <h1 class="short-title">从星尘到<span style="font-style:italic">道</span></h1>
-      <div class="deck"><strong>我本就是星尘。</strong><br><span class="keep">探问宇宙，是寻来处，亦是归途。</span></div>
+      <div class="eyebrow">HUMAN × COSMOS</div>
+      <h1 class="short-title">From Star-Stuff to <span style="font-style:italic">Tao</span></h1>
+      <div class="deck"><strong>I am star-stuff</strong><br><span class="keep">To explore the cosmos is to seek our origins—and our way home</span></div>
       <div class="seal">A GeoGeek ORIGIN STORY</div>
     </div>
   </section>
 
-  <section class="scene" data-scene="1" data-side="left" data-vpos="low" data-hint="继续，向下">
+  <section class="scene" data-scene="1" data-side="left" data-vpos="low" data-hint="CONTINUE / DESCEND">
     <div class="copy">
-      <div class="eyebrow">01 / 星</div>
-      <h2><span class="title-line">最初，</span><span class="title-line">我们还不在这里</span></h2>
-      <p class="kicker"><span class="body-line">你身体里的碳、氧、铁，皆曾在恒星深处孕育。</span><span class="body-line">恒星陨落，它们便散作星际的微尘。</span></p>
+      <div class="eyebrow">01 / STAR</div>
+      <h2><span class="title-line">In the beginning,</span><span class="title-line">we were not yet here</span></h2>
+      <p class="kicker"><span class="body-line">The carbon, oxygen, and iron in our bodies were forged deep inside stars; when those stars died, their elements scattered into interstellar space</span></p>
       <blockquote class="quote">“We are made of star-stuff”<span class="source">— CARL SAGAN</span></blockquote>
     </div>
   </section>
 
-  <section class="scene" data-scene="2" data-side="right" data-vpos="high" data-hint="按住这颗星">
+  <section class="scene" data-scene="2" data-side="right" data-vpos="high" data-hint="PRESS AND HOLD THE STAR">
     <div class="copy">
-      <div class="eyebrow">02 / 尘</div>
-      <h2><span class="title-line">恒星逝去，</span><span class="title-line">星尘仍在远行</span></h2>
-      <p class="kicker"><span class="body-line">它们坠入尘埃，聚成行星，沉入海洋。</span><span class="body-line">很久之后，也流入我们的血脉。</span></p>
-      <div class="micro">按住中央星体 / PRESS & HOLD</div>
+      <div class="eyebrow">02 / DUST</div>
+      <h2><span class="title-line">Stars die,</span><span class="title-line">stardust journeys on</span></h2>
+      <p class="kicker"><span class="body-line">It settles into dust, gathers into planets, and sinks into oceans; much later, it enters our bodies too</span></p>
+      <div class="micro">PRESS & HOLD THE CENTRAL STAR</div>
     </div>
   </section>
 
-  <section class="scene" data-scene="3" data-side="left" data-vpos="middle" data-hint="物质，成为记忆">
+  <section class="scene" data-scene="3" data-side="left" data-vpos="middle" data-hint="MATTER BECOMES MEMORY">
     <div class="copy">
-      <div class="eyebrow">03 / 生</div>
-      <h2><span class="title-line">沉默之后，</span><span class="title-line">星尘苏醒为生命</span></h2>
-      <p class="kicker"><span class="body-line">同样的物质，在生命里开始代谢、复制、感知。</span><span class="body-line">在漫长的演化中，长出了记忆，也长出了眼睛。</span></p>
+      <div class="eyebrow">03 / LIFE</div>
+      <h2><span class="title-line">After silence,</span><span class="title-line">stardust came alive</span></h2>
+      <p class="kicker"><span class="body-line">The same matter began to metabolize, reproduce, and sense; through long evolution, it gained memory—and eyes</span></p>
     </div>
   </section>
 
-  <section class="scene" data-scene="4" data-side="right" data-vpos="middle" data-hint="移动，扰动此场">
+  <section class="scene" data-scene="4" data-side="right" data-vpos="middle" data-hint="MOVE / DISTURB THE FIELD">
     <div class="copy">
-      <div class="eyebrow">04 / 望</div>
-      <h2><span class="title-line">宇宙的一隅，</span><span class="title-line">开始回望宇宙</span></h2>
-      <p class="kicker"><span class="body-line">我们何曾置身宇宙之外？</span><span class="body-line">凝视，本就是宇宙在自身之中，悄然发生的事。</span></p>
+      <div class="eyebrow">04 / GAZE</div>
+      <h2><span class="title-line">Part of the cosmos</span><span class="title-line">began to look back</span></h2>
+      <p class="kicker"><span class="body-line">We have never stood outside the cosmos—seeing is itself something the cosmos is doing</span></p>
       <blockquote class="quote">“We are a way for the cosmos to know itself”<span class="source">— CARL SAGAN</span></blockquote>
-      <div class="micro">移动光标 / MOVE TO DISTURB THE FIELD</div>
+      <div class="micro">MOVE TO DISTURB THE FIELD</div>
     </div>
   </section>
 
-  <section class="scene" data-scene="5" data-side="left" data-vpos="middle" data-hint="人，不在自然之外">
+  <section class="scene" data-scene="5" data-side="left" data-vpos="middle" data-hint="WE ARE NOT OUTSIDE NATURE">
     <div class="copy">
-      <div class="eyebrow">05 / 道</div>
-      <h2><span class="title-line">人，本就在</span><span class="title-line">天地之间</span></h2>
-      <p class="kicker"><span class="body-line">若我们本就由天地所成，又如何能自外于天地？</span></p>
-      <blockquote class="quote">“人法地，地法天，天法道，道法自然”<span class="source">— 老子《道德经》</span></blockquote>
+      <div class="eyebrow">05 / TAO</div>
+      <h2><span class="title-line">We have always stood</span><span class="title-line">between Earth and sky</span></h2>
+      <p class="kicker"><span class="body-line">If we are made by Earth and sky, how could we ever stand outside them?</span></p>
+      <blockquote class="quote">“Humans follow Earth; Earth follows Heaven; Heaven follows Tao; Tao follows what is natural.”<span class="source">— LAOZI, TAO TE CHING</span></blockquote>
     </div>
   </section>
 
-  <section class="scene signature" data-scene="6" data-side="center" data-vpos="low" data-hint="轻触这一点">
+  <section class="scene signature" data-scene="6" data-side="center" data-vpos="low" data-hint="TOUCH THIS POINT">
     <div class="copy">
-      <div class="eyebrow">06 / 一</div>
-      <h2 class="short-title">从一，到万物</h2>
-      <p class="kicker"><span class="body-line">“道生一，一生二，二生三，三生万物”——</span><span class="body-line">不是物理公式里冰冷的等号，而是古人对万物生成的一次言说。</span></p>
-      <div class="micro">轻触中央一点 / TOUCH TO UNFOLD</div>
+      <div class="eyebrow">06 / ONE</div>
+      <h2 class="short-title">From One to all things</h2>
+      <p class="kicker"><span class="body-line">“Tao gives birth to One; One gives birth to Two; Two gives birth to Three; Three gives birth to all things.”</span><span class="body-line">Not a formula of physics, but an ancient way of speaking about how the world comes into being</span></p>
+      <div class="micro">TOUCH THE CENTRAL POINT TO UNFOLD</div>
     </div>
   </section>
 
-  <section class="scene" data-scene="7" data-side="right" data-vpos="middle" data-hint="归">
+  <section class="scene" data-scene="7" data-side="right" data-vpos="middle" data-hint="RETURN">
     <div class="copy">
-      <div class="eyebrow">07 / 归</div>
-      <h2><span class="title-line">望向远处，</span><span class="title-line">也是回望来处</span></h2>
-      <p class="kicker"><span class="body-line">我们追问宇宙的起源，也在辨认自身的来处。</span><span class="body-line">仰望星空，不是离开地球，而是把来处看得更清楚。</span></p>
+      <div class="eyebrow">07 / RETURN</div>
+      <h2><span class="title-line">Looking far away</span><span class="title-line">is looking homeward</span></h2>
+      <p class="kicker"><span class="body-line">When we ask how the cosmos began, we are also tracing where we came from</span><span class="body-line">To look at the stars is not to leave Earth, but to see our origins more clearly</span></p>
     </div>
   </section>
 
   <section class="scene final" data-scene="8" data-side="center" data-vpos="middle" data-hint="">
     <div class="copy">
-      <div class="eyebrow">08 / 归途</div>
-      <h2 class="short-title">我本就是星尘</h2>
-      <div class="closing">寻找来处，<span class="keep">亦是归途。</span></div>
+      <div class="eyebrow">08 / HOMECOMING</div>
+      <h2 class="short-title">I am star-stuff</h2>
+      <div class="closing">To seek our origins <span class="keep">is also to find our way home</span></div>
       <div class="mark">GeoGeek · FROM STAR-STUFF TO TAO</div>
     </div>
   </section>
@@ -308,27 +314,7 @@ body[data-near="6"] .stage-word{opacity:1}
 <script>
 (() => {
   'use strict';
-  document.querySelectorAll('[data-origin-locale]').forEach(link => link.addEventListener('click', () => {
-    try { localStorage.setItem('geogeek-language', link.dataset.originLocale); } catch {}
-  }));
-  const canvas = document.getElementById('cosmos');
-  const ctx = canvas.getContext('2d', { alpha:true, desynchronized:true });
-  const sections = [...document.querySelectorAll('.scene')];
-  const sceneNo = document.getElementById('sceneNo');
-  const railMark = document.getElementById('railMark');
-  const hint = document.getElementById('hint');
-  const dots = document.getElementById('dots');
-  const touchpoint = document.getElementById('touchpoint');
-  const stageWord = document.getElementById('stageWord');
-  const cursor = document.getElementById('cursor');
-  const soundToggle = document.getElementById('soundToggle');
-  const interactionStatus = document.getElementById('interactionStatus');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const TAU = Math.PI * 2;
-  const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
-  const lerp = (a,b,t) => a + (b-a)*t;
-  const smooth = t => t*t*(3-2*t);
-  const seeded = (i,k=1) => { const x=Math.sin(i*12.9898+k*78.233)*43758.5453; return x-Math.floor(x); };
+
 
   let W=innerWidth,H=innerHeight,DPR=1;
   let particles=[], ambient=[], targets=[], order=[], centers=[];
@@ -412,7 +398,7 @@ body[data-near="6"] .stage-word{opacity:1}
     sections.forEach((s,i)=>{
       const b=document.createElement('button');
       b.type='button';
-      b.setAttribute('aria-label',`去往第 ${String(i).padStart(2,'0')} 幕`);
+      b.setAttribute('aria-label',`Go to scene ${String(i).padStart(2,'0')}`);
       b.addEventListener('click',()=>glideToScene(i,true));
       dots.appendChild(b);
     });
@@ -539,7 +525,7 @@ body[data-near="6"] .stage-word{opacity:1}
         targets[6][i]={x:Math.cos(a)*ring*warp,y:Math.sin(a)*ring*.78,z:lerp(-260,470,seeded(i,89)),alpha:.11+seeded(i,90)*.72};
       }
     }
-    stageWord.textContent=['一','二','三','万物'][daoStage];
+    stageWord.textContent=['ONE','TWO','THREE','ALL THINGS'][daoStage];
     if(pulse) daoPulse=1;
   }
 
@@ -611,7 +597,7 @@ body[data-near="6"] .stage-word{opacity:1}
     touchpoint.disabled=!enabled;
     touchpoint.tabIndex=enabled?0:-1;
     touchpoint.setAttribute('aria-hidden',enabled?'false':'true');
-    touchpoint.setAttribute('aria-label',activeScene===2?'按住恒星，令物质向外弥散':activeScene===6?'轻触一点，令一展开为万物':'当前章节无可交互之处');
+    touchpoint.setAttribute('aria-label',activeScene===2?'Hold the star to scatter matter outward':activeScene===6?'Touch the point to unfold One into all things':'No interaction in this scene');
   }
 
   function updateScrollState(force=false){
@@ -694,15 +680,15 @@ body[data-near="6"] .stage-word{opacity:1}
 
   touchpoint.addEventListener('pointerdown',e=>{
     e.preventDefault();
-    if(activeScene===2){hold=true;touchpoint.setPointerCapture?.(e.pointerId);interactionStatus.textContent='物质正在向外弥散';soundEngine.interaction('dust')}
-    if(activeScene===6){daoStage=(daoStage+1)%4;daoTargets(true);interactionStatus.textContent=`此刻：${stageWord.textContent}`;soundEngine.interaction('dao',daoStage)}
+    if(activeScene===2){hold=true;touchpoint.setPointerCapture?.(e.pointerId);interactionStatus.textContent='Matter is scattering outward';soundEngine.interaction('dust')}
+    if(activeScene===6){daoStage=(daoStage+1)%4;daoTargets(true);interactionStatus.textContent=`Now: ${stageWord.textContent}`;soundEngine.interaction('dao',daoStage)}
   });
   touchpoint.addEventListener('pointerup',()=>{hold=false});
   touchpoint.addEventListener('pointercancel',()=>{hold=false});
   touchpoint.addEventListener('keydown',e=>{
     if(e.key==='Enter'||e.key===' '){
       e.preventDefault();
-      if(activeScene===6){daoStage=(daoStage+1)%4;daoTargets(true);interactionStatus.textContent=`此刻：${stageWord.textContent}`;soundEngine.interaction('dao',daoStage)}
+      if(activeScene===6){daoStage=(daoStage+1)%4;daoTargets(true);interactionStatus.textContent=`Now: ${stageWord.textContent}`;soundEngine.interaction('dao',daoStage)}
       if(activeScene===2){hold=true;soundEngine.interaction('dust')}
     }
   });
@@ -782,9 +768,9 @@ body[data-near="6"] .stage-word{opacity:1}
       this.master.gain.cancelScheduledValues(now);
       this.master.gain.setTargetAtTime(this.on ? .58 : 0,now,this.on ? .42 : .16);
       soundToggle.setAttribute('aria-pressed',String(this.on));
-      soundToggle.setAttribute('aria-label',this.on?'关闭空间声音':'开启空间声音');
+      soundToggle.setAttribute('aria-label',this.on?'Turn off spatial sound':'Turn on spatial sound');
       soundToggle.textContent=this.on?'SOUND · ON':'SOUND';
-      interactionStatus.textContent=this.on?'空间声音已开启':'空间声音已关闭';
+      interactionStatus.textContent=this.on?'Spatial sound is on':'Spatial sound is off';
       if(this.on){this.interaction('wake',0);this.scheduleNote(true)}else{clearTimeout(this.musicTimer);this.musicTimer=0}
     },
     chordAt(s){

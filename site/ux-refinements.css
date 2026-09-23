@@ -137,7 +137,6 @@ body.orbital-active .scale-ui {
 .map-scale button,
 .map-inspector-actions a,
 .map-inspector-actions button,
-.site-map-lang,
 .site-map-modes button { min-height: 44px; }
 .site-map-node::after {
   content: "";
@@ -156,7 +155,6 @@ body.orbital-active .scale-ui {
 
 /* 7. Small visual controls keep large hit areas. */
 .nav-toggle { min-height: 44px; padding-inline: 14px; }
-.lang-switch { min-height: 44px; display: inline-flex; align-items: center; }
 .scale-step { min-height: 44px; }
 .home-commons-horizon button { min-height: 44px; min-width: 44px; }
 
@@ -291,8 +289,7 @@ body.ux-data-saver canvas { image-rendering: auto; }
     -webkit-backdrop-filter: blur(14px);
   }
   .brand,
-  .nav-toggle,
-  .lang-switch { min-height: var(--preview-touch); }
+  .nav-toggle { min-height: var(--preview-touch); }
   .nav-toggle { min-width: 68px; padding-inline: 14px !important; }
 
   /* Mobile Site Index becomes a true full-screen index rather than a desktop panel squeezed down. */
@@ -317,7 +314,6 @@ body.ux-data-saver canvas { image-rendering: auto; }
   }
   .site-map-node,
   .site-map-modes button,
-  .site-map-lang,
   .map-scale button,
   .map-inspector-actions a,
   .map-inspector-actions button { min-height: var(--preview-touch) !important; }

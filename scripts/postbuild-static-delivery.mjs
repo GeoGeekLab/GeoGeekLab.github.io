@@ -76,11 +76,8 @@ async function loadRecords() {
     const recordPath = path.join(base, 'record.json');
     if (!(await exists(recordPath))) continue;
     const record = JSON.parse(await read(recordPath));
-    const body = {};
-    for (const lang of ['en', 'zh']) {
-      const p = path.join(base, `body.${lang}.html`);
-      body[lang] = (await exists(p)) ? await read(p) : '';
-    }
+    const enPath = path.join(base, 'body.en.html');
+    const body = { en: (await exists(enPath)) ? await read(enPath) : '' };
     records.push({ dirName, base, record, body, id: recordId(record, dirName), slug: recordSlug(record, dirName) });
   }
   records.sort((a,b) => (recordDate(b.record) || '').localeCompare(recordDate(a.record) || '') || a.id.localeCompare(b.id));
@@ -143,23 +140,17 @@ function addHead(html, block) {
   return /<\/head>/i.test(html) ? html.replace(/<\/head>/i, `${block}\n</head>`) : html;
 }
 
-function seoBlock({ canonical, title, description, lang='en', alternate, type='website', image=`${SITE}/assets/og-default.png`, jsonLd=[] }) {
-  const alts = alternate ? [
-    `<link rel="alternate" hreflang="en" href="${escapeHtml(alternate.en)}">`,
-    `<link rel="alternate" hreflang="zh-CN" href="${escapeHtml(alternate.zh)}">`,
-    `<link rel="alternate" hreflang="x-default" href="${escapeHtml(alternate.en)}">`,
-  ].join('\n') : '';
+function seoBlock({ canonical, title, description, type='website', image=`${SITE}/assets/og-default.png`, jsonLd=[] }) {
   const ld = asArray(jsonLd).filter(Boolean).map(x => `<script type="application/ld+json">${JSON.stringify(x).replace(/</g, '\\u003c')}</script>`).join('\n');
   return [
     `<meta name="description" content="${escapeHtml(description)}">`,
     `<link rel="canonical" href="${escapeHtml(canonical)}">`,
-    alts,
     `<meta property="og:type" content="${type}">`,
     `<meta property="og:title" content="${escapeHtml(title)}">`,
     `<meta property="og:description" content="${escapeHtml(description)}">`,
     `<meta property="og:url" content="${escapeHtml(canonical)}">`,
     `<meta property="og:image" content="${escapeHtml(image)}">`,
-    `<meta property="og:locale" content="${lang === 'zh-CN' ? 'zh_CN' : 'en_US'}">`,
+    `<meta property="og:locale" content="en_US">`,
     `<meta name="twitter:card" content="summary_large_image">`,
     `<meta name="twitter:title" content="${escapeHtml(title)}">`,
     `<meta name="twitter:description" content="${escapeHtml(description)}">`,
@@ -228,37 +219,34 @@ function relatedItems(item, records) {
   return out;
 }
 
-function relatedNav(item, records, lang) {
+function relatedNav(item, records) {
   const related = relatedItems(item, records);
   if (!related.length) return '';
-  const title = lang === 'zh' ? '关联记录' : 'Related records';
+  const title = 'Related records';
   const links = related.map(x => {
-    const href = lang === 'zh' ? `/zh/field-notes/${x.slug}/` : `/field-notes/${x.slug}/`;
-    const text = localized(x.record, lang, 'title') || localized(x.record, 'en', 'title') || x.id;
+    const href = `/field-notes/${x.slug}/`;
+    const text = localized(x.record, 'en', 'title') || x.id;
     return `<a class="static-related-link" href="${href}"><span>${escapeHtml(x.id)}</span><strong>${escapeHtml(text)}</strong></a>`;
   }).join('\n');
-  return `<nav class="static-related" aria-label="${escapeHtml(title)}"><p class="static-kicker">${escapeHtml(title)}</p><div class="static-related-grid">${links}</div></nav>`;
+  return `<nav class="static-related" aria-label="${title}"><p class="static-kicker">${title}</p><div class="static-related-grid">${links}</div></nav>`;
 }
 
-function languageNav(item, lang) {
-  const href = lang === 'zh' ? `/field-notes/${item.slug}/` : `/zh/field-notes/${item.slug}/`;
-  const label = lang === 'zh' ? 'EN' : '中文';
-  return `<nav class="static-language-nav" aria-label="Language"><a rel="alternate" hreflang="${lang === 'zh' ? 'en' : 'zh-CN'}" href="${href}">${label}</a></nav>`;
+function languageNav() {
+  return '';
 }
 
-function articleSchemas(item, lang, canonical, title, description, image) {
-  const language = lang === 'zh' ? 'zh-CN' : 'en';
+function articleSchemas(item, canonical, title, description, image) {
   const article = {
     '@context': 'https://schema.org', '@type': 'BlogPosting',
     headline: title, description, datePublished: recordDate(item.record) || undefined,
-    inLanguage: language, mainEntityOfPage: canonical, image,
+    inLanguage: 'en', mainEntityOfPage: canonical, image,
     author: { '@type': 'Person', name: 'GeoGeek', url: SITE },
   };
   Object.keys(article).forEach(k => article[k] === undefined && delete article[k]);
   const breadcrumb = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'GeoGeek', item: `${SITE}/` },
-      { '@type': 'ListItem', position: 2, name: lang === 'zh' ? 'Field Notes / 田野札记' : 'Field Notes', item: `${SITE}/field-notes.html` },
+      { '@type': 'ListItem', position: 2, name: 'Field Notes', item: `${SITE}/field-notes.html` },
       { '@type': 'ListItem', position: 3, name: title, item: canonical },
     ],
   };
@@ -420,40 +408,33 @@ function articleTemplateFallback() {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GeoGeek Field Note</title><link rel="stylesheet" href="/styles.css"></head><body><a class="skip-link" href="#main">Skip to content</a><main id="main" class="record-page"><article><p class="static-kicker">FIELD NOTE</p><h1 id="recordTitle">Record</h1><p id="recordExcerpt"></p><dl id="recordMeta"></dl><div class="record-body" id="recordBody"></div></article></main></body></html>`;
 }
 
-async function renderArticle(item, records, lang) {
-  const outDir = lang === 'zh' ? path.join(dist, 'zh', 'field-notes', item.slug) : path.join(dist, 'field-notes', item.slug);
+async function renderArticle(item, records) {
+  const outDir = path.join(dist, 'field-notes', item.slug);
   const outFile = path.join(outDir, 'index.html');
-  let html = (lang === 'en' && await exists(outFile)) ? await read(outFile) : '';
-  if (!html && lang === 'zh') {
-    const sourceTemplate = path.join(root, 'templates', 'field-note.html');
-    if (await exists(sourceTemplate)) html = await read(sourceTemplate);
-  }
-  if (!html) {
-    const enFile = path.join(dist, 'field-notes', item.slug, 'index.html');
-    html = (await exists(enFile)) ? await read(enFile) : articleTemplateFallback();
-  }
-  const title = localized(item.record, lang, 'title') || localized(item.record, 'en', 'title') || item.id;
-  const bodyRaw = item.body[lang] || item.body.en || '';
+  let html = (await exists(outFile)) ? await read(outFile) : articleTemplateFallback();
+  const title = localized(item.record, 'en', 'title') || item.id;
+  const bodyRaw = item.body.en || '';
   const body = bodyRaw.replaceAll(`assets/field-notes/${item.dirName}/`, `/assets/field-notes/${item.dirName}/`);
-  const excerpt = localized(item.record, lang, 'excerpt') || localized(item.record, lang, 'description') || clamp(body, 220);
-  const langCode = lang === 'zh' ? 'zh-CN' : 'en';
-  html = setHtmlLang(html, langCode);
+  const excerpt = localized(item.record, 'en', 'excerpt') || localized(item.record, 'en', 'description') || clamp(body, 220);
+  html = setHtmlLang(html, 'en');
   html = setElementInner(html, 'recordTitle', escapeHtml(title), { removeId:true, attrs:'data-static-title' });
   html = setElementInner(html, 'recordExcerpt', escapeHtml(excerpt), { removeId:true, attrs:'data-static-excerpt' });
   html = setElementInner(html, 'recordMeta', metadataDl(item), { removeId:true, attrs:'data-static-meta' });
-  const articleInner = `${languageNav(item, lang)}\n${body}\n${relatedNav(item, records, lang)}`;
+  const articleInner = `${body}\n${relatedNav(item, records)}`;
   html = setElementInner(html, 'recordBody', articleInner, { removeId:true, attrs:'data-static-body' });
   if (!html.includes('data-static-body')) {
-    html = html.replace(/<\/main>/i, `<article class="record-body" data-static-body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(excerpt)}</p>${languageNav(item, lang)}${body}${relatedNav(item,records,lang)}</article></main>`);
+    html = html.replace(/<\/main>/i, `<article class="record-body" data-static-body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(excerpt)}</p>${body}${relatedNav(item,records)}</article></main>`);
+  }
+  if (!sourceUrl(item.record)) {
+    html = html.replace(/<aside\b[^>]*\brecord-wechat-portal\b[^>]*>[\s\S]*?<\/aside>/i, '');
   }
   html = html.replace(/<body\b([^>]*)>/i, `<body$1 data-static-record="true">`);
-  const canonical = lang === 'zh' ? `${SITE}/zh/field-notes/${item.slug}/` : `${SITE}/field-notes/${item.slug}/`;
-  const alternate = { en: `${SITE}/field-notes/${item.slug}/`, zh: `${SITE}/zh/field-notes/${item.slug}/` };
+  const canonical = `${SITE}/field-notes/${item.slug}/`;
   const firstImg = /<img\b[^>]*\bsrc=(['"])(.*?)\1/i.exec(body)?.[2];
   const image = firstImg ? new URL(firstImg, canonical).href : `${SITE}/assets/og-default.png`;
   html = patchSeo(html, {
-    canonical, title: `${title} — GeoGeek`, description: excerpt, lang:langCode,
-    alternate, type:'article', image, jsonLd: articleSchemas(item,lang,canonical,title,excerpt,image),
+    canonical, title: `${title} — GeoGeek`, description: excerpt,
+    type:'article', image, jsonLd: articleSchemas(item,canonical,title,excerpt,image),
   });
   html = addStaticAssets(html);
   await fs.mkdir(outDir,{recursive:true});
@@ -462,11 +443,12 @@ async function renderArticle(item, records, lang) {
   await write(outFile, html);
 }
 
+
 function noteRows(records, lang='en') {
   return records.map(item => {
     const title = localized(item.record, lang, 'title') || localized(item.record,'en','title') || item.id;
     const excerpt = localized(item.record, lang, 'excerpt') || localized(item.record,lang,'description') || clamp(item.body[lang] || item.body.en, 150);
-    const href = lang === 'zh' ? `/zh/field-notes/${item.slug}/` : `/field-notes/${item.slug}/`;
+    const href = `/field-notes/${item.slug}/`;
     return `<article class="static-note-row" data-series="${escapeHtml(recordSeries(item.record).toLowerCase())}" data-record-ref="${escapeHtml(item.id)}"><a href="${href}"><span class="static-note-ref">${escapeHtml(item.id)}</span><span class="static-note-copy"><strong>${escapeHtml(title)}</strong><small>${escapeHtml(excerpt)}</small></span><time datetime="${escapeHtml(recordDate(item.record))}">${escapeHtml(recordDate(item.record))}</time></a></article>`;
   }).join('\n');
 }
@@ -523,14 +505,11 @@ function metadataRecord(item) {
   const r = item.record;
   return {
     id: item.id, slug: item.slug, published: recordDate(r), series: recordSeries(r),
-    title: { en: localized(r,'en','title'), zh: localized(r,'zh','title') },
-    excerpt: {
-      en: localized(r,'en','excerpt') || localized(r,'en','description') || clamp(item.body.en,180),
-      zh: localized(r,'zh','excerpt') || localized(r,'zh','description') || clamp(item.body.zh,180),
-    },
+    title: { en: localized(r,'en','title') },
+    excerpt: { en: localized(r,'en','excerpt') || localized(r,'en','description') || clamp(item.body.en,180) },
     tags: recordTags(r), source: sourceUrl(r) || undefined,
     atlas: r.atlas || r?.data?.atlas || undefined, relations: r.relations || r?.data?.relations || undefined, trace: r.trace || r?.data?.trace || undefined,
-    url: `/field-notes/${item.slug}/`, zhUrl: `/zh/field-notes/${item.slug}/`,
+    url: `/field-notes/${item.slug}/`,
   };
 }
 
@@ -540,34 +519,39 @@ async function writeIndexes(records) {
   await write(path.join(dist,'data','site-index.json'), JSON.stringify({ version:BUILD_VERSION, generated:payload.generated, site:SITE, collections:{ fieldNotes:payload.records } },null,2)+'\n');
 }
 
-function rss(records, lang) {
-  const zh = lang === 'zh';
+function rss(records) {
   const items = records.slice(0,30).map(item => {
-    const title = localized(item.record,lang,'title') || localized(item.record,'en','title') || item.id;
-    const desc = localized(item.record,lang,'excerpt') || localized(item.record,lang,'description') || clamp(item.body[lang] || item.body.en,280);
-    const url = zh ? `${SITE}/zh/field-notes/${item.slug}/` : `${SITE}/field-notes/${item.slug}/`;
+    const title = localized(item.record,'en','title') || item.id;
+    const desc = localized(item.record,'en','excerpt') || localized(item.record,'en','description') || clamp(item.body.en,280);
+    const url = `${SITE}/field-notes/${item.slug}/`;
     const d = recordDate(item.record);
     return `<item><title>${escapeXml(title)}</title><link>${url}</link><guid isPermaLink="true">${url}</guid>${d ? `<pubDate>${new Date(`${d}T00:00:00Z`).toUTCString()}</pubDate>`:''}<description>${escapeXml(desc)}</description></item>`;
   }).join('');
-  return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${zh?'GeoGeek Field Notes / 田野札记':'GeoGeek Field Notes'}</title><link>${SITE}/</link><description>${zh?'关于 GIS、遥感、GeoAI 与空间观察的双语札记。':'Research notes on GIS, remote sensing, GeoAI, visualization, and geographic observation.'}</description><language>${zh?'zh-CN':'en'}</language>${items}</channel></rss>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>GeoGeek Field Notes</title><link>${SITE}/</link><description>Research notes on GIS, remote sensing, GeoAI, visualization, and geographic observation.</description><language>en</language>${items}</channel></rss>\n`;
 }
 
-function jsonFeed(records, lang) {
-  const zh = lang === 'zh';
+function jsonFeed(records) {
   return JSON.stringify({
-    version:'https://jsonfeed.org/version/1.1', title:zh?'GeoGeek Field Notes / 田野札记':'GeoGeek Field Notes', home_page_url:`${SITE}/`, feed_url:`${SITE}/${zh?'zh/':''}feed.json`, language:zh?'zh-CN':'en',
+    version:'https://jsonfeed.org/version/1.1', title:'GeoGeek Field Notes', home_page_url:`${SITE}/`, feed_url:`${SITE}/feed.json`, language:'en',
     items: records.slice(0,50).map(item => {
-      const url = zh ? `${SITE}/zh/field-notes/${item.slug}/` : `${SITE}/field-notes/${item.slug}/`;
-      return { id:url, url, title:localized(item.record,lang,'title') || localized(item.record,'en','title') || item.id, summary:localized(item.record,lang,'excerpt') || clamp(item.body[lang] || item.body.en,280), date_published:recordDate(item.record) ? `${recordDate(item.record)}T00:00:00Z`:undefined, tags:recordTags(item.record) };
+      const url = `${SITE}/field-notes/${item.slug}/`;
+      return { id:url, url, title:localized(item.record,'en','title') || item.id, summary:localized(item.record,'en','excerpt') || clamp(item.body.en,280), date_published:recordDate(item.record) ? `${recordDate(item.record)}T00:00:00Z`:undefined, tags:recordTags(item.record) };
     }),
   },null,2)+'\n';
 }
 
 async function writeFeeds(records) {
-  await write(path.join(dist,'feed.xml'), rss(records,'en'));
-  await write(path.join(dist,'zh','feed.xml'), rss(records,'zh'));
-  await write(path.join(dist,'feed.json'), jsonFeed(records,'en'));
-  await write(path.join(dist,'zh','feed.json'), jsonFeed(records,'zh'));
+  await write(path.join(dist,'feed.xml'), rss(records));
+  await write(path.join(dist,'feed.json'), jsonFeed(records));
+}
+
+async function writeLegacyRedirects(records) {
+  for (const item of records) {
+    const target = `/field-notes/${item.slug}/`;
+    const file = path.join(dist,'zh','field-notes',item.slug,'index.html');
+    const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="${SITE}${target}"><meta http-equiv="refresh" content="0;url=${target}"><script>location.replace(${JSON.stringify(target)});</script><title>Moved — GeoGeek</title></head><body><p>This page has moved to <a href="${target}">${target}</a>.</p></body></html>`;
+    await write(file,html);
+  }
 }
 
 async function listHtml(dir=dist) {
@@ -608,11 +592,11 @@ async function patchGenericSeo() {
     let html=await read(file);
     const route=publicPathForFile(file);
     const canonical=`${SITE}${route}`;
-    const isArticle=/\/(?:zh\/)?field-notes\/[^/]+\/$/.test(route);
+    const isArticle=/\/field-notes\/[^/]+\/$/.test(route);
     if (!isArticle) {
       const title=titleFromHtml(html,route);
-      const websiteSchema = route === '/' ? { '@context':'https://schema.org','@type':'WebSite',name:'GeoGeek',url:`${SITE}/`,description:genericDescription(route),inLanguage:['en','zh-CN'] } : null;
-      html=patchSeo(html,{canonical,title,description:genericDescription(route),lang:/^\/zh\//.test(route)?'zh-CN':'en',jsonLd:websiteSchema});
+      const websiteSchema = route === '/' ? { '@context':'https://schema.org','@type':'WebSite',name:'GeoGeek',url:`${SITE}/`,description:genericDescription(route),inLanguage:'en' } : null;
+      html=patchSeo(html,{canonical,title,description:genericDescription(route),jsonLd:websiteSchema});
     }
     html=addStaticAssets(html,route);
     if (route === '/' || route === '/field-notes.html') {
@@ -624,23 +608,21 @@ async function patchGenericSeo() {
 
 async function writeSitemap(records) {
   const htmlFiles=await listHtml();
+  const legacyPrefix = `${path.sep}zh${path.sep}`;
   const urls=[];
   for (const file of htmlFiles) {
+    if (file.includes(legacyPrefix)) continue;
     const route=publicPathForFile(file);
     if (/404\.html$/.test(route)) continue;
     urls.push({loc:`${SITE}${route}`});
   }
-  const byPath=new Map(records.flatMap(item=>[
-    [`${SITE}/field-notes/${item.slug}/`,item],
-    [`${SITE}/zh/field-notes/${item.slug}/`,item],
-  ]));
+  const byPath=new Map(records.map(item=>[`${SITE}/field-notes/${item.slug}/`,item]));
   const body=uniq(urls.map(x=>x.loc)).sort().map(loc=>{
     const item=byPath.get(loc);
-    const alternates=item ? `<xhtml:link rel="alternate" hreflang="en" href="${SITE}/field-notes/${item.slug}/"/><xhtml:link rel="alternate" hreflang="zh-CN" href="${SITE}/zh/field-notes/${item.slug}/"/><xhtml:link rel="alternate" hreflang="x-default" href="${SITE}/field-notes/${item.slug}/"/>` : '';
     const lastmod=item && recordDate(item.record) ? `<lastmod>${recordDate(item.record)}</lastmod>`:'';
-    return `<url><loc>${escapeXml(loc)}</loc>${lastmod}${alternates}</url>`;
+    return `<url><loc>${escapeXml(loc)}</loc>${lastmod}</url>`;
   }).join('');
-  const xml=`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${body}</urlset>\n`;
+  const xml=`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</urlset>\n`;
   await write(path.join(dist,'sitemap.xml'),xml);
   await write(path.join(dist,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
 }
@@ -705,7 +687,7 @@ async function optimizeScripts() {
     // enhancement rather than paying its data/model/app cost before content is
     // usable. Script order is preserved by static-delivery.js's sequential
     // loader, so legacy dependencies still initialise in their original order.
-    if (route === '/field-notes.html' || route === '/zh/field-notes.html') {
+    if (route === '/field-notes.html') {
       html=html.replace(/<script\b([^>]*?)\bsrc=(['"])([^'"]+)\2([^>]*)><\/script>/gi,(m,a,q,src,b)=>{
         if (/static-delivery\.js(?:[?#].*)?$/i.test(src)) return m;
         if (/^(?:https?:)?\/\//i.test(src)) return m;
@@ -730,15 +712,16 @@ async function main() {
   const records=await loadRecords();
   await stripArchiveBodies();
   await writeIndexes(records);
-  for (const item of records) { await renderArticle(item,records,'en'); await renderArticle(item,records,'zh'); }
+  for (const item of records) await renderArticle(item,records);
   await staticizeCollection(records);
   await staticizeHome(records);
   await writeFeeds(records);
+  await writeLegacyRedirects(records);
   await patchGenericSeo();
   await splitCss();
   await optimizeScripts();
   await writeSitemap(records);
-  console.log(`[static-delivery] ${records.length} Field Notes prerendered in EN/ZH; metadata, feeds, sitemap, responsive image pass and route CSS split complete.`);
+  console.log(`[static-delivery] ${records.length} Field Notes prerendered in English; metadata, feeds, sitemap, responsive image pass and route CSS split complete.`);
   if (!getImageTool()) console.warn('[static-delivery] ImageMagick not found; width/height still emitted, responsive raster variants skipped.');
 }
 
