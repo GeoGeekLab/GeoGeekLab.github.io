@@ -66,76 +66,139 @@
   <div class="section-label">01 / CURRENT COORDINATES</div>
   <div>
     <h2>Every view begins somewhere.</h2>
-    <p>Change the frame. Trace what remains.</p>
+    <p>Change the frame. Trace what changes. Trace what holds. Then make the claim.</p>
   </div>
 </div>
 
-<div class="coordinates-workbench epistemic-workbench">
-  <div class="coordinates-field" aria-label="GeoGeek transformation field">
+<div class="coordinates-workbench frame-test" data-coordinate-state="frame" data-transform="scale">
+  <div class="coordinates-field" aria-label="Interactive GeoGeek frame test">
     <div class="coordinates-field-head">
       <span>GEO / FRAME TEST</span>
-      <small>PERSPECTIVE → TRANSFORM → INVARIANT → ROBUSTNESS</small>
+      <small>FRAME → TRANSFORM → TRACE → CLAIM</small>
     </div>
 
-    <div class="coordinates-plot">
-      <svg class="coordinates-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <line class="coordinate-link coordinate-link-perspective" x1="50" y1="50" x2="18" y2="22"></line>
-        <line class="coordinate-link coordinate-link-transform" x1="50" y1="50" x2="82" y2="22"></line>
-        <line class="coordinate-link coordinate-link-invariant" x1="50" y1="50" x2="18" y2="78"></line>
-        <line class="coordinate-link coordinate-link-robustness" x1="50" y1="50" x2="82" y2="78"></line>
-      </svg>
-      <i class="coordinate-ring coordinate-ring-a" aria-hidden="true"></i>
-      <i class="coordinate-ring coordinate-ring-b" aria-hidden="true"></i>
-      <i class="coordinate-axis coordinate-axis-x" aria-hidden="true"></i>
-      <i class="coordinate-axis coordinate-axis-y" aria-hidden="true"></i>
-      <span class="coordinate-target-label" aria-hidden="true">TARGET</span>
+    <div class="coordinates-plot" id="coordinatePlot">
+      <svg class="coordinate-viz" viewBox="0 0 100 100" role="img" aria-label="A target shown under changing geographic representations">
+        <g class="viz-grid" aria-hidden="true">
+          <path d="M8 24H92M8 50H92M8 76H92M24 8V92M50 8V92M76 8V92"></path>
+        </g>
 
-      <div class="coordinate-node coordinate-node-perspective"><b>01</b><span>PERSPECTIVE</span></div>
-      <div class="coordinate-node coordinate-node-transform"><b>02</b><span>TRANSFORM</span></div>
-      <div class="coordinate-node coordinate-node-invariant"><b>03</b><span>INVARIANT</span></div>
-      <div class="coordinate-node coordinate-node-robustness"><b>04</b><span>ROBUSTNESS</span></div>
+        <g class="viz-frame" aria-hidden="true">
+          <circle cx="50" cy="50" r="31"></circle>
+          <circle cx="50" cy="50" r="18"></circle>
+          <path d="M12 50H88M50 12V88"></path>
+          <path class="viz-sight" d="M16 18L50 50L84 20M17 82L50 50L84 80"></path>
+        </g>
+
+        <path class="viz-target" d="M32 34C40 25 56 25 67 34C75 42 73 56 65 65C57 73 43 75 33 66C24 58 24 43 32 34Z"></path>
+
+        <g class="viz-transform viz-transform-scale" aria-hidden="true">
+          <path d="M32 34C40 25 56 25 67 34C75 42 73 56 65 65C57 73 43 75 33 66C24 58 24 43 32 34Z"></path>
+        </g>
+        <g class="viz-transform viz-transform-project" aria-hidden="true">
+          <path d="M32 34C40 25 56 25 67 34C75 42 73 56 65 65C57 73 43 75 33 66C24 58 24 43 32 34Z"></path>
+        </g>
+        <g class="viz-transform viz-transform-aggregate" aria-hidden="true">
+          <path d="M31 36Q48 24 68 35Q77 49 65 66Q47 75 31 62Q22 48 31 36Z"></path>
+        </g>
+        <g class="viz-transform viz-transform-classify" aria-hidden="true">
+          <path d="M32 34C40 25 56 25 67 34C75 42 73 56 65 65C57 73 43 75 33 66C24 58 24 43 32 34Z"></path>
+          <path class="viz-class-line" d="M30 47C42 43 55 44 72 40M29 57C44 55 55 57 69 54"></path>
+        </g>
+
+        <g class="viz-trace" aria-hidden="true">
+          <path class="trace-link" d="M37 39L39 37M63 43L69 39M40 61L37 66"></path>
+          <circle class="trace-hold" cx="51" cy="31" r="1.6"></circle>
+          <circle class="trace-hold" cx="55" cy="64" r="1.6"></circle>
+          <circle class="trace-hold" cx="34" cy="51" r="1.6"></circle>
+          <circle class="trace-move trace-from" cx="37" cy="39" r="1.35"></circle>
+          <circle class="trace-move trace-to" cx="39" cy="37" r="1.35"></circle>
+          <circle class="trace-move trace-from" cx="63" cy="43" r="1.35"></circle>
+          <circle class="trace-move trace-to" cx="69" cy="39" r="1.35"></circle>
+          <circle class="trace-lost" cx="40" cy="61" r="1.5"></circle>
+        </g>
+
+        <g class="viz-claim" aria-hidden="true">
+          <path d="M34 51C40 39 48 31 55 31C62 32 65 42 64 50C63 58 59 63 55 64"></path>
+          <circle cx="34" cy="51" r="1.6"></circle>
+          <circle cx="55" cy="31" r="1.6"></circle>
+          <circle cx="55" cy="64" r="1.6"></circle>
+        </g>
+      </svg>
+
+      <div class="coordinate-stage-labels" aria-hidden="true">
+        <span class="stage-label stage-label-frame">FRAME</span>
+        <span class="stage-label stage-label-transform">TRANSFORM</span>
+        <span class="stage-label stage-label-trace">TRACE</span>
+        <span class="stage-label stage-label-claim">CLAIM</span>
+      </div>
+
+      <div class="coordinate-node-set" aria-label="Frame test stages">
+        <button class="coordinate-node coordinate-node-frame is-active" type="button" data-coordinate-trigger="frame" aria-pressed="true"><b>01</b><span>FRAME</span></button>
+        <button class="coordinate-node coordinate-node-transform" type="button" data-coordinate-trigger="transform" aria-pressed="false"><b>02</b><span>TRANSFORM</span></button>
+        <button class="coordinate-node coordinate-node-trace" type="button" data-coordinate-trigger="trace" aria-pressed="false"><b>03</b><span>TRACE</span></button>
+        <button class="coordinate-node coordinate-node-claim" type="button" data-coordinate-trigger="claim" aria-pressed="false"><b>04</b><span>CLAIM</span></button>
+      </div>
+
+      <div class="coordinate-readout" aria-live="polite">
+        <span id="coordinateReadoutKicker">FRAME / OBSERVATION</span>
+        <strong id="coordinateReadout">PLACE · TIME · SENSOR · GEOMETRY · SUPPORT</strong>
+      </div>
     </div>
 
     <div class="coordinates-field-foot">
-      <span>CHANGE THE FRAME</span>
-      <small>SCALE · PROJECTION · SENSOR · AGGREGATION · CLASSIFICATION · MODEL</small>
+      <span>CHANGE THE MAP</span>
+      <div class="coordinate-transform-controls" aria-label="Choose a transformation">
+        <button type="button" data-transform="scale" aria-pressed="true">SCALE</button>
+        <button type="button" data-transform="project" aria-pressed="false">PROJECT</button>
+        <button type="button" data-transform="aggregate" aria-pressed="false">AGGREGATE</button>
+        <button type="button" data-transform="classify" aria-pressed="false">CLASSIFY</button>
+      </div>
     </div>
   </div>
 
-  <div class="coordinates-register epistemic-register" aria-label="GeoGeek working coordinates">
-    <article tabindex="0" data-coordinate="perspective">
-      <div class="coordinate-register-meta"><b>01</b><span>PERSPECTIVE</span></div>
-      <h3>Observation has a frame.</h3>
-      <p>Place, time, instrument, orbit, and convention condition what becomes observable.</p>
-      <small>PLACE · TIME · SENSOR · ORBIT · FRAME</small>
+  <div class="coordinates-register" aria-label="GeoGeek working sequence">
+    <article data-coordinate="frame">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="frame" aria-pressed="true">
+        <div class="coordinate-register-meta"><b>01</b><span>FRAME</span></div>
+        <h3>Under what conditions was this seen?</h3>
+        <p>Locate the observation before reading the result: place, time, sensor, geometry, and support.</p>
+        <small>PLACE · TIME · SENSOR · GEOMETRY · SUPPORT</small>
+      </button>
     </article>
 
-    <article tabindex="0" data-coordinate="transform">
-      <div class="coordinate-register-meta"><b>02</b><span>TRANSFORM</span></div>
-      <h3>Change the frame; the object may change.</h3>
-      <p>Rescale, reproject, aggregate, classify, or resample—and the same target can become a different object of analysis.</p>
-      <small>SCALE · PROJECTION · AGGREGATION · CLASSIFICATION · RESAMPLING</small>
+    <article data-coordinate="transform">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="transform" aria-pressed="false">
+        <div class="coordinate-register-meta"><b>02</b><span>TRANSFORM</span></div>
+        <h3>Change the map.</h3>
+        <p>Rescale, reproject, aggregate, classify, or swap the model. Watch what moves with the representation.</p>
+        <small>SCALE · PROJECTION · AGGREGATION · CLASSIFICATION · MODEL</small>
+      </button>
     </article>
 
-    <article tabindex="0" data-coordinate="invariant">
-      <div class="coordinate-register-meta"><b>03</b><span>INVARIANT</span></div>
-      <h3>What survives the transform?</h3>
-      <p>Trace the relations, patterns, and structures that persist across relevant changes of scale, projection, sensor, or model.</p>
-      <small>TOPOLOGY · ORDER · PATTERN · STRUCTURE</small>
+    <article data-coordinate="trace">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="trace" aria-pressed="false">
+        <div class="coordinate-register-meta"><b>03</b><span>TRACE</span></div>
+        <h3>What holds? What moves? What disappears?</h3>
+        <p>Follow the relations across relevant transformations instead of assuming they should stay fixed.</p>
+        <small>HOLD · MOVE · DISAPPEAR · EXPLAIN</small>
+      </button>
     </article>
 
-    <article tabindex="0" data-coordinate="robustness">
-      <div class="coordinate-register-meta"><b>04</b><span>ROBUSTNESS</span></div>
-      <h3>Stable across relevant views.</h3>
-      <p>A pattern that persists across reasonable transformations carries more weight than one tied to a single representation.</p>
-      <small>TRANSFORM → COMPARE → REPEAT</small>
+    <article data-coordinate="claim">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="claim" aria-pressed="false">
+        <div class="coordinate-register-meta"><b>04</b><span>CLAIM</span></div>
+        <h3>Say only what survives the trip.</h3>
+        <p>State the pattern with the frame, domain, and uncertainty that still carry it.</p>
+        <small>FRAME · DOMAIN · UNCERTAINTY</small>
+      </button>
     </article>
   </div>
 </div>
 
 <div class="coordinates-question">
   <span>CURRENT QUESTION</span>
-  <strong>When does a pattern become geographic structure rather than an artifact of representation?</strong>
+  <strong>Change the map. Is it still there?</strong>
 </div>
 </section>
 <section class="home-commons" id="commons-gateway" data-scale="1 : 25,000" data-scale-level="COLLECTION" aria-label="Commons">

@@ -881,6 +881,93 @@
     $(`#sheetIndex a[href="${navHref}"]`)?.setAttribute('aria-current', 'page');
   }
 
+  function initCurrentCoordinates() {
+    const workbench = $('.coordinates-workbench');
+    const plot = $('#coordinatePlot');
+    if (!workbench || !plot) return;
+
+    const stages = ['frame', 'transform', 'trace', 'claim'];
+    const readouts = {
+      frame: ['FRAME / OBSERVATION', 'PLACE · TIME · SENSOR · GEOMETRY · SUPPORT'],
+      transform: ['TRANSFORM / REPRESENTATION', 'CHANGE THE MAP · WATCH WHAT MOVES'],
+      trace: ['TRACE / RESPONSE', 'HOLD · MOVE · DISAPPEAR'],
+      claim: ['CLAIM / DOMAIN', 'SAY ONLY WHAT SURVIVES THE TRIP']
+    };
+    let activeStage = 'frame';
+
+    const triggers = $('[data-coordinate-trigger]', workbench);
+    const transformButtons = $('[data-transform]', workbench);
+    const readoutKicker = $('#coordinateReadoutKicker');
+    const readout = $('#coordinateReadout');
+
+    const renderStage = (stage, commit = true) => {
+      if (!stages.includes(stage)) return;
+      workbench.dataset.coordinateState = stage;
+      if (commit) activeStage = stage;
+
+      triggers.forEach(trigger => {
+        const selected = trigger.dataset.coordinateTrigger === stage;
+        trigger.classList.toggle('is-active', selected);
+        trigger.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      });
+
+      const copy = readouts[stage];
+      if (copy) {
+        if (readoutKicker) readoutKicker.textContent = copy[0];
+        if (readout) readout.textContent = copy[1];
+      }
+    };
+
+    const selectTransform = type => {
+      if (!['scale', 'project', 'aggregate', 'classify'].includes(type)) return;
+      workbench.dataset.transform = type;
+      transformButtons.forEach(button => {
+        button.setAttribute('aria-pressed', button.dataset.transform === type ? 'true' : 'false');
+      });
+      if (activeStage === 'frame') renderStage('transform');
+      else renderStage(activeStage, false);
+    };
+
+    triggers.forEach(trigger => {
+      const stage = trigger.dataset.coordinateTrigger;
+      trigger.addEventListener('click', () => renderStage(stage));
+      trigger.addEventListener('mouseenter', () => renderStage(stage, false));
+      trigger.addEventListener('mouseleave', () => renderStage(activeStage, false));
+      trigger.addEventListener('focus', () => renderStage(stage, false));
+      trigger.addEventListener('blur', () => renderStage(activeStage, false));
+      trigger.addEventListener('keydown', event => {
+        if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(event.key)) return;
+        event.preventDefault();
+        const direction = (event.key === 'ArrowRight' || event.key === 'ArrowDown') ? 1 : -1;
+        const index = stages.indexOf(stage);
+        const next = stages[(index + direction + stages.length) % stages.length];
+        const nextTrigger = $('.coordinate-node[data-coordinate-trigger]', workbench).find(node => node.dataset.coordinateTrigger === next)
+          || triggers.find(node => node.dataset.coordinateTrigger === next);
+        renderStage(next);
+        nextTrigger?.focus();
+      });
+    });
+
+    transformButtons.forEach(button => {
+      button.addEventListener('click', () => selectTransform(button.dataset.transform));
+    });
+
+    const finePointer = matchMedia('(hover:hover) and (pointer:fine)');
+    if (finePointer.matches) {
+      plot.addEventListener('pointermove', event => {
+        const rect = plot.getBoundingClientRect();
+        const x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
+        const y = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100));
+        plot.style.setProperty('--probe-x', x.toFixed(2) + '%');
+        plot.style.setProperty('--probe-y', y.toFixed(2) + '%');
+        plot.classList.add('is-probing');
+      }, { passive: true });
+      plot.addEventListener('pointerleave', () => plot.classList.remove('is-probing'), { passive: true });
+    }
+
+    renderStage('frame');
+  }
+
   applyLocale();
   renderHome();
   initNotes();
@@ -889,6 +976,7 @@
   renderRecord();
   initViewTransitions();
   initGeoField();
+  initCurrentCoordinates();
   initSheetIndex();
   window.bindContourTargets?.();
 })();
