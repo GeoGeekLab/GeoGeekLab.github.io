@@ -116,8 +116,9 @@ if(await exists(collection)){
 const home=path.join(dist,'index.html');
 if(await exists(home)){
   const html=await read(home);
-  ok(/static-orientation/i.test(html),'homepage has a plain-language orientation layer');
-  ok(/static-selected-work/i.test(html),'homepage selected work is prerendered');
+  ok(!/static-orientation/i.test(html),'homepage omits the retired orientation interstitial');
+  ok(!/static-selected-work/i.test(html),'homepage omits the retired selected-work interstitial');
+  ok(!/id=(['"])orbital-threshold\1/i.test(html),'homepage omits the retired orbital-threshold section');
 }
 
 const originCanonical=path.join(dist,'origin','index.html');
