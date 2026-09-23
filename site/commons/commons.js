@@ -310,7 +310,7 @@
       navigator.geolocation.getCurrentPosition(pos=>{
         state.user={ lat:pos.coords.latitude, lon:pos.coords.longitude, accuracy:pos.coords.accuracy, timezone:Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' };
         const snapped=Geo.snap(state.user, cfg.privacy?.coarseDegrees || .25);
-        state.publicPlace={ id:`cell-${snapped.lat.toFixed(2)}-${snapped.lon.toFixed(2)}`, ...snapped, label:`${snapped.lat.toFixed(2)}°, ${snapped.lon.toFixed(2)}°`, zh:`${snapped.lat.toFixed(2)}°, ${snapped.lon.toFixed(2)}°`, timezone:state.user.timezone, country:null };
+        state.publicPlace={ id:`cell-${snapped.lat.toFixed(2)}-${snapped.lon.toFixed(2)}`, ...snapped, label:`${snapped.lat.toFixed(2)}°, ${snapped.lon.toFixed(2)}°`, timezone:state.user.timezone, country:null };
         btn.disabled=false; btn.textContent=ui.actions?.locate || 'LOCATE ME';
         const blocked = Data.isLive() && !cfg.allowContributions;
         $('#commonsLight').disabled=blocked; $('#commonsClearLocation').hidden=false; $('#observationPlace').value=state.publicPlace.label; $('#observationSubmit').disabled=blocked;

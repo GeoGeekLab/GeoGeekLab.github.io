@@ -753,7 +753,7 @@
         else if (ratio >= 1.75) figure.classList.add('is-wide');
         else if (width < 720) figure.classList.add('is-compact');
         const alt = (image.getAttribute('alt') || '').trim();
-        if (!alt || /^(图片|image|figure)$/i.test(alt)) {
+        if (!alt || /^(image|figure)$/i.test(alt)) {
           const caption = figure.nextElementSibling?.classList?.contains('archive-caption') ? figure.nextElementSibling.textContent.trim() : '';
           image.alt = caption ? caption.slice(0, 180) : ('Article figure');
         }

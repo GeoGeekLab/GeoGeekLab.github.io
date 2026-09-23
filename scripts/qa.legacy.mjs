@@ -86,6 +86,28 @@ check(appSource.includes('calibrateArchiveReading'),'Archive figure/reading cali
 check((appSource.match(/displayRecordTitle\(note\.title\)/g)||[]).length >= 2,'Archive titles must be consistent on home and collection views.');
 check(!appSource.includes('geogeek-language'),'Legacy language localStorage remains in app.js.');
 
+const englishOnlyRuntimeFiles = [
+  'site/app.js',
+  'site/atlas/atlas.js',
+  'site/commons/commons.js',
+  'site/content.js',
+  'site/core/site-model.js',
+  'site/games.js',
+  'site/instruments.js',
+  'site/map/site-map.js',
+  'site/orbital/orbital-engine.js',
+  'site/orbital/orbital-threshold.js',
+  'site/previews.js',
+  'site/ux-preinit.js',
+  'site/ux-refinements.js',
+  'site/stories/geospatial-ai-limits/app.js',
+  'site/stories/geospatial-ai-limits/index.html'
+];
+for (const rel of englishOnlyRuntimeFiles) {
+  const source = fs.readFileSync(path.join(root, rel), 'utf8');
+  check(!/geogeek-language|geoai-lang|zh-CN|locale\s*===?\s*['"]zh['"]|locale===['"]zh['"]|\bisZh\b|\bzh\s*:|[\u3400-\u9fff]/i.test(source), `${rel}: Chinese locale/runtime residue remains`);
+}
+
 const dist=path.join(root,'dist');
 check(fs.existsSync(path.join(dist,'index.html')),'dist/index.html missing');
 check(fs.readFileSync(path.join(dist,'archive-content.js'),'utf8').includes('window.GEOGEEK_SOURCE_PREVIEW = false'),'Production archive bootstrap must disable source-preview routing.');
