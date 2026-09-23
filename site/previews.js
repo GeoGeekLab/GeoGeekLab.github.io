@@ -2,7 +2,7 @@
   'use strict';
   const $ = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => [...r.querySelectorAll(s)];
-  const locale = (() => { try { return localStorage.getItem('geogeek-language') === 'zh' ? 'zh' : 'en'; } catch { return 'en'; } })();
+  const locale = 'en';
   const NATURAL_EARTH = 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m/cultural/ne_110m_admin_0_countries.json';
   const NS = 'http://www.w3.org/2000/svg';
 
@@ -36,7 +36,7 @@
       if ($('.live-earth-preview', host)) return;
       const img = document.createElement('img');
       img.className = 'live-earth-preview';
-      img.alt = locale === 'zh' ? 'NASA Terra 真彩色地球观测预览' : 'NASA Terra true-color Earth observation preview';
+      img.alt = 'NASA Terra true-color Earth observation preview';
       const d = new Date(); d.setUTCDate(d.getUTCDate()-2);
       const date = d.toISOString().slice(0,10);
       const params = new URLSearchParams({ service:'WMS', version:'1.1.1', request:'GetMap', layers:'MODIS_Terra_CorrectedReflectance_TrueColor', styles:'', format:'image/jpeg', transparent:'false', srs:'EPSG:4326', bbox:'-180,-90,180,90', width:'1200', height:'600', time:date });
@@ -130,9 +130,9 @@
       const labels={
         world:'NATURAL EARTH / 1:110m',
         pulse:'USGS / 24H',
-        locate: locale==='zh' ? '样本 / 东京 · 北纬 35.69°' : 'SPECIMEN / TOKYO 35.69°N',
-        zone: locale==='zh' ? '样本 / 日本' : 'SPECIMEN / JAPAN',
-        path: locale==='zh' ? '样本 / 法→德→波' : 'SPECIMEN / FR→DE→PL'
+        locate: 'SPECIMEN / TOKYO 35.69°N',
+        zone: 'SPECIMEN / JAPAN',
+        path: 'SPECIMEN / FR→DE→PL'
       };
       if (labels[kind]) stamp.textContent=labels[kind];
     }
@@ -182,7 +182,7 @@
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     $$('.project-visual-orbit .preview-orbit').forEach(host => {
       const stamp=$('.preview-stamp',host);
-      if(stamp) stamp.textContent=locale==='zh' ? '轨道场 / 活动星目' : 'ORBITAL FIELD / ACTIVE CATALOG';
+      if(stamp) stamp.textContent='ORBITAL FIELD / ACTIVE CATALOG';
       for (let i=0;i<7;i++) {
         const p=document.createElement('i'); p.className='orbit-live-point';
         p.style.setProperty('--delay', `${-i*1.15}s`); p.style.setProperty('--phase', `${i*41}deg`);

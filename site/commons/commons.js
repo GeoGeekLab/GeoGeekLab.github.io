@@ -5,10 +5,9 @@
   const cfg = window.GEOGEEK_COMMONS_CONFIG || {};
   if (!Data || !Geo) return;
 
-  const readLocale = () => { try { return localStorage.getItem('geogeek-language') === 'zh' ? 'zh' : 'en'; } catch { return 'en'; } };
-  const locale = readLocale();
-  const ui = window.GEOGEEK_DATA?.[locale]?.ui?.commons || {};
-  const host = { lat:Number(cfg.host?.lat ?? 30.59), lon:Number(cfg.host?.lon ?? 114.30), timezone:cfg.host?.timezone || 'Asia/Shanghai', label:cfg.host?.label?.[locale] || (locale === 'zh' ? '中国 · 武汉' : 'Wuhan, China') };
+  const locale = 'en';
+  const ui = window.GEOGEEK_DATA?.en?.ui?.commons || {};
+  const host = { lat:Number(cfg.host?.lat ?? 30.59), lon:Number(cfg.host?.lon ?? 114.30), timezone:cfg.host?.timezone || 'Asia/Shanghai', label:cfg.host?.label?.en || cfg.host?.label || 'Wuhan, China' };
   const $ = (s,r=document) => r.querySelector(s);
   const $$ = (s,r=document) => [...r.querySelectorAll(s)];
   const escapeHTML = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -80,9 +79,9 @@
     });
   }
 
-  function localizedPlace(place) { return locale === 'zh' ? (place.zh || place.label || place.id) : (place.label || place.zh || place.id); }
-  function localizedObservation(o) { return typeof o.text === 'string' ? o.text : (o.text?.[locale] || o.text?.en || o.text?.zh || ''); }
-  function countFormat(value) { return Number(value || 0).toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US'); }
+  function localizedPlace(place) { return place.label || place.id; }
+  function localizedObservation(o) { return typeof o.text === 'string' ? o.text : (o.text?.en || Object.values(o.text || {}).find(value => typeof value === 'string') || ''); }
+  function countFormat(value) { return Number(value || 0).toLocaleString('en-US'); }
   function relativeTime(iso) {
     const ms = Date.now() - new Date(iso).getTime();
     const h = Math.max(0, Math.round(ms / 3600000));
@@ -119,20 +118,20 @@
     $('#commonsClearLocation').textContent = ui.actions?.clear || 'CLEAR LOCAL POSITION';
     $('#commonsPrivacyText').textContent = ui.privacy?.body || '';
     const participateHeads = $$('.commons-block-head');
-    if (participateHeads[0]) { $('span',participateHeads[0]).textContent = locale === 'zh' ? '你 ↔ 武汉' : 'YOU ↔ HOST'; $('h2',participateHeads[0]).textContent = locale === 'zh' ? '精确位置先只属于你。' : 'Your position stays private until you choose otherwise.'; }
-    if (participateHeads[1]) { $('span',participateHeads[1]).textContent = ui.actions?.observe || 'OBSERVATION'; $('h2',participateHeads[1]).textContent = locale === 'zh' ? '从你所在之处，留下一则短观。' : 'Leave one short observation from where you are.'; }
+    if (participateHeads[0]) { $('span',participateHeads[0]).textContent = 'YOU ↔ HOST'; $('h2',participateHeads[0]).textContent = 'Your position stays private until you choose otherwise.'; }
+    if (participateHeads[1]) { $('span',participateHeads[1]).textContent = ui.actions?.observe || 'OBSERVATION'; $('h2',participateHeads[1]).textContent = 'Leave one short observation from where you are.'; }
     const form = $('#commonsObservationForm');
     if (form) {
       const labels = $$('label > span',form); if(labels[0]) labels[0].textContent=ui.form?.place||'PLACE'; if(labels[1]) labels[1].textContent=ui.form?.name||'NAME / OPTIONAL'; if(labels[2]) labels[2].textContent=ui.form?.observation||'OBSERVATION';
       $('#observationText').placeholder = ui.form?.placeholder || '';
       $('#observationSubmit').textContent = ui.actions?.submit || 'CONTRIBUTE';
-      if (!state.user) $('#observationPlace').value = locale === 'zh' ? '请先定位' : 'Locate first';
+      if (!state.user) $('#observationPlace').value = 'Locate first';
     }
-    $('.commons-summary')?.setAttribute('aria-label', locale === 'zh' ? '共域统计' : 'Commons summary');
-    $('.commons-layer-controls')?.setAttribute('aria-label', locale === 'zh' ? '地图图层' : 'Map layers');
-    $('.commons-horizon')?.setAttribute('aria-label', locale === 'zh' ? '时间范围' : 'Time range');
-    $('.commons-time-modes')?.setAttribute('aria-label', locale === 'zh' ? '时间表示' : 'Temporal representation');
-    $('#commonsMap')?.setAttribute('aria-label', locale === 'zh' ? '匿名访问者粗略来处世界地图' : 'World map of anonymous visitor places');
+    $('.commons-summary')?.setAttribute('aria-label', 'Commons summary');
+    $('.commons-layer-controls')?.setAttribute('aria-label', 'Map layers');
+    $('.commons-horizon')?.setAttribute('aria-label', 'Time range');
+    $('.commons-time-modes')?.setAttribute('aria-label', 'Temporal representation');
+    $('#commonsMap')?.setAttribute('aria-label', 'World map of anonymous visitor places');
     renderYouHost();
   }
 
@@ -215,15 +214,15 @@
     if (!boxes.length) return;
     boxes[0].innerHTML = `<span>${escapeHTML(ui.relation?.host || 'HOST')}</span><strong>${escapeHTML(host.label)}</strong><small>${Math.abs(host.lat).toFixed(2)}° N · ${Math.abs(host.lon).toFixed(2)}° E</small>`;
     if (!state.user) {
-      boxes[1].innerHTML = `<span>${escapeHTML(ui.relation?.you || 'YOU')}</span><strong>${locale==='zh'?'尚未定位':'NOT LOCATED'}</strong><small>${escapeHTML(ui.privacy?.private || 'DEVICE ONLY')}</small>`;
-      boxes[2].innerHTML = `<span>${escapeHTML(ui.relation?.distance || 'DISTANCE')}</span><strong>—</strong><small>${locale==='zh'?'大圆距离':'GREAT-CIRCLE'}</small>`;
-      boxes[3].innerHTML = `<span>${escapeHTML(ui.relation?.bearing || 'INITIAL BEARING')}</span><strong>—</strong><small>${locale==='zh'?'你 → 武汉':'YOU → WUHAN'}</small>`;
+      boxes[1].innerHTML = `<span>${escapeHTML(ui.relation?.you || 'YOU')}</span><strong>${'NOT LOCATED'}</strong><small>${escapeHTML(ui.privacy?.private || 'DEVICE ONLY')}</small>`;
+      boxes[2].innerHTML = `<span>${escapeHTML(ui.relation?.distance || 'DISTANCE')}</span><strong>—</strong><small>${'GREAT-CIRCLE'}</small>`;
+      boxes[3].innerHTML = `<span>${escapeHTML(ui.relation?.bearing || 'INITIAL BEARING')}</span><strong>—</strong><small>${'YOU → WUHAN'}</small>`;
       return;
     }
     const d=Geo.distanceKm(state.user,host), b=Geo.initialBearing(state.user,host);
     boxes[1].innerHTML = `<span>${escapeHTML(ui.relation?.you || 'YOU')}</span><strong>${state.user.lat.toFixed(4)}°, ${state.user.lon.toFixed(4)}°</strong><small>${escapeHTML(ui.privacy?.private || 'DEVICE ONLY')}</small>`;
-    boxes[2].innerHTML = `<span>${escapeHTML(ui.relation?.distance || 'DISTANCE')}</span><strong>${escapeHTML(Geo.formatDistance(d))}</strong><small>${locale==='zh'?'大圆距离':'GREAT-CIRCLE'}</small>`;
-    boxes[3].innerHTML = `<span>${escapeHTML(ui.relation?.bearing || 'INITIAL BEARING')}</span><strong>${Math.round(b)}° · ${Geo.cardinal(b)}</strong><small>${locale==='zh'?'你 → 武汉':'YOU → WUHAN'}</small>`;
+    boxes[2].innerHTML = `<span>${escapeHTML(ui.relation?.distance || 'DISTANCE')}</span><strong>${escapeHTML(Geo.formatDistance(d))}</strong><small>${'GREAT-CIRCLE'}</small>`;
+    boxes[3].innerHTML = `<span>${escapeHTML(ui.relation?.bearing || 'INITIAL BEARING')}</span><strong>${Math.round(b)}° · ${Geo.cardinal(b)}</strong><small>${'YOU → WUHAN'}</small>`;
   }
 
   function buildProjection(d3) { return d3.geoEqualEarth().fitExtent([[30,26],[1170,650]], {type:'Sphere'}); }
@@ -307,7 +306,7 @@
 
     $('#commonsLocate')?.addEventListener('click',()=>{
       const btn=$('#commonsLocate');
-      if (!navigator.geolocation) { $('#observationFeedback').textContent = locale==='zh'?'此浏览器不支持定位。':'Geolocation is unavailable in this browser.'; return; }
+      if (!navigator.geolocation) { $('#observationFeedback').textContent = 'Geolocation is unavailable in this browser.'; return; }
       btn.disabled=true; btn.textContent=ui.actions?.locating || 'LOCATING…';
       navigator.geolocation.getCurrentPosition(pos=>{
         state.user={ lat:pos.coords.latitude, lon:pos.coords.longitude, accuracy:pos.coords.accuracy, timezone:Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' };
@@ -320,7 +319,7 @@
         renderYouHost(); renderInspector(); renderMap();
       },err=>{
         btn.disabled=false; btn.textContent=ui.actions?.locate || 'LOCATE ME';
-        $('#observationFeedback').textContent = err.code===1 ? (locale==='zh'?'定位权限未授予。':'Location permission was not granted.') : (locale==='zh'?'暂无法取得位置。':'Unable to read location.');
+        $('#observationFeedback').textContent = err.code===1 ? ('Location permission was not granted.') : ('Unable to read location.');
       },{ enableHighAccuracy:false, timeout:10000, maximumAge:300000 });
     });
 
@@ -330,7 +329,7 @@
       try {
         const result=await Data.light(state.publicPlace);
         btn.textContent=ui.actions?.lit || 'PLACE LIT';
-        $('#observationFeedback').textContent=result.localOnly ? (locale==='zh'?'示意模式：只在此浏览器中点亮。':'Demo mode: lit in this browser only.') : '';
+        $('#observationFeedback').textContent=result.localOnly ? ('Demo mode: lit in this browser only.') : '';
         await refresh();
       } catch { btn.disabled=false; $('#observationFeedback').textContent=ui.form?.backend || 'Backend required.'; }
     });
@@ -338,7 +337,7 @@
     $('#commonsClearLocation')?.addEventListener('click',()=>{
       state.user=null; state.publicPlace=null; state.selected=null;
       try { localStorage.removeItem('geogeek-commons-public-place'); } catch {}
-      $('#commonsLight').disabled=true; $('#commonsLight').textContent=ui.actions?.light || 'LIGHT THIS PLACE'; $('#commonsClearLocation').hidden=true; $('#observationPlace').value=locale==='zh'?'请先定位':'Locate first'; $('#observationSubmit').disabled=true;
+      $('#commonsLight').disabled=true; $('#commonsLight').textContent=ui.actions?.light || 'LIGHT THIS PLACE'; $('#commonsClearLocation').hidden=true; $('#observationPlace').value='Locate first'; $('#observationSubmit').disabled=true;
       renderYouHost(); renderInspector(); renderMap(); Data.updatePresence(null);
     });
 
@@ -349,7 +348,7 @@
       const btn=$('#observationSubmit'); btn.disabled=true; btn.textContent=ui.actions?.submitting || 'SENDING…';
       try {
         const result=await Data.observe(state.publicPlace,text,$('#observationName').value);
-        $('#observationFeedback').textContent=result.status==='pending' ? (ui.form?.pending || '') : result.localOnly ? (locale==='zh'?'示意模式：所见只保存在此浏览器。':'Demo mode: observation stays in this browser.') : (ui.form?.success || '');
+        $('#observationFeedback').textContent=result.status==='pending' ? (ui.form?.pending || '') : result.localOnly ? ('Demo mode: observation stays in this browser.') : (ui.form?.success || '');
         $('#observationText').value=''; $('#observationCount').textContent=`0 / ${cfg.privacy?.observationMaxLength || 180}`; await refresh();
       } catch { $('#observationFeedback').textContent=ui.form?.backend || 'Backend required.'; }
       finally { btn.disabled=false; btn.textContent=ui.actions?.submit || 'CONTRIBUTE'; }
@@ -373,9 +372,9 @@
     const horizon = options.horizon || '30d';
     const home = variant === 'home';
     if (home) {
-      container.innerHTML = `<div class="commons-preview-map-status">${escapeHTML(localUI.map?.loading || 'READING COMMON FIELD…')}</div><svg class="commons-preview-map" viewBox="0 0 1200 585" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escapeHTML(locale==='zh'?'匿名来访世界地图':'World map of anonymous visitor places')}"></svg><div class="home-commons-map-legend" aria-label="${escapeHTML(locale==='zh'?'图例':'Map legend')}"><span><i class="visit-dot"></i><b>${escapeHTML(localUI.layers?.visits || 'VISITS')}</b></span><span><i class="observation-dot"></i><b>${escapeHTML(localUI.layers?.observations || 'OBSERVATIONS')}</b></span><span><i class="now-dot"></i><b>${escapeHTML(localUI.layers?.now || 'NOW')}</b></span><span><i class="host-dot"></i><b>${escapeHTML(locale==='zh'?'主位':'HOST')}</b></span></div><div class="home-commons-map-source">Natural Earth / world-atlas · ${escapeHTML(locale==='zh'?'匿名粗略位置':'anonymous coarse locations')}</div>`;
+      container.innerHTML = `<div class="commons-preview-map-status">${escapeHTML(localUI.map?.loading || 'READING COMMON FIELD…')}</div><svg class="commons-preview-map" viewBox="0 0 1200 585" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escapeHTML('World map of anonymous visitor places')}"></svg><div class="home-commons-map-legend" aria-label="${escapeHTML('Map legend')}"><span><i class="visit-dot"></i><b>${escapeHTML(localUI.layers?.visits || 'VISITS')}</b></span><span><i class="observation-dot"></i><b>${escapeHTML(localUI.layers?.observations || 'OBSERVATIONS')}</b></span><span><i class="now-dot"></i><b>${escapeHTML(localUI.layers?.now || 'NOW')}</b></span><span><i class="host-dot"></i><b>${escapeHTML('HOST')}</b></span></div><div class="home-commons-map-source">Natural Earth / world-atlas · ${escapeHTML('anonymous coarse locations')}</div>`;
     } else {
-      container.innerHTML = `<div class="commons-preview-head"><div><span>${escapeHTML(locale==='zh'?'共域 / 地理来访':'COMMONS / GEOGRAPHIC VISITS')}</span><h3>${escapeHTML(localUI.title || 'Commons')}</h3></div><a href="commons.html">${escapeHTML(locale==='zh'?'入共域 ↗':'ENTER COMMONS ↗')}</a></div><div class="commons-preview-map-status">${escapeHTML(localUI.map?.loading || 'READING COMMON FIELD…')}</div><svg class="commons-preview-map" viewBox="0 0 900 440" role="img" aria-label="${escapeHTML(locale==='zh'?'共域来访地图':'Commons visitor map')}"></svg><div class="commons-preview-stats"></div>`;
+      container.innerHTML = `<div class="commons-preview-head"><div><span>${escapeHTML('COMMONS / GEOGRAPHIC VISITS')}</span><h3>${escapeHTML(localUI.title || 'Commons')}</h3></div><a href="commons.html">${escapeHTML('ENTER COMMONS ↗')}</a></div><div class="commons-preview-map-status">${escapeHTML(localUI.map?.loading || 'READING COMMON FIELD…')}</div><svg class="commons-preview-map" viewBox="0 0 900 440" role="img" aria-label="${escapeHTML('Commons visitor map')}"></svg><div class="commons-preview-stats"></div>`;
     }
     const status = await Data.init();
     const snap = await Data.snapshot({ horizon, mode:'accumulated' });

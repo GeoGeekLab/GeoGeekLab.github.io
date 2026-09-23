@@ -161,7 +161,7 @@ async function fetchCatalog(signal) {
 
 function makeDemoRecords(count, locale = 'en') {
   return Array.from({ length: count }, (_, i) => ({
-    OBJECT_NAME: `${locale === 'zh' ? '示意星目' : 'DEMO FIELD'} ${String(i + 1).padStart(3, '0')}`,
+    OBJECT_NAME: `${'DEMO FIELD'} ${String(i + 1).padStart(3, '0')}`,
     NORAD_CAT_ID: `D${i + 1}`,
     __kind: i % 8 === 0 ? 'earth' : i % 11 === 0 ? 'weather' : 'other',
     __demo: true,
@@ -203,7 +203,7 @@ export class GeoOrbitalField {
     this.container = options.container;
     this.canvas = options.canvas || document.createElement('canvas');
     this.mode = options.mode || 'threshold';
-    this.locale = options.locale === 'zh' ? 'zh' : 'en';
+    this.locale = 'en';
     this.signal = options.signal;
     this.onStatus = options.onStatus || (() => {});
     this.onHover = options.onHover || (() => {});
@@ -635,7 +635,7 @@ export class GeoOrbitalField {
 }
 
 export async function mountOrbitalLab({ container, locale = 'en', signal, labels = {}, statusCallback = null }) {
-  const isZh = locale === 'zh';
+  const isZh = false;
   const kindNames = isZh ? { earth: '对地观测', weather: '气象', navigation: '导航', science: '科学', other: '其他' } : { earth: 'EARTH OBSERVATION', weather: 'WEATHER', navigation: 'NAVIGATION', science: 'SCIENCE', other: 'OTHER' };
   container.innerHTML = `
     <div class="orbital-lab">

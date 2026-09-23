@@ -47,13 +47,13 @@
   const previous = document.createElement('button');
   previous.type = 'button';
   previous.className = 'scale-nudge scale-nudge-prev';
-  previous.setAttribute('aria-label', model.locale === 'zh' ? '缩小信息尺度' : 'Zoom information scale out');
+  previous.setAttribute('aria-label', 'Zoom information scale out');
   previous.textContent = '‹';
 
   const next = document.createElement('button');
   next.type = 'button';
   next.className = 'scale-nudge scale-nudge-next';
-  next.setAttribute('aria-label', model.locale === 'zh' ? '放大信息尺度' : 'Zoom information scale in');
+  next.setAttribute('aria-label', 'Zoom information scale in');
   next.textContent = '›';
 
   scale.insertBefore(previous, scale.firstChild);

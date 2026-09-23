@@ -18,38 +18,23 @@ if (section) {
   const groundLabel = document.getElementById('groundTraceLabel');
   const source = document.getElementById('orbitalSource');
 
-  let locale = 'en';
-  try { locale = localStorage.getItem('geogeek-language') === 'zh' ? 'zh' : 'en'; } catch {}
-  const ui = window.GEOGEEK_DATA?.[locale]?.ui || window.GEOGEEK_DATA?.en?.ui || {};
+  const locale = 'en';
+  const ui = window.GEOGEEK_DATA?.en?.ui || {};
   const base = ui.orbitalThreshold || {};
-  const kindNames = locale === 'zh' ? { earth: '对地观测', weather: '气象', navigation: '导航', science: '科学', other: '其他' } : { earth: 'EARTH OBSERVATION', weather: 'WEATHER', navigation: 'NAVIGATION', science: 'SCIENCE', other: 'OTHER' };
-  const copy = locale === 'zh'
-    ? {
-        eyebrow: base.eyebrow || '天行 / 轨道观测场',
-        title: base.title || '天行有迹，观地有时。',
-        sub: base.subtitle || '择一星，见其天之迹与地之迹。',
-        explore: base.explore || '入天行之器 ↗',
-        live: count => `${count.toLocaleString()} 个对象 · 活动星目`,
-        demo: count => `${count} 个对象 · 示意场`,
-        selected: base.selected || '所观',
-        none: base.none || '择一星而观',
-        orbit: base.orbit || '天之迹',
-        ground: base.ground || '地之迹',
-        source: base.source || '径向尺度 / 压缩 · CelesTrak 活动星目 · Natural Earth 世界底图 · 晨昏线 / UTC'
-      }
-    : {
-        eyebrow: base.eyebrow || 'ORBITAL FIELD / EARTH IN VIEW',
-        title: base.title || 'Every orbit is a moving point of view.',
-        sub: base.subtitle || 'Select one object to reveal its trace in orbit and on Earth.',
-        explore: base.explore || 'EXPLORE ORBIT ↗',
-        live: count => `${count.toLocaleString()} OBJECTS · ACTIVE CATALOG`,
-        demo: count => `${count} OBJECTS · DEMO FIELD`,
-        selected: base.selected || 'SELECTED',
-        none: base.none || 'MOVE TO READ THE FIELD',
-        orbit: base.orbit || 'TRACE IN ORBIT',
-        ground: base.ground || 'TRACE ON EARTH',
-        source: base.source || 'RADIAL SCALE / COMPRESSED · CELESTRAK ACTIVE CATALOG · NATURAL EARTH · SOLAR TERMINATOR / UTC'
-      };
+  const kindNames = { earth: 'EARTH OBSERVATION', weather: 'WEATHER', navigation: 'NAVIGATION', science: 'SCIENCE', other: 'OTHER' };
+  const copy = {
+    eyebrow: base.eyebrow || 'ORBITAL FIELD / EARTH IN VIEW',
+    title: base.title || 'Every orbit is a moving point of view.',
+    sub: base.subtitle || 'Select one object to reveal its trace in orbit and on Earth.',
+    explore: base.explore || 'EXPLORE ORBIT ↗',
+    live: count => `${count.toLocaleString()} OBJECTS · ACTIVE CATALOG`,
+    demo: count => `${count} OBJECTS · DEMO FIELD`,
+    selected: base.selected || 'SELECTED',
+    none: base.none || 'MOVE TO READ THE FIELD',
+    orbit: base.orbit || 'TRACE IN ORBIT',
+    ground: base.ground || 'TRACE ON EARTH',
+    source: base.source || 'RADIAL SCALE / COMPRESSED · CELESTRAK ACTIVE CATALOG · NATURAL EARTH · SOLAR TERMINATOR / UTC'
+  };
 
   section.querySelector('.orbital-eyebrow').textContent = copy.eyebrow;
   prompt.textContent = copy.title;
@@ -84,7 +69,7 @@ if (section) {
     onSelect: info => {
       selected.classList.add('has-selection');
       selectedName.textContent = info.record.OBJECT_NAME || '—';
-      selectedMeta.textContent = `${locale === 'zh' ? '星下点' : 'SUBSATELLITE'} ${info.text} · ${Math.round(info.altKm)} km · ${info.light === 'daylight' ? (locale === 'zh' ? '昼' : 'DAYLIGHT') : (locale === 'zh' ? '夜' : 'NIGHT')}`;
+      selectedMeta.textContent = `${'SUBSATELLITE'} ${info.text} · ${Math.round(info.altKm)} km · ${info.light === 'daylight' ? 'DAYLIGHT' : 'NIGHT'}`;
       selectedType.textContent = kindNames[info.record.__kind || 'other'] || kindNames.other;
     }
   });

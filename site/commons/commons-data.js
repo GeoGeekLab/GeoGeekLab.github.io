@@ -205,7 +205,7 @@
     if (!isLive()) {
       const local = readLocalContributions();
       const id = `local-o-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-      local.observations.push({ id, placeId:place.id, text:{ en:clean, zh:clean }, displayName:String(displayName || '').trim().slice(0,32), createdAt:new Date().toISOString(), status:'approved', localOnly:true });
+      local.observations.push({ id, placeId:place.id, text:clean, displayName:String(displayName || '').trim().slice(0,32), createdAt:new Date().toISOString(), status:'approved', localOnly:true });
       if (local.observations.length > MAX_LOCAL_OBSERVATIONS) local.observations.splice(0, local.observations.length - MAX_LOCAL_OBSERVATIONS);
       const localPlace = local.places.find(item => item.id === place.id);
       if (localPlace) localPlace.observations = Number(localPlace.observations || 0) + 1;
