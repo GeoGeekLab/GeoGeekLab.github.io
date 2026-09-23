@@ -49,9 +49,11 @@ button{font:inherit;color:inherit}
 .brand-mark::after{left:0;top:6px;width:14px;height:1px}
 .brand-edition{margin-left:4px;color:var(--muted);font:450 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em}
 .origin-nav{position:fixed;z-index:32;top:20px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:18px;color:var(--muted);font:650 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.11em;text-transform:uppercase;text-shadow:0 1px 12px #000;white-space:nowrap}
-.origin-nav a{color:inherit;text-decoration:none;min-height:32px;display:inline-flex;align-items:center;transition:color .2s ease}
+.origin-nav a{color:inherit;text-decoration:none;min-height:32px;display:inline-flex;align-items:center;transition:color .2s ease,border-color .2s ease,background-color .2s ease}
 .origin-nav a:hover,.origin-nav a:focus-visible{color:var(--fg)}
 .origin-nav a:focus-visible{outline:1px solid rgba(255,255,255,.72);outline-offset:3px}
+.origin-nav .origin-home{min-height:38px;padding:0 13px;border:1px solid rgba(242,240,233,.20);background:rgba(242,240,233,.045);color:var(--fg);letter-spacing:.10em}
+.origin-nav .origin-home:hover,.origin-nav .origin-home:focus-visible{border-color:rgba(242,240,233,.42);background:rgba(242,240,233,.085)}
 .origin-nav .is-active{color:var(--fg);pointer-events:none}
 .origin-nav .divider{color:var(--faint)}
 .count{position:fixed;z-index:30;right:28px;top:24px;font:650 12px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.13em;color:var(--muted);text-shadow:0 1px 12px #000}
@@ -213,13 +215,13 @@ body[data-near="6"] .stage-word{opacity:1}
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-<nav class="origin-nav" aria-label="Origin 页面导航"><a href="/">← 返回 GeoGeek</a><span class="divider" aria-hidden="true">·</span><a href="/origin/">EN</a><span class="divider" aria-hidden="true">/</span><a class="is-active" href="/origin/cn/" aria-current="page">中文</a></nav>
+<nav class="origin-nav" aria-label="Origin 页面导航"><a class="origin-home" href="/" aria-label="返回 GeoGeek">← 返回 GEOGEEK</a><span class="divider" aria-hidden="true">·</span><a href="/origin/">EN</a><span class="divider" aria-hidden="true">/</span><a class="is-active" href="/origin/cn/" aria-current="page">中文</a></nav>
 <a class="brand" href="/" aria-label="返回 GeoGeek 首页"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span><span class="brand-edition">ORIGIN / 001</span></a>
 <div class="count"><b id="sceneNo">00</b> / 08</div>
 <div class="rail" aria-hidden="true"><i id="railMark"></i></div>
 <div class="hint" id="hint">向下，追溯来处</div>
-<button class="sound" id="soundToggle" type="button" aria-pressed="false" aria-label="开启背景音乐">SOUND</button>
-<audio id="originScore" preload="none" aria-hidden="true">
+<button class="sound" id="soundToggle" type="button" aria-pressed="true" aria-label="关闭背景音乐">SOUND · ON</button>
+<audio id="originScore" preload="metadata" aria-hidden="true">
   <source src="/assets/audio/origin-adrift.mp3" type="audio/mpeg" />
   <source src="https://www.scottbuckley.com.au/library/wp-content/uploads/2022/02/AdriftAmongInfiniteStars.mp3" type="audio/mpeg" />
 </audio>
@@ -722,7 +724,7 @@ body[data-near="6"] .stage-word{opacity:1}
 
   const soundEngine={
     ctx:null,master:null,reverb:null,wet:null,dry:null,
-    on:false,daoSilent:false,lastS:0,score:originScore,scoreLevel:0,everStarted:false,
+    on:true,pendingStart:true,starting:false,daoSilent:false,lastS:0,score:originScore,scoreLevel:0,everStarted:false,
     clipStart:44,clipEnd:362,
     midi(n){return 440*Math.pow(2,(n-69)/12)},
     scoreWindow(){
@@ -807,6 +809,38 @@ body[data-near="6"] .stage-word{opacity:1}
       interactionStatus.textContent='背景音乐已开启';
       this.interaction('wake',0);
     },
+    async attemptPreferredStart(fromGesture=false){
+      if(!this.on||!this.score||this.starting) return false;
+      this.starting=true;
+      if(fromGesture){
+        this.init();
+        if(this.ctx&&this.ctx.state!=='running'){try{await this.ctx.resume()}catch(_){}}
+      }
+      const ready=await this.prepareScore();
+      if(!ready){
+        this.on=false;this.pendingStart=false;this.starting=false;
+        soundToggle.setAttribute('aria-pressed','false');
+        soundToggle.setAttribute('aria-label','开启背景音乐');
+        soundToggle.textContent='SOUND';
+        interactionStatus.textContent='背景音乐未能载入';
+        return false;
+      }
+      this.scoreLevel=0;this.score.volume=0;
+      try{
+        await this.score.play();
+        this.everStarted=true;this.pendingStart=false;this.starting=false;
+        soundToggle.setAttribute('aria-pressed','true');
+        soundToggle.setAttribute('aria-label','关闭背景音乐');
+        soundToggle.textContent='SOUND · ON';
+        interactionStatus.textContent='背景音乐已开启';
+        if(fromGesture) this.interaction('wake',0);
+        return true;
+      }catch(_){
+        this.pendingStart=true;this.starting=false;
+        interactionStatus.textContent='声音已开启，将在首次互动后开始播放';
+        return false;
+      }
+    },
     update(s,hold,ending=0){
       this.lastS=s;
       if(!this.on||!this.score) return;
@@ -838,6 +872,19 @@ body[data-near="6"] .stage-word{opacity:1}
     }
   };
   soundToggle.addEventListener('click',()=>soundEngine.toggle());
+
+  // Prefer soundtrack on. Audible autoplay can be blocked by browser policy;
+  // if that happens, keep the preference armed and unlock it on first interaction.
+  soundEngine.attemptPreferredStart(false);
+  const unlockPreferredSound=(event)=>{
+    if(event?.target===soundToggle||!soundEngine.on) return;
+    soundEngine.init();
+    if(soundEngine.ctx&&soundEngine.ctx.state!=='running') soundEngine.ctx.resume().catch(()=>{});
+    if(soundEngine.pendingStart) soundEngine.attemptPreferredStart(true);
+  };
+  addEventListener('pointerdown',unlockPreferredSound,{capture:true,passive:true});
+  addEventListener('keydown',unlockPreferredSound,{capture:true});
+  addEventListener('wheel',unlockPreferredSound,{capture:true,passive:true});
 
   function interpolateTarget(i,s){
     const a=Math.floor(clamp(s,0,8)),b=Math.min(8,a+1),t=smooth(s-a);
