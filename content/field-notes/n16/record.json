@@ -24,11 +24,6 @@
         "topic": "Observation",
         "place": "Non-spatial",
         "spatialField": "Observation & Proxies"
-      },
-      "zh": {
-        "topic": "观测",
-        "place": "无位",
-        "spatialField": "观测之限"
       }
     }
   },
@@ -51,24 +46,6 @@
       "series": "Observation & Proxies",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.04.12",
-      "webEdition": "2026.08.09",
-      "slug": "when-nature-disagrees-remote-sensing-observation",
-      "sourceUrl": "https://mp.weixin.qq.com/s/HXGZybmUO-kXAt5TMOuLeQ"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "Nature反对Nature？问题在遥感观测",
-      "tags": [
-        "亚马孙",
-        "观测几何",
-        "采样"
-      ],
-      "read": "5 分钟",
-      "excerpt": "近年来，越来越多研究开始直接使用遥感数据，并越来越习惯把卫星时间序列当作地表变化的直接证据。但遥感里有一个很危险、也很容易被忽视的前提： 卫星看到的，并不总能直接等同于地表真的发生了什么。",
-      "series": "观测之限",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.04.12",
       "webEdition": "2026.08.09",
       "slug": "when-nature-disagrees-remote-sensing-observation",

@@ -119,10 +119,7 @@
       setTimeout(() => {
         const feedback = $('#observationFeedback');
         if (!feedback) return;
-        const zh = document.documentElement.lang === 'zh-CN';
-        feedback.textContent = zh
-          ? `浏览器未能保存${context === 'location' ? '位置' : '本地贡献'}；刷新后可能不会保留。请检查隐私/存储设置。`
-          : `The browser could not persist this ${context === 'location' ? 'location' : 'local contribution'}. It may disappear after refresh; check privacy/storage settings.`;
+        feedback.textContent = `The browser could not persist this ${context === 'location' ? 'location' : 'local contribution'}. It may disappear after refresh; check privacy/storage settings.`;
         feedback.dataset.state = 'error';
       }, 0);
     });

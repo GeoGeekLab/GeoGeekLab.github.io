@@ -4,15 +4,8 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-  const getLocale = () => {
-    try {
-      const fromUrl = new URLSearchParams(location.search).get('lang');
-      if (fromUrl === 'zh' || fromUrl === 'en') return fromUrl;
-      return localStorage.getItem('geogeek-language') === 'zh' ? 'zh' : 'en';
-    } catch { return 'en'; }
-  };
-  let locale = getLocale();
-  document.documentElement.lang = locale === 'zh' ? 'zh-CN' : 'en';
+  let locale = 'en';
+  document.documentElement.lang = 'en';
   if (!$('#origin')) document.body.classList.add('ux-inner-page');
 
   // Keep the site's vocabulary aligned with the navigation concept.
@@ -25,25 +18,18 @@
       archiveLocales.en.ui.siteMap.hint = 'Choose a node to change position or information scale.';
     }
   }
-  if (archiveLocales?.zh?.ui) {
-    archiveLocales.zh.ui.nav && (archiveLocales.zh.ui.nav.map = '索引');
-    if (archiveLocales.zh.ui.siteMap) {
-      archiveLocales.zh.ui.siteMap.title = '站点索引';
-      archiveLocales.zh.ui.siteMap.mode = '站点拓扑 / 索引';
-      archiveLocales.zh.ui.siteMap.hint = '选择节点以改变位置或信息尺度。';
-    }
-  }
+
 
   const renameIndex = () => {
-    locale = getLocale();
+    locale = 'en';
     const navToggle = $('#navToggle');
-    const toggleLabel = locale === 'zh' ? '索引' : 'Index';
+    const toggleLabel = 'Index';
     if (navToggle && navToggle.textContent !== toggleLabel) navToggle.textContent = toggleLabel;
     const map = $('#siteMap');
     if (!map) return;
     const heading = map.querySelector('h2');
-    const headingLabel = locale === 'zh' ? '站点索引' : 'SITE INDEX';
-    if (heading && /site map|map|站点地图|site index|站点索引/i.test(heading.textContent || '') && heading.textContent !== headingLabel) {
+    const headingLabel = 'SITE INDEX';
+    if (heading && /site map|map|site index/i.test(heading.textContent || '') && heading.textContent !== headingLabel) {
       heading.textContent = headingLabel;
     }
   };
@@ -75,20 +61,19 @@
       selectedObserver.observe(latest, { childList: true, subtree: true });
     }
   }
-  const applyLocalizedUxCopy = lang => {
-    const zh = lang === 'zh';
+  const applyLocalizedUxCopy = () => {
     const copy = [
-      ['#selectedWorkKicker', zh ? '精选 / 地记' : 'SELECTED / FIELD NOTES'],
-      ['#selectedWorkTitle', zh ? '先看三条真实记录。' : 'Recent records from the archive.'],
-      ['#selectedWorkAll', zh ? '打开地记 ↗' : 'OPEN FIELD NOTES ↗'],
-      ['#orbitalAssist', zh ? '键盘 · 聚焦轨道场并按回车打开轨道仪器' : 'KEYBOARD · FOCUS THE FIELD AND PRESS ENTER TO OPEN THE ORBIT INSTRUMENT']
+      ['#selectedWorkKicker', 'SELECTED / FIELD NOTES'],
+      ['#selectedWorkTitle', 'Recent records from the archive.'],
+      ['#selectedWorkAll', 'OPEN FIELD NOTES ↗'],
+      ['#orbitalAssist', 'KEYBOARD · FOCUS THE FIELD AND PRESS ENTER TO OPEN THE ORBIT INSTRUMENT']
     ];
     for (const [selector, text] of copy) {
       const node = $(selector);
       if (node && node.textContent !== text) node.textContent = text;
     }
   };
-  applyLocalizedUxCopy(locale);
+  applyLocalizedUxCopy();
 
   // Orbital field: one-time interaction cue plus keyboard parity.
   const canvas = $('#orbitalThresholdCanvas');
@@ -155,32 +140,8 @@
     new MutationObserver(syncIndexState).observe(navToggle, { attributes: true, attributeFilter: ['aria-expanded'] });
   }
 
-  // Preserve language in shareable URLs while leaving the site's own locale renderer in charge.
-  const bindLanguageControl = button => {
-    if (!button || button.dataset.uxV4LangBound) return;
-    button.dataset.uxV4LangBound = '1';
-    button.addEventListener('click', () => {
-      const next = getLocale() === 'zh' ? 'en' : 'zh';
-      locale = next;
-      applyLocalizedUxCopy(next);
-      try {
-        localStorage.setItem('geogeek-language', next);
-        sessionStorage.setItem('geogeek-ux-scroll-y', String(scrollY));
-      } catch {}
-      const url = new URL(location.href);
-      url.searchParams.set('lang', next);
-      history.replaceState(history.state, '', url);
-    }, { capture: true });
-  };
-  bindLanguageControl($('#langSwitch'));
-  bindLanguageControl($('#mapLangSwitch'));
-
   // App-rendered UI can appear after initial execution.
-  const mutation = new MutationObserver(() => {
-    renameIndex();
-    bindLanguageControl($('#langSwitch'));
-    bindLanguageControl($('#mapLangSwitch'));
-  });
+  const mutation = new MutationObserver(() => renameIndex());
   mutation.observe(document.body, { childList: true, subtree: true });
 
   // Give source titles a transition identity for supported cross-document transitions.
@@ -248,33 +209,23 @@
     const dock = document.createElement('nav');
     dock.className = 'mobile-dock';
     dock.setAttribute('aria-label', 'Primary');
-    const localeZh = document.documentElement.lang === 'zh-CN';
     const items = [
-      ['index.html', localeZh ? '首页' : 'Home', 'home'],
-      ['field-notes.html', localeZh ? '地记' : 'Notes', 'notes'],
-      ['lab.html', localeZh ? '实验' : 'Lab', 'lab'],
-      ['atlas.html', localeZh ? '图集' : 'Atlas', 'atlas'],
-      ['elsewhere.html', localeZh ? '别处' : 'Elsewhere', 'elsewhere']
+      ['index.html', 'Home', 'home'],
+      ['field-notes.html', 'Notes', 'notes'],
+      ['lab.html', 'Lab', 'lab'],
+      ['atlas.html', 'Atlas', 'atlas'],
+      ['elsewhere.html', 'Elsewhere', 'elsewhere']
     ];
     const current = pageKind === 'record' || pageKind === 'commons' ? 'notes' : pageKind === 'field-notes' ? 'notes' : pageKind;
     dock.innerHTML = items.map(([href, label, key]) => {
       const active = current === key || (current === 'home' && key === 'home');
       const url = new URL(href, location.href);
-      const lang = new URLSearchParams(location.search).get('lang');
-      if (lang) url.searchParams.set('lang', lang);
       return `<a href="${url.pathname}${url.search}${url.hash}" data-dock="${key}"${active ? ' class="is-active" aria-current="page"' : ''}><span>${label}</span></a>`;
     }).join('');
     document.body.appendChild(dock);
   };
   ensureMobileDock();
 
-  const onLocaleMutation = new MutationObserver(() => {
-    if ($('.mobile-dock')) {
-      $('.mobile-dock').remove();
-      ensureMobileDock();
-    }
-  });
-  onLocaleMutation.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 
   // Scroll-aware chrome: slightly condense the top bar after the reader commits to the page.
   let raf = 0;
@@ -314,9 +265,9 @@
     if (!cue) return;
     const spans = cue.querySelectorAll('span');
     if (spans.length >= 3) {
-      spans[0].textContent = document.documentElement.lang === 'zh-CN' ? '轻触' : 'TAP';
-      spans[1].textContent = document.documentElement.lang === 'zh-CN' ? '选择' : 'SELECT';
-      spans[2].textContent = document.documentElement.lang === 'zh-CN' ? '轨迹' : 'TRACE';
+      spans[0].textContent = 'TAP';
+      spans[1].textContent = 'SELECT';
+      spans[2].textContent = 'TRACE';
     }
   };
 

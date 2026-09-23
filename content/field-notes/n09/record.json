@@ -24,11 +24,6 @@
         "topic": "Scale",
         "place": "Global",
         "spatialField": "Scale & Extrapolation"
-      },
-      "zh": {
-        "topic": "尺度",
-        "place": "全球范围",
-        "spatialField": "尺度与外推"
       }
     }
   },
@@ -49,24 +44,6 @@
       "series": "Scale & Extrapolation",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.04.24",
-      "webEdition": "2026.08.09",
-      "slug": "global-cropland-dynamics-2015-2024",
-      "sourceUrl": "https://mp.weixin.qq.com/s/5XEYT-OT-P1E1r_rUS3-1w"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "贸易战和俄乌冲突如何改写全球粮仓：马里兰大学发布全球耕地数据",
-      "tags": [
-        "耕地",
-        "Landsat",
-        "全球变化"
-      ],
-      "read": "3 分钟",
-      "excerpt": "2015到2024年，全球农田面积净增约6%——从12.38亿公顷增加到13.12亿公顷。然而同期全球人口增长约9%，导致人均农田面积反而从0.166公顷降至0.161公顷，降幅约3%。 。这是 马里兰大学在 《Remote Sensing of Environment》发表…",
-      "series": "尺度与外推",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.04.24",
       "webEdition": "2026.08.09",
       "slug": "global-cropland-dynamics-2015-2024",

@@ -5,7 +5,7 @@ window.GEOGEEK_COMMONS_CONFIG = window.GEOGEEK_COMMONS_CONFIG || {
   functionName: 'commons',
   allowContributions: false,
   host: {
-    label: { en: 'Wuhan, China', zh: '中国 · 武汉' },
+    label: 'Wuhan, China',
     lat: 30.59,
     lon: 114.30,
     timezone: 'Asia/Shanghai'

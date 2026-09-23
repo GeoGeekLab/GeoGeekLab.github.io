@@ -24,11 +24,6 @@
         "topic": "Representation",
         "place": "Global",
         "spatialField": "Earth Representation"
-      },
-      "zh": {
-        "topic": "表征",
-        "place": "全球范围",
-        "spatialField": "地球表征"
       }
     }
   },
@@ -49,24 +44,6 @@
       "series": "Earth Representation",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.04.15",
-      "webEdition": "2026.08.09",
-      "slug": "earth-system-maxwell-equations",
-      "sourceUrl": "https://mp.weixin.qq.com/s/5FEOWHU3sGt092fLudwuvg"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "武大冯炼、李德仁：能否找到地球系统的“麦克斯韦方程”？",
-      "tags": [
-        "地球系统",
-        "卫星",
-        "人工智能"
-      ],
-      "read": "3 分钟",
-      "excerpt": "《国家科学评论》发表冯炼/李德仁论文：卫星与AI构建“行星实验室”，探索地球系统统一规律 武汉大学冯炼教授与李德仁院士近日在 National Science Review发表题为《Can Satellites and AI Reveal the Maxwell Equati…",
-      "series": "地球表征",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.04.15",
       "webEdition": "2026.08.09",
       "slug": "earth-system-maxwell-equations",

@@ -2,12 +2,8 @@
   'use strict';
 
   const DATA_ROOT = window.GEOGEEK_DATA || {};
-  const readLocale = () => {
-    try { return localStorage.getItem('geogeek-language') === 'zh' ? 'zh' : 'en'; }
-    catch { return 'en'; }
-  };
-  const locale = readLocale();
-  const data = DATA_ROOT[locale] || DATA_ROOT.en || {};
+  const locale = 'en';
+  const data = DATA_ROOT.en || {};
   const ui = data.ui || {};
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -37,40 +33,16 @@
 
   const labUI = ui.lab || {};
   const a11y = ui.a11y || {};
-  const formatCoord = (lat, lon) => locale === 'zh'
-    ? `${lat >= 0 ? '北纬' : '南纬'} ${Math.abs(lat).toFixed(2)}° · ${lon >= 0 ? '东经' : '西经'} ${Math.abs(lon).toFixed(2)}°`
-    : `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'} · ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}`;
-  const zhRegions = {
-    'Northern Europe':'北欧', 'Western Europe':'西欧', 'Eastern Europe':'东欧', 'Southern Europe':'南欧',
-    'Northern America':'北美', 'Central America':'中美', 'Caribbean':'加勒比', 'South America':'南美',
-    'Northern Africa':'北非', 'Western Africa':'西非', 'Middle Africa':'中非', 'Eastern Africa':'东非', 'Southern Africa':'南部非洲',
-    'Western Asia':'西亚', 'Central Asia':'中亚', 'Southern Asia':'南亚', 'Eastern Asia':'东亚', 'South-Eastern Asia':'东南亚',
-    'Australia and New Zealand':'澳大利亚与新西兰', 'Melanesia':'美拉尼西亚', 'Micronesia':'密克罗尼西亚', 'Polynesia':'波利尼西亚',
-    'Europe':'欧洲', 'Asia':'亚洲', 'Africa':'非洲', 'North America':'北美洲', 'South America':'南美洲', 'Oceania':'大洋洲', 'Antarctica':'南极洲'
-  };
-  const regionNamesZh = (() => {
-    if (locale !== 'zh' || typeof Intl?.DisplayNames !== 'function') return null;
-    try { return new Intl.DisplayNames(['zh-CN'], { type: 'region' }); } catch { return null; }
-  })();
-  const localCountryName = properties => {
-    if (locale !== 'zh') return properties?.NAME_LONG || properties?.NAME || properties?.ADMIN || '—';
-    const explicit = properties?.NAME_ZH || properties?.NAME_LONG_ZH || properties?.ADMIN_ZH;
-    if (explicit) return explicit;
-    const iso2 = [properties?.ISO_A2_EH, properties?.ISO_A2, properties?.WB_A2, properties?.POSTAL]
-      .find(code => typeof code === 'string' && /^[A-Z]{2}$/.test(code) && code !== '-99');
-    if (iso2 && regionNamesZh) {
-      try { return regionNamesZh.of(iso2) || properties?.NAME_LONG || properties?.NAME || '—'; } catch {}
-    }
-    return properties?.NAME_LONG || properties?.NAME || properties?.ADMIN || '—';
-  };
-  const localRegionName = value => locale === 'zh' ? (zhRegions[value] || value || '—') : (value || '—');
+  const formatCoord = (lat, lon) => `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'} · ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}`;
+  const localCountryName = properties => properties?.NAME_LONG || properties?.NAME || properties?.ADMIN || '—';
+  const localRegionName = value => value || '—';
   if (principle) principle.textContent = labUI.principle || principle.textContent;
   if (closeButton) closeButton.setAttribute('aria-label', labUI.close || 'Close');
   if (boundary) boundary.textContent = labUI.boundary || boundary.textContent;
 
   function renderConditions(kind, item) {
     if (!conditions) return;
-    const rows = labUI.conditions?.[kind] || (item?.source ? [[locale === 'zh' ? '来源' : 'SOURCE', item.source]] : []);
+    const rows = labUI.conditions?.[kind] || (item?.source ? [['SOURCE', item.source]] : []);
     conditions.innerHTML = rows.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join('');
   }
 
@@ -79,8 +51,8 @@
     if (!statusBadge) return;
     const labels = labUI.status || {};
     const label = labels[state] || state.toUpperCase();
-    const statusLabel = labUI.statusLabel || (locale === 'zh' ? '状态' : 'STATUS');
-    const updatedLabel = labUI.updatedLabel || (locale === 'zh' ? '更新' : 'UPDATED');
+    const statusLabel = labUI.statusLabel || 'STATUS';
+    const updatedLabel = labUI.updatedLabel || 'UPDATED';
     statusBadge.dataset.state = state;
     statusBadge.textContent = updated ? `${statusLabel} / ${label} · ${updatedLabel} ${updated}` : `${statusLabel} / ${label}`;
   }
@@ -117,7 +89,7 @@
     try {
       const module = await import('./orbital/orbital-engine.js');
       if (signal?.aborted) return () => {};
-      return await module.mountOrbitalLab({ container: stage, locale, signal, labels: labUI.orbit || {}, statusCallback: state => setInstrumentStatus(state.live ? 'live' : 'demo', `${Number(state.count || 0).toLocaleString()} ${locale === 'zh' ? '个对象' : 'OBJECTS'}`) });
+      return await module.mountOrbitalLab({ container: stage, locale, signal, labels: labUI.orbit || {}, statusCallback: state => setInstrumentStatus(state.live ? 'live' : 'demo', `${Number(state.count || 0).toLocaleString()} ${'OBJECTS'}`) });
     } catch (error) {
       if (signal?.aborted) return () => {};
       stage.innerHTML = `<div class="instrument-error"><strong>${labUI.networkTitle || 'Live instrument unavailable.'}</strong><p>${labUI.networkHint || 'The orbital renderer could not be initialized.'}</p></div>`;
@@ -234,7 +206,7 @@
         lon: Array.isArray(f.geometry?.coordinates) ? Number(f.geometry.coordinates[0] || 0) : 0,
         lat: Array.isArray(f.geometry?.coordinates) ? Number(f.geometry.coordinates[1] || 0) : 0
       }));
-      stage.innerHTML = `<div class="pulse-layout"><div class="pulse-map-wrap"><svg class="pulse-map" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${a11y.pulseMap || 'Earthquake observation map'}"></svg></div><aside class="pulse-panel"><div class="orbit-panel-label">${locale === 'zh' ? '地脉读数' : 'PULSE READOUT'}</div><strong id="pulseHeadline">${events.length} ${locale === 'zh' ? '次 / 过去 24 时' : 'events / past 24 hours'}</strong><dl><div><dt>${locale === 'zh' ? '最大震级' : 'MAX MAG'}</dt><dd id="pulseMax">—</dd></div><div><dt>${locale === 'zh' ? '最近事件' : 'LATEST'}</dt><dd id="pulseLatest">—</dd></div><div><dt>${locale === 'zh' ? '平均深度' : 'MEAN DEPTH'}</dt><dd id="pulseDepth">—</dd></div></dl><p>${locale === 'zh' ? '地有微动，图有所应。震级以大小见，深度以线示，新近以明暗示。' : 'The ground moves before the map does. Magnitude grows the circle, depth adds a stem, recency alters brightness.'}</p></aside></div>`;
+      stage.innerHTML = `<div class="pulse-layout"><div class="pulse-map-wrap"><svg class="pulse-map" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${a11y.pulseMap || 'Earthquake observation map'}"></svg></div><aside class="pulse-panel"><div class="orbit-panel-label">${'PULSE READOUT'}</div><strong id="pulseHeadline">${events.length} ${'events / past 24 hours'}</strong><dl><div><dt>${'MAX MAG'}</dt><dd id="pulseMax">—</dd></div><div><dt>${'LATEST'}</dt><dd id="pulseLatest">—</dd></div><div><dt>${'MEAN DEPTH'}</dt><dd id="pulseDepth">—</dd></div></dl><p>${'The ground moves before the map does. Magnitude grows the circle, depth adds a stem, recency alters brightness.'}</p></aside></div>`;
       const svg = $('.pulse-map', stage);
       const maxNode = $('#pulseMax', stage);
       const latestNode = $('#pulseLatest', stage);
@@ -267,26 +239,26 @@
         circle.setAttribute('cx', x); circle.setAttribute('cy', y); circle.setAttribute('r', String(Math.max(2, 2 + e.mag * 1.2)));
         circle.setAttribute('fill', `rgba(166,70,36,${(0.28 + alpha * 0.45).toFixed(3)})`);
         circle.setAttribute('stroke', 'rgba(241,239,231,.72)'); circle.setAttribute('stroke-width', '0.7');
-        circle.addEventListener('mouseenter', () => { headline.textContent = locale === 'zh' ? `${formatCoord(e.lat, e.lon)} · M ${e.mag.toFixed(1)}` : `${e.place}`; maxNode.textContent = `M ${e.mag.toFixed(1)}`; latestNode.textContent = `${Math.max(1, Math.round(ageH * 60))} ${locale === 'zh' ? '分钟前' : 'min ago'}`; depthNode.textContent = `${Math.round(e.depth)} km`; });
+        circle.addEventListener('mouseenter', () => { headline.textContent = `${e.place}`; maxNode.textContent = `M ${e.mag.toFixed(1)}`; latestNode.textContent = `${Math.max(1, Math.round(ageH * 60))} ${'min ago'}`; depthNode.textContent = `${Math.round(e.depth)} km`; });
         eventGroup.appendChild(stem); eventGroup.appendChild(circle);
       });
       const mags = events.map(e => e.mag).filter(n => Number.isFinite(n));
       const meanDepth = events.reduce((sum, e) => sum + e.depth, 0) / Math.max(1, events.length);
       maxNode.textContent = `M ${Math.max(...mags).toFixed(1)}`;
       const latest = events.slice().sort((a,b) => b.time - a.time)[0];
-      latestNode.textContent = latest ? (locale === 'zh' ? formatCoord(latest.lat, latest.lon) : latest.place) : '—';
+      latestNode.textContent = latest ? latest.place : '—';
       depthNode.textContent = `${Math.round(meanDepth)} km`;
       return () => { stage.innerHTML = ''; };
     } catch (error) {
       if (signal?.aborted) return () => {};
-      stage.innerHTML = `<div class="instrument-error"><strong>${locale === 'zh' ? '地震源暂不可达。' : 'Earthquake feed unavailable.'}</strong><p>USGS Earthquake GeoJSON</p></div>`;
+      stage.innerHTML = `<div class="instrument-error"><strong>${'Earthquake feed unavailable.'}</strong><p>USGS Earthquake GeoJSON</p></div>`;
       return () => {};
     }
   }
 
   function mountFigure({ signal } = {}) {
     if (signal?.aborted) return () => {};
-    stage.innerHTML = `<div class="figure-layout"><div class="figure-stage"><canvas class="figure-canvas" width="520" height="360"></canvas><svg class="figure-svg" viewBox="0 0 520 360"></svg></div><aside class="figure-control"><div class="orbit-panel-label">${locale === 'zh' ? '抽象参数' : 'ABSTRACTION'}</div><label><span>${locale === 'zh' ? '阈值' : 'THRESHOLD'}</span><input id="figureThreshold" type="range" min="40" max="210" value="118"></label><label><span>${locale === 'zh' ? '线层' : 'CONTOUR LEVELS'}</span><input id="figureLevels" type="range" min="3" max="9" value="5"></label><label><span>${locale === 'zh' ? '简化' : 'SIMPLIFY'}</span><input id="figureSimplify" type="range" min="2" max="12" value="5"></label><p>${locale === 'zh' ? '去其文，何者尚存？一幅图像减去纹理、色与细屑，边界、区域与线迹便开始出现。' : 'At what point does an image become a map? Remove texture, color, and incidental detail; edge, region, and trace begin to appear.'}</p></aside></div>`;
+    stage.innerHTML = `<div class="figure-layout"><div class="figure-stage"><canvas class="figure-canvas" width="520" height="360"></canvas><svg class="figure-svg" viewBox="0 0 520 360"></svg></div><aside class="figure-control"><div class="orbit-panel-label">${'ABSTRACTION'}</div><label><span>${'THRESHOLD'}</span><input id="figureThreshold" type="range" min="40" max="210" value="118"></label><label><span>${'CONTOUR LEVELS'}</span><input id="figureLevels" type="range" min="3" max="9" value="5"></label><label><span>${'SIMPLIFY'}</span><input id="figureSimplify" type="range" min="2" max="12" value="5"></label><p>${'At what point does an image become a map? Remove texture, color, and incidental detail; edge, region, and trace begin to appear.'}</p></aside></div>`;
     const canvas = $('.figure-canvas', stage);
     const svg = $('.figure-svg', stage);
     const ctx = canvas.getContext('2d');
@@ -361,7 +333,7 @@
   async function mountWorld({ signal } = {}) {
     const D3_CDN = 'https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js';
     const DATA_URL = 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m/cultural/ne_110m_admin_0_countries.json';
-    setStageLoading(locale === 'zh' ? '正在重绘世界…' : 'Reprojecting the world…');
+    setStageLoading('Reprojecting the world…');
     try {
       await loadScript(D3_CDN, 'd3');
       const res = await fetch(DATA_URL, { mode:'cors', signal });
@@ -372,20 +344,20 @@
         <div class="world-layout">
           <div class="world-map-wrap"><svg class="world-map" viewBox="0 0 1000 610" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${a11y.worldProjectionMap || 'Interactive world projection map'}"></svg><div class="world-hover" id="worldHover"></div></div>
           <aside class="world-panel">
-            <div class="orbit-panel-label">${locale === 'zh' ? '图法' : 'PROJECTION'}</div>
-            <div class="world-controls" role="group" aria-label="${locale === 'zh' ? '投影选择' : 'Projection selection'}">
-              <button type="button" class="is-active" data-projection="equal">${locale === 'zh' ? '等积地球' : 'EQUAL EARTH'}</button>
-              <button type="button" data-projection="mercator">${locale === 'zh' ? '墨卡托' : 'MERCATOR'}</button>
-              <button type="button" data-projection="ortho">${locale === 'zh' ? '正射' : 'ORTHOGRAPHIC'}</button>
+            <div class="orbit-panel-label">${'PROJECTION'}</div>
+            <div class="world-controls" role="group" aria-label="${'Projection selection'}">
+              <button type="button" class="is-active" data-projection="equal">${'EQUAL EARTH'}</button>
+              <button type="button" data-projection="mercator">${'MERCATOR'}</button>
+              <button type="button" data-projection="ortho">${'ORTHOGRAPHIC'}</button>
             </div>
-            <button type="button" class="world-distortion-toggle" id="worldDistortion">${locale === 'zh' ? '蒂索变形指示圈' : 'DISTORTION / TISSOT'}</button>
+            <button type="button" class="world-distortion-toggle" id="worldDistortion">${'DISTORTION / TISSOT'}</button>
             <dl>
-              <div><dt>${locale === 'zh' ? '所守' : 'VISIBLE RELATION'}</dt><dd id="worldRelation">${locale === 'zh' ? '整体面积关系较均衡' : 'Area relationships remain comparatively legible'}</dd></div>
-              <div><dt>${locale === 'zh' ? '变形指示' : 'DISTORTION'}</dt><dd id="worldDistortionState">${locale === 'zh' ? '关' : 'OFF'}</dd></div>
-              <div><dt>${locale === 'zh' ? '所指' : 'SELECTED'}</dt><dd id="worldSelected">—</dd></div>
-              <div><dt>${locale === 'zh' ? '同域' : 'SUBREGION'}</dt><dd id="worldRegion">—</dd></div>
+              <div><dt>${'VISIBLE RELATION'}</dt><dd id="worldRelation">${'Area relationships remain comparatively legible'}</dd></div>
+              <div><dt>${'DISTORTION'}</dt><dd id="worldDistortionState">${'OFF'}</dd></div>
+              <div><dt>${'SELECTED'}</dt><dd id="worldSelected">—</dd></div>
+              <div><dt>${'SUBREGION'}</dt><dd id="worldRegion">—</dd></div>
             </dl>
-            <p>${locale === 'zh' ? '世界不是一个既定的底图。换一种投影，所显的距离、面积与形状关系便随之改写。悬停一地，可见其名；点击一地，则同一分区之地相互显现。' : 'The world is not a neutral basemap. Change the projection and the visible relations among area, shape, and distance change with it. Hover to read a place; click to expose its subregional affinity.'}</p>
+            <p>${'The world is not a neutral basemap. Change the projection and the visible relations among area, shape, and distance change with it. Hover to read a place; click to expose its subregional affinity.'}</p>
             <span class="source-line">Natural Earth · 1:110m · CC0</span>
           </aside>
         </div>`;
@@ -429,12 +401,12 @@
           .on('click',(event,f)=>{ chosen=f.properties?.SUBREGION || null; draw(); selected.textContent=localCountryName(f.properties || {}); region.textContent=localRegionName(chosen); });
         if(mode==='ortho') countries.attr('stroke-width','.8');
       }
-      const relations={ equal: locale==='zh'?'整体面积关系较均衡':'Area relationships remain comparatively legible', mercator: locale==='zh'?'局部方向与角度较直观，极区面积显著放大':'Local direction and angle stay familiar while polar area expands', ortho: locale==='zh'?'由一观察点见半球，远近受视点支配':'One viewpoint reveals one hemisphere; distance is conditioned by the observer' };
+      const relations={ equal: 'Area relationships remain comparatively legible', mercator: 'Local direction and angle stay familiar while polar area expands', ortho: 'One viewpoint reveals one hemisphere; distance is conditioned by the observer' };
       $$('.world-controls button',stage).forEach(btn=>btn.addEventListener('click',()=>{ mode=btn.dataset.projection; chosen=null; $$('.world-controls button',stage).forEach(b=>b.classList.toggle('is-active',b===btn)); relation.textContent=relations[mode]; draw(); }));
       distortionButton?.addEventListener('click',()=>{
         showDistortion=!showDistortion;
         distortionButton.classList.toggle('is-active',showDistortion);
-        if(distortionState) distortionState.textContent=showDistortion ? (locale==='zh'?'开':'ON') : (locale==='zh'?'关':'OFF');
+        if(distortionState) distortionState.textContent=showDistortion ? ('ON') : ('OFF');
         draw();
       });
       const mapWrap=$('.world-map-wrap',stage); let dragging=false,lastX=0,lastY=0;
@@ -445,7 +417,7 @@
       return ()=>{stage.innerHTML='';};
     } catch(error){
       if(signal?.aborted) return ()=>{};
-      stage.innerHTML=`<div class="instrument-error"><strong>${locale==='zh'?'世界几何暂不可达。':'World geometry unavailable.'}</strong><p>Natural Earth GeoJSON · CC0</p></div>`;
+      stage.innerHTML=`<div class="instrument-error"><strong>${'World geometry unavailable.'}</strong><p>Natural Earth GeoJSON · CC0</p></div>`;
       return ()=>{};
     }
   }

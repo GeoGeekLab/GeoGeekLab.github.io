@@ -1,17 +1,7 @@
-/* GeoGeek UX v4 — early locale/state bootstrap. */
+/* GeoGeek UX v4 — early state bootstrap. */
 (() => {
   'use strict';
-  let locale = 'en';
-  try {
-    const fromUrl = new URLSearchParams(location.search).get('lang');
-    if (fromUrl === 'zh' || fromUrl === 'en') {
-      localStorage.setItem('geogeek-language', fromUrl);
-      locale = fromUrl;
-    } else {
-      locale = localStorage.getItem('geogeek-language') === 'zh' ? 'zh' : 'en';
-    }
-  } catch {}
-  document.documentElement.lang = locale === 'zh' ? 'zh-CN' : 'en';
+  document.documentElement.lang = 'en';
 
   try {
     const y = Number(sessionStorage.getItem('geogeek-ux-scroll-y'));

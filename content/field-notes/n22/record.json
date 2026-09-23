@@ -24,11 +24,6 @@
         "topic": "Representation",
         "place": "Non-spatial",
         "spatialField": "Earth Representation"
-      },
-      "zh": {
-        "topic": "表征",
-        "place": "无位",
-        "spatialField": "地球表征"
       }
     }
   },
@@ -51,24 +46,6 @@
       "series": "Earth Representation",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.03.26",
-      "webEdition": "2026.08.09",
-      "slug": "alphaearth-agriculture-benchmark",
-      "sourceUrl": "https://mp.weixin.qq.com/s/i_hnubZcTRa9OImH4f1XLA"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "斯坦福 David B. Lobell 课题组评测 AlphaEarth在农业任务中表现",
-      "tags": [
-        "AlphaEarth",
-        "农业",
-        "GeoAI"
-      ],
-      "read": "10 分钟",
-      "excerpt": "斯坦福大学 David B. Lobell 课题组与 Corteva 合作发表的 Harvesting AlphaEarth ，并不是又做了一个新的农业遥感模型，而是把 Google DeepMind 的 AlphaEarth Foundation（AEF） 放进农业这个高要…",
-      "series": "地球表征",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.03.26",
       "webEdition": "2026.08.09",
       "slug": "alphaearth-agriculture-benchmark",

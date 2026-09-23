@@ -24,9 +24,7 @@
 
   const typeOrder = { note: 0, lab: 1, place: 2, photo: 3 };
   const typeX = { note: .16, lab: .46, place: .78, photo: .88 };
-  const typeLabel = model.locale === 'zh'
-    ? { note: '地记', lab: '作器', place: '方外', photo: '影像' }
-    : { note: 'NOTE', lab: 'LAB', place: 'ELSEWHERE', photo: 'PHOTO' };
+  const typeLabel = { note: 'NOTE', lab: 'LAB', place: 'ELSEWHERE', photo: 'PHOTO' };
 
   const projectionLabel = {
     field: L.field,
@@ -175,7 +173,7 @@
     node.dataset.type = item.type;
     node.dataset.recordRef = item.ref;
     node.dataset.detailHref = model.detailForRecord(item.ref) || '';
-    node.setAttribute('aria-label', `${item.title} · ${model.locale === 'zh' ? '察看关系' : 'Inspect relation'}`);
+    node.setAttribute('aria-label', `${item.title} · ${'Inspect relation'}`);
     node.innerHTML = '<i aria-hidden="true"></i>';
     stage.appendChild(node);
 
@@ -276,9 +274,9 @@
     } else if (mode === 'topic') {
       Object.entries(topicCenters).forEach(([topic, [x, y]]) => addGuide(topic, x, Math.max(.075, y - .10)));
     } else if (mode === 'trace') {
-      addGuide(model.locale === 'zh' ? '起' : 'BEGIN', .10, .10);
-      addGuide(model.locale === 'zh' ? '今' : 'NOW', .90, .10);
-      addGuide(model.locale === 'zh' ? '仅示作者明确承转' : 'AUTHORED LINKS ONLY', .50, .91, 'trace-note');
+      addGuide('BEGIN', .10, .10);
+      addGuide('NOW', .90, .10);
+      addGuide('AUTHORED LINKS ONLY', .50, .91, 'trace-note');
     } else if (mode === 'geographic') renderGeographicFrame();
   }
 
@@ -350,7 +348,7 @@
     indexes.forEach((index, orderIndex) => {
       const item = items[index];
       const [px, py] = position(item, layout.mode || 'field');
-      const w = Math.min(190, Math.max(72, item.title.length * (model.locale === 'zh' ? 14 : 7.2) + 18));
+      const w = Math.min(190, Math.max(72, item.title.length * 7.2 + 18));
       const h = 28;
       let chosen = null;
       for (const [dx,dy] of offsets) {

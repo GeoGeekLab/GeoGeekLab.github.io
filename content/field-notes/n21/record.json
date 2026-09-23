@@ -24,11 +24,6 @@
         "topic": "Scale",
         "place": "Global",
         "spatialField": "Scale & Extrapolation"
-      },
-      "zh": {
-        "topic": "尺度",
-        "place": "全球范围",
-        "spatialField": "尺度与外推"
       }
     }
   },
@@ -51,24 +46,6 @@
       "series": "Scale & Extrapolation",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.03.27",
-      "webEdition": "2026.08.09",
-      "slug": "reassessing-global-tree-restoration-potential",
-      "sourceUrl": "https://mp.weixin.qq.com/s/_nXWIMw5aggxX8w0cAJ3Xw"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "Science 论文遭遇连续质疑：重审全球森林恢复潜力",
-      "tags": [
-        "森林恢复",
-        "全球制图",
-        "不确定性"
-      ],
-      "read": "9 分钟",
-      "excerpt": "2019 年，Bastin 等在Science发表论文 The global tree restoration potential。论文声称，在不占用现有农田和城市用地的前提下，全球仍有约0.9 billion ha的额外树冠恢复空间，理论上可额外储存约205 GtC。这一数…",
-      "series": "尺度与外推",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.03.27",
       "webEdition": "2026.08.09",
       "slug": "reassessing-global-tree-restoration-potential",

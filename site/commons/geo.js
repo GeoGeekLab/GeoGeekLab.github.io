@@ -58,7 +58,7 @@
 
   function localTime(timeZone, date = new Date(), locale = 'en') {
     try {
-      return new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-GB', {
+      return new Intl.DateTimeFormat('en-GB', {
         timeZone, hour: '2-digit', minute: '2-digit', hour12: false
       }).format(date);
     } catch { return '—'; }

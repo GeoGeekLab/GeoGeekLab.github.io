@@ -34,15 +34,14 @@ for (const entry of fs.readdirSync(contentDir, { withFileTypes: true })) {
   const metaPath = path.join(unit, 'record.json');
   if (!fs.existsSync(metaPath)) continue;
   const record = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
-  for (const lang of ['en', 'zh']) {
-    record.text[lang].bodyHtml = fs.readFileSync(path.join(unit, `body.${lang}.html`), 'utf8').trim();
-  }
+  record.text.en.bodyHtml = fs.readFileSync(path.join(unit, 'body.en.html'), 'utf8').trim();
   records.push(record);
 }
 records.sort((a, b) => String(b.data.published).localeCompare(String(a.data.published)) || a.id.localeCompare(b.id));
 
 const payload = { series, records };
-const makeArchiveBootstrap = ({ sourcePreview = false } = {}) => `(() => {\n  'use strict';\n  window.GEOGEEK_SOURCE_PREVIEW = ${sourcePreview ? 'true' : 'false'};\n  const payload = ${JSON.stringify(payload)};\n  window.GEOGEEK_WECHAT_ARCHIVE = payload;\n  const archive = window.GEOGEEK_ARCHIVE;\n  if (!archive) return;\n  archive.records = [...payload.records, ...archive.records.filter(record => record.kind !== 'notes')];\n  const buildLocale = lang => {\n    const ui = archive.locales?.[lang]?.ui || archive.locales?.en?.ui || {};\n    const itemFor = record => ({id:record.id,...(record.data||{}),...(record.text?.[lang]||record.text?.en||{})});\n    const byKind = kind => archive.records.filter(record=>record.kind===kind).map(itemFor);\n    const atlasLayout = archive.records.filter(record=>record.atlas).map(record=>({ref:record.ref,...Object.fromEntries(Object.entries(record.atlas||{}).filter(([key])=>key!=='text')),...(record.atlas?.text?.[lang]||record.atlas?.text?.en||{}),traceLinks:[...(record.relations?.trace||[])]}));\n    return {ui,notes:byKind('notes'),lab:byKind('lab'),elsewhere:byKind('elsewhere'),atlasLayout};\n  };\n  window.GEOGEEK_DATA = {en:buildLocale('en'),zh:buildLocale('zh')};\n})();\n`;
+const makeArchiveBootstrap = ({ sourcePreview = false } = {}) => `(() => {\n  'use strict';\n  window.GEOGEEK_SOURCE_PREVIEW = ${sourcePreview ? 'true' : 'false'};\n  const payload = ${JSON.stringify(payload)};\n  window.GEOGEEK_WECHAT_ARCHIVE = payload;\n  const archive = window.GEOGEEK_ARCHIVE;\n  if (!archive) return;\n  archive.records = [...payload.records, ...archive.records.filter(record => record.kind !== 'notes')];\n  const ui = archive.locales?.en?.ui || {};\n  const itemFor = record => ({id:record.id,...(record.data||{}),...(record.text?.en||{})});\n  const byKind = kind => archive.records.filter(record=>record.kind===kind).map(itemFor);\n  const atlasLayout = archive.records.filter(record=>record.atlas).map(record=>({ref:record.ref,...Object.fromEntries(Object.entries(record.atlas||{}).filter(([key])=>key!=='text')),...(record.atlas?.text?.en||{}),traceLinks:[...(record.relations?.trace||[])]}));\n  window.GEOGEEK_DATA = {en:{ui,notes:byKind('notes'),lab:byKind('lab'),elsewhere:byKind('elsewhere'),atlasLayout}};\n})();\n`;
+
 
 // Local source preview cache. It is derived from content/ and ignored by Git.
 fs.writeFileSync(previewArchivePath, makeArchiveBootstrap({ sourcePreview: true }));

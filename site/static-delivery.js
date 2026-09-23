@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  // Static content is authoritative. JavaScript only enhances filtering,
-  // language navigation, and non-critical script delivery.
+  // Static content is authoritative. JavaScript only enhances filtering
+  // and non-critical script delivery.
   const scheduleIdle = (fn) => {
     if ('requestIdleCallback' in window) window.requestIdleCallback(fn, { timeout: 1800 });
     else window.setTimeout(fn, 900);
@@ -54,23 +54,6 @@
     }
   };
 
-  const initLanguageLinks = () => {
-    const alternate = document.querySelector('.static-language-nav a[href]');
-    if (!alternate) return;
-    const target = alternate.getAttribute('href');
-    // Retain the existing visual language control if present, but turn it into
-    // navigation rather than a client-rendering state switch.
-    const candidates = [...document.querySelectorAll('[data-language], [data-lang], [data-language-toggle], .language-toggle, #languageToggle')];
-    for (const el of candidates) {
-      if (el.closest('.static-language-nav')) continue;
-      el.addEventListener('click', event => {
-        event.preventDefault();
-        window.location.assign(target);
-      }, { capture: true });
-    }
-  };
-
   loadIdleScripts();
   initStaticFilters();
-  initLanguageLinks();
 })();

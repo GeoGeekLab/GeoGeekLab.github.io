@@ -14,15 +14,12 @@
   --rail-w: 164px;
   --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --serif: Georgia, "Times New Roman", serif;
-  --sans-zh: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
-  --serif-zh: "Songti SC", STSong, "Noto Serif CJK SC", "Source Han Serif SC", SimSun, serif;
   --mono: "SFMono-Regular", "Roboto Mono", "Liberation Mono", Menlo, Consolas, monospace;
   --ease: cubic-bezier(.16, 1, .3, 1);
 }
 
 * { box-sizing: border-box; }
 html { background: var(--bg); color-scheme: light; scroll-behavior: smooth; }
-html[lang="zh-CN"] { --sans: var(--sans-zh); --serif: var(--serif-zh); }
 body {
   margin: 0;
   overflow-x: hidden;
@@ -63,8 +60,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--signal); outlin
 .brand-mark::after { left: 0; top: 6px; width: 14px; height: 1px; }
 .nav-links { display: flex; align-items: center; gap: clamp(20px, 2.2vw, 36px); margin-left: auto; }
 .nav-links a { position: relative; color: #4f5b53; font-size: 13px; font-weight: 600; letter-spacing: .035em; }
-.lang-switch { appearance: none; border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); padding: 2px 0 2px clamp(18px, 2vw, 28px); cursor: pointer; font: 700 12px/1 var(--mono); letter-spacing: .06em; }
-.lang-switch:hover { color: var(--signal); }
 .nav-links a:hover, .nav-links a[aria-current="page"] { color: var(--fg); }
 .nav-links a[aria-current="page"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -12px; height: 2px; background: var(--signal); }
 .nav-toggle { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; border: 1px solid var(--line); background: rgba(244,242,234,.82); padding: 9px 12px; font: 650 12px/1 var(--mono); letter-spacing: .05em; cursor: pointer; }
@@ -280,29 +275,6 @@ body.origin-active .scale-ui:hover, body.origin-active .scale-ui:focus-within { 
 .footer-meta { display: grid; gap: 9px; text-align: right; color: var(--muted); font: 650 11px/1.35 var(--mono); }
 .footer-meta a:hover { color: var(--signal); }
 
-html[lang="zh-CN"] body { letter-spacing: 0; }
-html[lang="zh-CN"] .brand,
-html[lang="zh-CN"] .display,
-html[lang="zh-CN"] .footer-brand { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
-html[lang="zh-CN"] .nav-links a { font-size: 14px; font-weight: 560; letter-spacing: .08em; }
-html[lang="zh-CN"] .hero-eyebrow { letter-spacing: .16em; }
-html[lang="zh-CN"] .hero-tagline { font-style: normal; font-size: clamp(30px,3.65vw,58px); letter-spacing: .06em; }
-html[lang="zh-CN"] .hero-lexicon { font-family: var(--serif); font-size: 14px; letter-spacing: .22em; }
-html[lang="zh-CN"] .section-head h2 { font-family: var(--serif); font-weight: 500; letter-spacing: -.018em; }
-html[lang="zh-CN"] .section-head p { letter-spacing: .015em; line-height: 1.72; }
-html[lang="zh-CN"] .now-grid span,
-html[lang="zh-CN"] .section-label,
-html[lang="zh-CN"] .sheet-index,
-html[lang="zh-CN"] .scale-ui,
-html[lang="zh-CN"] .filters button { letter-spacing: .08em; }
-html[lang="zh-CN"] .now-grid h3 { letter-spacing: .01em; line-height: 1.2; }
-html[lang="zh-CN"] .now-grid p,
-html[lang="zh-CN"] .lab-row p,
-html[lang="zh-CN"] .elsewhere-card p,
-html[lang="zh-CN"] .life-tile p { line-height: 1.82; }
-html[lang="zh-CN"] .page-title h1 { font-family: var(--serif); font-weight: 520; letter-spacing: -.02em; }
-html[lang="zh-CN"] .page-title .page-intro { line-height: 1.78; }
-html[lang="zh-CN"] .atlas-philosophy { font-style: normal; letter-spacing: .025em; }
 
 .lab-group-label { display: flex; align-items: center; gap: 18px; padding: 38px 0 10px; border-bottom: 1px solid var(--line-soft); color: var(--muted); font: 700 11px/1 var(--mono); letter-spacing: .10em; text-transform: uppercase; }
 .lab-group-label:first-child { padding-top: 18px; }
@@ -400,17 +372,12 @@ html[lang="zh-CN"] .atlas-philosophy { font-style: normal; letter-spacing: .025e
 .game-references span { width: 100%; text-transform: uppercase; }
 .game-references a { color: #9eaaa1; border-bottom: 1px solid rgba(241,239,231,.12); }
 .game-references a:hover, .game-references a:focus-visible { color: var(--atlas-fg); border-color: var(--signal); outline: none; }
-html[lang="zh-CN"] .game-panel > strong, html[lang="zh-CN"] .game-prompt { font-style: normal; letter-spacing: .02em; }
 
 .atlas-stage[data-mode="trace"] { background-size: 56px 56px; }
 .atlas-stage[data-mode="trace"] .atlas-links line { stroke: rgba(166,70,36,.62); stroke-width: 1.4; stroke-dasharray: 4 6; animation: trace-drift 4.5s linear infinite; }
 .atlas-stage[data-mode="trace"] .atlas-node { box-shadow: 0 0 0 4px rgba(166,70,36,.045); }
 @keyframes trace-drift { to { stroke-dashoffset: -20; } }
 
-html[lang="zh-CN"] .lab-principle p,
-html[lang="zh-CN"] .orbit-panel > strong,
-html[lang="zh-CN"] .earth-controls > strong,
-html[lang="zh-CN"] .flow-caption strong { font-style: normal; letter-spacing: .02em; }
 
 @media (min-width: 1260px) {
   .home-section, .page-shell { padding-left: max(var(--pad), calc(var(--rail-w) + 40px)); }
@@ -703,7 +670,6 @@ body.orbital-active .site-nav {
 }
 body.orbital-active .brand, body.orbital-active .nav-links a { color: #cbd3cc; }
 body.orbital-active .nav-links a:hover, body.orbital-active .nav-links a[aria-current="page"] { color: var(--atlas-fg); }
-body.orbital-active .lang-switch { color: #8f9c93; border-left-color: rgba(241,239,231,.14); }
 body.orbital-active .brand-mark { border-color: #9da9a0; }
 body.orbital-active .brand-mark::before, body.orbital-active .brand-mark::after { background: #9da9a0; }
 body.orbital-active .sheet-index { color: #89968d; }
@@ -790,10 +756,9 @@ body.orbital-active .scale-legend small { color: #7e8b82; }
     padding: 18px max(22px, env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left));
     border-bottom: 0;
   }
-  .nav-links a, .nav-links .lang-switch { min-height: 48px; display: flex; align-items: center; }
+  .nav-links a { min-height: 48px; display: flex; align-items: center; }
   body.orbital-active .nav-links { background: rgba(11,17,14,.985); border-color: rgba(241,239,231,.10); }
   body.orbital-active .nav-links a { border-bottom-color: rgba(241,239,231,.09); color: #cbd3cc; }
-  body.orbital-active .nav-links .lang-switch { color: #8f9c93; }
 
   .scale-ui {
     top: 76px; right: 12px; padding: 8px 10px; border: 1px solid rgba(21,32,25,.10);
@@ -1109,7 +1074,6 @@ body.orbital-active .scale-legend small { color: #7e8b82; }
 .spatial-browser-foot > span { display:grid; gap:3px; }
 .spatial-browser-foot b { color:#7e8a81; font:700 11px/1.4 var(--mono); letter-spacing:.06em; }
 .spatial-browser-foot i { display:none; color:#68756c; font:600 11px/1.4 var(--mono); font-style:normal; letter-spacing:.02em; }
-.site-map-lang { min-width:50px; min-height:44px; border:1px solid rgba(241,239,231,.16); background:transparent; color:var(--atlas-fg); cursor:pointer; font:700 11px/1 var(--mono); }
 body.site-map-open { overflow:hidden; }
 
 .instrument-status { margin-left:auto; padding:0 10px; min-height:28px; display:inline-flex; align-items:center; border:1px solid rgba(241,239,231,.10); color:#9aa69d; font:700 11px/1 var(--mono); letter-spacing:.06em; white-space:nowrap; }
@@ -1728,15 +1692,6 @@ body[data-page-key="commons"] .scale-ui { top: 84px; }
   letter-spacing: -.038em;
   text-wrap: balance;
 }
-html[lang="zh-CN"] .archive-record-page .record-heading h1 {
-  max-width: 880px;
-  font-family: var(--serif);
-  font-weight: 560;
-  font-size: clamp(37px,4.05vw,64px);
-  letter-spacing: -.012em;
-  line-height: 1.1;
-  text-wrap: pretty;
-}
 .archive-record-page .record-deck {
   max-width: 780px;
   margin-top: 16px;
@@ -1747,7 +1702,6 @@ html[lang="zh-CN"] .archive-record-page .record-heading h1 {
 }
 .archive-record-page .record-detail { gap: 48px; }
 .archive-record-page .record-body { max-width: 720px; }
-html[lang="zh-CN"] .archive-record-page .record-body { max-width: 700px; }
 .archive-record-page .record-body > p {
   margin: 0 0 1.68em;
   color: #2f3b33;
@@ -1755,11 +1709,6 @@ html[lang="zh-CN"] .archive-record-page .record-body { max-width: 700px; }
   font-size: clamp(18px,1.12vw,20.5px);
   line-height: 1.96;
   text-wrap: pretty;
-}
-html[lang="zh-CN"] .archive-record-page .record-body > p {
-  margin-bottom: 1.78em;
-  line-height: 2.08;
-  letter-spacing: .006em;
 }
 .archive-record-page .record-body h2 {
   margin: 2.85em 0 .9em;
@@ -1770,9 +1719,6 @@ html[lang="zh-CN"] .archive-record-page .record-body > p {
   font-weight: 560;
   letter-spacing: -.02em;
   text-wrap: pretty;
-}
-html[lang="zh-CN"] .archive-record-page .record-body h2 {
-  letter-spacing: -.01em;
 }
 .archive-record-page .archive-figure {
   width: min(100%, 720px);
@@ -1852,12 +1798,9 @@ html[lang="zh-CN"] .archive-record-page .record-body h2 {
   .archive-note-row h2 { font-size: 20px; line-height: 1.32; }
   .archive-record-page .record-heading { padding-top: 2.5vh; padding-bottom: 38px; }
   .archive-record-page .record-heading h1 { max-width: 100%; font-size: clamp(32px,9.6vw,52px); line-height: 1.08; }
-  html[lang="zh-CN"] .archive-record-page .record-heading h1 { font-size: clamp(32px,9.2vw,50px); line-height: 1.12; }
   .archive-record-page .record-deck { max-width: 100%; margin-top: 14px; font-size: 18px; line-height: 1.7; }
-  .archive-record-page .record-body,
-  html[lang="zh-CN"] .archive-record-page .record-body { max-width: 100%; }
+  .archive-record-page .record-body { max-width: 100%; }
   .archive-record-page .record-body > p { font-size: 18px; line-height: 1.94; margin-bottom: 1.58em; }
-  html[lang="zh-CN"] .archive-record-page .record-body > p { line-height: 2.02; margin-bottom: 1.68em; }
   .archive-record-page .record-body h2 { font-size: 26px; margin-top: 2.35em; }
   .archive-record-page .record-conditions dl { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .archive-record-page .archive-figure,
@@ -1884,7 +1827,6 @@ html[lang="zh-CN"] .archive-record-page .record-body h2 {
   max-width: 680px;
   line-height: 2.04;
 }
-html[lang="zh-CN"] .archive-record-page .record-body > p.is-dense { line-height: 2.14; }
 .archive-record-page .record-body > p + .archive-figure { margin-top: 36px; }
 .archive-record-page .record-body strong { font-weight: 650; }
 

@@ -6,12 +6,8 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
-  const readLocale = () => {
-    try { return localStorage.getItem('geogeek-language') === 'zh' ? 'zh' : 'en'; }
-    catch { return 'en'; }
-  };
-  const locale = readLocale();
-  const data = DATA_ROOT[locale] || DATA_ROOT.en || {};
+  const locale = 'en';
+  const data = DATA_ROOT.en || {};
   const ui = data.ui || {};
   const pageFile = location.pathname.split('/').pop() || 'index.html';
   const declaredPage = document.body?.dataset?.pageKey;
@@ -38,19 +34,19 @@
 
 
   function applyLocale() {
-    document.documentElement.lang = locale === 'zh' ? 'zh-CN' : 'en';
-    document.body.dataset.locale = locale;
+    document.documentElement.lang = 'en';
+    document.body.dataset.locale = 'en';
     const appMeta = $('meta[name="application-name"]');
     if (appMeta) appMeta.content = 'GeoGeek';
     if (ui.pages?.[pageKey]?.title) document.title = ui.pages[pageKey].title;
 
     setText('.skip', ui.skip);
     const brand = $('.brand');
-    if (brand) brand.setAttribute('aria-label', locale === 'zh' ? 'GeoGeek 首页' : 'GeoGeek home');
+    if (brand) brand.setAttribute('aria-label', 'GeoGeek home');
 
     const nav = $('#primaryNav');
     if (nav) {
-      nav.setAttribute('aria-label', ui.a11y?.primary || (locale === 'zh' ? '主导航' : 'Primary navigation'));
+      nav.setAttribute('aria-label', ui.a11y?.primary || ('Primary navigation'));
       const labels = {
         'field-notes.html': ui.nav?.fieldNotes,
         'lab.html': ui.nav?.lab,
@@ -60,20 +56,6 @@
       $$('a', nav).forEach(link => {
         const href = link.getAttribute('href');
         if (labels[href]) link.textContent = labels[href];
-      });
-      let langButton = $('#langSwitch', nav);
-      if (!langButton) {
-        langButton = document.createElement('button');
-        langButton.id = 'langSwitch';
-        langButton.className = 'lang-switch';
-        langButton.type = 'button';
-        nav.appendChild(langButton);
-      }
-      langButton.textContent = ui.switchLabel || (locale === 'en' ? '中文' : 'EN');
-      langButton.setAttribute('aria-label', locale === 'en' ? '切换为中文' : 'Switch to English');
-      langButton.addEventListener('click', () => {
-        try { localStorage.setItem('geogeek-language', locale === 'en' ? 'zh' : 'en'); } catch {}
-        location.reload();
       });
     }
 
@@ -100,17 +82,17 @@
         const href = link.getAttribute('href');
         if (label && globalLabels[href]) label.textContent = globalLabels[href];
       });
-      setText('.sheet-index-foot', index.classList.contains('home-index') ? ui.sheet?.homeFoot : pageKey === 'record' ? `${ui.scale?.levels?.RECORD || 'RECORD'} · ${ui.scale?.mode || 'RELATIVE'} 1 : 2,500` : pageKey === 'commons' ? (locale === 'zh' ? '共域 · 地理' : 'COMMON FIELD · GEOGRAPHIC') : ui.sheet?.globalFoot, index);
-      index.setAttribute('aria-label', locale === 'zh' ? '图幅索引' : (index.classList.contains('home-index') ? 'Section index' : 'Site index'));
+      setText('.sheet-index-foot', index.classList.contains('home-index') ? ui.sheet?.homeFoot : pageKey === 'record' ? `${ui.scale?.levels?.RECORD || 'RECORD'} · ${ui.scale?.mode || 'RELATIVE'} 1 : 2,500` : pageKey === 'commons' ? ('COMMON FIELD · GEOGRAPHIC') : ui.sheet?.globalFoot, index);
+      index.setAttribute('aria-label', index.classList.contains('home-index') ? 'Section index' : 'Site index');
     }
 
     const scale = $('.scale-ui');
     if (scale) {
       setText(':scope > span', ui.scale?.label, scale);
-      setText('.scale-mode', ui.scale?.mode || (locale === 'zh' ? '相对' : 'RELATIVE'), scale);
+      setText('.scale-mode', ui.scale?.mode || ('RELATIVE'), scale);
       const order = ['SITE', 'POSITION', 'COLLECTION', 'RECORD', 'DETAIL'];
       $$('.scale-legend small', scale).forEach((node, index) => { node.textContent = ui.scale?.levels?.[order[index]] || order[index]; });
-      scale.setAttribute('aria-label', ui.a11y?.scale || (locale === 'zh' ? '相对信息尺度' : 'Relative information scale'));
+      scale.setAttribute('aria-label', ui.a11y?.scale || ('Relative information scale'));
     }
 
     const footerSpans = $$('.footer-meta > span');
@@ -133,7 +115,7 @@
       setText('.hero-origin-entry a', ui.hero?.origin);
       const heroOrigin = $('.hero-origin-entry a');
       if (heroOrigin) {
-        heroOrigin.href = locale === 'zh' ? '/origin/' : '/origin/en/';
+        heroOrigin.href = '/origin/';
         if (ui.hero?.originAria) heroOrigin.setAttribute('aria-label', ui.hero.originAria);
       }
       setText('.hero-edge-right', ui.hero?.right);
@@ -141,8 +123,8 @@
       const orbital = ui.orbitalThreshold || {};
       const orbitalSection = $('#orbital-threshold');
       if (orbitalSection) {
-        orbitalSection.setAttribute('aria-label', ui.a11y?.orbitalSection || (locale === 'zh' ? '轨道观测场' : 'Orbital observation field'));
-        $('#orbitalThresholdCanvas')?.setAttribute('aria-label', ui.a11y?.orbitalCanvas || (locale === 'zh' ? '可交互地球轨道场' : 'Interactive Earth orbital field'));
+        orbitalSection.setAttribute('aria-label', ui.a11y?.orbitalSection || ('Orbital observation field'));
+        $('#orbitalThresholdCanvas')?.setAttribute('aria-label', ui.a11y?.orbitalCanvas || ('Interactive Earth orbital field'));
         setText('.orbital-eyebrow', orbital.eyebrow, orbitalSection);
         setText('#orbitalPrompt', orbital.title, orbitalSection);
         setText('#orbitalSub', orbital.subtitle, orbitalSection);
@@ -226,18 +208,18 @@
     }
 
     if (pageKey === 'lab') {
-      setText('.lab-principle span', ui.lab?.principleLabel || (locale === 'zh' ? '范围 / 分辨率 / 限制' : 'EXTENT / RESOLUTION / LIMIT'));
+      setText('.lab-principle span', ui.lab?.principleLabel || ('EXTENT / RESOLUTION / LIMIT'));
       setText('#labPrinciple', ui.lab?.principle);
-      $('.lab-principle')?.setAttribute('aria-label', ui.a11y?.instrumentPrinciple || (locale === 'zh' ? '作器原则' : 'Instrument principle'));
+      $('.lab-principle')?.setAttribute('aria-label', ui.a11y?.instrumentPrinciple || ('Instrument principle'));
       const conditions = $('#instrumentConditions');
-      if (conditions) conditions.setAttribute('aria-label', locale === 'zh' ? '观测条件' : 'Observation conditions');
-      $('#instrumentClose')?.setAttribute('aria-label', ui.lab?.close || (locale === 'zh' ? '退出此器' : 'Close instrument'));
+      if (conditions) conditions.setAttribute('aria-label', 'Observation conditions');
+      $('#instrumentClose')?.setAttribute('aria-label', ui.lab?.close || ('Close instrument'));
       setText('#instrumentReadout', `${ui.scale?.label || 'INFORMATION SCALE'} / ${ui.scale?.levels?.DETAIL || 'DETAIL'} · 1 : 500`);
       setText('#instrumentBoundary', ui.lab?.boundary);
     }
 
     if (pageKey === 'record') {
-      $('.record-conditions')?.setAttribute('aria-label', ui.a11y?.recordConditions || (locale === 'zh' ? '条目条件' : 'Record conditions'));
+      $('.record-conditions')?.setAttribute('aria-label', ui.a11y?.recordConditions || ('Record conditions'));
     }
 
     if (pageKey === 'atlas') {
@@ -653,7 +635,7 @@
               <div class="project-meta"><span>${item.status}</span><span>${(item.tags || []).slice(0, 2).join(' · ')}</span></div>
               <h3>${item.title}</h3>
               <p>${item.description}</p>
-              <a class="project-cta" data-record-ref="lab:${item.id}" data-transition-source href="${recordUrl(`lab:${item.id}`)}">${locale === 'zh' ? '查看条目' : 'View record'} <b>↗</b></a>
+              <a class="project-cta" data-record-ref="lab:${item.id}" data-transition-source href="${recordUrl(`lab:${item.id}`)}">${'View record'} <b>↗</b></a>
             </div>
           </article>`).join('');
     }
@@ -732,7 +714,7 @@
                   <div class="project-foot">
                     <span class="lab-coord">${item.coord}</span>
                     <div class="project-actions">
-                      <a class="project-cta project-link" data-record-ref="lab:${item.id}" data-transition-source href="${recordUrl(`lab:${item.id}`)}"><span>${locale === 'zh' ? '条目' : 'RECORD'}</span><b>↗</b></a>
+                      <a class="project-cta project-link" data-record-ref="lab:${item.id}" data-transition-source href="${recordUrl(`lab:${item.id}`)}"><span>${'RECORD'}</span><b>↗</b></a>
                       ${item.instrument ? `<button class="lab-enter project-cta" type="button" data-instrument="${item.instrument}"><span>${ui.lab?.enter || 'ENTER'}</span><b>↗</b></button>` : ''}
                     </div>
                   </div>
@@ -749,15 +731,7 @@
   }
 
   function displayRecordTitle(rawTitle) {
-    const title = String(rawTitle || '').trim();
-    if (locale !== 'zh') return title;
-    const parts = title.split(/：|:\s*/).map(part => part.trim()).filter(Boolean);
-    if (parts.length < 2) return title;
-    const tail = parts[parts.length - 1];
-    const latin = (tail.match(/[A-Za-z]/g) || []).length;
-    const cjk = (tail.match(/[㐀-鿿]/g) || []).length;
-    if (latin >= 3 && cjk === 0) return parts.slice(0, -1).join('：');
-    return title;
+    return String(rawTitle || '').trim();
   }
 
   function calibrateArchiveReading(root) {
@@ -779,9 +753,9 @@
         else if (ratio >= 1.75) figure.classList.add('is-wide');
         else if (width < 720) figure.classList.add('is-compact');
         const alt = (image.getAttribute('alt') || '').trim();
-        if (!alt || /^(图片|image|figure)$/i.test(alt)) {
+        if (!alt || /^(image|figure)$/i.test(alt)) {
           const caption = figure.nextElementSibling?.classList?.contains('archive-caption') ? figure.nextElementSibling.textContent.trim() : '';
-          image.alt = caption ? caption.slice(0, 180) : (locale === 'zh' ? '文章图示' : 'Article figure');
+          image.alt = caption ? caption.slice(0, 180) : ('Article figure');
         }
       };
       if (image.complete) apply();
@@ -857,7 +831,7 @@
     const labels = recordUI.labels || {};
     const values = recordUI.values || {};
     const geography = window.GEOGEEK_MODEL?.recordIndex?.get(ref)?.geography || null;
-    const extentLabel = geography?.kind === 'extent' ? (locale === 'zh' ? '全球地理范围' : 'Global geographic extent') : geography?.kind === 'point' ? (geography.label || '') : '';
+    const extentLabel = geography?.kind === 'extent' ? ('Global geographic extent') : geography?.kind === 'point' ? (geography.label || '') : '';
     let conditions = [];
     if (kind === 'notes') {
       conditions = [
@@ -878,7 +852,7 @@
         ['method', item.instrumentKicker || item.status],
         ['scale', values.scale || (ui.scale?.levels?.RECORD || 'Record')],
         ['extent', extentLabel],
-        ['source', item.source || (locale === 'zh' ? '浏览器原生' : 'Browser-native')],
+        ['source', item.source || ('Browser-native')],
         ['status', item.status]
       ];
     } else {
@@ -893,7 +867,7 @@
     metaNode.innerHTML = conditions.filter(([, value]) => value).map(([key, value]) => `<div><dt>${labels[key] || key.toUpperCase()}</dt><dd>${value}</dd></div>`).join('');
 
     const actions = [`<a class="record-action secondary" href="${backHref}">${recordUI.returnCollection || 'RETURN TO COLLECTION ↗'}</a>`];
-    if (kind === 'notes' && item.sourceUrl) actions.push(`<a class="record-action secondary" href="${item.sourceUrl}" target="_blank" rel="noreferrer">${recordUI.original || (locale === 'zh' ? '原公众号 ↗' : 'ORIGINAL WECHAT ↗')}</a>`);
+    if (kind === 'notes' && item.sourceUrl) actions.push(`<a class="record-action secondary" href="${item.sourceUrl}" target="_blank" rel="noreferrer">${recordUI.original || ('ORIGINAL WECHAT ↗')}</a>`);
     try {
       if (sessionStorage.getItem('geogeek-record-origin') === 'atlas') actions.unshift(`<a class="record-action secondary" href="atlas.html">${recordUI.returnAtlas || 'RETURN TO ATLAS ↗'}</a>`);
     } catch {}

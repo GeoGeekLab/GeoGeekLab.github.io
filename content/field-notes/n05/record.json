@@ -24,11 +24,6 @@
         "topic": "Representation",
         "place": "Non-spatial",
         "spatialField": "Earth Representation"
-      },
-      "zh": {
-        "topic": "表征",
-        "place": "无位",
-        "spatialField": "地球表征"
       }
     }
   },
@@ -49,24 +44,6 @@
       "series": "Earth Representation",
       "status": "Archived",
       "source": "GeoGeek · WeChat",
-      "published": "2026.04.30",
-      "webEdition": "2026.08.09",
-      "slug": "alphaearth-physical-semantics",
-      "sourceUrl": "https://mp.weixin.qq.com/s/oRSxmwTBRF-WJi45rW9npg"
-    },
-    "zh": {
-      "type": "旧文",
-      "title": "AlphaEarth 的黑箱终于被打开：新研究发现 embedding 中的温度、植被和水文语义",
-      "tags": [
-        "AlphaEarth",
-        "GeoAI",
-        "可解释性"
-      ],
-      "read": "5 分钟",
-      "excerpt": "之前一篇关于 AlphaEarth Foundation Embedding（AEF）的推文（ 斯坦福 David B. Lobell 课题组评测 AlphaEarth在农业任务中表现 ）指出了 AEF 的最大问题： 缺乏直接的物理解释 。传统遥感特征如 NDVI、GCVI、…",
-      "series": "地球表征",
-      "status": "归档",
-      "source": "GeoGeek · 微信公众号",
       "published": "2026.04.30",
       "webEdition": "2026.08.09",
       "slug": "alphaearth-physical-semantics",

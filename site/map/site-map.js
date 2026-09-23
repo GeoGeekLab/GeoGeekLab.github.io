@@ -19,9 +19,9 @@
     <div class="spatial-browser-shell">
       <header class="spatial-browser-head">
         <div><span>${L.mode}</span><h2 id="siteMapTitle">${L.title}</h2></div>
-        <div class="site-map-modes" aria-label="${model.locale === 'zh' ? '地图模式' : 'Map mode'}">
-          <button class="is-active" type="button" data-map-mode="site" aria-pressed="true">${model.locale === 'zh' ? '全站' : 'SITE'}</button>
-          <button type="button" data-map-mode="commons" aria-pressed="false">${model.locale === 'zh' ? '共域' : 'COMMONS'}</button>
+        <div class="site-map-modes" aria-label="Map mode">
+          <button class="is-active" type="button" data-map-mode="site" aria-pressed="true">SITE</button>
+          <button type="button" data-map-mode="commons" aria-pressed="false">COMMONS</button>
         </div>
         <button class="site-map-close" type="button" aria-label="${L.close}">×</button>
       </header>
@@ -46,7 +46,6 @@
       </section>
       <footer class="site-map-foot spatial-browser-foot">
         <span><b>${L.hint}</b><i>${L.mobileHint}</i></span>
-        <button class="site-map-lang" id="mapLangSwitch" type="button">${model.data.ui?.switchLabel || (model.locale === 'zh' ? 'EN' : '中文')}</button>
       </footer>
     </div>`;
   document.body.appendChild(dialog);
@@ -163,12 +162,12 @@
   }
 
   function summaryForRoot(key) {
-    if (key === 'home') return model.locale === 'zh' ? '全站原点。' : 'The site origin.';
-    if (key === 'position') return model.locale === 'zh' ? '当前研究位置。' : 'Current intellectual position.';
-    if (key === 'notes') return model.locale === 'zh' ? `地记 · ${(model.collections.notes || []).length} 条` : `Field Notes · ${(model.collections.notes || []).length} records`;
-    if (key === 'lab') return model.locale === 'zh' ? `作器 · ${(model.collections.lab || []).length} 条` : `Lab · ${(model.collections.lab || []).length} records`;
-    if (key === 'atlas') return model.locale === 'zh' ? '同一档案的多种投影。' : 'Multiple projections of one archive.';
-    if (key === 'elsewhere') return model.locale === 'zh' ? `方外 · ${(model.collections.elsewhere || []).length} 条` : `Elsewhere · ${(model.collections.elsewhere || []).length} records`;
+    if (key === 'home') return 'The site origin.';
+    if (key === 'position') return 'Current intellectual position.';
+    if (key === 'notes') return `Field Notes · ${(model.collections.notes || []).length} records`;
+    if (key === 'lab') return `Lab · ${(model.collections.lab || []).length} records`;
+    if (key === 'atlas') return 'Multiple projections of one archive.';
+    if (key === 'elsewhere') return `Elsewhere · ${(model.collections.elsewhere || []).length} records`;
     return '';
   }
 
@@ -318,15 +317,15 @@
     siteBody.hidden = commons;
     commonsPanel.hidden = !commons;
     if (commons) {
-      routeNode.textContent = model.locale === 'zh' ? '共域 / 来访地理' : 'COMMONS / VISITOR GEOGRAPHY';
+      routeNode.textContent = 'COMMONS / VISITOR GEOGRAPHY';
       if (!commonsMount.dataset.mounted) {
         commonsMount.dataset.mounted = 'true';
-        commonsMount.innerHTML = `<div class="commons-preview-loading">${model.locale === 'zh' ? '读取共域…' : 'READING COMMON FIELD…'}</div>`;
+        commonsMount.innerHTML = '<div class="commons-preview-loading">READING COMMON FIELD…</div>';
         try {
           const commonsModule = window.GeoCommons || await window.GeoModules?.loadCommons?.();
           await commonsModule?.mountPreview?.(commonsMount);
         } catch {
-          commonsMount.innerHTML = `<div class="commons-preview-loading">${model.locale === 'zh' ? '共域暂不可达。' : 'Commons unavailable.'}</div>`;
+          commonsMount.innerHTML = '<div class="commons-preview-loading">Commons unavailable.</div>';
         }
       }
     } else {
@@ -341,7 +340,7 @@
     if (!dialog.open) dialog.showModal();
     document.body.classList.add('site-map-open');
     toggle.setAttribute('aria-expanded', 'true');
-    toggle.textContent = model.data.ui?.nav?.close || (model.locale === 'zh' ? '收起' : 'Close');
+    toggle.textContent = model.data.ui?.nav?.close || 'Close';
     window.GeoField?.pause?.();
     requestAnimationFrame(() => {
       const current = $('.site-map-node.is-selected, .site-map-node.is-current', dialog);
@@ -357,7 +356,7 @@
     if (dialog.open) dialog.close();
     document.body.classList.remove('site-map-open');
     toggle.setAttribute('aria-expanded', 'false');
-    toggle.textContent = model.data.ui?.nav?.map || (model.locale === 'zh' ? '图域' : 'Map');
+    toggle.textContent = model.data.ui?.nav?.map || 'Map';
     if (!document.body.classList.contains('instrument-open')) window.GeoField?.resume?.();
     window.GeoScale?.restore?.();
   }
@@ -399,10 +398,7 @@
 
   $$('[data-map-mode]', dialog).forEach(button => button.addEventListener('click', () => setMode(button.dataset.mapMode)));
 
-  $('#mapLangSwitch', dialog)?.addEventListener('click', () => {
-    try { localStorage.setItem('geogeek-language', model.locale === 'zh' ? 'en' : 'zh'); } catch {}
-    location.reload();
-  });
+
 
   viewport.addEventListener('keydown', event => {
     if (event.key === 'Home') viewport.scrollLeft = 0;

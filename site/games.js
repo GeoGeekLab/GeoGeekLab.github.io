@@ -10,40 +10,40 @@
   const WORLD_ATLAS = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
 
   const CITIES = [
-    { en: 'Beijing', zh: '北京', lat: 39.9042, lon: 116.4074 },
-    { en: 'Tokyo', zh: '东京', lat: 35.6762, lon: 139.6503 },
-    { en: 'Cairo', zh: '开罗', lat: 30.0444, lon: 31.2357 },
-    { en: 'Nairobi', zh: '内罗毕', lat: -1.2921, lon: 36.8219 },
-    { en: 'Sydney', zh: '悉尼', lat: -33.8688, lon: 151.2093 },
-    { en: 'São Paulo', zh: '圣保罗', lat: -23.5505, lon: -46.6333 },
-    { en: 'Mexico City', zh: '墨西哥城', lat: 19.4326, lon: -99.1332 },
-    { en: 'Istanbul', zh: '伊斯坦布尔', lat: 41.0082, lon: 28.9784 },
-    { en: 'Cape Town', zh: '开普敦', lat: -33.9249, lon: 18.4241 },
-    { en: 'Delhi', zh: '德里', lat: 28.6139, lon: 77.2090 },
-    { en: 'Lima', zh: '利马', lat: -12.0464, lon: -77.0428 },
-    { en: 'Paris', zh: '巴黎', lat: 48.8566, lon: 2.3522 },
-    { en: 'Jakarta', zh: '雅加达', lat: -6.2088, lon: 106.8456 },
-    { en: 'Vancouver', zh: '温哥华', lat: 49.2827, lon: -123.1207 },
-    { en: 'Buenos Aires', zh: '布宜诺斯艾利斯', lat: -34.6037, lon: -58.3816 }
+    { en: 'Beijing', lat: 39.9042, lon: 116.4074 },
+    { en: 'Tokyo', lat: 35.6762, lon: 139.6503 },
+    { en: 'Cairo', lat: 30.0444, lon: 31.2357 },
+    { en: 'Nairobi', lat: -1.2921, lon: 36.8219 },
+    { en: 'Sydney', lat: -33.8688, lon: 151.2093 },
+    { en: 'São Paulo', lat: -23.5505, lon: -46.6333 },
+    { en: 'Mexico City', lat: 19.4326, lon: -99.1332 },
+    { en: 'Istanbul', lat: 41.0082, lon: 28.9784 },
+    { en: 'Cape Town', lat: -33.9249, lon: 18.4241 },
+    { en: 'Delhi', lat: 28.6139, lon: 77.2090 },
+    { en: 'Lima', lat: -12.0464, lon: -77.0428 },
+    { en: 'Paris', lat: 48.8566, lon: 2.3522 },
+    { en: 'Jakarta', lat: -6.2088, lon: 106.8456 },
+    { en: 'Vancouver', lat: 49.2827, lon: -123.1207 },
+    { en: 'Buenos Aires', lat: -34.6037, lon: -58.3816 }
   ];
 
   const COUNTRIES = [
-    ['076', 'Brazil', '巴西'], ['124', 'Canada', '加拿大'], ['484', 'Mexico', '墨西哥'], ['032', 'Argentina', '阿根廷'],
-    ['036', 'Australia', '澳大利亚'], ['156', 'China', '中国'], ['356', 'India', '印度'], ['392', 'Japan', '日本'],
-    ['250', 'France', '法国'], ['276', 'Germany', '德国'], ['380', 'Italy', '意大利'], ['724', 'Spain', '西班牙'],
-    ['818', 'Egypt', '埃及'], ['710', 'South Africa', '南非'], ['404', 'Kenya', '肯尼亚'], ['566', 'Nigeria', '尼日利亚'],
-    ['360', 'Indonesia', '印度尼西亚'], ['792', 'Türkiye', '土耳其'], ['764', 'Thailand', '泰国'], ['578', 'Norway', '挪威'],
-    ['752', 'Sweden', '瑞典'], ['682', 'Saudi Arabia', '沙特阿拉伯'], ['364', 'Iran', '伊朗'], ['496', 'Mongolia', '蒙古'],
-    ['152', 'Chile', '智利'], ['604', 'Peru', '秘鲁'], ['170', 'Colombia', '哥伦比亚'], ['862', 'Venezuela', '委内瑞拉'],
-    ['398', 'Kazakhstan', '哈萨克斯坦'], ['554', 'New Zealand', '新西兰']
-  ].map(([id, en, zh]) => ({ id, en, zh }));
+    ['076', 'Brazil'], ['124', 'Canada'], ['484', 'Mexico'], ['032', 'Argentina'],
+    ['036', 'Australia'], ['156', 'China'], ['356', 'India'], ['392', 'Japan'],
+    ['250', 'France'], ['276', 'Germany'], ['380', 'Italy'], ['724', 'Spain'],
+    ['818', 'Egypt'], ['710', 'South Africa'], ['404', 'Kenya'], ['566', 'Nigeria'],
+    ['360', 'Indonesia'], ['792', 'Türkiye'], ['764', 'Thailand'], ['578', 'Norway'],
+    ['752', 'Sweden'], ['682', 'Saudi Arabia'], ['364', 'Iran'], ['496', 'Mongolia'],
+    ['152', 'Chile'], ['604', 'Peru'], ['170', 'Colombia'], ['862', 'Venezuela'],
+    ['398', 'Kazakhstan'], ['554', 'New Zealand']
+  ].map(([id, en]) => ({ id, en }));
 
   const PATH_PAIRS = [
-    [{ id: '620', en: 'Portugal', zh: '葡萄牙' }, { id: '616', en: 'Poland', zh: '波兰' }],
-    [{ id: '724', en: 'Spain', zh: '西班牙' }, { id: '642', en: 'Romania', zh: '罗马尼亚' }],
-    [{ id: '250', en: 'France', zh: '法国' }, { id: '300', en: 'Greece', zh: '希腊' }],
-    [{ id: '276', en: 'Germany', zh: '德国' }, { id: '191', en: 'Croatia', zh: '克罗地亚' }],
-    [{ id: '040', en: 'Austria', zh: '奥地利' }, { id: '528', en: 'Netherlands', zh: '荷兰' }]
+    [{ id: '620', en: 'Portugal' }, { id: '616', en: 'Poland' }],
+    [{ id: '724', en: 'Spain' }, { id: '642', en: 'Romania' }],
+    [{ id: '250', en: 'France' }, { id: '300', en: 'Greece' }],
+    [{ id: '276', en: 'Germany' }, { id: '191', en: 'Croatia' }],
+    [{ id: '040', en: 'Austria' }, { id: '528', en: 'Netherlands' }]
   ];
 
   function loadScript(src, globalName) {
@@ -103,13 +103,11 @@
     return Object.entries(values).reduce((text, [key, value]) => text.replaceAll(`{${key}}`, String(value)), template || '');
   }
 
-  function localName(item, locale) { return locale === 'zh' ? item.zh : item.en; }
+  function localName(item) { return item.en; }
 
-  function compass(bearing, locale) {
-    const labels = locale === 'zh'
-      ? ['北', '东北', '东', '东南', '南', '西南', '西', '西北']
-      : ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-    return `${labels[Math.round(bearing / 45) % 8]} ${String(Math.round(bearing)).padStart(3, '0')}°`;
+  function compass(bearing) {
+    const labels = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    return `${labels[Math.round(bearing / 45) % 8]} ${String(Math.round(bearing)).padStart(3, "0")}°`;
   }
 
   function haversine(lat1, lon1, lat2, lon2) {
@@ -128,7 +126,7 @@
   }
 
   function gameReferences(locale) {
-    const lead = locale === 'zh' ? '玩法参照' : 'Game references';
+    const lead = 'Game references';
     return `<div class="game-references"><span>${lead}</span><a href="https://geogames.io/" target="_blank" rel="noreferrer">GeoGames ↗</a><a href="https://www.geoheroes.com/" target="_blank" rel="noreferrer">GeoHeroes ↗</a></div>`;
   }
 
@@ -141,7 +139,7 @@
       .attr('viewBox', `0 0 ${width} ${height}`)
       .attr('preserveAspectRatio', 'xMidYMid meet')
       .attr('role', 'img')
-      .attr('aria-label', locale === 'zh' ? '可交互世界地图' : 'Interactive world map');
+      .attr('aria-label', 'Interactive world map');
     const sphere = { type: 'Sphere' };
     const projection = d3.geoNaturalEarth1().fitExtent([[22, 22], [width - 22, height - 22]], sphere);
     const path = d3.geoPath(projection);
@@ -159,9 +157,9 @@
     const copy = g[kind] || {};
     stage.innerHTML = `
       <div class="game-layout">
-        <div class="game-map-wrap" id="gameMapWrap"><div class="instrument-loading"><span>⌁</span><strong>${locale === 'zh' ? '正在展图…' : 'Drawing the field…'}</strong></div></div>
+        <div class="game-map-wrap" id="gameMapWrap"><div class="instrument-loading"><span>⌁</span><strong>${'Drawing the field…'}</strong></div></div>
         <aside class="game-panel">
-          <div class="orbit-panel-label">${locale === 'zh' ? '地理推演' : 'SPATIAL EXERCISE'}</div>
+          <div class="orbit-panel-label">${'SPATIAL EXERCISE'}</div>
           <strong>${copy.title || ''}</strong>
           <div class="game-statline"><span id="gameRound">—</span><span>${g.score || 'SCORE'} <b id="gameScore">0</b></span></div>
           <div class="game-prompt" id="gamePrompt">—</div>
@@ -183,7 +181,7 @@
     let world;
     try { dom.map.innerHTML = ''; world = await createWorld(dom.map, signal, locale); }
     catch (error) {
-      if (!signal?.aborted) dom.map.innerHTML = `<div class="instrument-error"><strong>${locale === 'zh' ? '世界底图暂不可达。' : 'World geometry unavailable.'}</strong><p>world-atlas · jsDelivr</p></div>`;
+      if (!signal?.aborted) dom.map.innerHTML = `<div class="instrument-error"><strong>${'World geometry unavailable.'}</strong><p>world-atlas · jsDelivr</p></div>`;
       return () => {};
     }
     if (signal?.aborted) return () => {};
@@ -239,7 +237,7 @@
     let world;
     try { dom.map.innerHTML = ''; world = await createWorld(dom.map, signal, locale); }
     catch (error) {
-      if (!signal?.aborted) dom.map.innerHTML = `<div class="instrument-error"><strong>${locale === 'zh' ? '世界底图暂不可达。' : 'World geometry unavailable.'}</strong><p>world-atlas · jsDelivr</p></div>`;
+      if (!signal?.aborted) dom.map.innerHTML = `<div class="instrument-error"><strong>${'World geometry unavailable.'}</strong><p>world-atlas · jsDelivr</p></div>`;
       return () => {};
     }
     if (signal?.aborted) return () => {};
@@ -302,7 +300,7 @@
     let world;
     try { dom.map.innerHTML = ''; world = await createWorld(dom.map, signal, locale); }
     catch (error) {
-      if (!signal?.aborted) dom.map.innerHTML = `<div class="instrument-error"><strong>${locale === 'zh' ? '世界底图暂不可达。' : 'World geometry unavailable.'}</strong><p>world-atlas · jsDelivr</p></div>`;
+      if (!signal?.aborted) dom.map.innerHTML = `<div class="instrument-error"><strong>${'World geometry unavailable.'}</strong><p>world-atlas · jsDelivr</p></div>`;
       return () => {};
     }
     if (signal?.aborted) return () => {};
@@ -345,7 +343,7 @@
       dom.round.textContent = fmt(dom.g.rounds || 'ROUND {round} / {total}', { round: roundIndex + 1, total: rounds.length });
       dom.score.textContent = String(score);
       dom.prompt.textContent = fmt(dom.copy.prompt || '{start} → {target}', { start: localName(start, locale), target: localName(target, locale) });
-      dom.feedback.textContent = locale === 'zh' ? '越界 · 0' : 'CROSSINGS · 0';
+      dom.feedback.textContent = 'CROSSINGS · 0';
       dom.next.disabled = true;
       dom.next.textContent = roundIndex === rounds.length - 1 ? (dom.g.replay || 'REPLAY') : (dom.g.next || 'NEXT');
       updateMap();
@@ -373,7 +371,7 @@
         dom.feedback.textContent = fmt(dom.copy.done || 'Shortest path: {best} crossings · yours: {steps}.', { best: shortest, steps });
         dom.next.disabled = false;
       } else {
-        dom.feedback.textContent = `${locale === 'zh' ? '越界' : 'CROSSINGS'} · ${route.length - 1}`;
+        dom.feedback.textContent = `${'CROSSINGS'} · ${route.length - 1}`;
       }
     });
 

@@ -7,14 +7,15 @@ This patch implements the P0–P2 program without replacing the existing framewo
 1. HTML carries meaning and primary content.
 2. CSS carries presentation.
 3. JavaScript enhances filtering, visualization, previews, tracking, and other interactions; it is not required to read a Field Note.
-4. Build time carries content assembly, SEO metadata, bilingual routes, discovery files, image metadata/variants, and performance checks.
+4. Build time carries content assembly, SEO metadata, English canonical routes, discovery files, image metadata/variants, and performance checks.
 5. Existing GeoGeek interactions remain owned by the legacy build. The original build and QA are preserved verbatim as `scripts/build.legacy.mjs` and `scripts/qa.legacy.mjs`.
 
 ## P0 — content delivery and first-visit comprehension
 
-- EN and ZH Field Note bodies are prerendered into route HTML.
+- English Field Note bodies are prerendered into route HTML.
 - Existing English routes remain `/field-notes/<slug>/`.
-- Chinese routes are added at `/zh/field-notes/<slug>/`.
+- Legacy `/zh/field-notes/<slug>/` paths are noindex compatibility redirects to the English canonical route; they contain no article content.
+- The site is English-only except for one intentionally preserved standalone Chinese page at `/origin/cn/`. `/origin/` is the English canonical Origin page, and the two Origin pages use static reciprocal hreflang links without any global locale runtime.
 - `archive-content.js` keeps its existing compatibility shape but every `bodyHtml` value is emptied after the legacy QA passes.
 - `/data/field-notes.json` and `/data/site-index.json` contain metadata only.
 - `field-notes.html` receives a complete static list. The old JS target remains hidden for compatibility.
@@ -28,23 +29,20 @@ Every article receives:
 - canonical URL
 - meta description
 - Open Graph and Twitter metadata
-- reciprocal `hreflang` (`en`, `zh-CN`, `x-default`)
 - `BlogPosting` and `BreadcrumbList` JSON-LD
-- a stable language link
 
 The site also generates:
 
 - `/sitemap.xml`
 - `/robots.txt`
 - `/feed.xml`
-- `/zh/feed.xml`
 - metadata-only public indexes
 
 Non-critical legacy scripts (`previews.js`, Commons visit tracking) are converted to idle delivery; previews are omitted from article routes. Existing semantic-scale and visualization code is left intact unless it is already route-specific in the legacy templates.
 
 ## P2 — scale controls
 
-- JSON Feed: `/feed.json` and `/zh/feed.json`.
+- JSON Feed: `/feed.json`.
 - Related-record navigation uses explicit trace/relation metadata when present, with chronological neighbors as a deterministic fallback.
 - Article images get intrinsic `width`/`height`, `loading`, and `decoding` attributes at build time.
 - When ImageMagick (`magick` or `convert`) is available, large raster article figures receive 640w/1280w variants plus `srcset`/`sizes`. The site still builds without ImageMagick; final QA reports the missing optimization as a warning.
@@ -79,14 +77,14 @@ The installer is idempotent: on first run it preserves the current build/QA as t
 
 A production build is considered valid only when:
 
-- every source Field Note has EN and ZH route HTML;
+- every source Field Note has an English canonical route HTML;
 - source body text exists in first-response HTML;
 - metadata indexes do not contain `bodyHtml`;
 - legacy archive payload has no non-empty article bodies;
 - Field Notes collection contains every record without JavaScript;
 - homepage selected work and orientation exist without JavaScript;
-- each article has canonical, description, OG, hreflang, and JSON-LD;
-- sitemap contains EN/ZH article URLs;
+- each article has canonical, description, OG, and English JSON-LD;
+- sitemap contains English canonical article URLs and excludes legacy redirects;
 - RSS and JSON feeds are valid;
 - robots.txt advertises the sitemap;
 - article images reserve intrinsic dimensions;
