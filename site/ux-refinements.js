@@ -29,7 +29,7 @@
     if (!map) return;
     const heading = map.querySelector('h2');
     const headingLabel = 'SITE INDEX';
-    if (heading && /site map|map|站点地图|site index|站点索引/i.test(heading.textContent || '') && heading.textContent !== headingLabel) {
+    if (heading && /site map|map|site index/i.test(heading.textContent || '') && heading.textContent !== headingLabel) {
       heading.textContent = headingLabel;
     }
   };

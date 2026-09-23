@@ -3,7 +3,6 @@ window.GEOGEEK_ARCHIVE = {
     "en": {
       "ui": {
         "localeName": "English",
-        "switchLabel": "中文",
         "skip": "Skip to content",
         "nav": {
           "fieldNotes": "Field Notes",

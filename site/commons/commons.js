@@ -85,7 +85,6 @@
   function relativeTime(iso) {
     const ms = Date.now() - new Date(iso).getTime();
     const h = Math.max(0, Math.round(ms / 3600000));
-    if (locale === 'zh') return h < 24 ? `${h} 小时前` : `${Math.round(h/24)} 天前`;
     return h < 24 ? `${h}h ago` : `${Math.round(h/24)}d ago`;
   }
 

@@ -24,9 +24,7 @@
 
   const typeOrder = { note: 0, lab: 1, place: 2, photo: 3 };
   const typeX = { note: .16, lab: .46, place: .78, photo: .88 };
-  const typeLabel = model.locale === 'zh'
-    ? { note: '地记', lab: '作器', place: '方外', photo: '影像' }
-    : { note: 'NOTE', lab: 'LAB', place: 'ELSEWHERE', photo: 'PHOTO' };
+  const typeLabel = { note: 'NOTE', lab: 'LAB', place: 'ELSEWHERE', photo: 'PHOTO' };
 
   const projectionLabel = {
     field: L.field,

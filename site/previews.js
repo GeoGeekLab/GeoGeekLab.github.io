@@ -26,7 +26,7 @@
         const nx = ((x/r.width)*100).toFixed(0);
         const ny = ((y/r.height)*100).toFixed(0);
         const label = $('span', probe);
-        if (label) label.textContent = locale === 'zh' ? `幅面 X${nx} · Y${ny}` : `SHEET X${nx} · Y${ny}`;
+        if (label) label.textContent = `SHEET X${nx} · Y${ny}`;
       });
     });
   }

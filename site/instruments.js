@@ -239,14 +239,14 @@
         circle.setAttribute('cx', x); circle.setAttribute('cy', y); circle.setAttribute('r', String(Math.max(2, 2 + e.mag * 1.2)));
         circle.setAttribute('fill', `rgba(166,70,36,${(0.28 + alpha * 0.45).toFixed(3)})`);
         circle.setAttribute('stroke', 'rgba(241,239,231,.72)'); circle.setAttribute('stroke-width', '0.7');
-        circle.addEventListener('mouseenter', () => { headline.textContent = locale === 'zh' ? `${formatCoord(e.lat, e.lon)} · M ${e.mag.toFixed(1)}` : `${e.place}`; maxNode.textContent = `M ${e.mag.toFixed(1)}`; latestNode.textContent = `${Math.max(1, Math.round(ageH * 60))} ${'min ago'}`; depthNode.textContent = `${Math.round(e.depth)} km`; });
+        circle.addEventListener('mouseenter', () => { headline.textContent = `${e.place}`; maxNode.textContent = `M ${e.mag.toFixed(1)}`; latestNode.textContent = `${Math.max(1, Math.round(ageH * 60))} ${'min ago'}`; depthNode.textContent = `${Math.round(e.depth)} km`; });
         eventGroup.appendChild(stem); eventGroup.appendChild(circle);
       });
       const mags = events.map(e => e.mag).filter(n => Number.isFinite(n));
       const meanDepth = events.reduce((sum, e) => sum + e.depth, 0) / Math.max(1, events.length);
       maxNode.textContent = `M ${Math.max(...mags).toFixed(1)}`;
       const latest = events.slice().sort((a,b) => b.time - a.time)[0];
-      latestNode.textContent = latest ? (locale === 'zh' ? formatCoord(latest.lat, latest.lon) : latest.place) : '—';
+      latestNode.textContent = latest ? latest.place : '—';
       depthNode.textContent = `${Math.round(meanDepth)} km`;
       return () => { stage.innerHTML = ''; };
     } catch (error) {

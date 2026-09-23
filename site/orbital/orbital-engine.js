@@ -29,19 +29,17 @@ function classify(record) {
   return 'other';
 }
 
-function formatCoordFromXYZ(x, y, z, locale = 'en') {
-  const r = Math.hypot(x, y, z) || 1;
-  const lat = Math.asin(y / r) * 180 / Math.PI;
-  const lon = Math.atan2(-z, x) * 180 / Math.PI;
+function formatCoordFromXYZ(x, y, z) {
+  const radius = Math.sqrt(x*x + y*y + z*z) || 1;
+  const lat = Math.asin(y / radius) * 180 / Math.PI;
+  const lon = Math.atan2(z, x) * 180 / Math.PI;
   return {
     lat,
     lon,
-    altKm: Math.max(0, (r - 1) * R_EARTH_KM),
-    text: locale === 'zh'
-      ? `${lat >= 0 ? '北纬' : '南纬'} ${Math.abs(lat).toFixed(2)}° · ${lon >= 0 ? '东经' : '西经'} ${Math.abs(lon).toFixed(2)}°`
-      : `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'} · ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}`
+    text: `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'} · ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}`
   };
 }
+
 
 function worldPoint(latDeg, lonDeg, radius = 1.002) {
   const lat = latDeg * Math.PI / 180;
@@ -580,7 +578,7 @@ export class GeoOrbitalField {
       const local = this.worldGroup.worldToLocal(earthHits[0].point.clone()).normalize();
       const lat = Math.asin(local.y) * 180 / Math.PI;
       const lon = Math.atan2(-local.z, local.x) * 180 / Math.PI;
-      this.onDatum({ lat, lon, text: this.locale === 'zh' ? `${lat >= 0 ? '北纬' : '南纬'} ${Math.abs(lat).toFixed(2)}° · ${lon >= 0 ? '东经' : '西经'} ${Math.abs(lon).toFixed(2)}°` : `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'} · ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}` });
+      this.onDatum({ lat, lon, text: `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'} · ${Math.abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}` });
     }
   }
 
@@ -635,28 +633,27 @@ export class GeoOrbitalField {
 }
 
 export async function mountOrbitalLab({ container, locale = 'en', signal, labels = {}, statusCallback = null }) {
-  const isZh = false;
-  const kindNames = isZh ? { earth: '对地观测', weather: '气象', navigation: '导航', science: '科学', other: '其他' } : { earth: 'EARTH OBSERVATION', weather: 'WEATHER', navigation: 'NAVIGATION', science: 'SCIENCE', other: 'OTHER' };
+  const kindNames = { earth: 'EARTH OBSERVATION', weather: 'WEATHER', navigation: 'NAVIGATION', science: 'SCIENCE', other: 'OTHER' };
   container.innerHTML = `
     <div class="orbital-lab">
       <div class="orbital-lab-stage" id="orbitalLabStage">
-        <canvas class="orbital-lab-canvas" id="orbitalLabCanvas" aria-label="${isZh ? '实时轨道场' : 'Live orbital field'}"></canvas>
-        <div class="orbital-lab-status" id="orbitalLabStatus">${isZh ? '正在读取星目…' : 'READING CATALOG…'}</div>
+        <canvas class="orbital-lab-canvas" id="orbitalLabCanvas" aria-label="${'Live orbital field'}"></canvas>
+        <div class="orbital-lab-status" id="orbitalLabStatus">${'READING CATALOG…'}</div>
         <div class="orbital-lab-hover" id="orbitalLabHover" hidden></div>
       </div>
       <aside class="orbital-lab-panel">
-        <div class="orbit-panel-label">${isZh ? '所观之星' : 'SELECTED OBJECT'}</div>
-        <strong id="orbitalLabName">${isZh ? '择一星而观' : 'Select an object'}</strong>
+        <div class="orbit-panel-label">${'SELECTED OBJECT'}</div>
+        <strong id="orbitalLabName">${'Select an object'}</strong>
         <dl>
-          <div><dt>${isZh ? '星下点' : 'SUBSATELLITE'}</dt><dd id="orbitalLabPosition">—</dd></div>
-          <div><dt>${isZh ? '离地' : 'ALTITUDE'}</dt><dd id="orbitalLabAltitude">—</dd></div>
-          <div><dt>${labels.inclination || (isZh ? '轨倾' : 'INCLINATION')}</dt><dd id="orbitalLabInclination">—</dd></div>
-          <div><dt>${labels.epoch || (isZh ? '历元' : 'EPOCH')}</dt><dd id="orbitalLabEpoch">—</dd></div>
-          <div><dt>${isZh ? '类别' : 'CLASS'}</dt><dd id="orbitalLabType">—</dd></div>
-          <div><dt>${isZh ? '地面光照' : 'GROUND LIGHT'}</dt><dd id="orbitalLabLight">—</dd></div>
+          <div><dt>${'SUBSATELLITE'}</dt><dd id="orbitalLabPosition">—</dd></div>
+          <div><dt>${'ALTITUDE'}</dt><dd id="orbitalLabAltitude">—</dd></div>
+          <div><dt>${labels.inclination || ('INCLINATION')}</dt><dd id="orbitalLabInclination">—</dd></div>
+          <div><dt>${labels.epoch || ('EPOCH')}</dt><dd id="orbitalLabEpoch">—</dd></div>
+          <div><dt>${'CLASS'}</dt><dd id="orbitalLabType">—</dd></div>
+          <div><dt>${'GROUND LIGHT'}</dt><dd id="orbitalLabLight">—</dd></div>
         </dl>
-        <div class="orbital-trace-legend"><span><i class="trace-orbit"></i>${isZh ? '天之迹' : 'TRACE IN ORBIT'}</span><span><i class="trace-ground"></i>${isZh ? '地之迹' : 'TRACE ON EARTH'}</span></div>
-        <p>${isZh ? '择一星，查看当前位置、天之迹与地之迹。' : 'Select an object to inspect its current position, orbit trace, and ground trace.'}</p>
+        <div class="orbital-trace-legend"><span><i class="trace-orbit"></i>${'TRACE IN ORBIT'}</span><span><i class="trace-ground"></i>${'TRACE ON EARTH'}</span></div>
+        <p>${'Select an object to inspect its current position, orbit trace, and ground trace.'}</p>
       </aside>
     </div>`;
 
@@ -678,7 +675,7 @@ export async function mountOrbitalLab({ container, locale = 'en', signal, labels
     mode: 'lab',
     locale,
     signal,
-    onStatus: state => { status.textContent = state.live ? `${state.count.toLocaleString()} ${isZh ? '个对象 · 活动星目' : 'SATELLITES · ACTIVE CATALOG'}` : `${state.count}${isZh ? ' 个对象 · 示意场' : ' · DEMO FIELD'}`; statusCallback?.(state); },
+    onStatus: state => { status.textContent = state.live ? `${state.count.toLocaleString()} ${'SATELLITES · ACTIVE CATALOG'}` : `${state.count}${' · DEMO FIELD'}`; statusCallback?.(state); },
     onHover: info => {
       if (!info) { hover.hidden = true; return; }
       hover.hidden = false;
@@ -690,16 +687,16 @@ export async function mountOrbitalLab({ container, locale = 'en', signal, labels
       alt.textContent = `${Math.round(info.altKm)} km`;
       const incValue = Number(info.record.INCLINATION);
       const demoInc = Number(info.record.__inclination) * 180 / Math.PI;
-      inclination.textContent = Number.isFinite(incValue) ? `${incValue.toFixed(2)}°` : (Number.isFinite(demoInc) ? `${demoInc.toFixed(2)}° · ${isZh ? '示意' : 'DEMO'}` : '—');
+      inclination.textContent = Number.isFinite(incValue) ? `${incValue.toFixed(2)}°` : (Number.isFinite(demoInc) ? `${demoInc.toFixed(2)}° · ${'DEMO'}` : '—');
       const rawEpoch = info.record.EPOCH;
       if (rawEpoch) {
         const compactEpoch = String(rawEpoch).replace('T', ' ').replace(/(\.\d{3})\d+/, '$1').replace(/Z$/i, '');
         epoch.textContent = `${compactEpoch} UTC`;
       } else {
-        epoch.textContent = info.record.__demo ? (isZh ? '示意' : 'DEMO') : '—';
+        epoch.textContent = info.record.__demo ? ('DEMO') : '—';
       }
       type.textContent = kindNames[info.record.__kind || 'other'] || kindNames.other;
-      light.textContent = info.light === 'daylight' ? (isZh ? '昼' : 'DAYLIGHT') : (isZh ? '夜' : 'NIGHT');
+      light.textContent = info.light === 'daylight' ? ('DAYLIGHT') : ('NIGHT');
     }
   });
   await engine.init();

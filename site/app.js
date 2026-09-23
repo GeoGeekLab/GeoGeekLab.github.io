@@ -83,7 +83,7 @@
         if (label && globalLabels[href]) label.textContent = globalLabels[href];
       });
       setText('.sheet-index-foot', index.classList.contains('home-index') ? ui.sheet?.homeFoot : pageKey === 'record' ? `${ui.scale?.levels?.RECORD || 'RECORD'} · ${ui.scale?.mode || 'RELATIVE'} 1 : 2,500` : pageKey === 'commons' ? ('COMMON FIELD · GEOGRAPHIC') : ui.sheet?.globalFoot, index);
-      index.setAttribute('aria-label', locale === 'zh' ? '图幅索引' : (index.classList.contains('home-index') ? 'Section index' : 'Site index'));
+      index.setAttribute('aria-label', index.classList.contains('home-index') ? 'Section index' : 'Site index');
     }
 
     const scale = $('.scale-ui');

@@ -678,7 +678,7 @@ async function optimizeScripts() {
 
     // Non-critical global work never participates in first paint.
     html=html.replace(/<script\b([^>]*?)\bsrc=(['"])([^'"]*(?:commons\/visit-tracker\.js|previews\.js))\2([^>]*)><\/script>/gi,(m,a,q,src,b)=>{
-      if (/\/(?:zh\/)?field-notes\/[^/]+\/$/.test(route) && /previews\.js$/i.test(src)) return '';
+      if (/\/field-notes\/[^/]+\/$/.test(route) && /previews\.js$/i.test(src)) return '';
       return `<script data-idle-src="${escapeHtml(src)}"></script>`;
     });
 
