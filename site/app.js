@@ -895,8 +895,8 @@
     };
     let activeStage = 'frame';
 
-    const triggers = $('[data-coordinate-trigger]', workbench);
-    const transformButtons = $('[data-transform]', workbench);
+    const triggers = $$('[data-coordinate-trigger]', workbench);
+    const transformButtons = $$('[data-transform]', workbench);
     const readoutKicker = $('#coordinateReadoutKicker');
     const readout = $('#coordinateReadout');
 
@@ -941,7 +941,7 @@
         const direction = (event.key === 'ArrowRight' || event.key === 'ArrowDown') ? 1 : -1;
         const index = stages.indexOf(stage);
         const next = stages[(index + direction + stages.length) % stages.length];
-        const nextTrigger = $('.coordinate-node[data-coordinate-trigger]', workbench).find(node => node.dataset.coordinateTrigger === next)
+        const nextTrigger = $$('.coordinate-node[data-coordinate-trigger]', workbench).find(node => node.dataset.coordinateTrigger === next)
           || triggers.find(node => node.dataset.coordinateTrigger === next);
         renderStage(next);
         nextTrigger?.focus();
