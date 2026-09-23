@@ -1810,3 +1810,6 @@ body.ux-data-saver canvas { image-rendering: auto; }
   body.ux-mobile-v5.ux-page-field-notes main.page-shell > #noteList { order: 3; }
   body.ux-mobile-v5.ux-page-field-notes main.page-shell > .wechat-archive-portal.archive-channel { order: 4; }
 }
+
+/* Current Coordinates final desktop heading constraint */
+@media (min-width:981px){#now .coordinates-head h2{white-space:nowrap!important;max-width:none!important;font-size:clamp(40px,3.55vw,58px)!important}}

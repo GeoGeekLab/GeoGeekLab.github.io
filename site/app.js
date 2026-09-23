@@ -138,8 +138,8 @@
         setText('#orbitalSource', orbital.source, orbitalSection);
       }
 
-      const sectionKeys = ['now', 'notes', 'lab', 'atlas', 'elsewhere'];
-      const sectionIds = ['#now', '#field-notes', '#lab', '#atlas', '#elsewhere'];
+      const sectionKeys = ['notes', 'lab', 'atlas', 'elsewhere'];
+      const sectionIds = ['#field-notes', '#lab', '#atlas', '#elsewhere'];
       sectionIds.forEach((selector, index) => {
         const section = $(selector);
         const copy = ui.home?.[sectionKeys[index]];
@@ -884,7 +884,11 @@
   function initCurrentCoordinates() {
     const workbench = $('.coordinates-workbench');
     const plot = $('#coordinatePlot');
-    if (!workbench || !plot) return;
+    const canvas = $('#coordinateCanvas');
+    if (!workbench || !plot || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
     const stages = ['frame', 'transform', 'trace', 'claim'];
     const readouts = {
@@ -907,156 +911,132 @@
     const readout = $('#coordinateReadout');
     const probeReadout = $('#coordinateProbeReadout');
     const transformMeta = $('#coordinateTransformMeta');
-    const probeOrigin = $('#geoProbeOrigin');
-    const probeMapped = $('#geoProbeMapped');
-    const probeTrace = $('#geoProbeTrace');
-    const probeX = $('#geoProbeX');
-    const probeY = $('#geoProbeY');
 
+    const W = 640, H = 440;
+    const ink = 'rgba(21,32,25,';
+    const soft = 'rgba(84,94,87,';
+    const signal = 'rgba(166,70,36,';
+    const paper = '#f6f4ee';
+    const target = [[205,113],[248,88],[304,79],[364,84],[416,112],[456,151],[475,201],[468,250],[444,293],[402,329],[350,348],[296,351],[248,336],[205,309],[177,269],[162,226],[170,176]];
+    const anchors = [[242,164],[319,170],[408,214],[235,287]];
     let activeStage = 'frame';
+    let previewStage = null;
     let activeTransform = 'scale';
     let probe = { x: 320, y: 220 };
+    let raf = 0;
 
-    const mapProbe = (point, type = activeTransform) => {
-      const { x, y } = point;
-      if (type === 'scale') return { x: 320 + (x - 320) * .80 + 18, y: 220 + (y - 220) * .80 - 10 };
-      if (type === 'project') return { x: x + (y - 220) * -.18 + 4, y: y + (x - 320) * .07 };
+    const pathPolygon = (points, close = true) => {
+      ctx.beginPath();
+      points.forEach(([x,y],i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y));
+      if (close) ctx.closePath();
+    };
+    const mapPoint = (p, type = activeTransform) => {
+      const [x,y] = p;
+      if (type === 'scale') return [320 + (x-320)*.78 + 22, 220 + (y-220)*.78 - 10];
+      if (type === 'project') {
+        const dy = y - 220, dx = x - 320;
+        return [x + dy*.20 + Math.sin((y-60)/330*Math.PI)*9, y + dx*.065];
+      }
       if (type === 'aggregate') {
-        const cell = 72;
-        return {
-          x: 172 + (Math.floor((Math.max(172, Math.min(471, x)) - 172) / cell) + .5) * cell,
-          y: 100 + (Math.floor((Math.max(100, Math.min(387, y)) - 100) / cell) + .5) * cell
-        };
+        const cellX=74, cellY=70, ox=172, oy=98;
+        return [ox+(Math.floor((Math.max(ox,Math.min(492,x))-ox)/cellX)+.5)*cellX, oy+(Math.floor((Math.max(oy,Math.min(378,y))-oy)/cellY)+.5)*cellY];
       }
       if (type === 'classify') {
-        if (y < 190) return { x: 266, y: 151 };
-        if (x > 322) return { x: 402, y: 229 };
-        return { x: 239, y: 274 };
+        if (y < 190) return [270,150];
+        if (x > 322) return [402,235];
+        return [238,278];
       }
-      return point;
+      return [x,y];
     };
+    const mappedTarget = type => target.map(p => mapPoint(p,type));
 
-    const renderProbe = () => {
-      const mapped = mapProbe(probe);
-      const setCircle = (node, p) => {
-        if (!node) return;
-        node.setAttribute('cx', p.x.toFixed(2));
-        node.setAttribute('cy', p.y.toFixed(2));
-      };
-      setCircle(probeOrigin, probe);
-      setCircle(probeMapped, mapped);
-      if (probeTrace) {
-        probeTrace.setAttribute('x1', probe.x.toFixed(2));
-        probeTrace.setAttribute('y1', probe.y.toFixed(2));
-        probeTrace.setAttribute('x2', mapped.x.toFixed(2));
-        probeTrace.setAttribute('y2', mapped.y.toFixed(2));
-      }
-      if (probeX) {
-        probeX.setAttribute('y1', probe.y.toFixed(2));
-        probeX.setAttribute('y2', probe.y.toFixed(2));
-      }
-      if (probeY) {
-        probeY.setAttribute('x1', probe.x.toFixed(2));
-        probeY.setAttribute('x2', probe.x.toFixed(2));
-      }
-
-      const nx = ((probe.x - 72) / 498 * 100);
-      const ny = ((probe.y - 52) / 338 * 100);
-      const mx = ((mapped.x - 72) / 498 * 100);
-      const my = ((mapped.y - 52) / 338 * 100);
-      if (probeReadout) {
-        probeReadout.textContent = activeStage === 'frame'
-          ? `PROBE ${nx.toFixed(1)} / ${ny.toFixed(1)}`
-          : `PROBE ${nx.toFixed(1)} / ${ny.toFixed(1)} → ${mx.toFixed(1)} / ${my.toFixed(1)}`;
-      }
+    const drawGrid = (alpha=.12) => {
+      ctx.save();
+      ctx.strokeStyle=soft+alpha+')';ctx.lineWidth=.8;
+      for(let x=90;x<=550;x+=92){ctx.beginPath();ctx.moveTo(x,46);ctx.lineTo(x,394);ctx.stroke();}
+      for(let y=82;y<=370;y+=72){ctx.beginPath();ctx.moveTo(72,y);ctx.lineTo(570,y);ctx.stroke();}
+      ctx.setLineDash([2,4]);ctx.strokeStyle=soft+(alpha*.9)+')';
+      for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(80,150+i*62);ctx.bezierCurveTo(190,95+i*48,390,105+i*54,560,185+i*50);ctx.stroke();}
+      ctx.restore();
     };
-
-    const renderStage = (stage, commit = true) => {
-      if (!stages.includes(stage)) return;
-      workbench.dataset.coordinateState = stage;
-      if (commit) activeStage = stage;
-
-      triggers.forEach(trigger => {
-        const selected = trigger.dataset.coordinateTrigger === stage;
-        trigger.classList.toggle('is-active', selected);
-        trigger.setAttribute('aria-pressed', selected ? 'true' : 'false');
-      });
-      articles.forEach(article => article.classList.toggle('is-active', article.dataset.coordinate === stage));
-
-      const copy = readouts[stage];
-      if (copy) {
-        if (readoutKicker) readoutKicker.textContent = copy[0];
-        if (readout) readout.textContent = copy[1];
-      }
-      renderProbe();
+    const drawTarget = (points=target, alpha=.55, stroke=ink, fill='rgba(21,32,25,.018)') => {
+      ctx.save();pathPolygon(points);ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke+alpha+')';ctx.lineWidth=1.35;ctx.stroke();ctx.restore();
     };
-
-    const selectTransform = type => {
-      if (!Object.hasOwn(transformLabels, type)) return;
-      activeTransform = type;
-      workbench.dataset.transform = type;
-      transformButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.transform === type ? 'true' : 'false'));
-      if (transformMeta) transformMeta.textContent = transformLabels[type];
-      if (activeStage === 'frame') renderStage('transform');
-      else renderStage(activeStage, false);
-      renderProbe();
+    const drawRidges = (alpha=.25) => {
+      ctx.save();ctx.strokeStyle=ink+alpha+')';ctx.lineWidth=.9;ctx.setLineDash([2,3]);
+      ctx.beginPath();ctx.moveTo(198,244);ctx.bezierCurveTo(247,215,279,181,319,170);ctx.bezierCurveTo(363,158,405,175,447,219);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(214,287);ctx.bezierCurveTo(263,268,302,245,343,243);ctx.bezierCurveTo(383,242,417,257,444,277);ctx.stroke();ctx.restore();
     };
-
-    const commitStage = stage => {
-      renderStage(stage, true);
-      const right = workbench.querySelector(`article[data-coordinate="${stage}"] .coordinate-register-button`);
-      if (right && !right.matches(':focus')) right.setAttribute('data-linked', 'true');
-      window.setTimeout(() => right?.removeAttribute('data-linked'), 320);
+    const drawFrame = () => {
+      drawGrid(.12);drawTarget(target,.50);drawRidges(.26);
+      ctx.save();ctx.strokeStyle=soft+'.32)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+      ctx.beginPath();ctx.moveTo(95,100);ctx.bezierCurveTo(224,20,422,22,552,112);ctx.stroke();
+      ctx.setLineDash([]);ctx.fillStyle=paper;ctx.strokeStyle=signal+'.85)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(322,48,5,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.strokeStyle=signal+'.32)';ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(322,53);ctx.lineTo(229,315);ctx.moveTo(322,53);ctx.lineTo(427,309);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(229,315);ctx.quadraticCurveTo(321,351,427,309);ctx.stroke();ctx.restore();
     };
-
-    triggers.forEach(trigger => {
-      const stage = trigger.dataset.coordinateTrigger;
-      trigger.addEventListener('click', () => commitStage(stage));
-      trigger.addEventListener('mouseenter', () => renderStage(stage, false));
-      trigger.addEventListener('mouseleave', () => renderStage(activeStage, false));
-      trigger.addEventListener('focus', () => renderStage(stage, false));
-      trigger.addEventListener('blur', () => renderStage(activeStage, false));
-      trigger.addEventListener('keydown', event => {
-        if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(event.key)) return;
-        event.preventDefault();
-        const direction = (event.key === 'ArrowRight' || event.key === 'ArrowDown') ? 1 : -1;
-        const index = stages.indexOf(stage);
-        const next = stages[(index + direction + stages.length) % stages.length];
-        const nextTrigger = $$('.coordinate-node[data-coordinate-trigger]', workbench).find(node => node.dataset.coordinateTrigger === next);
-        commitStage(next);
-        nextTrigger?.focus();
-      });
-    });
-
-    transformButtons.forEach(button => button.addEventListener('click', () => selectTransform(button.dataset.transform)));
-
-    const placeProbe = event => {
-      const rect = plot.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width * 640;
-      const y = (event.clientY - rect.top) / rect.height * 440;
-      probe = { x: Math.max(72, Math.min(570, x)), y: Math.max(52, Math.min(390, y)) };
-      renderProbe();
+    const drawScale = (alpha=1) => {
+      const pts=mappedTarget('scale');drawTarget(pts,.75*alpha,signal,'rgba(166,70,36,.028)');
+      ctx.save();pathPolygon(pts);ctx.clip();ctx.strokeStyle=signal+(.28*alpha)+')';ctx.lineWidth=.7;
+      for(let x=170;x<=500;x+=38){ctx.beginPath();ctx.moveTo(x,90);ctx.lineTo(x,365);ctx.stroke();}
+      for(let y=105;y<=355;y+=38){ctx.beginPath();ctx.moveTo(150,y);ctx.lineTo(515,y);ctx.stroke();}ctx.restore();
     };
-    plot.addEventListener('pointerdown', event => {
-      if (event.target.closest?.('button')) return;
-      placeProbe(event);
-    });
-    plot.addEventListener('keydown', event => {
-      const delta = event.shiftKey ? 12 : 5;
-      if (event.key === 'ArrowLeft') probe.x -= delta;
-      else if (event.key === 'ArrowRight') probe.x += delta;
-      else if (event.key === 'ArrowUp') probe.y -= delta;
-      else if (event.key === 'ArrowDown') probe.y += delta;
-      else return;
-      event.preventDefault();
-      probe.x = Math.max(72, Math.min(570, probe.x));
-      probe.y = Math.max(52, Math.min(390, probe.y));
-      renderProbe();
-    });
+    const drawProject = (alpha=1) => {
+      const pts=mappedTarget('project');drawTarget(pts,.78*alpha,signal,'rgba(166,70,36,.025)');
+      ctx.save();ctx.strokeStyle=signal+(.25*alpha)+')';ctx.lineWidth=.75;
+      for(let y=135;y<=310;y+=58){ctx.beginPath();for(let x=130;x<=510;x+=15){const m=mapPoint([x,y],'project');x===130?ctx.moveTo(m[0],m[1]):ctx.lineTo(m[0],m[1]);}ctx.stroke();}
+      for(let x=205;x<=440;x+=78){ctx.beginPath();for(let y=90;y<=350;y+=15){const m=mapPoint([x,y],'project');y===90?ctx.moveTo(m[0],m[1]):ctx.lineTo(m[0],m[1]);}ctx.stroke();}ctx.restore();
+    };
+    const drawAggregate = (alpha=1) => {
+      drawTarget(target,.18,ink,'rgba(21,32,25,.006)');
+      ctx.save();pathPolygon(target);ctx.clip();ctx.lineWidth=.75;const ox=172,oy=98,cw=74,ch=70;
+      for(let r=0;r<4;r++)for(let c=0;c<5;c++){const x=ox+c*cw,y=oy+r*ch;ctx.fillStyle=(r+c)%2?soft+(.022*alpha)+')':signal+(.028*alpha)+')';ctx.strokeStyle=signal+(.24*alpha)+')';ctx.fillRect(x,y,cw,ch);ctx.strokeRect(x,y,cw,ch);}ctx.restore();
+    };
+    const drawClassify = (alpha=1) => {
+      drawTarget(target,.35,signal,'rgba(166,70,36,.012)');
+      ctx.save();pathPolygon(target);ctx.clip();
+      ctx.fillStyle=signal+(.075*alpha)+')';ctx.beginPath();ctx.ellipse(270,145,150,76,-.12,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=soft+(.09*alpha)+')';ctx.beginPath();ctx.ellipse(405,226,132,92,.08,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=ink+(.05*alpha)+')';ctx.beginPath();ctx.ellipse(245,286,128,90,-.08,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=signal+(.34*alpha)+')';ctx.lineWidth=.8;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(185,190);ctx.bezierCurveTo(260,170,350,180,455,165);ctx.stroke();ctx.beginPath();ctx.moveTo(205,255);ctx.bezierCurveTo(290,230,370,250,455,245);ctx.stroke();ctx.restore();
+    };
+    const drawTransform = (alpha=1) => {drawGrid(.055);drawTarget(target,.18);drawRidges(.10);if(activeTransform==='scale')drawScale(alpha);else if(activeTransform==='project')drawProject(alpha);else if(activeTransform==='aggregate')drawAggregate(alpha);else drawClassify(alpha);};
+    const drawProbe = (showMapped=false,strong=false) => {
+      const m=mapPoint([probe.x,probe.y]);ctx.save();ctx.strokeStyle=soft+'.16)';ctx.lineWidth=.75;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(72,probe.y);ctx.lineTo(570,probe.y);ctx.moveTo(probe.x,52);ctx.lineTo(probe.x,390);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle=ink+'.95)';ctx.strokeStyle=paper;ctx.lineWidth=2;ctx.beginPath();ctx.arc(probe.x,probe.y,4.5,0,Math.PI*2);ctx.fill();ctx.stroke();
+      if(showMapped){ctx.strokeStyle=signal+(strong?'.85)':'.55)');ctx.lineWidth=1;ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(probe.x,probe.y);ctx.lineTo(m[0],m[1]);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=signal+'.95)';ctx.strokeStyle=paper;ctx.lineWidth=2;ctx.beginPath();ctx.arc(m[0],m[1],4.5,0,Math.PI*2);ctx.fill();ctx.stroke();}ctx.restore();
+    };
+    const drawTrace = () => {
+      drawTransform(.32);drawProbe(true,true);ctx.save();ctx.lineWidth=.9;
+      anchors.forEach((p,i)=>{const m=mapPoint(p),dist=Math.hypot(m[0]-p[0],m[1]-p[1]);ctx.strokeStyle=dist<16?signal+'.55)':soft+'.45)';ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(m[0],m[1]);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=i===3?paper:signal+'.9)';ctx.strokeStyle=i===3?soft+'.7)':paper;ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(p[0],p[1],3.6,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=signal+'.9)';ctx.beginPath();ctx.arc(m[0],m[1],2.8,0,Math.PI*2);ctx.fill();});ctx.restore();
+    };
+    const drawClaim = () => {
+      drawGrid(.025);drawTarget(target,.10);drawProbe(true,false);const stable=anchors.slice(0,3).map(p=>mapPoint(p));ctx.save();ctx.strokeStyle=signal+'.92)';ctx.lineWidth=1.8;ctx.beginPath();stable.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();stable.forEach(([x,y])=>{ctx.fillStyle=signal+'.95)';ctx.strokeStyle=paper;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x,y,3.8,0,Math.PI*2);ctx.fill();ctx.stroke();});ctx.fillStyle=signal+'.78)';ctx.font='600 8px "IBM Plex Mono", monospace';ctx.fillText('RELATION / RETAINED',360,150);ctx.restore();
+    };
+    const draw = () => {
+      cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const rect=plot.getBoundingClientRect();if(!rect.width||!rect.height)return;const dpr=Math.min(window.devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rect.width,rect.height);ctx.save();ctx.scale(rect.width/W,rect.height/H);const stage=previewStage||activeStage;if(stage==='frame'){drawFrame();drawProbe(false);}else if(stage==='transform'){drawTransform(1);drawProbe(true,true);}else if(stage==='trace')drawTrace();else drawClaim();ctx.restore();});
+    };
+    const resize = () => {const rect=plot.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';draw();};
+    const updateProbeReadout = () => {
+      const m=mapPoint([probe.x,probe.y]);const nx=((probe.x-72)/498*100),ny=((probe.y-52)/338*100),mx=((m[0]-72)/498*100),my=((m[1]-52)/338*100);const stage=previewStage||activeStage;
+      if(probeReadout)probeReadout.textContent=stage==='frame'?'PROBE '+nx.toFixed(1)+' / '+ny.toFixed(1):'PROBE '+nx.toFixed(1)+' / '+ny.toFixed(1)+' → '+mx.toFixed(1)+' / '+my.toFixed(1);
+    };
+    const paintStage = stage => {
+      workbench.dataset.coordinateState=stage;triggers.forEach(t=>{const shown=t.dataset.coordinateTrigger===stage;t.classList.toggle('is-active',shown);t.setAttribute('aria-pressed',t.dataset.coordinateTrigger===activeStage?'true':'false');});articles.forEach(article=>article.classList.toggle('is-active',article.dataset.coordinate===stage));const copy=readouts[stage];if(copy){if(readoutKicker)readoutKicker.textContent=copy[0];if(readout)readout.textContent=copy[1];}updateProbeReadout();draw();
+    };
+    const renderStage = (stage,commit=true) => {if(!stages.includes(stage))return;if(commit){activeStage=stage;previewStage=null;}else previewStage=stage;paintStage(previewStage||activeStage);};
+    const clearPreview = () => {previewStage=null;paintStage(activeStage);};
+    const selectTransform = type => {if(!transformLabels[type])return;activeTransform=type;workbench.dataset.transform=type;transformButtons.forEach(b=>b.setAttribute('aria-pressed',b.dataset.transform===type?'true':'false'));if(transformMeta)transformMeta.textContent=transformLabels[type];renderStage(activeStage==='frame'?'transform':activeStage,true);};
 
-    renderStage('frame');
-    if (transformMeta) transformMeta.textContent = transformLabels.scale;
-    renderProbe();
+    triggers.forEach(trigger=>{const stage=trigger.dataset.coordinateTrigger;trigger.addEventListener('click',()=>renderStage(stage,true));trigger.addEventListener('mouseenter',()=>renderStage(stage,false));trigger.addEventListener('mouseleave',clearPreview);trigger.addEventListener('focus',()=>renderStage(stage,false));trigger.addEventListener('blur',clearPreview);});
+    transformButtons.forEach(button=>button.addEventListener('click',()=>selectTransform(button.dataset.transform)));
+    plot.addEventListener('pointerdown',event=>{if(event.target.closest?.('button'))return;const rect=plot.getBoundingClientRect();probe={x:Math.max(72,Math.min(570,(event.clientX-rect.left)/rect.width*W)),y:Math.max(52,Math.min(390,(event.clientY-rect.top)/rect.height*H))};updateProbeReadout();draw();});
+    plot.addEventListener('keydown',event=>{const d=event.shiftKey?12:5;if(event.key==='ArrowLeft')probe.x-=d;else if(event.key==='ArrowRight')probe.x+=d;else if(event.key==='ArrowUp')probe.y-=d;else if(event.key==='ArrowDown')probe.y+=d;else return;event.preventDefault();probe.x=Math.max(72,Math.min(570,probe.x));probe.y=Math.max(52,Math.min(390,probe.y));updateProbeReadout();draw();});
+
+    new ResizeObserver(resize).observe(plot);
+    if(transformMeta)transformMeta.textContent=transformLabels.scale;
+    renderStage('frame',true);
+    resize();
   }
 
   applyLocale();
