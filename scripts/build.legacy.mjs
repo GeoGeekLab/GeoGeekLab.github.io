@@ -1,12 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceDir = path.join(root, 'site');
 const contentDir = path.join(root, 'content', 'field-notes');
 const templatePath = path.join(root, 'templates', 'field-note.html');
 const dist = path.join(root, 'dist');
+const originAudioUrl = 'https://www.scottbuckley.com.au/library/wp-content/uploads/2022/02/AdriftAmongInfiniteStars.mp3';
+const originAudioPath = path.join(dist, 'assets', 'audio', 'origin-adrift.mp3');
 const previewArchivePath = path.join(sourceDir, 'archive-content.js');
 const previewFigureRoot = path.join(sourceDir, 'assets', 'field-notes');
 
@@ -54,6 +57,36 @@ for (const record of records) {
 // Production artifact.
 fs.rmSync(dist, { recursive: true, force: true });
 copyDir(sourceDir, dist);
+
+// Origin soundtrack: fetch the CC-BY source during deployment, then trim/transcode the
+// narrative window (00:44–06:02) so visitors do not download the full 320 kbps master.
+// The page keeps the official source URL as a runtime fallback if this optional step fails.
+try {
+  const response = await fetch(originAudioUrl, {
+    headers: { 'user-agent': 'GeoGeek-Pages-Build/1.0', accept: 'audio/mpeg,*/*;q=0.8' },
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const source = Buffer.from(await response.arrayBuffer());
+  if (source.length < 500_000) throw new Error(`unexpected audio payload (${source.length} bytes)`);
+  fs.mkdirSync(path.dirname(originAudioPath), { recursive: true });
+  const tempAudio = path.join(dist, 'assets', 'audio', '.origin-adrift-source.mp3');
+  fs.writeFileSync(tempAudio, source);
+  const ffmpeg = spawnSync('ffmpeg', [
+    '-hide_banner','-loglevel','error','-y',
+    '-ss','44','-i',tempAudio,'-t','318',
+    '-codec:a','libmp3lame','-b:a','112k','-ar','44100',
+    originAudioPath,
+  ], { stdio: 'inherit' });
+  if (ffmpeg.error || ffmpeg.status !== 0) {
+    fs.copyFileSync(tempAudio, originAudioPath);
+    console.warn('Origin soundtrack: ffmpeg unavailable; deployed the full source MP3 and will cue the same window at runtime.');
+  } else {
+    console.log('Origin soundtrack: deployed 00:44–06:02 at 112 kbps.');
+  }
+  fs.rmSync(tempAudio, { force: true });
+} catch (error) {
+  console.warn(`Origin soundtrack asset skipped: ${error?.message || error}. Runtime will fall back to the official CC-BY source.`);
+}
 fs.writeFileSync(path.join(dist, 'archive-content.js'), makeArchiveBootstrap({ sourcePreview: false }));
 
 const template = fs.readFileSync(templatePath, 'utf8');
