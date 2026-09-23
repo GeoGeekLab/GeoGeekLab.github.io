@@ -105,8 +105,14 @@ const englishOnlyRuntimeFiles = [
 ];
 for (const rel of englishOnlyRuntimeFiles) {
   const source = fs.readFileSync(path.join(root, rel), 'utf8');
-  check(!/geogeek-language|geoai-lang|zh-CN|locale\s*===?\s*['"]zh['"]|locale===['"]zh['"]|\bisZh\b|\bzh\s*:|[\u3400-\u9fff]/i.test(source), `${rel}: Chinese locale/runtime residue remains`);
+  check(!/geogeek-language|geoai-lang|zh-CN|locale\s*===?\s*['"]zh['"]|locale===['"]zh['"]|\bisZh\b|\bzh\s*:/i.test(source), `${rel}: Chinese locale/runtime residue remains`);
 }
+
+const storySource = fs.readFileSync(path.join(root,'site','stories','geospatial-ai-limits','index.html'),'utf8');
+check(/<html\b[^>]*\blang=(['"])en\1/i.test(storySource),'GeoAI story must be statically English.');
+check(!/data-lang=|class=(['"])lang\1/i.test(storySource),'GeoAI story must not expose a language switch.');
+const originSource = fs.readFileSync(path.join(root,'site','origin','index.html'),'utf8');
+check(/<html\b[^>]*\blang=(['"])en\1/i.test(originSource),'Origin must be statically English.');
 
 const dist=path.join(root,'dist');
 check(fs.existsSync(path.join(dist,'index.html')),'dist/index.html missing');

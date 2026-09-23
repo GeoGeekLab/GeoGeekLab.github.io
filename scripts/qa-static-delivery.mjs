@@ -120,12 +120,29 @@ if(await exists(home)){
   ok(/static-selected-work/i.test(html),'homepage selected work is prerendered');
 }
 
+const originCanonical=path.join(dist,'origin','index.html');
+const originLegacy=path.join(dist,'origin','en','index.html');
+ok(await exists(originCanonical),'Origin English canonical route exists');
+ok(await exists(originLegacy),'Legacy /origin/en/ compatibility route exists');
+if(await exists(originCanonical)){
+  const html=await read(originCanonical);
+  ok(/<html\b[^>]*\blang=(['"])en\1/i.test(html),'Origin canonical is English');
+  ok(html.includes('https://geogeeklab.github.io/origin/'),'Origin canonical metadata points to /origin/');
+}
+if(await exists(originLegacy)){
+  const html=await read(originLegacy);
+  ok(/noindex,follow/i.test(html),'Legacy /origin/en/ is noindex');
+  ok(/canonical[^>]+https:\/\/geogeeklab\.github\.io\/origin\//i.test(html),'Legacy /origin/en/ points to /origin/ canonical');
+  ok(/refresh[^>]+\/origin\//i.test(html),'Legacy /origin/en/ redirects to /origin/');
+}
+
 for(const f of ['sitemap.xml','robots.txt','feed.xml','feed.json','styles.base.css','styles-atlas.css','styles-commons.css']) ok(await exists(path.join(dist,f)),`${f} exists`);
 for(const f of ['zh/feed.xml','zh/feed.json']) ok(!(await exists(path.join(dist,f))),`${f} is not generated`);
 
 if(await exists(path.join(dist,'sitemap.xml'))){
   const sm=await read(path.join(dist,'sitemap.xml'));
   ok(!/hreflang|\/zh\//i.test(sm),'sitemap contains no language alternates or Chinese URLs');
+  ok(!sm.includes(`${SITE}/origin/en/`),'sitemap excludes legacy /origin/en/ redirect');
   for(const item of records) ok(sm.includes(`${SITE}/field-notes/${item.slug}/`),`sitemap includes EN: ${item.slug}`);
 }
 if(await exists(path.join(dist,'feed.json'))){

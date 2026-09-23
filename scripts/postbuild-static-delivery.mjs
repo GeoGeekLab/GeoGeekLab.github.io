@@ -592,6 +592,11 @@ async function patchGenericSeo() {
     let html=await read(file);
     const route=publicPathForFile(file);
     const canonical=`${SITE}${route}`;
+    const legacyRedirect = route === '/origin/en/' || /^\/zh\/field-notes\/[^/]+\/$/.test(route);
+    if (legacyRedirect) {
+      await write(file, html);
+      continue;
+    }
     const isArticle=/\/field-notes\/[^/]+\/$/.test(route);
     if (!isArticle) {
       const title=titleFromHtml(html,route);
@@ -613,7 +618,7 @@ async function writeSitemap(records) {
   for (const file of htmlFiles) {
     if (file.includes(legacyPrefix)) continue;
     const route=publicPathForFile(file);
-    if (/404\.html$/.test(route)) continue;
+    if (route === '/origin/en/' || /404\.html$/.test(route)) continue;
     urls.push({loc:`${SITE}${route}`});
   }
   const byPath=new Map(records.map(item=>[`${SITE}/field-notes/${item.slug}/`,item]));
