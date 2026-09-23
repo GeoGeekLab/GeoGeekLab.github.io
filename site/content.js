@@ -93,7 +93,7 @@ window.GEOGEEK_ARCHIVE = {
           "now": {
             "label": "01 / CURRENT COORDINATES",
             "title": "Every view begins somewhere.",
-            "subtitle": "Field, object, method, and question locate the work for now.",
+            "subtitle": "Change the frame. Trace what changes. Trace what holds. Then make the claim.",
             "cards": [
               {
                 "label": "FIELD",

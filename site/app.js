@@ -893,12 +893,83 @@
       trace: ['TRACE / RESPONSE', 'HOLD · MOVE · DISAPPEAR'],
       claim: ['CLAIM / DOMAIN', 'SAY ONLY WHAT SURVIVES THE TRIP']
     };
-    let activeStage = 'frame';
+    const transformLabels = {
+      scale: 'SCALE / GRAIN + SUPPORT',
+      project: 'PROJECT / GEOMETRY',
+      aggregate: 'AGGREGATE / AREAL SUPPORT',
+      classify: 'CLASSIFY / ONTOLOGY'
+    };
 
     const triggers = $$('[data-coordinate-trigger]', workbench);
     const transformButtons = $$('[data-transform]', workbench);
+    const articles = $$('[data-coordinate]', workbench);
     const readoutKicker = $('#coordinateReadoutKicker');
     const readout = $('#coordinateReadout');
+    const probeReadout = $('#coordinateProbeReadout');
+    const transformMeta = $('#coordinateTransformMeta');
+    const probeOrigin = $('#geoProbeOrigin');
+    const probeMapped = $('#geoProbeMapped');
+    const probeTrace = $('#geoProbeTrace');
+    const probeX = $('#geoProbeX');
+    const probeY = $('#geoProbeY');
+
+    let activeStage = 'frame';
+    let activeTransform = 'scale';
+    let probe = { x: 320, y: 220 };
+
+    const mapProbe = (point, type = activeTransform) => {
+      const { x, y } = point;
+      if (type === 'scale') return { x: 320 + (x - 320) * .80 + 18, y: 220 + (y - 220) * .80 - 10 };
+      if (type === 'project') return { x: x + (y - 220) * -.18 + 4, y: y + (x - 320) * .07 };
+      if (type === 'aggregate') {
+        const cell = 72;
+        return {
+          x: 172 + (Math.floor((Math.max(172, Math.min(471, x)) - 172) / cell) + .5) * cell,
+          y: 100 + (Math.floor((Math.max(100, Math.min(387, y)) - 100) / cell) + .5) * cell
+        };
+      }
+      if (type === 'classify') {
+        if (y < 190) return { x: 266, y: 151 };
+        if (x > 322) return { x: 402, y: 229 };
+        return { x: 239, y: 274 };
+      }
+      return point;
+    };
+
+    const renderProbe = () => {
+      const mapped = mapProbe(probe);
+      const setCircle = (node, p) => {
+        if (!node) return;
+        node.setAttribute('cx', p.x.toFixed(2));
+        node.setAttribute('cy', p.y.toFixed(2));
+      };
+      setCircle(probeOrigin, probe);
+      setCircle(probeMapped, mapped);
+      if (probeTrace) {
+        probeTrace.setAttribute('x1', probe.x.toFixed(2));
+        probeTrace.setAttribute('y1', probe.y.toFixed(2));
+        probeTrace.setAttribute('x2', mapped.x.toFixed(2));
+        probeTrace.setAttribute('y2', mapped.y.toFixed(2));
+      }
+      if (probeX) {
+        probeX.setAttribute('y1', probe.y.toFixed(2));
+        probeX.setAttribute('y2', probe.y.toFixed(2));
+      }
+      if (probeY) {
+        probeY.setAttribute('x1', probe.x.toFixed(2));
+        probeY.setAttribute('x2', probe.x.toFixed(2));
+      }
+
+      const nx = ((probe.x - 72) / 498 * 100);
+      const ny = ((probe.y - 52) / 338 * 100);
+      const mx = ((mapped.x - 72) / 498 * 100);
+      const my = ((mapped.y - 52) / 338 * 100);
+      if (probeReadout) {
+        probeReadout.textContent = activeStage === 'frame'
+          ? `PROBE ${nx.toFixed(1)} / ${ny.toFixed(1)}`
+          : `PROBE ${nx.toFixed(1)} / ${ny.toFixed(1)} → ${mx.toFixed(1)} / ${my.toFixed(1)}`;
+      }
+    };
 
     const renderStage = (stage, commit = true) => {
       if (!stages.includes(stage)) return;
@@ -910,27 +981,37 @@
         trigger.classList.toggle('is-active', selected);
         trigger.setAttribute('aria-pressed', selected ? 'true' : 'false');
       });
+      articles.forEach(article => article.classList.toggle('is-active', article.dataset.coordinate === stage));
 
       const copy = readouts[stage];
       if (copy) {
         if (readoutKicker) readoutKicker.textContent = copy[0];
         if (readout) readout.textContent = copy[1];
       }
+      renderProbe();
     };
 
     const selectTransform = type => {
-      if (!['scale', 'project', 'aggregate', 'classify'].includes(type)) return;
+      if (!Object.hasOwn(transformLabels, type)) return;
+      activeTransform = type;
       workbench.dataset.transform = type;
-      transformButtons.forEach(button => {
-        button.setAttribute('aria-pressed', button.dataset.transform === type ? 'true' : 'false');
-      });
+      transformButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.transform === type ? 'true' : 'false'));
+      if (transformMeta) transformMeta.textContent = transformLabels[type];
       if (activeStage === 'frame') renderStage('transform');
       else renderStage(activeStage, false);
+      renderProbe();
+    };
+
+    const commitStage = stage => {
+      renderStage(stage, true);
+      const right = workbench.querySelector(`article[data-coordinate="${stage}"] .coordinate-register-button`);
+      if (right && !right.matches(':focus')) right.setAttribute('data-linked', 'true');
+      window.setTimeout(() => right?.removeAttribute('data-linked'), 320);
     };
 
     triggers.forEach(trigger => {
       const stage = trigger.dataset.coordinateTrigger;
-      trigger.addEventListener('click', () => renderStage(stage));
+      trigger.addEventListener('click', () => commitStage(stage));
       trigger.addEventListener('mouseenter', () => renderStage(stage, false));
       trigger.addEventListener('mouseleave', () => renderStage(activeStage, false));
       trigger.addEventListener('focus', () => renderStage(stage, false));
@@ -941,31 +1022,41 @@
         const direction = (event.key === 'ArrowRight' || event.key === 'ArrowDown') ? 1 : -1;
         const index = stages.indexOf(stage);
         const next = stages[(index + direction + stages.length) % stages.length];
-        const nextTrigger = $$('.coordinate-node[data-coordinate-trigger]', workbench).find(node => node.dataset.coordinateTrigger === next)
-          || triggers.find(node => node.dataset.coordinateTrigger === next);
-        renderStage(next);
+        const nextTrigger = $$('.coordinate-node[data-coordinate-trigger]', workbench).find(node => node.dataset.coordinateTrigger === next);
+        commitStage(next);
         nextTrigger?.focus();
       });
     });
 
-    transformButtons.forEach(button => {
-      button.addEventListener('click', () => selectTransform(button.dataset.transform));
+    transformButtons.forEach(button => button.addEventListener('click', () => selectTransform(button.dataset.transform)));
+
+    const placeProbe = event => {
+      const rect = plot.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width * 640;
+      const y = (event.clientY - rect.top) / rect.height * 440;
+      probe = { x: Math.max(72, Math.min(570, x)), y: Math.max(52, Math.min(390, y)) };
+      renderProbe();
+    };
+    plot.addEventListener('pointerdown', event => {
+      if (event.target.closest?.('button')) return;
+      placeProbe(event);
+    });
+    plot.addEventListener('keydown', event => {
+      const delta = event.shiftKey ? 12 : 5;
+      if (event.key === 'ArrowLeft') probe.x -= delta;
+      else if (event.key === 'ArrowRight') probe.x += delta;
+      else if (event.key === 'ArrowUp') probe.y -= delta;
+      else if (event.key === 'ArrowDown') probe.y += delta;
+      else return;
+      event.preventDefault();
+      probe.x = Math.max(72, Math.min(570, probe.x));
+      probe.y = Math.max(52, Math.min(390, probe.y));
+      renderProbe();
     });
 
-    const finePointer = matchMedia('(hover:hover) and (pointer:fine)');
-    if (finePointer.matches) {
-      plot.addEventListener('pointermove', event => {
-        const rect = plot.getBoundingClientRect();
-        const x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
-        const y = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100));
-        plot.style.setProperty('--probe-x', x.toFixed(2) + '%');
-        plot.style.setProperty('--probe-y', y.toFixed(2) + '%');
-        plot.classList.add('is-probing');
-      }, { passive: true });
-      plot.addEventListener('pointerleave', () => plot.classList.remove('is-probing'), { passive: true });
-    }
-
     renderStage('frame');
+    if (transformMeta) transformMeta.textContent = transformLabels.scale;
+    renderProbe();
   }
 
   applyLocale();
