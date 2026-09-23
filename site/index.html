@@ -62,58 +62,93 @@
 <div aria-hidden="true" class="map-corners"><i></i><i></i><i></i><i></i></div>
 </section>
 <section class="home-section coordinates-section" data-scale="1 : 100,000" data-scale-level="POSITION" id="now">
-<div class="section-head coordinates-head"><div class="section-label">01 / CURRENT COORDINATES</div><div><h2>Every view begins somewhere.</h2><p>A working position, not a fixed identity: field, object, method, and question locate the work for now.</p></div></div>
-<div class="coordinates-workbench">
-  <div class="coordinates-field contour-target" aria-label="Diagram of the current GeoGeek research position">
-    <div class="coordinates-field-head"><span>WORKING POSITION</span><small>FIELD × OBJECT × METHOD × QUESTION</small></div>
-    <div class="coordinates-plot">
+<div class="section-head coordinates-head">
+  <div class="section-label">01 / CURRENT COORDINATES</div>
+  <div>
+    <h2>Every view begins somewhere.<br>So does every fact.</h2>
+    <p>A working map for how GeoGeek reads the world: position, scale, representation, and what remains.</p>
+  </div>
+</div>
+
+<div class="coordinates-workbench epistemic-workbench">
+  <div class="coordinates-field contour-target" aria-label="GeoGeek epistemic coordinate field">
+    <div class="coordinates-field-head">
+      <span>GEO / EPISTEMIC FIELD</span>
+      <small>POSITION × SCALE × REPRESENTATION × INVARIANT</small>
+    </div>
+
+    <div class="coordinates-plot epistemic-plot">
       <svg class="coordinates-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <line class="coordinate-link coordinate-link-field" x1="52" y1="52" x2="20" y2="26"></line>
-        <line class="coordinate-link coordinate-link-object" x1="52" y1="52" x2="80" y2="25"></line>
-        <line class="coordinate-link coordinate-link-method" x1="52" y1="52" x2="25" y2="79"></line>
+        <line class="coordinate-link coordinate-link-position" x1="52" y1="52" x2="19" y2="24"></line>
+        <line class="coordinate-link coordinate-link-scale" x1="52" y1="52" x2="81" y2="24"></line>
+        <line class="coordinate-link coordinate-link-representation" x1="52" y1="52" x2="22" y2="80"></line>
+        <line class="coordinate-link coordinate-link-invariant" x1="52" y1="52" x2="81" y2="79"></line>
       </svg>
+
       <i class="coordinate-ring coordinate-ring-a" aria-hidden="true"></i>
       <i class="coordinate-ring coordinate-ring-b" aria-hidden="true"></i>
       <i class="coordinate-axis coordinate-axis-x" aria-hidden="true"></i>
       <i class="coordinate-axis coordinate-axis-y" aria-hidden="true"></i>
 
-      <div class="coordinate-node coordinate-node-field"><b>01</b><span>FIELD</span><small>RELATIONAL<br>GEOGRAPHY</small></div>
-      <div class="coordinate-node coordinate-node-object"><b>02</b><span>OBJECT</span><small>EARTH UNDER<br>OBSERVATION</small></div>
-      <div class="coordinate-node coordinate-node-method"><b>03</b><span>METHOD</span><small>GEOGRAPHIC<br>COMPUTATION</small></div>
-      <div class="coordinate-node coordinate-node-question"><b>04</b><span>CURRENT QUESTION</span><strong>VIEWPOINT ↔ LEGIBILITY</strong></div>
+      <div class="coordinate-node coordinate-node-position">
+        <b>01</b><span>POSITION</span><small>NO VIEW<br>FROM NOWHERE</small>
+      </div>
+
+      <div class="coordinate-node coordinate-node-scale">
+        <b>02</b><span>SCALE</span><small>TRUTH HAS<br>RESOLUTION</small>
+      </div>
+
+      <div class="coordinate-node coordinate-node-representation">
+        <b>03</b><span>REPRESENTATION</span><small>THE EARTH IS NOT<br>THE DATASET</small>
+      </div>
+
+      <div class="coordinate-node coordinate-node-invariant">
+        <b>04</b><span>INVARIANT</span><strong>WHAT SURVIVES<br>REPRESENTATION?</strong>
+      </div>
     </div>
+
     <div class="coordinates-field-foot">
-      <span>POSITION IS CONDITIONAL</span>
-      <small>SCALE · PROJECTION · REPRESENTATION · OBSERVER</small>
+      <span>NO FACT WITHOUT COORDINATES</span>
+      <small>PLACE · TIME · SCALE · SENSOR · PROJECTION · MODEL</small>
     </div>
   </div>
 
-  <div class="coordinates-register" aria-label="Current research coordinates">
-    <article tabindex="0" data-coordinate="field">
-      <div class="coordinate-register-meta"><b>01</b><span>FIELD</span></div>
-      <h3>Relational geography.</h3>
-      <p>Space is read through boundary, adjacency, distance, scale, and encounter.</p>
-      <small>BOUNDARY · ADJACENCY · SCALE · ENCOUNTER</small>
+  <div class="coordinates-register epistemic-register" aria-label="GeoGeek epistemic coordinates">
+    <article tabindex="0" data-coordinate="position">
+      <div class="coordinate-register-meta"><b>01</b><span>POSITION</span></div>
+      <h3>Every view begins somewhere.</h3>
+      <p>Observation is always situated: by place, time, instrument, orbit, and point of view.</p>
+      <small>WHERE · WHEN · SENSOR · ORBIT · VIEWPOINT</small>
     </article>
-    <article tabindex="0" data-coordinate="object">
-      <div class="coordinate-register-meta"><b>02</b><span>OBJECT</span></div>
-      <h3>Earth under observation.</h3>
-      <p>Measurements are conditioned by sensor, orbit, atmosphere, place, and time.</p>
-      <small>SENSOR · ORBIT · ATMOSPHERE · PLACE · TIME</small>
+
+    <article tabindex="0" data-coordinate="scale">
+      <div class="coordinate-register-meta"><b>02</b><span>SCALE</span></div>
+      <h3>Truth has resolution.</h3>
+      <p>Change the grain, extent, or support and the object itself can change.</p>
+      <small>GRAIN · EXTENT · SUPPORT · GENERALIZATION</small>
     </article>
-    <article tabindex="0" data-coordinate="method">
-      <div class="coordinate-register-meta"><b>03</b><span>METHOD</span></div>
-      <h3>Geographic computation.</h3>
-      <p>GIS, remote sensing, visualization, and small instruments make assumptions operable.</p>
-      <small>GIS · REMOTE SENSING · VISUALIZATION · INSTRUMENTS</small>
+
+    <article tabindex="0" data-coordinate="representation">
+      <div class="coordinate-register-meta"><b>03</b><span>REPRESENTATION</span></div>
+      <h3>The Earth is not the dataset.</h3>
+      <p>Pixels, vectors, classes, projections, and models make the world computable by leaving something out.</p>
+      <small>PIXEL · VECTOR · CLASS · PROJECTION · MODEL</small>
     </article>
-    <article tabindex="0" data-coordinate="question">
-      <div class="coordinate-register-meta"><b>04</b><span>CURRENT QUESTION</span></div>
-      <h3>What changes when the viewpoint changes?</h3>
-      <p>Scale, projection, representation, and observer alter what becomes legible.</p>
-      <small>SCALE · PROJECTION · REPRESENTATION · OBSERVER</small>
+
+    <article tabindex="0" data-coordinate="invariant">
+      <div class="coordinate-register-meta"><b>04</b><span>INVARIANT</span></div>
+      <h3>What survives representation?</h3>
+      <p>When scale, projection, sensor, or model changes, what still belongs to the geography?</p>
+      <small>CHANGE THE VIEW → TRACE WHAT REMAINS</small>
     </article>
   </div>
+</div>
+
+<div class="coordinates-manifesto" aria-label="GeoGeek working principles">
+  <span>THE WORLD PRECEDES THE MODEL.</span>
+  <span>EVERY MAP MAKES A CLAIM.</span>
+  <span>MAKE STATEMENTS THAT CAN BE WRONG.</span>
+  <span>THE EARTH RESISTS COMPRESSION.</span>
 </div>
 </section>
 <section class="home-commons" id="commons-gateway" data-scale="1 : 25,000" data-scale-level="COLLECTION" aria-label="Commons">
