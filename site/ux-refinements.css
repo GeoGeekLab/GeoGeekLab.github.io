@@ -1814,3 +1814,33 @@ body.ux-data-saver canvas { image-rendering: auto; }
 /* Current Coordinates final desktop heading constraint */
 @media (min-width:981px){#now .coordinates-head h2{white-space:nowrap!important;max-width:none!important;font-size:clamp(40px,3.2vw,54px)!important}}
 @media (min-width:981px) and (max-height:900px){#now .coordinates-head h2{font-size:clamp(36px,3vw,48px)!important}}
+
+/* Minimal Commons portal override */
+
+@media (max-width: 860px) {
+  body.ux-mobile-v5 .home-commons.commons-portal {
+    margin: 0 18px !important;
+    padding: 0 !important;
+  }
+  body.ux-mobile-v5 .commons-portal-link {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 28px !important;
+    min-height: 0 !important;
+    padding: 52px 0 50px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  body.ux-mobile-v5 .commons-portal-copy h2 {
+    max-width: 12ch !important;
+    font-size: clamp(38px,11vw,54px) !important;
+    line-height: .96 !important;
+  }
+  body.ux-mobile-v5 .commons-portal-copy p {
+    max-width: 28ch !important;
+    font-size: clamp(18px,5vw,22px) !important;
+    line-height: 1.35 !important;
+  }
+}
