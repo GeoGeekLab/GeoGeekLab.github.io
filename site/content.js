@@ -190,6 +190,12 @@ window.GEOGEEK_ARCHIVE = {
           "home": {
             "title": "GeoGeek — Geo to see. Geek to build."
           },
+          "coordinates": {
+            "title": "Coordinates — GeoGeek",
+            "eyebrow": "ONTOLOGY / EPISTEMOLOGY / AXIOLOGY / PRAXIS",
+            "heading": "Coordinates",
+            "intro": "To be is to be somewhere. To see is to frame. To value is to choose. To build is to alter the field."
+          },
           "commons": {
             "title": "Commons — GeoGeek",
             "eyebrow": "SITUATION / RELATION / COEXISTENCE",
