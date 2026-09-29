@@ -106,7 +106,7 @@
     $$('[data-time-mode]').forEach(b => b.textContent = ui.time?.modes?.[b.dataset.timeMode] || b.dataset.timeMode.toUpperCase());
     $$('[data-time-ref]').forEach(b => b.textContent = b.dataset.timeRef === 'utc' ? (ui.time?.utc || 'UTC') : (ui.time?.local || 'LOCAL'));
     $('#commonsHourControl label').childNodes[0].textContent = `${ui.time?.hour || 'HOUR'} `;
-    $('#commonsMapStatus').textContent = ui.map?.loading || 'READING COMMON FIELD…';
+    $('#commonsMapStatus').textContent = ui.map?.loading || 'READING RELATIONS…';
     $('#commonsMapSource').textContent = ui.map?.source || '';
     $('.commons-map-legend span:nth-child(1) b').textContent = ui.layers?.visits || 'VISITS';
     $('.commons-map-legend span:nth-child(2) b').textContent = ui.layers?.observations || 'OBSERVATIONS';
@@ -117,13 +117,13 @@
     $('#commonsClearLocation').textContent = ui.actions?.clear || 'CLEAR LOCAL POSITION';
     $('#commonsPrivacyText').textContent = ui.privacy?.body || '';
     const participateHeads = $$('.commons-block-head');
-    if (participateHeads[0]) { $('span',participateHeads[0]).textContent = 'YOU ↔ HOST'; $('h2',participateHeads[0]).textContent = 'Your position stays private until you choose otherwise.'; }
-    if (participateHeads[1]) { $('span',participateHeads[1]).textContent = ui.actions?.observe || 'OBSERVATION'; $('h2',participateHeads[1]).textContent = 'Leave one short observation from where you are.'; }
+    if (participateHeads[0]) { $('span',participateHeads[0]).textContent = 'YOU ↔ HOST'; $('h2',participateHeads[0]).textContent = 'To locate yourself is to enter a relation.'; }
+    if (participateHeads[1]) { $('span',participateHeads[1]).textContent = ui.actions?.observe || 'LEAVE A TRACE'; $('h2',participateHeads[1]).textContent = 'Leave a trace of how the world appears from where you are.'; }
     const form = $('#commonsObservationForm');
     if (form) {
       const labels = $$('label > span',form); if(labels[0]) labels[0].textContent=ui.form?.place||'PLACE'; if(labels[1]) labels[1].textContent=ui.form?.name||'NAME / OPTIONAL'; if(labels[2]) labels[2].textContent=ui.form?.observation||'OBSERVATION';
       $('#observationText').placeholder = ui.form?.placeholder || '';
-      $('#observationSubmit').textContent = ui.actions?.submit || 'CONTRIBUTE';
+      $('#observationSubmit').textContent = ui.actions?.submit || 'ADD TO COMMONS';
       if (!state.user) $('#observationPlace').value = 'Locate first';
     }
     $('.commons-summary')?.setAttribute('aria-label', 'Commons summary');
