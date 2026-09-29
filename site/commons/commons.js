@@ -204,7 +204,8 @@
     if (!inspector) return;
     const selected = state.selected;
     if (!selected) {
-      inspector.innerHTML = `<span class="commons-inspector-kicker">${escapeHTML(ui.relation?.title || 'RELATION')}</span><h2>${escapeHTML(ui.relation?.host || 'WUHAN / HOST')}</h2><p>${escapeHTML(ui.map?.none || '')}</p><small>${escapeHTML(ui.map?.locatedNote || '')}</small>`;
+      const locatedNote = ui.map?.locatedNote ? `<small>${escapeHTML(ui.map.locatedNote)}</small>` : '';
+      inspector.innerHTML = `<span class="commons-inspector-kicker">${escapeHTML(ui.relation?.title || 'RELATION')}</span><h2>${escapeHTML(ui.relation?.host || 'WUHAN / HOST')}</h2><p>${escapeHTML(ui.map?.none || '')}</p>${locatedNote}`;
       return;
     }
     const source = state.user ? { ...state.user, timezone:state.user.timezone } : host;
