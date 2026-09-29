@@ -579,7 +579,7 @@ window.GEOGEEK_ARCHIVE = {
             "you": "YOU",
             "selected": "SELECTED PLACE",
             "none": "No place stands alone; select one to reveal its relations.",
-            "locatedNote": "Public points are coarse traces, never persons or raw GPS."
+            "locatedNote": ""
           },
           "relation": {
             "title": "RELATION",
@@ -606,7 +606,7 @@ window.GEOGEEK_ARCHIVE = {
           },
           "privacy": {
             "title": "POSITION & DISCLOSURE",
-            "body": "Exact position stays on-device; only a coarse place enters Commons, and only by choice.",
+            "body": "Location enters Commons at coarse spatial resolution.",
             "private": "PRIVATE / DEVICE ONLY",
             "public": "PUBLIC / APPROXIMATE"
           },
