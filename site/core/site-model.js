@@ -80,7 +80,7 @@
 
   const pageNodes = [
     { key: 'home', code: '00', href: 'index.html', type: 'origin', x: 10, y: 50, label: labels.spatial.origin },
-    { key: 'position', code: '01', href: 'index.html#now', type: 'position', x: 29, y: 50, label: labels.spatial.coordinates },
+    { key: 'position', code: '01', href: 'coordinates.html', type: 'position', x: 29, y: 50, label: labels.spatial.coordinates },
     { key: 'notes', code: '02', href: 'field-notes.html', type: 'note', x: 53, y: 20, label: labels.spatial.notes },
     { key: 'lab', code: '03', href: 'lab.html', type: 'lab', x: 56, y: 49, label: labels.spatial.lab },
     { key: 'atlas', code: '04', href: 'atlas.html', type: 'atlas', x: 78, y: 34, label: labels.spatial.atlas },
@@ -152,12 +152,13 @@
   function currentContext() {
     const pageFile = location.pathname.split('/').pop() || 'index.html';
     const declaredPage = document.body?.dataset?.pageKey;
-    const pageKey = declaredPage === 'record' ? 'record' : pageFile === 'field-notes.html' ? 'notes' : pageFile === 'lab.html' ? 'lab' : pageFile === 'atlas.html' ? 'atlas' : pageFile === 'elsewhere.html' ? 'elsewhere' : pageFile === 'commons.html' ? 'commons' : pageFile === 'record.html' ? 'record' : 'home';
+    const pageKey = declaredPage === 'coordinates' ? 'coordinates' : declaredPage === 'record' ? 'record' : pageFile === 'coordinates.html' ? 'coordinates' : pageFile === 'field-notes.html' ? 'notes' : pageFile === 'lab.html' ? 'lab' : pageFile === 'atlas.html' ? 'atlas' : pageFile === 'elsewhere.html' ? 'elsewhere' : pageFile === 'commons.html' ? 'commons' : pageFile === 'record.html' ? 'record' : 'home';
     if (pageKey === 'record') {
       const ref = document.body?.dataset?.recordRef || new URLSearchParams(location.search).get('ref');
       const record = recordIndex.get(ref);
       return { pageKey, collection: record?.kind || null, ref: record?.ref || null, level: 'RECORD' };
     }
+    if (pageKey === 'coordinates') return { pageKey, collection: null, ref: null, level: 'POSITION' };
     if (pageKey === 'commons') return { pageKey, collection: null, ref: null, level: 'COLLECTION' };
     if (pageKey === 'notes' || pageKey === 'lab' || pageKey === 'elsewhere' || pageKey === 'atlas') return { pageKey, collection: pageKey, ref: null, level: 'COLLECTION' };
     const section = document.body?.dataset?.currentSection || (location.hash === '#now' ? 'now' : 'origin');
