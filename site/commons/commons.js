@@ -118,8 +118,8 @@
     $('#commonsClearLocation').textContent = ui.actions?.clear || 'CLEAR LOCAL POSITION';
     $('#commonsPrivacyText').textContent = ui.privacy?.body || '';
     const participateHeads = $$('.commons-block-head');
-    if (participateHeads[0]) { $('span',participateHeads[0]).textContent = 'YOU ↔ HOST'; $('h2',participateHeads[0]).textContent = 'To locate yourself is to enter relation.'; }
-    if (participateHeads[1]) { $('span',participateHeads[1]).textContent = ui.actions?.observe || 'LEAVE A TRACE'; $('h2',participateHeads[1]).textContent = 'Leave a trace of how the world appears from here.'; }
+    if (participateHeads[0]) { $('span',participateHeads[0]).textContent = 'YOU ↔ HOST'; $('h2',participateHeads[0]).textContent = 'To locate is to enter relation.'; }
+    if (participateHeads[1]) { $('span',participateHeads[1]).textContent = ui.actions?.observe || 'LEAVE A TRACE'; $('h2',participateHeads[1]).textContent = 'To observe is to leave a trace.'; }
     const form = $('#commonsObservationForm');
     if (form) {
       const labels = $$('label > span',form); if(labels[0]) labels[0].textContent=ui.form?.place||'PLACE'; if(labels[1]) labels[1].textContent=ui.form?.name||'NAME / OPTIONAL'; if(labels[2]) labels[2].textContent=ui.form?.observation||'OBSERVATION';
