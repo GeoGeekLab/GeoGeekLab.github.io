@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
 <title>GeoGeek — Geo to see. Geek to build.</title>
-<link href="styles.css?v=20260929i" rel="stylesheet"/>
+<link href="styles.css?v=20260930a" rel="stylesheet"/>
 <link href="/ux-refinements.css?v=20260929e" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
 </head>
@@ -19,7 +19,6 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-nav">
 <a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
-<button aria-controls="siteMap" aria-expanded="false" class="nav-toggle" id="navToggle">Index</button>
 <nav aria-label="Primary" class="nav-links" id="primaryNav">
 <a href="field-notes.html">Field Notes</a>
 <a href="lab.html">Lab</a>
@@ -27,15 +26,6 @@
 <a href="elsewhere.html">Elsewhere</a>
 </nav>
 </header>
-<aside aria-label="Section index" class="sheet-index home-index" id="sheetIndex">
-<div class="sheet-index-title">SHEET INDEX</div>
-<a data-sheet-link="origin" href="#origin"><span>00</span><b>Origin</b></a>
-<a data-sheet-link="field-notes" href="#field-notes"><span>01</span><b>Field Notes</b></a>
-<a data-sheet-link="lab" href="#lab"><span>02</span><b>Lab</b></a>
-<a data-sheet-link="atlas" href="#atlas"><span>03</span><b>Atlas</b></a>
-<a data-sheet-link="elsewhere" href="#elsewhere"><span>04</span><b>Elsewhere</b></a>
-<div class="sheet-index-foot">SITE INDEX</div>
-</aside>
 <div aria-label="Scale of view" class="scale-ui" tabindex="0">
 <span>INFORMATION SCALE</span>
 <strong id="scaleText">1 : 250,000</strong>
@@ -140,32 +130,93 @@
   </div>
 </div>
 
-<div class="coordinates-commons" aria-label="Commons">
-  <div class="coordinates-commons-label">
-    <span>COMMONS / SHARED FIELD</span>
-  </div>
-  <div class="coordinates-commons-copy">
-    <strong>You are somewhere too.</strong>
-    <p class="commons-gateway-copy">To be somewhere is already to be among others.</p>
-  </div>
-  <a class="coordinates-commons-enter" id="homeCommonsEnter" href="/commons.html">ENTER COMMONS ↗</a>
-</div>
 </section>
-<section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="field-notes">
-<div class="section-head"><div class="section-label">02 / FIELD NOTES</div><div><h2>Thought kept with its conditions.</h2><p>Before a claim hardens, keep its place, scale, source, and uncertainty.</p></div></div>
-<div class="preview-list" id="latestNotes"></div>
-</section>
-<section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="lab">
-<div class="section-head"><div class="section-label">03 / LAB</div><div><h2>Build the conditions of seeing.</h2><p>Tools should make their scale, assumptions, and limits visible.</p></div></div>
-<div class="project-grid home-project-grid" id="homeProjects"></div>
-</section>
-<section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="atlas">
-<div class="section-head"><div class="section-label">04 / ATLAS</div><div><h2>One archive, several orders.</h2><p>Field, time, type, topic, trace, and geography preserve different relations.</p></div></div>
-<a class="atlas-preview contour-target" data-local-level="COLLECTION" data-local-scale="1 : 25,000" href="atlas.html" id="homeAtlas"><span class="atlas-caption">ATLAS · REPROJECT THE ARCHIVE ↗</span></a>
-</section>
-<section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="elsewhere">
-<div class="section-head"><div class="section-label">05 / ELSEWHERE</div><div><h2>Not everything that orients can be measured.</h2><p>A life exceeds its coordinates without leaving geography.</p></div></div>
-<div class="elsewhere-strip" id="lifePreview"></div>
+
+<section class="home-section home-commons-full commons-page" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="commons">
+  <section class="page-title commons-home-title">
+    <div>
+      <div class="eyebrow">SITUATION / RELATION / COEXISTENCE</div>
+      <h1>Commons</h1>
+    </div>
+    <p class="page-intro">No position is solitary. To be somewhere is to share a world.</p>
+  </section>
+
+  <section class="commons-summary" aria-label="Commons summary">
+    <div class="commons-status-line">
+      <span class="instrument-status" data-state="demo" id="commonsStatus">SIMULATED FIELD</span>
+      <p id="commonsDefinition">VISITS register presence · OBSERVATIONS leave traces · NOW marks co-presence · RELATIONS emerge between positions.</p>
+    </div>
+    <div class="commons-metrics" id="commonsMetrics">
+      <article><span>VISITS</span><strong id="metricVisits">—</strong></article>
+      <article><span>LOCATED VISITS</span><strong id="metricLocated">—</strong></article>
+      <article><span>PLACES</span><strong id="metricPlaces">—</strong></article>
+      <article><span>OBSERVATIONS</span><strong id="metricObservations">—</strong></article>
+      <article><span>ACTIVE NOW</span><strong id="metricActive">—</strong></article>
+    </div>
+  </section>
+
+  <section class="commons-workspace">
+    <header class="commons-toolbar">
+      <div class="commons-layer-controls" aria-label="Map layers">
+        <button class="is-active" data-commons-layer="visits" aria-pressed="true">VISITS</button>
+        <button class="is-active" data-commons-layer="observations" aria-pressed="true">OBSERVATIONS</button>
+        <button class="is-active" data-commons-layer="now" aria-pressed="true">NOW</button>
+        <button class="is-active" data-commons-layer="relations" aria-pressed="true">RELATIONS</button>
+      </div>
+      <div class="commons-time-controls">
+        <span>TIME</span>
+        <div class="commons-horizon" aria-label="Time range"><button data-horizon="24h">24H</button><button data-horizon="7d">7D</button><button class="is-active" data-horizon="30d">30D</button><button data-horizon="all">ALL</button></div>
+      </div>
+    </header>
+
+    <div class="commons-map-layout">
+      <div class="commons-map-stack">
+        <div class="commons-map-frame">
+          <div class="commons-map-status" id="commonsMapStatus">READING RELATIONS…</div>
+          <svg id="commonsMap" role="img" aria-label="World map of anonymous visitor places" viewBox="0 0 1200 680" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="commons-map-legend" aria-label="Map legend"><span><i class="visit-dot"></i><b>VISIT</b></span><span><i class="observation-dot"></i><b>OBSERVATION</b></span><span><i class="now-dot"></i><b>NOW</b></span><span><i class="host-dot"></i><b>HOST</b></span></div>
+          <div class="commons-map-source" id="commonsMapSource">Natural Earth / world-atlas · anonymous coarse locations</div>
+        </div>
+        <div class="commons-temporal-panel">
+          <div class="commons-time-modes" aria-label="Temporal representation"><button class="is-active" data-time-mode="accumulated">ACCUMULATED</button><button data-time-mode="hourly">HOURLY</button><button data-time-mode="daynight">DAY / NIGHT</button></div>
+          <div class="commons-hour-control" id="commonsHourControl" hidden><label for="commonsHour">HOUR <output id="commonsHourOutput">12 UTC</output></label><input id="commonsHour" type="range" min="0" max="23" step="1" value="12"/></div>
+          <div class="commons-time-reference"><button class="is-active" data-time-ref="utc">UTC</button><button data-time-ref="local">LOCAL</button></div>
+        </div>
+      </div>
+
+      <div class="commons-side-stack">
+        <aside class="commons-inspector" id="commonsInspector" aria-live="polite">
+          <span class="commons-inspector-kicker">RELATION</span>
+          <h2>WUHAN / HOST</h2>
+          <p>No place stands alone; select one to reveal its relations.</p>
+        </aside>
+
+        <section class="commons-participate" id="commonsParticipate">
+          <div class="commons-you">
+            <div class="commons-block-head"><span>YOU ↔ HOST</span><h2>To locate is to enter relation.</h2></div>
+            <div class="commons-relation-readout" id="youHostReadout">
+              <div><span>HOST</span><strong>Wuhan, China</strong><small>30.59° N · 114.30° E</small></div>
+              <div><span>YOU</span><strong>NOT LOCATED</strong><small>DEVICE ONLY</small></div>
+              <div><span>DISTANCE</span><strong>—</strong><small>GREAT-CIRCLE</small></div>
+              <div><span>INITIAL BEARING</span><strong>—</strong><small>FROM YOU TO HOST</small></div>
+            </div>
+            <div class="commons-actions"><button class="primary" id="commonsLocate" type="button">LOCATE ME</button><button id="commonsLight" type="button" disabled>LIGHT THIS PLACE</button><button id="commonsClearLocation" type="button" hidden>CLEAR LOCAL POSITION</button></div>
+            <p class="commons-privacy-note" id="commonsPrivacyText">Exact position stays on-device; only a coarse place enters Commons, and only by choice.</p>
+          </div>
+
+          <div class="commons-observe">
+            <div class="commons-block-head"><span>TRACE</span><h2>To observe is to leave a trace.</h2></div>
+            <form id="commonsObservationForm">
+              <label><span>PLACE</span><input id="observationPlace" type="text" readonly value="Locate first"/></label>
+              <label><span>NAME / OPTIONAL</span><input id="observationName" type="text" maxlength="32" autocomplete="nickname"/></label>
+              <label><span>OBSERVATION</span><textarea id="observationText" maxlength="180" rows="3" placeholder="What appears from here?"></textarea><small id="observationCount">0 / 180</small></label>
+              <div class="commons-form-foot"><button id="observationSubmit" type="submit" disabled>ADD TO COMMONS</button><span id="observationFeedback" role="status"></span></div>
+            </form>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
 </section>
 </main>
 <footer class="footer">
@@ -175,10 +226,15 @@
 <script src="content.js?v=20260929e"></script>
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
-<script src="app.js?v=20260929-sheet-index-revert"></script>
+<script src="app.js?v=20260930a"></script>
 <script src="core/modules.js"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="previews.js"></script>
+<script src="commons/config.js"></script>
+<script src="commons/geo.js"></script>
+<script src="commons/demo-data.js?v=20260929g"></script>
+<script src="commons/commons-data.js?v=20260929g"></script>
+<script src="commons/commons.js?v=20260929g"></script>
 <script src="/ux-refinements.js?v=20260923d"></script>
 </body>
 </html>
