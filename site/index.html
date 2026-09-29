@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
 <title>GeoGeek — Geo to see. Geek to build.</title>
-<link href="styles.css?v=20260923d" rel="stylesheet"/>
+<link href="styles.css?v=20260929a" rel="stylesheet"/>
 <link href="/ux-refinements.css?v=20260923d" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
 </head>
@@ -65,82 +65,83 @@
 <div class="section-head coordinates-head">
   <div class="section-label">01 / CURRENT COORDINATES</div>
   <div>
-    <h2>Every view begins somewhere.</h2>
-    <p>Change the frame. Trace what changes. Trace what holds. Then make the claim.</p>
+    <h2>The world is not a backdrop.</h2>
+    <p>GEO TO SEE. GEEK TO BUILD.</p>
   </div>
 </div>
 
-<div class="coordinates-workbench frame-test" data-coordinate-state="frame" data-transform="scale">
-  <div class="coordinates-field" aria-label="Interactive GeoGeek frame test">
+<div class="coordinates-workbench philosophy-field" data-coordinate-state="being">
+  <div class="coordinates-field">
     <div class="coordinates-field-head">
-      <span>GEO / FRAME TEST</span>
-      <small>FRAME → TRANSFORM → TRACE → CLAIM</small>
+      <span>GEO / PHILOSOPHICAL FIELD</span>
+      <small>BEING → SEEING → VALUING → MAKING → BEING</small>
     </div>
 
-    <div class="coordinates-plot" id="coordinatePlot" tabindex="0" aria-label="Interactive geographic frame test. Click or tap to place an observation probe; use the transformation controls to change its representation.">
+    <div class="coordinates-plot" id="coordinatePlot" tabindex="0" aria-label="Interactive GeoGeek philosophical field. Choose Being, Seeing, Valuing, or Making. In Making, drag the marked node to alter the field.">
       <canvas class="coordinate-canvas" id="coordinateCanvas" aria-hidden="true"></canvas>
-      <div class="coordinate-node-set" aria-label="Frame test stages">
-        <button class="coordinate-node coordinate-node-frame is-active" type="button" data-coordinate-trigger="frame" aria-pressed="true"><b>01</b><span>FRAME</span></button>
-        <button class="coordinate-node coordinate-node-transform" type="button" data-coordinate-trigger="transform" aria-pressed="false"><b>02</b><span>TRANSFORM</span></button>
-        <button class="coordinate-node coordinate-node-trace" type="button" data-coordinate-trigger="trace" aria-pressed="false"><b>03</b><span>TRACE</span></button>
-        <button class="coordinate-node coordinate-node-claim" type="button" data-coordinate-trigger="claim" aria-pressed="false"><b>04</b><span>CLAIM</span></button>
+
+      <div class="coordinate-node-set" aria-label="Philosophical coordinates">
+        <button class="coordinate-node coordinate-node-being is-active" type="button" data-coordinate-trigger="being" aria-pressed="true">
+          <b>01</b><span>BEING</span><em>ONTOLOGY</em>
+        </button>
+        <button class="coordinate-node coordinate-node-seeing" type="button" data-coordinate-trigger="seeing" aria-pressed="false">
+          <b>02</b><span>SEEING</span><em>EPISTEMOLOGY</em>
+        </button>
+        <button class="coordinate-node coordinate-node-valuing" type="button" data-coordinate-trigger="valuing" aria-pressed="false">
+          <b>03</b><span>VALUING</span><em>AXIOLOGY</em>
+        </button>
+        <button class="coordinate-node coordinate-node-making" type="button" data-coordinate-trigger="making" aria-pressed="false">
+          <b>04</b><span>MAKING</span><em>PRAXIS</em>
+        </button>
       </div>
+
       <div class="coordinate-readout" aria-live="polite">
-        <span id="coordinateReadoutKicker">FRAME / OBSERVATION</span>
-        <strong id="coordinateReadout">PLACE · TIME · SENSOR · GEOMETRY · SUPPORT</strong>
-        <small id="coordinateProbeReadout">PROBE 50.0 / 50.0</small>
-      </div>
-      <div class="coordinate-map-key" aria-hidden="true">
-        <span><i class="key-origin"></i>ORIGIN</span>
-        <span><i class="key-mapped"></i>MAPPED</span>
+        <span id="coordinateReadoutKicker">BEING / ONTOLOGY</span>
+        <strong id="coordinateReadout">WHAT IS HERE — AND HOW IS IT RELATED?</strong>
+        <small id="coordinateProbeReadout">SPACE · PLACE · RELATION · SCALE</small>
       </div>
     </div>
 
     <div class="coordinates-field-foot">
-      <span>CHANGE THE MAP</span>
-      <div class="coordinate-transform-controls" aria-label="Choose a transformation">
-        <button type="button" data-transform="scale" aria-pressed="true">SCALE</button>
-        <button type="button" data-transform="project" aria-pressed="false">PROJECT</button>
-        <button type="button" data-transform="aggregate" aria-pressed="false">AGGREGATE</button>
-        <button type="button" data-transform="classify" aria-pressed="false">CLASSIFY</button>
-      </div>
+      <span id="coordinateFieldStatus">FIELD / RELATIONAL</span>
+      <button id="coordinateReset" class="coordinate-reset" type="button" hidden>RESET FIELD</button>
     </div>
   </div>
 
-  <div class="coordinates-register" aria-label="GeoGeek working sequence">
-    <article data-coordinate="frame" class="is-active">
-      <button class="coordinate-register-button" type="button" data-coordinate-trigger="frame" aria-pressed="true">
-        <div class="coordinate-register-meta"><b>01</b><span>FRAME</span></div>
-        <h3>Under what conditions was this seen?</h3>
-        <p>Locate the observation before reading the result: place, time, sensor, geometry, and support.</p>
-        <small>PLACE · TIME · SENSOR · GEOMETRY · SUPPORT</small>
+  <div class="coordinates-register" aria-label="GeoGeek philosophical sequence">
+    <article data-coordinate="being" class="is-active">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="being" aria-pressed="true">
+        <div class="coordinate-register-meta"><b>01</b><span>BEING</span><em>ONTOLOGY</em></div>
+        <h3>What is here — and how is it related?</h3>
+        <p>Space is relation, not backdrop.</p>
+        <small>SPACE · PLACE · RELATION · SCALE</small>
       </button>
     </article>
 
-    <article data-coordinate="transform">
-      <button class="coordinate-register-button" type="button" data-coordinate-trigger="transform" aria-pressed="false">
-        <div class="coordinate-register-meta"><b>02</b><span>TRANSFORM</span></div>
-        <h3>Change the map.</h3>
-        <p>Rescale, reproject, aggregate, classify, or swap the model. Watch what moves with the representation.</p>
-        <small id="coordinateTransformMeta">SCALE · PROJECTION · AGGREGATION · CLASSIFICATION · MODEL</small>
+    <article data-coordinate="seeing">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="seeing" aria-pressed="false">
+        <div class="coordinate-register-meta"><b>02</b><span>SEEING</span><em>EPISTEMOLOGY</em></div>
+        <h3>How do we know what we see?</h3>
+        <p>Every map frames the world.</p>
+        <small>MAP · DATA · MODEL · UNCERTAINTY</small>
       </button>
     </article>
 
-    <article data-coordinate="trace">
-      <button class="coordinate-register-button" type="button" data-coordinate-trigger="trace" aria-pressed="false">
-        <div class="coordinate-register-meta"><b>03</b><span>TRACE</span></div>
-        <h3>What holds? What moves? What disappears?</h3>
-        <p>Follow the relations across relevant transformations instead of assuming they should stay fixed.</p>
-        <small>HOLD · MOVE · DISAPPEAR · EXPLAIN</small>
+    <article data-coordinate="valuing">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="valuing" aria-pressed="false">
+        <div class="coordinate-register-meta"><b>03</b><span>VALUING</span><em>AXIOLOGY</em></div>
+        <h3>What matters — and to whom?</h3>
+        <p>Every spatial choice assigns significance.</p>
+        <small>VALUE · ACCESS · CONSEQUENCE · RESPONSIBILITY</small>
       </button>
     </article>
 
-    <article data-coordinate="claim">
-      <button class="coordinate-register-button" type="button" data-coordinate-trigger="claim" aria-pressed="false">
-        <div class="coordinate-register-meta"><b>04</b><span>CLAIM</span></div>
-        <h3>Say only what survives the trip.</h3>
-        <p>State the pattern with the frame, domain, and uncertainty that still carry it.</p>
-        <small>FRAME · DOMAIN · UNCERTAINTY</small>
+    <article data-coordinate="making">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="making" aria-pressed="false">
+        <div class="coordinate-register-meta"><b>04</b><span>MAKING</span><em>PRAXIS</em></div>
+        <h3>What do we change — and what changes with it?</h3>
+        <p>Tools enter the world they describe.</p>
+        <small>CODE · TOOL · SYSTEM · INTERVENTION</small>
       </button>
     </article>
   </div>
@@ -148,7 +149,7 @@
 
 <div class="coordinates-question">
   <span>CURRENT QUESTION</span>
-  <strong>Change the map. Is it still there?</strong>
+  <strong>What world does your build help produce?</strong>
 </div>
 </section>
 <section class="home-commons" id="commons-gateway" data-scale="1 : 25,000" data-scale-level="COLLECTION" aria-label="Commons">
@@ -213,7 +214,7 @@
 <script src="content.js?v=20260923d"></script>
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
-<script src="app.js?v=20260923d"></script>
+<script src="app.js?v=20260929a"></script>
 <script src="core/modules.js"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="previews.js"></script>
