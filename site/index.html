@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
 <title>GeoGeek — Geo to see. Geek to build.</title>
-<link href="styles.css?v=20260929h" rel="stylesheet"/>
+<link href="styles.css?v=20260929g" rel="stylesheet"/>
 <link href="/ux-refinements.css?v=20260929e" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
 </head>
@@ -62,61 +62,95 @@
 <div class="hero-edge hero-edge-right">SCROLL / CHANGE SCALE ↓</div>
 <div aria-hidden="true" class="map-corners"><i></i><i></i><i></i><i></i></div>
 </section>
-<section class="home-section coordinates-section current-profile-section" data-scale="1 : 100,000" data-scale-level="POSITION" id="now">
-  <div class="section-head current-profile-head">
-    <div class="section-label">01 / CURRENT COORDINATES</div>
-    <div>
-      <h2>A geek who builds in public and learns out loud.</h2>
-      <p>A boy who dances at dawn and tears up at dusk.</p>
-    </div>
-  </div>
+<section class="home-section coordinates-section" data-scale="1 : 100,000" data-scale-level="POSITION" id="now">
+<div class="section-head coordinates-head">
+  <div class="section-label">01 / CURRENT COORDINATES</div>
+  <div class="coordinates-head-empty" aria-hidden="true"></div>
+</div>
 
-  <div class="current-profile-grid" aria-label="Current profile">
-    <article class="current-profile-row current-profile-building">
-      <span>BUILDING</span>
-      <div class="current-profile-projects">
-        <a href="https://github.com/GeoGeekLab/geodebug" target="_blank" rel="noreferrer">GeoDebug ↗</a>
-        <a href="https://github.com/GeoGeekLab/stac-scout" target="_blank" rel="noreferrer">STAC Scout ↗</a>
-        <a href="https://github.com/GeoGeekLab/nature-reviewer-skills" target="_blank" rel="noreferrer">Nature Reviewer Skills ↗</a>
-        <a href="https://github.com/GeoGeekLab/engineering-quality" target="_blank" rel="noreferrer">engineering-quality ↗</a>
-        <a href="https://github.com/GeoGeekLab/awesome-tech-feeds" target="_blank" rel="noreferrer">awesome-tech-feeds ↗</a>
+<div class="coordinates-workbench philosophy-field" data-coordinate-state="being">
+  <div class="coordinates-field">
+    <div class="coordinates-field-head">
+      <span>GEO / FIELD OF RELATIONS</span>
+      <small>BEING → SEEING → VALUING → MAKING → BEING</small>
+    </div>
+
+    <div class="coordinates-plot" id="coordinatePlot" tabindex="0" aria-label="Interactive GeoGeek philosophical field. Choose Being, Seeing, Valuing, or Making. In Making, drag the marked node to alter the field.">
+      <canvas class="coordinate-canvas" id="coordinateCanvas" aria-hidden="true"></canvas>
+
+      <div class="coordinate-node-set" aria-label="Philosophical coordinates">
+        <button class="coordinate-node coordinate-node-being is-active" type="button" data-coordinate-trigger="being" aria-pressed="true">
+          <b>01</b><span>BEING</span><em>ONTOLOGY</em>
+        </button>
+        <button class="coordinate-node coordinate-node-seeing" type="button" data-coordinate-trigger="seeing" aria-pressed="false">
+          <b>02</b><span>SEEING</span><em>EPISTEMOLOGY</em>
+        </button>
+        <button class="coordinate-node coordinate-node-valuing" type="button" data-coordinate-trigger="valuing" aria-pressed="false">
+          <b>03</b><span>VALUING</span><em>AXIOLOGY</em>
+        </button>
+        <button class="coordinate-node coordinate-node-making" type="button" data-coordinate-trigger="making" aria-pressed="false">
+          <b>04</b><span>MAKING</span><em>PRAXIS</em>
+        </button>
       </div>
-    </article>
 
-    <article class="current-profile-row">
-      <span>OUTSIDE THE LAB</span>
-      <p>Lifting · Photography · Cooking</p>
-    </article>
-
-    <article class="current-profile-row">
-      <span>ALWAYS</span>
-      <p>Philosophy · Psychology · Rock · Hiking</p>
-    </article>
-
-    <article class="current-profile-row current-profile-creed">
-      <span>CREED</span>
-      <div>
-        <strong>Pursuit · Love · Way</strong>
-        <p>At the summit, the crowd. At dusk, devotion remains. · Freedom walks. Love kneels. · Be water, my friend.</p>
+      <div class="coordinate-readout" aria-live="polite">
+        <span id="coordinateReadoutKicker">BEING / ONTOLOGY</span>
+        <strong id="coordinateReadout">TO BE IS TO BE SOMEWHERE.</strong>
+        <small id="coordinateProbeReadout">SITUATION · RELATION · BECOMING</small>
       </div>
+    </div>
+
+    <div class="coordinates-field-foot">
+      <span id="coordinateFieldStatus">FIELD / RELATIONAL</span>
+      <button id="coordinateReset" class="coordinate-reset" type="button" hidden>RESET FIELD</button>
+    </div>
+  </div>
+
+  <div class="coordinates-register" aria-label="GeoGeek philosophical sequence">
+    <article data-coordinate="being" class="is-active">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="being" aria-pressed="true">
+        <div class="coordinate-register-meta"><b>01</b><span>BEING</span><em>ONTOLOGY</em></div>
+        <h3>To be is to be somewhere.</h3>
+        <small>SITUATION · RELATION · BECOMING</small>
+      </button>
+    </article>
+
+    <article data-coordinate="seeing">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="seeing" aria-pressed="false">
+        <div class="coordinate-register-meta"><b>02</b><span>SEEING</span><em>EPISTEMOLOGY</em></div>
+        <h3>To see is to frame.</h3>
+        <small>APPEARANCE · FRAME · LIMIT</small>
+      </button>
+    </article>
+
+    <article data-coordinate="valuing">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="valuing" aria-pressed="false">
+        <div class="coordinate-register-meta"><b>03</b><span>VALUING</span><em>AXIOLOGY</em></div>
+        <h3>To value is to choose.</h3>
+        <small>JUDGMENT · CHOICE · RESPONSIBILITY</small>
+      </button>
+    </article>
+
+    <article data-coordinate="making">
+      <button class="coordinate-register-button" type="button" data-coordinate-trigger="making" aria-pressed="false">
+        <div class="coordinate-register-meta"><b>04</b><span>MAKING</span><em>PRAXIS</em></div>
+        <h3>To build is to alter the field.</h3>
+        <small>ACTION · POSSIBILITY · CONSEQUENCE</small>
+      </button>
     </article>
   </div>
+</div>
 
-  <div class="current-profile-links">
-    <a href="/coordinates.html">WORLDVIEW / COORDINATES ↗</a>
-    <a href="https://github.com/GeoGeekLab/GeoGeekLab" target="_blank" rel="noreferrer">FULL PROFILE / GITHUB ↗</a>
+<div class="coordinates-commons" aria-label="Commons">
+  <div class="coordinates-commons-label">
+    <span>COMMONS / SHARED FIELD</span>
   </div>
-
-  <div class="coordinates-commons" id="commons-gateway" aria-label="Commons">
-    <div class="coordinates-commons-label">
-      <span>COMMONS / SHARED FIELD</span>
-    </div>
-    <div class="coordinates-commons-copy">
-      <strong>You are somewhere too.</strong>
-      <p class="commons-gateway-copy">To be somewhere is already to be among others.</p>
-    </div>
-    <a class="coordinates-commons-enter" id="homeCommonsEnter" href="/commons.html">ENTER COMMONS ↗</a>
+  <div class="coordinates-commons-copy">
+    <strong>You are somewhere too.</strong>
+    <p class="commons-gateway-copy">To be somewhere is already to be among others.</p>
   </div>
+  <a class="coordinates-commons-enter" id="homeCommonsEnter" href="/commons.html">ENTER COMMONS ↗</a>
+</div>
 </section>
 <section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="field-notes">
 <div class="section-head"><div class="section-label">02 / FIELD NOTES</div><div><h2>Thought kept with its conditions.</h2><p>Before a claim hardens, keep its place, scale, source, and uncertainty.</p></div></div>
@@ -139,10 +173,10 @@
 <div class="footer-brand">GeoGeek</div>
 <div class="footer-meta"><span>© 2026 GeoGeek</span><a href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank">GitHub ↗</a></div>
 </footer>
-<script src="content.js?v=20260929h"></script>
+<script src="content.js?v=20260929e"></script>
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
-<script src="app.js?v=20260929h"></script>
+<script src="app.js?v=20260929c"></script>
 <script src="core/modules.js"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="previews.js"></script>
