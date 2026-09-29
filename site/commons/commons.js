@@ -93,10 +93,13 @@
     if (!$('#commonsMap')) return;
     const page = window.GEOGEEK_DATA?.[locale]?.ui?.pages?.commons;
     if (page) {
-      $('.page-title .eyebrow').textContent = page.eyebrow;
-      $('.page-title h1').textContent = page.heading;
-      $('.page-title .page-intro').textContent = page.intro;
-      document.title = page.title;
+      const title = $('.page-title');
+      if (title) {
+        $('.eyebrow', title).textContent = page.eyebrow;
+        $('h1', title).textContent = page.heading;
+        $('.page-intro', title).textContent = page.intro;
+      }
+      if (document.body?.dataset?.pageKey === 'commons') document.title = page.title;
     }
     $('#commonsDefinition').textContent = ui.definitions || '';
     const metricKeys = ['visits','located','places','observations','active'];
