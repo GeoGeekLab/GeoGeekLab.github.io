@@ -118,11 +118,16 @@
 
     const places = [...placeMap.values()];
     for (const place of places) place.observations = observationCounts.get(place.id) || 0;
+    const locatedVisits = places.reduce((sum, place) => sum + Number(place.visits || 0), 0);
+    const unlocatedVisits = Array.isArray(snapshot.unlocatedEvents)
+      ? snapshot.unlocatedEvents.length
+      : Math.max(0, Number(snapshot.totalVisits || 0) - Number(snapshot.locatedVisits || 0));
     return {
       ...snapshot,
       places,
       observations,
-      locatedVisits: places.reduce((sum, place) => sum + Number(place.visits || 0), 0)
+      locatedVisits,
+      totalVisits: locatedVisits + unlocatedVisits
     };
   }
 
