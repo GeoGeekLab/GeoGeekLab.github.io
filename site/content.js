@@ -194,7 +194,7 @@ window.GEOGEEK_ARCHIVE = {
             "title": "Commons — GeoGeek",
             "eyebrow": "SITUATION / RELATION / COEXISTENCE",
             "heading": "Commons",
-            "intro": "No position is solitary. To be somewhere is to enter a world held in common."
+            "intro": "No position is solitary. To be somewhere is to share a world."
           }
         },
         "filters": {
@@ -573,13 +573,13 @@ window.GEOGEEK_ARCHIVE = {
           "map": {
             "loading": "READING RELATIONS…",
             "unavailable": "World geometry unavailable.",
-            "demo": "SIMULATED FIELD · 100–200 SYNTHETIC VISITS / DAY",
+            "demo": "SIMULATED FIELD · FIXED 5,280 VISITS",
             "source": "Natural Earth / world-atlas · anonymous coarse locations",
             "host": "HOST",
             "you": "YOU",
             "selected": "SELECTED PLACE",
-            "none": "No place stands alone. Select one to read its relations.",
-            "locatedNote": "Public points are approximate traces, not persons or raw GPS coordinates."
+            "none": "No place stands alone; select one to reveal its relations.",
+            "locatedNote": "Public points are coarse traces, never persons or raw GPS."
           },
           "relation": {
             "title": "RELATION",
@@ -606,7 +606,7 @@ window.GEOGEEK_ARCHIVE = {
           },
           "privacy": {
             "title": "POSITION & DISCLOSURE",
-            "body": "Your precise position remains on this device. Only an approximate place enters the Commons, and only when you choose.",
+            "body": "Exact position stays on-device; only a coarse place enters Commons, and only by choice.",
             "private": "PRIVATE / DEVICE ONLY",
             "public": "PUBLIC / APPROXIMATE"
           },
@@ -614,7 +614,7 @@ window.GEOGEEK_ARCHIVE = {
             "place": "PLACE",
             "name": "NAME / OPTIONAL",
             "observation": "OBSERVATION",
-            "placeholder": "What appears from where you are?",
+            "placeholder": "What appears from here?",
             "limit": "180 characters",
             "success": "Observation received.",
             "pending": "Observation submitted for moderation.",
@@ -630,7 +630,7 @@ window.GEOGEEK_ARCHIVE = {
             "open": "READ OBSERVATIONS"
           },
           "empty": "No records in this time window.",
-          "definitions": "VISITS mark presence · OBSERVATIONS leave traces · NOW is presence in time · RELATIONS begin between positions."
+          "definitions": "VISITS register presence · OBSERVATIONS leave traces · NOW marks co-presence · RELATIONS emerge between positions."
         }
       }
     }
