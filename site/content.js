@@ -194,7 +194,7 @@ window.GEOGEEK_ARCHIVE = {
             "title": "Commons — GeoGeek",
             "eyebrow": "SITUATION / RELATION / COEXISTENCE",
             "heading": "Commons",
-            "intro": "No position is solitary. To be somewhere is already to enter a world held in common."
+            "intro": "No position is solitary. To be somewhere is to enter a world held in common."
           }
         },
         "filters": {
@@ -537,7 +537,7 @@ window.GEOGEEK_ARCHIVE = {
         },
         "commons": {
           "title": "Commons",
-          "statusDemo": "DEMO FIELD",
+          "statusDemo": "SIMULATED FIELD",
           "statusLive": "LIVE COMMONS",
           "statusError": "UNAVAILABLE",
           "metrics": {
@@ -573,7 +573,7 @@ window.GEOGEEK_ARCHIVE = {
           "map": {
             "loading": "READING RELATIONS…",
             "unavailable": "World geometry unavailable.",
-            "demo": "A provisional field. These relations are illustrative until the Commons is live.",
+            "demo": "SIMULATED FIELD · 100–200 SYNTHETIC VISITS / DAY",
             "source": "Natural Earth / world-atlas · anonymous coarse locations",
             "host": "HOST",
             "you": "YOU",
@@ -630,7 +630,7 @@ window.GEOGEEK_ARCHIVE = {
             "open": "READ OBSERVATIONS"
           },
           "empty": "No records in this time window.",
-          "definitions": "No presence is without relation; no relation is without a field. Counts and coordinates are traces, never the whole."
+          "definitions": "VISITS mark presence · OBSERVATIONS leave traces · NOW is presence in time · RELATIONS begin between positions."
         }
       }
     }
