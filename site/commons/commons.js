@@ -92,14 +92,14 @@
   function applyCommonsLocale() {
     if (!$('#commonsMap')) return;
     const page = window.GEOGEEK_DATA?.[locale]?.ui?.pages?.commons;
-    if (page) {
+    if (page && document.body?.dataset?.pageKey === 'commons') {
       const title = $('.page-title');
       if (title) {
         $('.eyebrow', title).textContent = page.eyebrow;
         $('h1', title).textContent = page.heading;
         $('.page-intro', title).textContent = page.intro;
       }
-      if (document.body?.dataset?.pageKey === 'commons') document.title = page.title;
+      document.title = page.title;
     }
     $('#commonsDefinition').textContent = ui.definitions || '';
     const metricKeys = ['visits','located','places','observations','active'];
