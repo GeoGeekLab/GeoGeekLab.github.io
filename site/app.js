@@ -11,7 +11,7 @@
   const ui = data.ui || {};
   const pageFile = location.pathname.split('/').pop() || 'index.html';
   const declaredPage = document.body?.dataset?.pageKey;
-  const pageKey = declaredPage === 'record' ? 'record' : pageFile === 'field-notes.html' ? 'notes' : pageFile === 'lab.html' ? 'lab' : pageFile === 'atlas.html' ? 'atlas' : pageFile === 'elsewhere.html' ? 'elsewhere' : pageFile === 'commons.html' ? 'commons' : pageFile === 'record.html' ? 'record' : 'home';
+  const pageKey = declaredPage === 'coordinates' ? 'coordinates' : declaredPage === 'record' ? 'record' : pageFile === 'coordinates.html' ? 'coordinates' : pageFile === 'field-notes.html' ? 'notes' : pageFile === 'lab.html' ? 'lab' : pageFile === 'atlas.html' ? 'atlas' : pageFile === 'elsewhere.html' ? 'elsewhere' : pageFile === 'commons.html' ? 'commons' : pageFile === 'record.html' ? 'record' : 'home';
 
   function setText(selector, value, root = document) {
     const node = $(selector, root);
@@ -41,7 +41,8 @@
 
     const entries = [
       ['index.html', '00', 'Origin', 'origin'],
-      ['index.html#now', '01', 'Coordinates', 'now'],
+      ['coordinates.html', '01', 'Coordinates', 'coordinates'],
+      ['/commons.html', '01A', 'Commons', 'commons-gateway'],
       ['field-notes.html', '02', 'Field Notes', 'field-notes'],
       ['lab.html', '03', 'Lab', 'lab'],
       ['atlas.html', '04', 'Atlas', 'atlas'],
@@ -56,6 +57,8 @@
       link.innerHTML = `<span>${number}</span><b>${label}</b>`;
 
       const current =
+        (pageKey === 'coordinates' && key === 'coordinates') ||
+        (pageKey === 'commons' && key === 'commons-gateway') ||
         (pageKey === 'notes' && key === 'field-notes') ||
         (pageKey === 'lab' && key === 'lab') ||
         (pageKey === 'atlas' && key === 'atlas') ||
@@ -104,6 +107,8 @@
       });
       const globalLabels = {
         'index.html': ui.sheet?.origin,
+        'coordinates.html': ui.sheet?.coordinates,
+        '/coordinates.html': ui.sheet?.coordinates,
         'commons.html': ui.sheet?.commons,
         '/commons.html': ui.sheet?.commons,
         'field-notes.html': ui.sheet?.fieldNotes,
@@ -116,7 +121,7 @@
         const href = link.getAttribute('href');
         if (label && globalLabels[href]) label.textContent = globalLabels[href];
       });
-      setText('.sheet-index-foot', index.classList.contains('home-index') ? ui.sheet?.homeFoot : pageKey === 'record' ? `${ui.scale?.levels?.RECORD || 'RECORD'} · ${ui.scale?.mode || 'RELATIVE'} 1 : 2,500` : pageKey === 'commons' ? ('COMMON FIELD · GEOGRAPHIC') : ui.sheet?.globalFoot, index);
+      setText('.sheet-index-foot', index.classList.contains('home-index') ? ui.sheet?.homeFoot : pageKey === 'record' ? `${ui.scale?.levels?.RECORD || 'RECORD'} · ${ui.scale?.mode || 'RELATIVE'} 1 : 2,500` : pageKey === 'coordinates' ? ('POSITION · PHILOSOPHICAL') : pageKey === 'commons' ? ('COMMON FIELD · GEOGRAPHIC') : ui.sheet?.globalFoot, index);
       index.setAttribute('aria-label', index.classList.contains('home-index') ? 'Section index' : 'Site index');
     }
 
