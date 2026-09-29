@@ -194,7 +194,7 @@ window.GEOGEEK_ARCHIVE = {
             "title": "Commons — GeoGeek",
             "eyebrow": "SITUATION / RELATION / COEXISTENCE",
             "heading": "Commons",
-            "intro": "To be somewhere is already to be among others. Commons makes coexistence legible without pretending to exhaust it."
+            "intro": "No position is solitary. To be somewhere is already to enter a world held in common."
           }
         },
         "filters": {
@@ -630,7 +630,7 @@ window.GEOGEEK_ARCHIVE = {
             "open": "READ OBSERVATIONS"
           },
           "empty": "No records in this time window.",
-          "definitions": "Presence becomes meaningful through relation. Counts and coordinates are traces of that relation, not the people themselves."
+          "definitions": "No presence is without relation; no relation is without a field. Counts and coordinates are traces, never the whole."
         }
       }
     }
