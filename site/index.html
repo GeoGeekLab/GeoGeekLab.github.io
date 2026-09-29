@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
 <title>GeoGeek — Geo to see. Geek to build.</title>
-<link href="styles.css?v=20260929c" rel="stylesheet"/>
+<link href="styles.css?v=20260929d" rel="stylesheet"/>
 <link href="/ux-refinements.css?v=20260929b" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
 </head>
@@ -147,43 +147,15 @@
   <strong>Where does the world end — and our making of it begin?</strong>
 </div>
 </section>
-<section class="home-commons" id="commons-gateway" data-scale="1 : 25,000" data-scale-level="COLLECTION" aria-label="Commons">
-  <header class="home-commons-head">
-    <div class="home-commons-title">
+<section class="home-commons commons-portal" id="commons-gateway" data-scale="1 : 25,000" data-scale-level="COLLECTION" aria-label="Commons">
+  <a class="commons-portal-link" href="/commons.html" aria-label="Enter Commons">
+    <div class="commons-portal-copy">
       <span class="commons-gateway-kicker">COMMONS / SHARED FIELD</span>
       <h2>You are somewhere too.</h2>
-      <p class="commons-gateway-copy">Locate yourself relative to Wuhan, or read the anonymous field left by other visitors.</p>
+      <p>To be somewhere is already to be among others.</p>
     </div>
-    <div class="commons-gateway-actions">
-      <a class="commons-gateway-locate" id="homeCommonsLocate" href="/commons.html#commonsParticipate">LOCATE</a>
-      <a class="commons-gateway-enter" id="homeCommonsEnter" href="/commons.html">ENTER COMMONS ↗</a>
-    </div>
-  </header>
-  <div class="home-commons-metrics" aria-label="Commons visit summary">
-    <div><span id="homeCommonsVisitsLabel">VISITS</span><strong id="homeCommonsVisits">—</strong></div>
-    <div><span id="homeCommonsPlacesLabel">PLACES</span><strong id="homeCommonsPlaces">—</strong></div>
-    <div><span id="homeCommonsObservationsLabel">OBSERVATIONS</span><strong id="homeCommonsObservations">—</strong></div>
-    <div><span id="homeCommonsActiveLabel">ACTIVE NOW</span><strong id="homeCommonsActive">—</strong></div>
-  </div>
-  <div class="home-commons-toolbar">
-    <div>
-      <span class="home-commons-field-label">VISITS / SPACE × TIME</span>
-      <small id="homeCommonsMode">ANONYMOUS · COARSE LOCATION</small>
-    </div>
-    <div class="home-commons-horizon" aria-label="Commons time range">
-      <button type="button" data-home-commons-horizon="24h" aria-pressed="false">24H</button>
-      <button type="button" data-home-commons-horizon="7d" aria-pressed="false">7D</button>
-      <button type="button" class="is-active" data-home-commons-horizon="30d" aria-pressed="true">30D</button>
-      <button type="button" data-home-commons-horizon="all" aria-pressed="false">ALL</button>
-    </div>
-  </div>
-  <div class="home-commons-map-mount" id="homeCommonsMapMount">
-    <div class="commons-preview-loading">READING COMMON FIELD…</div>
-  </div>
-  <footer class="home-commons-foot">
-    <small class="commons-gateway-privacy">Location is private until you choose to light an approximate place.</small>
-    <span>◎ WUHAN / HOST</span>
-  </footer>
+    <span class="commons-portal-enter" id="homeCommonsEnter">ENTER COMMONS ↗</span>
+  </a>
 </section>
 <section class="home-section" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="field-notes">
 <div class="section-head"><div class="section-label">02 / FIELD NOTES</div><div><h2>Thought kept with its conditions.</h2><p>Before a claim hardens, keep its place, scale, source, and uncertainty.</p></div></div>
