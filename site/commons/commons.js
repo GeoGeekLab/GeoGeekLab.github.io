@@ -118,8 +118,8 @@
     $('#commonsClearLocation').textContent = ui.actions?.clear || 'CLEAR LOCAL POSITION';
     $('#commonsPrivacyText').textContent = ui.privacy?.body || '';
     const participateHeads = $$('.commons-block-head');
-    if (participateHeads[0]) { $('span',participateHeads[0]).textContent = 'YOU ↔ HOST'; $('h2',participateHeads[0]).textContent = 'To locate yourself is to enter a relation.'; }
-    if (participateHeads[1]) { $('span',participateHeads[1]).textContent = ui.actions?.observe || 'LEAVE A TRACE'; $('h2',participateHeads[1]).textContent = 'Leave a trace of how the world appears from where you are.'; }
+    if (participateHeads[0]) { $('span',participateHeads[0]).textContent = 'YOU ↔ HOST'; $('h2',participateHeads[0]).textContent = 'To locate yourself is to enter relation.'; }
+    if (participateHeads[1]) { $('span',participateHeads[1]).textContent = ui.actions?.observe || 'LEAVE A TRACE'; $('h2',participateHeads[1]).textContent = 'Leave a trace of how the world appears from here.'; }
     const form = $('#commonsObservationForm');
     if (form) {
       const labels = $$('label > span',form); if(labels[0]) labels[0].textContent=ui.form?.place||'PLACE'; if(labels[1]) labels[1].textContent=ui.form?.name||'NAME / OPTIONAL'; if(labels[2]) labels[2].textContent=ui.form?.observation||'OBSERVATION';
@@ -289,7 +289,7 @@
       svg.append('path').datum({type:'LineString',coordinates:[[source.lon,source.lat],[state.selected.lon,state.selected.lat]]}).attr('class','commons-relation-line').attr('d',path);
       const p=projection([state.selected.lon,state.selected.lat]); if(p) svg.append('circle').attr('class','commons-selected-ring').attr('cx',p[0]).attr('cy',p[1]).attr('r',18);
     }
-    $('#commonsMapStatus').textContent = state.snapshot?.mode === 'demo' ? (ui.map?.demo || 'Demo field') : '';
+    $('#commonsMapStatus').textContent = state.snapshot?.mode === 'demo' ? (ui.map?.demo || 'SIMULATED FIELD · FIXED 5,280 VISITS') : '';
     $('#commonsMapStatus').classList.toggle('is-demo', state.snapshot?.mode === 'demo');
   }
 
