@@ -130,7 +130,7 @@
     if (config?.mode === 'demo') {
       const mode = $('#homeCommonsMode');
       if (mode && !/demo/i.test(mode.textContent || '')) mode.textContent = `DEMO · ${mode.textContent}`;
-      const gateway = $('#commons-gateway .commons-gateway-kicker');
+      const gateway = $('#homeCommonsMapMount') ? $('#commons-gateway .commons-gateway-kicker') : null;
       if (gateway && !/demo/i.test(gateway.textContent || '')) gateway.textContent = `DEMO / ${gateway.textContent}`;
     }
 
