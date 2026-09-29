@@ -145,7 +145,7 @@ body.origin-active .scale-ui:hover, body.origin-active .scale-ui:focus-within { 
 .hero-edge-left { left: var(--pad); }
 .hero-edge-right { right: var(--pad); }
 .hero-edge-center { left: 50%; transform: translateX(-50%); text-decoration: none; display: inline-flex; align-items: center; gap: 7px; }
-.hero-edge-center .github-mark { width: 14px; height: 14px; flex: 0 0 auto; }
+.hero-edge-center .github-mark { width: 9.33px; height: 9.33px; flex: 0 0 auto; }
 .hero-edge-center:hover, .hero-edge-center:focus-visible { color: var(--signal); }
 .map-corners { position: absolute; z-index: 1; inset: 92px calc(var(--pad) - 7px) 48px; pointer-events: none; }
 .map-corners i { position: absolute; width: 18px; height: 18px; opacity: .34; }
