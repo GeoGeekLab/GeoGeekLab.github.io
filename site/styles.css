@@ -2147,3 +2147,43 @@ body[data-page-key="commons"] .scale-ui { top: 84px; }
 @media(prefers-reduced-motion:reduce) {
   .coordinates-commons-enter { transition:none; }
 }
+
+/* Commons desktop line discipline */
+
+.coordinates-head-empty { min-height: 0; }
+
+@media (min-width: 1280px) {
+  .commons-page .page-title {
+    grid-template-columns: minmax(390px,.78fr) minmax(620px,1.22fr);
+    gap: 48px;
+  }
+  .commons-page .page-title .page-intro {
+    max-width: none;
+    margin: 0;
+    white-space: nowrap;
+    font-size: clamp(16px,1.12vw,19px);
+    line-height: 1.35;
+  }
+  .commons-page .commons-status-line p {
+    flex: 1 1 auto;
+    max-width: none;
+    white-space: nowrap;
+    font-size: 10.5px;
+    line-height: 1.25;
+  }
+  .commons-page .commons-map-status {
+    max-width: none;
+    white-space: nowrap;
+  }
+  .commons-page .commons-map-legend {
+    flex-wrap: nowrap;
+    max-width: none;
+  }
+  .commons-page .commons-block-head h2,
+  .commons-page .commons-privacy-note {
+    white-space: nowrap;
+  }
+  .commons-page .commons-block-head h2 {
+    font-size: clamp(25px,2vw,35px);
+  }
+}
