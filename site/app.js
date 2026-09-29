@@ -32,39 +32,6 @@
     DETAIL: '1 : 500'
   };
 
-
-  function normalizeSheetIndex() {
-    const index = $('#sheetIndex');
-    if (!index || index.classList.contains('home-index')) return;
-    const foot = $('.sheet-index-foot', index);
-    if (!foot) return;
-
-    const entries = [
-      ['index.html', '00', 'Origin', 'origin'],
-      ['field-notes.html', '01', 'Field Notes', 'field-notes'],
-      ['lab.html', '02', 'Lab', 'lab'],
-      ['atlas.html', '03', 'Atlas', 'atlas'],
-      ['elsewhere.html', '04', 'Elsewhere', 'elsewhere']
-    ];
-
-    index.querySelectorAll(':scope > a').forEach(link => link.remove());
-    entries.forEach(([href, number, label, key]) => {
-      const link = document.createElement('a');
-      link.href = href;
-      link.dataset.sheetLink = key;
-      link.innerHTML = `<span>${number}</span><b>${label}</b>`;
-
-      const current =
-        (pageKey === 'notes' && key === 'field-notes') ||
-        (pageKey === 'lab' && key === 'lab') ||
-        (pageKey === 'atlas' && key === 'atlas') ||
-        (pageKey === 'elsewhere' && key === 'elsewhere');
-      if (current) link.setAttribute('aria-current', 'page');
-
-      index.insertBefore(link, foot);
-    });
-  }
-
   function applyLocale() {
     document.documentElement.lang = 'en';
     document.body.dataset.locale = 'en';
@@ -1268,8 +1235,6 @@
     renderStage('being');
     resize();
   }
-
-  normalizeSheetIndex();
   applyLocale();
   renderHome();
   initNotes();
