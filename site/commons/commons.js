@@ -60,7 +60,8 @@
       let visits = Number(place.visits || 0);
       if (Array.isArray(place.events)) {
         const events = place.events.filter(iso => new Date(iso) >= cutoff);
-        visits = state.timeMode === 'hourly' ? events.filter(iso => eventHour(iso, place) === state.hour).length : events.length;
+        if (state.horizon === 'all' && state.timeMode !== 'hourly') visits = Number(place.visits || events.length);
+        else visits = state.timeMode === 'hourly' ? events.filter(iso => eventHour(iso, place) === state.hour).length : events.length;
       } else {
         if (state.horizon !== 'all' && place.lastSeen && new Date(place.lastSeen) < cutoff) visits = 0;
         if (state.timeMode === 'hourly' && Array.isArray(place.hourly)) visits = Number(place.hourly[state.hour] || 0);
@@ -143,15 +144,21 @@
   }
 
   function aggregateMetrics(places, observations) {
-    const located = places.reduce((sum,p)=>sum+Number(p.visibleVisits || 0),0);
+    let located = places.reduce((sum,p)=>sum+Number(p.visibleVisits || 0),0);
     let visits = located;
-    if (state.snapshot?.mode === 'live' && Number.isFinite(state.snapshot.totalVisits)) visits = state.snapshot.totalVisits;
-    else if (Array.isArray(state.snapshot?.unlocatedEvents)) {
+
+    if (state.horizon === 'all' && state.timeMode !== 'hourly') {
+      if (Number.isFinite(state.snapshot?.locatedVisits)) located = Number(state.snapshot.locatedVisits);
+      if (Number.isFinite(state.snapshot?.totalVisits)) visits = Number(state.snapshot.totalVisits);
+    } else if (state.snapshot?.mode === 'live' && Number.isFinite(state.snapshot.totalVisits) && state.horizon === 'all') {
+      visits = state.snapshot.totalVisits;
+    } else if (Array.isArray(state.snapshot?.unlocatedEvents)) {
       const cutoff = cutoffDate();
       let extra = state.snapshot.unlocatedEvents.filter(iso => new Date(iso) >= cutoff);
       if (state.timeMode === 'hourly') extra = extra.filter(iso => new Date(iso).getUTCHours() === state.hour);
       visits += extra.length;
-    } else if (state.horizon === 'all' && Number.isFinite(state.snapshot?.totalVisits)) visits = state.snapshot.totalVisits;
+    }
+
     const active = state.presence.length || Number(state.snapshot?.activeCount || 0);
     return { visits, located, places:places.filter(p=>p.visibleVisits>0).length, observations:observations.length, active };
   }
@@ -261,7 +268,11 @@
         .on('click keydown',(event,d)=>{ if(event.type==='keydown' && !['Enter',' '].includes(event.key)) return; event.preventDefault(); state.selected=d; renderInspector(); renderMap(); });
     }
 
-    const presencePlaces = state.presence.filter(p=>p.located && p.place).map(p=>p.place);
+    const livePresencePlaces = state.presence.filter(p=>p.located && p.place).map(p=>p.place);
+    const demoPresencePlaces = state.snapshot?.mode === 'demo'
+      ? (state.snapshot?.places || []).filter(place=>place.active)
+      : [];
+    const presencePlaces = livePresencePlaces.length ? livePresencePlaces : demoPresencePlaces;
     if (state.layers.now && presencePlaces.length) {
       svg.append('g').attr('class','commons-now-marks').selectAll('circle').data(presencePlaces).join('circle')
         .attr('cx',d=>projection([d.lon,d.lat])?.[0] ?? -20).attr('cy',d=>projection([d.lon,d.lat])?.[1] ?? -20).attr('r',5);
