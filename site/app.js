@@ -48,7 +48,7 @@
       ['elsewhere.html', '05', 'Elsewhere', 'elsewhere']
     ];
 
-    $(':scope > a', index).forEach(link => link.remove());
+    index.querySelectorAll(':scope > a').forEach(link => link.remove());
     entries.forEach(([href, number, label, key]) => {
       const link = document.createElement('a');
       link.href = href;
