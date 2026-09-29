@@ -41,11 +41,10 @@
 
     const entries = [
       ['index.html', '00', 'Origin', 'origin'],
-      ['index.html#now', '01', 'Coordinates', 'now'],
-      ['field-notes.html', '02', 'Field Notes', 'field-notes'],
-      ['lab.html', '03', 'Lab', 'lab'],
-      ['atlas.html', '04', 'Atlas', 'atlas'],
-      ['elsewhere.html', '05', 'Elsewhere', 'elsewhere']
+      ['field-notes.html', '01', 'Field Notes', 'field-notes'],
+      ['lab.html', '02', 'Lab', 'lab'],
+      ['atlas.html', '03', 'Atlas', 'atlas'],
+      ['elsewhere.html', '04', 'Elsewhere', 'elsewhere']
     ];
 
     index.querySelectorAll(':scope > a').forEach(link => link.remove());
