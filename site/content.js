@@ -147,7 +147,7 @@ window.GEOGEEK_ARCHIVE = {
           "commons": {
             "kicker": "COMMONS / SHARED FIELD",
             "title": "You are somewhere too.",
-            "subtitle": "Locate yourself relative to Wuhan, or read the anonymous field left by other visitors.",
+            "subtitle": "To be somewhere is already to be among others.",
             "locate": "LOCATE",
             "enter": "ENTER COMMONS ↗",
             "privacy": "Location is private until you choose to light an approximate place.",
@@ -192,9 +192,9 @@ window.GEOGEEK_ARCHIVE = {
           },
           "commons": {
             "title": "Commons — GeoGeek",
-            "eyebrow": "VISITS / POSITION / RELATION",
+            "eyebrow": "SITUATION / RELATION / COEXISTENCE",
             "heading": "Commons",
-            "intro": "A shared geographic field of visits, places, observations, and the distances between them."
+            "intro": "To be somewhere is already to be among others. Commons makes coexistence legible without pretending to exhaust it."
           }
         },
         "filters": {
@@ -571,15 +571,15 @@ window.GEOGEEK_ARCHIVE = {
             "hour": "HOUR"
           },
           "map": {
-            "loading": "READING COMMON FIELD…",
+            "loading": "READING RELATIONS…",
             "unavailable": "World geometry unavailable.",
-            "demo": "Demo records only. Connect the Commons backend to publish real visitor data.",
+            "demo": "A provisional field. These relations are illustrative until the Commons is live.",
             "source": "Natural Earth / world-atlas · anonymous coarse locations",
             "host": "HOST",
             "you": "YOU",
             "selected": "SELECTED PLACE",
-            "none": "Select a place to read its relation.",
-            "locatedNote": "Map points are approximate public locations, never raw GPS coordinates."
+            "none": "No place stands alone. Select one to read its relations.",
+            "locatedNote": "Public points are approximate traces, not persons or raw GPS coordinates."
           },
           "relation": {
             "title": "RELATION",
@@ -599,14 +599,14 @@ window.GEOGEEK_ARCHIVE = {
             "locating": "LOCATING…",
             "light": "LIGHT THIS PLACE",
             "lit": "PLACE LIT",
-            "observe": "LEAVE AN OBSERVATION",
-            "submit": "CONTRIBUTE",
+            "observe": "LEAVE A TRACE",
+            "submit": "ADD TO COMMONS",
             "submitting": "SENDING…",
             "clear": "CLEAR LOCAL POSITION"
           },
           "privacy": {
-            "title": "LOCATION & PRIVACY",
-            "body": "Precise geolocation is used in this browser only. Public contribution is snapped to a coarse spatial cell before it leaves your device.",
+            "title": "POSITION & DISCLOSURE",
+            "body": "Your precise position remains on this device. Only an approximate place enters the Commons, and only when you choose."
             "private": "PRIVATE / DEVICE ONLY",
             "public": "PUBLIC / APPROXIMATE"
           },
@@ -614,7 +614,7 @@ window.GEOGEEK_ARCHIVE = {
             "place": "PLACE",
             "name": "NAME / OPTIONAL",
             "observation": "OBSERVATION",
-            "placeholder": "What is visible, changing, or felt where you are?",
+            "placeholder": "What appears from where you are?",
             "limit": "180 characters",
             "success": "Observation received.",
             "pending": "Observation submitted for moderation.",
@@ -630,7 +630,7 @@ window.GEOGEEK_ARCHIVE = {
             "open": "READ OBSERVATIONS"
           },
           "empty": "No records in this time window.",
-          "definitions": "VISITS count anonymous browser sessions. LOCATION appears only after an explicit coarse-location contribution."
+          "definitions": "Presence becomes meaningful through relation. Counts and coordinates are traces of that relation, not the people themselves."
         }
       }
     }
