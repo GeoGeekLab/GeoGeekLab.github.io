@@ -606,7 +606,7 @@ window.GEOGEEK_ARCHIVE = {
           },
           "privacy": {
             "title": "POSITION & DISCLOSURE",
-            "body": "Your precise position remains on this device. Only an approximate place enters the Commons, and only when you choose."
+            "body": "Your precise position remains on this device. Only an approximate place enters the Commons, and only when you choose.",
             "private": "PRIVATE / DEVICE ONLY",
             "public": "PUBLIC / APPROXIMATE"
           },
