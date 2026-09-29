@@ -2324,3 +2324,55 @@ body[data-page-key="commons"] .scale-ui { top: 84px; }
     font-size: clamp(23px,7vw,30px);
   }
 }
+
+/* Site Index removed; Commons lives on the homepage */
+
+.sheet-index,
+.nav-toggle {
+  display: none !important;
+}
+
+@media (min-width:1260px) {
+  .home-section,
+  .page-shell {
+    padding-left: var(--pad);
+  }
+}
+
+.home-commons-full {
+  border-top: 1px solid var(--line-soft);
+  padding-top: clamp(92px,9vw,132px);
+  padding-bottom: clamp(104px,10vw,148px);
+}
+.home-commons-full .commons-home-title {
+  margin-bottom: 0;
+}
+.home-commons-full .commons-summary {
+  margin-top: 34px;
+}
+
+@media (max-width:760px) {
+  .site-nav {
+    gap: 18px;
+  }
+  .nav-links {
+    display: flex;
+    gap: 14px;
+    max-width: calc(100vw - 132px);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+  .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+  .nav-links a {
+    flex: 0 0 auto;
+    font-size: 11px;
+  }
+  .home-commons-full {
+    padding-top: 76px;
+    padding-bottom: 92px;
+  }
+}
