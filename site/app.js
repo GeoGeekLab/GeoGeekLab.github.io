@@ -33,6 +33,39 @@
   };
 
 
+  function normalizeSheetIndex() {
+    const index = $('#sheetIndex');
+    if (!index || index.classList.contains('home-index')) return;
+    const foot = $('.sheet-index-foot', index);
+    if (!foot) return;
+
+    const entries = [
+      ['index.html', '00', 'Origin', 'origin'],
+      ['index.html#now', '01', 'Coordinates', 'now'],
+      ['field-notes.html', '02', 'Field Notes', 'field-notes'],
+      ['lab.html', '03', 'Lab', 'lab'],
+      ['atlas.html', '04', 'Atlas', 'atlas'],
+      ['elsewhere.html', '05', 'Elsewhere', 'elsewhere']
+    ];
+
+    $(':scope > a', index).forEach(link => link.remove());
+    entries.forEach(([href, number, label, key]) => {
+      const link = document.createElement('a');
+      link.href = href;
+      link.dataset.sheetLink = key;
+      link.innerHTML = `<span>${number}</span><b>${label}</b>`;
+
+      const current =
+        (pageKey === 'notes' && key === 'field-notes') ||
+        (pageKey === 'lab' && key === 'lab') ||
+        (pageKey === 'atlas' && key === 'atlas') ||
+        (pageKey === 'elsewhere' && key === 'elsewhere');
+      if (current) link.setAttribute('aria-current', 'page');
+
+      index.insertBefore(link, foot);
+    });
+  }
+
   function applyLocale() {
     document.documentElement.lang = 'en';
     document.body.dataset.locale = 'en';
@@ -1237,6 +1270,7 @@
     resize();
   }
 
+  normalizeSheetIndex();
   applyLocale();
   renderHome();
   initNotes();
