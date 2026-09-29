@@ -892,10 +892,10 @@
 
     const stages = ['being', 'seeing', 'valuing', 'making'];
     const readouts = {
-      being: ['BEING / ONTOLOGY', 'WHEN DOES A COORDINATE BECOME A PLACE?', 'SPACE · PLACE · RELATION · SCALE'],
-      seeing: ['SEEING / EPISTEMOLOGY', 'WHAT DISAPPEARS WHEN THE WORLD BECOMES A MAP?', 'FRAME · MAP · ABSENCE · UNCERTAINTY'],
-      valuing: ['VALUING / AXIOLOGY', 'WHAT COUNTS — AND WHO DECIDES?', 'VALUE · BOUNDARY · CONSEQUENCE · RESPONSIBILITY'],
-      making: ['MAKING / PRAXIS', 'WHAT CHANGES WHEN THE TOOL ENTERS THE FIELD?', 'CODE · TOOL · SYSTEM · INTERVENTION']
+      being: ['BEING / ONTOLOGY', 'TO BE IS TO BE SOMEWHERE.', 'SITUATION · RELATION · BECOMING'],
+      seeing: ['SEEING / EPISTEMOLOGY', 'TO SEE IS TO FRAME.', 'APPEARANCE · FRAME · LIMIT'],
+      valuing: ['VALUING / AXIOLOGY', 'TO VALUE IS TO CHOOSE.', 'JUDGMENT · CHOICE · RESPONSIBILITY'],
+      making: ['MAKING / PRAXIS', 'TO BUILD IS TO ALTER THE FIELD.', 'ACTION · POSSIBILITY · CONSEQUENCE']
     };
 
     const triggers = $$('[data-coordinate-trigger]', workbench);
@@ -1041,7 +1041,7 @@
       ctx.setLineDash([]);
       ctx.fillStyle = signal + '.76)';
       ctx.font = '600 8px "IBM Plex Mono", monospace';
-      ctx.fillText('FRAME / SELECTIVE', 408, 75);
+      ctx.fillText('SEEING / FRAMED', 408, 75);
       ctx.restore();
     };
 
@@ -1061,7 +1061,7 @@
       ctx.setLineDash([]);
       ctx.fillStyle = signal + '.78)';
       ctx.font = '600 8px "IBM Plex Mono", monospace';
-      ctx.fillText('ATTENTION / THRESHOLD', 385, 374);
+      ctx.fillText('VALUING / CHOSEN', 385, 374);
       ctx.restore();
     };
 
@@ -1088,7 +1088,7 @@
       }
       ctx.fillStyle = signal + '.82)';
       ctx.font = '600 8px "IBM Plex Mono", monospace';
-      ctx.fillText(changed ? 'FIELD CHANGED' : 'DRAG THE SIGNAL NODE', 394, 374);
+      ctx.fillText(changed ? 'FIELD CHANGED' : 'ALTER THE FIELD', 394, 374);
       ctx.restore();
     };
 
@@ -1127,13 +1127,13 @@
       if (changed) {
         fieldStatus.textContent = 'FIELD / CHANGED';
       } else if (activeStage === 'being') {
-        fieldStatus.textContent = 'FIELD / RELATIONAL';
+        fieldStatus.textContent = 'BEING / SITUATED';
       } else if (activeStage === 'seeing') {
-        fieldStatus.textContent = 'VIEW / FRAMED';
+        fieldStatus.textContent = 'SEEING / FRAMED';
       } else if (activeStage === 'valuing') {
-        fieldStatus.textContent = 'VALUE / SELECTIVE';
+        fieldStatus.textContent = 'VALUING / CHOSEN';
       } else {
-        fieldStatus.textContent = 'INTERVENTION / READY';
+        fieldStatus.textContent = 'MAKING / POSSIBLE';
       }
       if (resetButton) resetButton.hidden = !changed;
     };
