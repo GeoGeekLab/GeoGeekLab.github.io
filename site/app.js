@@ -72,6 +72,7 @@
       const globalLabels = {
         'index.html': ui.sheet?.origin,
         'commons.html': ui.sheet?.commons,
+        '/commons.html': ui.sheet?.commons,
         'field-notes.html': ui.sheet?.fieldNotes,
         'lab.html': ui.sheet?.lab,
         'atlas.html': ui.sheet?.atlas,
