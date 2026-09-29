@@ -1972,3 +1972,88 @@ body[data-page-key="commons"] .scale-ui { top: 84px; }
   padding: 18px 0;
 }
 .archive-channel .wechat-archive-code img { width: 96px; height: 96px; }
+
+/* Homepage Commons portal — intentionally minimal */
+
+.home-commons.commons-portal {
+  position:relative;
+  z-index:2;
+  margin:0 var(--pad);
+  padding:0;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  scroll-margin-top:72px;
+}
+.commons-portal-link {
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:clamp(36px,6vw,104px);
+  align-items:center;
+  min-height:clamp(238px,26vw,320px);
+  padding:clamp(46px,5vw,72px) 0;
+  color:inherit;
+  text-decoration:none;
+}
+.commons-portal-copy { min-width:0; max-width:980px; }
+.commons-portal-copy .commons-gateway-kicker {
+  display:block;
+  margin-bottom:12px;
+  color:var(--muted);
+  font:700 10px/1 var(--mono);
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+.commons-portal-copy h2 {
+  margin:0;
+  color:var(--fg);
+  font:500 clamp(46px,5vw,72px)/.94 var(--serif);
+  letter-spacing:-.055em;
+  text-wrap:balance;
+}
+.commons-portal-copy p {
+  margin:18px 0 0;
+  max-width:760px;
+  color:#47534b;
+  font:400 clamp(19px,1.55vw,25px)/1.35 var(--serif);
+  letter-spacing:-.018em;
+  text-wrap:pretty;
+}
+.commons-portal-enter {
+  align-self:end;
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+  padding:0 0 5px;
+  border-bottom:1px solid rgba(166,70,36,.42);
+  color:var(--signal);
+  font:700 10px/1 var(--mono);
+  letter-spacing:.085em;
+  white-space:nowrap;
+  transition:transform .2s var(--ease),border-color .2s ease;
+}
+.commons-portal-link:hover .commons-portal-enter,
+.commons-portal-link:focus-visible .commons-portal-enter {
+  transform:translateX(5px);
+  border-bottom-color:var(--signal);
+}
+.commons-portal-link:focus-visible {
+  outline:1px solid rgba(166,70,36,.42);
+  outline-offset:8px;
+}
+
+@media(max-width:760px) {
+  .home-commons.commons-portal { margin:0 18px; }
+  .commons-portal-link {
+    grid-template-columns:1fr;
+    gap:28px;
+    min-height:0;
+    padding:52px 0 50px;
+  }
+  .commons-portal-copy h2 { font-size:clamp(38px,11vw,54px); }
+  .commons-portal-copy p { margin-top:14px; font-size:clamp(18px,5vw,22px); }
+  .commons-portal-enter { justify-self:start; align-self:auto; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .commons-portal-enter { transition:none; }
+}
