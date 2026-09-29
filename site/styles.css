@@ -144,6 +144,8 @@ body.origin-active .scale-ui:hover, body.origin-active .scale-ui:focus-within { 
 .hero-edge { position: absolute; z-index: 3; bottom: 28px; color: #677169; font: 600 11px/1 var(--mono); letter-spacing: .055em; }
 .hero-edge-left { left: var(--pad); }
 .hero-edge-right { right: var(--pad); }
+.hero-edge-center { left: 50%; transform: translateX(-50%); text-decoration: none; }
+.hero-edge-center:hover, .hero-edge-center:focus-visible { color: var(--signal); }
 .map-corners { position: absolute; z-index: 1; inset: 92px calc(var(--pad) - 7px) 48px; pointer-events: none; }
 .map-corners i { position: absolute; width: 18px; height: 18px; opacity: .34; }
 .map-corners i:nth-child(1) { left: 0; top: 0; border-left: 1px solid var(--soft); border-top: 1px solid var(--soft); }
