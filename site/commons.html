@@ -11,8 +11,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
 <title>Commons — GeoGeek</title>
 <link rel="canonical" href="https://geogeeklab.github.io/commons.html"/>
-<link href="styles.css" rel="stylesheet"/>
-<link href="/ux-refinements.css" rel="stylesheet"/>
+<link href="styles.css?v=20260929e" rel="stylesheet"/>
+<link href="/ux-refinements.css?v=20260929e" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
 </head>
 <body data-page-key="commons">
@@ -44,10 +44,10 @@
 </div>
 <div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
 <main class="page-shell commons-page" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
-<section class="page-title"><div><div class="eyebrow">VISITS / POSITION / RELATION</div><h1>Commons</h1></div><p class="page-intro">A shared geographic field of visits, places, observations, and the distances between them.</p></section>
+<section class="page-title"><div><div class="eyebrow">SITUATION / RELATION / COEXISTENCE</div><h1>Commons</h1></div><p class="page-intro">To be somewhere is already to be among others. Commons makes coexistence legible without pretending to exhaust it.</p></section>
 
 <section class="commons-summary" aria-label="Commons summary">
-<div class="commons-status-line"><span class="instrument-status" data-state="demo" id="commonsStatus">DEMO FIELD</span><p id="commonsDefinition">VISITS count anonymous browser sessions. LOCATION appears only after an explicit coarse-location contribution.</p></div>
+<div class="commons-status-line"><span class="instrument-status" data-state="demo" id="commonsStatus">DEMO FIELD</span><p id="commonsDefinition">Presence becomes meaningful through relation. Counts and coordinates are traces of that relation, not the people themselves.</p></div>
 <div class="commons-metrics" id="commonsMetrics">
 <article><span>VISITS</span><strong id="metricVisits">—</strong></article>
 <article><span>LOCATED VISITS</span><strong id="metricLocated">—</strong></article>
@@ -73,7 +73,7 @@
 <div class="commons-map-layout">
 <div class="commons-map-stack">
 <div class="commons-map-frame">
-<div class="commons-map-status" id="commonsMapStatus">READING COMMON FIELD…</div>
+<div class="commons-map-status" id="commonsMapStatus">READING RELATIONS…</div>
 <svg id="commonsMap" role="img" aria-label="World map of anonymous visitor places" viewBox="0 0 1200 680" preserveAspectRatio="xMidYMid meet"></svg>
 <div class="commons-map-legend" aria-label="Map legend"><span><i class="visit-dot"></i><b>VISIT</b></span><span><i class="observation-dot"></i><b>OBSERVATION</b></span><span><i class="now-dot"></i><b>NOW</b></span><span><i class="host-dot"></i><b>HOST</b></span></div>
 <div class="commons-map-source" id="commonsMapSource">Natural Earth / world-atlas · anonymous coarse locations</div>
@@ -88,11 +88,11 @@
 <aside class="commons-inspector" id="commonsInspector" aria-live="polite">
 <span class="commons-inspector-kicker">RELATION</span>
 <h2>WUHAN / HOST</h2>
-<p>Select a place to read its relation.</p>
+<p>No place stands alone. Select one to read its relations.</p>
 </aside>
 <section class="commons-participate" id="commonsParticipate">
 <div class="commons-you">
-<div class="commons-block-head"><span>YOU ↔ HOST</span><h2>Your position stays private until you choose otherwise.</h2></div>
+<div class="commons-block-head"><span>YOU ↔ HOST</span><h2>To locate yourself is to enter a relation.</h2></div>
 <div class="commons-relation-readout" id="youHostReadout">
 <div><span>HOST</span><strong>Wuhan, China</strong><small>30.59° N · 114.30° E</small></div>
 <div><span>YOU</span><strong>NOT LOCATED</strong><small>DEVICE ONLY</small></div>
@@ -100,15 +100,15 @@
 <div><span>INITIAL BEARING</span><strong>—</strong><small>FROM YOU TO HOST</small></div>
 </div>
 <div class="commons-actions"><button class="primary" id="commonsLocate" type="button">LOCATE ME</button><button id="commonsLight" type="button" disabled>LIGHT THIS PLACE</button><button id="commonsClearLocation" type="button" hidden>CLEAR LOCAL POSITION</button></div>
-<p class="commons-privacy-note" id="commonsPrivacyText">Precise geolocation is used in this browser only. Public contribution is snapped to a coarse spatial cell before it leaves your device.</p>
+<p class="commons-privacy-note" id="commonsPrivacyText">Your precise position remains on this device. Only an approximate place enters the Commons, and only when you choose.</p>
 </div>
 <div class="commons-observe">
-<div class="commons-block-head"><span>OBSERVATION</span><h2>Leave one short observation from where you are.</h2></div>
+<div class="commons-block-head"><span>TRACE</span><h2>Leave a trace of how the world appears from where you are.</h2></div>
 <form id="commonsObservationForm">
 <label><span>PLACE</span><input id="observationPlace" type="text" readonly value="Locate first"/></label>
 <label><span>NAME / OPTIONAL</span><input id="observationName" type="text" maxlength="32" autocomplete="nickname"/></label>
-<label><span>OBSERVATION</span><textarea id="observationText" maxlength="180" rows="3" placeholder="What is visible, changing, or felt where you are?"></textarea><small id="observationCount">0 / 180</small></label>
-<div class="commons-form-foot"><button id="observationSubmit" type="submit" disabled>CONTRIBUTE</button><span id="observationFeedback" role="status"></span></div>
+<label><span>OBSERVATION</span><textarea id="observationText" maxlength="180" rows="3" placeholder="What appears from where you are?"></textarea><small id="observationCount">0 / 180</small></label>
+<div class="commons-form-foot"><button id="observationSubmit" type="submit" disabled>ADD TO COMMONS</button><span id="observationFeedback" role="status"></span></div>
 </form>
 </div>
 </section>
@@ -117,17 +117,17 @@
 </section>
 </main>
 <footer class="footer"><div class="footer-brand">GeoGeek</div><div class="footer-meta"><span>© 2026 GeoGeek</span><a href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank">GitHub ↗</a></div></footer>
-<script src="content.js"></script>
+<script src="content.js?v=20260929e"></script>
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=20260929e"></script>
 <script src="core/modules.js"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="commons/config.js"></script>
 <script src="commons/geo.js"></script>
 <script src="commons/demo-data.js"></script>
 <script src="commons/commons-data.js"></script>
-<script src="commons/commons.js"></script>
-<script src="/ux-refinements.js"></script>
+<script src="commons/commons.js?v=20260929e"></script>
+<script src="/ux-refinements.js?v=20260929e"></script>
 </body>
 </html>
