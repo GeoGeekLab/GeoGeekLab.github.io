@@ -890,152 +890,349 @@
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const stages = ['frame', 'transform', 'trace', 'claim'];
+    const stages = ['being', 'seeing', 'valuing', 'making'];
     const readouts = {
-      frame: ['FRAME / OBSERVATION', 'PLACE · TIME · SENSOR · GEOMETRY · SUPPORT'],
-      transform: ['TRANSFORM / REPRESENTATION', 'CHANGE THE MAP · WATCH WHAT MOVES'],
-      trace: ['TRACE / RESPONSE', 'HOLD · MOVE · DISAPPEAR'],
-      claim: ['CLAIM / DOMAIN', 'SAY ONLY WHAT SURVIVES THE TRIP']
-    };
-    const transformLabels = {
-      scale: 'SCALE / GRAIN + SUPPORT',
-      project: 'PROJECT / GEOMETRY',
-      aggregate: 'AGGREGATE / AREAL SUPPORT',
-      classify: 'CLASSIFY / ONTOLOGY'
+      being: ['BEING / ONTOLOGY', 'WHAT IS HERE — AND HOW IS IT RELATED?', 'SPACE · PLACE · RELATION · SCALE'],
+      seeing: ['SEEING / EPISTEMOLOGY', 'HOW DO WE KNOW WHAT WE SEE?', 'MAP · DATA · MODEL · UNCERTAINTY'],
+      valuing: ['VALUING / AXIOLOGY', 'WHAT MATTERS — AND TO WHOM?', 'VALUE · ACCESS · CONSEQUENCE · RESPONSIBILITY'],
+      making: ['MAKING / PRAXIS', 'WHAT DO WE CHANGE — AND WHAT CHANGES WITH IT?', 'CODE · TOOL · SYSTEM · INTERVENTION']
     };
 
     const triggers = $$('[data-coordinate-trigger]', workbench);
-    const transformButtons = $$('[data-transform]', workbench);
     const articles = $$('[data-coordinate]', workbench);
     const readoutKicker = $('#coordinateReadoutKicker');
     const readout = $('#coordinateReadout');
     const probeReadout = $('#coordinateProbeReadout');
-    const transformMeta = $('#coordinateTransformMeta');
+    const fieldStatus = $('#coordinateFieldStatus');
+    const resetButton = $('#coordinateReset');
 
-    const W = 640, H = 440;
+    const W = 640;
+    const H = 440;
     const ink = 'rgba(21,32,25,';
     const soft = 'rgba(84,94,87,';
     const signal = 'rgba(166,70,36,';
     const paper = '#f6f4ee';
-    const target = [[205,113],[248,88],[304,79],[364,84],[416,112],[456,151],[475,201],[468,250],[444,293],[402,329],[350,348],[296,351],[248,336],[205,309],[177,269],[162,226],[170,176]];
-    const anchors = [[242,164],[319,170],[408,214],[235,287]];
-    let activeStage = 'frame';
-    let previewStage = null;
-    let activeTransform = 'scale';
-    let probe = { x: 320, y: 220 };
+
+    const basePoints = [
+      [152,132],[225,104],[309,126],[392,96],[478,143],
+      [505,228],[441,306],[344,334],[245,307],[166,246]
+    ];
+    const edges = [
+      [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,0],
+      [1,9],[1,8],[2,8],[2,7],[3,6],[4,6],[5,7],[0,8]
+    ];
+    const mutableIndex = 6;
+
+    let points = basePoints.map(point => [...point]);
+    let activeStage = 'being';
+    let changed = false;
+    let dragging = false;
     let raf = 0;
 
-    const pathPolygon = (points, close = true) => {
-      ctx.beginPath();
-      points.forEach(([x,y],i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y));
-      if (close) ctx.closePath();
-    };
-    const mapPoint = (p, type = activeTransform) => {
-      const [x,y] = p;
-      if (type === 'scale') return [320 + (x-320)*.78 + 22, 220 + (y-220)*.78 - 10];
-      if (type === 'project') {
-        const dy = y - 220, dx = x - 320;
-        return [x + dy*.20 + Math.sin((y-60)/330*Math.PI)*9, y + dx*.065];
-      }
-      if (type === 'aggregate') {
-        const cellX=74, cellY=70, ox=172, oy=98;
-        return [ox+(Math.floor((Math.max(ox,Math.min(492,x))-ox)/cellX)+.5)*cellX, oy+(Math.floor((Math.max(oy,Math.min(378,y))-oy)/cellY)+.5)*cellY];
-      }
-      if (type === 'classify') {
-        if (y < 190) return [270,150];
-        if (x > 322) return [402,235];
-        return [238,278];
-      }
-      return [x,y];
-    };
-    const mappedTarget = type => target.map(p => mapPoint(p,type));
-
-    const drawGrid = (alpha=.12) => {
+    const drawBackdrop = (alpha = .12) => {
       ctx.save();
-      ctx.strokeStyle=soft+alpha+')';ctx.lineWidth=.8;
-      for(let x=90;x<=550;x+=92){ctx.beginPath();ctx.moveTo(x,46);ctx.lineTo(x,394);ctx.stroke();}
-      for(let y=82;y<=370;y+=72){ctx.beginPath();ctx.moveTo(72,y);ctx.lineTo(570,y);ctx.stroke();}
-      ctx.setLineDash([2,4]);ctx.strokeStyle=soft+(alpha*.9)+')';
-      for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(80,150+i*62);ctx.bezierCurveTo(190,95+i*48,390,105+i*54,560,185+i*50);ctx.stroke();}
+      ctx.strokeStyle = soft + alpha + ')';
+      ctx.lineWidth = .75;
+      ctx.setLineDash([2,4]);
+      ctx.beginPath();
+      ctx.moveTo(78,164);
+      ctx.bezierCurveTo(188,102,352,92,556,174);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(92,274);
+      ctx.bezierCurveTo(214,214,390,222,548,308);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(132,354);
+      ctx.bezierCurveTo(248,302,414,315,520,360);
+      ctx.stroke();
       ctx.restore();
     };
-    const drawTarget = (points=target, alpha=.55, stroke=ink, fill='rgba(21,32,25,.018)') => {
-      ctx.save();pathPolygon(points);ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke+alpha+')';ctx.lineWidth=1.35;ctx.stroke();ctx.restore();
-    };
-    const drawRidges = (alpha=.25) => {
-      ctx.save();ctx.strokeStyle=ink+alpha+')';ctx.lineWidth=.9;ctx.setLineDash([2,3]);
-      ctx.beginPath();ctx.moveTo(198,244);ctx.bezierCurveTo(247,215,279,181,319,170);ctx.bezierCurveTo(363,158,405,175,447,219);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(214,287);ctx.bezierCurveTo(263,268,302,245,343,243);ctx.bezierCurveTo(383,242,417,257,444,277);ctx.stroke();ctx.restore();
-    };
-    const drawFrame = () => {
-      drawGrid(.12);drawTarget(target,.50);drawRidges(.26);
-      ctx.save();ctx.strokeStyle=soft+'.32)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
-      ctx.beginPath();ctx.moveTo(95,100);ctx.bezierCurveTo(224,20,422,22,552,112);ctx.stroke();
-      ctx.setLineDash([]);ctx.fillStyle=paper;ctx.strokeStyle=signal+'.85)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(322,48,5,0,Math.PI*2);ctx.fill();ctx.stroke();
-      ctx.strokeStyle=signal+'.32)';ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(322,53);ctx.lineTo(229,315);ctx.moveTo(322,53);ctx.lineTo(427,309);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(229,315);ctx.quadraticCurveTo(321,351,427,309);ctx.stroke();ctx.restore();
-    };
-    const drawScale = (alpha=1) => {
-      const pts=mappedTarget('scale');drawTarget(pts,.75*alpha,signal,'rgba(166,70,36,.028)');
-      ctx.save();pathPolygon(pts);ctx.clip();ctx.strokeStyle=signal+(.28*alpha)+')';ctx.lineWidth=.7;
-      for(let x=170;x<=500;x+=38){ctx.beginPath();ctx.moveTo(x,90);ctx.lineTo(x,365);ctx.stroke();}
-      for(let y=105;y<=355;y+=38){ctx.beginPath();ctx.moveTo(150,y);ctx.lineTo(515,y);ctx.stroke();}ctx.restore();
-    };
-    const drawProject = (alpha=1) => {
-      const pts=mappedTarget('project');drawTarget(pts,.78*alpha,signal,'rgba(166,70,36,.025)');
-      ctx.save();ctx.strokeStyle=signal+(.25*alpha)+')';ctx.lineWidth=.75;
-      for(let y=135;y<=310;y+=58){ctx.beginPath();for(let x=130;x<=510;x+=15){const m=mapPoint([x,y],'project');x===130?ctx.moveTo(m[0],m[1]):ctx.lineTo(m[0],m[1]);}ctx.stroke();}
-      for(let x=205;x<=440;x+=78){ctx.beginPath();for(let y=90;y<=350;y+=15){const m=mapPoint([x,y],'project');y===90?ctx.moveTo(m[0],m[1]):ctx.lineTo(m[0],m[1]);}ctx.stroke();}ctx.restore();
-    };
-    const drawAggregate = (alpha=1) => {
-      drawTarget(target,.18,ink,'rgba(21,32,25,.006)');
-      ctx.save();pathPolygon(target);ctx.clip();ctx.lineWidth=.75;const ox=172,oy=98,cw=74,ch=70;
-      for(let r=0;r<4;r++)for(let c=0;c<5;c++){const x=ox+c*cw,y=oy+r*ch;ctx.fillStyle=(r+c)%2?soft+(.022*alpha)+')':signal+(.028*alpha)+')';ctx.strokeStyle=signal+(.24*alpha)+')';ctx.fillRect(x,y,cw,ch);ctx.strokeRect(x,y,cw,ch);}ctx.restore();
-    };
-    const drawClassify = (alpha=1) => {
-      drawTarget(target,.35,signal,'rgba(166,70,36,.012)');
-      ctx.save();pathPolygon(target);ctx.clip();
-      ctx.fillStyle=signal+(.075*alpha)+')';ctx.beginPath();ctx.ellipse(270,145,150,76,-.12,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle=soft+(.09*alpha)+')';ctx.beginPath();ctx.ellipse(405,226,132,92,.08,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle=ink+(.05*alpha)+')';ctx.beginPath();ctx.ellipse(245,286,128,90,-.08,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle=signal+(.34*alpha)+')';ctx.lineWidth=.8;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(185,190);ctx.bezierCurveTo(260,170,350,180,455,165);ctx.stroke();ctx.beginPath();ctx.moveTo(205,255);ctx.bezierCurveTo(290,230,370,250,455,245);ctx.stroke();ctx.restore();
-    };
-    const drawTransform = (alpha=1) => {drawGrid(.055);drawTarget(target,.18);drawRidges(.10);if(activeTransform==='scale')drawScale(alpha);else if(activeTransform==='project')drawProject(alpha);else if(activeTransform==='aggregate')drawAggregate(alpha);else drawClassify(alpha);};
-    const drawProbe = (showMapped=false,strong=false) => {
-      const m=mapPoint([probe.x,probe.y]);ctx.save();ctx.strokeStyle=soft+'.16)';ctx.lineWidth=.75;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(72,probe.y);ctx.lineTo(570,probe.y);ctx.moveTo(probe.x,52);ctx.lineTo(probe.x,390);ctx.stroke();ctx.setLineDash([]);
-      ctx.fillStyle=ink+'.95)';ctx.strokeStyle=paper;ctx.lineWidth=2;ctx.beginPath();ctx.arc(probe.x,probe.y,4.5,0,Math.PI*2);ctx.fill();ctx.stroke();
-      if(showMapped){ctx.strokeStyle=signal+(strong ? '.85)' : '.55)');ctx.lineWidth=1;ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(probe.x,probe.y);ctx.lineTo(m[0],m[1]);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=signal+'.95)';ctx.strokeStyle=paper;ctx.lineWidth=2;ctx.beginPath();ctx.arc(m[0],m[1],4.5,0,Math.PI*2);ctx.fill();ctx.stroke();}ctx.restore();
-    };
-    const drawTrace = () => {
-      drawTransform(.32);drawProbe(true,true);ctx.save();ctx.lineWidth=.9;
-      anchors.forEach((p,i)=>{const m=mapPoint(p),dist=Math.hypot(m[0]-p[0],m[1]-p[1]);ctx.strokeStyle=dist<16?signal+'.55)':soft+'.45)';ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(m[0],m[1]);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=i===3?paper:signal+'.9)';ctx.strokeStyle=i===3?soft+'.7)':paper;ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(p[0],p[1],3.6,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=signal+'.9)';ctx.beginPath();ctx.arc(m[0],m[1],2.8,0,Math.PI*2);ctx.fill();});ctx.restore();
-    };
-    const drawClaim = () => {
-      drawGrid(.025);drawTarget(target,.10);drawProbe(true,false);const stable=anchors.slice(0,3).map(p=>mapPoint(p));ctx.save();ctx.strokeStyle=signal+'.92)';ctx.lineWidth=1.8;ctx.beginPath();stable.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();stable.forEach(([x,y])=>{ctx.fillStyle=signal+'.95)';ctx.strokeStyle=paper;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x,y,3.8,0,Math.PI*2);ctx.fill();ctx.stroke();});ctx.fillStyle=signal+'.78)';ctx.font='600 8px "IBM Plex Mono", monospace';ctx.fillText('RELATION / RETAINED',360,150);ctx.restore();
-    };
-    const draw = () => {
-      cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const rect=plot.getBoundingClientRect();if(!rect.width||!rect.height)return;const dpr=Math.min(window.devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rect.width,rect.height);ctx.save();ctx.scale(rect.width/W,rect.height/H);const stage=previewStage||activeStage;if(stage==='frame'){drawFrame();drawProbe(false);}else if(stage==='transform'){drawTransform(1);drawProbe(true,true);}else if(stage==='trace')drawTrace();else drawClaim();ctx.restore();});
-    };
-    const resize = () => {const rect=plot.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';draw();};
-    const updateProbeReadout = () => {
-      const m=mapPoint([probe.x,probe.y]);const nx=((probe.x-72)/498*100),ny=((probe.y-52)/338*100),mx=((m[0]-72)/498*100),my=((m[1]-52)/338*100);const stage=previewStage||activeStage;
-      if(probeReadout)probeReadout.textContent=stage==='frame'?'PROBE '+nx.toFixed(1)+' / '+ny.toFixed(1):'PROBE '+nx.toFixed(1)+' / '+ny.toFixed(1)+' → '+mx.toFixed(1)+' / '+my.toFixed(1);
-    };
-    const paintStage = stage => {
-      workbench.dataset.coordinateState=stage;triggers.forEach(t=>{const shown=t.dataset.coordinateTrigger===stage;t.classList.toggle('is-active',shown);t.setAttribute('aria-pressed',t.dataset.coordinateTrigger===activeStage?'true':'false');});articles.forEach(article=>article.classList.toggle('is-active',article.dataset.coordinate===stage));const copy=readouts[stage];if(copy){if(readoutKicker)readoutKicker.textContent=copy[0];if(readout)readout.textContent=copy[1];}updateProbeReadout();draw();
-    };
-    const renderStage = (stage,commit=true) => {if(!stages.includes(stage))return;if(commit){activeStage=stage;previewStage=null;}else previewStage=stage;paintStage(previewStage||activeStage);};
-    const clearPreview = () => {previewStage=null;paintStage(activeStage);};
-    const selectTransform = type => {if(!transformLabels[type])return;activeTransform=type;workbench.dataset.transform=type;transformButtons.forEach(b=>b.setAttribute('aria-pressed',b.dataset.transform===type?'true':'false'));if(transformMeta)transformMeta.textContent=transformLabels[type];renderStage(activeStage==='frame'?'transform':activeStage,true);};
 
-    triggers.forEach(trigger=>{const stage=trigger.dataset.coordinateTrigger;trigger.addEventListener('click',()=>renderStage(stage,true));trigger.addEventListener('mouseenter',()=>renderStage(stage,false));trigger.addEventListener('mouseleave',clearPreview);trigger.addEventListener('focus',()=>renderStage(stage,false));trigger.addEventListener('blur',clearPreview);});
-    transformButtons.forEach(button=>button.addEventListener('click',()=>selectTransform(button.dataset.transform)));
-    plot.addEventListener('pointerdown',event=>{if(event.target.closest?.('button'))return;const rect=plot.getBoundingClientRect();probe={x:Math.max(72,Math.min(570,(event.clientX-rect.left)/rect.width*W)),y:Math.max(52,Math.min(390,(event.clientY-rect.top)/rect.height*H))};updateProbeReadout();draw();});
-    plot.addEventListener('keydown',event=>{const d=event.shiftKey?12:5;if(event.key==='ArrowLeft')probe.x-=d;else if(event.key==='ArrowRight')probe.x+=d;else if(event.key==='ArrowUp')probe.y-=d;else if(event.key==='ArrowDown')probe.y+=d;else return;event.preventDefault();probe.x=Math.max(72,Math.min(570,probe.x));probe.y=Math.max(52,Math.min(390,probe.y));updateProbeReadout();draw();});
+    const drawGrid = () => {
+      ctx.save();
+      ctx.strokeStyle = soft + '.105)';
+      ctx.lineWidth = .7;
+      for (let x = 104; x <= 536; x += 72) {
+        ctx.beginPath();
+        ctx.moveTo(x, 60);
+        ctx.lineTo(x, 380);
+        ctx.stroke();
+      }
+      for (let y = 76; y <= 364; y += 64) {
+        ctx.beginPath();
+        ctx.moveTo(78, y);
+        ctx.lineTo(562, y);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = signal + '.26)';
+      ctx.setLineDash([4,4]);
+      ctx.strokeRect(125, 82, 390, 278);
+      ctx.restore();
+    };
+
+    const drawRelations = (stage) => {
+      ctx.save();
+      edges.forEach(([a,b], index) => {
+        const p1 = points[a];
+        const p2 = points[b];
+        const selectedEdge = a === mutableIndex || b === mutableIndex;
+        const valueEdge = stage === 'valuing' && [3,4,5,6,7].includes(a) && [3,4,5,6,7].includes(b);
+        ctx.strokeStyle = valueEdge ? signal + '.62)' : selectedEdge && stage === 'making' ? signal + '.46)' : soft + (stage === 'being' ? '.28)' : '.22)');
+        ctx.lineWidth = valueEdge ? 1.25 : selectedEdge && stage === 'making' ? 1.15 : .82;
+        if (index % 4 === 0 && stage === 'being') ctx.setLineDash([2,3]); else ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(p1[0], p1[1]);
+        ctx.lineTo(p2[0], p2[1]);
+        ctx.stroke();
+      });
+      ctx.restore();
+    };
+
+    const drawNodes = (stage) => {
+      ctx.save();
+      points.forEach((point, index) => {
+        const [x,y] = point;
+        const mutable = index === mutableIndex;
+        const valued = stage === 'valuing' && [3,4,5,6,7].includes(index);
+        ctx.beginPath();
+        ctx.arc(x, y, mutable && stage === 'making' ? 5.4 : 3.8, 0, Math.PI * 2);
+        ctx.fillStyle = valued || (mutable && stage === 'making') ? signal + '.92)' : ink + '.78)';
+        ctx.fill();
+        ctx.strokeStyle = paper;
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+
+        if (mutable && stage === 'making') {
+          ctx.beginPath();
+          ctx.arc(x, y, 13, 0, Math.PI * 2);
+          ctx.strokeStyle = signal + '.42)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([2,3]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      });
+      ctx.restore();
+    };
+
+    const drawBeing = () => {
+      drawBackdrop(.18);
+      drawRelations('being');
+      drawNodes('being');
+    };
+
+    const drawSeeing = () => {
+      drawBackdrop(.09);
+      drawGrid();
+      drawRelations('seeing');
+      drawNodes('seeing');
+      ctx.save();
+      const focus = points[mutableIndex];
+      ctx.strokeStyle = signal + '.42)';
+      ctx.lineWidth = .9;
+      ctx.setLineDash([2,3]);
+      ctx.beginPath();
+      ctx.moveTo(78, focus[1]);
+      ctx.lineTo(562, focus[1]);
+      ctx.moveTo(focus[0], 60);
+      ctx.lineTo(focus[0], 380);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = signal + '.76)';
+      ctx.font = '600 8px "IBM Plex Mono", monospace';
+      ctx.fillText('FRAME / SELECTIVE', 408, 75);
+      ctx.restore();
+    };
+
+    const drawValuing = () => {
+      drawBackdrop(.07);
+      drawRelations('valuing');
+      drawNodes('valuing');
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(414, 219, 133, 145, -.08, 0, Math.PI * 2);
+      ctx.fillStyle = signal + '.035)';
+      ctx.fill();
+      ctx.strokeStyle = signal + '.42)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5,4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = signal + '.78)';
+      ctx.font = '600 8px "IBM Plex Mono", monospace';
+      ctx.fillText('ATTENTION / THRESHOLD', 385, 374);
+      ctx.restore();
+    };
+
+    const drawMaking = () => {
+      drawBackdrop(.08);
+      drawRelations('making');
+      drawNodes('making');
+      ctx.save();
+      const base = basePoints[mutableIndex];
+      const current = points[mutableIndex];
+      if (changed) {
+        ctx.strokeStyle = soft + '.32)';
+        ctx.lineWidth = .9;
+        ctx.setLineDash([3,4]);
+        ctx.beginPath();
+        ctx.moveTo(base[0], base[1]);
+        ctx.lineTo(current[0], current[1]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(base[0], base[1], 4, 0, Math.PI * 2);
+        ctx.strokeStyle = soft + '.42)';
+        ctx.stroke();
+      }
+      ctx.fillStyle = signal + '.82)';
+      ctx.font = '600 8px "IBM Plex Mono", monospace';
+      ctx.fillText(changed ? 'FIELD CHANGED' : 'DRAG THE SIGNAL NODE', 394, 374);
+      ctx.restore();
+    };
+
+    const draw = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const rect = plot.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        ctx.save();
+        ctx.scale(rect.width / W, rect.height / H);
+
+        if (activeStage === 'being') drawBeing();
+        else if (activeStage === 'seeing') drawSeeing();
+        else if (activeStage === 'valuing') drawValuing();
+        else drawMaking();
+
+        ctx.restore();
+      });
+    };
+
+    const resize = () => {
+      const rect = plot.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(rect.width * dpr));
+      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      draw();
+    };
+
+    const updateFieldState = () => {
+      if (!fieldStatus) return;
+      if (changed) {
+        fieldStatus.textContent = 'FIELD / CHANGED';
+      } else if (activeStage === 'being') {
+        fieldStatus.textContent = 'FIELD / RELATIONAL';
+      } else if (activeStage === 'seeing') {
+        fieldStatus.textContent = 'VIEW / FRAMED';
+      } else if (activeStage === 'valuing') {
+        fieldStatus.textContent = 'VALUE / SELECTIVE';
+      } else {
+        fieldStatus.textContent = 'INTERVENTION / READY';
+      }
+      if (resetButton) resetButton.hidden = !changed;
+    };
+
+    const renderStage = stage => {
+      if (!stages.includes(stage)) return;
+      activeStage = stage;
+      workbench.dataset.coordinateState = stage;
+      triggers.forEach(trigger => {
+        const active = trigger.dataset.coordinateTrigger === stage;
+        trigger.classList.toggle('is-active', active);
+        trigger.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      articles.forEach(article => article.classList.toggle('is-active', article.dataset.coordinate === stage));
+      const copy = readouts[stage];
+      if (readoutKicker) readoutKicker.textContent = copy[0];
+      if (readout) readout.textContent = copy[1];
+      if (probeReadout) probeReadout.textContent = copy[2];
+      updateFieldState();
+      draw();
+    };
+
+    const pointFromEvent = event => {
+      const rect = plot.getBoundingClientRect();
+      return [
+        (event.clientX - rect.left) / Math.max(1, rect.width) * W,
+        (event.clientY - rect.top) / Math.max(1, rect.height) * H
+      ];
+    };
+
+    const moveMutablePoint = (x, y) => {
+      points[mutableIndex] = [
+        Math.max(118, Math.min(530, x)),
+        Math.max(84, Math.min(356, y))
+      ];
+      const base = basePoints[mutableIndex];
+      changed = Math.hypot(points[mutableIndex][0] - base[0], points[mutableIndex][1] - base[1]) > 2;
+      updateFieldState();
+      draw();
+    };
+
+    triggers.forEach(trigger => {
+      trigger.addEventListener('click', () => renderStage(trigger.dataset.coordinateTrigger));
+    });
+
+    plot.addEventListener('pointerdown', event => {
+      if (activeStage !== 'making' || event.target.closest?.('button')) return;
+      const point = pointFromEvent(event);
+      const current = points[mutableIndex];
+      if (Math.hypot(point[0] - current[0], point[1] - current[1]) > 30) return;
+      dragging = true;
+      workbench.dataset.dragging = 'true';
+      plot.setPointerCapture?.(event.pointerId);
+      event.preventDefault();
+    });
+
+    plot.addEventListener('pointermove', event => {
+      if (!dragging || activeStage !== 'making') return;
+      const point = pointFromEvent(event);
+      moveMutablePoint(point[0], point[1]);
+    });
+
+    const stopDrag = event => {
+      if (!dragging) return;
+      dragging = false;
+      delete workbench.dataset.dragging;
+      if (event?.pointerId != null && plot.hasPointerCapture?.(event.pointerId)) {
+        plot.releasePointerCapture?.(event.pointerId);
+      }
+    };
+
+    plot.addEventListener('pointerup', stopDrag);
+    plot.addEventListener('pointercancel', stopDrag);
+    plot.addEventListener('lostpointercapture', stopDrag);
+
+    plot.addEventListener('keydown', event => {
+      if (activeStage !== 'making') return;
+      const step = event.shiftKey ? 12 : 5;
+      const current = points[mutableIndex];
+      let x = current[0];
+      let y = current[1];
+      if (event.key === 'ArrowLeft') x -= step;
+      else if (event.key === 'ArrowRight') x += step;
+      else if (event.key === 'ArrowUp') y -= step;
+      else if (event.key === 'ArrowDown') y += step;
+      else return;
+      event.preventDefault();
+      moveMutablePoint(x, y);
+    });
+
+    resetButton?.addEventListener('click', () => {
+      points = basePoints.map(point => [...point]);
+      changed = false;
+      updateFieldState();
+      draw();
+    });
 
     new ResizeObserver(resize).observe(plot);
-    if(transformMeta)transformMeta.textContent=transformLabels.scale;
-    renderStage('frame',true);
+    renderStage('being');
     resize();
   }
 
