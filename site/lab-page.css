@@ -164,12 +164,76 @@
   grid-template-columns: repeat(3, minmax(0,1fr));
 }
 
+/* The live instrument should read as a workbench, not a generic modal. */
+.instrument-dialog {
+  width: min(1500px, calc(100vw - 28px));
+  height: min(920px, calc(100dvh - 28px));
+  border-radius: 0;
+}
+.instrument-shell {
+  grid-template-rows: auto auto minmax(0,1fr) auto;
+}
+.instrument-head {
+  padding: 20px 24px 16px;
+}
+.instrument-head h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(34px, 3.5vw, 54px);
+}
+.instrument-meta {
+  grid-template-columns: minmax(0,1fr) minmax(420px,.8fr);
+  gap: 28px;
+  padding: 13px 24px 14px;
+}
+.instrument-meta p {
+  max-width: 760px;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.instrument-conditions {
+  align-self: stretch;
+}
+.instrument-stage {
+  padding: 14px;
+}
+.instrument-stage > * {
+  min-height: 0;
+}
+.instrument-foot {
+  padding: 10px 24px;
+  font-size: 10px;
+}
+.orbit-layout,
+.earth-layout,
+.world-layout,
+.pulse-layout,
+.figure-layout,
+.game-layout {
+  height: 100%;
+  min-height: 0;
+}
+.world-map-wrap,
+.world-panel,
+.orbit-globe,
+.orbit-panel,
+.earth-image-wrap,
+.earth-controls,
+.pulse-map-wrap,
+.figure-stage,
+.figure-control,
+.game-map-wrap,
+.game-panel {
+  border-radius: 0 !important;
+}
+
 @media (max-width: 1100px) {
   .lab-build-row { grid-template-columns: 64px minmax(180px,.7fr) minmax(0,1fr); }
   .lab-build-open { grid-column: 2 / -1; justify-self: start; }
   .lab-group-play .project-grid,
   .lab-group-observatory .project-grid,
   .lab-group-studies .project-grid { grid-template-columns: 1fr; }
+  .instrument-meta { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 760px) {
@@ -186,4 +250,5 @@
   .lab-build-open { grid-column: 2; }
   .lab-build-row p { font-size: 14px; }
   .lab-list { margin-top: 78px; }
+  .instrument-stage { padding: 0; }
 }
