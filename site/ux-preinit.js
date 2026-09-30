@@ -7,14 +7,14 @@
   // cannot hide interaction or contract updates behind a stale bootstrap.
   const interactionStyle = document.createElement('link');
   interactionStyle.rel = 'stylesheet';
-  interactionStyle.href = '/geo-interactions.css?v=20260930f';
+  interactionStyle.href = '/geo-interactions.css?v=20260930g';
   interactionStyle.dataset.geoInteraction = 'style';
   document.head.appendChild(interactionStyle);
 
   const loadInteractions = () => {
     if (document.querySelector('script[data-geo-interaction="script"]')) return;
     const script = document.createElement('script');
-    script.src = '/geo-interactions.js?v=20260930f';
+    script.src = '/geo-interactions.js?v=20260930g';
     script.dataset.geoInteraction = 'script';
     script.async = false;
     document.head.appendChild(script);
