@@ -38,7 +38,7 @@ The site also generates:
 - `/feed.xml`
 - metadata-only public indexes
 
-Non-critical legacy scripts (`previews.js`, Commons visit tracking) are converted to idle delivery; previews are omitted from article routes. Existing semantic-scale and visualization code is left intact unless it is already route-specific in the legacy templates.
+- Non-critical legacy scripts (`previews.js`, Commons visit tracking) are converted to idle delivery; previews are omitted from article routes. Existing semantic-scale and visualization code is left intact unless it is already route-specific in the legacy templates.
 
 ## P2 — scale controls
 
