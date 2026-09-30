@@ -19,7 +19,8 @@ This patch implements the P0–P2 program without replacing the existing framewo
 - `archive-content.js` keeps its existing compatibility shape but every `bodyHtml` value is emptied after the legacy QA passes.
 - `/data/field-notes.json` and `/data/site-index.json` contain metadata only.
 - `field-notes.html` receives a complete static list. The old JS target remains hidden for compatibility.
-- Homepage selected work is static. A compact plain-language orientation layer explains GIS / remote sensing / GeoAI / visualization and exposes READ / BUILD / EXPLORE routes.
+- Homepage IA is intentionally compact: Hero → Coordinates → Commons. The Hero carries the GeoGeek identity, “Geo to see. Geek to build.”, and the factual domain descriptor “GIS / GeoAI / Remote Sensing”; Field Notes / Lab / Atlas / Elsewhere remain primary navigation destinations rather than duplicated homepage shelves.
+- Retired Selected Work, homepage Orbital, legacy project / atlas / elsewhere shelves, and the former Commons gateway are excluded from production homepage CSS and JavaScript.
 - No-JavaScript reading is a QA invariant.
 
 ## P1 — SEO, discovery, distribution, and loading
@@ -38,7 +39,7 @@ The site also generates:
 - `/feed.xml`
 - metadata-only public indexes
 
-- Non-critical legacy scripts (`previews.js`, Commons visit tracking) are converted to idle delivery; previews are omitted from article routes. Existing semantic-scale and visualization code is left intact unless it is already route-specific in the legacy templates.
+- Route-specific preview code is omitted from the homepage and article routes; `previews.js` remains on routes that actually render project previews. Commons visit tracking stays non-critical where applicable. Existing semantic-scale and active visualization code is retained.
 
 ## P2 — scale controls
 
@@ -82,7 +83,7 @@ A production build is considered valid only when:
 - metadata indexes do not contain `bodyHtml`;
 - legacy archive payload has no non-empty article bodies;
 - Field Notes collection contains every record without JavaScript;
-- homepage selected work and orientation exist without JavaScript;
+- homepage Hero, domain descriptor, Coordinates, and Commons exist in first-response HTML, while retired homepage shelves are absent from production CSS and JavaScript;
 - each article has canonical, description, OG, and English JSON-LD;
 - sitemap contains English canonical article URLs and excludes legacy redirects;
 - RSS and JSON feeds are valid;

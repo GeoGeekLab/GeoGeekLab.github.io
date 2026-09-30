@@ -18,11 +18,6 @@
     if (node && value != null) node.textContent = value;
   }
 
-  function setAll(selector, values, root = document) {
-    $$(selector, root).forEach((node, index) => {
-      if (values[index] != null) node.textContent = values[index];
-    });
-  }
 
   const SCALE = {
     SITE: '1 : 250,000',
@@ -109,9 +104,7 @@
     }
 
     if (pageKey === 'home') {
-      setText('.hero-eyebrow', ui.hero?.eyebrow);
       setText('.hero-tagline', ui.hero?.tagline);
-      setAll('.hero-lexicon span', ui.hero?.lexicon || []);
       setText('.hero-origin-entry a', ui.hero?.origin);
       const heroOrigin = $('.hero-origin-entry a');
       if (heroOrigin) {
@@ -119,78 +112,6 @@
         if (ui.hero?.originAria) heroOrigin.setAttribute('aria-label', ui.hero.originAria);
       }
       setText('.hero-edge-right', ui.hero?.right);
-
-      const orbital = ui.orbitalThreshold || {};
-      const orbitalSection = $('#orbital-threshold');
-      if (orbitalSection) {
-        orbitalSection.setAttribute('aria-label', ui.a11y?.orbitalSection || ('Orbital observation field'));
-        $('#orbitalThresholdCanvas')?.setAttribute('aria-label', ui.a11y?.orbitalCanvas || ('Interactive Earth orbital field'));
-        setText('.orbital-eyebrow', orbital.eyebrow, orbitalSection);
-        setText('#orbitalPrompt', orbital.title, orbitalSection);
-        setText('#orbitalSub', orbital.subtitle, orbitalSection);
-        setText('#orbitalExplore', orbital.explore, orbitalSection);
-        setText('#orbitalStatus', orbital.status, orbitalSection);
-        setText('#orbitalDatum', orbital.datum, orbitalSection);
-        setText('#orbitalSelected span', orbital.selected, orbitalSection);
-        setText('#orbitalSelectedName', orbital.none, orbitalSection);
-        setText('#orbitTraceLabel', orbital.orbit, orbitalSection);
-        setText('#groundTraceLabel', orbital.ground, orbitalSection);
-        setText('#orbitalSource', orbital.source, orbitalSection);
-      }
-
-      const sectionKeys = ['notes', 'lab', 'atlas', 'elsewhere'];
-      const sectionIds = ['#field-notes', '#lab', '#atlas', '#elsewhere'];
-      sectionIds.forEach((selector, index) => {
-        const section = $(selector);
-        const copy = ui.home?.[sectionKeys[index]];
-        if (!section || !copy) return;
-        setText('.section-label', copy.label, section);
-        setText('.section-head h2', copy.title, section);
-        setText('.section-head p', copy.subtitle, section);
-      });
-
-      const cards = $$('#now .now-grid article');
-      (ui.home?.now?.cards || []).forEach((card, index) => {
-        const node = cards[index];
-        if (!node) return;
-        setText('span', card.label, node);
-        setText('h3', card.title, node);
-        setText('p', card.text, node);
-      });
-
-      const labRows = $$('#lab .preview-row');
-      if (labRows[0]) {
-        setText('time', ui.home?.lab?.prototype, labRows[0]);
-        setText('strong', ui.home?.lab?.prototypeTitle, labRows[0]);
-        setText('small', ui.home?.lab?.prototypeMeta, labRows[0]);
-      }
-      if (labRows[1]) {
-        setText('time', ui.home?.lab?.method, labRows[1]);
-        setText('strong', ui.home?.lab?.methodTitle, labRows[1]);
-        setText('small', ui.home?.lab?.methodMeta, labRows[1]);
-      }
-      setText('.atlas-caption', ui.home?.atlas?.caption);
-      const commons = $('#commons-gateway');
-      if (commons && ui.home?.commons) {
-        setText('.commons-gateway-kicker', ui.home.commons.kicker, commons);
-        setText('h2', ui.home.commons.title, commons);
-        setText('.commons-gateway-copy', ui.home.commons.subtitle, commons);
-        setText('#homeCommonsLocate', ui.home.commons.locate, commons);
-        setText('#homeCommonsEnter', ui.home.commons.enter, commons);
-        setText('.commons-gateway-privacy', ui.home.commons.privacy, commons);
-        setText('.home-commons-field-label', ui.home.commons.field, commons);
-        setText('#homeCommonsMode', ui.home.commons.mode, commons);
-        setText('.home-commons-foot > span', ui.home.commons.host, commons);
-        setText('#homeCommonsVisitsLabel', ui.commons?.metrics?.visits, commons);
-        setText('#homeCommonsPlacesLabel', ui.commons?.metrics?.places, commons);
-        setText('#homeCommonsObservationsLabel', ui.commons?.metrics?.observations, commons);
-        setText('#homeCommonsActiveLabel', ui.commons?.metrics?.active, commons);
-        setText('.commons-preview-loading', ui.commons?.map?.loading, commons);
-        $$('[data-home-commons-horizon]', commons).forEach(button => {
-          const key = button.dataset.homeCommonsHorizon;
-          if (ui.commons?.time?.horizons?.[key]) button.textContent = ui.commons.time.horizons[key];
-        });
-      }
     } else {
       const pageCopy = ui.pages?.[pageKey];
       if (pageCopy) {
@@ -335,7 +256,7 @@
     }, { passive: true });
 
     function bindContourTargets() {
-      $$('.contour-target, .preview-row, .note-row, .lab-row, .life-tile, .elsewhere-card').forEach(element => {
+      $$('.contour-target, .preview-row, .note-row, .lab-row, .elsewhere-card').forEach(element => {
         if (element.dataset.contourBound) return;
         element.dataset.contourBound = '1';
 
@@ -611,56 +532,6 @@
         sourceId: recordId
       };
     });
-  }
-
-  function renderHome() {
-    const latest = $('#latestNotes');
-    if (latest && data.notes) {
-      const notePicks = data.notes.filter(note => note.featured).slice(0, 3);
-      const visibleNotes = notePicks.length ? notePicks : data.notes.slice(0, 3);
-      latest.innerHTML = visibleNotes.map(note => `
-        <a class="preview-row contour-target" data-record-ref="notes:${note.id}" data-transition-source data-local-scale="${SCALE.RECORD}" data-local-level="RECORD" href="${recordUrl(`notes:${note.id}`)}">
-          <time>${note.date}</time><strong>${displayRecordTitle(note.title)}</strong><small>${note.series || note.type.toUpperCase()} · ${note.read}</small>
-        </a>`).join('');
-    }
-
-    const homeProjects = $('#homeProjects');
-    if (homeProjects && data.lab) {
-      const picks = data.lab.filter(item => item.featured).slice(0, 4);
-      homeProjects.innerHTML = picks
-        .map(item => `
-          <article class="project-card project-card-home contour-target${item.instrument ? ' is-actionable' : ''}" data-record-ref="lab:${item.id}" data-detail-href="${item.instrument ? `lab.html?instrument=${encodeURIComponent(item.instrument)}#${item.id}` : `${recordUrl(`lab:${item.id}`)}#detail`}" data-local-scale="${SCALE.RECORD}" data-local-level="RECORD" id="home-${item.id}">
-            <div class="project-visual project-visual-${labPreviewKind(item)}">${labPreviewMarkup(item)}</div>
-            <div class="project-copy">
-              <div class="project-meta"><span>${item.status}</span><span>${(item.tags || []).slice(0, 2).join(' · ')}</span></div>
-              <h3>${item.title}</h3>
-              <p>${item.description}</p>
-              <a class="project-cta" data-record-ref="lab:${item.id}" data-transition-source href="${recordUrl(`lab:${item.id}`)}">${'View record'} <b>↗</b></a>
-            </div>
-          </article>`).join('');
-    }
-
-    const homeAtlas = $('#homeAtlas');
-    const atlasPreviewItems = atlasItems();
-    if (homeAtlas && atlasPreviewItems.length) {
-      atlasPreviewItems.forEach(item => {
-        const dot = document.createElement('span');
-        dot.className = `atlas-dot ${item.type === 'lab' ? 'square' : item.type === 'place' ? 'cross' : item.type === 'photo' ? 'photo' : ''}`;
-        dot.style.left = `${item.x * 100}%`;
-        dot.style.top = `${item.y * 100}%`;
-        dot.title = item.title;
-        homeAtlas.appendChild(dot);
-      });
-    }
-
-    const life = $('#lifePreview');
-    if (life && data.elsewhere) {
-      life.innerHTML = data.elsewhere.map(item => `
-        <a class="life-tile contour-target" data-record-ref="elsewhere:${item.id}" data-transition-source data-local-scale="${SCALE.RECORD}" data-local-level="RECORD" href="${recordUrl(`elsewhere:${item.id}`)}">
-          <span class="kind">${item.kind}</span>
-          <div><h3>${item.title}</h3><p>${item.subtitle}</p><small>${item.meta}</small></div>
-        </a>`).join('');
-    }
   }
 
   function initNotes() {
@@ -1236,7 +1107,6 @@
     resize();
   }
   applyLocale();
-  renderHome();
   initNotes();
   renderLab();
   renderElsewhere();

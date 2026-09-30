@@ -83,7 +83,8 @@ const appSource = fs.readFileSync(path.join(root,'site','app.js'),'utf8');
 check(styles.includes('.archive-figure.is-ultrawide'),'Archive figure aspect-ratio calibration styles missing.');
 check(styles.includes('max-width: 720px'),'Long-form reading measure calibration missing.');
 check(appSource.includes('calibrateArchiveReading'),'Archive figure/reading calibration runtime missing.');
-check((appSource.match(/displayRecordTitle\(note\.title\)/g)||[]).length >= 2,'Archive titles must be consistent on home and collection views.');
+check((appSource.match(/displayRecordTitle\(note\.title\)/g)||[]).length >= 1,'Archive titles must use the shared displayRecordTitle helper in collection view.');
+check(!appSource.includes('function renderHome()'),'Retired homepage archive shelves must not return.');
 check(!appSource.includes('geogeek-language'),'Legacy language localStorage remains in app.js.');
 
 const englishOnlyRuntimeFiles = [

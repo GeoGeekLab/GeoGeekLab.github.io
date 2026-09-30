@@ -38,65 +38,6 @@
   // Commons remains part of the homepage, but not a numbered Sheet Index item.
   $$('.sheet-index-sub[data-sheet-link="commons-gateway"]').forEach(node => node.remove());
 
-  // Surface three actual Field Notes immediately after the hero without duplicating content data.
-  const selected = $('#selectedWorkRows');
-  const fillSelectedWork = () => {
-    if (!selected || selected.childElementCount) return true;
-    const sourceRows = $$('#latestNotes .preview-row').slice(0, 3);
-    if (!sourceRows.length) return false;
-    selected.replaceChildren(...sourceRows.map(row => {
-      const clone = row.cloneNode(true);
-      clone.removeAttribute('data-contour-bound');
-      return clone;
-    }));
-    window.bindContourTargets?.();
-    return true;
-  };
-  if (selected && !fillSelectedWork()) {
-    const latest = $('#latestNotes');
-    if (latest) {
-      const selectedObserver = new MutationObserver(() => {
-        if (fillSelectedWork()) selectedObserver.disconnect();
-      });
-      selectedObserver.observe(latest, { childList: true, subtree: true });
-    }
-  }
-  const applyLocalizedUxCopy = () => {
-    const copy = [
-      ['#selectedWorkKicker', 'SELECTED / FIELD NOTES'],
-      ['#selectedWorkTitle', 'Recent records from the archive.'],
-      ['#selectedWorkAll', 'OPEN FIELD NOTES ↗'],
-      ['#orbitalAssist', 'KEYBOARD · FOCUS THE FIELD AND PRESS ENTER TO OPEN THE ORBIT INSTRUMENT']
-    ];
-    for (const [selector, text] of copy) {
-      const node = $(selector);
-      if (node && node.textContent !== text) node.textContent = text;
-    }
-  };
-  applyLocalizedUxCopy();
-
-  // Orbital field: one-time interaction cue plus keyboard parity.
-  const canvas = $('#orbitalThresholdCanvas');
-  const instruction = $('#orbitalInstruction');
-  const dismissInstruction = () => {
-    instruction?.classList.add('is-dismissed');
-    try { sessionStorage.setItem('geogeek-orbit-onboarded', '1'); } catch {}
-  };
-  try {
-    if (sessionStorage.getItem('geogeek-orbit-onboarded') === '1') instruction?.classList.add('is-dismissed');
-  } catch {}
-  if (canvas) {
-    canvas.tabIndex = 0;
-    if ($('#orbitalAssist')) canvas.setAttribute('aria-describedby', 'orbitalAssist');
-    canvas.addEventListener('pointerdown', dismissInstruction, { once: true });
-    canvas.addEventListener('click', dismissInstruction, { once: true });
-    canvas.addEventListener('keydown', event => {
-      if (event.key !== 'Enter' && event.key !== ' ') return;
-      event.preventDefault();
-      location.href = 'lab.html?instrument=orbit#l04';
-    });
-  }
-
   // Compact information-scale readout, with keyboard and touch disclosure.
   const scale = $('.scale-ui');
   if (scale) {
@@ -146,7 +87,7 @@
 
   // Give source titles a transition identity for supported cross-document transitions.
   const titleForLink = link => {
-    const row = link.closest('.preview-row, .project-card-home, .atlas-preview');
+    const row = link.closest('.preview-row');
     return row?.querySelector('strong, h2, h3, .atlas-caption') || null;
   };
   document.addEventListener('click', event => {
@@ -242,10 +183,7 @@
   // Improve mobile semantics with card affordances and page-specific classes.
   document.body.classList.add(`ux-page-${pageKind}`);
   if (pageKind === 'home') {
-    $('#selected-work')?.setAttribute('data-ux-shelf', 'selected-work');
     $('#now')?.setAttribute('data-ux-shelf', 'coordinates');
-    $('#lab')?.setAttribute('data-ux-shelf', 'lab');
-    $('#elsewhere')?.setAttribute('data-ux-shelf', 'elsewhere');
   }
 
   // Ensure the mobile dock does not steal focus order before main content.
@@ -257,19 +195,6 @@
   'use strict';
   const $ = (sel, root = document) => root.querySelector(sel);
   const mobile = () => matchMedia('(max-width: 860px)').matches;
-
-  // Touch vocabulary: "MOVE" is a mouse instruction and reads incorrectly on phones.
-  const tuneOrbitalCue = () => {
-    if (!mobile()) return;
-    const cue = $('#orbitalInstruction');
-    if (!cue) return;
-    const spans = cue.querySelectorAll('span');
-    if (spans.length >= 3) {
-      spans[0].textContent = 'TAP';
-      spans[1].textContent = 'SELECT';
-      spans[2].textContent = 'TRACE';
-    }
-  };
 
   // Auto-hide bottom dock while reading down; restore on upward intent or near page end.
   let lastY = Math.max(0, scrollY);
@@ -310,16 +235,12 @@
   };
 
   const observer = new MutationObserver(() => {
-    tuneOrbitalCue();
     syncSiteMapState();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['open'] });
-
-  tuneOrbitalCue();
   syncDock();
   syncSiteMapState();
   addEventListener('resize', () => requestAnimationFrame(() => {
-    tuneOrbitalCue();
     syncDock();
     syncSiteMapState();
   }), { passive: true });

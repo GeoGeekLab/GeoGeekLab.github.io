@@ -29,8 +29,6 @@ window.GEOGEEK_ARCHIVE = {
         "a11y": {
           "primary": "Primary navigation",
           "scale": "Relative information scale",
-          "orbitalSection": "Orbital observation field",
-          "orbitalCanvas": "Interactive Earth orbital field",
           "instrumentPrinciple": "Instrument principle",
           "recordConditions": "Record conditions",
           "worldMap": "Interactive world map",
@@ -39,19 +37,6 @@ window.GEOGEEK_ARCHIVE = {
           "windFrame": "Live wind field",
           "pulseMap": "Earthquake observation map",
           "worldProjectionMap": "Interactive world projection map"
-        },
-        "orbitalThreshold": {
-          "eyebrow": "ORBITAL FIELD / EARTH IN VIEW",
-          "title": "Every orbit is a moving point of view.",
-          "subtitle": "Select one object to reveal its trace in orbit and on Earth.",
-          "explore": "EXPLORE ORBIT ↗",
-          "status": "READING CATALOG…",
-          "datum": "LAT / LON · —",
-          "selected": "SELECTED",
-          "none": "SELECT AN OBJECT",
-          "orbit": "TRACE IN ORBIT",
-          "ground": "TRACE ON EARTH",
-          "source": "RADIAL SCALE / COMPRESSED · CELESTRAK ACTIVE CATALOG · NATURAL EARTH · SOLAR TERMINATOR / UTC"
         },
         "sheet": {
           "title": "SHEET INDEX",
@@ -77,84 +62,10 @@ window.GEOGEEK_ARCHIVE = {
           }
         },
         "hero": {
-          "eyebrow": "A PERSONAL ATLAS OF SPACE, TIME & TRACE",
           "tagline": "Geo to see. Geek to build.",
-          "lexicon": [
-            "SPACE",
-            "TIME",
-            "PERSPECTIVE",
-            "TRACE"
-          ],
           "origin": "ORIGIN / WHY GeoGeek ↗",
           "originAria": "Enter GeoGeek Origin: Why GeoGeek",
           "right": "SCROLL / CHANGE SCALE ↓"
-        },
-        "home": {
-          "now": {
-            "label": "01 / CURRENT COORDINATES",
-            "title": "Every view begins somewhere.",
-            "subtitle": "Change the frame. Trace what changes. Trace what holds. Then make the claim.",
-            "cards": [
-              {
-                "label": "FIELD",
-                "title": "Relational geography.",
-                "text": "Space is read through boundary, adjacency, distance, scale, and encounter."
-              },
-              {
-                "label": "OBJECT",
-                "title": "Earth under observation.",
-                "text": "Measurements are conditioned by sensor, orbit, atmosphere, place, and time."
-              },
-              {
-                "label": "METHOD",
-                "title": "Geographic computation.",
-                "text": "GIS, remote sensing, visualization, and small instruments make assumptions operable."
-              },
-              {
-                "label": "CURRENT QUESTION",
-                "title": "What changes when the viewpoint changes?",
-                "text": "Scale, projection, representation, and observer alter what becomes legible."
-              }
-            ]
-          },
-          "notes": {
-            "label": "02 / FIELD NOTES",
-            "title": "Notes, kept in their time.",
-            "subtitle": "Observation · scale · causality · representation · practice."
-          },
-          "lab": {
-            "label": "03 / LAB",
-            "title": "Build the view.",
-            "subtitle": "Scale · assumptions · limits.",
-            "prototype": "PROTOTYPE",
-            "prototypeTitle": "The page as terrain",
-            "prototypeMeta": "WEB · CARTOGRAPHY · INTERACTION",
-            "method": "METHOD",
-            "methodTitle": "The geography of evidence",
-            "methodMeta": "GIS · REPRODUCIBILITY · SCALE"
-          },
-          "atlas": {
-            "label": "04 / ATLAS",
-            "title": "One archive, many relations.",
-            "subtitle": "Field · time · type · topic · trace · geography.",
-            "caption": "ATLAS · REPROJECT THE ARCHIVE ↗"
-          },
-          "elsewhere": {
-            "label": "05 / ELSEWHERE",
-            "title": "Beyond measure.",
-            "subtitle": "Images, places, reading, and other orientations."
-          },
-          "commons": {
-            "kicker": "COMMONS / SHARED FIELD",
-            "title": "You are somewhere too.",
-            "subtitle": "To be somewhere is already to be among others.",
-            "locate": "LOCATE",
-            "enter": "ENTER COMMONS ↗",
-            "privacy": "Location is private until you choose to light an approximate place.",
-            "field": "VISITS / SPACE × TIME",
-            "mode": "ANONYMOUS · COARSE LOCATION",
-            "host": "◎ WUHAN / HOST"
-          }
         },
         "pages": {
           "notes": {

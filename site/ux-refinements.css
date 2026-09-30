@@ -1,60 +1,14 @@
 /* GeoGeek UX v4 — homepage refinement layer */
-:root {
+:root{
   --muted: #59655d;
   --preview-surface: rgba(246,244,238,.84);
 }
 
 /* 1. Keep the original hero language. No added explanatory subtitle. */
-.hero.hero-centered { min-height: 96svh; }
-
-/* 2. Surface real records immediately after the hero. */
-.selected-work {
-  position: relative;
-  z-index: 2;
-  padding: clamp(62px,7vw,92px) var(--pad) clamp(68px,7.5vw,104px);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line-soft);
-  background: linear-gradient(180deg, rgba(246,244,238,.58), rgba(246,244,238,.18));
-}
-.selected-work-head {
-  display: grid;
-  grid-template-columns: minmax(180px,220px) minmax(0,1fr);
-  gap: clamp(30px,4vw,64px);
-  align-items: end;
-  margin-bottom: 30px;
-}
-.selected-work-kicker {
-  color: var(--muted);
-  font: 700 11px/1.2 var(--mono);
-  letter-spacing: .11em;
-}
-.selected-work-head h2 {
-  margin: 0;
-  font-size: clamp(31px,3.7vw,54px);
-  line-height: .98;
-  letter-spacing: -.045em;
-  font-weight: 560;
-}
-.selected-work-head a {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  margin-top: 12px;
-  color: var(--signal);
-  font: 700 11px/1 var(--mono);
-  letter-spacing: .065em;
-}
-.selected-work-list { border-top: 1px solid var(--line); }
-.selected-work-list .preview-row {
-  min-height: 72px;
-  padding: 18px 0;
-  grid-template-columns: minmax(92px,120px) minmax(0,1fr) minmax(170px,auto);
-}
-.selected-work-list .preview-row strong { font-size: clamp(19px,2vw,27px); }
-.selected-work-list .preview-row small { color: var(--muted); }
+.hero.hero-centered{ min-height: 96svh; }
 
 /* 3. Scale becomes a compact readout; detail is disclosed on intent. */
-.scale-ui {
+.scale-ui{
   min-width: 0;
   display: inline-grid;
   grid-template-columns: auto auto;
@@ -67,11 +21,10 @@
   opacity: .82;
   cursor: pointer;
 }
-.scale-ui > span,
-.scale-ui > .scale-mode { display: none; }
-.scale-ui > strong { font-size: 12px; }
-.scale-ui > em { font-size: 10px; }
-.scale-ui::before {
+.scale-ui > span, .scale-ui > .scale-mode{ display: none; }
+.scale-ui > strong{ font-size: 12px; }
+.scale-ui > em{ font-size: 10px; }
+.scale-ui::before{
   content: "SCALE";
   grid-column: 1 / -1;
   justify-self: end;
@@ -79,16 +32,9 @@
   font: 700 9px/1 var(--mono);
   letter-spacing: .12em;
 }
-.scale-legend { top: calc(100% + 8px); }
-body.origin-active .scale-ui { opacity: .56; }
-body.orbital-active .scale-ui {
-  border-color: rgba(241,239,231,.14);
-  background: rgba(11,17,14,.76);
-}
-
-/* 4. Treat the orbital field as the signature interaction. */
-.orbital-stage { isolation: isolate; }
-.orbital-instruction {
+.scale-legend{ top: calc(100% + 8px); }
+body.origin-active .scale-ui{ opacity: .56; }
+.orbital-instruction{
   position: absolute;
   z-index: 6;
   left: 50%;
@@ -108,76 +54,47 @@ body.orbital-active .scale-ui {
   pointer-events: none;
   transition: opacity .28s var(--ease), transform .28s var(--ease);
 }
-.orbital-instruction i {
+.orbital-instruction i{
   width: 3px;
   height: 3px;
   border-radius: 50%;
   background: #dc7753;
 }
-.orbital-instruction.is-dismissed {
+.orbital-instruction.is-dismissed{
   opacity: 0;
   transform: translate(-50%,5px);
 }
-.orbital-keyboard-note {
+.orbital-keyboard-note{
   margin: 8px 0 0;
   color: #aeb7af;
   font: 650 10px/1.45 var(--mono);
   letter-spacing: .045em;
 }
-#orbitalThresholdCanvas:focus-visible {
-  outline: 1px solid #dc7753;
-  outline-offset: -3px;
-}
 
 /* 5. Make Site Index read like an index/instrument, not a generic menu. */
-.site-map .spatial-browser-head > div > span { color: #aab5ad; }
-.site-map .spatial-browser-head h2 { letter-spacing: -.06em; }
-.site-map-node span { color: #a0aba3; }
-.map-inspector p { color: #aab5ad; }
-.map-scale button,
-.map-inspector-actions a,
-.map-inspector-actions button,
-.site-map-modes button { min-height: 44px; }
-.site-map-node::after {
+.site-map .spatial-browser-head > div > span{ color: #aab5ad; }
+.site-map .spatial-browser-head h2{ letter-spacing: -.06em; }
+.site-map-node span{ color: #a0aba3; }
+.map-inspector p{ color: #aab5ad; }
+.map-scale button, .map-inspector-actions a, .map-inspector-actions button, .site-map-modes button{ min-height: 44px; }
+.site-map-node::after{
   content: "";
   position: absolute;
   inset: -12px -10px;
 }
 
 /* 6. Information-bearing metadata gets stronger contrast. */
-.home-section[data-scale="1 : 25,000"] .section-label::after { color: #68746c; }
-.project-meta,
-.note-meta,
-.lab-coord,
-.atlas-caption,
-.home-commons-field-label,
-.commons-gateway-privacy { color: var(--muted); }
+.home-section[data-scale="1 : 25,000"] .section-label::after{ color: #68746c; }
+.project-meta, .note-meta, .lab-coord, .atlas-caption{ color: var(--muted); }
 
 /* 7. Small visual controls keep large hit areas. */
-.nav-toggle { min-height: 44px; padding-inline: 14px; }
-.scale-step { min-height: 44px; }
-.home-commons-horizon button { min-height: 44px; min-width: 44px; }
-
-/* 8. Component-level responsiveness for home project cards. */
-.home-project-grid { container-type: inline-size; }
-@container (max-width: 760px) {
-  .home-project-grid .project-card-home { min-width: 0; }
-  .home-project-grid .project-copy { padding: 22px; }
-}
+.nav-toggle{ min-height: 44px; padding-inline: 14px; }
+.scale-step{ min-height: 44px; }
 
 /* Mobile: the scale readout becomes a bottom instrument rather than another top-right badge. */
-@media (max-width: 760px) {
-  .selected-work { padding: 54px 18px 62px; }
-  .selected-work-head { grid-template-columns: 1fr; gap: 14px; }
-  .selected-work-head h2 { font-size: clamp(30px,10vw,42px); }
-  .selected-work-list .preview-row {
-    min-height: 88px;
-    grid-template-columns: 74px minmax(0,1fr);
-    gap: 8px 14px;
-  }
-  .selected-work-list .preview-row small { grid-column: 2; text-align: left; }
+@media (max-width: 760px){
 
-  .scale-ui {
+  .scale-ui{
     top: auto !important;
     right: 14px !important;
     bottom: max(14px, env(safe-area-inset-bottom)) !important;
@@ -185,100 +102,86 @@ body.orbital-active .scale-ui {
     border-radius: 0 !important;
     min-width: 0 !important;
   }
-  .scale-ui::before { display: none; }
-  .scale-legend { right: 0 !important; top: auto !important; bottom: calc(100% + 8px); }
+  .scale-ui::before{ display: none; }
+  .scale-legend{ right: 0 !important; top: auto !important; bottom: calc(100% + 8px); }
 
-  .orbital-instruction {
+  .orbital-instruction{
     bottom: 76px;
     min-height: 34px;
     max-width: calc(100% - 28px);
     white-space: nowrap;
   }
-  .orbital-keyboard-note { display: none; }
+  .orbital-keyboard-note{ display: none; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .orbital-instruction { transition: none; }
+@media (prefers-reduced-motion: reduce){
+  .orbital-instruction{ transition: none; }
 }
 
 /* GeoGeek UX v4 — shared production refinement layer. */
 
-:root {
+:root{
   --preview-mobile-pad: 18px;
   --preview-touch: 44px;
 }
 
-html { scroll-padding-top: 72px; }
-body { overflow-x: clip; }
+html{ scroll-padding-top: 72px; }
+body{ overflow-x: clip; }
 
 /* Remove the Commons sub-index entry without removing Commons itself. */
-.sheet-index-sub[data-sheet-link="commons-gateway"] { display: none !important; }
+.sheet-index-sub[data-sheet-link="commons-gateway"]{ display: none !important; }
 
 /* Keep the two navigation systems distinct: Sheet Index = place, Scale = information depth. */
-.scale-ui {
+.scale-ui{
   transition: opacity .22s ease, transform .22s ease, background-color .22s ease, border-color .22s ease;
 }
-.scale-ui.is-near-footer,
-body.ux-index-open .scale-ui {
+.scale-ui.is-near-footer, body.ux-index-open .scale-ui{
   opacity: 0 !important;
   transform: translateY(8px);
   pointer-events: none;
 }
-.scale-ui:focus-visible { outline: 1px solid var(--signal, #a64624); outline-offset: 3px; }
+.scale-ui:focus-visible{ outline: 1px solid var(--signal, #a64624); outline-offset: 3px; }
 
 /* Information-bearing muted text: preserve hierarchy without falling into decorative contrast. */
-.project-meta,
-.note-meta,
-.lab-coord,
-.atlas-caption,
-.home-commons-field-label,
-.commons-gateway-privacy,
-.collection-meta,
-.record-meta,
-.site-map-node span,
-.map-inspector p { color: var(--muted, #59655d); }
+.project-meta, .note-meta, .lab-coord, .atlas-caption, .collection-meta, .record-meta, .site-map-node span, .map-inspector p{ color: var(--muted, #59655d); }
 
 /* Render cost: below-fold editorial sections can skip paint/layout until needed. */
-.home-section,
-.selected-work,
-.footer {
+.home-section, .footer{
   content-visibility: auto;
   contain-intrinsic-size: 1px 820px;
 }
 
 /* Stable chrome + title continuity on browsers that support cross-document View Transitions. */
 @view-transition { navigation: auto; }
-.site-nav { view-transition-name: geogeek-site-nav; }
-body.ux-inner-page main h1:first-of-type { view-transition-name: geogeek-page-title; }
-::view-transition-old(root),
-::view-transition-new(root) { animation: none; }
-::view-transition-old(geogeek-site-nav),
-::view-transition-new(geogeek-site-nav) { animation-duration: .18s; }
-::view-transition-old(geogeek-page-title) {
+.site-nav{ view-transition-name: geogeek-site-nav; }
+body.ux-inner-page main h1:first-of-type{ view-transition-name: geogeek-page-title; }
+::view-transition-old(root), ::view-transition-new(root){ animation: none; }
+::view-transition-old(geogeek-site-nav), ::view-transition-new(geogeek-site-nav){ animation-duration: .18s; }
+::view-transition-old(geogeek-page-title){
   animation: preview-title-out .24s cubic-bezier(.2,.7,.2,1) both;
 }
-::view-transition-new(geogeek-page-title) {
+::view-transition-new(geogeek-page-title){
   animation: preview-title-in .34s cubic-bezier(.2,.7,.2,1) both;
 }
 @keyframes preview-title-out { to { opacity: 0; transform: translateY(-8px) scale(.985); } }
 @keyframes preview-title-in { from { opacity: 0; transform: translateY(10px) scale(.985); } }
 
 /* Conserve work when the browser explicitly signals data saving. */
-body.ux-data-saver .bg-field { display: none !important; }
-body.ux-data-saver canvas { image-rendering: auto; }
+body.ux-data-saver .bg-field{ display: none !important; }
+body.ux-data-saver canvas{ image-rendering: auto; }
 
 /* ---------------- Mobile-first refinements ---------------- */
-@media (max-width: 760px) {
-  :root { --preview-mobile-pad: max(18px, env(safe-area-inset-left)); }
+@media (max-width: 760px){
+  :root{ --preview-mobile-pad: max(18px, env(safe-area-inset-left)); }
 
-  html { scroll-padding-top: 66px; }
-  body {
+  html{ scroll-padding-top: 66px; }
+  body{
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
   }
 
   /* Navigation: compact, thumb-safe and safe-area aware. */
-  .site-nav {
+  .site-nav{
     min-height: 60px;
     padding-top: max(8px, env(safe-area-inset-top));
     padding-right: max(14px, env(safe-area-inset-right));
@@ -288,17 +191,16 @@ body.ux-data-saver canvas { image-rendering: auto; }
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
   }
-  .brand,
-  .nav-toggle { min-height: var(--preview-touch); }
-  .nav-toggle { min-width: 68px; padding-inline: 14px !important; }
+  .brand, .nav-toggle{ min-height: var(--preview-touch); }
+  .nav-toggle{ min-width: 68px; padding-inline: 14px !important; }
 
   /* Mobile Site Index becomes a true full-screen index rather than a desktop panel squeezed down. */
-  .site-map {
+  .site-map{
     padding: 0 !important;
     align-items: stretch !important;
     justify-content: stretch !important;
   }
-  .site-map .spatial-browser {
+  .site-map .spatial-browser{
     width: 100% !important;
     max-width: none !important;
     min-height: 100dvh !important;
@@ -307,171 +209,70 @@ body.ux-data-saver canvas { image-rendering: auto; }
     border: 0 !important;
     border-radius: 0 !important;
   }
-  .site-map .spatial-browser-head {
+  .site-map .spatial-browser-head{
     padding-top: max(18px, env(safe-area-inset-top)) !important;
     padding-right: max(16px, env(safe-area-inset-right)) !important;
     padding-left: max(16px, env(safe-area-inset-left)) !important;
   }
-  .site-map-node,
-  .site-map-modes button,
-  .map-scale button,
-  .map-inspector-actions a,
-  .map-inspector-actions button { min-height: var(--preview-touch) !important; }
+  .site-map-node, .site-map-modes button, .map-scale button, .map-inspector-actions a, .map-inspector-actions button{ min-height: var(--preview-touch) !important; }
 
   /* Hero: still cinematic, but no longer consumes nearly two phone screens once browser chrome is counted. */
-  .hero.hero-centered {
+  .hero.hero-centered{
     min-height: 86svh !important;
     padding-inline: var(--preview-mobile-pad) !important;
   }
-  .hero-copy { width: min(100%, 640px); }
-  .hero-eyebrow {
+  .hero-copy{ width: min(100%, 640px); }
+  .hero-eyebrow{
     max-width: 34ch;
     margin-inline: auto;
     line-height: 1.55;
   }
-  .hero .display {
+  .hero .display{
     font-size: clamp(60px, 20.5vw, 94px) !important;
     line-height: .88 !important;
     letter-spacing: -.075em !important;
   }
-  .hero-tagline { font-size: clamp(16px, 4.7vw, 20px) !important; }
-  .hero-lexicon {
+  .hero-tagline{ font-size: clamp(16px, 4.7vw, 20px) !important; }
+  .hero-lexicon{
     flex-wrap: wrap;
     justify-content: center;
     row-gap: 10px;
     max-width: 330px;
     margin-inline: auto;
   }
-  .hero-edge { font-size: 9px !important; letter-spacing: .08em !important; }
-  .hero-edge-left { left: var(--preview-mobile-pad) !important; }
-  .hero-edge-right { right: var(--preview-mobile-pad) !important; }
-
-  /* Real content directly after hero: concise phone rhythm, not a desktop table collapsed to one column. */
-  .selected-work {
-    padding: 48px var(--preview-mobile-pad) 54px !important;
-  }
-  .selected-work-head { margin-bottom: 20px !important; }
-  .selected-work-head h2 {
-    max-width: 12ch;
-    font-size: clamp(30px, 9.8vw, 42px) !important;
-    line-height: 1.02 !important;
-  }
-  .selected-work-head a { margin-top: 8px !important; }
-  .selected-work-list .preview-row {
-    min-height: 96px !important;
-    padding: 17px 0 !important;
-  }
-  .selected-work-list .preview-row strong {
-    font-size: clamp(18px, 5.6vw, 23px) !important;
-    line-height: 1.12 !important;
-  }
-
-  /* Orbital signature interaction: prioritize the field, then place copy below it. */
-  .orbital-shell { min-width: 0; }
-  .orbital-stage {
-    min-height: min(64svh, 560px) !important;
-    max-height: 620px;
-  }
-  .orbital-copy {
-    padding-right: var(--preview-mobile-pad) !important;
-    padding-left: var(--preview-mobile-pad) !important;
-    gap: 20px !important;
-  }
-  .orbital-copy h2 {
-    max-width: 13ch;
-    font-size: clamp(30px, 9vw, 42px) !important;
-    line-height: 1.02 !important;
-  }
-  .orbital-copy > a {
-    min-height: var(--preview-touch);
-    display: inline-flex;
-    align-items: center;
-  }
-  .orbital-instruction {
+  .hero-edge{ font-size: 9px !important; letter-spacing: .08em !important; }
+  .hero-edge-left{ left: var(--preview-mobile-pad) !important; }
+  .hero-edge-right{ right: var(--preview-mobile-pad) !important; }
+  .orbital-instruction{
     bottom: max(72px, calc(env(safe-area-inset-bottom) + 60px)) !important;
     min-height: 36px !important;
     padding-inline: 12px !important;
     letter-spacing: .075em !important;
   }
-  .orbital-selected { max-width: calc(100% - 28px) !important; }
-  .orbital-status,
-  .orbital-datum,
-  .orbital-source { font-size: 9px !important; }
 
   /* Editorial sections: one predictable reading column with less lateral competition. */
-  .home-section,
-  .home-commons {
+  .home-section{
     padding-right: var(--preview-mobile-pad) !important;
     padding-left: var(--preview-mobile-pad) !important;
   }
-  .section-head,
-  .home-commons-head {
+  .section-head{
     grid-template-columns: minmax(0,1fr) !important;
     gap: 16px !important;
   }
-  .section-head h2,
-  .home-commons-head h2 {
+  .section-head h2{
     max-width: 14ch;
     font-size: clamp(30px, 9.2vw, 42px) !important;
     line-height: 1.02 !important;
   }
-  .section-head p,
-  .home-commons-head p { max-width: 48ch; }
-  .now-grid,
-  .project-grid,
-  .home-project-grid {
+  .section-head p{ max-width: 48ch; }
+  .project-grid{
     grid-template-columns: minmax(0,1fr) !important;
   }
-  .contour-target { min-width: 0; }
-
-  /* Commons: controls become a deliberate mobile dashboard. */
-  .commons-gateway-actions {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-    width: 100%;
-    gap: 8px !important;
-  }
-  .commons-gateway-actions a {
-    min-height: var(--preview-touch);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-  .home-commons-metrics {
-    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-  }
-  .home-commons-toolbar {
-    align-items: stretch !important;
-    flex-direction: column !important;
-    gap: 14px !important;
-  }
-  .home-commons-horizon {
-    width: 100%;
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0,1fr)) !important;
-  }
-  .home-commons-horizon button {
-    min-width: 0 !important;
-    min-height: var(--preview-touch) !important;
-  }
-  .home-commons-map-mount {
-    min-height: min(58svh, 520px) !important;
-  }
-  .home-commons-foot {
-    align-items: flex-start !important;
-    flex-direction: column !important;
-    gap: 9px !important;
-  }
-
-  /* Atlas and card-like entry surfaces stay large enough to feel intentional on touch. */
-  .atlas-preview { min-height: min(58svh, 520px) !important; }
-  .project-card-home a,
-  .preview-row,
-  .life-card a { -webkit-tap-highlight-color: rgba(166,70,36,.10); }
+  .contour-target{ min-width: 0; }
+  .preview-row, .life-card a{ -webkit-tap-highlight-color: rgba(166,70,36,.10); }
 
   /* Compact scale = unobtrusive bottom readout. It disappears near footer or while Index is open. */
-  .scale-ui {
+  .scale-ui{
     top: auto !important;
     right: max(12px, env(safe-area-inset-right)) !important;
     bottom: max(12px, env(safe-area-inset-bottom)) !important;
@@ -479,7 +280,7 @@ body.ux-data-saver canvas { image-rendering: auto; }
     max-width: calc(100vw - 24px);
     box-shadow: 0 8px 28px rgba(21,32,25,.08);
   }
-  .scale-legend {
+  .scale-legend{
     right: 0 !important;
     left: auto !important;
     top: auto !important;
@@ -490,53 +291,38 @@ body.ux-data-saver canvas { image-rendering: auto; }
   }
 
   /* Collection/detail pages: keep controls usable and reduce horizontal compression. */
-  body.ux-inner-page main { min-width: 0; }
-  body.ux-inner-page main > section,
-  body.ux-inner-page main > article { min-width: 0; }
-  body.ux-inner-page [role="tablist"],
-  body.ux-inner-page .filters,
-  body.ux-inner-page .filter-row,
-  body.ux-inner-page .projection-controls {
+  body.ux-inner-page main{ min-width: 0; }
+  body.ux-inner-page main > section, body.ux-inner-page main > article{ min-width: 0; }
+  body.ux-inner-page [role="tablist"], body.ux-inner-page .filters, body.ux-inner-page .filter-row, body.ux-inner-page .projection-controls{
     max-width: 100%;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
-  body.ux-inner-page [role="tablist"]::-webkit-scrollbar,
-  body.ux-inner-page .filters::-webkit-scrollbar,
-  body.ux-inner-page .filter-row::-webkit-scrollbar,
-  body.ux-inner-page .projection-controls::-webkit-scrollbar { display: none; }
-  body.ux-inner-page button,
-  body.ux-inner-page [role="button"] { touch-action: manipulation; }
+  body.ux-inner-page [role="tablist"]::-webkit-scrollbar, body.ux-inner-page .filters::-webkit-scrollbar, body.ux-inner-page .filter-row::-webkit-scrollbar, body.ux-inner-page .projection-controls::-webkit-scrollbar{ display: none; }
+  body.ux-inner-page button, body.ux-inner-page [role="button"]{ touch-action: manipulation; }
 
-  .footer {
+  .footer{
     padding-right: max(var(--preview-mobile-pad), env(safe-area-inset-right)) !important;
     padding-bottom: max(24px, env(safe-area-inset-bottom)) !important;
     padding-left: max(var(--preview-mobile-pad), env(safe-area-inset-left)) !important;
   }
 }
 
-@media (max-width: 480px) {
-  .hero.hero-centered { min-height: 82svh !important; }
-  .hero .display { font-size: clamp(56px, 19.5vw, 82px) !important; }
-  .selected-work-list .preview-row {
-    grid-template-columns: 62px minmax(0,1fr) !important;
-    column-gap: 12px !important;
-  }
-  .selected-work-list .preview-row small { grid-column: 2 !important; }
-  .commons-gateway-actions { grid-template-columns: 1fr !important; }
-  .home-commons-metrics { gap: 0 !important; }
+@media (max-width: 480px){
+  .hero.hero-centered{ min-height: 82svh !important; }
+  .hero .display{ font-size: clamp(56px, 19.5vw, 82px) !important; }
 }
 
-@media (hover: none) and (pointer: coarse) {
-  a, button { touch-action: manipulation; }
-  .site-map-node::after { inset: -14px -12px !important; }
+@media (hover: none) and (pointer: coarse){
+  a, button{ touch-action: manipulation; }
+  .site-map-node::after{ inset: -14px -12px !important; }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce){
   @view-transition { navigation: none; }
-  .scale-ui { transition: none; }
+  .scale-ui{ transition: none; }
 }
 
 /* =========================================================
@@ -544,8 +330,8 @@ body.ux-data-saver canvas { image-rendering: auto; }
    Goal: preserve framework, substantially improve mobile use.
    ========================================================= */
 
-@media (max-width: 860px) {
-  body.ux-mobile-v5 {
+@media (max-width: 860px){
+  body.ux-mobile-v5{
     --mobile-dock-h: calc(72px + env(safe-area-inset-bottom));
     --mobile-chip-h: 42px;
     --mobile-card-radius: 18px;
@@ -555,18 +341,16 @@ body.ux-data-saver canvas { image-rendering: auto; }
     --mobile-border: rgba(21,32,25,.10);
   }
 
-  body.ux-mobile-v5 main,
-  body.ux-mobile-v5 .page-shell,
-  body.ux-mobile-v5 .footer {
+  body.ux-mobile-v5 main, body.ux-mobile-v5 .page-shell, body.ux-mobile-v5 .footer{
     padding-bottom: calc(var(--mobile-dock-h) + 10px);
   }
 
-  body.ux-mobile-v5 .scale-ui {
+  body.ux-mobile-v5 .scale-ui{
     bottom: calc(var(--mobile-dock-h) + 10px) !important;
   }
 
   /* Top bar: lighter, calmer, more native-app-like. */
-  body.ux-mobile-v5 .site-nav {
+  body.ux-mobile-v5 .site-nav{
     position: sticky;
     top: 0;
     z-index: 24;
@@ -576,24 +360,24 @@ body.ux-data-saver canvas { image-rendering: auto; }
     background: color-mix(in srgb, var(--bg) 88%, white);
     box-shadow: 0 4px 22px rgba(21,32,25,.04);
   }
-  body.ux-mobile-v5 .brand {
+  body.ux-mobile-v5 .brand{
     gap: 10px;
     min-width: 0;
   }
-  body.ux-mobile-v5 .brand span:last-child {
+  body.ux-mobile-v5 .brand span:last-child{
     font-size: 14px;
     letter-spacing: .01em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  body.ux-mobile-v5 .nav-toggle {
+  body.ux-mobile-v5 .nav-toggle{
     min-width: 64px;
     border-radius: 999px;
     background: rgba(21,32,25,.04);
     border: 1px solid rgba(21,32,25,.08);
   }
-  body.ux-mobile-v5.ux-nav-condensed .site-nav {
+  body.ux-mobile-v5.ux-nav-condensed .site-nav{
     min-height: 54px;
     padding-top: max(6px, env(safe-area-inset-top));
     padding-bottom: 6px;
@@ -601,12 +385,12 @@ body.ux-data-saver canvas { image-rendering: auto; }
   }
 
   /* Full-screen index becomes a true mobile navigation sheet. */
-  body.ux-mobile-v5 .site-map .spatial-browser {
+  body.ux-mobile-v5 .site-map .spatial-browser{
     background:
       radial-gradient(circle at 110% 120%, rgba(166,70,36,.06), transparent 34%),
       linear-gradient(180deg, rgba(246,244,238,.99), rgba(246,244,238,.96));
   }
-  body.ux-mobile-v5 .site-map .spatial-browser-head {
+  body.ux-mobile-v5 .site-map .spatial-browser-head{
     position: sticky;
     top: 0;
     z-index: 3;
@@ -614,33 +398,31 @@ body.ux-data-saver canvas { image-rendering: auto; }
     background: linear-gradient(180deg, rgba(246,244,238,.98), rgba(246,244,238,.92));
     backdrop-filter: blur(12px);
   }
-  body.ux-mobile-v5 .site-map .spatial-browser-head h2 {
+  body.ux-mobile-v5 .site-map .spatial-browser-head h2{
     font-size: clamp(26px, 8vw, 34px);
     line-height: .96;
   }
-  body.ux-mobile-v5 .site-map .spatial-browser-layout {
+  body.ux-mobile-v5 .site-map .spatial-browser-layout{
     display: grid;
     grid-template-columns: 1fr !important;
     gap: 0 !important;
     min-height: 0;
   }
-  body.ux-mobile-v5 .site-map .site-map-graph {
+  body.ux-mobile-v5 .site-map .site-map-graph{
     padding: 8px max(16px, env(safe-area-inset-right)) 18px max(16px, env(safe-area-inset-left)) !important;
   }
-  body.ux-mobile-v5 .site-map-node {
+  body.ux-mobile-v5 .site-map-node{
     border-radius: 14px;
     border: 1px solid transparent;
     padding-inline: 10px !important;
     transition: background-color .18s ease, border-color .18s ease, transform .18s ease;
   }
-  body.ux-mobile-v5 .site-map-node:active,
-  body.ux-mobile-v5 .site-map-node:hover,
-  body.ux-mobile-v5 .site-map-node.is-active {
+  body.ux-mobile-v5 .site-map-node:active, body.ux-mobile-v5 .site-map-node:hover, body.ux-mobile-v5 .site-map-node.is-active{
     background: rgba(21,32,25,.04);
     border-color: rgba(21,32,25,.08);
     transform: translateX(2px);
   }
-  body.ux-mobile-v5 .site-map .map-inspector {
+  body.ux-mobile-v5 .site-map .map-inspector{
     position: sticky;
     bottom: 0;
     z-index: 2;
@@ -651,49 +433,42 @@ body.ux-data-saver canvas { image-rendering: auto; }
   }
 
   /* Homepage reframed around card rhythm and scroll-snap shelves. */
-  body.ux-mobile-v5 .hero.hero-centered {
+  body.ux-mobile-v5 .hero.hero-centered{
     min-height: min(80svh, 760px) !important;
     padding-top: max(22px, env(safe-area-inset-top));
     padding-bottom: 30px;
   }
-  body.ux-mobile-v5 .hero-copy {
+  body.ux-mobile-v5 .hero-copy{
     padding: 28px 18px 24px;
     border: 1px solid rgba(21,32,25,.08);
     background: linear-gradient(180deg, rgba(246,244,238,.56), rgba(246,244,238,.18));
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.4);
   }
-  body.ux-mobile-v5 .hero .display {
+  body.ux-mobile-v5 .hero .display{
     font-size: clamp(56px, 18vw, 82px) !important;
   }
-  body.ux-mobile-v5 .hero-tagline {
+  body.ux-mobile-v5 .hero-tagline{
     margin-top: 16px;
     font-size: clamp(18px, 4.8vw, 20px) !important;
   }
-  body.ux-mobile-v5 .hero-lexicon {
+  body.ux-mobile-v5 .hero-lexicon{
     margin-top: 18px;
     gap: 8px;
   }
-  body.ux-mobile-v5 .hero-lexicon span {
+  body.ux-mobile-v5 .hero-lexicon span{
     padding: 8px 10px;
     border: 1px solid rgba(21,32,25,.08);
     background: rgba(255,255,255,.35);
   }
-  body.ux-mobile-v5 .hero-edge { opacity: .72; }
+  body.ux-mobile-v5 .hero-edge{ opacity: .72; }
 
-  body.ux-mobile-v5 .selected-work,
-  body.ux-mobile-v5 .home-section,
-  body.ux-mobile-v5 .home-commons {
+  body.ux-mobile-v5 .home-section{
     position: relative;
   }
-  body.ux-mobile-v5 .selected-work-head,
-  body.ux-mobile-v5 .section-head,
-  body.ux-mobile-v5 .home-commons-head {
+  body.ux-mobile-v5 .section-head{
     margin-bottom: 18px !important;
   }
-  body.ux-mobile-v5 .selected-work-list,
-  body.ux-mobile-v5 .now-grid,
-  body.ux-mobile-v5 .home-project-grid,
-  body.ux-mobile-v5 .elsewhere-strip {
+  body.ux-mobile-v5 .elsewhere-strip{
     display: grid !important;
     grid-auto-flow: column;
     grid-auto-columns: minmax(82%, 1fr);
@@ -704,215 +479,73 @@ body.ux-data-saver canvas { image-rendering: auto; }
     overscroll-behavior-x: contain;
     scrollbar-width: none;
   }
-  body.ux-mobile-v5 .selected-work-list::-webkit-scrollbar,
-  body.ux-mobile-v5 .now-grid::-webkit-scrollbar,
-  body.ux-mobile-v5 .home-project-grid::-webkit-scrollbar,
-  body.ux-mobile-v5 .elsewhere-strip::-webkit-scrollbar { display: none; }
-
-  body.ux-mobile-v5 .selected-work-list .preview-row,
-  body.ux-mobile-v5 .now-grid > article,
-  body.ux-mobile-v5 .project-card-home,
-  body.ux-mobile-v5 .life-tile {
-    scroll-snap-align: start;
-    border: 1px solid var(--mobile-border);
-    border-radius: var(--mobile-card-radius);
-    background: var(--mobile-surface);
-    box-shadow: var(--mobile-shadow);
-  }
-  body.ux-mobile-v5 .selected-work-list .preview-row {
-    min-height: 190px !important;
-    align-content: start;
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-    padding: 18px !important;
-    border-bottom: 1px solid var(--mobile-border) !important;
-  }
-  body.ux-mobile-v5 .selected-work-list .preview-row time,
-  body.ux-mobile-v5 .selected-work-list .preview-row small {
-    text-align: left !important;
-  }
-  body.ux-mobile-v5 .selected-work-list .preview-row strong {
-    font-size: clamp(20px, 5.8vw, 24px) !important;
-    line-height: 1.15 !important;
-  }
-
-  body.ux-mobile-v5 .now-grid > article {
-    min-height: 220px;
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  body.ux-mobile-v5 .now-grid > article span {
-    display: inline-flex;
-    align-self: flex-start;
-    padding: 7px 10px;
-    border-radius: 999px;
-    background: rgba(21,32,25,.045);
-  }
-
-  body.ux-mobile-v5 .project-card-home {
-    min-width: 0;
-    overflow: hidden;
-  }
-  body.ux-mobile-v5 .project-card-home .project-copy {
-    padding: 18px 18px 20px;
-  }
-  body.ux-mobile-v5 .project-card-home .project-visual {
-    min-height: 200px;
-  }
-  body.ux-mobile-v5 .project-card-home .project-cta {
-    min-height: 46px;
-  }
-  body.ux-mobile-v5 .atlas-preview {
-    height: min(52svh, 420px) !important;
-    border-radius: 18px;
-    overflow: hidden;
-  }
-  body.ux-mobile-v5 .elsewhere-strip {
+  body.ux-mobile-v5 .elsewhere-strip::-webkit-scrollbar{ display: none; }
+  body.ux-mobile-v5 .elsewhere-strip{
     background: transparent;
-  }
-  body.ux-mobile-v5 .life-tile {
-    min-height: 250px;
-  }
-
-  /* Orbital section: visual field first, controls and copy in a calmer stack. */
-  body.ux-mobile-v5 .orbital-shell {
-    gap: 16px !important;
-  }
-  body.ux-mobile-v5 .orbital-stage {
-    border-radius: 20px;
-    border: 1px solid rgba(241,239,231,.09);
-    overflow: hidden;
-    box-shadow: 0 14px 44px rgba(7,10,9,.22);
-  }
-  body.ux-mobile-v5 .orbital-copy {
-    padding-right: var(--preview-mobile-pad) !important;
-    padding-left: var(--preview-mobile-pad) !important;
-    gap: 14px !important;
-  }
-  body.ux-mobile-v5 .orbital-copy > a {
-    align-self: flex-start;
-    padding: 0 16px;
-    border: 1px solid rgba(241,239,231,.14);
-    background: rgba(255,255,255,.05);
-    border-radius: 999px;
-  }
-  body.ux-mobile-v5 .orbital-selected {
-    left: 12px !important;
-    right: 12px !important;
-    width: auto !important;
-    bottom: 12px !important;
-    border-radius: 16px;
-    padding: 12px 14px !important;
-    backdrop-filter: blur(12px);
-  }
-  body.ux-mobile-v5 .orbital-status,
-  body.ux-mobile-v5 .orbital-datum {
-    top: 12px !important;
-    left: 12px !important;
-    right: auto !important;
-    border-radius: 999px;
-    padding: 8px 10px !important;
-  }
-  body.ux-mobile-v5 .orbital-datum { top: 52px !important; }
-  body.ux-mobile-v5 .orbital-source {
-    margin-top: -4px;
-    padding: 0 var(--preview-mobile-pad);
-    line-height: 1.5;
   }
 
   /* Home Commons becomes a structured dashboard. */
-  body.ux-mobile-v5 .home-commons-head,
-  body.ux-mobile-v5 .commons-summary,
-  body.ux-mobile-v5 .commons-workspace,
-  body.ux-mobile-v5 .commons-participate,
-  body.ux-mobile-v5 .commons-inspector,
-  body.ux-mobile-v5 .commons-temporal-panel,
-  body.ux-mobile-v5 .atlas-foot,
-  body.ux-mobile-v5 .wechat-archive-portal,
-  body.ux-mobile-v5 .record-conditions,
-  body.ux-mobile-v5 .record-detail {
+  body.ux-mobile-v5 .commons-summary, body.ux-mobile-v5 .commons-workspace, body.ux-mobile-v5 .commons-participate, body.ux-mobile-v5 .commons-inspector, body.ux-mobile-v5 .commons-temporal-panel, body.ux-mobile-v5 .atlas-foot, body.ux-mobile-v5 .wechat-archive-portal, body.ux-mobile-v5 .record-conditions, body.ux-mobile-v5 .record-detail{
     border-radius: 18px;
   }
-  body.ux-mobile-v5 .home-commons-head,
-  body.ux-mobile-v5 .commons-summary,
-  body.ux-mobile-v5 .commons-workspace,
-  body.ux-mobile-v5 .wechat-archive-portal {
+  body.ux-mobile-v5 .commons-summary, body.ux-mobile-v5 .commons-workspace, body.ux-mobile-v5 .wechat-archive-portal{
     border: 1px solid var(--mobile-border);
     background: var(--mobile-surface-strong);
     box-shadow: var(--mobile-shadow);
   }
-  body.ux-mobile-v5 .home-commons-head {
-    padding: 18px;
-    gap: 18px !important;
-  }
-  body.ux-mobile-v5 .home-commons-metrics {
-    gap: 10px !important;
-  }
-  body.ux-mobile-v5 .home-commons-metrics > div,
-  body.ux-mobile-v5 .commons-metrics article {
+  body.ux-mobile-v5 .commons-metrics article{
     border: 1px solid rgba(21,32,25,.08);
     border-radius: 14px;
     padding: 14px 12px;
     background: rgba(255,255,255,.45);
   }
-  body.ux-mobile-v5 .home-commons-toolbar,
-  body.ux-mobile-v5 .commons-toolbar {
+  body.ux-mobile-v5 .commons-toolbar{
     padding: 0;
     gap: 14px !important;
   }
-  body.ux-mobile-v5 .home-commons-map-mount,
-  body.ux-mobile-v5 .commons-map-frame {
+  body.ux-mobile-v5 .commons-map-frame{
     border-radius: 18px;
     overflow: hidden;
   }
-  body.ux-mobile-v5 .commons-workspace {
+  body.ux-mobile-v5 .commons-workspace{
     margin-top: 20px !important;
     padding: 16px;
   }
-  body.ux-mobile-v5 .commons-map-layout,
-  body.ux-mobile-v5 .commons-side-stack {
+  body.ux-mobile-v5 .commons-map-layout, body.ux-mobile-v5 .commons-side-stack{
     gap: 16px !important;
   }
-  body.ux-mobile-v5 .commons-actions {
+  body.ux-mobile-v5 .commons-actions{
     display: grid;
     grid-template-columns: 1fr;
     gap: 10px;
   }
-  body.ux-mobile-v5 .commons-actions button,
-  body.ux-mobile-v5 .commons-form-foot button {
+  body.ux-mobile-v5 .commons-actions button, body.ux-mobile-v5 .commons-form-foot button{
     min-height: 48px;
   }
-  body.ux-mobile-v5 .commons-form-foot {
+  body.ux-mobile-v5 .commons-form-foot{
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
 
   /* Inner-page headers and controls: more legible, less compressed. */
-  body.ux-mobile-v5 .page-title {
+  body.ux-mobile-v5 .page-title{
     gap: 16px !important;
     padding-bottom: 26px !important;
   }
-  body.ux-mobile-v5 .page-title h1 {
+  body.ux-mobile-v5 .page-title h1{
     font-size: clamp(36px, 11.8vw, 54px) !important;
     line-height: .94 !important;
     margin-top: 14px !important;
   }
-  body.ux-mobile-v5 .page-title .page-intro {
+  body.ux-mobile-v5 .page-title .page-intro{
     max-width: none !important;
     font-size: 16px !important;
     line-height: 1.6 !important;
     color: var(--soft);
   }
 
-  body.ux-mobile-v5 .archive-filters,
-  body.ux-mobile-v5 .projections,
-  body.ux-mobile-v5 .commons-layer-controls,
-  body.ux-mobile-v5 .commons-time-modes,
-  body.ux-mobile-v5 .commons-time-reference,
-  body.ux-mobile-v5 .commons-horizon {
+  body.ux-mobile-v5 .archive-filters, body.ux-mobile-v5 .projections, body.ux-mobile-v5 .commons-layer-controls, body.ux-mobile-v5 .commons-time-modes, body.ux-mobile-v5 .commons-time-reference, body.ux-mobile-v5 .commons-horizon{
     display: flex;
     flex-wrap: nowrap;
     gap: 8px;
@@ -921,24 +554,14 @@ body.ux-data-saver canvas { image-rendering: auto; }
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
-  body.ux-mobile-v5 .archive-filters::-webkit-scrollbar,
-  body.ux-mobile-v5 .projections::-webkit-scrollbar,
-  body.ux-mobile-v5 .commons-layer-controls::-webkit-scrollbar,
-  body.ux-mobile-v5 .commons-time-modes::-webkit-scrollbar,
-  body.ux-mobile-v5 .commons-time-reference::-webkit-scrollbar,
-  body.ux-mobile-v5 .commons-horizon::-webkit-scrollbar { display: none; }
-  body.ux-mobile-v5 .archive-filters button,
-  body.ux-mobile-v5 .projections button,
-  body.ux-mobile-v5 .commons-layer-controls button,
-  body.ux-mobile-v5 .commons-time-modes button,
-  body.ux-mobile-v5 .commons-time-reference button,
-  body.ux-mobile-v5 .commons-horizon button {
+  body.ux-mobile-v5 .archive-filters::-webkit-scrollbar, body.ux-mobile-v5 .projections::-webkit-scrollbar, body.ux-mobile-v5 .commons-layer-controls::-webkit-scrollbar, body.ux-mobile-v5 .commons-time-modes::-webkit-scrollbar, body.ux-mobile-v5 .commons-time-reference::-webkit-scrollbar, body.ux-mobile-v5 .commons-horizon::-webkit-scrollbar{ display: none; }
+  body.ux-mobile-v5 .archive-filters button, body.ux-mobile-v5 .projections button, body.ux-mobile-v5 .commons-layer-controls button, body.ux-mobile-v5 .commons-time-modes button, body.ux-mobile-v5 .commons-time-reference button, body.ux-mobile-v5 .commons-horizon button{
     flex: 0 0 auto;
     min-height: var(--mobile-chip-h);
     padding-inline: 14px;
     border-radius: 999px;
   }
-  body.ux-mobile-v5 .archive-filters {
+  body.ux-mobile-v5 .archive-filters{
     position: sticky;
     top: calc(58px + env(safe-area-inset-top));
     z-index: 11;
@@ -948,13 +571,13 @@ body.ux-data-saver canvas { image-rendering: auto; }
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(21,32,25,.08);
   }
-  body.ux-mobile-v5 .archive-series-key {
+  body.ux-mobile-v5 .archive-series-key{
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0,1fr));
     gap: 8px !important;
     margin-bottom: 18px;
   }
-  body.ux-mobile-v5 .archive-series-key > span {
+  body.ux-mobile-v5 .archive-series-key > span{
     display: grid;
     gap: 4px;
     min-height: 74px;
@@ -963,14 +586,10 @@ body.ux-data-saver canvas { image-rendering: auto; }
     border-radius: 14px;
     background: rgba(255,255,255,.5);
   }
-  body.ux-mobile-v5 .archive-note-row,
-  body.ux-mobile-v5 .preview-list > .preview-row,
-  body.ux-mobile-v5 .lab-group-block .project-card,
-  body.ux-mobile-v5 .elsewhere-grid > a,
-  body.ux-mobile-v5 .wechat-archive-portal {
+  body.ux-mobile-v5 .archive-note-row, body.ux-mobile-v5 .preview-list > .preview-row, body.ux-mobile-v5 .lab-group-block .project-card, body.ux-mobile-v5 .elsewhere-grid > a, body.ux-mobile-v5 .wechat-archive-portal{
     overflow: hidden;
   }
-  body.ux-mobile-v5 .archive-note-row {
+  body.ux-mobile-v5 .archive-note-row{
     grid-template-columns: 1fr !important;
     gap: 8px !important;
     margin-bottom: 12px;
@@ -980,12 +599,12 @@ body.ux-data-saver canvas { image-rendering: auto; }
     background: rgba(255,255,255,.56);
     box-shadow: var(--mobile-shadow);
   }
-  body.ux-mobile-v5 .archive-note-row h2 {
+  body.ux-mobile-v5 .archive-note-row h2{
     margin: 0;
     font-size: clamp(22px, 6.2vw, 28px);
     line-height: 1.12;
   }
-  body.ux-mobile-v5 .archive-note-row .arrow {
+  body.ux-mobile-v5 .archive-note-row .arrow{
     position: absolute;
     top: 18px;
     right: 18px;
@@ -996,74 +615,73 @@ body.ux-data-saver canvas { image-rendering: auto; }
     border-radius: 50%;
     background: rgba(166,70,36,.08);
   }
-  body.ux-mobile-v5 .wechat-archive-portal {
+  body.ux-mobile-v5 .wechat-archive-portal{
     grid-template-columns: 1fr !important;
     padding: 18px !important;
     margin-top: 20px !important;
   }
-  body.ux-mobile-v5 .wechat-archive-code {
+  body.ux-mobile-v5 .wechat-archive-code{
     justify-self: center;
   }
 
   /* Lab cards: one strong column, generous visual areas and clear actions. */
-  body.ux-mobile-v5 .lab-list { margin-top: 24px !important; }
-  body.ux-mobile-v5 .lab-group-block + .lab-group-block { margin-top: 28px; }
-  body.ux-mobile-v5 .lab-group-label {
+  body.ux-mobile-v5 .lab-list{ margin-top: 24px !important; }
+  body.ux-mobile-v5 .lab-group-block + .lab-group-block{ margin-top: 28px; }
+  body.ux-mobile-v5 .lab-group-label{
     margin-bottom: 12px;
   }
-  body.ux-mobile-v5 .project-grid {
+  body.ux-mobile-v5 .project-grid{
     grid-template-columns: 1fr !important;
     gap: 16px !important;
   }
-  body.ux-mobile-v5 .project-card {
+  body.ux-mobile-v5 .project-card{
     border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--mobile-shadow);
   }
-  body.ux-mobile-v5 .project-card .project-visual {
+  body.ux-mobile-v5 .project-card .project-visual{
     min-height: 220px;
   }
-  body.ux-mobile-v5 .project-card .project-copy {
+  body.ux-mobile-v5 .project-card .project-copy{
     padding: 18px;
   }
-  body.ux-mobile-v5 .project-card .project-actions {
+  body.ux-mobile-v5 .project-card .project-actions{
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
-  body.ux-mobile-v5 .project-card .project-cta,
-  body.ux-mobile-v5 .project-card .lab-enter {
+  body.ux-mobile-v5 .project-card .project-cta, body.ux-mobile-v5 .project-card .lab-enter{
     justify-content: center;
   }
-  body.ux-mobile-v5 .lab-principle {
+  body.ux-mobile-v5 .lab-principle{
     margin-top: 28px !important;
     padding: 18px 0 0;
   }
-  body.ux-mobile-v5 .lab-principle p {
+  body.ux-mobile-v5 .lab-principle p{
     font-size: clamp(18px, 5.8vw, 24px) !important;
     white-space: normal !important;
   }
 
   /* Atlas: sticky projection rail + taller field + explanatory card. */
-  body.ux-mobile-v5 .atlas-controls {
+  body.ux-mobile-v5 .atlas-controls{
     top: calc(58px + env(safe-area-inset-top)) !important;
     margin: 18px calc(-1 * var(--preview-mobile-pad)) 16px !important;
     padding: 10px var(--preview-mobile-pad) 12px !important;
     background: linear-gradient(180deg, rgba(23,33,27,.96), rgba(23,33,27,.90));
     backdrop-filter: blur(14px);
   }
-  body.ux-mobile-v5 .atlas-status {
+  body.ux-mobile-v5 .atlas-status{
     font-size: 10px;
     line-height: 1.45;
   }
-  body.ux-mobile-v5 .atlas-stage {
+  body.ux-mobile-v5 .atlas-stage{
     min-height: 60svh !important;
     height: 60svh !important;
     border-radius: 20px;
     box-shadow: 0 16px 46px rgba(6,10,8,.20);
   }
-  body.ux-mobile-v5 .atlas-foot {
+  body.ux-mobile-v5 .atlas-foot{
     margin-top: 14px;
     padding: 16px;
     border: 1px solid rgba(241,239,231,.08);
@@ -1071,37 +689,34 @@ body.ux-data-saver canvas { image-rendering: auto; }
   }
 
   /* Record pages: stabilize reading and keep metadata readable. */
-  body.ux-mobile-v5 .record-heading {
+  body.ux-mobile-v5 .record-heading{
     padding-top: 18px !important;
     padding-bottom: 28px !important;
   }
-  body.ux-mobile-v5 .record-heading h1 {
+  body.ux-mobile-v5 .record-heading h1{
     font-size: clamp(34px, 10vw, 48px) !important;
     line-height: 1.02 !important;
     margin-bottom: 18px !important;
   }
-  body.ux-mobile-v5 .record-meta {
+  body.ux-mobile-v5 .record-meta{
     gap: 10px;
   }
-  body.ux-mobile-v5 .record-conditions,
-  body.ux-mobile-v5 .record-detail {
+  body.ux-mobile-v5 .record-conditions, body.ux-mobile-v5 .record-detail{
     padding: 18px !important;
     border: 1px solid rgba(21,32,25,.08);
     background: rgba(255,255,255,.48);
     box-shadow: var(--mobile-shadow);
   }
-  body.ux-mobile-v5 .record-detail {
+  body.ux-mobile-v5 .record-detail{
     padding-top: 18px !important;
   }
 
   /* Elsewhere cards feel like touchable essays rather than dense list tiles. */
-  body.ux-mobile-v5 .elsewhere-grid {
+  body.ux-mobile-v5 .elsewhere-grid{
     margin-top: 24px !important;
     gap: 14px !important;
   }
-  body.ux-mobile-v5 .elsewhere-grid > a,
-  body.ux-mobile-v5 .elsewhere-grid .life-card,
-  body.ux-mobile-v5 .elsewhere-grid .life-tile {
+  body.ux-mobile-v5 .elsewhere-grid > a, body.ux-mobile-v5 .elsewhere-grid .life-card{
     border-radius: 18px;
     border: 1px solid rgba(21,32,25,.08);
     box-shadow: var(--mobile-shadow);
@@ -1109,7 +724,7 @@ body.ux-data-saver canvas { image-rendering: auto; }
   }
 
   /* Bottom primary navigation dock: modern mobile affordance without changing the information architecture. */
-  body.ux-mobile-v5 .mobile-dock {
+  body.ux-mobile-v5 .mobile-dock{
     position: fixed;
     left: max(10px, env(safe-area-inset-left));
     right: max(10px, env(safe-area-inset-right));
@@ -1125,12 +740,12 @@ body.ux-data-saver canvas { image-rendering: auto; }
     backdrop-filter: blur(20px);
     box-shadow: 0 12px 36px rgba(21,32,25,.13);
   }
-  body.ux-mobile-v5.ux-index-open .mobile-dock {
+  body.ux-mobile-v5.ux-index-open .mobile-dock{
     opacity: 0;
     transform: translateY(12px);
     pointer-events: none;
   }
-  body.ux-mobile-v5 .mobile-dock a {
+  body.ux-mobile-v5 .mobile-dock a{
     min-height: 54px;
     display: grid;
     place-items: center;
@@ -1142,7 +757,7 @@ body.ux-data-saver canvas { image-rendering: auto; }
     text-transform: uppercase;
     text-align: center;
   }
-  body.ux-mobile-v5 .mobile-dock a::before {
+  body.ux-mobile-v5 .mobile-dock a::before{
     content: "";
     width: 18px;
     height: 18px;
@@ -1150,23 +765,22 @@ body.ux-data-saver canvas { image-rendering: auto; }
     border-radius: 999px;
     opacity: .6;
   }
-  body.ux-mobile-v5 .mobile-dock a[data-dock='lab']::before,
-  body.ux-mobile-v5 .mobile-dock a[data-dock='atlas']::before {
+  body.ux-mobile-v5 .mobile-dock a[data-dock='lab']::before, body.ux-mobile-v5 .mobile-dock a[data-dock='atlas']::before{
     border-radius: 4px;
   }
-  body.ux-mobile-v5 .mobile-dock a[data-dock='elsewhere']::before {
+  body.ux-mobile-v5 .mobile-dock a[data-dock='elsewhere']::before{
     border-style: dashed;
   }
-  body.ux-mobile-v5 .mobile-dock a.is-active {
+  body.ux-mobile-v5 .mobile-dock a.is-active{
     color: var(--fg);
     background: rgba(21,32,25,.06);
   }
-  body.ux-mobile-v5 .mobile-dock a.is-active::before {
+  body.ux-mobile-v5 .mobile-dock a.is-active::before{
     opacity: 1;
     border-color: var(--signal);
     background: rgba(166,70,36,.10);
   }
-  body.ux-mobile-v5 .mobile-dock a span {
+  body.ux-mobile-v5 .mobile-dock a span{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1174,33 +788,28 @@ body.ux-data-saver canvas { image-rendering: auto; }
   }
 }
 
-@media (max-width: 540px) {
-  body.ux-mobile-v5 .mobile-dock {
+@media (max-width: 540px){
+  body.ux-mobile-v5 .mobile-dock{
     left: max(8px, env(safe-area-inset-left));
     right: max(8px, env(safe-area-inset-right));
     gap: 4px;
     padding: 6px;
   }
-  body.ux-mobile-v5 .mobile-dock a {
+  body.ux-mobile-v5 .mobile-dock a{
     min-height: 50px;
     font-size: 9px;
     letter-spacing: .04em;
   }
-  body.ux-mobile-v5 .selected-work-list,
-  body.ux-mobile-v5 .now-grid,
-  body.ux-mobile-v5 .home-project-grid,
-  body.ux-mobile-v5 .elsewhere-strip {
+  body.ux-mobile-v5 .elsewhere-strip{
     grid-auto-columns: 88%;
   }
-  body.ux-mobile-v5 .archive-series-key {
+  body.ux-mobile-v5 .archive-series-key{
     grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  body.ux-mobile-v5 .mobile-dock,
-  body.ux-mobile-v5 .site-map-node,
-  body.ux-mobile-v5 .site-nav {
+@media (prefers-reduced-motion: reduce){
+  body.ux-mobile-v5 .mobile-dock, body.ux-mobile-v5 .site-map-node, body.ux-mobile-v5 .site-nav{
     transition: none !important;
   }
 }
@@ -1208,95 +817,39 @@ body.ux-data-saver canvas { image-rendering: auto; }
 /* =========================================================
    GeoGeek UX v5.1 — mobile correction pass from device review
    ========================================================= */
-@media (max-width: 860px) {
+@media (max-width: 860px){
   /* The floating information scale competes with browser chrome + dock on phones.
      Keep the concept inside Site Index; remove the persistent overlay. */
-  body.ux-mobile-v5 .scale-ui { display: none !important; }
+  body.ux-mobile-v5 .scale-ui{ display: none !important; }
 
   /* Keep header legible when the orbital section switches the desktop chrome dark. */
-  body.ux-mobile-v5.orbital-active .site-nav {
+  body.ux-mobile-v5.orbital-active .site-nav{
     color: var(--fg) !important;
     border-bottom-color: rgba(21,32,25,.08) !important;
     background: rgba(246,244,238,.94) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
   }
-  body.ux-mobile-v5.orbital-active .brand { color: var(--fg) !important; }
-  body.ux-mobile-v5.orbital-active .brand-mark { border-color: var(--muted) !important; }
-  body.ux-mobile-v5.orbital-active .brand-mark::before,
-  body.ux-mobile-v5.orbital-active .brand-mark::after { background: var(--muted) !important; }
-  body.ux-mobile-v5.orbital-active .nav-toggle {
+  body.ux-mobile-v5.orbital-active .brand{ color: var(--fg) !important; }
+  body.ux-mobile-v5.orbital-active .brand-mark{ border-color: var(--muted) !important; }
+  body.ux-mobile-v5.orbital-active .brand-mark::before, body.ux-mobile-v5.orbital-active .brand-mark::after{ background: var(--muted) !important; }
+  body.ux-mobile-v5.orbital-active .nav-toggle{
     color: var(--fg) !important;
     border-color: rgba(21,32,25,.09) !important;
     background: rgba(21,32,25,.045) !important;
   }
 
   /* Hero now reveals the beginning of content on a normal phone viewport. */
-  body.ux-mobile-v5 .hero.hero-centered {
+  body.ux-mobile-v5 .hero.hero-centered{
     min-height: clamp(510px, 70svh, 650px) !important;
   }
-  body.ux-mobile-v5 .hero-copy {
+  body.ux-mobile-v5 .hero-copy{
     padding: 24px 16px 22px !important;
   }
-  body.ux-mobile-v5 .hero .display {
+  body.ux-mobile-v5 .hero .display{
     font-size: clamp(54px, 17.2vw, 78px) !important;
   }
-
-  /* Selected records remain a swipe shelf, but with a stronger first-card proportion. */
-  body.ux-mobile-v5 .selected-work-list {
-    grid-template-columns: none !important;
-    grid-auto-columns: min(88vw, 350px) !important;
-    scroll-padding-inline: 0;
-  }
-  body.ux-mobile-v5 .selected-work-list .preview-row {
-    min-height: 210px !important;
-    background: rgba(248,246,239,.96) !important;
-  }
-  body.ux-mobile-v5 .selected-work-list .preview-row strong {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    overflow: hidden;
-  }
-
-  /* Current Coordinates is explanatory content, not a carousel. Stack it cleanly. */
-  body.ux-mobile-v5 .now-grid {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    grid-auto-flow: row !important;
-    grid-auto-columns: auto !important;
-    gap: 10px !important;
-    overflow: visible !important;
-    scroll-snap-type: none !important;
-    border: 0 !important;
-  }
-  body.ux-mobile-v5 .now-grid > article,
-  body.ux-mobile-v5 .now-grid > article + article {
-    min-height: 0 !important;
-    padding: 17px 17px 18px !important;
-    border: 1px solid var(--mobile-border) !important;
-    border-radius: 16px !important;
-    background: rgba(248,246,239,.94) !important;
-    box-shadow: 0 6px 22px rgba(21,32,25,.055) !important;
-  }
-  body.ux-mobile-v5 .now-grid > article h3 {
-    margin: 36px 0 10px !important;
-    font-size: clamp(25px, 7.2vw, 31px) !important;
-    line-height: 1.02 !important;
-  }
-  body.ux-mobile-v5 .now-grid > article p {
-    max-width: 34em;
-    font-size: 15px !important;
-    line-height: 1.62 !important;
-  }
-
-  /* Orbital field: reduce viewport dominance and separate HUD zones. */
-  body.ux-mobile-v5 .orbital-stage {
-    min-height: clamp(390px, 50svh, 480px) !important;
-    height: clamp(390px, 50svh, 480px) !important;
-    max-height: 480px !important;
-  }
-  body.ux-mobile-v5 .orbital-instruction {
+  body.ux-mobile-v5 .orbital-instruction{
     left: 12px !important;
     top: 90px !important;
     bottom: auto !important;
@@ -1305,40 +858,13 @@ body.ux-data-saver canvas { image-rendering: auto; }
     max-width: calc(100% - 24px) !important;
     border-radius: 999px;
   }
-  body.ux-mobile-v5 .orbital-instruction.is-dismissed {
+  body.ux-mobile-v5 .orbital-instruction.is-dismissed{
     transform: translateY(-5px) !important;
-  }
-  body.ux-mobile-v5 .orbital-selected {
-    bottom: 12px !important;
-    padding: 11px 13px !important;
-  }
-  body.ux-mobile-v5 .orbital-selected strong {
-    font-size: clamp(20px, 6vw, 27px) !important;
-    line-height: 1.02 !important;
-  }
-  body.ux-mobile-v5 .orbital-copy {
-    padding-top: 20px !important;
-    padding-bottom: 18px !important;
-  }
-  body.ux-mobile-v5 .orbital-copy h2 {
-    font-size: clamp(31px, 9vw, 40px) !important;
-    line-height: 1.01 !important;
-  }
-  body.ux-mobile-v5 .orbital-source {
-    padding-bottom: 14px !important;
-  }
-
-  /* Commons home controls no longer need to make room for the removed floating scale. */
-  body.ux-mobile-v5 .home-commons {
-    padding-bottom: 32px !important;
-  }
-  body.ux-mobile-v5 .home-commons-horizon {
-    gap: 6px !important;
   }
 
   /* Elsewhere page: explicit vertical card stack. The previous flexible grid could collapse
      the text column on narrow Android widths. */
-  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-grid {
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-grid{
     display: grid !important;
     grid-template-columns: 1fr !important;
     grid-auto-flow: row !important;
@@ -1347,7 +873,7 @@ body.ux-data-saver canvas { image-rendering: auto; }
     gap: 14px !important;
     overflow: visible !important;
   }
-  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card {
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card{
     display: grid !important;
     grid-template-columns: 1fr !important;
     width: 100% !important;
@@ -1358,17 +884,17 @@ body.ux-data-saver canvas { image-rendering: auto; }
     background: rgba(248,246,239,.94) !important;
     box-shadow: 0 7px 24px rgba(21,32,25,.06) !important;
   }
-  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card .visual {
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card .visual{
     width: 100% !important;
     height: clamp(190px, 42svh, 300px) !important;
     margin: 0 0 16px !important;
     border-radius: 12px;
   }
-  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card > div:last-child {
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card > div:last-child{
     min-width: 0 !important;
     width: 100% !important;
   }
-  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card h2 {
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card h2{
     margin: 10px 0 12px !important;
     max-width: 14ch;
     font-size: clamp(30px, 9.5vw, 42px) !important;
@@ -1377,52 +903,52 @@ body.ux-data-saver canvas { image-rendering: auto; }
     word-break: normal !important;
     writing-mode: horizontal-tb !important;
   }
-  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card p {
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card p{
     max-width: 38em;
     writing-mode: horizontal-tb !important;
   }
 
   /* Site Index: transform the spatial plot into a mobile list-map.
      Desktop keeps the cartographic graph; phones prioritize navigation and legibility. */
-  body.ux-mobile-v5 .site-map .spatial-browser-shell {
+  body.ux-mobile-v5 .site-map .spatial-browser-shell{
     display: block !important;
     min-height: 100dvh !important;
     padding: max(14px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom)) !important;
     overflow: visible !important;
   }
-  body.ux-mobile-v5 .site-map .spatial-browser-head {
+  body.ux-mobile-v5 .site-map .spatial-browser-head{
     display: grid !important;
     grid-template-columns: minmax(0,1fr) auto !important;
     gap: 10px 12px !important;
     padding: 6px 0 14px !important;
     background: rgba(13,20,16,.97) !important;
   }
-  body.ux-mobile-v5 .site-map .spatial-browser-head > div:first-child { min-width: 0; }
-  body.ux-mobile-v5 .site-map .spatial-browser-head h2 {
+  body.ux-mobile-v5 .site-map .spatial-browser-head > div:first-child{ min-width: 0; }
+  body.ux-mobile-v5 .site-map .spatial-browser-head h2{
     margin-top: 5px !important;
     font-size: clamp(34px, 10vw, 44px) !important;
     color: #f0eee7 !important;
   }
-  body.ux-mobile-v5 .site-map .site-map-modes {
+  body.ux-mobile-v5 .site-map .site-map-modes{
     grid-column: 1 / -1;
     order: 3;
     width: 100%;
     margin: 0 !important;
   }
-  body.ux-mobile-v5 .site-map .site-map-close {
+  body.ux-mobile-v5 .site-map .site-map-close{
     grid-column: 2;
     grid-row: 1;
   }
-  body.ux-mobile-v5 .site-map .spatial-browser-bar {
+  body.ux-mobile-v5 .site-map .spatial-browser-bar{
     display: grid !important;
     gap: 10px !important;
     padding: 12px 0 !important;
   }
-  body.ux-mobile-v5 .site-map .site-map-route strong {
+  body.ux-mobile-v5 .site-map .site-map-route strong{
     max-width: 100% !important;
     white-space: normal !important;
   }
-  body.ux-mobile-v5 .site-map .map-scale {
+  body.ux-mobile-v5 .site-map .map-scale{
     display: grid !important;
     grid-auto-flow: column;
     grid-auto-columns: minmax(112px, 1fr);
@@ -1431,23 +957,23 @@ body.ux-data-saver canvas { image-rendering: auto; }
     border-radius: 12px;
     scrollbar-width: none;
   }
-  body.ux-mobile-v5 .site-map .map-scale::-webkit-scrollbar { display: none; }
-  body.ux-mobile-v5 .site-map .map-scale button {
+  body.ux-mobile-v5 .site-map .map-scale::-webkit-scrollbar{ display: none; }
+  body.ux-mobile-v5 .site-map .map-scale button{
     min-width: 112px !important;
     min-height: 48px !important;
   }
-  body.ux-mobile-v5 .site-map .spatial-browser-body {
+  body.ux-mobile-v5 .site-map .spatial-browser-body{
     display: grid !important;
     grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
-  body.ux-mobile-v5 .site-map .site-map-viewport {
+  body.ux-mobile-v5 .site-map .site-map-viewport{
     min-height: 0 !important;
     max-height: none !important;
     overflow: visible !important;
     border: 0 !important;
   }
-  body.ux-mobile-v5 .site-map .spatial-map-field {
+  body.ux-mobile-v5 .site-map .spatial-map-field{
     width: 100% !important;
     min-width: 0 !important;
     height: auto !important;
@@ -1456,9 +982,8 @@ body.ux-data-saver canvas { image-rendering: auto; }
     overflow: visible !important;
     background: none !important;
   }
-  body.ux-mobile-v5 .site-map .spatial-map-field svg,
-  body.ux-mobile-v5 .site-map .site-map-origin-mark { display: none !important; }
-  body.ux-mobile-v5 .site-map .site-map-nodes {
+  body.ux-mobile-v5 .site-map .spatial-map-field svg, body.ux-mobile-v5 .site-map .site-map-origin-mark{ display: none !important; }
+  body.ux-mobile-v5 .site-map .site-map-nodes{
     position: relative !important;
     inset: auto !important;
     width: 100% !important;
@@ -1467,8 +992,7 @@ body.ux-data-saver canvas { image-rendering: auto; }
     grid-template-columns: 1fr !important;
     gap: 7px !important;
   }
-  body.ux-mobile-v5 .site-map .site-map-node,
-  body.ux-mobile-v5 .site-map .site-map-node.is-right-edge {
+  body.ux-mobile-v5 .site-map .site-map-node, body.ux-mobile-v5 .site-map .site-map-node.is-right-edge{
     position: relative !important;
     left: auto !important;
     top: auto !important;
@@ -1487,21 +1011,17 @@ body.ux-data-saver canvas { image-rendering: auto; }
     border-radius: 14px !important;
     background: rgba(241,239,231,.025) !important;
   }
-  body.ux-mobile-v5 .site-map .site-map-node i,
-  body.ux-mobile-v5 .site-map .site-map-node.is-right-edge i {
+  body.ux-mobile-v5 .site-map .site-map-node i, body.ux-mobile-v5 .site-map .site-map-node.is-right-edge i{
     grid-column: 1 !important;
     grid-row: 1 !important;
     align-self: center !important;
   }
-  body.ux-mobile-v5 .site-map .site-map-node span,
-  body.ux-mobile-v5 .site-map .site-map-node.is-right-edge span {
+  body.ux-mobile-v5 .site-map .site-map-node span, body.ux-mobile-v5 .site-map .site-map-node.is-right-edge span{
     grid-column: 2 !important;
     grid-row: 1 !important;
     color: #7f8d83 !important;
   }
-  body.ux-mobile-v5 .site-map .site-map-node strong,
-  body.ux-mobile-v5 .site-map .site-map-node.is-record strong,
-  body.ux-mobile-v5 .site-map .site-map-node.is-right-edge strong {
+  body.ux-mobile-v5 .site-map .site-map-node strong, body.ux-mobile-v5 .site-map .site-map-node.is-record strong, body.ux-mobile-v5 .site-map .site-map-node.is-right-edge strong{
     grid-column: 3 !important;
     grid-row: 1 !important;
     max-width: none !important;
@@ -1513,12 +1033,11 @@ body.ux-data-saver canvas { image-rendering: auto; }
     overflow: visible !important;
     text-overflow: clip !important;
   }
-  body.ux-mobile-v5 .site-map .site-map-node.is-current,
-  body.ux-mobile-v5 .site-map .site-map-node.is-selected {
+  body.ux-mobile-v5 .site-map .site-map-node.is-current, body.ux-mobile-v5 .site-map .site-map-node.is-selected{
     border-color: rgba(209,99,57,.44) !important;
     background: rgba(166,70,36,.10) !important;
   }
-  body.ux-mobile-v5 .site-map .map-inspector {
+  body.ux-mobile-v5 .site-map .map-inspector{
     position: relative !important;
     bottom: auto !important;
     max-height: none !important;
@@ -1526,58 +1045,56 @@ body.ux-data-saver canvas { image-rendering: auto; }
     border-radius: 16px;
     background: rgba(18,27,22,.82) !important;
   }
-  body.ux-mobile-v5 .site-map .map-inspector h3 {
+  body.ux-mobile-v5 .site-map .map-inspector h3{
     font-size: clamp(26px, 8vw, 36px) !important;
   }
-  body.ux-mobile-v5 .site-map .map-structure-list {
+  body.ux-mobile-v5 .site-map .map-structure-list{
     max-height: 42svh;
     overflow-y: auto;
     overscroll-behavior: contain;
   }
-  body.ux-mobile-v5 .site-map .spatial-browser-foot {
+  body.ux-mobile-v5 .site-map .spatial-browser-foot{
     padding: 14px 0 0 !important;
     align-items: flex-end !important;
   }
-  body.ux-mobile-v5 .site-map .spatial-browser-foot > span {
+  body.ux-mobile-v5 .site-map .spatial-browser-foot > span{
     max-width: calc(100% - 62px) !important;
   }
 
   /* Bottom dock: reduce browser-chrome competition and auto-hide while reading downward. */
-  body.ux-mobile-v5 .mobile-dock {
+  body.ux-mobile-v5 .mobile-dock{
     min-height: 0;
     padding: 5px !important;
     border-radius: 21px !important;
     transition: opacity .20s ease, transform .24s cubic-bezier(.2,.8,.2,1) !important;
   }
-  body.ux-mobile-v5 .mobile-dock a {
+  body.ux-mobile-v5 .mobile-dock a{
     min-height: 48px !important;
     border-radius: 16px !important;
   }
-  body.ux-mobile-v5 .mobile-dock a::before {
+  body.ux-mobile-v5 .mobile-dock a::before{
     width: 16px !important;
     height: 16px !important;
   }
-  body.ux-mobile-v5.ux-dock-hidden .mobile-dock,
-  body.ux-mobile-v5.site-map-open .mobile-dock {
+  body.ux-mobile-v5.ux-dock-hidden .mobile-dock, body.ux-mobile-v5.site-map-open .mobile-dock{
     opacity: 0 !important;
     transform: translateY(calc(100% + 22px)) !important;
     pointer-events: none !important;
   }
 }
 
-@media (max-width: 430px) {
-  body.ux-mobile-v5 .selected-work-list { grid-auto-columns: 86vw !important; }
-  body.ux-mobile-v5 .archive-series-key { grid-template-columns: 1fr !important; }
-  body.ux-mobile-v5 .project-card .project-actions { grid-template-columns: 1fr !important; }
+@media (max-width: 430px){
+  body.ux-mobile-v5 .archive-series-key{ grid-template-columns: 1fr !important; }
+  body.ux-mobile-v5 .project-card .project-actions{ grid-template-columns: 1fr !important; }
 }
 
 /* =========================================================
    GeoGeek UX v5.2 — autonomous mobile review corrections
    ========================================================= */
-@media (max-width: 860px) {
+@media (max-width: 860px){
   /* Field Notes: category statistics are useful context, but should not consume the
      first screen. Turn them into a compact swipe rail. */
-  body.ux-mobile-v5.ux-page-field-notes .archive-series-key {
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key{
     display: grid !important;
     grid-auto-flow: column !important;
     grid-auto-columns: minmax(142px, 42vw) !important;
@@ -1594,31 +1111,31 @@ body.ux-data-saver canvas { image-rendering: auto; }
     -webkit-overflow-scrolling: touch;
     mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
   }
-  body.ux-mobile-v5.ux-page-field-notes .archive-series-key::-webkit-scrollbar { display: none; }
-  body.ux-mobile-v5.ux-page-field-notes .archive-series-key > span {
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key::-webkit-scrollbar{ display: none; }
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key > span{
     scroll-snap-align: start;
     min-height: 64px !important;
     padding: 10px 12px !important;
     border-radius: 14px !important;
     align-content: center;
   }
-  body.ux-mobile-v5.ux-page-field-notes .archive-series-key > span b {
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key > span b{
     font-size: 11px !important;
   }
 
   /* Filter rail: explicit swipe affordance without truncating text into the viewport edge. */
-  body.ux-mobile-v5.ux-page-field-notes .archive-filters {
+  body.ux-mobile-v5.ux-page-field-notes .archive-filters{
     padding-right: 40px !important;
     scroll-padding-right: 40px;
     mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
   }
 
   /* Atlas: mobile maps need decluttering. Keep the graph, reveal labels on selection. */
-  body.ux-mobile-v5.ux-page-atlas .atlas-node-label:not(.is-selected) {
+  body.ux-mobile-v5.ux-page-atlas .atlas-node-label:not(.is-selected){
     opacity: 0 !important;
     visibility: hidden !important;
   }
-  body.ux-mobile-v5.ux-page-atlas .atlas-node-label.is-selected {
+  body.ux-mobile-v5.ux-page-atlas .atlas-node-label.is-selected{
     opacity: 1 !important;
     visibility: visible !important;
     max-width: min(180px, 56vw) !important;
@@ -1626,22 +1143,22 @@ body.ux-data-saver canvas { image-rendering: auto; }
     background: rgba(11,17,14,.94) !important;
     box-shadow: 0 7px 24px rgba(0,0,0,.22);
   }
-  body.ux-mobile-v5.ux-page-atlas .projections {
+  body.ux-mobile-v5.ux-page-atlas .projections{
     scroll-snap-type: x proximity;
     scroll-padding-inline: 18px 46px;
     padding-right: 46px !important;
     mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
   }
-  body.ux-mobile-v5.ux-page-atlas .projections button {
+  body.ux-mobile-v5.ux-page-atlas .projections button{
     scroll-snap-align: start;
   }
 
   /* Commons: do not hide key controls behind horizontal clipping. Mobile dashboard
      controls are small enough to use deterministic grids. */
-  body.ux-mobile-v5.ux-page-commons .commons-summary {
+  body.ux-mobile-v5.ux-page-commons .commons-summary{
     overflow: hidden;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-metrics {
+  body.ux-mobile-v5.ux-page-commons .commons-metrics{
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0,1fr)) !important;
     width: 100% !important;
@@ -1650,8 +1167,7 @@ body.ux-data-saver canvas { image-rendering: auto; }
     padding: 8px 0 0 !important;
     border-bottom: 0 !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-metrics article,
-  body.ux-mobile-v5.ux-page-commons .commons-metrics article + article {
+  body.ux-mobile-v5.ux-page-commons .commons-metrics article, body.ux-mobile-v5.ux-page-commons .commons-metrics article + article{
     min-width: 0 !important;
     flex: none !important;
     padding: 11px 12px 12px !important;
@@ -1659,32 +1175,32 @@ body.ux-data-saver canvas { image-rendering: auto; }
     border-radius: 13px !important;
     background: rgba(255,255,255,.46) !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-metrics article:last-child {
+  body.ux-mobile-v5.ux-page-commons .commons-metrics article:last-child{
     grid-column: 1 / -1;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-metrics strong {
+  body.ux-mobile-v5.ux-page-commons .commons-metrics strong{
     font-size: 22px !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-toolbar {
+  body.ux-mobile-v5.ux-page-commons .commons-toolbar{
     display: grid !important;
     grid-template-columns: 1fr !important;
     gap: 8px !important;
     overflow: visible !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-layer-controls {
+  body.ux-mobile-v5.ux-page-commons .commons-layer-controls{
     display: grid !important;
     grid-template-columns: repeat(2,minmax(0,1fr)) !important;
     gap: 6px !important;
     width: 100% !important;
     overflow: visible !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-time-controls {
+  body.ux-mobile-v5.ux-page-commons .commons-time-controls{
     display: grid !important;
     grid-template-columns: 1fr !important;
     width: 100% !important;
     gap: 6px !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-horizon {
+  body.ux-mobile-v5.ux-page-commons .commons-horizon{
     display: grid !important;
     grid-template-columns: repeat(4,minmax(0,1fr)) !important;
     gap: 6px !important;
@@ -1692,45 +1208,43 @@ body.ux-data-saver canvas { image-rendering: auto; }
     max-width: none !important;
     overflow: visible !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-layer-controls button,
-  body.ux-mobile-v5.ux-page-commons .commons-horizon button {
+  body.ux-mobile-v5.ux-page-commons .commons-layer-controls button, body.ux-mobile-v5.ux-page-commons .commons-horizon button{
     min-width: 0 !important;
     width: 100% !important;
     min-height: 42px !important;
     padding-inline: 7px !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-temporal-panel {
+  body.ux-mobile-v5.ux-page-commons .commons-temporal-panel{
     display: grid !important;
     grid-template-columns: 1fr !important;
     gap: 7px !important;
     padding: 9px !important;
     overflow: visible !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-time-modes {
+  body.ux-mobile-v5.ux-page-commons .commons-time-modes{
     display: grid !important;
     grid-template-columns: repeat(3,minmax(0,1fr)) !important;
     gap: 5px !important;
     width: 100% !important;
     overflow: visible !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-time-reference {
+  body.ux-mobile-v5.ux-page-commons .commons-time-reference{
     display: grid !important;
     grid-template-columns: repeat(2,minmax(0,1fr)) !important;
     gap: 5px !important;
     width: 100% !important;
     overflow: visible !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-time-modes button,
-  body.ux-mobile-v5.ux-page-commons .commons-time-reference button {
+  body.ux-mobile-v5.ux-page-commons .commons-time-modes button, body.ux-mobile-v5.ux-page-commons .commons-time-reference button{
     min-width: 0 !important;
     width: 100% !important;
     padding-inline: 5px !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-map-frame {
+  body.ux-mobile-v5.ux-page-commons .commons-map-frame{
     min-height: 300px !important;
     border-radius: 16px !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-map-legend {
+  body.ux-mobile-v5.ux-page-commons .commons-map-legend{
     left: 10px !important;
     right: 10px !important;
     bottom: 34px !important;
@@ -1738,7 +1252,7 @@ body.ux-data-saver canvas { image-rendering: auto; }
     gap: 5px 10px !important;
     justify-content: flex-start !important;
   }
-  body.ux-mobile-v5.ux-page-commons .commons-map-source {
+  body.ux-mobile-v5.ux-page-commons .commons-map-source{
     left: 10px !important;
     right: 10px !important;
     bottom: 10px !important;
@@ -1747,42 +1261,42 @@ body.ux-data-saver canvas { image-rendering: auto; }
   }
 
   /* Site Index scale is a navigable rail. Keep full labels and center the active one. */
-  body.ux-mobile-v5 .site-map .map-scale {
+  body.ux-mobile-v5 .site-map .map-scale{
     scroll-snap-type: x proximity;
     scroll-padding-inline: 0 30px;
     padding-right: 28px;
     mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
   }
-  body.ux-mobile-v5 .site-map .map-scale button {
+  body.ux-mobile-v5 .site-map .map-scale button{
     scroll-snap-align: center;
   }
 
   /* Elsewhere: visual blocks should support the story, not dominate a phone screen. */
-  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card .visual {
+  body.ux-mobile-v5.ux-page-elsewhere .elsewhere-card .visual{
     height: clamp(160px, 32svh, 240px) !important;
   }
 
   /* Record reading: slightly narrower title measure and more breathing room before metadata. */
-  body.ux-mobile-v5.ux-page-record .record-heading h1 {
+  body.ux-mobile-v5.ux-page-record .record-heading h1{
     max-width: 11.5ch !important;
     text-wrap: balance;
   }
-  body.ux-mobile-v5.ux-page-record .record-deck {
+  body.ux-mobile-v5.ux-page-record .record-deck{
     max-width: 31em !important;
   }
 }
 
-@media (max-width: 430px) {
-  body.ux-mobile-v5.ux-page-field-notes .archive-series-key {
+@media (max-width: 430px){
+  body.ux-mobile-v5.ux-page-field-notes .archive-series-key{
     grid-template-columns: none !important;
     grid-auto-columns: minmax(140px, 46vw) !important;
   }
 }
 
 /* v5.2 final visual pass */
-@media (max-width: 860px) {
+@media (max-width: 860px){
   /* Atlas field guide labels are context, not primary content on phones. */
-  body.ux-mobile-v5.ux-page-atlas .atlas-stage[data-mode="field"] .atlas-guide {
+  body.ux-mobile-v5.ux-page-atlas .atlas-stage[data-mode="field"] .atlas-guide{
     max-width: 84px;
     color: rgba(190,201,193,.58) !important;
     font-size: 9px !important;
@@ -1794,21 +1308,21 @@ body.ux-data-saver canvas { image-rendering: auto; }
   }
 
   /* Keep the archive channel as a secondary destination after the actual notes on mobile. */
-  body.ux-mobile-v5.ux-page-field-notes .wechat-archive-portal.archive-channel {
+  body.ux-mobile-v5.ux-page-field-notes .wechat-archive-portal.archive-channel{
     margin-top: 28px !important;
   }
 }
 
-@media (max-width: 860px) {
-  body.ux-mobile-v5.ux-page-field-notes main.page-shell {
+@media (max-width: 860px){
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell{
     display: flex !important;
     flex-direction: column !important;
   }
-  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .page-title { order: 0; }
-  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .archive-filters { order: 1; }
-  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .archive-series-key { order: 2; }
-  body.ux-mobile-v5.ux-page-field-notes main.page-shell > #noteList { order: 3; }
-  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .wechat-archive-portal.archive-channel { order: 4; }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .page-title{ order: 0; }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .archive-filters{ order: 1; }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .archive-series-key{ order: 2; }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > #noteList{ order: 3; }
+  body.ux-mobile-v5.ux-page-field-notes main.page-shell > .wechat-archive-portal.archive-channel{ order: 4; }
 }
 
 /* Current Coordinates final desktop heading constraint */
@@ -1817,28 +1331,13 @@ body.ux-data-saver canvas { image-rendering: auto; }
 
 /* Minimal Commons portal override */
 
-@media (max-width: 860px) {
-  body.ux-mobile-v5 .home-commons.commons-portal {
-    margin: 0 18px !important;
-    padding: 0 !important;
-  }
-  body.ux-mobile-v5 .commons-portal-link {
-    display: grid !important;
-    grid-template-columns: minmax(0,1fr) !important;
-    gap: 28px !important;
-    min-height: 0 !important;
-    padding: 52px 0 50px !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-  body.ux-mobile-v5 .commons-portal-copy h2 {
+@media (max-width: 860px){
+  body.ux-mobile-v5 .commons-portal-copy h2{
     max-width: 12ch !important;
     font-size: clamp(38px,11vw,54px) !important;
     line-height: .96 !important;
   }
-  body.ux-mobile-v5 .commons-portal-copy p {
+  body.ux-mobile-v5 .commons-portal-copy p{
     max-width: 28ch !important;
     font-size: clamp(18px,5vw,22px) !important;
     line-height: 1.35 !important;
