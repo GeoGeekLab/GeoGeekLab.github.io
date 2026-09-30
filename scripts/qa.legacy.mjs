@@ -96,8 +96,6 @@ const englishOnlyRuntimeFiles = [
   'site/games.js',
   'site/instruments.js',
   'site/map/site-map.js',
-  'site/orbital/orbital-engine.js',
-  'site/orbital/orbital-threshold.js',
   'site/previews.js',
   'site/ux-preinit.js',
   'site/ux-refinements.js',
