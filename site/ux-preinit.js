@@ -3,6 +3,14 @@
   'use strict';
   document.documentElement.lang = 'en';
 
+  // Editorial layout refinements load after the page stylesheet so short title
+  // statements can use available desktop measure before wrapping.
+  const editorialStyle = document.createElement('link');
+  editorialStyle.rel = 'stylesheet';
+  editorialStyle.href = '/editorial-layout.css?v=20260930a';
+  editorialStyle.dataset.editorialLayout = 'style';
+  document.head.appendChild(editorialStyle);
+
   // Global Geo interaction layer. Versioned explicitly so Pages/browser caches
   // cannot hide interaction or contract updates behind a stale bootstrap.
   const interactionStyle = document.createElement('link');
