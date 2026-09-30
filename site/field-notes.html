@@ -13,7 +13,7 @@
 <title>Field Notes — GeoGeek</title>
 <link href="styles.css?v=20260930f" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
-<link href="field-notes.css?v=20260930f" rel="stylesheet"/>
+<link href="field-notes.css?v=20260930g" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
 </head>
 <body class="field-notes-page">
@@ -43,10 +43,14 @@
 <div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
 <main class="page-shell field-notes-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
 <section class="field-notes-hero" aria-labelledby="fieldNotesTitle">
-  <div class="field-notes-kicker">02 / FIELD NOTES</div>
-  <h1 id="fieldNotesTitle">Notes, kept in their time.</h1>
-  <p>OBSERVATION · SCALE · CAUSALITY · REPRESENTATION · PRACTICE</p>
+  <div class="field-notes-hero-title">
+    <div class="eyebrow">02 / FIELD NOTES</div>
+    <h1 id="fieldNotesTitle">Field Notes</h1>
+  </div>
+  <p class="field-notes-intro">Notes, kept in their time.</p>
 </section>
+
+<div class="field-notes-axis">OBSERVATION / SCALE / CAUSALITY / REPRESENTATION / PRACTICE</div>
 
 <nav class="filters archive-filters field-notes-filters" id="fieldNotesFilters" aria-label="Field Note series">
   <button class="is-active" type="button" data-note-filter="all" aria-pressed="true">ALL</button>
