@@ -8,38 +8,60 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
   document.documentElement.classList.add('geo-ui');
+  document.body.classList.add('geo-interactions-ready');
+
+  const pageLabel = () => {
+    const kind = document.body.dataset.pageKind;
+    if (kind === 'field-notes') return 'NOTES';
+    if (kind === 'lab') return 'LAB';
+    if (kind === 'atlas') return 'ATLAS';
+    if (kind === 'elsewhere') return 'ELSEWHERE';
+    if (kind === 'record') return 'RECORD';
+    const path = location.pathname;
+    if (/field-notes/i.test(path)) return 'NOTES';
+    if (/lab/i.test(path)) return 'LAB';
+    if (/atlas/i.test(path)) return 'ATLAS';
+    if (/elsewhere/i.test(path)) return 'ELSEWHERE';
+    return 'FIELD';
+  };
+
+  const depth = () => {
+    const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    return Math.max(0, Math.min(100, scrollY / max * 100));
+  };
+
+  // A persistent relative-depth ruler makes the spatial system visible even on touch devices.
+  const ruler = document.createElement('aside');
+  ruler.className = 'geo-depth-ruler';
+  ruler.setAttribute('aria-hidden', 'true');
+  ruler.innerHTML = '<span class="geo-depth-label">FIELD / 0%</span><i class="geo-depth-track"><b></b></i><small>RELATIVE</small>';
+  document.body.appendChild(ruler);
+  const depthLabel = $('.geo-depth-label', ruler);
+  const depthMarker = $('.geo-depth-track b', ruler);
+
+  let scrollRaf = 0;
+  const syncDepth = () => {
+    scrollRaf = 0;
+    const value = depth();
+    depthLabel.textContent = `${pageLabel()} / ${Math.round(value)}%`;
+    depthMarker.style.setProperty('--geo-depth', `${value}%`);
+    ruler.classList.toggle('is-active', scrollY > 20 || document.documentElement.scrollHeight > innerHeight * 1.25);
+  };
+  addEventListener('scroll', () => {
+    if (!scrollRaf) scrollRaf = requestAnimationFrame(syncDepth);
+  }, { passive: true });
+  addEventListener('resize', () => requestAnimationFrame(syncDepth), { passive: true });
+  syncDepth();
 
   const reactiveSelectors = [
-    '.hero',
-    '.page-title',
-    '.coordinates-workbench',
-    '.commons-summary',
-    '.commons-map-layout',
-    '.note-row',
-    '.lab-build-row',
-    '.project-card',
-    '.lab-row',
-    '.atlas-reader',
-    '.atlas-workspace',
-    '.elsewhere-card',
-    '.record-heading',
-    '.record-conditions',
-    '.record-detail',
-    '.earth-preview-link',
-    '.instrument-shell'
+    '.hero', '.page-title', '.coordinates-workbench', '.commons-summary', '.commons-map-layout',
+    '.note-row', '.lab-build-row', '.project-card', '.lab-row', '.atlas-reader', '.atlas-workspace',
+    '.elsewhere-card', '.record-heading', '.record-conditions', '.record-detail', '.earth-preview-link', '.instrument-shell'
   ];
 
   const revealSelectors = [
-    '.page-title',
-    '.commons-summary',
-    '.lab-builds',
-    '.lab-group-block',
-    '.atlas-reader',
-    '.atlas-key',
-    '.record-heading',
-    '.record-conditions',
-    '.record-detail',
-    '.elsewhere-grid'
+    '.page-title', '.commons-summary', '.lab-builds', '.lab-group-block', '.atlas-reader', '.atlas-key',
+    '.record-heading', '.record-conditions', '.record-detail', '.elsewhere-grid'
   ];
 
   const attachReactive = element => {
@@ -67,28 +89,22 @@
     element.addEventListener('pointerenter', update, { passive: true });
     element.addEventListener('pointermove', update, { passive: true });
     element.addEventListener('focusin', update);
-    const clear = () => element.classList.remove('is-geo-active');
-    element.addEventListener('pointerleave', clear, { passive: true });
-    element.addEventListener('focusout', clear);
+    element.addEventListener('pointerleave', () => element.classList.remove('is-geo-active'), { passive: true });
+    element.addEventListener('focusout', () => element.classList.remove('is-geo-active'));
   };
 
-  const bindReactive = root => {
-    reactiveSelectors.forEach(selector => {
-      if (root?.matches?.(selector)) attachReactive(root);
-      $$(selector, root || document).forEach(attachReactive);
-    });
-  };
+  const bindReactive = root => reactiveSelectors.forEach(selector => {
+    if (root?.matches?.(selector)) attachReactive(root);
+    $$(selector, root || document).forEach(attachReactive);
+  });
   bindReactive(document);
 
-  // App-rendered notes, lab cards and inspectors can arrive after first paint.
-  const dynamicObserver = new MutationObserver(records => {
+  new MutationObserver(records => {
     records.forEach(record => record.addedNodes.forEach(node => {
       if (node.nodeType === 1) bindReactive(node);
     }));
-  });
-  dynamicObserver.observe(document.body, { childList: true, subtree: true });
+  }).observe(document.body, { childList: true, subtree: true });
 
-  // Resolve major blocks into view with a small positional correction.
   if (!reduced && 'IntersectionObserver' in window) {
     const revealObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
@@ -96,18 +112,17 @@
         entry.target.classList.add('is-geo-visible');
         revealObserver.unobserve(entry.target);
       });
-    }, { threshold: .08, rootMargin: '0px 0px -5% 0px' });
+    }, { threshold: .08, rootMargin: '0px 0px -4% 0px' });
 
     revealSelectors.forEach(selector => $$(selector).forEach((element, index) => {
       if (element.dataset.geoReveal === '1') return;
       element.dataset.geoReveal = '1';
       element.classList.add('geo-reveal');
-      element.style.transitionDelay = `${Math.min(index, 4) * 28}ms`;
+      element.style.transitionDelay = `${Math.min(index, 4) * 36}ms`;
       revealObserver.observe(element);
     }));
   }
 
-  // Instrument-scale changes get a short, consistent survey pulse.
   const scale = $('.scale-ui');
   if (scale) {
     let pulseTimer = 0;
@@ -116,7 +131,7 @@
       scale.classList.remove('geo-scale-change');
       void scale.offsetWidth;
       scale.classList.add('geo-scale-change');
-      pulseTimer = setTimeout(() => scale.classList.remove('geo-scale-change'), 430);
+      pulseTimer = setTimeout(() => scale.classList.remove('geo-scale-change'), 560);
     };
     ['#scaleText', '#scaleLevel'].forEach(selector => {
       const node = $(selector);
@@ -143,23 +158,8 @@
   let raf = 0;
   let lastReadout = 0;
 
-  const depth = () => {
-    const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
-    return Math.max(0, Math.min(100, scrollY / max * 100));
-  };
-
-  const pageLabel = () => {
-    const kind = document.body.dataset.pageKind;
-    if (kind === 'field-notes') return 'NOTES';
-    if (kind === 'lab') return 'LAB';
-    if (kind === 'atlas') return 'ATLAS';
-    if (kind === 'elsewhere') return 'ELSEWHERE';
-    if (kind === 'record') return 'RECORD';
-    return 'FIELD';
-  };
-
   const updateReadout = now => {
-    if (now - lastReadout < 90) return;
+    if (now - lastReadout < 70) return;
     lastReadout = now;
     const nx = Math.max(0, Math.min(100, x / Math.max(1, innerWidth) * 100));
     const ny = Math.max(0, Math.min(100, y / Math.max(1, innerHeight) * 100));
@@ -168,18 +168,18 @@
 
   const render = now => {
     raf = 0;
-    x += (targetX - x) * .22;
-    y += (targetY - y) * .22;
+    x += (targetX - x) * .26;
+    y += (targetY - y) * .26;
     document.documentElement.style.setProperty('--geo-screen-x', `${x.toFixed(2)}px`);
     document.documentElement.style.setProperty('--geo-screen-y', `${y.toFixed(2)}px`);
     updateReadout(now);
-    if (Math.abs(targetX - x) + Math.abs(targetY - y) > .5) raf = requestAnimationFrame(render);
+    if (Math.abs(targetX - x) + Math.abs(targetY - y) > .4) raf = requestAnimationFrame(render);
   };
 
   const wake = () => {
     document.body.classList.add('geo-pointer-active');
     clearTimeout(pointerTimer);
-    pointerTimer = setTimeout(() => document.body.classList.remove('geo-pointer-active'), 1100);
+    pointerTimer = setTimeout(() => document.body.classList.remove('geo-pointer-active'), 1450);
   };
 
   addEventListener('pointermove', event => {
@@ -191,10 +191,5 @@
 
   addEventListener('scroll', () => {
     if (document.body.classList.contains('geo-pointer-active')) updateReadout(performance.now());
-  }, { passive: true });
-
-  addEventListener('resize', () => {
-    targetX = Math.min(targetX, innerWidth);
-    targetY = Math.min(targetY, innerHeight);
   }, { passive: true });
 })();
