@@ -166,15 +166,168 @@ window.GEOGEEK_ARCHIVE = {
           "principleLabel": "EXTENT / RESOLUTION / LIMIT",
           "boundary": "OBSERVATION CONDITIONS / DECLARED",
           "conditions": {
-            "orbit": [["CATALOG","CelesTrak active"],["MODEL","SGP4 / SDP4"],["RENDER","Instanced WebGL"],["RADIAL SCALE","Compressed"]],
-            "earth": [["SENSOR","MODIS / Terra"],["PRODUCT","Corrected Reflectance · True Color"],["CRS","EPSG:4326"],["SOURCE","NASA GIBS"]],
-            "flow": [["MODEL","ECMWF"],["FIELD","Surface wind"],["VIEW","Windy Embed"],["TIME","Current"]],
-            "pulse": [["FEED","USGS all_day"],["WINDOW","Past 24 h"],["ENCODING","Magnitude · depth · recency"],["COORDINATES","Geographic lon / lat"]],
-            "figure": [["INPUT","Browser raster"],["OUTPUT","SVG isolines"],["CONTROL","Threshold · levels · simplify"],["SPACE","Image coordinates"]],
-            "world": [["GEOMETRY","Natural Earth 1:110m"],["PROJECTION","Equal Earth · Mercator · Orthographic"],["DISTORTION","Tissot indicatrices"],["COORDINATES","Geographic lon / lat"]],
-            "locate": [["GEOMETRY","Natural Earth"],["MEASURE","Great-circle distance"],["DIRECTION","Initial bearing"],["COORDINATES","Geographic lon / lat"]],
-            "zone": [["GEOMETRY","Natural Earth"],["TASK","Region recognition"],["CUE","Shape · adjacency · position"],["COORDINATES","Geographic lon / lat"]],
-            "path": [["GEOMETRY","Natural Earth"],["RELATION","Shared land border"],["MODEL","Adjacency graph"],["OUTPUT","Topological path"]]
+            "orbit": [
+              [
+                "CATALOG",
+                "CelesTrak active"
+              ],
+              [
+                "MODEL",
+                "SGP4 / SDP4"
+              ],
+              [
+                "RENDER",
+                "Instanced WebGL"
+              ],
+              [
+                "RADIAL SCALE",
+                "Compressed"
+              ]
+            ],
+            "earth": [
+              [
+                "SENSOR",
+                "MODIS / Terra"
+              ],
+              [
+                "PRODUCT",
+                "Corrected Reflectance · True Color"
+              ],
+              [
+                "CRS",
+                "EPSG:4326"
+              ],
+              [
+                "SOURCE",
+                "NASA GIBS"
+              ]
+            ],
+            "flow": [
+              [
+                "MODEL",
+                "ECMWF"
+              ],
+              [
+                "FIELD",
+                "Surface wind"
+              ],
+              [
+                "VIEW",
+                "Windy Embed"
+              ],
+              [
+                "TIME",
+                "Current"
+              ]
+            ],
+            "pulse": [
+              [
+                "FEED",
+                "USGS all_day"
+              ],
+              [
+                "WINDOW",
+                "Past 24 h"
+              ],
+              [
+                "ENCODING",
+                "Magnitude · depth · recency"
+              ],
+              [
+                "COORDINATES",
+                "Geographic lon / lat"
+              ]
+            ],
+            "figure": [
+              [
+                "INPUT",
+                "Browser raster"
+              ],
+              [
+                "OUTPUT",
+                "SVG isolines"
+              ],
+              [
+                "CONTROL",
+                "Threshold · levels · simplify"
+              ],
+              [
+                "SPACE",
+                "Image coordinates"
+              ]
+            ],
+            "world": [
+              [
+                "GEOMETRY",
+                "Natural Earth 1:110m"
+              ],
+              [
+                "PROJECTION",
+                "Equal Earth · Mercator · Orthographic"
+              ],
+              [
+                "DISTORTION",
+                "Tissot indicatrices"
+              ],
+              [
+                "COORDINATES",
+                "Geographic lon / lat"
+              ]
+            ],
+            "locate": [
+              [
+                "GEOMETRY",
+                "Natural Earth"
+              ],
+              [
+                "MEASURE",
+                "Great-circle distance"
+              ],
+              [
+                "DIRECTION",
+                "Initial bearing"
+              ],
+              [
+                "COORDINATES",
+                "Geographic lon / lat"
+              ]
+            ],
+            "zone": [
+              [
+                "GEOMETRY",
+                "Natural Earth"
+              ],
+              [
+                "TASK",
+                "Region recognition"
+              ],
+              [
+                "CUE",
+                "Shape · adjacency · position"
+              ],
+              [
+                "COORDINATES",
+                "Geographic lon / lat"
+              ]
+            ],
+            "path": [
+              [
+                "GEOMETRY",
+                "Natural Earth"
+              ],
+              [
+                "RELATION",
+                "Shared land border"
+              ],
+              [
+                "MODEL",
+                "Adjacency graph"
+              ],
+              [
+                "OUTPUT",
+                "Topological path"
+              ]
+            ]
           },
           "loadingOrbit": "Reading the orbital field…",
           "networkTitle": "Live instrument unavailable.",
@@ -205,25 +358,73 @@ window.GEOGEEK_ARCHIVE = {
             "pause": "PAUSE",
             "note": "Move through recent observations. Each frame is conditioned by sensor, orbit, atmosphere, and acquisition time."
           },
-          "flow": {"caption":"WIND / FLOW","title":"Circulation makes change visible."},
+          "flow": {
+            "caption": "WIND / FLOW",
+            "title": "Circulation makes change visible."
+          },
           "games": {
             "rounds": "ROUND {round} / {total}",
             "score": "SCORE",
             "next": "NEXT",
             "replay": "REPLAY",
             "attempts": "ATTEMPTS",
-            "locate": {"title":"Place is learned by relation.","prompt":"Locate {target}","hint":"Click the map. Distance and bearing return the error to you.","result":"{distance} km · {bearing}","done":"A coordinate is not a place, but error has a direction."},
-            "zone": {"title":"A boundary is a decision made visible.","prompt":"Find {target}","hint":"Three attempts. Read shape, adjacency, and position before naming.","correct":"FOUND","wrong":"Not this field.","done":"Recognition grows from relation, not outline alone."},
-            "path": {"title":"To cross a map is to read adjacency.","prompt":"{start} → {target}","hint":"Move only across shared land borders. Reach the target in as few crossings as you can.","invalid":"No shared land border.","done":"Shortest path: {best} crossings · yours: {steps}."}
+            "locate": {
+              "title": "Place is learned by relation.",
+              "prompt": "Locate {target}",
+              "hint": "Click the map. Distance and bearing return the error to you.",
+              "result": "{distance} km · {bearing}",
+              "done": "A coordinate is not a place, but error has a direction."
+            },
+            "zone": {
+              "title": "A boundary is a decision made visible.",
+              "prompt": "Find {target}",
+              "hint": "Three attempts. Read shape, adjacency, and position before naming.",
+              "correct": "FOUND",
+              "wrong": "Not this field.",
+              "done": "Recognition grows from relation, not outline alone."
+            },
+            "path": {
+              "title": "To cross a map is to read adjacency.",
+              "prompt": "{start} → {target}",
+              "hint": "Move only across shared land borders. Reach the target in as few crossings as you can.",
+              "invalid": "No shared land border.",
+              "done": "Shortest path: {best} crossings · yours: {steps}."
+            }
           },
-          "status": {"loading":"LOADING","live":"LIVE","stale":"STALE","demo":"DEMO","error":"ERROR","static":"DECLARED"},
+          "status": {
+            "loading": "LOADING",
+            "live": "LIVE",
+            "stale": "STALE",
+            "demo": "DEMO",
+            "error": "ERROR",
+            "static": "DECLARED"
+          },
           "statusLabel": "STATUS",
           "updatedLabel": "UPDATED"
         },
         "atlas": {
-          "projectionNames": {"field":"FIELD","time":"TIME","type":"TYPE","topic":"TOPIC","trace":"TRACE","geographic":"GEOGRAPHIC"},
-          "relationLabels": {"field":"FIELD","time":"SUCCESSION","type":"FORM","topic":"AFFINITY","trace":"DERIVATION","geographic":"GEOGRAPHIC REFERENCE"},
-          "typeLabels": {"note":"NOTE","lab":"LAB","place":"PLACE","photo":"PHOTO"},
+          "projectionNames": {
+            "field": "FIELD",
+            "time": "TIME",
+            "type": "TYPE",
+            "topic": "TOPIC",
+            "trace": "TRACE",
+            "geographic": "GEOGRAPHIC"
+          },
+          "relationLabels": {
+            "field": "FIELD",
+            "time": "SUCCESSION",
+            "type": "FORM",
+            "topic": "AFFINITY",
+            "trace": "DERIVATION",
+            "geographic": "GEOGRAPHIC REFERENCE"
+          },
+          "typeLabels": {
+            "note": "NOTE",
+            "lab": "LAB",
+            "place": "PLACE",
+            "photo": "PHOTO"
+          },
           "status": "PROJECTION / {projection} · RELATION / {relation}",
           "tipKicker": "ATLAS",
           "tipDefault": "Read the relations.",
@@ -242,30 +443,639 @@ window.GEOGEEK_ARCHIVE = {
           "closeSelection": "Close selection",
           "firstUse": "Select a record to inspect its current relation."
         },
-        "footer": {"meta":"© 2026 GeoGeek"},
+        "footer": {
+          "meta": "© 2026 GeoGeek"
+        },
         "commons": {
           "title": "Commons",
           "statusDemo": "SIMULATED FIELD",
           "statusLive": "LIVE COMMONS",
           "statusError": "UNAVAILABLE",
-          "metrics": {"visits":"VISITS","located":"LOCATED VISITS","places":"PLACES","observations":"OBSERVATIONS","active":"ACTIVE NOW"},
-          "layers": {"visits":"VISITS","observations":"OBSERVATIONS","now":"NOW","relations":"RELATIONS"},
-          "horizons": {"24h":"24H","7d":"7D","30d":"30D","all":"ALL"},
-          "timeModes": {"accumulated":"ACCUMULATED","hourly":"HOURLY","daynight":"DAY / NIGHT"},
-          "timeRefs": {"utc":"UTC","local":"LOCAL"},
-          "map": {"loading":"READING RELATIONS…","demo":"SIMULATED FIELD · FIXED 5,280 VISITS","none":"No place stands alone; select one to reveal its relations.","locatedNote":""},
-          "relation": {"title":"RELATION","host":"WUHAN / HOST","fromHost":"FROM WUHAN","fromSelected":"FROM SELECTED","km":"KM","bearing":"INITIAL BEARING","visits":"VISITS","observations":"OBSERVATIONS","updated":"LAST SEEN"},
-          "you": {"host":"HOST","you":"YOU","distance":"DISTANCE","bearing":"INITIAL BEARING","notLocated":"NOT LOCATED","deviceOnly":"DEVICE ONLY","greatCircle":"GREAT-CIRCLE","toHost":"FROM YOU TO HOST","locate":"LOCATE ME","light":"LIGHT THIS PLACE","clear":"CLEAR LOCAL POSITION"},
-          "observe": {"place":"PLACE","name":"NAME / OPTIONAL","observation":"OBSERVATION","locateFirst":"Locate first","submit":"ADD TO COMMONS","placeholder":"What appears from here?","success":"Observation received.","error":"Could not send this observation."},
-          "privacy": {"title":"POSITION & DISCLOSURE","body":"Location enters Commons at coarse spatial resolution.","private":"Your precise location is kept in this browser only."},
-          "definitions": "VISITS register presence · OBSERVATIONS leave traces · NOW marks co-presence · RELATIONS emerge between positions.",
-          "source": "Natural Earth / world-atlas · anonymous coarse locations"
+          "metrics": {
+            "visits": "VISITS",
+            "located": "LOCATED VISITS",
+            "places": "PLACES",
+            "observations": "OBSERVATIONS",
+            "active": "ACTIVE NOW"
+          },
+          "layers": {
+            "visits": "VISITS",
+            "observations": "OBSERVATIONS",
+            "now": "NOW",
+            "relations": "RELATIONS"
+          },
+          "time": {
+            "label": "TIME",
+            "horizons": {
+              "24h": "24H",
+              "7d": "7D",
+              "30d": "30D",
+              "all": "ALL"
+            },
+            "modes": {
+              "accumulated": "ACCUMULATED",
+              "hourly": "HOURLY",
+              "daynight": "DAY / NIGHT"
+            },
+            "utc": "UTC",
+            "local": "LOCAL",
+            "hour": "HOUR"
+          },
+          "map": {
+            "loading": "READING RELATIONS…",
+            "unavailable": "World geometry unavailable.",
+            "demo": "SIMULATED FIELD · FIXED 5,280 VISITS",
+            "source": "Natural Earth / world-atlas · anonymous coarse locations",
+            "host": "HOST",
+            "you": "YOU",
+            "selected": "SELECTED PLACE",
+            "none": "No place stands alone; select one to reveal its relations.",
+            "locatedNote": ""
+          },
+          "relation": {
+            "title": "RELATION",
+            "distance": "DISTANCE",
+            "bearing": "INITIAL BEARING",
+            "timeOffset": "TIME OFFSET",
+            "localTime": "LOCAL TIME",
+            "daylight": "DAYLIGHT",
+            "host": "WUHAN / HOST",
+            "you": "YOUR POSITION",
+            "selected": "SELECTED PLACE",
+            "day": "DAY",
+            "night": "NIGHT"
+          },
+          "actions": {
+            "locate": "LOCATE ME",
+            "locating": "LOCATING…",
+            "light": "LIGHT THIS PLACE",
+            "lit": "PLACE LIT",
+            "observe": "LEAVE A TRACE",
+            "submit": "ADD TO COMMONS",
+            "submitting": "SENDING…",
+            "clear": "CLEAR LOCAL POSITION"
+          },
+          "privacy": {
+            "title": "POSITION & DISCLOSURE",
+            "body": "Location enters Commons at coarse spatial resolution.",
+            "private": "PRIVATE / DEVICE ONLY",
+            "public": "PUBLIC / APPROXIMATE"
+          },
+          "form": {
+            "place": "PLACE",
+            "name": "NAME / OPTIONAL",
+            "observation": "OBSERVATION",
+            "placeholder": "What appears from here?",
+            "limit": "180 characters",
+            "success": "Observation received.",
+            "pending": "Observation submitted for moderation.",
+            "needLocation": "Locate yourself before contributing a place.",
+            "backend": "Public contribution requires a configured Commons backend."
+          },
+          "visitor": {
+            "title": "PLACE RECORD",
+            "visits": "VISITS",
+            "observations": "OBSERVATIONS",
+            "lastSeen": "LAST SEEN",
+            "active": "ACTIVE NOW",
+            "open": "READ OBSERVATIONS"
+          },
+          "empty": "No records in this time window.",
+          "definitions": "VISITS register presence · OBSERVATIONS leave traces · NOW marks co-presence · RELATIONS emerge between positions."
+        }
+      }
+    }
+  },
+  "records": [
+    {
+      "ref": "lab:l01",
+      "kind": "lab",
+      "id": "l01",
+      "data": {
+        "group": "studies",
+        "visual": "terrain",
+        "featured": false
+      },
+      "text": {
+        "en": {
+          "status": "Prototype",
+          "title": "The page as terrain",
+          "tags": [
+            "Web",
+            "Cartography",
+            "Interaction"
+          ],
+          "description": "A browser interface in which scale, contour, relation, and projection govern behavior. Geography becomes grammar, not ornament.",
+          "coord": "SHEET / SCALE"
         }
       },
-      "notes": window.GEOGEEK_ARCHIVE?.locales?.en?.notes || [],
-      "lab": window.GEOGEEK_ARCHIVE?.locales?.en?.lab || [],
-      "elsewhere": window.GEOGEEK_ARCHIVE?.locales?.en?.elsewhere || [],
-      "atlasLayout": window.GEOGEEK_ARCHIVE?.locales?.en?.atlasLayout || []
+      "atlas": {
+        "type": "lab",
+        "x": 0.68,
+        "y": 0.34,
+        "year": 2025,
+        "traceX": 0.3,
+        "traceY": 0.7,
+        "text": {
+          "en": {
+            "topic": "Interface",
+            "place": "Web",
+            "spatialField": "constructed field"
+          }
+        }
+      },
+      "relations": {
+        "trace": [
+          "lab:l02"
+        ]
+      }
+    },
+    {
+      "ref": "lab:l02",
+      "kind": "lab",
+      "id": "l02",
+      "data": {
+        "group": "studies",
+        "visual": "evidence",
+        "featured": false
+      },
+      "text": {
+        "en": {
+          "status": "Method",
+          "title": "The geography of evidence",
+          "tags": [
+            "GIS",
+            "Reasoning",
+            "Reproducibility"
+          ],
+          "description": "A protocol that asks where an inference holds, which scale supports it, and what must remain local before it can travel.",
+          "coord": "Δx / Δt"
+        }
+      },
+      "atlas": {
+        "type": "lab",
+        "x": 0.52,
+        "y": 0.62,
+        "year": 2026,
+        "traceX": 0.68,
+        "traceY": 0.52,
+        "text": {
+          "en": {
+            "topic": "Methods",
+            "place": "Lab",
+            "spatialField": "constructed field"
+          }
+        }
+      },
+      "relations": {
+        "trace": [
+          "elsewhere:e01"
+        ]
+      }
+    },
+    {
+      "ref": "lab:l03",
+      "kind": "lab",
+      "id": "l03",
+      "data": {
+        "group": "studies",
+        "visual": "worlds",
+        "featured": false
+      },
+      "text": {
+        "en": {
+          "status": "Study",
+          "title": "One place, many worlds",
+          "tags": [
+            "GeoAI",
+            "Remote Sensing",
+            "Models"
+          ],
+          "description": "A study of how sensor, grid, resolution, and representation make different objects from the same location without making any one of them the place itself.",
+          "coord": "x → z"
+        }
+      },
+      "atlas": {
+        "type": "lab",
+        "x": 0.57,
+        "y": 0.15,
+        "year": 2026,
+        "traceX": 0.56,
+        "traceY": 0.32,
+        "text": {
+          "en": {
+            "topic": "Remote Sensing",
+            "place": "Lab",
+            "spatialField": "remote field"
+          }
+        }
+      },
+      "relations": {
+        "trace": [
+          "lab:l02"
+        ]
+      }
+    },
+    {
+      "ref": "lab:l04",
+      "kind": "lab",
+      "id": "l04",
+      "data": {
+        "group": "observatory",
+        "visual": "orbit",
+        "featured": true,
+        "instrument": "orbit"
+      },
+      "text": {
+        "en": {
+          "status": "Live",
+          "title": "Orbital Commons",
+          "tags": [
+            "Satlas",
+            "Orbit",
+            "Real-time"
+          ],
+          "description": "The active satellite catalog as one navigable field: browser-worker propagation, instanced rendering, selection, orbit trace, and ground trace.",
+          "coord": "LEO / MEO / GEO",
+          "instrumentKicker": "ORBIT / CATALOG / GROUND",
+          "source": "CelesTrak · satellite.js · Three.js"
+        }
+      },
+      "geography": {
+        "kind": "extent",
+        "extent": [
+          -180,
+          -90,
+          180,
+          90
+        ],
+        "scope": "global"
+      }
+    },
+    {
+      "ref": "lab:l05",
+      "kind": "lab",
+      "id": "l05",
+      "data": {
+        "group": "observatory",
+        "visual": "earth",
+        "featured": false,
+        "instrument": "earth"
+      },
+      "text": {
+        "en": {
+          "status": "Live",
+          "title": "Earth in Change",
+          "tags": [
+            "Remote Sensing",
+            "Time",
+            "Observation"
+          ],
+          "description": "Recent Earth observations become a temporal sequence rather than a fixed basemap: the date is part of the image, not metadata outside it.",
+          "coord": "t → image",
+          "instrumentKicker": "EARTH / CHANGE / TIME",
+          "source": "NASA GIBS · MODIS Terra"
+        }
+      },
+      "geography": {
+        "kind": "extent",
+        "extent": [
+          -180,
+          -90,
+          180,
+          90
+        ],
+        "scope": "global"
+      }
+    },
+    {
+      "ref": "lab:l06",
+      "kind": "lab",
+      "id": "l06",
+      "data": {
+        "group": "observatory",
+        "visual": "flow",
+        "featured": false,
+        "instrument": "flow"
+      },
+      "text": {
+        "en": {
+          "status": "Live",
+          "title": "Wind Field",
+          "tags": [
+            "Atmosphere",
+            "Wind",
+            "Circulation"
+          ],
+          "description": "A live wind field makes circulation visible. What appears as a stable surface becomes legible as process, direction, and change.",
+          "coord": "u / v",
+          "instrumentKicker": "WIND / FLOW / RHYTHM",
+          "source": "Windy · ECMWF"
+        }
+      }
+    },
+    {
+      "ref": "lab:l10",
+      "kind": "lab",
+      "id": "l10",
+      "data": {
+        "group": "observatory",
+        "visual": "pulse",
+        "featured": true,
+        "instrument": "pulse"
+      },
+      "text": {
+        "en": {
+          "status": "Live",
+          "title": "Earth Pulse",
+          "tags": [
+            "Seismicity",
+            "Live Feed",
+            "USGS"
+          ],
+          "description": "A live earthquake field rendered on a self-owned world view. Magnitude, depth, and recency become a changing pulse rather than a generic alert map.",
+          "coord": "M / km / t",
+          "instrumentKicker": "EARTH / PULSE / EVENT",
+          "source": "USGS Earthquake GeoJSON"
+        }
+      },
+      "geography": {
+        "kind": "extent",
+        "extent": [
+          -180,
+          -90,
+          180,
+          90
+        ],
+        "scope": "global"
+      }
+    },
+    {
+      "ref": "lab:l11",
+      "kind": "lab",
+      "id": "l11",
+      "data": {
+        "group": "studies",
+        "visual": "figure",
+        "featured": true,
+        "instrument": "figure"
+      },
+      "text": {
+        "en": {
+          "status": "Instrument",
+          "title": "Image → Trace",
+          "tags": [
+            "Raster",
+            "Abstraction",
+            "Vector"
+          ],
+          "description": "A small figure engine that turns a field-like image into contours, regions, and traces. It asks when an image begins to act like a map.",
+          "coord": "image → trace",
+          "instrumentKicker": "IMAGE / TRACE / ABSTRACTION",
+          "source": "Browser Canvas / SVG"
+        }
+      }
+    },
+    {
+      "ref": "lab:l12",
+      "kind": "lab",
+      "id": "l12",
+      "data": {
+        "group": "studies",
+        "visual": "world",
+        "featured": true,
+        "instrument": "world"
+      },
+      "text": {
+        "en": {
+          "status": "Atlas Base",
+          "title": "World as Relation",
+          "tags": [
+            "World",
+            "Geometry",
+            "Scale"
+          ],
+          "description": "A world field treated as authored geometry rather than a borrowed basemap. Projection changes the visible relation; geography begins where the choice becomes explicit.",
+          "coord": "world / relation",
+          "instrumentKicker": "WORLD / PROJECTION / RELATION",
+          "source": "Natural Earth GeoJSON · CC0 · D3 runtime"
+        }
+      },
+      "atlas": {
+        "type": "lab",
+        "x": 0.86,
+        "y": 0.43,
+        "year": 2026,
+        "traceX": 0.76,
+        "traceY": 0.37,
+        "text": {
+          "en": {
+            "topic": "Cartography",
+            "place": "Lab",
+            "spatialField": "representation"
+          }
+        }
+      },
+      "relations": {
+        "trace": [
+          "notes:n03"
+        ]
+      },
+      "geography": {
+        "kind": "extent",
+        "extent": [
+          -180,
+          -90,
+          180,
+          90
+        ],
+        "scope": "global"
+      }
+    },
+    {
+      "ref": "lab:l07",
+      "kind": "lab",
+      "id": "l07",
+      "data": {
+        "group": "play",
+        "visual": "locate",
+        "featured": false,
+        "instrument": "locate"
+      },
+      "text": {
+        "en": {
+          "status": "Game",
+          "title": "Locate",
+          "tags": [
+            "Distance",
+            "Bearing",
+            "Cities"
+          ],
+          "description": "A location exercise that returns error as distance and direction. The aim is not recall alone, but calibration: where did your mental map bend?",
+          "coord": "φ / λ",
+          "instrumentKicker": "PLACE / DISTANCE / BEARING",
+          "source": "Natural Earth / world-atlas"
+        }
+      },
+      "geography": {
+        "kind": "extent",
+        "extent": [
+          -180,
+          -90,
+          180,
+          90
+        ],
+        "scope": "global"
+      }
+    },
+    {
+      "ref": "lab:l08",
+      "kind": "lab",
+      "id": "l08",
+      "data": {
+        "group": "play",
+        "visual": "zone",
+        "featured": false,
+        "instrument": "zone"
+      },
+      "text": {
+        "en": {
+          "status": "Game",
+          "title": "Zone",
+          "tags": [
+            "Boundary",
+            "Shape",
+            "Adjacency"
+          ],
+          "description": "Find a named country from its position among neighbors. Shape matters, but relation to the surrounding field matters more.",
+          "coord": "∂A",
+          "instrumentKicker": "BOUNDARY / REGION / RECOGNITION",
+          "source": "Natural Earth / world-atlas"
+        }
+      },
+      "geography": {
+        "kind": "extent",
+        "extent": [
+          -180,
+          -90,
+          180,
+          90
+        ],
+        "scope": "global"
+      }
+    },
+    {
+      "ref": "lab:l09",
+      "kind": "lab",
+      "id": "l09",
+      "data": {
+        "group": "play",
+        "visual": "path",
+        "featured": false,
+        "instrument": "path"
+      },
+      "text": {
+        "en": {
+          "status": "Game",
+          "title": "Trace",
+          "tags": [
+            "Adjacency",
+            "Route",
+            "Topology"
+          ],
+          "description": "Cross the world by shared land borders. A route is not a line drawn over space; it is a sequence allowed by topology.",
+          "coord": "A ↔ B",
+          "instrumentKicker": "ADJACENCY / PATH / TOPOLOGY",
+          "source": "Natural Earth / world-atlas"
+        }
+      },
+      "geography": {
+        "kind": "extent",
+        "extent": [
+          -180,
+          -90,
+          180,
+          90
+        ],
+        "scope": "global"
+      }
+    },
+    {
+      "ref": "elsewhere:e01",
+      "kind": "elsewhere",
+      "id": "e01",
+      "data": {},
+      "text": {
+        "en": {
+          "kind": "Place",
+          "title": "After rain",
+          "subtitle": "A wet street doubles the sky. A familiar route becomes another surface.",
+          "meta": "walk / photographs / notes"
+        }
+      },
+      "atlas": {
+        "type": "place",
+        "x": 0.78,
+        "y": 0.72,
+        "year": 2026,
+        "traceX": 0.82,
+        "traceY": 0.66,
+        "text": {
+          "en": {
+            "topic": "Life",
+            "place": "Elsewhere",
+            "spatialField": "lived field"
+          }
+        }
+      },
+      "relations": {
+        "trace": []
+      }
+    },
+    {
+      "ref": "elsewhere:e02",
+      "kind": "elsewhere",
+      "id": "e02",
+      "data": {},
+      "text": {
+        "en": {
+          "kind": "Reading",
+          "title": "Books that moved the horizon",
+          "subtitle": "Some books do not add facts; they change the distance from which facts are seen.",
+          "meta": "books / margins / memory"
+        }
+      }
+    },
+    {
+      "ref": "elsewhere:e03",
+      "kind": "elsewhere",
+      "id": "e03",
+      "data": {},
+      "text": {
+        "en": {
+          "kind": "Listening",
+          "title": "Sound as landscape",
+          "subtitle": "What has no coordinate can still give direction.",
+          "meta": "music / movement / atmosphere"
+        }
+      }
     }
-  }
+  ]
 };
+
+(() => {
+  'use strict';
+  const archive = window.GEOGEEK_ARCHIVE;
+  const ui = archive.locales?.en?.ui || {};
+  const itemFor = record => ({ id: record.id, ...(record.data || {}), ...(record.text?.en || {}) });
+  const byKind = kind => archive.records.filter(record => record.kind === kind).map(itemFor);
+  const atlasLayout = archive.records.filter(record => record.atlas).map(record => ({
+    ref: record.ref,
+    ...Object.fromEntries(Object.entries(record.atlas || {}).filter(([key]) => key !== 'text')),
+    ...(record.atlas?.text?.en || {}),
+    traceLinks: [...(record.relations?.trace || [])]
+  }));
+  window.GEOGEEK_DATA = {
+    en: { ui, notes: byKind('notes'), lab: byKind('lab'), elsewhere: byKind('elsewhere'), atlasLayout }
+  };
+})();
