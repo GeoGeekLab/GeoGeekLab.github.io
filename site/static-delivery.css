@@ -95,6 +95,22 @@
 }
 .static-related-link strong { font-size: .9rem; line-height: 1.35; font-weight: 500; }
 
+/* Static Field Note content is authoritative. It must never depend on a
+   viewport/reveal animation to become readable. */
+body[data-static-record="true"] .record-detail.geo-reveal {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  transition: none !important;
+}
+body[data-static-record="true"] [data-static-body] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+body[data-static-record="true"] .record-detail > .geo-field-mark {
+  display: none !important;
+}
+
 /* Origin EN — long supporting copy must wrap instead of being clipped by the scene viewport. */
 html[lang="en"] .scene .body-line,
 html[lang="en"] .scene .keep {
