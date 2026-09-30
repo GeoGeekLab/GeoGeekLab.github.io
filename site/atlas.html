@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -13,9 +12,10 @@
 <title>Atlas — GeoGeek</title>
 <link href="styles.css" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
+<link href="atlas-page.css?v=20260930a" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
 </head>
-<body>
+<body class="atlas-page">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-nav">
 <a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
@@ -41,13 +41,60 @@
 </div>
 <div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
 <main class="page-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
-<section class="page-title"><div><div class="eyebrow">FIELD / TIME / RELATION</div><h1>Atlas</h1></div><p class="page-intro">An archive has no neutral geometry. Every projection keeps one relation by letting another recede.</p></section>
-<div class="atlas-controls"><div class="projections" aria-label="Atlas projections"><button class="is-active" data-projection="field" aria-pressed="true">Field</button><button data-projection="time" aria-pressed="false">Time</button><button data-projection="type" aria-pressed="false">Type</button><button data-projection="topic" aria-pressed="false">Topic</button><button data-projection="trace" aria-pressed="false">Trace</button><button data-projection="geographic" aria-pressed="false">Geographic</button></div><span class="atlas-status" id="atlasStatus">PROJECTION / FIELD · RELATION / FIELD</span></div>
+<section class="page-title">
+  <div><div class="eyebrow">ARCHIVE / VIEW / RELATION</div><h1>Atlas</h1></div>
+  <p class="page-intro">The same records, rearranged by different questions.</p>
+</section>
+
+<section class="atlas-reader" aria-labelledby="atlasViewTitle">
+  <div class="atlas-reader-copy">
+    <span>HOW TO READ THE ARCHIVE</span>
+    <h2 id="atlasViewTitle">Relation</h2>
+    <p id="atlasViewSummary">Which records belong near one another conceptually?</p>
+  </div>
+  <div class="atlas-reader-controls">
+    <div class="atlas-controls">
+      <div class="projections" aria-label="Atlas views">
+        <button class="is-active" data-projection="field" aria-pressed="true">Relation</button>
+        <button data-projection="time" aria-pressed="false">Time</button>
+        <button data-projection="type" aria-pressed="false">Format</button>
+        <button data-projection="topic" aria-pressed="false">Topic</button>
+        <button data-projection="trace" aria-pressed="false">Trace</button>
+        <button data-projection="geographic" aria-pressed="false">Place</button>
+      </div>
+      <span class="atlas-status" id="atlasStatus">VIEW / RELATION · SAME ARCHIVE</span>
+    </div>
+    <p class="atlas-reader-hint">Choose a view. The records stay the same; only the relation changes.</p>
+  </div>
+</section>
+
 <div class="atlas-workspace">
-<section class="atlas-stage" id="atlasStage"><svg aria-hidden="true" class="atlas-links" id="atlasLinks"></svg><div aria-hidden="true" class="atlas-guides" id="atlasGuides"></div><div aria-hidden="true" class="atlas-labels" id="atlasLabels"></div></section>
-<aside class="atlas-tooltip atlas-inspector is-empty" id="atlasTip" aria-live="polite"><button class="atlas-inspector-close" id="atlasInspectorClose" type="button" aria-label="Close selection">×</button><span>ATLAS</span><strong>Read the relations.</strong></aside>
+  <section class="atlas-stage" id="atlasStage" aria-label="Atlas relation field">
+    <svg aria-hidden="true" class="atlas-links" id="atlasLinks"></svg>
+    <div aria-hidden="true" class="atlas-guides" id="atlasGuides"></div>
+    <div aria-hidden="true" class="atlas-labels" id="atlasLabels"></div>
+  </section>
+  <aside class="atlas-tooltip atlas-inspector is-empty" id="atlasTip" aria-live="polite">
+    <button class="atlas-inspector-close" id="atlasInspectorClose" type="button" aria-label="Close selection">×</button>
+    <span>ATLAS / RELATION</span>
+    <strong>Hover a record. Click to keep it selected.</strong>
+  </aside>
 </div>
-<div class="atlas-foot"><p class="atlas-philosophy">No projection preserves everything.</p><p class="atlas-explain" id="atlasExplain">Field preserves authored conceptual co-presence. Nearness here is relational, not geographic distance.</p></div>
+
+<div class="atlas-key" aria-label="Atlas key">
+  <span class="atlas-key-title">READ THE FIELD</span>
+  <span><i class="atlas-key-node is-note"></i>NOTE</span>
+  <span><i class="atlas-key-node is-lab"></i>LAB</span>
+  <span><i class="atlas-key-node is-place"></i>ELSEWHERE</span>
+  <span><i class="atlas-key-line"></i>CURRENT RELATION</span>
+  <span>HOVER / PREVIEW</span>
+  <span>CLICK / HOLD</span>
+</div>
+
+<div class="atlas-foot">
+  <p class="atlas-philosophy">Every view reveals one relation by letting another recede.</p>
+  <p class="atlas-explain" id="atlasExplain">Conceptual nearness: records share a field of thought or practice.</p>
+</div>
 </main>
 <footer class="footer">
 <div class="footer-brand">GeoGeek</div>
@@ -60,6 +107,7 @@
 <script src="core/modules.js"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="atlas/atlas.js"></script>
+<script src="atlas-page.js?v=20260930a"></script>
 <script src="commons/config.js"></script>
 <script src="commons/visit-tracker.js"></script>
 <script src="/ux-refinements.js"></script>
