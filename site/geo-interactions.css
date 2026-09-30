@@ -1,120 +1,161 @@
 /* GeoGeek global interaction layer — survey, field and scale feedback. */
 
 :root {
-  --geo-px: 50vw;
-  --geo-py: 50vh;
   --geo-local-x: 50%;
   --geo-local-y: 50%;
   --geo-signal: 166,70,36;
   --geo-ink: 21,32,25;
 }
 
-/* A faint survey axis follows the pointer on precise pointing devices. */
+/* Persistent relative-depth ruler. */
+.geo-depth-ruler {
+  position: fixed;
+  z-index: 38;
+  right: 18px;
+  top: 50%;
+  width: 54px;
+  transform: translateY(-50%);
+  display: grid;
+  justify-items: end;
+  gap: 7px;
+  opacity: .46;
+  pointer-events: none;
+  transition: opacity .22s ease;
+}
+.geo-depth-ruler.is-active { opacity: .82; }
+.geo-depth-label,
+.geo-depth-ruler small {
+  color: rgba(var(--geo-ink),.58);
+  font: 650 8px/1.1 var(--mono,"IBM Plex Mono",monospace);
+  letter-spacing: .07em;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+.geo-depth-ruler small { opacity: .62; }
+.geo-depth-track {
+  position: relative;
+  display: block;
+  width: 15px;
+  height: min(30vh,220px);
+  min-height: 128px;
+  border-right: 1px solid rgba(var(--geo-ink),.20);
+  background: repeating-linear-gradient(to bottom, transparent 0 11px, rgba(var(--geo-ink),.14) 11px 12px) right top / 7px 100% no-repeat;
+}
+.geo-depth-track::before,
+.geo-depth-track::after {
+  content:"";
+  position:absolute;
+  right:-1px;
+  width:10px;
+  height:1px;
+  background:rgba(var(--geo-ink),.34);
+}
+.geo-depth-track::before { top:0; }
+.geo-depth-track::after { bottom:0; }
+.geo-depth-track b {
+  position:absolute;
+  right:-4px;
+  top:var(--geo-depth,0%);
+  width:9px;
+  height:9px;
+  border:1px solid rgba(var(--geo-signal),.88);
+  background:rgba(246,244,238,.94);
+  transform:translateY(-50%) rotate(45deg);
+  transition:top .16s linear;
+}
+
+/* Precise-pointer survey axes. */
 .geo-screen-axis,
 .geo-survey-readout {
   position: fixed;
   pointer-events: none;
   opacity: 0;
-  transition: opacity .22s ease;
+  transition: opacity .18s ease;
 }
 .geo-screen-axis {
-  z-index: 6;
-  background: rgba(var(--geo-ink),.055);
+  z-index: 7;
+  background: rgba(var(--geo-ink),.095);
 }
 .geo-screen-axis-x {
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 1px;
-  transform: translate3d(0,var(--geo-screen-y,50vh),0);
+  left:0; top:0; width:100vw; height:1px;
+  transform:translate3d(0,var(--geo-screen-y,50vh),0);
 }
 .geo-screen-axis-y {
-  left: 0;
-  top: 0;
-  width: 1px;
-  height: 100vh;
-  transform: translate3d(var(--geo-screen-x,50vw),0,0);
+  left:0; top:0; width:1px; height:100vh;
+  transform:translate3d(var(--geo-screen-x,50vw),0,0);
 }
 .geo-survey-readout {
-  z-index: 40;
-  left: max(18px,2vw);
-  bottom: 18px;
-  padding: 6px 8px;
-  border: 1px solid rgba(var(--geo-ink),.11);
-  background: rgba(246,244,238,.82);
-  backdrop-filter: blur(8px);
-  color: rgba(var(--geo-ink),.64);
-  font: 650 9px/1.2 var(--mono, "IBM Plex Mono", monospace);
-  letter-spacing: .07em;
-  white-space: nowrap;
+  z-index:40;
+  left:max(18px,2vw);
+  bottom:18px;
+  padding:7px 9px;
+  border:1px solid rgba(var(--geo-ink),.18);
+  background:rgba(246,244,238,.90);
+  backdrop-filter:blur(8px);
+  color:rgba(var(--geo-ink),.72);
+  font:650 9px/1.2 var(--mono,"IBM Plex Mono",monospace);
+  letter-spacing:.07em;
+  white-space:nowrap;
 }
-body.geo-pointer-active .geo-screen-axis { opacity: 1; }
-body.geo-pointer-active .geo-survey-readout { opacity: .88; }
+body.geo-pointer-active .geo-screen-axis { opacity:1; }
+body.geo-pointer-active .geo-survey-readout { opacity:.96; }
 body.instrument-open .geo-screen-axis,
 body.instrument-open .geo-survey-readout,
+body.instrument-open .geo-depth-ruler,
 body.site-map-open .geo-screen-axis,
-body.site-map-open .geo-survey-readout { opacity: 0 !important; }
+body.site-map-open .geo-survey-readout,
+body.site-map-open .geo-depth-ruler { opacity:0!important; }
 
-/* Local field response. JS adds one inert overlay to spatially meaningful blocks. */
+/* Local survey frame for spatially meaningful blocks. */
 .geo-reactive {
-  position: relative;
-  --geo-local-x: 50%;
-  --geo-local-y: 50%;
+  position:relative;
+  --geo-local-x:50%;
+  --geo-local-y:50%;
 }
 .geo-field-mark {
-  position: absolute;
-  inset: -1px;
-  z-index: 4;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .18s ease;
+  position:absolute;
+  inset:-1px;
+  z-index:4;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .16s ease;
   background:
-    linear-gradient(rgba(var(--geo-signal),.42),rgba(var(--geo-signal),.42)) left top / 13px 1px no-repeat,
-    linear-gradient(rgba(var(--geo-signal),.42),rgba(var(--geo-signal),.42)) left top / 1px 13px no-repeat,
-    linear-gradient(rgba(var(--geo-signal),.42),rgba(var(--geo-signal),.42)) right top / 13px 1px no-repeat,
-    linear-gradient(rgba(var(--geo-signal),.42),rgba(var(--geo-signal),.42)) right top / 1px 13px no-repeat,
-    linear-gradient(rgba(var(--geo-signal),.42),rgba(var(--geo-signal),.42)) left bottom / 13px 1px no-repeat,
-    linear-gradient(rgba(var(--geo-signal),.42),rgba(var(--geo-signal),.42)) left bottom / 1px 13px no-repeat,
-    linear-gradient(rgba(var(--geo-signal),.42),rgba(var(--geo-signal),.42)) right bottom / 13px 1px no-repeat,
-    linear-gradient(rgba(var(--geo-signal),.42),rgba(var(--geo-signal),.42)) right bottom / 1px 13px no-repeat,
-    radial-gradient(circle at var(--geo-local-x) var(--geo-local-y), rgba(var(--geo-signal),.07) 0, rgba(var(--geo-signal),.035) 9%, transparent 31%);
+    linear-gradient(rgba(var(--geo-signal),.62),rgba(var(--geo-signal),.62)) left top/18px 1px no-repeat,
+    linear-gradient(rgba(var(--geo-signal),.62),rgba(var(--geo-signal),.62)) left top/1px 18px no-repeat,
+    linear-gradient(rgba(var(--geo-signal),.62),rgba(var(--geo-signal),.62)) right top/18px 1px no-repeat,
+    linear-gradient(rgba(var(--geo-signal),.62),rgba(var(--geo-signal),.62)) right top/1px 18px no-repeat,
+    linear-gradient(rgba(var(--geo-signal),.62),rgba(var(--geo-signal),.62)) left bottom/18px 1px no-repeat,
+    linear-gradient(rgba(var(--geo-signal),.62),rgba(var(--geo-signal),.62)) left bottom/1px 18px no-repeat,
+    linear-gradient(rgba(var(--geo-signal),.62),rgba(var(--geo-signal),.62)) right bottom/18px 1px no-repeat,
+    linear-gradient(rgba(var(--geo-signal),.62),rgba(var(--geo-signal),.62)) right bottom/1px 18px no-repeat,
+    radial-gradient(circle at var(--geo-local-x) var(--geo-local-y),rgba(var(--geo-signal),.11) 0,rgba(var(--geo-signal),.045) 10%,transparent 33%);
 }
 .geo-field-mark::before,
 .geo-field-mark::after {
-  content: "";
-  position: absolute;
-  background: rgba(var(--geo-ink),.085);
-  transform: translate(-50%,-50%);
+  content:"";
+  position:absolute;
+  background:rgba(var(--geo-ink),.13);
 }
 .geo-field-mark::before {
-  left: var(--geo-local-x);
-  top: 0;
-  width: 1px;
-  height: 100%;
-  transform: translateX(-50%);
+  left:var(--geo-local-x); top:0; width:1px; height:100%; transform:translateX(-50%);
 }
 .geo-field-mark::after {
-  left: 0;
-  top: var(--geo-local-y);
-  width: 100%;
-  height: 1px;
-  transform: translateY(-50%);
+  left:0; top:var(--geo-local-y); width:100%; height:1px; transform:translateY(-50%);
 }
 .geo-reactive.is-geo-active > .geo-field-mark,
-.geo-reactive:focus-within > .geo-field-mark { opacity: .72; }
+.geo-reactive:focus-within > .geo-field-mark { opacity:.92; }
 
-/* Keep marks especially subtle over dark instrument surfaces. */
 .atlas-workspace > .geo-field-mark,
 .project-card > .geo-field-mark,
 .earth-preview-link > .geo-field-mark,
 .instrument-shell > .geo-field-mark {
-  mix-blend-mode: normal;
   background:
-    linear-gradient(rgba(209,99,57,.52),rgba(209,99,57,.52)) left top / 13px 1px no-repeat,
-    linear-gradient(rgba(209,99,57,.52),rgba(209,99,57,.52)) left top / 1px 13px no-repeat,
-    linear-gradient(rgba(209,99,57,.52),rgba(209,99,57,.52)) right bottom / 13px 1px no-repeat,
-    linear-gradient(rgba(209,99,57,.52),rgba(209,99,57,.52)) right bottom / 1px 13px no-repeat,
-    radial-gradient(circle at var(--geo-local-x) var(--geo-local-y), rgba(209,99,57,.08), transparent 31%);
+    linear-gradient(rgba(209,99,57,.72),rgba(209,99,57,.72)) left top/18px 1px no-repeat,
+    linear-gradient(rgba(209,99,57,.72),rgba(209,99,57,.72)) left top/1px 18px no-repeat,
+    linear-gradient(rgba(209,99,57,.72),rgba(209,99,57,.72)) right bottom/18px 1px no-repeat,
+    linear-gradient(rgba(209,99,57,.72),rgba(209,99,57,.72)) right bottom/1px 18px no-repeat,
+    radial-gradient(circle at var(--geo-local-x) var(--geo-local-y),rgba(209,99,57,.12),transparent 34%);
 }
 .atlas-workspace > .geo-field-mark::before,
 .atlas-workspace > .geo-field-mark::after,
@@ -123,41 +164,32 @@ body.site-map-open .geo-survey-readout { opacity: 0 !important; }
 .earth-preview-link > .geo-field-mark::before,
 .earth-preview-link > .geo-field-mark::after,
 .instrument-shell > .geo-field-mark::before,
-.instrument-shell > .geo-field-mark::after {
-  background: rgba(241,239,231,.075);
-}
+.instrument-shell > .geo-field-mark::after { background:rgba(241,239,231,.11); }
 
-/* Scale changes read like a measuring instrument changing resolution. */
+/* Information scale behaves like a measuring instrument. */
 .scale-ui {
-  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, opacity .22s ease;
+  transition:border-color .22s ease,box-shadow .22s ease,transform .22s ease,opacity .22s ease;
 }
 .scale-ui.geo-scale-change {
-  border-color: rgba(var(--geo-signal),.44) !important;
-  box-shadow: 0 0 0 1px rgba(var(--geo-signal),.09), 0 8px 28px rgba(var(--geo-ink),.055);
-  transform: translateY(-1px);
+  border-color:rgba(var(--geo-signal),.70)!important;
+  box-shadow:0 0 0 1px rgba(var(--geo-signal),.16),0 9px 30px rgba(var(--geo-ink),.08);
+  transform:translateY(-2px);
 }
 
-/* Navigation and controls use the same restrained survey feedback. */
+/* Navigation and controls share one restrained instrument feedback. */
 .nav-links a {
-  background-image: linear-gradient(var(--signal),var(--signal));
-  background-repeat: no-repeat;
-  background-position: 50% 100%;
-  background-size: 0 1px;
-  transition: color .18s ease, background-size .24s var(--ease,ease);
+  background-image:linear-gradient(var(--signal),var(--signal));
+  background-repeat:no-repeat;
+  background-position:50% 100%;
+  background-size:0 1px;
+  transition:color .18s ease,background-size .24s var(--ease,ease);
 }
 .nav-links a:hover,
 .nav-links a:focus-visible,
-.nav-links a[aria-current="page"] {
-  background-size: 100% 1px;
-}
-.brand-mark {
-  transition: transform .36s var(--ease,ease), border-color .2s ease;
-}
+.nav-links a[aria-current="page"] { background-size:100% 1px; }
+.brand-mark { transition:transform .36s var(--ease,ease),border-color .2s ease; }
 .brand:hover .brand-mark,
-.brand:focus-visible .brand-mark {
-  transform: rotate(45deg);
-  border-color: rgba(var(--geo-signal),.7);
-}
+.brand:focus-visible .brand-mark { transform:rotate(45deg); border-color:rgba(var(--geo-signal),.82); }
 
 .filters button,
 .projections button,
@@ -169,9 +201,8 @@ body.site-map-open .geo-survey-readout { opacity: 0 !important; }
 .lab-enter,
 .project-cta,
 .record-action,
-.atlas-open-record,
-.coordinates-commons-enter {
-  transition: transform .17s ease, border-color .17s ease, background-color .17s ease, color .17s ease, box-shadow .17s ease;
+.atlas-open-record {
+  transition:transform .17s ease,border-color .17s ease,background-color .17s ease,color .17s ease,box-shadow .17s ease;
 }
 .filters button:hover,
 .projections button:hover,
@@ -183,81 +214,53 @@ body.site-map-open .geo-survey-readout { opacity: 0 !important; }
 .lab-enter:hover,
 .project-cta:hover,
 .record-action:hover,
-.atlas-open-record:hover,
-.coordinates-commons-enter:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(var(--geo-ink),.045);
+.atlas-open-record:hover {
+  transform:translateY(-2px);
+  box-shadow:0 7px 20px rgba(var(--geo-ink),.065);
 }
 
-/* Rows and cards feel located rather than lifted. */
 .note-row,
 .lab-build-row,
 .lab-row,
 .project-card,
 .elsewhere-card {
-  transition: border-color .2s ease, background-color .2s ease, transform .22s var(--ease,ease);
+  transition:border-color .2s ease,background-color .2s ease,transform .22s var(--ease,ease);
 }
 .note-row:hover,
 .lab-build-row:hover,
-.lab-row:hover {
-  background-color: rgba(var(--geo-ink),.018);
-}
-.elsewhere-card:hover { transform: translateY(-2px); }
+.lab-row:hover { background-color:rgba(var(--geo-ink),.03); }
+.elsewhere-card:hover { transform:translateY(-3px); }
 
-/* Subtle entrance: the field resolves into place rather than flying in. */
+/* Major blocks resolve into the field rather than flying in. */
 .geo-reveal {
-  opacity: .01;
-  transform: translateY(10px);
-  filter: blur(1.5px);
-  transition: opacity .52s ease, transform .62s var(--ease,ease), filter .52s ease;
+  opacity:.01;
+  transform:translateY(15px);
+  filter:blur(2px);
+  transition:opacity .48s ease,transform .62s var(--ease,ease),filter .48s ease;
 }
-.geo-reveal.is-geo-visible {
-  opacity: 1;
-  transform: none;
-  filter: none;
-}
+.geo-reveal.is-geo-visible { opacity:1; transform:none; filter:none; }
 
-/* Keyboard focus remains explicit and geometric. */
 .geo-ui a:focus-visible,
 .geo-ui button:focus-visible,
 .geo-ui [tabindex]:focus-visible {
-  outline: 1px solid rgba(var(--geo-signal),.72);
-  outline-offset: 3px;
+  outline:1px solid rgba(var(--geo-signal),.80);
+  outline-offset:3px;
 }
 
-@media (max-width: 860px), (pointer: coarse), (hover: none) {
-  .geo-screen-axis,
-  .geo-survey-readout { display: none !important; }
-  .geo-field-mark::before,
-  .geo-field-mark::after { display: none; }
-  .geo-reactive.is-geo-active > .geo-field-mark { opacity: .34; }
+@media(max-width:860px),(pointer:coarse),(hover:none) {
+  .geo-screen-axis,.geo-survey-readout { display:none!important; }
+  .geo-depth-ruler { right:8px; width:26px; opacity:.52; }
+  .geo-depth-label,.geo-depth-ruler small { display:none; }
+  .geo-depth-track { height:120px; min-height:120px; width:11px; }
+  .geo-field-mark::before,.geo-field-mark::after { display:none; }
+  .geo-reactive:active > .geo-field-mark { opacity:.62; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .geo-screen-axis,
-  .geo-survey-readout { display: none !important; }
-  .geo-reveal,
-  .geo-reveal.is-geo-visible {
-    opacity: 1;
-    transform: none;
-    filter: none;
-    transition: none;
-  }
-  .geo-field-mark,
-  .scale-ui,
-  .nav-links a,
-  .brand-mark,
-  .filters button,
-  .projections button,
-  .commons-layer-controls button,
-  .commons-horizon button,
-  .commons-time-modes button,
-  .commons-time-reference button,
-  .commons-actions button,
-  .lab-enter,
-  .project-cta,
-  .record-action,
-  .atlas-open-record {
-    transition: none !important;
-  }
+@media(prefers-reduced-motion:reduce) {
+  .geo-screen-axis,.geo-survey-readout { display:none!important; }
+  .geo-reveal,.geo-reveal.is-geo-visible { opacity:1; transform:none; filter:none; transition:none; }
+  .geo-depth-track b,.geo-field-mark,.scale-ui,.nav-links a,.brand-mark,
+  .filters button,.projections button,.commons-layer-controls button,.commons-horizon button,
+  .commons-time-modes button,.commons-time-reference button,.commons-actions button,.lab-enter,
+  .project-cta,.record-action,.atlas-open-record { transition:none!important; }
 }
