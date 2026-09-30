@@ -8,11 +8,15 @@
 
   const desktop = () => matchMedia('(min-width: 981px)').matches;
   const storage = {
-    get(key, fallback = false) {
+    read(key) {
       try {
         const value = sessionStorage.getItem(key);
-        return value == null ? fallback : value === '1';
-      } catch { return fallback; }
+        return value == null ? null : value === '1';
+      } catch { return null; }
+    },
+    get(key, fallback = false) {
+      const value = this.read(key);
+      return value == null ? fallback : value;
     },
     set(key, value) {
       try { sessionStorage.setItem(key, value ? '1' : '0'); } catch {}
@@ -21,6 +25,7 @@
 
   let sourceDocked = storage.get('earth-source-docked');
   let inspectorDocked = storage.get('earth-inspector-docked');
+  const storedSourceOpen = storage.read('earth-source-open');
   let resizeTimer = 0;
 
   const makeDockButton = label => {
@@ -83,6 +88,11 @@
     requestMapResize();
   };
 
+  const rememberSourceVisibility = () => requestAnimationFrame(() => {
+    storage.set('earth-source-open', sourcePanel.classList.contains('is-open'));
+    sync();
+  });
+
   sourceDock.addEventListener('click', () => {
     sourceDocked = !sourceDocked;
     storage.set('earth-source-docked', sourceDocked);
@@ -99,10 +109,20 @@
   observer.observe(sourcePanel, { attributes: true, attributeFilter: ['class'] });
   observer.observe(inspector, { attributes: true, attributeFilter: ['class'] });
 
-  sidebarToggle?.addEventListener('click', () => requestAnimationFrame(sync));
-  sourceClose?.addEventListener('click', () => requestAnimationFrame(sync));
+  sidebarToggle?.addEventListener('click', rememberSourceVisibility);
+  sourceClose?.addEventListener('click', rememberSourceVisibility);
   inspectorClose?.addEventListener('click', () => requestAnimationFrame(sync));
   addEventListener('resize', sync, { passive: true });
+
+  const restoreSourceVisibility = () => {
+    if (storedSourceOpen != null) {
+      sourcePanel.classList.toggle('is-open', storedSourceOpen);
+      sidebarToggle?.setAttribute('aria-expanded', String(storedSourceOpen));
+    }
+    sync();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(restoreSourceVisibility, 0), { once: true });
+  else setTimeout(restoreSourceVisibility, 0);
 
   sync();
 })();
