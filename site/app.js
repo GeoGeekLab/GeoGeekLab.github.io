@@ -58,7 +58,7 @@
     const index = $('#sheetIndex');
     if (index) {
       setText('.sheet-index-title', ui.sheet?.title, index);
-      const homeLabels = { origin: ui.sheet?.origin, now: ui.sheet?.coordinates, 'commons-gateway': ui.sheet?.commons, 'field-notes': ui.sheet?.fieldNotes, lab: ui.sheet?.lab, atlas: ui.sheet?.atlas, elsewhere: ui.sheet?.elsewhere };
+      const homeLabels = { origin: ui.sheet?.origin, now: ui.sheet?.coordinates, 'field-notes': ui.sheet?.fieldNotes, lab: ui.sheet?.lab, atlas: ui.sheet?.atlas, elsewhere: ui.sheet?.elsewhere };
       $$('[data-sheet-link]', index).forEach(link => {
         const label = $('b', link);
         if (label && homeLabels[link.dataset.sheetLink]) label.textContent = homeLabels[link.dataset.sheetLink];

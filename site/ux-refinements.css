@@ -34,42 +34,6 @@
 }
 .scale-legend{ top: calc(100% + 8px); }
 body.origin-active .scale-ui{ opacity: .56; }
-.orbital-instruction{
-  position: absolute;
-  z-index: 6;
-  left: 50%;
-  bottom: 19px;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 38px;
-  padding: 0 13px;
-  border: 1px solid rgba(241,239,231,.14);
-  background: rgba(11,17,14,.70);
-  backdrop-filter: blur(10px);
-  color: rgba(241,239,231,.80);
-  font: 700 10px/1 var(--mono);
-  letter-spacing: .10em;
-  pointer-events: none;
-  transition: opacity .28s var(--ease), transform .28s var(--ease);
-}
-.orbital-instruction i{
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #dc7753;
-}
-.orbital-instruction.is-dismissed{
-  opacity: 0;
-  transform: translate(-50%,5px);
-}
-.orbital-keyboard-note{
-  margin: 8px 0 0;
-  color: #aeb7af;
-  font: 650 10px/1.45 var(--mono);
-  letter-spacing: .045em;
-}
 
 /* 5. Make Site Index read like an index/instrument, not a generic menu. */
 .site-map .spatial-browser-head > div > span{ color: #aab5ad; }
@@ -105,17 +69,6 @@ body.origin-active .scale-ui{ opacity: .56; }
   .scale-ui::before{ display: none; }
   .scale-legend{ right: 0 !important; top: auto !important; bottom: calc(100% + 8px); }
 
-  .orbital-instruction{
-    bottom: 76px;
-    min-height: 34px;
-    max-width: calc(100% - 28px);
-    white-space: nowrap;
-  }
-  .orbital-keyboard-note{ display: none; }
-}
-
-@media (prefers-reduced-motion: reduce){
-  .orbital-instruction{ transition: none; }
 }
 
 /* GeoGeek UX v4 — shared production refinement layer. */
@@ -127,9 +80,6 @@ body.origin-active .scale-ui{ opacity: .56; }
 
 html{ scroll-padding-top: 72px; }
 body{ overflow-x: clip; }
-
-/* Remove the Commons sub-index entry without removing Commons itself. */
-.sheet-index-sub[data-sheet-link="commons-gateway"]{ display: none !important; }
 
 /* Keep the two navigation systems distinct: Sheet Index = place, Scale = information depth. */
 .scale-ui{
@@ -243,12 +193,6 @@ body.ux-data-saver canvas{ image-rendering: auto; }
   .hero-edge{ font-size: 9px !important; letter-spacing: .08em !important; }
   .hero-edge-left{ left: var(--preview-mobile-pad) !important; }
   .hero-edge-right{ right: var(--preview-mobile-pad) !important; }
-  .orbital-instruction{
-    bottom: max(72px, calc(env(safe-area-inset-bottom) + 60px)) !important;
-    min-height: 36px !important;
-    padding-inline: 12px !important;
-    letter-spacing: .075em !important;
-  }
 
   /* Editorial sections: one predictable reading column with less lateral competition. */
   .home-section{
@@ -848,18 +792,6 @@ body.ux-data-saver canvas{ image-rendering: auto; }
   }
   body.ux-mobile-v5 .hero .display{
     font-size: clamp(54px, 17.2vw, 78px) !important;
-  }
-  body.ux-mobile-v5 .orbital-instruction{
-    left: 12px !important;
-    top: 90px !important;
-    bottom: auto !important;
-    transform: none !important;
-    min-height: 34px !important;
-    max-width: calc(100% - 24px) !important;
-    border-radius: 999px;
-  }
-  body.ux-mobile-v5 .orbital-instruction.is-dismissed{
-    transform: translateY(-5px) !important;
   }
 
   /* Elsewhere page: explicit vertical card stack. The previous flexible grid could collapse
