@@ -19,13 +19,31 @@
   interactionStyle.dataset.geoInteraction = 'style';
   document.head.appendChild(interactionStyle);
 
+  const isLab = /(?:^|\/)lab\.html$/.test(location.pathname);
+  if (isLab) {
+    const labPreviewStyle = document.createElement('link');
+    labPreviewStyle.rel = 'stylesheet';
+    labPreviewStyle.href = '/lab-real-previews.css?v=20260930i';
+    labPreviewStyle.dataset.labRealPreviews = 'style';
+    document.head.appendChild(labPreviewStyle);
+  }
+
   const loadInteractions = () => {
-    if (document.querySelector('script[data-geo-interaction="script"]')) return;
-    const script = document.createElement('script');
-    script.src = '/geo-interactions.js?v=20260930g';
-    script.dataset.geoInteraction = 'script';
-    script.async = false;
-    document.head.appendChild(script);
+    if (!document.querySelector('script[data-geo-interaction="script"]')) {
+      const script = document.createElement('script');
+      script.src = '/geo-interactions.js?v=20260930g';
+      script.dataset.geoInteraction = 'script';
+      script.async = false;
+      document.head.appendChild(script);
+    }
+
+    if (isLab && !document.querySelector('script[data-lab-real-previews="script"]')) {
+      const previewScript = document.createElement('script');
+      previewScript.src = '/lab-real-previews.js?v=20260930i';
+      previewScript.dataset.labRealPreviews = 'script';
+      previewScript.async = false;
+      document.head.appendChild(previewScript);
+    }
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadInteractions, { once: true });
   else loadInteractions();
