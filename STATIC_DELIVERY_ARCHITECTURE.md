@@ -8,7 +8,7 @@ This patch implements the P0–P2 program without replacing the existing framewo
 2. CSS carries presentation.
 3. JavaScript enhances filtering, visualization, previews, tracking, and other interactions; it is not required to read a Field Note.
 4. Build time carries content assembly, SEO metadata, English canonical routes, discovery files, image metadata/variants, and performance checks.
-5. Existing GeoGeek interactions remain owned by the legacy build. The original build and QA are preserved verbatim as `scripts/build.legacy.mjs` and `scripts/qa.legacy.mjs`.
+5. Existing GeoGeek interactions remain owned by the framework-free source build. `scripts/build.legacy.mjs` preserves the legacy build path; `scripts/qa.legacy.mjs` retains the relevant source/build checks while assertions tied to retired homepage IA are updated to the current structure.
 
 ## P0 — content delivery and first-visit comprehension
 
@@ -55,14 +55,14 @@ The site also generates:
 ```text
 scripts/build.mjs
   -> build.legacy.mjs
-  -> qa.legacy.mjs          # validates the old artifact before transformation
+  -> qa.legacy.mjs          # validates source/build invariants before transformation
   -> postbuild-static-delivery.mjs
 
 scripts/qa.mjs
   -> qa-static-delivery.mjs # validates the final artifact
 ```
 
-This sequence prevents the new metadata-only archive from invalidating historical QA assumptions while retaining all legacy checks.
+This sequence prevents the metadata-only production archive from invalidating source-preview assumptions while retaining the legacy checks that still apply to the current IA.
 
 ## Install
 
