@@ -9,6 +9,56 @@
 
   document.documentElement.classList.add('geo-ui');
   document.body.classList.add('geo-interactions-ready');
+  if (reduced) document.documentElement.classList.add('geo-reduced-motion');
+
+  // Semantic contract pass: keep philosophy at section level and make controls/readouts operational.
+  // This runs after the synchronous page scripts and also updates shared UI data used by later renders.
+  const semanticPass = () => {
+    const data = window.GEOGEEK_DATA?.en?.ui;
+
+    if (location.pathname.endsWith('/lab.html') || location.pathname.endsWith('lab.html')) {
+      if (data?.lab) data.lab.principle = 'Each instrument declares its extent, resolution, and limit.';
+      const principle = $('#labPrinciple');
+      if (principle) principle.textContent = 'Each instrument declares its extent, resolution, and limit.';
+    }
+
+    const commons = $('#commons');
+    if (commons) {
+      const commonsUI = data?.commons;
+      if (commonsUI?.map) commonsUI.map.none = 'Select a place to inspect distance, bearing, local time, and observations.';
+      if (commonsUI) commonsUI.definitions = 'Visits show presence · observations add traces · Now shows current co-presence · relations connect positions.';
+      if (commonsUI?.form) commonsUI.form.placeholder = 'What do you observe here?';
+
+      const definition = $('#commonsDefinition');
+      if (definition) definition.textContent = 'Visits show presence · observations add traces · Now shows current co-presence · relations connect positions.';
+
+      const heads = $$('.commons-block-head', commons);
+      if (heads[0]) {
+        const label = $('span', heads[0]);
+        const heading = $('h2', heads[0]);
+        if (label) label.textContent = 'POSITION / HOST';
+        if (heading) heading.textContent = 'Locate a coarse position to measure distance and bearing.';
+      }
+      if (heads[1]) {
+        const label = $('span', heads[1]);
+        const heading = $('h2', heads[1]);
+        if (label) label.textContent = 'OBSERVATION';
+        if (heading) heading.textContent = 'Add a short observation to this place.';
+      }
+      const observation = $('#observationText');
+      if (observation) observation.placeholder = 'What do you observe here?';
+
+      const inspector = $('#commonsInspector');
+      if (inspector && !inspector.querySelector('dl')) {
+        const copy = $('p', inspector);
+        if (copy) copy.textContent = 'Select a place to inspect distance, bearing, local time, and observations.';
+      }
+    }
+  };
+  semanticPass();
+
+  // Retired homepage concepts should never re-enter the rendered interface.
+  $$('.orbital-instruction, .orbital-keyboard-note, [data-sheet-link="commons-gateway"]').forEach(node => node.remove());
 
   const pageLabel = () => {
     const kind = document.body.dataset.pageKind;
@@ -56,7 +106,7 @@
   const reactiveSelectors = [
     '.hero', '.page-title', '.coordinates-workbench', '.commons-summary', '.commons-map-layout',
     '.note-row', '.lab-build-row', '.project-card', '.lab-row', '.atlas-reader', '.atlas-workspace',
-    '.elsewhere-card', '.record-heading', '.record-conditions', '.record-detail', '.earth-preview-link', '.instrument-shell'
+    '.elsewhere-card', '.record-heading', '.record-conditions', '.record-detail', '.earth-lab-preview', '.instrument-shell'
   ];
 
   const revealSelectors = [
@@ -124,7 +174,7 @@
   }
 
   const scale = $('.scale-ui');
-  if (scale) {
+  if (scale && !reduced) {
     let pulseTimer = 0;
     const pulseScale = () => {
       clearTimeout(pulseTimer);
@@ -139,7 +189,19 @@
     });
   }
 
-  if (!finePointer || reduced) return;
+  // Motion contract: reduced-motion turns the global GeoField into a static field.
+  // The scale readout remains functional; pointer interpolation and perpetual RAF work stop.
+  if (reduced) {
+    const freezeGeoField = () => window.GeoField?.pause?.();
+    freezeGeoField();
+    addEventListener('load', freezeGeoField, { once: true });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) requestAnimationFrame(freezeGeoField);
+    });
+    return;
+  }
+
+  if (!finePointer) return;
 
   const xAxis = document.createElement('i');
   const yAxis = document.createElement('i');
