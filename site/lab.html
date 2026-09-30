@@ -14,6 +14,7 @@
 <link href="styles.css" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
 <link href="earth-lab-preview.css" rel="stylesheet"/>
+<link href="lab-page.css?v=20260930a" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
 </head>
 <body>
@@ -148,6 +149,45 @@
   </div>
 </a>
 
+<section class="lab-builds" aria-labelledby="labBuildsTitle">
+  <div class="lab-builds-head">
+    <span>WHAT I'M BUILDING</span>
+    <h2 id="labBuildsTitle">Tools that test the work before the world does.</h2>
+  </div>
+  <div class="lab-build-list">
+    <a class="lab-build-row" href="https://github.com/GeoGeekLab/geodebug" target="_blank" rel="noreferrer">
+      <span class="lab-build-mark is-contain"><img src="https://raw.githubusercontent.com/GeoGeekLab/geodebug/main/assets/geomole-icon.png" alt="GeoMole" loading="lazy"/></span>
+      <span class="lab-build-name"><small>GEOSPATIAL DEBUGGING</small><strong>GeoDebug</strong></span>
+      <p>Finds geospatial bugs ordinary tests miss.</p>
+      <span class="lab-build-open">GITHUB ↗</span>
+    </a>
+    <a class="lab-build-row" href="https://github.com/GeoGeekLab/stac-scout" target="_blank" rel="noreferrer">
+      <span class="lab-build-mark"><img src="https://raw.githubusercontent.com/GeoGeekLab/stac-scout/main/docs/assets/mascot/scout-hero.webp" alt="Scout" loading="lazy"/></span>
+      <span class="lab-build-name"><small>DATA DISCOVERY</small><strong>STAC Scout</strong></span>
+      <p>Finds and verifies the right geospatial data before you compute.</p>
+      <span class="lab-build-open">GITHUB ↗</span>
+    </a>
+    <a class="lab-build-row" href="https://github.com/GeoGeekLab/nature-reviewer-skills" target="_blank" rel="noreferrer">
+      <span class="lab-build-mark"><img src="https://raw.githubusercontent.com/GeoGeekLab/nature-reviewer-skills/main/assets/reffox/reffox-avatar.webp" alt="RefFox" loading="lazy"/></span>
+      <span class="lab-build-name"><small>RESEARCH REVIEW</small><strong>Nature Reviewer Skills</strong></span>
+      <p>Simulates Nature-style peer review before submission.</p>
+      <span class="lab-build-open">GITHUB ↗</span>
+    </a>
+    <a class="lab-build-row" href="https://github.com/GeoGeekLab/engineering-quality" target="_blank" rel="noreferrer">
+      <span class="lab-build-mark"><img src="https://raw.githubusercontent.com/GeoGeekLab/engineering-quality/main/assets/mascot/evi.jpg" alt="Evi" loading="lazy"/></span>
+      <span class="lab-build-name"><small>ENGINEERING QUALITY</small><strong>engineering-quality</strong></span>
+      <p>Makes coding agents prove their code changes.</p>
+      <span class="lab-build-open">GITHUB ↗</span>
+    </a>
+    <a class="lab-build-row" href="https://github.com/GeoGeekLab/awesome-tech-feeds" target="_blank" rel="noreferrer">
+      <span class="lab-build-mark is-contain"><img src="https://raw.githubusercontent.com/GeoGeekLab/awesome-tech-feeds/main/brand/mascot/head.svg" alt="Geo Gecko" loading="lazy"/></span>
+      <span class="lab-build-name"><small>KNOWLEDGE FEEDS</small><strong>awesome-tech-feeds</strong></span>
+      <p>Curates high-signal tech feeds as a Git-native registry.</p>
+      <span class="lab-build-open">GITHUB ↗</span>
+    </a>
+  </div>
+</section>
+
 <section class="lab-list" id="labList"></section>
 <section class="lab-principle" aria-label="Instrument principle">
   <span>EXTENT / RESOLUTION / LIMIT</span>
@@ -170,6 +210,7 @@
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
 <script src="app.js?v=20260929-sheet-index-revert"></script>
+<script src="lab-page.js?v=20260930a"></script>
 <script src="core/modules.js"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="previews.js"></script>
