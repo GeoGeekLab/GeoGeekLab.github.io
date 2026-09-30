@@ -41,24 +41,6 @@
     return cache(url, promise);
   }
 
-  function loadModule(src) {
-    const url = scriptUrl(src);
-    if (loaded.has(url)) return loaded.get(url);
-    const promise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.type = 'module';
-      script.src = src;
-      script.addEventListener('load', () => resolve(true), { once: true });
-      script.addEventListener('error', () => {
-        script.dataset.loadFailed = 'true';
-        script.remove();
-        reject(new Error(`Failed to load ${src}`));
-      }, { once: true });
-      document.head.appendChild(script);
-    });
-    return cache(url, promise);
-  }
-
   async function loadMap() {
     if (!window.GeoMap) await loadScript('map/site-map.js');
     return window.GeoMap;
@@ -82,7 +64,7 @@
     return window.GeoInstruments;
   }
 
-  window.GeoModules = { loadScript, loadModule, loadMap, loadCommons, loadInstrument };
+  window.GeoModules = { loadScript, loadMap, loadCommons, loadInstrument };
 
   const mapToggle = document.getElementById('navToggle');
   mapToggle?.addEventListener('click', async event => {
@@ -125,7 +107,7 @@
     const buttons = [...document.querySelectorAll('[data-home-commons-horizon]')];
     const render = async () => {
       const commons = await loadCommons();
-      await commons?.mountPreview?.(homeCommonsMount, { variant:'home', horizon });
+      await commons?.mountPreview?.(homeCommonsMapMount, { variant:'home', horizon });
     };
     buttons.forEach(button => button.addEventListener('click', async () => {
       horizon = button.dataset.homeCommonsHorizon || '30d';
@@ -155,26 +137,5 @@
       }, { rootMargin:'520px 0px' });
       observer.observe(homeCommonsMount);
     } else start();
-  }
-
-  const orbital = document.getElementById('orbital-threshold');
-  if (orbital) {
-    let started = false;
-    const startOrbital = () => {
-      if (started) return;
-      started = true;
-      loadModule('orbital/orbital-threshold.js').catch(error => {
-        started = false;
-        console.warn('[GeoGeek] Orbital field failed to load; retry remains available.', error);
-      });
-    };
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver(entries => {
-        if (!entries.some(entry => entry.isIntersecting)) return;
-        observer.disconnect();
-        startOrbital();
-      }, { rootMargin: '480px 0px' });
-      observer.observe(orbital);
-    } else startOrbital();
   }
 })();
