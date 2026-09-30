@@ -419,3 +419,11 @@
   .earth-observatory-heading p a:hover,
   .earth-observatory-heading p a:focus-visible { transform: none; }
 }
+
+
+/* Viewport audit: condition labels need a stable measure, then stack on phones. */
+.earth-preview-inspector dl div { grid-template-columns: 86px minmax(0,1fr); }
+@media (max-width: 620px) {
+  .earth-preview-inspector dl div { grid-template-columns: 1fr; gap: 4px; }
+  .earth-preview-inspector dd { overflow-wrap: anywhere; }
+}

@@ -129,7 +129,7 @@
     }
 
     if (pageKey === 'lab') {
-      setText('.lab-principle span', ui.lab?.principleLabel || ('EXTENT / RESOLUTION / LIMIT'));
+      setText('.instrument-principle span', ui.lab?.principleLabel || ('EXTENT / RESOLUTION / LIMIT'));
       setText('#labPrinciple', ui.lab?.principle);
       $('.lab-principle')?.setAttribute('aria-label', ui.a11y?.instrumentPrinciple || ('Instrument principle'));
       const conditions = $('#instrumentConditions');

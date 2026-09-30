@@ -242,3 +242,20 @@
     gap: 20px;
   }
 }
+
+
+/* Viewport audit: keep Atlas on the site's straight-edged instrument language. */
+@media (max-width: 860px) {
+  body.ux-mobile-v5.atlas-page .atlas-stage {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  body.ux-mobile-v5.atlas-page .atlas-foot {
+    margin-top: 32px;
+    padding: 24px 0 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+    border-radius: 0 !important;
+    background: transparent;
+  }
+}
