@@ -115,13 +115,15 @@ async function captureEarthObservatory() {
   }
 }
 
-let failed = false;
+const failures = [];
 try {
-  await captureEarthObservatory();
-  for (const kind of instruments) await captureInstrument(kind);
-} catch (error) {
-  failed = true;
-  console.error(error);
+  try { await captureEarthObservatory(); }
+  catch (error) { failures.push(`earth-observatory: ${error.message}`); console.error(error); }
+
+  for (const kind of instruments) {
+    try { await captureInstrument(kind); }
+    catch (error) { failures.push(`${kind}: ${error.message}`); console.error(error); }
+  }
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));
@@ -129,7 +131,8 @@ try {
 
 const expected = ['earth-observatory', ...instruments].map(name => path.join(output, `${name}.jpg`));
 const missing = expected.filter(file => !fs.existsSync(file) || fs.statSync(file).size < 8000);
-if (failed || missing.length) {
+if (failures.length || missing.length) {
+  if (failures.length) console.error('Capture failures:', failures.join(' | '));
   if (missing.length) console.error('Missing/invalid Lab previews:', missing.map(file => path.basename(file)).join(', '));
   process.exit(1);
 }
