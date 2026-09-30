@@ -6,7 +6,7 @@
   const sidebarToggle = document.getElementById('sidebarToggle');
   if (!sourcePanel || !inspector) return;
 
-  const desktop = () => matchMedia('(min-width: 761px)').matches;
+  const desktop = () => matchMedia('(min-width: 981px)').matches;
   const storage = {
     get(key, fallback = false) {
       try {
@@ -23,7 +23,7 @@
   let inspectorDocked = storage.get('earth-inspector-docked');
   let resizeTimer = 0;
 
-  const makeDockButton = (panel, label) => {
+  const makeDockButton = label => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'panel-dock-button';
@@ -33,7 +33,7 @@
     return button;
   };
 
-  const sourceDock = makeDockButton(sourcePanel, 'layers panel');
+  const sourceDock = makeDockButton('layers panel');
   const sourceHead = sourcePanel.querySelector('.panel-head');
   const sourceClose = document.getElementById('panelClose');
   if (sourceHead && sourceClose) {
@@ -46,7 +46,7 @@
     actions.append(sourceDock, sourceClose);
   }
 
-  const inspectorDock = makeDockButton(inspector, 'inspector');
+  const inspectorDock = makeDockButton('inspector');
   const inspectorClose = document.getElementById('inspectorClose');
   if (inspectorClose) {
     const actions = document.createElement('div');
