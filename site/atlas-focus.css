@@ -1,0 +1,19 @@
+/* Atlas relation focus: emphasize only the links attached to the active record. */
+.atlas-page .atlas-links line {
+  transition: stroke .18s ease, stroke-width .18s ease, opacity .18s ease;
+}
+.atlas-page .atlas-links line.is-dimmed {
+  opacity: .18;
+}
+.atlas-page .atlas-links line.is-related {
+  stroke: rgba(215,101,61,.88);
+  stroke-width: 1.35;
+  opacity: 1;
+}
+.atlas-page .atlas-stage[data-mode="trace"] .atlas-links line.is-related {
+  stroke: rgba(215,101,61,.92);
+  stroke-width: 1.4;
+}
+@media (prefers-reduced-motion: reduce) {
+  .atlas-page .atlas-links line { transition: none; }
+}
