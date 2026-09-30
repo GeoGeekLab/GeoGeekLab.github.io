@@ -32,6 +32,14 @@ jobs:
             https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
           test -s site/assets/lab/sentinel2.jpg
           sed -i 's#src="core/modules.js"#src="core/modules.js?v=20260930c"#' site/lab.html
+      - name: Restore Orbit instrument runtime
+        run: |
+          mkdir -p site/orbital
+          base=https://raw.githubusercontent.com/GeoGeekLab/GeoGeekLab.github.io/e4f70762408ce607da84559bcbd421a377b12c0b/site/orbital
+          curl --fail --location --retry 3 --output site/orbital/orbital-engine.js "$base/orbital-engine.js"
+          curl --fail --location --retry 3 --output site/orbital/propagation.worker.js "$base/propagation.worker.js"
+          test -s site/orbital/orbital-engine.js
+          test -s site/orbital/propagation.worker.js
       - name: Install preview browser
         run: |
           npm install --no-save playwright@1.55.0
