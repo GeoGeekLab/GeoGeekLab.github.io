@@ -6,7 +6,8 @@
   const sidebarToggle = document.getElementById('sidebarToggle');
   if (!sourcePanel || !inspector) return;
 
-  const desktop = () => matchMedia('(min-width: 981px)').matches;
+  const dockMedia = matchMedia('(min-width: 981px)');
+  const desktop = () => dockMedia.matches;
   const storage = {
     read(key) {
       try {
@@ -60,15 +61,15 @@
     actions.append(inspectorDock, inspectorClose);
   }
 
+  // MapLibre listens for the native window resize event. Trigger one after the
+  // dock transition settles; do not subscribe this controller to that same
+  // event or it would create a resize feedback loop.
   const requestMapResize = () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      dispatchEvent(new Event('resize'));
-      window.GeoGeekEarthMap?.resize?.();
-    }, 270);
+    resizeTimer = setTimeout(() => window.dispatchEvent(new Event('resize')), 270);
   };
 
-  const sync = () => {
+  const sync = ({ resize = true } = {}) => {
     const sourceOpen = sourcePanel.classList.contains('is-open');
     const inspectorOpen = inspector.classList.contains('is-open');
     const canDock = desktop();
@@ -85,7 +86,7 @@
     inspectorDock.setAttribute('aria-pressed', String(inspectorDocked));
     inspectorDock.setAttribute('aria-label', inspectorDocked ? 'Float inspector' : 'Dock inspector');
 
-    requestMapResize();
+    if (resize) requestMapResize();
   };
 
   const rememberSourceVisibility = () => requestAnimationFrame(() => {
@@ -105,14 +106,19 @@
     sync();
   });
 
-  const observer = new MutationObserver(sync);
+  const observer = new MutationObserver(() => sync());
   observer.observe(sourcePanel, { attributes: true, attributeFilter: ['class'] });
   observer.observe(inspector, { attributes: true, attributeFilter: ['class'] });
 
   sidebarToggle?.addEventListener('click', rememberSourceVisibility);
   sourceClose?.addEventListener('click', rememberSourceVisibility);
-  inspectorClose?.addEventListener('click', () => requestAnimationFrame(sync));
-  addEventListener('resize', sync, { passive: true });
+  inspectorClose?.addEventListener('click', () => requestAnimationFrame(() => sync()));
+
+  // Only the docking breakpoint matters to this controller. Normal viewport
+  // resize remains MapLibre's responsibility and does not re-enter sync().
+  const handleDockBreakpoint = () => sync();
+  if (dockMedia.addEventListener) dockMedia.addEventListener('change', handleDockBreakpoint);
+  else dockMedia.addListener?.(handleDockBreakpoint);
 
   const restoreSourceVisibility = () => {
     if (storedSourceOpen != null) {
@@ -121,8 +127,12 @@
     }
     sync();
   };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(restoreSourceVisibility, 0), { once: true });
-  else setTimeout(restoreSourceVisibility, 0);
 
-  sync();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(restoreSourceVisibility, 0), { once: true });
+  } else {
+    setTimeout(restoreSourceVisibility, 0);
+  }
+
+  sync({ resize: false });
 })();
