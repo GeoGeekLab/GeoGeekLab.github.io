@@ -14,18 +14,24 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  filter: saturate(.92) contrast(1.015);
+  opacity: 1;
+  filter: none;
+  mix-blend-mode: normal;
 }
 
 .lab-list .project-visual.is-real-output {
   aspect-ratio: 16 / 8.6;
 }
 
+/*
+ * styles.css gives every conceptual project preview a full-frame ::after
+ * gradient via inset: 0. Real screenshots must explicitly reset that inset,
+ * otherwise the small output badge becomes a full translucent veil.
+ */
 .lab-list .project-visual.is-real-output::after {
   content: "REAL INSTRUMENT OUTPUT";
   position: absolute;
-  left: 12px;
-  bottom: 10px;
+  inset: auto auto 10px 12px;
   padding: 5px 7px;
   border: 1px solid rgba(241,239,231,.14);
   background: rgba(10,15,12,.78);
@@ -33,6 +39,12 @@
   font: 650 8px/1 var(--mono);
   letter-spacing: .09em;
   pointer-events: none;
+  z-index: 8;
+}
+
+/* The old conceptual preview probe is not part of the real instrument output. */
+.lab-list .project-visual.is-real-output .project-probe {
+  display: none !important;
 }
 
 .earth-preview-screen.is-real-output {
@@ -49,14 +61,15 @@
 .earth-preview-screen.is-real-output::after {
   content: "REAL INTERFACE SNAPSHOT";
   position: absolute;
-  right: 14px;
-  bottom: 12px;
+  inset: auto 14px 12px auto;
   padding: 6px 8px;
   border: 1px solid rgba(241,239,231,.16);
   background: rgba(10,15,12,.82);
   color: rgba(241,239,231,.80);
   font: 650 8px/1 var(--mono);
   letter-spacing: .095em;
+  pointer-events: none;
+  z-index: 8;
 }
 
 @media (max-width: 760px) {
