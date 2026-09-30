@@ -13,10 +13,9 @@
 <title>Field Notes — GeoGeek</title>
 <link href="styles.css?v=20260930f" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
-<link href="field-notes.css?v=20260930g" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
 </head>
-<body class="field-notes-page">
+<body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-nav">
 <a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
@@ -41,49 +40,38 @@
 </div>
 </div>
 <div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
-<main class="page-shell field-notes-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
-<section class="field-notes-hero" aria-labelledby="fieldNotesTitle">
-  <div class="field-notes-hero-title">
-    <div class="eyebrow">02 / FIELD NOTES</div>
-    <h1 id="fieldNotesTitle">Field Notes</h1>
-  </div>
-  <p class="field-notes-intro">Notes, kept in their time.</p>
-</section>
-
-<div class="field-notes-axis">OBSERVATION / SCALE / CAUSALITY / REPRESENTATION / PRACTICE</div>
-
-<nav class="filters archive-filters field-notes-filters" id="fieldNotesFilters" aria-label="Field Note series">
-  <button class="is-active" type="button" data-note-filter="all" aria-pressed="true">ALL</button>
-  <button type="button" data-note-filter="observation" aria-pressed="false">OBSERVATION</button>
-  <button type="button" data-note-filter="scale" aria-pressed="false">SCALE</button>
-  <button type="button" data-note-filter="causality" aria-pressed="false">CAUSALITY</button>
-  <button type="button" data-note-filter="representation" aria-pressed="false">REPRESENTATION</button>
-  <button type="button" data-note-filter="practice" aria-pressed="false">PRACTICE</button>
-</nav>
-
-<section class="field-notes-list" id="noteList" aria-live="polite"></section>
-
-<aside class="wechat-archive-portal archive-channel field-notes-source" aria-labelledby="wechatArchiveTitle">
+<main class="page-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
+<section class="page-title field-notes-title"><div><div class="eyebrow">OBSERVATION / CONDITION / REVISION</div><h1>Field Notes</h1></div><p class="page-intro">Notes, kept in their time.</p></section>
+<div class="filters archive-filters" aria-label="Archive series">
+<button class="is-active" type="button" data-note-filter="all">All</button>
+<button type="button" data-note-filter="observation">Observation &amp; Proxies</button>
+<button type="button" data-note-filter="scale">Scale &amp; Extrapolation</button>
+<button type="button" data-note-filter="causality">Attribution &amp; Causality</button>
+<button type="button" data-note-filter="representation">Earth Representation</button>
+<button type="button" data-note-filter="practice">Research Practice</button>
+</div>
+<section class="archive-series-key" id="archiveSeriesKey" aria-label="Archive structure"></section>
+<aside class="wechat-archive-portal archive-channel" aria-labelledby="wechatArchiveTitle">
   <div class="wechat-archive-copy">
-    <span class="record-section-label" id="wechatArchiveLabel">ORIGINAL CHANNEL / WECHAT</span>
+    <span class="record-section-label" id="wechatArchiveLabel">SOURCE CHANNEL</span>
     <h2 id="wechatArchiveTitle">GeoGeek on WeChat</h2>
-    <p id="wechatArchiveCopy">Original Chinese editions · publication dates preserved.</p>
+    <p id="wechatArchiveCopy">The Chinese essays were first published on the GeoGeek WeChat public account.</p>
   </div>
   <figure class="wechat-archive-code">
     <img src="assets/brand/wechat-qr.jpg" alt="GeoGeek WeChat public account QR code" loading="lazy" decoding="async"/>
     <figcaption id="wechatArchiveScan">SCAN WITH WECHAT</figcaption>
   </figure>
 </aside>
+<section id="noteList"></section>
 </main>
 <footer class="footer">
 <div class="footer-brand">GeoGeek</div>
 <div class="footer-meta"><span>© 2026 GeoGeek</span><a href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank">GitHub ↗</a></div>
 </footer>
-<script src="content.js?v=20260930f"></script>
+<script src="content.js?v=20260930h"></script>
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
 <script src="app.js?v=20260930f"></script>
-<script src="field-notes.js?v=20260930f"></script>
 <script src="core/modules.js"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="commons/config.js"></script>
