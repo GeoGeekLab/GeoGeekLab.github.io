@@ -1,0 +1,92 @@
+/* Earth Observatory panel window states: FLOAT / DOCK / HIDE. */
+:root { --earth-dock-width: clamp(280px, 24vw, 330px); }
+
+.panel-window-actions,
+.inspector-window-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.panel-dock-button {
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: 650 8px/1 var(--earth-mono, ui-monospace, monospace);
+  letter-spacing: .12em;
+}
+.panel-dock-button:hover,
+.panel-dock-button:focus-visible,
+.panel-dock-button[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: var(--line-strong);
+  outline: none;
+}
+.panel-dock-button[aria-pressed="true"] { color: var(--earth-signal, #a64624); }
+
+.inspector-window-actions {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+}
+.inspector-window-actions .inspector-close {
+  position: static;
+  top: auto;
+  right: auto;
+}
+.inspector h2 { margin-right: 92px; }
+
+.map-stage {
+  transition: margin-left .24s cubic-bezier(.16,1,.3,1), margin-right .24s cubic-bezier(.16,1,.3,1);
+}
+
+@media (min-width: 981px) {
+  body.earth-source-docked-open .map-stage { margin-left: var(--earth-dock-width); }
+  body.earth-inspector-docked-open .map-stage { margin-right: var(--earth-dock-width); }
+
+  .source-panel.is-docked {
+    top: 58px;
+    left: 0;
+    bottom: 0;
+    width: var(--earth-dock-width);
+    border-top: 0;
+    border-bottom: 0;
+    border-left: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(17,18,15,.985);
+  }
+
+  .inspector.is-docked {
+    top: 58px;
+    right: 0;
+    bottom: 0;
+    width: var(--earth-dock-width);
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(17,18,15,.985);
+  }
+
+  body.earth-source-docked-open .map-readout,
+  body.earth-inspector-docked-open .map-readout {
+    max-width: min(520px, 50vw);
+  }
+}
+
+@media (max-width: 980px) {
+  .panel-dock-button { display: none; }
+  .map-stage { margin-left: 0 !important; margin-right: 0 !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-stage { transition: none; }
+}
