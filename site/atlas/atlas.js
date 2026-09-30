@@ -108,6 +108,7 @@
 
   let savedProjection = 'field';
   let pinnedRef = '';
+  let focusRef = '';
   try {
     savedProjection = sessionStorage.getItem('geogeek-atlas-projection') || 'field';
     if (savedProjection === 'space') savedProjection = 'field';
@@ -149,6 +150,8 @@
       try { sessionStorage.removeItem('geogeek-atlas-record'); } catch {}
       nodes.forEach(node => node.classList.remove('is-active'));
       labelsLayer.innerHTML = '';
+      focusRef = '';
+      syncLinkFocus('');
       setInspector(null);
       window.GeoScale?.restore?.();
     });
@@ -180,6 +183,8 @@
     const preview = () => {
       if (pinnedRef && pinnedRef !== item.ref) return;
       nodes.forEach(element => element.classList.toggle('is-active', element === node));
+      focusRef = item.ref;
+      syncLinkFocus(item.ref);
       setInspector(item, { pinned: false });
       renderSelectionLabels(item.ref);
       window.GeoScale?.apply?.('RECORD');
@@ -189,10 +194,12 @@
       if (pinnedRef) {
         const pinned = items.find(value => value.ref === pinnedRef);
         nodes.forEach(element => element.classList.toggle('is-active', element.dataset.recordRef === pinnedRef));
-        if (pinned) { setInspector(pinned, { pinned: true }); renderSelectionLabels(pinnedRef); }
+        if (pinned) { focusRef = ''; syncLinkFocus(pinnedRef); setInspector(pinned, { pinned: true }); renderSelectionLabels(pinnedRef); }
       } else {
         nodes.forEach(element => element.classList.remove('is-active'));
         labelsLayer.innerHTML = '';
+        focusRef = '';
+        syncLinkFocus('');
         setInspector(null);
         window.GeoScale?.restore?.();
       }
@@ -209,6 +216,8 @@
         sessionStorage.setItem('geogeek-atlas-record', item.ref);
       } catch {}
       nodes.forEach(element => element.classList.toggle('is-active', element === node));
+      focusRef = '';
+      syncLinkFocus(item.ref);
       setInspector(item, { pinned: true });
       renderSelectionLabels(item.ref);
       window.GeoScale?.apply?.('RECORD');
@@ -315,6 +324,14 @@
     return pairs;
   }
 
+  function syncLinkFocus(ref = '') {
+    links.querySelectorAll('line').forEach(line => {
+      const related = Boolean(ref) && (line.dataset.a === ref || line.dataset.b === ref);
+      line.classList.toggle('is-related', related);
+      line.classList.toggle('is-dimmed', Boolean(ref) && !related);
+    });
+  }
+
   function drawLinks(mode) {
     links.innerHTML = '';
     const rect = stage.getBoundingClientRect();
@@ -325,9 +342,12 @@
       line.setAttribute('y1', positions[a][1] * rect.height);
       line.setAttribute('x2', positions[b][0] * rect.width);
       line.setAttribute('y2', positions[b][1] * rect.height);
+      line.dataset.a = items[a].ref;
+      line.dataset.b = items[b].ref;
       line.classList.add('signal');
       links.appendChild(line);
     });
+    syncLinkFocus(pinnedRef || focusRef);
   }
 
   function renderSelectionLabels(ref) {
