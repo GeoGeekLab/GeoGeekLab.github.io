@@ -13,7 +13,7 @@
 <title>Lab — GeoGeek</title>
 <link href="styles.css" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
-<link href="earth-lab-preview.css" rel="stylesheet"/>
+<link href="earth-lab-preview.css?v=20260930f" rel="stylesheet"/>
 <link href="lab-page.css?v=20260930a" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20260930b"></script>
 </head>
@@ -45,44 +45,39 @@
 <main class="page-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
 <section class="page-title"><div><div class="eyebrow">FIELD / INSTRUMENT / LIMIT</div><h1>Lab</h1></div><p class="page-intro">Build tools that expose their scale, assumptions, and limits.</p></section>
 <section class="lab-principle earth-observatory-heading" aria-label="Earth Observatory">
-  <span>LIVE FIELD / 50 SOURCES / ONE MAP</span>
-  <p><a href="earth/">Earth Observatory — All in a map ↗</a></p>
+  <span>EARTH OBSERVATORY / PREVIEW</span>
+  <p><a href="earth/">50 sources across live, dated, and reference layers. Open the full instrument ↗</a></p>
 </section>
 
-<a class="earth-lab-preview" href="earth/" aria-label="Open Earth Observatory — All in a map">
+<a class="earth-lab-preview" href="earth/" aria-label="Open the full Earth Observatory instrument">
   <div class="earth-preview-screen" aria-hidden="true">
     <header class="earth-preview-topbar">
       <div class="earth-preview-brand"><i></i><span>GeoGeek / Lab</span></div>
-      <div class="earth-preview-title"><small>LIVE FIELD / EARTH IN VIEW</small><strong>EARTH OBSERVATORY</strong></div>
-      <div class="earth-preview-status"><span><i></i>LIVE</span><b>UTC 13:25</b></div>
+      <div class="earth-preview-title"><small>STATIC LAB PREVIEW</small><strong>EARTH OBSERVATORY</strong></div>
+      <div class="earth-preview-status"><span>LIVE + HISTORICAL DATA</span></div>
     </header>
 
     <div class="earth-preview-workspace">
       <aside class="earth-preview-layers">
-        <div class="earth-preview-layers-head"><span>ALL IN A MAP</span><b>50</b></div>
-        <div class="earth-preview-search">⌕&nbsp;&nbsp;SEARCH SOURCE / FIELD</div>
+        <div class="earth-preview-layers-head"><span>DATA SEMANTICS</span><b>50 SOURCES</b></div>
         <div class="earth-preview-layer-group">
-          <span>ATMOSPHERE</span>
-          <b><i class="is-live"></i>Weather / wind</b>
-          <b><i></i>Air quality</b>
-          <b><i class="is-warn"></i>Aurora</b>
+          <span>TIME</span>
+          <b><i></i>LIVE / NOW</b>
+          <b><i></i>DATE-CONTROLLED</b>
+          <b><i></i>REFERENCE</b>
         </div>
         <div class="earth-preview-layer-group">
-          <span>HAZARDS</span>
-          <b><i class="is-fire"></i>Active fire</b>
-          <b><i class="is-live"></i>Earthquakes</b>
-          <b><i></i>Volcanoes</b>
-        </div>
-        <div class="earth-preview-layer-group earth-preview-layer-last">
-          <span>BIOSPHERE</span>
-          <b><i class="is-live"></i>iNaturalist</b>
-          <b><i></i>GBIF</b>
+          <span>FIELDS</span>
+          <b>ATMOSPHERE</b>
+          <b>HAZARDS</b>
+          <b>BIOSPHERE</b>
+          <b>ORBIT</b>
         </div>
       </aside>
 
       <section class="earth-preview-map">
-        <div class="earth-preview-map-readout">34.28° N · 118.42° W&nbsp;&nbsp;/&nbsp;&nbsp;Z 2.8</div>
-        <div class="earth-preview-map-tag">MULTI-SOURCE / NOW</div>
+        <div class="earth-preview-map-readout">GLOBAL · MULTI-SOURCE</div>
+        <div class="earth-preview-map-tag">SCHEMATIC / NOT LIVE</div>
         <svg class="earth-preview-world" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid slice">
           <g class="earth-preview-graticule">
             <path d="M0 86H1000M0 173H1000M0 260H1000M0 347H1000M0 434H1000"/>
@@ -109,7 +104,7 @@
             <circle cx="177" cy="163" r="3"/><circle cx="215" cy="205" r="2"/><circle cx="339" cy="337" r="2.5"/><circle cx="552" cy="153" r="3"/><circle cx="608" cy="176" r="2"/><circle cx="704" cy="179" r="3"/><circle cx="790" cy="211" r="2.5"/><circle cx="861" cy="377" r="2"/>
           </g>
           <g class="earth-preview-points is-fire">
-            <circle cx="301" cy="325" r="5"/><circle cx="330" cy="349" r="3"/><circle cx="565" cy="334" r="4"/><circle cx="612" cy="351" r="3"/><circle cx="775" cy="244" r="4"/><circle cx="842" cy="382" r="3"/>
+            <circle cx="301" cy="325" r="4"/><circle cx="330" cy="349" r="2.5"/><circle cx="565" cy="334" r="3.5"/><circle cx="612" cy="351" r="2.5"/><circle cx="775" cy="244" r="3.5"/><circle cx="842" cy="382" r="2.5"/>
           </g>
           <g class="earth-preview-event">
             <circle cx="301" cy="325" r="14"/><circle cx="301" cy="325" r="25"/>
@@ -119,40 +114,39 @@
       </section>
 
       <aside class="earth-preview-inspector">
-        <span class="earth-preview-inspector-kicker"><i></i>ACTIVE OBSERVATION</span>
+        <span class="earth-preview-inspector-kicker">EXAMPLE LAYER</span>
         <strong>VIIRS ACTIVE FIRE</strong>
-        <p>Satellite hotspot detection across a shared spatial field.</p>
+        <p>One example of how the full instrument declares observation conditions.</p>
         <dl>
           <div><dt>SOURCE</dt><dd>NASA FIRMS</dd></div>
-          <div><dt>TIME</dt><dd>13:18 UTC</dd></div>
+          <div><dt>TIME</dt><dd>PROVIDER-CURRENT</dd></div>
           <div><dt>RESOLUTION</dt><dd>375 m</dd></div>
           <div><dt>LIMIT</dt><dd>HOTSPOT ≠ PERIMETER</dd></div>
         </dl>
-        <span class="earth-preview-source">SOURCE ↗</span>
       </aside>
     </div>
 
     <footer class="earth-preview-console">
-      <span>TIME / 2026-09-15 13:25 UTC</span>
-      <div class="earth-preview-timeline"><i></i><b></b></div>
-      <span>08 ACTIVE</span>
+      <span>PREVIEW / STATIC</span>
+      <span>TIME / LAYER-SPECIFIC</span>
+      <span>OPEN FULL INSTRUMENT ↗</span>
     </footer>
   </div>
 
   <div class="earth-preview-caption">
-    <div class="earth-preview-caption-head"><span>LIVE INSTRUMENT</span><span>WEB · CARTOGRAPHY · EARTH OBSERVATION</span></div>
+    <div class="earth-preview-caption-head"><span>EARTH OBSERVATORY</span><span>WEB · CARTOGRAPHY · EARTH OBSERVATION</span></div>
     <div class="earth-preview-caption-main">
-      <div><strong>50 sources. One spatial field.</strong><p>Weather, satellite imagery, hazards, water, orbit, movement and biodiversity read through the same map and time surface.</p></div>
-      <span class="earth-preview-open">OPEN LIVE MAP <b>↗</b></span>
+      <div><strong>50 sources, one field of view.</strong><p>The full instrument separates provider-current, date-controlled, and reference layers instead of treating every source as the same kind of “now.”</p></div>
+      <span class="earth-preview-open">OPEN INSTRUMENT <b>↗</b></span>
     </div>
-    <div class="earth-preview-caption-foot"><span>SOURCE / TIME / RESOLUTION / LIMIT</span><span>GLOBAL · UTC</span></div>
+    <div class="earth-preview-caption-foot"><span>SOURCE / TIME / RESOLUTION / LIMIT</span><span>LIVE + HISTORICAL</span></div>
   </div>
 </a>
 
 <section class="lab-builds" aria-labelledby="labBuildsTitle">
   <div class="lab-builds-head">
     <span>WHAT I'M BUILDING</span>
-    <h2 id="labBuildsTitle">Tools that test the work before the world does.</h2>
+    <h2 id="labBuildsTitle">Open-source tools in active development.</h2>
   </div>
   <div class="lab-build-list">
     <a class="lab-build-row" href="https://github.com/GeoGeekLab/geodebug" target="_blank" rel="noreferrer">
@@ -191,7 +185,7 @@
 <section class="lab-list" id="labList"></section>
 <section class="lab-principle" aria-label="Instrument principle">
   <span>EXTENT / RESOLUTION / LIMIT</span>
-  <p id="labPrinciple">Every instrument defines a field of view.</p>
+  <p id="labPrinciple">Each instrument declares its extent, resolution, and limit.</p>
 </section>
 </main>
 <dialog class="instrument-dialog" id="instrumentDialog" aria-labelledby="instrumentTitle">
@@ -211,7 +205,7 @@
 <script src="core/site-model.js"></script>
 <script src="app.js?v=20260929-sheet-index-revert"></script>
 <script src="lab-page.js?v=20260930a"></script>
-<script src="core/modules.js"></script>
+<script src="core/modules.js?v=20260930f"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="previews.js"></script>
 <script src="commons/config.js"></script>
