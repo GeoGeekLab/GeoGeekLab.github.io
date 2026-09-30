@@ -77,7 +77,8 @@
   async function loadInstrument(kind) {
     if (window.GeoInstruments) return window.GeoInstruments;
     if (gameKinds.has(kind)) await loadScript('games.js');
-    await loadScript('instruments.js');
+    await loadScript('instruments.js?v=20260930c');
+    await loadScript('figure-instrument.js?v=20260930a');
     return window.GeoInstruments;
   }
 
