@@ -1,0 +1,11 @@
+/* GeoGeek editorial line-length refinements. */
+
+/* Short page-title statements should use the available desktop measure before wrapping.
+   Long statements still wrap once they reach a readable maximum width. */
+@media (min-width: 1280px) {
+  .page-title .page-intro {
+    width: max-content;
+    max-width: min(760px, 46vw);
+    justify-self: end;
+  }
+}
