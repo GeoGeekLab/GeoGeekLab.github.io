@@ -3,18 +3,18 @@
   'use strict';
   document.documentElement.lang = 'en';
 
-  // Global Geo interaction layer. Keep it absolute so generated record/detail pages
-  // inherit the same spatial behavior without repeating page-specific markup.
+  // Global Geo interaction layer. Versioned explicitly so Pages/browser caches
+  // cannot hide interaction updates behind a stale bootstrap.
   const interactionStyle = document.createElement('link');
   interactionStyle.rel = 'stylesheet';
-  interactionStyle.href = '/geo-interactions.css?v=20260930a';
+  interactionStyle.href = '/geo-interactions.css?v=20260930b';
   interactionStyle.dataset.geoInteraction = 'style';
   document.head.appendChild(interactionStyle);
 
   const loadInteractions = () => {
     if (document.querySelector('script[data-geo-interaction="script"]')) return;
     const script = document.createElement('script');
-    script.src = '/geo-interactions.js?v=20260930a';
+    script.src = '/geo-interactions.js?v=20260930b';
     script.dataset.geoInteraction = 'script';
     script.async = false;
     document.head.appendChild(script);
