@@ -53,6 +53,8 @@ jobs:
           done
       - name: Build
         run: node scripts/build.mjs
+      - name: Verify Field Note bodies
+        run: node scripts/verify-field-note-pages.mjs
       - name: QA
         run: node scripts/qa.mjs
       - name: Upload Pages artifact
