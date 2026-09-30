@@ -55,7 +55,7 @@
 <section class="home-section coordinates-section" data-scale="1 : 100,000" data-scale-level="POSITION" id="now">
 <div class="section-head coordinates-head concept-section-head">
   <div>
-    <div class="section-label">01 / POSITION / PERCEPTION / PRAXIS</div>
+    <div class="section-label">01 / COORDINATES</div>
     <h2>Coordinates</h2>
   </div>
   <p class="concept-section-intro">Being, seeing, valuing, and making are positions within the same field.</p>
@@ -64,7 +64,7 @@
 <div class="coordinates-workbench philosophy-field" data-coordinate-state="being">
   <div class="coordinates-field">
     <div class="coordinates-field-head">
-      <span>GEO / FIELD OF RELATIONS</span>
+      <span>RELATIONAL FIELD</span>
       <small>BEING → SEEING → VALUING → MAKING → BEING</small>
     </div>
 
@@ -103,32 +103,28 @@
     <article data-coordinate="being" class="is-active">
       <button class="coordinate-register-button" type="button" data-coordinate-trigger="being" aria-pressed="true">
         <div class="coordinate-register-meta"><b>01</b><span>BEING</span><em>ONTOLOGY</em></div>
-        <h3>To be is to be somewhere.</h3>
-        <small>SITUATION · RELATION · BECOMING</small>
+        <h3>Situation and relation</h3>
       </button>
     </article>
 
     <article data-coordinate="seeing">
       <button class="coordinate-register-button" type="button" data-coordinate-trigger="seeing" aria-pressed="false">
         <div class="coordinate-register-meta"><b>02</b><span>SEEING</span><em>EPISTEMOLOGY</em></div>
-        <h3>To see is to frame.</h3>
-        <small>APPEARANCE · FRAME · LIMIT</small>
+        <h3>Frame and limit</h3>
       </button>
     </article>
 
     <article data-coordinate="valuing">
       <button class="coordinate-register-button" type="button" data-coordinate-trigger="valuing" aria-pressed="false">
         <div class="coordinate-register-meta"><b>03</b><span>VALUING</span><em>AXIOLOGY</em></div>
-        <h3>To value is to choose.</h3>
-        <small>JUDGMENT · CHOICE · RESPONSIBILITY</small>
+        <h3>Judgment and choice</h3>
       </button>
     </article>
 
     <article data-coordinate="making">
       <button class="coordinate-register-button" type="button" data-coordinate-trigger="making" aria-pressed="false">
         <div class="coordinate-register-meta"><b>04</b><span>MAKING</span><em>PRAXIS</em></div>
-        <h3>To build is to alter the field.</h3>
-        <small>ACTION · POSSIBILITY · CONSEQUENCE</small>
+        <h3>Action and consequence</h3>
       </button>
     </article>
   </div>
@@ -139,7 +135,7 @@
 <section class="home-section home-commons-full commons-page" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="commons">
   <section class="page-title commons-home-title concept-section-head">
     <div>
-      <div class="eyebrow">02 / PRESENCE / RELATION / COEXISTENCE</div>
+      <div class="eyebrow">02 / COMMONS</div>
       <h1>Commons</h1>
     </div>
     <p class="page-intro concept-section-intro">No position is solitary. To be somewhere is to share a world.</p>
@@ -148,7 +144,7 @@
   <section class="commons-summary" aria-label="Commons summary">
     <div class="commons-status-line">
       <span class="instrument-status" data-state="demo" id="commonsStatus">SIMULATED FIELD</span>
-      <p id="commonsDefinition">VISITS register presence · OBSERVATIONS leave traces · NOW marks co-presence · RELATIONS emerge between positions.</p>
+      <p id="commonsDefinition">Visits show presence · observations add traces · Now shows current co-presence · relations connect positions.</p>
     </div>
     <div class="commons-metrics" id="commonsMetrics">
       <article><span>VISITS</span><strong id="metricVisits">—</strong></article>
@@ -192,12 +188,12 @@
         <aside class="commons-inspector" id="commonsInspector" aria-live="polite">
           <span class="commons-inspector-kicker">RELATION</span>
           <h2>WUHAN / HOST</h2>
-          <p>No place stands alone; select one to reveal its relations.</p>
+          <p>Select a place to inspect distance, bearing, local time, and observations.</p>
         </aside>
 
         <section class="commons-participate" id="commonsParticipate">
           <div class="commons-you">
-            <div class="commons-block-head"><span>YOU ↔ HOST</span><h2>To locate is to enter relation.</h2></div>
+            <div class="commons-block-head"><span>POSITION / HOST</span><h2>Locate a coarse position to measure distance and bearing.</h2></div>
             <div class="commons-relation-readout" id="youHostReadout">
               <div><span>HOST</span><strong>Wuhan, China</strong><small>30.59° N · 114.30° E</small></div>
               <div><span>YOU</span><strong>NOT LOCATED</strong><small>DEVICE ONLY</small></div>
@@ -209,11 +205,11 @@
           </div>
 
           <div class="commons-observe">
-            <div class="commons-block-head"><span>TRACE</span><h2>To observe is to leave a trace.</h2></div>
+            <div class="commons-block-head"><span>OBSERVATION</span><h2>Add a short observation to this place.</h2></div>
             <form id="commonsObservationForm">
               <label><span>PLACE</span><input id="observationPlace" type="text" readonly value="Locate first"/></label>
               <label><span>NAME / OPTIONAL</span><input id="observationName" type="text" maxlength="32" autocomplete="nickname"/></label>
-              <label><span>OBSERVATION</span><textarea id="observationText" maxlength="180" rows="3" placeholder="What appears from here?"></textarea><small id="observationCount">0 / 180</small></label>
+              <label><span>OBSERVATION</span><textarea id="observationText" maxlength="180" rows="3" placeholder="What do you observe here?"></textarea><small id="observationCount">0 / 180</small></label>
               <div class="commons-form-foot"><button id="observationSubmit" type="submit" disabled>ADD TO COMMONS</button><span id="observationFeedback" role="status"></span></div>
             </form>
           </div>
@@ -231,7 +227,7 @@
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
 <script src="app.js?v=20260930b"></script>
-<script src="core/modules.js"></script>
+<script src="core/modules.js?v=20260930f"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="commons/config.js"></script>
 <script src="commons/geo.js"></script>
