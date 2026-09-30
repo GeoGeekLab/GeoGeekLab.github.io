@@ -1,0 +1,70 @@
+/* Real Lab previews: generated from the actual instruments at build time. */
+
+.lab-list .project-visual.is-real-output,
+.earth-preview-screen.is-real-output {
+  position: relative;
+  overflow: hidden;
+  background: #111812;
+}
+
+.lab-list .project-visual.is-real-output img,
+.earth-preview-screen.is-real-output img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(.92) contrast(1.015);
+}
+
+.lab-list .project-visual.is-real-output {
+  aspect-ratio: 16 / 8.6;
+}
+
+.lab-list .project-visual.is-real-output::after {
+  content: "REAL INSTRUMENT OUTPUT";
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  padding: 5px 7px;
+  border: 1px solid rgba(241,239,231,.14);
+  background: rgba(10,15,12,.78);
+  color: rgba(241,239,231,.78);
+  font: 650 8px/1 var(--mono);
+  letter-spacing: .09em;
+  pointer-events: none;
+}
+
+.earth-preview-screen.is-real-output {
+  display: block;
+  aspect-ratio: 2.15 / 1;
+  min-height: 0;
+  border: 1px solid rgba(21,32,25,.12);
+}
+
+.earth-preview-screen.is-real-output img {
+  object-position: center top;
+}
+
+.earth-preview-screen.is-real-output::after {
+  content: "REAL INTERFACE SNAPSHOT";
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  padding: 6px 8px;
+  border: 1px solid rgba(241,239,231,.16);
+  background: rgba(10,15,12,.82);
+  color: rgba(241,239,231,.80);
+  font: 650 8px/1 var(--mono);
+  letter-spacing: .095em;
+}
+
+@media (max-width: 760px) {
+  .earth-preview-screen.is-real-output {
+    aspect-ratio: 16 / 10;
+  }
+  .lab-list .project-visual.is-real-output::after,
+  .earth-preview-screen.is-real-output::after {
+    font-size: 7px;
+  }
+}
