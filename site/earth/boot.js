@@ -22,6 +22,23 @@ if (sourceList && !sourceList.children.length) {
 const button = $('#earthActivate');
 let activation = null;
 
+function loadMapLibreCss() {
+  if (document.querySelector('link[data-maplibre-runtime]')) return Promise.resolve();
+  return new Promise(resolve => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.css';
+    link.dataset.maplibreRuntime = 'primary';
+    link.onload = resolve;
+    link.onerror = () => {
+      link.href = 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.6.0/dist/maplibre-gl.css';
+      link.dataset.maplibreRuntime = 'fallback';
+      link.onload = link.onerror = resolve;
+    };
+    document.head.appendChild(link);
+  });
+}
+
 async function activateEarth() {
   if (activation) return activation;
   if (button) {
@@ -29,26 +46,28 @@ async function activateEarth() {
     button.textContent = 'LOADING MAP…';
   }
   document.documentElement.classList.add('earth-is-activating');
-  activation = import('./app.js?v=20261001a').then(() => {
-    $('#earthBoot')?.remove();
-    document.documentElement.classList.remove('earth-is-activating');
-    document.documentElement.classList.add('earth-is-active');
-  }).catch(error => {
-    activation = null;
-    document.documentElement.classList.remove('earth-is-activating');
-    if (button) {
-      button.disabled = false;
-      button.textContent = 'RETRY INTERACTIVE MAP';
-    }
-    const copy = $('#earthBootStatus');
-    if (copy) copy.textContent = `The interactive renderer could not start: ${error?.message || 'unknown error'}`;
-    throw error;
-  });
+  activation = loadMapLibreCss()
+    .then(() => import('./app.js?v=20261001a'))
+    .then(() => {
+      $('#earthBoot')?.remove();
+      document.documentElement.classList.remove('earth-is-activating');
+      document.documentElement.classList.add('earth-is-active');
+    })
+    .catch(error => {
+      activation = null;
+      document.documentElement.classList.remove('earth-is-activating');
+      if (button) {
+        button.disabled = false;
+        button.textContent = 'RETRY INTERACTIVE MAP';
+      }
+      const copy = $('#earthBootStatus');
+      if (copy) copy.textContent = `The interactive renderer could not start: ${error?.message || 'unknown error'}`;
+      throw error;
+    });
   return activation;
 }
 
 button?.addEventListener('click', () => activateEarth().catch(console.error));
 
-// Expose a deterministic hook for browser tests and preview capture without
-// auto-spending MapLibre work during the first-content measurement window.
+// Deterministic activation hook for browser tests and any future preview tool.
 window.GeoGeekEarth = { activate: activateEarth };
