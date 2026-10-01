@@ -74,6 +74,9 @@
     if (kind === 'figure' && !window.GeoFigureViewerV2Polish) {
       await loadScript('figure-viewer-v2-polish.js?v=20261001e');
     }
+    if (kind === 'flow' && !window.GeoFlowLab) {
+      await loadScript('flow-lab.js?v=20261002a');
+    }
     return window.GeoInstruments;
   }
 
@@ -98,6 +101,7 @@
     const kind = button.dataset.instrument;
     const enhancementNeeded =
       (kind === 'world' && !window.GeoProjectionLab) ||
+      (kind === 'flow' && !window.GeoFlowLab) ||
       (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish));
     if (window.GeoInstruments && !enhancementNeeded) return;
     event.preventDefault();
