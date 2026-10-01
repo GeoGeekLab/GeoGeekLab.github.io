@@ -66,7 +66,7 @@
       await loadScript('world-projection-lab.js?v=20261001a');
     }
     if (kind === 'earth' && !window.GeoEarthTemporalLab) {
-      await loadScript('earth-observation-lab.js?v=20261002a');
+      await loadScript('earth-observation-lab.js?v=20261002b');
     }
     if (kind === 'figure' && !window.GeoFigureWorkbench) {
       await loadScript('figure-analysis-workbench.js?v=20261001c');
