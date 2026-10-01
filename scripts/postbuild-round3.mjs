@@ -115,7 +115,7 @@ async function main() {
   if (!(await exists(a11yCssFile)) || !(await exists(a11yJsFile))) throw new Error('Round 3 accessibility assets were not copied to dist.');
   const a11yCss = await read(a11yCssFile);
   const inlineA11y = `<style data-round3-accessibility>\n${a11yCss}\n</style>`;
-  const script = '<script src="/round3-accessibility.js?v=20261001a" defer data-round3-accessibility="true"></script>';
+  const script = '<script src="/round3-accessibility.js?v=20261001b" defer data-round3-accessibility="true"></script>';
 
   const files = await htmlFiles(dist);
   for (const file of files) {
