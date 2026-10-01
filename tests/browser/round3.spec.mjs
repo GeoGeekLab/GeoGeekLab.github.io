@@ -44,7 +44,7 @@ for (const route of routes) {
   });
 }
 
-test('Round 3 scale uses a dedicated disclosure button rather than an interactive wrapper', async ({ page }) => {
+test('Round 3 scale uses a dedicated disclosure button rather than an interactive wrapper', async ({ page }, testInfo) => {
   await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
   const scale = page.locator('.scale-ui');
   const disclosure = scale.locator(':scope > .scale-disclosure');
@@ -52,7 +52,20 @@ test('Round 3 scale uses a dedicated disclosure button rather than an interactiv
   await expect(disclosure).toHaveAttribute('aria-controls', 'informationScaleLegend');
   await expect(scale).not.toHaveAttribute('role', 'button');
   await expect(scale).not.toHaveAttribute('tabindex', /.+/);
+
+  // UX v5.1 intentionally removes the persistent Scale overlay on phones; the
+  // information-scale concept remains available inside Site Index. A hidden
+  // overlay should stay outside the keyboard/accessibility path rather than be
+  // made artificially focusable to satisfy a desktop interaction contract.
+  if (testInfo.project.name === 'mobile-chromium') {
+    await expect(scale).toBeHidden();
+    await expect(disclosure).toBeHidden();
+    return;
+  }
+
+  await expect(disclosure).toBeVisible();
   await disclosure.focus();
+  await expect(disclosure).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
 });
