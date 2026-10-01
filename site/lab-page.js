@@ -1,13 +1,17 @@
 (() => {
   'use strict';
 
-  if (!document.querySelector('link[data-lab-transform]')) {
+  const ensureStyle = (href, key) => {
+    if (document.querySelector(`link[data-${key}]`)) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'lab-transform.css?v=20261001a';
-    link.dataset.labTransform = '1';
+    link.href = href;
+    link.dataset[key.replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = '1';
     document.head.appendChild(link);
-  }
+  };
+
+  ensureStyle('lab-transform.css?v=20261001a', 'lab-transform');
+  ensureStyle('lab-map-field.css?v=20261001a', 'lab-map-field');
 
   const list = document.querySelector('#labList');
   const dialog = document.querySelector('#instrumentDialog');
@@ -48,9 +52,9 @@
     flow: 'map',
     pulse: 'map',
     world: 'map',
-    locate: 'map',
-    zone: 'map',
-    path: 'map',
+    locate: 'field',
+    zone: 'field',
+    path: 'field',
     figure: 'transform'
   };
 
@@ -80,12 +84,13 @@
     return new URLSearchParams(location.search).get('instrument') || '';
   }
 
-  function buildDisclosure(root, selector, label) {
-    if (!root || root.querySelector('.instrument-disclosure')) return;
+  function buildDisclosure(root, selector, label, key = label) {
+    if (!root || root.querySelector(`[data-disclosure-key="${CSS.escape(key)}"]`)) return;
     const nodes = [...root.querySelectorAll(selector)].filter(node => !node.closest('.instrument-disclosure'));
     if (!nodes.length) return;
     const details = document.createElement('details');
     details.className = 'instrument-disclosure';
+    details.dataset.disclosureKey = key;
     const summary = document.createElement('summary');
     summary.textContent = label;
     const body = document.createElement('div');
@@ -100,7 +105,7 @@
     if (!root || root.dataset.shellEnhanced === '1') return;
     root.dataset.shellEnhanced = '1';
     const controls = root.querySelector('.earth-controls');
-    buildDisclosure(controls, ':scope > p, :scope > .source-line', 'OBSERVATION LIMITS');
+    buildDisclosure(controls, ':scope > p, :scope > .source-line', 'OBSERVATION LIMITS', 'earth-limits');
   }
 
   function enhanceOrbit() {
@@ -108,7 +113,7 @@
     if (!root || root.dataset.shellEnhanced === '1') return;
     root.dataset.shellEnhanced = '1';
     const panel = root.querySelector('.orbital-lab-panel');
-    buildDisclosure(panel, ':scope > p', 'READING NOTE');
+    buildDisclosure(panel, ':scope > p', 'READING NOTE', 'orbit-note');
   }
 
   function enhanceFigure() {
@@ -116,7 +121,31 @@
     if (!root || root.dataset.shellEnhanced === '1') return;
     root.dataset.shellEnhanced = '1';
     const controls = root.querySelector('.figure-control');
-    buildDisclosure(controls, ':scope > p, :scope > .source-line', 'METHOD NOTE');
+    buildDisclosure(controls, ':scope > p, :scope > .source-line', 'METHOD NOTE', 'figure-note');
+  }
+
+  function enhancePulse() {
+    const root = stage.querySelector('.pulse-layout');
+    if (!root || root.dataset.shellEnhanced === '1') return;
+    root.dataset.shellEnhanced = '1';
+    const panel = root.querySelector('.pulse-panel');
+    buildDisclosure(panel, ':scope > p', 'READING NOTE', 'pulse-note');
+  }
+
+  function enhanceWorld() {
+    const root = stage.querySelector('.world-layout');
+    if (!root || root.dataset.shellEnhanced === '1') return;
+    root.dataset.shellEnhanced = '1';
+    const panel = root.querySelector('.world-panel');
+    buildDisclosure(panel, ':scope > p, :scope > .source-line', 'PROJECTION NOTE', 'world-note');
+  }
+
+  function enhanceField() {
+    const root = stage.querySelector('.game-layout');
+    if (!root || root.dataset.shellEnhanced === '1') return;
+    root.dataset.shellEnhanced = '1';
+    const panel = root.querySelector('.game-panel');
+    buildDisclosure(panel, ':scope > .game-references', 'REFERENCES', 'game-references');
   }
 
   function syncInstrumentShell() {
@@ -129,6 +158,9 @@
     if (kind === 'earth') enhanceEarth();
     if (kind === 'orbit') enhanceOrbit();
     if (kind === 'figure') enhanceFigure();
+    if (kind === 'pulse') enhancePulse();
+    if (kind === 'world') enhanceWorld();
+    if (['locate','zone','path'].includes(kind)) enhanceField();
   }
 
   const initialKind = new URLSearchParams(location.search).get('instrument');
