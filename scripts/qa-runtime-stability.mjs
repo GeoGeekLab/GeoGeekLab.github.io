@@ -63,7 +63,8 @@ const atlas = await read(path.join(dist, 'atlas.html'));
 const elsewhere = await read(path.join(dist, 'elsewhere.html'));
 ok(has(lab, 'lab-static-fallback'), 'GG-11 Lab has a first-response fallback');
 ok(has(atlas, 'atlas-static-fallback'), 'GG-11 Atlas has a first-response fallback');
-ok(has(elsewhere, 'elsewhere-static-fallback'), 'GG-11 Elsewhere has a first-response fallback');
+const elsewhereEntries = (elsewhere.match(/\belsewhere-entry\b/g) || []).length;
+ok(elsewhereEntries >= 3 && has(elsewhere, 'CURRENT ENTRIES'), 'GG-11 Elsewhere has first-response static content');
 ok(!has(lab, '2026-09-15 13:25 UTC'), 'GG-09 built Lab no longer exposes stale fake-live timestamp');
 
 ok(has(runtime, "closest?.('#commonsHour')"), 'GG-12 Commons hour input is coalesced');
