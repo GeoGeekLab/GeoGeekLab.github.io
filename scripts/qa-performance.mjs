@@ -31,7 +31,9 @@ function accidentalBlockingLocalScripts(html) {
   );
 }
 
+const home = await read('index.html');
 const fieldNotes = await read('field-notes.html');
+const lab = await read('lab.html');
 const earth = await read('earth/index.html');
 const labPreview = await read('lab-real-previews.js');
 const styles = await read('styles.css');
@@ -40,14 +42,20 @@ const earthRefinement = await read('earth/earth-refinement.css');
 const rows = [...fieldNotes.matchAll(/<article\b[^>]*class=(['"])[^'"]*static-note-row[^'"]*\1[^>]*\bdata-series=(['"])([^'"]+)\2[^>]*\bdata-record-ref=(['"])([^'"]+)\4/gi)];
 check(rows.length === 23, 'PERF-01 all 23 static Field Notes expose filter metadata');
 check(rows.every(match => /^(observation|scale|causality|representation|practice)$/.test(match[3])), 'PERF-01 Field Note rows use canonical series keys');
+check(/<body[^>]*\bclass=(['"])[^'"]*ux-mobile-v5[^'"]*ux-page-field-notes[^'"]*\1/i.test(fieldNotes), 'PERF-01 Field Notes mobile reading state exists in first-response HTML');
 check(/editorial-layout\.css/.test(fieldNotes) && /geo-interactions\.css/.test(fieldNotes), 'PERF-02 Field Notes layout styles are first-response resources');
 check(!/data-idle-\s+src\s*=/i.test(fieldNotes), 'PERF-03 data-idle-src attributes remain inert and intact');
 check(accidentalBlockingLocalScripts(fieldNotes).length === 0, 'PERF-03 Field Notes has no accidental blocking local classic scripts');
 
 check(/id="earthActivate"/.test(earth) && /src="boot\.js\?v=20261001a"/.test(earth), 'PERF-04 Earth ships a progressive activation shell');
 check(!/unpkg\.com\/maplibre-gl@6\.6\.0\/dist\/maplibre-gl\.css/.test(earth), 'PERF-04 MapLibre CSS is off the Earth critical path');
+
+check(/rel="preload" as="image" href="\/assets\/lab\/previews\/earth-observatory\.jpg\?v=20260930i" fetchpriority="high"/.test(lab), 'PERF-05 Lab LCP preview is discoverable from the initial document');
 check(/loading = eager \? 'eager' : 'lazy'/.test(labPreview) && /fetchPriority = 'high'/.test(labPreview), 'PERF-05 Lab LCP preview is eager and high priority');
-check(!/display=swap/.test(styles) && !/display=swap/.test(earthRefinement), 'PERF-06 throttled first visits avoid late webfont swaps');
+
+check(/\/commons\/loader\.js\?v=20261001a/.test(home), 'PERF-06 Home uses the viewport-driven Commons loader');
+check(!/<script[^>]+src=(['"])(?:\.?\/)?commons\/(?:config|geo|demo-data|commons-data|commons)\.js[^'"]*\1/i.test(home), 'PERF-06 heavy Commons runtime is absent from the initial Home script graph');
+check(!/display=swap/.test(styles) && !/display=swap/.test(earthRefinement), 'PERF-07 throttled first visits avoid late webfont swaps');
 
 const allFiles = [];
 async function walk(dir) {
@@ -69,12 +77,12 @@ for (const file of htmlFiles) {
   malformedIdleCount += (html.match(/data-idle-\s+src\s*=/gi) || []).length;
   if (/[/\\]field-notes[/\\][^/\\]+[/\\]index\.html$/.test(file)) articleSrcsetCount += (html.match(/\bsrcset=(['"])/gi) || []).length;
 }
-check(blockingCount === 0, 'PERF-07 generated HTML has no accidental blocking local classic scripts');
-check(malformedIdleCount === 0, 'PERF-07 generated HTML preserves data-idle-src attributes');
+check(blockingCount === 0, 'PERF-08 generated HTML has no accidental blocking local classic scripts');
+check(malformedIdleCount === 0, 'PERF-08 generated HTML preserves data-idle-src attributes');
 
 const responsiveVariants = allFiles.filter(file => /\.w(?:640|1280)\.(?:png|jpe?g|webp)$/i.test(file));
-check(responsiveVariants.length > 0, 'PERF-08 production build generated responsive raster variants');
-check(articleSrcsetCount > 0, 'PERF-08 Field Note HTML publishes responsive srcset candidates');
+check(responsiveVariants.length > 0, 'PERF-09 production build generated responsive raster variants');
+check(articleSrcsetCount > 0, 'PERF-09 Field Note HTML publishes responsive srcset candidates');
 
 if (failures) {
   console.error(`\nPerformance QA failed: ${failures} invariant(s).`);
