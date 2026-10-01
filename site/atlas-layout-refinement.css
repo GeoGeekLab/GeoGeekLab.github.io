@@ -1,59 +1,18 @@
-/* Atlas Round 4 — anchor reading instruments to the Atlas workspace. */
+/* Atlas reading rail — keep Atlas-specific reading tools aligned with the global UI. */
+
+/* Atlas uses the same viewport-fixed information scale as every other page. */
+.atlas-page > .scale-ui {
+  right: var(--pad);
+}
 
 @media (min-width: 761px) {
   .atlas-page .atlas-sidebar {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
+    gap: 10px;
     align-content: start;
     min-width: 0;
-  }
-
-  /* Scale belongs to the Atlas reading rail, not to the viewport. */
-  .atlas-page .atlas-sidebar .scale-ui {
-    position: relative;
-    inset: auto;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    z-index: 4;
-    width: 100%;
-    max-width: none;
-    min-height: 64px;
-    box-sizing: border-box;
-    margin: 0;
-    padding: 13px 16px;
-    border: 1px solid var(--line);
-    background: rgba(246, 244, 238, .86);
-    box-shadow: 0 8px 28px rgba(21, 32, 25, .045);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    opacity: 1;
-    transform: none;
-  }
-
-  /* The in-flow Atlas instrument should not disappear merely because the
-     global floating-scale footer guard has fired. Site Index can still hide it. */
-  .atlas-page .atlas-sidebar .scale-ui.is-near-footer {
-    opacity: 1 !important;
-    transform: none !important;
-    pointer-events: auto !important;
-  }
-
-  .atlas-page .atlas-sidebar .scale-ui::before {
-    justify-self: start;
-  }
-
-  .atlas-page .atlas-sidebar .scale-legend {
-    left: 0;
-    right: 0;
-    top: calc(100% + 8px);
-    bottom: auto;
-    width: auto;
-    min-width: 0;
-    box-sizing: border-box;
   }
 
   .atlas-page .atlas-sidebar .atlas-tooltip {
@@ -62,34 +21,34 @@
     margin: 0;
   }
 
-  /* Turn the former full-width caption strip into a compact map legend. */
+  /* Keep the key as a cartographic caption, not a third card. */
   .atlas-page .atlas-sidebar .atlas-key {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 12px;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 9px 14px;
     margin: 0;
-    padding: 14px 16px 15px;
-    border: 1px solid var(--line);
-    background:
-      linear-gradient(180deg, rgba(246, 244, 238, .72), rgba(246, 244, 238, .48));
+    padding: 10px 0;
+    border: 0;
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    background: transparent;
+    box-shadow: none;
     color: #707b73;
-    box-shadow: inset 0 1px rgba(255, 255, 255, .35);
   }
 
   .atlas-page .atlas-sidebar .atlas-key-title {
-    grid-column: 1 / -1;
     width: 100%;
     margin: 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--line-soft);
+    padding: 0 0 8px;
+    border: 0;
     color: #465148;
     letter-spacing: .09em;
   }
 
   .atlas-page .atlas-sidebar .atlas-key > span:not(.atlas-key-title) {
     min-width: 0;
-    min-height: 20px;
+    min-height: 18px;
     gap: 7px;
     white-space: nowrap;
   }
@@ -105,8 +64,6 @@
     display: contents;
   }
 
-  /* Preserve the existing mobile information-scale behavior while keeping the
-     relocated legend visually attached to the inspector in reading order. */
   .atlas-page .atlas-sidebar .atlas-key {
     margin-top: 10px;
   }
