@@ -57,10 +57,14 @@
 
   const gameKinds = new Set(['locate', 'zone', 'path']);
   async function loadInstrument(kind) {
-    if (window.GeoInstruments) return window.GeoInstruments;
-    if (gameKinds.has(kind)) await loadScript('games.js');
-    await loadScript('instruments.js?v=20260930c');
-    await loadScript('figure-instrument.js?v=20261001a');
+    if (!window.GeoInstruments) {
+      if (gameKinds.has(kind)) await loadScript('games.js');
+      await loadScript('instruments.js?v=20260930c');
+      await loadScript('figure-instrument.js?v=20261001a');
+    }
+    if (kind === 'world' && !window.GeoProjectionLab) {
+      await loadScript('world-projection-lab.js?v=20261001a');
+    }
     return window.GeoInstruments;
   }
 
@@ -81,7 +85,7 @@
 
   document.addEventListener('click', async event => {
     const button = event.target.closest?.('[data-instrument]');
-    if (!button || window.GeoInstruments) return;
+    if (!button || (window.GeoInstruments && button.dataset.instrument !== 'world')) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     const kind = button.dataset.instrument;
