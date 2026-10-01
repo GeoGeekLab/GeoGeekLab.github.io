@@ -13,12 +13,12 @@
     field: {
       label: 'RELATION',
       title: 'Relation',
-      question: 'Which records pull toward one another when several relations are considered together?'
+      question: 'Which records become adjacent when read by relation?'
     },
     time: {
       label: 'TIME',
       title: 'Time',
-      question: 'What came earlier, and what came later?'
+      question: 'Which records sit near one another in time?'
     },
     type: {
       label: 'FORMAT',
@@ -28,12 +28,12 @@
     topic: {
       label: 'TOPIC',
       title: 'Topic',
-      question: 'Which records gather around the same subject?'
+      question: 'Which records gather around a shared subject?'
     },
     trace: {
       label: 'TRACE',
       title: 'Trace',
-      question: 'Which records explicitly opened into another?'
+      question: 'Which records explicitly lead to another?'
     },
     geographic: {
       label: 'PLACE',
