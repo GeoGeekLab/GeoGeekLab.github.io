@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const contentRoot = path.join(root, 'content', 'field-notes');
+const fontCss = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&display=optional';
 
 const exists = file => fs.access(file).then(() => true).catch(() => false);
 
@@ -59,6 +60,17 @@ function addConnectionHints(html) {
   return html;
 }
 
+function addAsyncFonts(html) {
+  if (/data-geogeek-fonts=(['"])async\1/i.test(html)) return html;
+  const escaped = fontCss.replace(/&/g, '&amp;');
+  const tags = [
+    `<link rel="preload" as="style" href="${escaped}" data-geogeek-fonts="async">`,
+    `<link rel="stylesheet" href="${escaped}" media="print" onload="this.media='all'">`,
+    `<noscript><link rel="stylesheet" href="${escaped}"></noscript>`
+  ].join('\n');
+  return html.replace(/<\/head>/i, `${tags}\n</head>`);
+}
+
 function stabilizeFieldNotes(html, seriesKeys) {
   if (!/data-static-note-list/i.test(html)) return html;
   const links = [
@@ -67,9 +79,6 @@ function stabilizeFieldNotes(html, seriesKeys) {
   ].filter(link => !html.includes(link.split('href="')[1].split('"')[0]));
   if (links.length) html = html.replace(/<\/head>/i, `${links.join('\n')}\n</head>`);
 
-  // The mobile reading order used to be applied only after ux-refinements.js,
-  // which made the whole main column jump. Ship the state classes in the first
-  // response; the mobile selectors are media-query scoped and are inert on desktop.
   html = html.replace(/<body\b([^>]*)>/i, (match, attrs) => {
     const classMatch = attrs.match(/\bclass=(['"])([^'"]*)\1/i);
     const required = ['ux-inner-page', 'ux-mobile-v5', 'ux-page-field-notes'];
@@ -127,11 +136,8 @@ function lazyHomeCommons(html) {
 
 function progressiveEarth(html) {
   if (!/id=(['"])map\1/i.test(html)) return html;
-
   html = html.replace(/\s*<link\b[^>]*href=(['"])https:\/\/unpkg\.com\/maplibre-gl@6\.6\.0\/dist\/maplibre-gl\.css\1[^>]*>\s*/i, '\n');
-
   html = html.replace(/<div id=(['"])map\1([^>]*)><\/div>/i, (_m, q, rest) => `<div id=${q}map${q}${rest}><div class="earth-boot" id="earthBoot"><div class="earth-boot-card"><span>EARTH OBSERVATORY / INTERACTIVE RENDERER</span><strong>Load the map when you need it.</strong><p id="earthBootStatus">The source catalogue shell is available immediately. MapLibre, tiles, and live provider requests stay off the critical path until activation.</p><button id="earthActivate" type="button">ACTIVATE INTERACTIVE MAP</button><small>ON DEMAND · SAVES INITIAL CPU / NETWORK / BATTERY</small></div></div></div>`);
-
   html = html.replace(/<script\b[^>]*\btype=(['"])module\1[^>]*\bsrc=(['"])app\.js(?:\?[^'"]*)?\2[^>]*><\/script>/i, '<script type="module" src="boot.js?v=20261001a"></script>');
   return html;
 }
@@ -140,6 +146,7 @@ async function patchHtml(file, seriesKeys) {
   let html = await fs.readFile(file, 'utf8');
   html = addDeferToClassicLocalScripts(html);
   html = addConnectionHints(html);
+  html = addAsyncFonts(html);
   const relative = path.relative(dist, file).replaceAll('\\', '/');
   if (relative === 'field-notes.html') html = stabilizeFieldNotes(html, seriesKeys);
   if (relative === 'lab.html') html = prioritizeLabPreview(html);
@@ -150,6 +157,9 @@ async function patchHtml(file, seriesKeys) {
 
 async function patchCss(file) {
   let css = await fs.readFile(file, 'utf8');
+  // Google Fonts should not be pulled into the render-blocking graph through
+  // CSS @import. HTML loads the consolidated stylesheet asynchronously instead.
+  css = css.replace(/@import\s+url\((['"])https:\/\/fonts\.googleapis\.com\/[^'"]+\1\);?\s*/gi, '');
   css = css.replace(/display=swap/g, 'display=optional');
   await fs.writeFile(file, css);
 }
