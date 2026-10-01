@@ -39,13 +39,17 @@ function isIntentionalSyncBootstrap(src) {
 }
 
 function addDeferToClassicLocalScripts(html) {
-  return html.replace(/<script\b([^>]*?)\bsrc=(['"])([^'"]+)\2([^>]*)><\/script>/gi, (match, before, quote, src, after) => {
-    const attrs = `${before} ${after}`;
+  return html.replace(/<script\b([^>]*)><\/script>/gi, (match, attrs) => {
+    // Match only a real `src` attribute. `data-idle-src` is intentionally inert
+    // and must never be rewritten into an executable source attribute.
+    const source = attrs.match(/(?:^|\s)src\s*=\s*(['"])([^'"]+)\1/i);
+    if (!source) return match;
+    const src = source[2];
+    if (/\bdata-idle-src\s*=/i.test(attrs)) return match;
     if (/\b(?:defer|async)\b/i.test(attrs) || /\btype\s*=\s*(['"])module\1/i.test(attrs)) return match;
     if (/^(?:https?:)?\/\//i.test(src)) return match;
-    if (/\bdata-idle-src\b/i.test(attrs)) return match;
     if (isIntentionalSyncBootstrap(src)) return match;
-    return `<script${before} src=${quote}${src}${quote}${after} defer></script>`;
+    return match.replace(/><\/script>$/i, ' defer></script>');
   });
 }
 
