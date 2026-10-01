@@ -5,3 +5,4 @@
 await import('./qa-static-delivery.mjs');
 await import('./qa-runtime-stability.mjs');
 await import('./qa-performance.mjs');
+await import('./qa-first-view-state.mjs');
