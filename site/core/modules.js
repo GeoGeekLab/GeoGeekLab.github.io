@@ -65,6 +65,9 @@
     if (kind === 'world' && !window.GeoProjectionLab) {
       await loadScript('world-projection-lab.js?v=20261001a');
     }
+    if (kind === 'figure' && !window.GeoFigureWorkbench) {
+      await loadScript('figure-analysis-workbench.js?v=20261001c');
+    }
     return window.GeoInstruments;
   }
 
@@ -85,10 +88,14 @@
 
   document.addEventListener('click', async event => {
     const button = event.target.closest?.('[data-instrument]');
-    if (!button || (window.GeoInstruments && button.dataset.instrument !== 'world')) return;
+    if (!button) return;
+    const kind = button.dataset.instrument;
+    const enhancementNeeded =
+      (kind === 'world' && !window.GeoProjectionLab) ||
+      (kind === 'figure' && !window.GeoFigureWorkbench);
+    if (window.GeoInstruments && !enhancementNeeded) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    const kind = button.dataset.instrument;
     try {
       const instruments = await loadInstrument(kind);
       instruments?.openByKind?.(kind, { updateUrl: true });
