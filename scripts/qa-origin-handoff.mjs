@@ -18,9 +18,18 @@ for (const relative of ['origin/index.html', 'origin/cn/index.html']) {
   assert(html.includes('id="originExit"'), `${relative}: exit portal is missing`);
   assert(html.includes('href="/index.html"'), `${relative}: exit portal does not target /index.html`);
   assert(html.includes('function glideToExit()'), `${relative}: desktop exit glide is missing`);
-  assert(html.includes('inExitZone()'), `${relative}: exit-zone navigation guard is missing`);
+  assert(html.includes('function enterHome()'), `${relative}: terminal home transition is missing`);
+  assert(html.includes("location.assign('/index.html')"), `${relative}: downward handoff does not enter /index.html`);
+  assert(html.includes("document.body.classList.toggle('origin-exit-active',inExitZone())"), `${relative}: Origin chrome restoration is missing`);
+  assert(html.includes('body.origin-exit-active .brand'), `${relative}: terminal chrome styling is missing`);
+  assert(html.includes('.brand{min-height:32px}'), `${relative}: brand/language centerline alignment fix is missing`);
   assert(scenes.length === 9, `${relative}: expected exactly 9 narrative scenes, found ${scenes.length}`);
   assert(!html.includes('data-scene="9"'), `${relative}: exit portal must not become scene 09`);
+}
+
+const zh = await fs.readFile(path.join(dist, 'origin/cn/index.html'), 'utf8');
+for (const copy of ['归途 / 已竟', '此刻为你', '行至水穷，坐看云起。', '开始GeoGeek']) {
+  assert(zh.includes(copy), `origin/cn/index.html: missing approved copy “${copy}”`);
 }
 
 console.log('Origin handoff QA passed.');
