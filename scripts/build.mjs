@@ -29,4 +29,5 @@ if (process.env.GEOGEEK_LEGACY_BUILD_ONLY === '1') {
   await import('./postbuild-performance.mjs');
   await import('./postbuild-first-view-state.mjs');
   await import('./postbuild-round3.mjs');
+  await import('./postbuild-origin-handoff.mjs');
 }
