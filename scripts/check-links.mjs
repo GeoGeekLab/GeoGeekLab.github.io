@@ -30,6 +30,16 @@ function outputPathForUrl(url) {
   return path.join(dist, pathname.replace(/^\/+/, ''));
 }
 
+function documentBaseUrl(html, pageUrl, relative) {
+  const match = html.match(/<base\b[^>]*\bhref\s*=\s*(["'])(.*?)\1[^>]*>/i);
+  if (!match) return pageUrl;
+  try {
+    return new URL(match[2].trim(), pageUrl);
+  } catch {
+    throw new Error(`${relative}: invalid <base href> ${JSON.stringify(match[2])}`);
+  }
+}
+
 const htmlFiles = walk(dist).filter(file => file.endsWith('.html'));
 const missing = [];
 let checked = 0;
@@ -38,15 +48,23 @@ for (const file of htmlFiles) {
   const html = fs.readFileSync(file, 'utf8');
   const relative = path.relative(dist, file).split(path.sep).join('/');
   const pageUrl = new URL(relative === 'index.html' ? '/' : `/${relative}`, siteOrigin);
-  const attrPattern = /\b(?:href|src)\s*=\s*(["'])(.*?)\1/gi;
 
+  let baseUrl;
+  try {
+    baseUrl = documentBaseUrl(html, pageUrl, relative);
+  } catch (error) {
+    missing.push(error.message);
+    continue;
+  }
+
+  const attrPattern = /\b(?:href|src)\s*=\s*(["'])(.*?)\1/gi;
   for (const match of html.matchAll(attrPattern)) {
     const raw = match[2].trim();
     if (!raw || raw.startsWith('#') || /^(?:mailto:|tel:|javascript:|data:|blob:)/i.test(raw)) continue;
 
     let resolved;
     try {
-      resolved = new URL(raw, pageUrl);
+      resolved = new URL(raw, baseUrl);
     } catch {
       missing.push(`${relative}: invalid URL ${JSON.stringify(raw)}`);
       continue;
