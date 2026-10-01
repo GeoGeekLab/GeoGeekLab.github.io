@@ -34,27 +34,56 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   await expect(page.locator('#eoInspectorTitle')).toHaveText('True color');
   await expect(page.locator('[data-earth-layer]')).toHaveCount(3);
   await expect(page.locator('#eoLatest')).toHaveText('SAFE DATE');
+  await expect(page.locator('#eoCoverageEnd')).toContainText('SAFE THROUGH');
   await expect(page.locator('#eoInspectorMeta')).toContainText('RECENT-DATE POLICY');
   await expect(page.locator('.instrument-status')).toContainText('STATUS / READY');
+
+  await expect.poll(async () => {
+    const box = await page.locator('#eoFrame').boundingBox();
+    return box ? box.width / box.height : 0;
+  }, { timeout: 10000 }).toBeGreaterThan(1.98);
+  const frameBox = await page.locator('#eoFrame').boundingBox();
+  expect(frameBox.width / frameBox.height).toBeLessThan(2.02);
+
+  const archiveDays = await page.locator('#eoRange').evaluate(node => Number(node.max));
+  expect(archiveDays).toBeGreaterThan(5000);
+  await expect(page.locator('#eoLayerList')).toHaveAttribute('role', 'tabpanel');
+  await expect(page.locator('[data-group="VISUAL"]')).toHaveAttribute('tabindex', '0');
   await expectNoSeriousAxeViolations(page);
 
-  await page.locator('[data-group="THERMAL"]').click();
+  const dateInput = page.locator('#eoDate');
+  await dateInput.fill('2024-01-15');
+  await dateInput.dispatchEvent('change');
+  await expect(dateInput).toHaveValue('2024-01-15');
+
+  const visualTab = page.locator('[data-group="VISUAL"]');
+  await visualTab.focus();
+  await visualTab.press('ArrowRight');
+  await expect(page.locator('[data-group="THERMAL"]')).toBeFocused();
+
   const thermal = page.locator('[data-earth-layer="surface-temp"]');
   await expect(thermal).toBeVisible();
   await thermal.click();
   await expect(page.locator('#eoInspectorTitle')).toHaveText('Land surface temperature');
   await expect(page.locator('#eoInspectorMeta')).toContainText('Conservative T-2 day request window');
   await expect(page.locator('#eoOpacityWrap')).toBeVisible();
+  await expect(dateInput).toHaveValue('2024-01-15');
 
   const compare = page.locator('#eoCompare');
   await compare.click();
   await expect(compare).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('#eoCompareHandle')).toBeVisible();
+  const handle = page.locator('#eoCompareHandle');
+  await expect(handle).toBeVisible();
   await expect(page).toHaveURL(/earthCompare=1/);
 
   await page.locator('[data-offset="30"]').click();
   await expect(page.locator('#eoHudReference')).toContainText('30D');
   await expect(page).toHaveURL(/earthOffset=30/);
+
+  await handle.focus();
+  await handle.press('End');
+  await expect(handle).toHaveAttribute('aria-valuenow', '95');
+  await expect(page).toHaveURL(/earthSplit=95/);
 
   await page.locator('#eoGrid').click();
   await expect(page.locator('#eoGrid')).toHaveAttribute('aria-pressed', 'false');
