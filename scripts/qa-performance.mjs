@@ -55,7 +55,10 @@ check(/loading = eager \? 'eager' : 'lazy'/.test(labPreview) && /fetchPriority =
 
 check(/\/commons\/loader\.js\?v=20261001a/.test(home), 'PERF-06 Home uses the viewport-driven Commons loader');
 check(!/<script[^>]+src=(['"])(?:\.?\/)?commons\/(?:config|geo|demo-data|commons-data|commons)\.js[^'"]*\1/i.test(home), 'PERF-06 heavy Commons runtime is absent from the initial Home script graph');
-check(!/display=swap/.test(styles) && !/display=swap/.test(earthRefinement), 'PERF-07 throttled first visits avoid late webfont swaps');
+
+check(/data-geogeek-fonts="async"/.test(home) && /media="print" onload="this\.media='all'"/.test(home), 'PERF-07 webfont stylesheet is non-blocking in first-response HTML');
+check(!/fonts\.googleapis\.com/i.test(styles) && !/fonts\.googleapis\.com/i.test(earthRefinement), 'PERF-07 CSS contains no render-blocking Google Fonts imports');
+check(!/display=swap/.test(styles) && !/display=swap/.test(earthRefinement), 'PERF-07 slow first visits avoid late webfont swaps');
 
 const allFiles = [];
 async function walk(dir) {
