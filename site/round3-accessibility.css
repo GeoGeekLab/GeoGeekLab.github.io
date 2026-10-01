@@ -36,6 +36,7 @@
   background: transparent !important;
   box-shadow: none !important;
   opacity: 1 !important;
+  transform: translate(calc(-50% + var(--round3-hit-x, 0px)), calc(-50% + var(--round3-hit-y, 0px))) !important;
 }
 .atlas-page .atlas-node::before,
 .atlas-page .atlas-node::after {
@@ -77,7 +78,7 @@
 .atlas-page .atlas-node:hover,
 .atlas-page .atlas-node:focus,
 .atlas-page .atlas-node.is-active {
-  transform: translate(-50%,-50%) !important;
+  transform: translate(calc(-50% + var(--round3-hit-x, 0px)), calc(-50% + var(--round3-hit-y, 0px))) !important;
   background: transparent !important;
   box-shadow: none !important;
 }
@@ -103,12 +104,16 @@
   background: #d0643c;
 }
 
-/* Origin: measured 4.48:1 credit text and a 42px sound control were just below the targets. */
+/* Origin: measured credit contrast plus mobile control collisions. */
 .music-credit { color: rgba(242,240,233,.56) !important; }
 .sound {
   min-width: 44px !important;
   min-height: 44px !important;
   line-height: 44px !important;
+}
+@media (max-width: 760px) {
+  /* Chapter dots occupy the bottom-center strip; keep sound above their hit boxes. */
+  .sound { bottom: 46px !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
