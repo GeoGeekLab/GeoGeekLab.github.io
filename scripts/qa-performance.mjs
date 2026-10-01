@@ -34,26 +34,33 @@ check(!/unpkg\.com\/maplibre-gl@6\.6\.0\/dist\/maplibre-gl\.css/.test(earth), 'P
 check(/loading = eager \? 'eager' : 'lazy'/.test(labPreview) && /fetchPriority = 'high'/.test(labPreview), 'PERF-05 Lab LCP preview is eager and high priority');
 check(!/display=swap/.test(styles) && !/display=swap/.test(earthRefinement), 'PERF-06 throttled first visits avoid late webfont swaps');
 
-const htmlFiles = [];
+const allFiles = [];
 async function walk(dir) {
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
     const file = path.join(dir, entry.name);
     if (entry.isDirectory()) await walk(file);
-    else if (file.endsWith('.html')) htmlFiles.push(file);
+    else allFiles.push(file);
   }
 }
 await walk(dist);
+const htmlFiles = allFiles.filter(file => file.endsWith('.html'));
 
 let blockingCount = 0;
+let articleSrcsetCount = 0;
 for (const file of htmlFiles) {
   const html = await fs.readFile(file, 'utf8');
   blockingCount += [...html.matchAll(/<script\b([^>]*?)\bsrc=(['"])([^'"]+)\2([^>]*)><\/script>/gi)]
     .filter(([, before,, src, after]) => !/^(?:https?:)?\/\//i.test(src) && !isIntentionalSyncBootstrap(src) && !/\b(?:defer|async|data-idle-src)\b/i.test(`${before} ${after}`) && !/\btype\s*=\s*(['"])module\1/i.test(`${before} ${after}`)).length;
+  if (/[/\\]field-notes[/\\][^/\\]+[/\\]index\.html$/.test(file)) articleSrcsetCount += (html.match(/\bsrcset=(['"])/gi) || []).length;
 }
 check(blockingCount === 0, 'PERF-07 generated HTML has no accidental blocking local classic scripts');
+
+const responsiveVariants = allFiles.filter(file => /\.w(?:640|1280)\.(?:png|jpe?g|webp)$/i.test(file));
+check(responsiveVariants.length > 0, 'PERF-08 production build generated responsive raster variants');
+check(articleSrcsetCount > 0, 'PERF-08 Field Note HTML publishes responsive srcset candidates');
 
 if (failures) {
   console.error(`\nPerformance QA failed: ${failures} invariant(s).`);
   process.exit(1);
 }
-console.log(`\nPerformance QA passed: ${htmlFiles.length} HTML files checked · ux-preinit is the sole intentional sync bootstrap.`);
+console.log(`\nPerformance QA passed: ${htmlFiles.length} HTML files checked · ${responsiveVariants.length} responsive variants · ux-preinit is the sole intentional sync bootstrap.`);
