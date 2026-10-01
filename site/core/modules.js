@@ -65,6 +65,9 @@
     if (kind === 'world' && !window.GeoProjectionLab) {
       await loadScript('world-projection-lab.js?v=20261001a');
     }
+    if (kind === 'earth' && !window.GeoEarthTemporalLab) {
+      await loadScript('earth-observation-lab.js?v=20261001a');
+    }
     if (kind === 'figure' && !window.GeoFigureWorkbench) {
       await loadScript('figure-analysis-workbench.js?v=20261001c');
     }
@@ -98,6 +101,7 @@
     const kind = button.dataset.instrument;
     const enhancementNeeded =
       (kind === 'world' && !window.GeoProjectionLab) ||
+      (kind === 'earth' && !window.GeoEarthTemporalLab) ||
       (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish));
     if (window.GeoInstruments && !enhancementNeeded) return;
     event.preventDefault();
