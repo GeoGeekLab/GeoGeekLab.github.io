@@ -3,7 +3,17 @@ import { test, expect } from '@playwright/test';
 async function scaleSnapshot(page, route) {
   const response = await page.goto(route, { waitUntil: 'domcontentloaded' });
   expect(response?.status()).toBeLessThan(400);
-  await page.waitForTimeout(450);
+
+  // The Scale is content-sized in the shared stylesheet. Compare the two
+  // routes only after the optional webfont state has settled; otherwise the
+  // first route can be measured in the fallback mono face while the second is
+  // measured after IBM Plex Mono becomes available, creating a false 1–2px
+  // geometry mismatch even though both routes use the same Scale CSS.
+  await page.evaluate(async () => {
+    if (document.fonts?.ready) await document.fonts.ready;
+  });
+  await page.waitForTimeout(100);
+
   return page.locator('body > .scale-ui').evaluate(node => {
     const style = getComputedStyle(node);
     const rect = node.getBoundingClientRect();
