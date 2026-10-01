@@ -1,6 +1,14 @@
 (() => {
   'use strict';
 
+  if (!document.querySelector('link[data-lab-transform]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'lab-transform.css?v=20261001a';
+    link.dataset.labTransform = '1';
+    document.head.appendChild(link);
+  }
+
   const list = document.querySelector('#labList');
   const dialog = document.querySelector('#instrumentDialog');
   const stage = document.querySelector('#instrumentStage');
@@ -103,6 +111,14 @@
     buildDisclosure(panel, ':scope > p', 'READING NOTE');
   }
 
+  function enhanceFigure() {
+    const root = stage.querySelector('.figure-layout');
+    if (!root || root.dataset.shellEnhanced === '1') return;
+    root.dataset.shellEnhanced = '1';
+    const controls = root.querySelector('.figure-control');
+    buildDisclosure(controls, ':scope > p, :scope > .source-line', 'METHOD NOTE');
+  }
+
   function syncInstrumentShell() {
     if (!stage.childElementCount) {
       setInstrumentIdentity('');
@@ -112,6 +128,7 @@
     setInstrumentIdentity(kind);
     if (kind === 'earth') enhanceEarth();
     if (kind === 'orbit') enhanceOrbit();
+    if (kind === 'figure') enhanceFigure();
   }
 
   const initialKind = new URLSearchParams(location.search).get('instrument');
