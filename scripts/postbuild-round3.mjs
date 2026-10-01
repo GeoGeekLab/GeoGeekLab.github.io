@@ -85,9 +85,13 @@ async function patchLab(html) {
     html = removeStylesheet(html, name);
   }
 
-  // Lab no longer needs the synchronous style-discovery bootstrap. Its critical
-  // styles are known at build time; interaction enhancement remains deferred.
+  // Critical Lab styles are build-known, so the synchronous discovery bootstrap
+  // can leave the first-view path. Noncritical interaction runtimes are loaded
+  // only after window.load and an idle slot so they cannot contend with the LCP
+  // preview under a throttled network/CPU model.
   html = removeScript(html, 'ux-preinit.js');
+  html = removeScript(html, 'geo-interactions.js');
+  html = removeScript(html, 'lab-real-previews.js');
 
   const criticalTag = `<style data-round3-lab-critical>\n${critical.join('\n')}\n</style>`;
   if (!/data-round3-lab-critical/i.test(html)) html = html.replace(/<\/head>/i, `${criticalTag}\n</head>`);
@@ -100,10 +104,29 @@ async function patchLab(html) {
     html = html.replace(/<\/head>/i, `${asyncStyle}\n</head>`);
   }
 
-  const deferred = [];
-  if (!/src=(['"])[^'"]*geo-interactions\.js/i.test(html)) deferred.push('<script src="/geo-interactions.js?v=20260930g" defer data-round3-deferred="geo-interactions"></script>');
-  if (!/src=(['"])[^'"]*lab-real-previews\.js/i.test(html)) deferred.push('<script src="/lab-real-previews.js?v=20260930i" defer data-round3-deferred="lab-previews"></script>');
-  if (deferred.length) html = html.replace(/<\/body>/i, `${deferred.join('\n')}\n</body>`);
+  if (!/data-round3-lab-postload/i.test(html)) {
+    const postload = `<script data-round3-lab-postload>
+(() => {
+  const start = () => {
+    const inject = (src, marker) => {
+      if (document.querySelector(\`script[data-round3-postload="\${marker}"]\`)) return;
+      const script = document.createElement('script');
+      script.src = src;
+      script.dataset.round3Postload = marker;
+      document.head.appendChild(script);
+    };
+    inject('/geo-interactions.js?v=20260930g', 'geo-interactions');
+    inject('/lab-real-previews.js?v=20260930i', 'lab-previews');
+  };
+  const idle = () => 'requestIdleCallback' in window
+    ? requestIdleCallback(start, { timeout: 1600 })
+    : setTimeout(start, 650);
+  if (document.readyState === 'complete') idle();
+  else addEventListener('load', idle, { once: true });
+})();
+</script>`;
+    html = html.replace(/<\/body>/i, `${postload}\n</body>`);
+  }
 
   return html;
 }
