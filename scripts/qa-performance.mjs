@@ -14,6 +14,23 @@ function check(ok, label) {
   else { failures += 1; console.error(`✗ ${label}`); }
 }
 
+function executableScripts(html) {
+  return [...html.matchAll(/<script\b([^>]*)><\/script>/gi)].flatMap(match => {
+    const attrs = match[1];
+    const source = attrs.match(/(?:^|\s)src\s*=\s*(['"])([^'"]+)\1/i);
+    return source ? [{ attrs, src: source[2] }] : [];
+  });
+}
+
+function accidentalBlockingLocalScripts(html) {
+  return executableScripts(html).filter(({ attrs, src }) =>
+    !/^(?:https?:)?\/\//i.test(src) &&
+    !isIntentionalSyncBootstrap(src) &&
+    !/\b(?:defer|async)\b/i.test(attrs) &&
+    !/\btype\s*=\s*(['"])module\1/i.test(attrs)
+  );
+}
+
 const fieldNotes = await read('field-notes.html');
 const earth = await read('earth/index.html');
 const labPreview = await read('lab-real-previews.js');
@@ -24,10 +41,8 @@ const rows = [...fieldNotes.matchAll(/<article\b[^>]*class=(['"])[^'"]*static-no
 check(rows.length === 23, 'PERF-01 all 23 static Field Notes expose filter metadata');
 check(rows.every(match => /^(observation|scale|causality|representation|practice)$/.test(match[3])), 'PERF-01 Field Note rows use canonical series keys');
 check(/editorial-layout\.css/.test(fieldNotes) && /geo-interactions\.css/.test(fieldNotes), 'PERF-02 Field Notes layout styles are first-response resources');
-
-const blockingLocal = [...fieldNotes.matchAll(/<script\b([^>]*?)\bsrc=(['"])([^'"]+)\2([^>]*)><\/script>/gi)]
-  .filter(([, before,, src, after]) => !/^(?:https?:)?\/\//i.test(src) && !isIntentionalSyncBootstrap(src) && !/\b(?:defer|async|data-idle-src)\b/i.test(`${before} ${after}`) && !/\btype\s*=\s*(['"])module\1/i.test(`${before} ${after}`));
-check(blockingLocal.length === 0, 'PERF-03 Field Notes has no accidental blocking local classic scripts');
+check(!/data-idle-\s+src\s*=/i.test(fieldNotes), 'PERF-03 data-idle-src attributes remain inert and intact');
+check(accidentalBlockingLocalScripts(fieldNotes).length === 0, 'PERF-03 Field Notes has no accidental blocking local classic scripts');
 
 check(/id="earthActivate"/.test(earth) && /src="boot\.js\?v=20261001a"/.test(earth), 'PERF-04 Earth ships a progressive activation shell');
 check(!/unpkg\.com\/maplibre-gl@6\.6\.0\/dist\/maplibre-gl\.css/.test(earth), 'PERF-04 MapLibre CSS is off the Earth critical path');
@@ -46,14 +61,16 @@ await walk(dist);
 const htmlFiles = allFiles.filter(file => file.endsWith('.html'));
 
 let blockingCount = 0;
+let malformedIdleCount = 0;
 let articleSrcsetCount = 0;
 for (const file of htmlFiles) {
   const html = await fs.readFile(file, 'utf8');
-  blockingCount += [...html.matchAll(/<script\b([^>]*?)\bsrc=(['"])([^'"]+)\2([^>]*)><\/script>/gi)]
-    .filter(([, before,, src, after]) => !/^(?:https?:)?\/\//i.test(src) && !isIntentionalSyncBootstrap(src) && !/\b(?:defer|async|data-idle-src)\b/i.test(`${before} ${after}`) && !/\btype\s*=\s*(['"])module\1/i.test(`${before} ${after}`)).length;
+  blockingCount += accidentalBlockingLocalScripts(html).length;
+  malformedIdleCount += (html.match(/data-idle-\s+src\s*=/gi) || []).length;
   if (/[/\\]field-notes[/\\][^/\\]+[/\\]index\.html$/.test(file)) articleSrcsetCount += (html.match(/\bsrcset=(['"])/gi) || []).length;
 }
 check(blockingCount === 0, 'PERF-07 generated HTML has no accidental blocking local classic scripts');
+check(malformedIdleCount === 0, 'PERF-07 generated HTML preserves data-idle-src attributes');
 
 const responsiveVariants = allFiles.filter(file => /\.w(?:640|1280)\.(?:png|jpe?g|webp)$/i.test(file));
 check(responsiveVariants.length > 0, 'PERF-08 production build generated responsive raster variants');
