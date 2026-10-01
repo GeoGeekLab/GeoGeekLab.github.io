@@ -15,6 +15,7 @@
 <link href="atlas-page.css?v=20260930h" rel="stylesheet"/>
 <link href="atlas-focus.css?v=20260930a" rel="stylesheet"/>
 <link href="atlas-layout-refinement.css?v=20261001b" rel="stylesheet"/>
+<link href="atlas-v2.css?v=20261001a" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20260930g"></script>
 </head>
 <body class="atlas-page">
@@ -52,7 +53,7 @@
   <div class="atlas-reader-copy">
     <span>HOW TO READ THE ARCHIVE</span>
     <h2 id="atlasViewTitle">Relation</h2>
-    <p id="atlasViewSummary">Which records belong near one another conceptually?</p>
+    <p id="atlasViewSummary">Which records pull toward one another when several relations are considered together?</p>
   </div>
   <div class="atlas-reader-controls">
     <div class="atlas-controls">
@@ -64,7 +65,7 @@
         <button data-projection="trace" aria-pressed="false">Trace</button>
         <button data-projection="geographic" aria-pressed="false">Place</button>
       </div>
-      <span class="atlas-status" id="atlasStatus">VIEW / RELATION · SAME ARCHIVE</span>
+      <span class="atlas-status" id="atlasStatus">VIEW / RELATION · WEIGHTED LINKS</span>
     </div>
     <p class="atlas-reader-hint">Choose a view. The records stay the same; only the relation changes.</p>
   </div>
@@ -82,6 +83,7 @@
       <button class="atlas-inspector-close" id="atlasInspectorClose" type="button" aria-label="Close selection">×</button>
       <span>ATLAS / RELATION</span>
       <strong>Hover a record. Click to keep it selected.</strong>
+      <small>Relations appear on demand; the archive stays fixed while the projection changes.</small>
     </aside>
 
     <div class="atlas-key" aria-label="Atlas key">
@@ -98,7 +100,7 @@
 
 <div class="atlas-foot">
   <p class="atlas-philosophy">Every view reveals one relation by letting another recede.</p>
-  <p class="atlas-explain" id="atlasExplain">Conceptual nearness: records share a field of thought or practice.</p>
+  <p class="atlas-explain" id="atlasExplain">Relation is a weighted semantic network: authored traces, shared fields, topics, vocabulary, form, and time contribute to proximity.</p>
 </div>
 </main>
 <footer class="footer">
@@ -111,8 +113,8 @@
 <script src="app.js?v=20260930g"></script>
 <script src="core/modules.js"></script>
 <script src="core/semantic-scale.js"></script>
-<script src="atlas/atlas.js?v=20260930a"></script>
-<script src="atlas-page.js?v=20260930a"></script>
+<script src="atlas/atlas-v2.js?v=20261001a"></script>
+<script src="atlas-page-v2.js?v=20261001a"></script>
 <script src="commons/config.js"></script>
 <script src="commons/visit-tracker.js"></script>
 <script src="/ux-refinements.js"></script>
