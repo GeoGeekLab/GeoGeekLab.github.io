@@ -10,6 +10,7 @@ const coreRoutes = [
   '/lab.html',
   '/atlas.html',
   '/elsewhere.html',
+  '/earth/',
   '/origin/'
 ];
 
