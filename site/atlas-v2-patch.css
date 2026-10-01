@@ -1,10 +1,272 @@
-/* Atlas v2 finishing alignment. */
-@media (min-width: 1101px) {
-  .atlas-page > .scale-ui { right: calc(var(--pad) + 316px) !important; }
+/* Atlas v2 finishing alignment — compact, global, relational. */
+
+/* Atlas uses the exact same information-scale placement as the rest of GeoGeek. */
+@media (min-width: 761px) {
+  .atlas-page > .scale-ui {
+    top: 96px !important;
+    right: var(--pad) !important;
+    bottom: auto !important;
+    left: auto !important;
+  }
 }
-@media (min-width: 761px) and (max-width: 1100px) {
-  .atlas-page > .scale-ui { right: calc(var(--pad) + 286px) !important; }
+
+/* One-screen reading rhythm. */
+.atlas-page {
+  --atlas-stage-height: clamp(340px, 38vh, 410px);
 }
+
+.atlas-page .atlas-reader {
+  grid-template-columns: minmax(430px, .38fr) minmax(0, 1fr);
+  gap: clamp(24px, 3vw, 44px);
+  margin: 18px 0 12px;
+  padding-bottom: 12px;
+  align-items: center;
+}
+
+.atlas-page .atlas-reader-copy {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px 18px;
+  align-items: center;
+}
+
+.atlas-page .atlas-reader-copy > span {
+  grid-column: 1 / -1;
+}
+
+.atlas-page .atlas-reader-copy h2 {
+  white-space: nowrap;
+}
+
+/* View questions use the former hint's quiet editorial voice and stay on one line when space permits. */
+.atlas-page .atlas-reader-copy p {
+  max-width: none;
+  color: #778179;
+  font: 500 11px/1.45 var(--sans);
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.atlas-page .atlas-reader-hint {
+  display: none !important;
+}
+
+.atlas-page .atlas-reader-controls {
+  gap: 0;
+}
+
+.atlas-page .atlas-workspace {
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 310px);
+  gap: 14px;
+}
+
+.atlas-page .atlas-stage {
+  height: var(--atlas-stage-height) !important;
+  min-height: 340px !important;
+  cursor: crosshair;
+  background-color: #101812;
+  background-image:
+    radial-gradient(circle at 65% 34%, rgba(67, 105, 82, .105), transparent 31%),
+    radial-gradient(circle at 16% 82%, rgba(166, 70, 36, .038), transparent 27%),
+    linear-gradient(rgba(241, 239, 231, .020) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(241, 239, 231, .020) 1px, transparent 1px);
+  background-size: auto, auto, 48px 48px, 48px 48px;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, .18),
+    inset 0 -36px 72px rgba(0, 0, 0, .07);
+}
+
+/* Local field illumination follows the pointer; it is spatial feedback, not decoration. */
+.atlas-page .atlas-stage::before {
+  inset: 0 !important;
+  border: 0 !important;
+  background:
+    radial-gradient(circle 180px at var(--atlas-pointer-x, 50%) var(--atlas-pointer-y, 50%), rgba(193, 112, 76, .055), rgba(93, 130, 104, .025) 38%, transparent 72%);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+.atlas-page .atlas-stage.is-pointer-active::before { opacity: 1; }
+
+.atlas-page .atlas-stage::after {
+  right: 14px;
+  bottom: 12px;
+  opacity: .72;
+}
+
+/* Relation hulls become cartographic envelopes instead of diagram bubbles. */
+.atlas-page .atlas-cluster-hull {
+  fill: rgba(221, 226, 222, .010);
+  stroke: rgba(176, 193, 181, .075);
+  stroke-width: .8;
+  stroke-dasharray: 1.5 6;
+}
+.atlas-page .atlas-cluster-hull[data-cluster="1"] { fill: rgba(168, 91, 57, .018); }
+.atlas-page .atlas-cluster-hull[data-cluster="2"] { fill: rgba(77, 117, 91, .022); }
+.atlas-page .atlas-cluster-hull[data-cluster="3"] { fill: rgba(202, 190, 150, .012); }
+
+/* Default relations recede; the active relation is read, not merely highlighted. */
+.atlas-page .atlas-edge {
+  stroke: rgba(194, 206, 197, .105);
+  stroke-width: .62;
+}
+.atlas-page .atlas-edge[data-weight="2"] { opacity: .44; }
+.atlas-page .atlas-edge[data-weight="3"] { opacity: .52; stroke-width: .72; }
+.atlas-page .atlas-edge[data-weight="4"] { opacity: .60; stroke-width: .82; }
+.atlas-page .atlas-edge[data-weight="5"],
+.atlas-page .atlas-edge[data-weight="6"],
+.atlas-page .atlas-edge[data-weight="7"] { opacity: .69; stroke-width: .92; }
+.atlas-page .atlas-edge.is-dimmed { opacity: .028 !important; }
+.atlas-page .atlas-edge.is-related {
+  stroke: rgba(220, 105, 64, .94) !important;
+  stroke-width: 1.35 !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 2px rgba(190, 79, 43, .18));
+}
+.atlas-page .atlas-stage[data-mode="trace"] .atlas-edge.is-related {
+  stroke-dasharray: 4 7;
+}
+
+/* Precision markers: quiet at rest, spatial aura on interaction. */
+.atlas-page .atlas-node {
+  width: 10px;
+  height: 10px;
+  border-color: rgba(239, 238, 229, .70);
+  background: #101812;
+  box-shadow: 0 0 0 2px rgba(241, 239, 231, .012);
+}
+.atlas-page .atlas-node > i {
+  position: absolute;
+  inset: -8px;
+  display: block;
+  border: 1px solid rgba(214, 106, 66, 0);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(177, 72, 39, .05), transparent 66%);
+  opacity: 0;
+  transform: scale(.68);
+  pointer-events: none;
+  transition: opacity .16s ease, transform .20s cubic-bezier(.16, 1, .3, 1), border-color .16s ease;
+}
+.atlas-page .atlas-node[data-type="lab"] > i { border-radius: 1px; }
+.atlas-page .atlas-node[data-type="place"] > i { border-radius: 0; }
+.atlas-page .atlas-node:hover > i,
+.atlas-page .atlas-node:focus-visible > i,
+.atlas-page .atlas-node.is-active > i {
+  opacity: 1;
+  transform: scale(1);
+  border-color: rgba(214, 106, 66, .24);
+}
+.atlas-page .atlas-node.is-neighbor > i {
+  opacity: .55;
+  transform: scale(.86);
+  border-color: rgba(225, 135, 99, .14);
+}
+.atlas-page .atlas-node:hover,
+.atlas-page .atlas-node:focus-visible,
+.atlas-page .atlas-node.is-active {
+  transform: translate(-50%, -50%) scale(1.32);
+  box-shadow: 0 0 0 4px rgba(177, 72, 39, .075), 0 0 16px rgba(177, 72, 39, .08);
+}
+.atlas-page .atlas-node.is-neighbor {
+  box-shadow: 0 0 0 3px rgba(177, 72, 39, .04);
+}
+.atlas-page .atlas-node.is-dimmed { opacity: .13; }
+
+/* Labels read like annotations, not cards. */
+.atlas-page .atlas-node-label {
+  padding: 4px 7px 4px 8px;
+  border: 0;
+  border-left: 1px solid rgba(210, 218, 212, .22);
+  background: rgba(8, 14, 10, .82);
+  box-shadow: none;
+  backdrop-filter: blur(4px);
+}
+.atlas-page .atlas-node-label.is-selected {
+  border-left-color: rgba(218, 103, 61, .85);
+  background: rgba(15, 22, 17, .94);
+}
+
+.atlas-page .atlas-sidebar {
+  top: 96px;
+  gap: 9px;
+}
+.atlas-page .atlas-tooltip {
+  max-height: var(--atlas-stage-height) !important;
+  padding: 18px 18px 17px;
+}
+.atlas-page .atlas-tooltip > strong {
+  margin-top: 9px;
+  font-size: clamp(21px, 1.55vw, 26px);
+  line-height: 1.04;
+}
+.atlas-page .atlas-related { margin-top: 14px; padding-top: 11px; }
+.atlas-page .atlas-related button { padding: 6px 0; }
+.atlas-page .atlas-open-record { min-height: 38px; margin-top: 14px; }
+
+/* The key is one compact annotation rail. */
+.atlas-page .atlas-key {
+  gap: 7px 11px;
+  padding: 7px 0;
+  font-size: 7.5px;
+}
+.atlas-page .atlas-key-title {
+  width: auto;
+  margin-right: auto;
+}
+
+.atlas-page .atlas-foot {
+  gap: 30px;
+  margin-top: 11px;
+  padding-top: 9px;
+}
+.atlas-page .atlas-philosophy {
+  font-size: clamp(18px, 1.6vw, 23px);
+}
+.atlas-page .atlas-explain {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1100px) {
+  .atlas-page { --atlas-stage-height: clamp(350px, 44vh, 400px); }
+  .atlas-page .atlas-reader {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .atlas-page .atlas-reader-copy {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .atlas-page .atlas-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(230px, 270px);
+  }
+}
+
 @media (max-width: 760px) {
-  .atlas-page > .scale-ui { right: 16px !important; }
+  .atlas-page { --atlas-stage-height: 340px; }
+  .atlas-page .atlas-reader {
+    margin-top: 16px;
+  }
+  .atlas-page .atlas-reader-copy {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .atlas-page .atlas-reader-copy h2,
+  .atlas-page .atlas-reader-copy p {
+    white-space: normal;
+  }
+  .atlas-page .atlas-reader-copy p {
+    overflow: visible;
+  }
+  .atlas-page .atlas-workspace { grid-template-columns: 1fr; }
+  .atlas-page .atlas-stage {
+    height: 340px !important;
+    min-height: 340px !important;
+  }
+  .atlas-page .atlas-tooltip { max-height: 300px !important; }
+  .atlas-page .atlas-key-title { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-page .atlas-stage::before,
+  .atlas-page .atlas-node > i { transition: none; }
+  .atlas-page .atlas-stage::before { display: none; }
 }
