@@ -41,6 +41,7 @@
   background:rgba(241,239,231,.08);
   outline:none;
 }
+.orbit-v2 .orbit-enhancement-tools [data-orbit-fit]{display:none}
 .orbit-v2 .orbit-enhancement-help{
   position:absolute;
   z-index:14;
@@ -72,6 +73,7 @@
   color:rgba(241,239,231,.64);
   font-size:11px;
 }
+.orbit-v2 .orbit-enhancement-help>div:nth-of-type(4){display:none}
 .orbit-v2 .orbit-enhancement-help kbd{
   color:rgba(241,239,231,.9);
   font:650 10px/1.2 var(--mono);
