@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { test, expect } from '@playwright/test';
 
@@ -52,8 +51,12 @@ async function runAxe(page, testInfo) {
 
   const critical = results.violations.filter(item => item.impact === 'critical');
   const serious = results.violations.filter(item => item.impact === 'serious');
-  console.log(`[axe] ${testInfo.project.name} ${page.url()} — critical=${critical.length}, serious=${serious.length}, total=${results.violations.length}`);
+  const actionable = results.violations
+    .filter(item => item.impact === 'critical' || item.impact === 'serious')
+    .map(item => `${item.impact}:${item.id}[${item.nodes.length}]`)
+    .join(', ');
 
+  console.log(`[axe] ${testInfo.project.name} ${page.url()} — critical=${critical.length}, serious=${serious.length}, total=${results.violations.length}${actionable ? ` — ${actionable}` : ''}`);
   expect(critical, `Critical axe violations on ${page.url()}`).toEqual([]);
 }
 
