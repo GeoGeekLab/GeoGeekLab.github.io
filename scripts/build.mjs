@@ -5,7 +5,8 @@
 //   2) post-process the legacy artifact into the static-delivery form,
 //   3) inject runtime stability guards and static fallbacks,
 //   4) apply browser-performance delivery transforms to the final artifact,
-//   5) prime first-response mobile layout state for measured entry pages.
+//   5) prime first-response mobile layout state for measured entry pages,
+//   6) apply Round 3 accessibility and Lab critical-render transforms.
 // Legacy-build-only mode is used only by qa.legacy.mjs to avoid recursion.
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -27,4 +28,5 @@ if (process.env.GEOGEEK_LEGACY_BUILD_ONLY === '1') {
   await import('./postbuild-runtime-stability.mjs');
   await import('./postbuild-performance.mjs');
   await import('./postbuild-first-view-state.mjs');
+  await import('./postbuild-round3.mjs');
 }
