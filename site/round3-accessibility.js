@@ -47,32 +47,17 @@
 
     if (disclosure.dataset.round3Bound !== '1') {
       disclosure.dataset.round3Bound = '1';
-      let suppressSyntheticClickUntil = 0;
 
-      // The legacy ux-refinements runtime still has bubble listeners on the wrapper.
-      // Own disclosure activation during capture so one user action cannot toggle twice.
-      scale.addEventListener('keydown', event => {
-        if (event.target !== disclosure || (event.key !== 'Enter' && event.key !== ' ')) return;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        suppressSyntheticClickUntil = performance.now() + 700;
+      // Keep the native button activation model intact. Enter and Space already
+      // synthesize a click correctly; Round 3 owns only that click state change.
+      disclosure.addEventListener('click', event => {
+        event.stopPropagation();
         toggle();
-      }, true);
+      });
 
-      scale.addEventListener('click', event => {
-        if (event.target !== disclosure) return;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        if (event.detail === 0 && performance.now() < suppressSyntheticClickUntil) {
-          suppressSyntheticClickUntil = 0;
-          return;
-        }
-        suppressSyntheticClickUntil = 0;
-        toggle();
-      }, true);
-
-      document.addEventListener('click', () => {
+      document.addEventListener('click', event => {
         if (!scale.classList.contains('is-open')) return;
+        if (scale.contains(event.target)) return;
         scale.classList.remove('is-open');
         sync();
       });
