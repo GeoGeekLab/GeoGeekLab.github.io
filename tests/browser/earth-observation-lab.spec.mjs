@@ -21,11 +21,15 @@ async function expectNoSeriousAxeViolations(page) {
 }
 
 test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async ({ page }) => {
-  await page.route('https://gibs.earthdata.nasa.gov/**', route => route.fulfill({
-    status: 200,
-    contentType: 'image/gif',
-    body: tinyGif
-  }));
+  let gibsRequests = 0;
+  await page.route('https://gibs.earthdata.nasa.gov/**', route => {
+    gibsRequests += 1;
+    return route.fulfill({
+      status: 200,
+      contentType: 'image/gif',
+      body: tinyGif
+    });
+  });
 
   await page.goto('/lab.html?instrument=earth#l05', { waitUntil: 'domcontentloaded' });
 
@@ -36,6 +40,7 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   await expect(page.locator('#eoLatest')).toHaveText('SAFE DATE');
   await expect(page.locator('#eoCoverageEnd')).toContainText('SAFE THROUGH');
   await expect(page.locator('#eoInspectorMeta')).toContainText('RECENT-DATE POLICY');
+  await expect(page.locator('#eoInspectorMeta')).toContainText('DISPLAY SAMPLE');
   await expect(page.locator('.instrument-status')).toContainText('STATUS / READY');
 
   await expect.poll(async () => {
@@ -45,11 +50,25 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   const frameBox = await page.locator('#eoFrame').boundingBox();
   expect(frameBox.width / frameBox.height).toBeLessThan(2.02);
 
-  const archiveDays = await page.locator('#eoRange').evaluate(node => Number(node.max));
+  const range = page.locator('#eoRange');
+  const archiveDays = await range.evaluate(node => Number(node.max));
   expect(archiveDays).toBeGreaterThan(5000);
   await expect(page.locator('#eoLayerList')).toHaveAttribute('role', 'tabpanel');
   await expect(page.locator('[data-group="VISUAL"]')).toHaveAttribute('tabindex', '0');
   await expectNoSeriousAxeViolations(page);
+
+  await page.waitForTimeout(80);
+  const beforeDrag = gibsRequests;
+  await range.evaluate(node => {
+    for (const value of [8, 16, 24, 32, 40, 48]) {
+      node.value = String(value);
+      node.dispatchEvent(new Event('input', { bubbles:true }));
+    }
+  });
+  await page.waitForTimeout(60);
+  expect(gibsRequests - beforeDrag).toBe(0);
+  await page.waitForTimeout(220);
+  expect(gibsRequests - beforeDrag).toBeLessThanOrEqual(3);
 
   const dateInput = page.locator('#eoDate');
   await dateInput.fill('2024-01-15');
@@ -66,6 +85,7 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   await thermal.click();
   await expect(page.locator('#eoInspectorTitle')).toHaveText('Land surface temperature');
   await expect(page.locator('#eoInspectorMeta')).toContainText('Conservative T-2 day request window');
+  await expect(page.locator('#eoInspectorMeta')).toContainText('authoritative color legend');
   await expect(page.locator('#eoOpacityWrap')).toBeVisible();
   await expect(dateInput).toHaveValue('2024-01-15');
 
@@ -84,6 +104,15 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   await handle.press('End');
   await expect(handle).toHaveAttribute('aria-valuenow', '95');
   await expect(page).toHaveURL(/earthSplit=95/);
+
+  const worldviewHref = await page.locator('#eoSourceLink').getAttribute('href');
+  const worldview = new URL(worldviewHref);
+  expect(worldview.hostname).toBe('worldview.earthdata.nasa.gov');
+  expect(worldview.searchParams.get('l')).toContain('VIIRS_NOAA20_Land_Surface_Temp_Day');
+  expect(worldview.searchParams.get('t')).toContain('2024-01-15');
+  expect(worldview.searchParams.get('ca')).toBe('true');
+  expect(worldview.searchParams.get('cm')).toBe('swipe');
+  expect(worldview.searchParams.get('cv')).toBe('95');
 
   await page.locator('#eoGrid').click();
   await expect(page.locator('#eoGrid')).toHaveAttribute('aria-pressed', 'false');
