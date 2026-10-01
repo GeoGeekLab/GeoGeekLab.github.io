@@ -1,0 +1,121 @@
+/* GeoGeek Round 3 — measured accessibility corrections. */
+
+/* The scale wrapper is a group/readout; the real button owns disclosure semantics. */
+.scale-ui { position: fixed; }
+.scale-disclosure {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+}
+.scale-disclosure:focus-visible {
+  outline: 2px solid var(--signal, #a64624);
+  outline-offset: 3px;
+}
+.scale-legend { z-index: 2; }
+
+/* Keyboard access for the horizontally scrollable mobile Commons metrics strip. */
+#commonsMetrics[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--signal, #a64624);
+  outline-offset: 4px;
+}
+
+/* Atlas: keep the visual marks compact while making the actual controls WCAG 2.2-sized. */
+.atlas-page .atlas-node {
+  width: 25px !important;
+  height: 25px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  transform: translate(calc(-50% + var(--round3-hit-x, 0px)), calc(-50% + var(--round3-hit-y, 0px))) !important;
+}
+.atlas-page .atlas-node::before,
+.atlas-page .atlas-node::after {
+  content: none !important;
+}
+.atlas-page .atlas-node > .round3-node-glyph {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block !important;
+  width: 11px;
+  height: 11px;
+  border: 1px solid rgba(241,239,231,.78);
+  border-radius: 50%;
+  background: #152019;
+  box-shadow: 0 0 0 3px rgba(241,239,231,.018);
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+  transition: transform .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.atlas-page .atlas-node[data-type="lab"] > .round3-node-glyph { border-radius: 0; }
+.atlas-page .atlas-node[data-type="photo"] > .round3-node-glyph { background: transparent; }
+.atlas-page .atlas-node[data-type="place"] > .round3-node-glyph {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.atlas-page .atlas-node[data-type="place"] > .round3-node-glyph::before,
+.atlas-page .atlas-node[data-type="place"] > .round3-node-glyph::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: rgba(241,239,231,.78);
+  transform: translate(-50%,-50%);
+}
+.atlas-page .atlas-node[data-type="place"] > .round3-node-glyph::before { width: 13px; height: 1px; }
+.atlas-page .atlas-node[data-type="place"] > .round3-node-glyph::after { width: 1px; height: 13px; }
+.atlas-page .atlas-node:hover,
+.atlas-page .atlas-node:focus,
+.atlas-page .atlas-node.is-active {
+  transform: translate(calc(-50% + var(--round3-hit-x, 0px)), calc(-50% + var(--round3-hit-y, 0px))) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.atlas-page .atlas-node:hover > .round3-node-glyph,
+.atlas-page .atlas-node:focus > .round3-node-glyph,
+.atlas-page .atlas-node.is-active > .round3-node-glyph {
+  transform: translate(-50%,-50%) scale(1.34);
+  border-color: #d0643c;
+  background: #b64d2c;
+  box-shadow: 0 0 0 5px rgba(166,70,36,.09);
+}
+.atlas-page .atlas-node[data-type="place"]:hover > .round3-node-glyph,
+.atlas-page .atlas-node[data-type="place"]:focus > .round3-node-glyph,
+.atlas-page .atlas-node[data-type="place"].is-active > .round3-node-glyph {
+  background: transparent;
+}
+.atlas-page .atlas-node[data-type="place"]:hover > .round3-node-glyph::before,
+.atlas-page .atlas-node[data-type="place"]:hover > .round3-node-glyph::after,
+.atlas-page .atlas-node[data-type="place"]:focus > .round3-node-glyph::before,
+.atlas-page .atlas-node[data-type="place"]:focus > .round3-node-glyph::after,
+.atlas-page .atlas-node[data-type="place"].is-active > .round3-node-glyph::before,
+.atlas-page .atlas-node[data-type="place"].is-active > .round3-node-glyph::after {
+  background: #d0643c;
+}
+
+/* Origin: measured credit contrast plus mobile control collisions. */
+.music-credit { color: rgba(242,240,233,.56) !important; }
+.sound {
+  min-width: 44px !important;
+  min-height: 44px !important;
+  line-height: 44px !important;
+}
+@media (max-width: 760px) {
+  /* Chapter dots occupy the bottom-center strip; keep sound above their hit boxes. */
+  .sound { bottom: 46px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-page .atlas-node > .round3-node-glyph { transition: none; }
+}
