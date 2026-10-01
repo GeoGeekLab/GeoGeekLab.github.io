@@ -71,17 +71,10 @@ function addAsyncFonts(html) {
   return html.replace(/<\/head>/i, `${tags}\n</head>`);
 }
 
-function stabilizeFieldNotes(html, seriesKeys) {
-  if (!/data-static-note-list/i.test(html)) return html;
-  const links = [
-    '<link rel="stylesheet" href="/editorial-layout.css?v=20260930a">',
-    '<link rel="stylesheet" href="/geo-interactions.css?v=20260930g">'
-  ].filter(link => !html.includes(link.split('href="')[1].split('"')[0]));
-  if (links.length) html = html.replace(/<\/head>/i, `${links.join('\n')}\n</head>`);
-
-  html = html.replace(/<body\b([^>]*)>/i, (match, attrs) => {
+function primeMobilePageState(html, pageKind) {
+  return html.replace(/<body\b([^>]*)>/i, (match, attrs) => {
     const classMatch = attrs.match(/\bclass=(['"])([^'"]*)\1/i);
-    const required = ['ux-inner-page', 'ux-mobile-v5', 'ux-page-field-notes'];
+    const required = ['ux-inner-page', 'ux-mobile-v5', `ux-page-${pageKind}`];
     if (classMatch) {
       const classes = new Set(classMatch[2].split(/\s+/).filter(Boolean));
       required.forEach(value => classes.add(value));
@@ -90,10 +83,38 @@ function stabilizeFieldNotes(html, seriesKeys) {
     } else {
       attrs += ` class="${required.join(' ')}"`;
     }
-    if (!/\bdata-page-kind=/.test(attrs)) attrs += ' data-page-kind="field-notes"';
+    if (!/\bdata-page-kind=/.test(attrs)) attrs += ` data-page-kind="${pageKind}"`;
     return `<body${attrs}>`;
   });
+}
 
+function replaceDivByClass(html, className, replacement) {
+  const escaped = className.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const open = new RegExp(`<div\\b[^>]*class=(['"])[^'"]*\\b${escaped}\\b[^'"]*\\1[^>]*>`, 'i');
+  const match = open.exec(html);
+  if (!match) return html;
+
+  let depth = 1;
+  const tags = /<\/?div\b[^>]*>/gi;
+  tags.lastIndex = match.index + match[0].length;
+  let tag;
+  while ((tag = tags.exec(html))) {
+    if (/^<\/div/i.test(tag[0])) depth -= 1;
+    else depth += 1;
+    if (depth === 0) return `${html.slice(0, match.index)}${replacement}${html.slice(tags.lastIndex)}`;
+  }
+  return html;
+}
+
+function stabilizeFieldNotes(html, seriesKeys) {
+  if (!/data-static-note-list/i.test(html)) return html;
+  const links = [
+    '<link rel="stylesheet" href="/editorial-layout.css?v=20260930a">',
+    '<link rel="stylesheet" href="/geo-interactions.css?v=20260930g">'
+  ].filter(link => !html.includes(link.split('href="')[1].split('"')[0]));
+  if (links.length) html = html.replace(/<\/head>/i, `${links.join('\n')}\n</head>`);
+
+  html = primeMobilePageState(html, 'field-notes');
   html = html.replace(/(<article\b[^>]*class=(['"])[^'"]*static-note-row[^'"]*\2[^>]*\bdata-series=(['"]))[^'"]*(\3[^>]*\bdata-record-ref=(['"])([^'"]+)\5)/gi,
     (match, start, _classQuote, _seriesQuote, rest, _refQuote, ref) => {
       const key = seriesKeys.get(ref);
@@ -102,13 +123,20 @@ function stabilizeFieldNotes(html, seriesKeys) {
   return html;
 }
 
+function stabilizeAtlas(html) {
+  if (!/class=(['"])[^'"]*atlas-page[^'"]*\1/i.test(html)) return html;
+  return primeMobilePageState(html, 'atlas');
+}
+
 function prioritizeLabPreview(html) {
   if (!/class=(['"])[^'"]*earth-lab-preview/.test(html)) return html;
   const href = '/assets/lab/previews/earth-observatory.jpg?v=20260930i';
   if (!html.includes(`rel="preload" as="image" href="${href}"`)) {
     html = html.replace(/<\/head>/i, `<link rel="preload" as="image" href="${href}" fetchpriority="high">\n</head>`);
   }
-  return html;
+
+  const staticPreview = `<div class="earth-preview-screen is-real-output" data-real-preview="true" aria-hidden="true"><img src="${href}" alt="Real Earth Observatory interface preview" loading="eager" decoding="async" fetchpriority="high"></div>`;
+  return replaceDivByClass(html, 'earth-preview-screen', staticPreview);
 }
 
 function lazyHomeCommons(html) {
@@ -150,6 +178,7 @@ async function patchHtml(file, seriesKeys) {
   const relative = path.relative(dist, file).replaceAll('\\', '/');
   if (relative === 'field-notes.html') html = stabilizeFieldNotes(html, seriesKeys);
   if (relative === 'lab.html') html = prioritizeLabPreview(html);
+  if (relative === 'atlas.html') html = stabilizeAtlas(html);
   if (relative === 'index.html') html = lazyHomeCommons(html);
   if (relative === 'earth/index.html') html = progressiveEarth(html);
   await fs.writeFile(file, html);
@@ -157,8 +186,6 @@ async function patchHtml(file, seriesKeys) {
 
 async function patchCss(file) {
   let css = await fs.readFile(file, 'utf8');
-  // Google Fonts should not be pulled into the render-blocking graph through
-  // CSS @import. HTML loads the consolidated stylesheet asynchronously instead.
   css = css.replace(/@import\s+url\((['"])https:\/\/fonts\.googleapis\.com\/[^'"]+\1\);?\s*/gi, '');
   css = css.replace(/display=swap/g, 'display=optional');
   await fs.writeFile(file, css);
