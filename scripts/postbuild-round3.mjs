@@ -1,0 +1,121 @@
+#!/usr/bin/env node
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const dist = path.join(root, 'dist');
+
+const exists = file => fs.access(file).then(() => true).catch(() => false);
+const read = file => fs.readFile(file, 'utf8');
+
+async function htmlFiles(dir) {
+  const out = [];
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    const file = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...await htmlFiles(file));
+    else if (/\.html$/i.test(entry.name)) out.push(file);
+  }
+  return out;
+}
+
+function stripAttr(attrs, name) {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return attrs.replace(new RegExp(`\\s+${escaped}=(['"])\\s*[^'"]*\\1`, 'ig'), '');
+}
+
+function patchScaleMarkup(html) {
+  const open = /<div\b([^>]*\bclass=(['"])[^'"]*\bscale-ui\b[^'"]*\2[^>]*)>/i;
+  const match = open.exec(html);
+  if (!match) return html;
+
+  let attrs = match[1];
+  for (const name of ['tabindex', 'role', 'aria-haspopup', 'aria-expanded', 'aria-label']) attrs = stripAttr(attrs, name);
+  const replacement = `<div${attrs}>`;
+  html = `${html.slice(0, match.index)}${replacement}${html.slice(match.index + match[0].length)}`;
+
+  if (!/class=(['"])[^'"]*\bscale-disclosure\b/i.test(html)) {
+    const button = '<button type="button" class="scale-disclosure" aria-label="Information scale options" aria-expanded="false" aria-controls="informationScaleLegend"></button>';
+    html = html.replace(replacement, `${replacement}\n${button}`);
+  }
+  html = html.replace(/<div\b([^>]*\bclass=(['"])[^'"]*\bscale-legend\b[^'"]*\2[^>]*)>/i, (full, legendAttrs) => {
+    if (/\bid=(['"])[^'"]+\1/i.test(legendAttrs)) return full;
+    return `<div${legendAttrs} id="informationScaleLegend">`;
+  });
+  return html;
+}
+
+function removeStylesheet(html, basename) {
+  const escaped = basename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return html.replace(new RegExp(`\\s*<link\\b[^>]*href=(['"])[^'"]*${escaped}(?:\\?[^'"]*)?\\1[^>]*>\\s*`, 'ig'), '\n');
+}
+
+function removeScript(html, basename) {
+  const escaped = basename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return html.replace(new RegExp(`\\s*<script\\b[^>]*src=(['"])[^'"]*${escaped}(?:\\?[^'"]*)?\\1[^>]*><\\/script>\\s*`, 'ig'), '\n');
+}
+
+async function patchLab(html) {
+  const criticalFiles = [
+    'static-delivery.css',
+    'runtime-stability.css',
+    'earth-lab-preview.css',
+    'lab-page.css',
+    'lab-real-previews.css',
+    'editorial-layout.css'
+  ];
+  const critical = [];
+  for (const name of criticalFiles) {
+    const file = path.join(dist, name);
+    if (!(await exists(file))) throw new Error(`Round 3 missing Lab critical CSS: ${name}`);
+    critical.push(`/* ${name} */\n${(await read(file)).replace(/<\\/style/gi, '<\\/style')}`);
+    html = removeStylesheet(html, name);
+  }
+
+  // Lab no longer needs the synchronous style-discovery bootstrap. Its critical
+  // styles are known at build time; interaction enhancement remains deferred.
+  html = removeScript(html, 'ux-preinit.js');
+
+  const criticalTag = `<style data-round3-lab-critical>\n${critical.join('\n')}\n</style>`;
+  if (!/data-round3-lab-critical/i.test(html)) html = html.replace(/<\/head>/i, `${criticalTag}\n</head>`);
+
+  if (!/geo-interactions\.css/i.test(html)) {
+    const asyncStyle = [
+      '<link rel="stylesheet" href="/geo-interactions.css?v=20260930g" media="print" onload="this.media=\'all\'" data-round3-nonblocking="geo-interactions">',
+      '<noscript><link rel="stylesheet" href="/geo-interactions.css?v=20260930g"></noscript>'
+    ].join('\n');
+    html = html.replace(/<\/head>/i, `${asyncStyle}\n</head>`);
+  }
+
+  const deferred = [];
+  if (!/src=(['"])[^'"]*geo-interactions\.js/i.test(html)) deferred.push('<script src="/geo-interactions.js?v=20260930g" defer data-round3-deferred="geo-interactions"></script>');
+  if (!/src=(['"])[^'"]*lab-real-previews\.js/i.test(html)) deferred.push('<script src="/lab-real-previews.js?v=20260930i" defer data-round3-deferred="lab-previews"></script>');
+  if (deferred.length) html = html.replace(/<\/body>/i, `${deferred.join('\n')}\n</body>`);
+
+  return html;
+}
+
+async function main() {
+  if (!(await exists(dist))) throw new Error(`Missing build output: ${dist}`);
+  const a11yCssFile = path.join(dist, 'round3-accessibility.css');
+  const a11yJsFile = path.join(dist, 'round3-accessibility.js');
+  if (!(await exists(a11yCssFile)) || !(await exists(a11yJsFile))) throw new Error('Round 3 accessibility assets were not copied to dist.');
+  const a11yCss = (await read(a11yCssFile)).replace(/<\/style/gi, '<\\/style');
+  const inlineA11y = `<style data-round3-accessibility>\n${a11yCss}\n</style>`;
+  const script = '<script src="/round3-accessibility.js?v=20261001a" defer data-round3-accessibility="true"></script>';
+
+  const files = await htmlFiles(dist);
+  for (const file of files) {
+    let html = await read(file);
+    html = patchScaleMarkup(html);
+    const relative = path.relative(dist, file).replaceAll('\\', '/');
+    if (relative === 'lab.html') html = await patchLab(html);
+    if (!/data-round3-accessibility/i.test(html)) html = html.replace(/<\/head>/i, `${inlineA11y}\n</head>`);
+    if (!/data-round3-accessibility=(['"])true\1/i.test(html)) html = html.replace(/<\/body>/i, `${script}\n</body>`);
+    await fs.writeFile(file, html);
+  }
+
+  console.log(`Applied Round 3 accessibility + Lab render-path pass to ${files.length} HTML files.`);
+}
+
+await main();
