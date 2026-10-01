@@ -40,8 +40,6 @@ function isIntentionalSyncBootstrap(src) {
 
 function addDeferToClassicLocalScripts(html) {
   return html.replace(/<script\b([^>]*)><\/script>/gi, (match, attrs) => {
-    // Match only a real `src` attribute. `data-idle-src` is intentionally inert
-    // and must never be rewritten into an executable source attribute.
     const source = attrs.match(/(?:^|\s)src\s*=\s*(['"])([^'"]+)\1/i);
     if (!source) return match;
     const src = source[2];
@@ -69,6 +67,24 @@ function stabilizeFieldNotes(html, seriesKeys) {
   ].filter(link => !html.includes(link.split('href="')[1].split('"')[0]));
   if (links.length) html = html.replace(/<\/head>/i, `${links.join('\n')}\n</head>`);
 
+  // The mobile reading order used to be applied only after ux-refinements.js,
+  // which made the whole main column jump. Ship the state classes in the first
+  // response; the mobile selectors are media-query scoped and are inert on desktop.
+  html = html.replace(/<body\b([^>]*)>/i, (match, attrs) => {
+    const classMatch = attrs.match(/\bclass=(['"])([^'"]*)\1/i);
+    const required = ['ux-inner-page', 'ux-mobile-v5', 'ux-page-field-notes'];
+    if (classMatch) {
+      const classes = new Set(classMatch[2].split(/\s+/).filter(Boolean));
+      required.forEach(value => classes.add(value));
+      const replacement = `class=${classMatch[1]}${[...classes].join(' ')}${classMatch[1]}`;
+      attrs = attrs.replace(classMatch[0], replacement);
+    } else {
+      attrs += ` class="${required.join(' ')}"`;
+    }
+    if (!/\bdata-page-kind=/.test(attrs)) attrs += ' data-page-kind="field-notes"';
+    return `<body${attrs}>`;
+  });
+
   html = html.replace(/(<article\b[^>]*class=(['"])[^'"]*static-note-row[^'"]*\2[^>]*\bdata-series=(['"]))[^'"]*(\3[^>]*\bdata-record-ref=(['"])([^'"]+)\5)/gi,
     (match, start, _classQuote, _seriesQuote, rest, _refQuote, ref) => {
       const key = seriesKeys.get(ref);
@@ -77,11 +93,41 @@ function stabilizeFieldNotes(html, seriesKeys) {
   return html;
 }
 
+function prioritizeLabPreview(html) {
+  if (!/class=(['"])[^'"]*earth-lab-preview/.test(html)) return html;
+  const href = '/assets/lab/previews/earth-observatory.jpg?v=20260930i';
+  if (!html.includes(`rel="preload" as="image" href="${href}"`)) {
+    html = html.replace(/<\/head>/i, `<link rel="preload" as="image" href="${href}" fetchpriority="high">\n</head>`);
+  }
+  return html;
+}
+
+function lazyHomeCommons(html) {
+  if (!/id=(['"])commons\1/i.test(html) || !/commons\/commons\.js/i.test(html)) return html;
+  const commonsFiles = new Set([
+    'commons/config.js',
+    'commons/geo.js',
+    'commons/demo-data.js',
+    'commons/commons-data.js',
+    'commons/commons.js'
+  ]);
+
+  html = html.replace(/\s*<script\b([^>]*)><\/script>/gi, (match, attrs) => {
+    const source = attrs.match(/(?:^|\s)src\s*=\s*(['"])([^'"]+)\1/i);
+    if (!source) return match;
+    const clean = source[2].replace(/^\.?\//, '').replace(/[?#].*$/, '');
+    return commonsFiles.has(clean) ? '' : match;
+  });
+
+  if (!/commons\/loader\.js/.test(html)) {
+    html = html.replace(/<\/body>/i, '<script src="/commons/loader.js?v=20261001a" defer></script>\n</body>');
+  }
+  return html;
+}
+
 function progressiveEarth(html) {
   if (!/id=(['"])map\1/i.test(html)) return html;
 
-  // MapLibre is a large interactive renderer. Its CSS and module graph should
-  // not delay the first usable shell; boot.js loads them only on user intent.
   html = html.replace(/\s*<link\b[^>]*href=(['"])https:\/\/unpkg\.com\/maplibre-gl@6\.6\.0\/dist\/maplibre-gl\.css\1[^>]*>\s*/i, '\n');
 
   html = html.replace(/<div id=(['"])map\1([^>]*)><\/div>/i, (_m, q, rest) => `<div id=${q}map${q}${rest}><div class="earth-boot" id="earthBoot"><div class="earth-boot-card"><span>EARTH OBSERVATORY / INTERACTIVE RENDERER</span><strong>Load the map when you need it.</strong><p id="earthBootStatus">The source catalogue shell is available immediately. MapLibre, tiles, and live provider requests stay off the critical path until activation.</p><button id="earthActivate" type="button">ACTIVATE INTERACTIVE MAP</button><small>ON DEMAND · SAVES INITIAL CPU / NETWORK / BATTERY</small></div></div></div>`);
@@ -94,15 +140,16 @@ async function patchHtml(file, seriesKeys) {
   let html = await fs.readFile(file, 'utf8');
   html = addDeferToClassicLocalScripts(html);
   html = addConnectionHints(html);
-  if (path.basename(file) === 'field-notes.html' && path.dirname(file) === dist) html = stabilizeFieldNotes(html, seriesKeys);
-  if (path.relative(dist, file).replaceAll('\\', '/') === 'earth/index.html') html = progressiveEarth(html);
+  const relative = path.relative(dist, file).replaceAll('\\', '/');
+  if (relative === 'field-notes.html') html = stabilizeFieldNotes(html, seriesKeys);
+  if (relative === 'lab.html') html = prioritizeLabPreview(html);
+  if (relative === 'index.html') html = lazyHomeCommons(html);
+  if (relative === 'earth/index.html') html = progressiveEarth(html);
   await fs.writeFile(file, html);
 }
 
 async function patchCss(file) {
   let css = await fs.readFile(file, 'utf8');
-  // Slow first visits keep metric-compatible platform fallbacks rather than
-  // swapping brand webfonts after layout has already stabilized.
   css = css.replace(/display=swap/g, 'display=optional');
   await fs.writeFile(file, css);
 }
