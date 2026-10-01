@@ -60,7 +60,7 @@
     if (window.GeoInstruments) return window.GeoInstruments;
     if (gameKinds.has(kind)) await loadScript('games.js');
     await loadScript('instruments.js?v=20260930c');
-    await loadScript('figure-instrument.js?v=20260930a');
+    await loadScript('figure-instrument.js?v=20261001a');
     return window.GeoInstruments;
   }
 
@@ -113,8 +113,8 @@
       horizon = button.dataset.homeCommonsHorizon || '30d';
       buttons.forEach(item => {
         const active = item === button;
-        item.classList.toggle('is-active', active);
-        item.setAttribute('aria-pressed', String(active));
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
       });
       if (started) {
         try { await render(); }
