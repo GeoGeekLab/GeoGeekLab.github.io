@@ -33,7 +33,7 @@ for (const [name, html] of [['Home', home], ['Lab', lab], ['Atlas', atlas]]) {
   check(/id=(['"])informationScaleLegend\1/i.test(html), `R3-A11Y-01 ${name} disclosure target has a stable id`);
 }
 
-check(/data-round3-accessibility/i.test(home) && /round3-accessibility\.js\?v=20261001a/i.test(home), 'R3-A11Y-02 Round 3 accessibility layer is delivered on Home');
+check(/data-round3-accessibility/i.test(home) && /round3-accessibility\.js\?v=20261001b/i.test(home), 'R3-A11Y-02 Round 3 accessibility layer is delivered on Home');
 check(/removeAttribute\('aria-label'\)/.test(a11yJs), 'R3-A11Y-02 runtime removes legacy wrapper naming semantics');
 check(/!scale\.querySelector\(':scope > \.scale-disclosure'\)/.test(uxRuntime), 'R3-A11Y-02 legacy Scale handler yields when the Round 3 disclosure exists');
 check(/width:\s*25px\s*!important/.test(a11yCss) && /height:\s*25px\s*!important/.test(a11yCss), 'R3-A11Y-03 Atlas controls enforce a 25px hit box with subpixel margin');
