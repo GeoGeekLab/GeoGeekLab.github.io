@@ -4,13 +4,6 @@
   max-width: 620px;
 }
 
-/* Keep the information-scale instrument clear of the editorial inspector. */
-@media (min-width: 1101px) {
-  .atlas-page .scale-ui {
-    right: calc(var(--pad) + 360px);
-  }
-}
-
 /* The reader is a compact view selector, not a second hero. */
 .atlas-reader {
   display: grid;
