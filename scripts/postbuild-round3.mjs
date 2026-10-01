@@ -55,6 +55,19 @@ function removeScript(html, basename) {
   return html.replace(new RegExp(`\\s*<script\\b[^>]*src=(['"])[^'"]*${escaped}(?:\\?[^'"]*)?\\1[^>]*><\\/script>\\s*`, 'ig'), '\n');
 }
 
+async function patchLegacyScaleRuntime() {
+  const file = path.join(dist, 'ux-refinements.js');
+  if (!(await exists(file))) throw new Error('Round 3 missing ux-refinements.js runtime.');
+  let js = await read(file);
+  const legacy = "const scale = $('.scale-ui');\n  if (scale) {";
+  const guarded = "const scale = $('.scale-ui');\n  if (scale && !scale.querySelector(':scope > .scale-disclosure')) {";
+  if (!js.includes(guarded)) {
+    if (!js.includes(legacy)) throw new Error('Round 3 could not locate the legacy Scale runtime block.');
+    js = js.replace(legacy, guarded);
+    await fs.writeFile(file, js);
+  }
+}
+
 async function patchLab(html) {
   const criticalFiles = [
     'static-delivery.css',
@@ -115,6 +128,7 @@ async function main() {
     await fs.writeFile(file, html);
   }
 
+  await patchLegacyScaleRuntime();
   console.log(`Applied Round 3 accessibility + Lab render-path pass to ${files.length} HTML files.`);
 }
 
