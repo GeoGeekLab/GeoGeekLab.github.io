@@ -40,18 +40,25 @@
       normalizeWrapper();
       disclosure.setAttribute('aria-expanded', scale.classList.contains('is-open') ? 'true' : 'false');
     };
+    const toggle = () => {
+      scale.classList.toggle('is-open');
+      sync();
+    };
 
     if (disclosure.dataset.round3Bound !== '1') {
       disclosure.dataset.round3Bound = '1';
       disclosure.addEventListener('keydown', event => {
-        // Keep the legacy wrapper key handler from double-toggling the real button.
-        event.stopPropagation();
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        // Own keyboard activation explicitly. This prevents the legacy wrapper
+        // listener and the browser's synthesized click from producing a second toggle.
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        toggle();
       });
       disclosure.addEventListener('click', event => {
         event.preventDefault();
-        event.stopPropagation();
-        scale.classList.toggle('is-open');
-        sync();
+        event.stopImmediatePropagation();
+        toggle();
       });
       document.addEventListener('click', () => {
         if (!scale.classList.contains('is-open')) return;
@@ -72,6 +79,14 @@
     const stage = $('#atlasStage');
     if (!stage) return;
 
+    let layoutRaf = 0;
+    const scheduleSeparation = () => {
+      if (layoutRaf) cancelAnimationFrame(layoutRaf);
+      layoutRaf = requestAnimationFrame(() => {
+        layoutRaf = requestAnimationFrame(separateTargets);
+      });
+    };
+
     const enhance = root => {
       const nodes = root?.matches?.('.atlas-node') ? [root] : $$('.atlas-node', root || stage);
       nodes.forEach(node => {
@@ -81,7 +96,75 @@
         glyph.setAttribute('aria-hidden', 'true');
         node.appendChild(glyph);
       });
+      scheduleSeparation();
     };
+
+    function separateTargets() {
+      layoutRaf = 0;
+      const nodes = $$('.atlas-node', stage).filter(node => {
+        const style = getComputedStyle(node);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      });
+      if (nodes.length < 2) return;
+
+      const box = stage.getBoundingClientRect();
+      if (!box.width || !box.height) return;
+
+      // Base coordinates come from the graph's existing percentage positioning.
+      // Only the clickable/visible node is nudged; data, ordering and relations stay intact.
+      const points = nodes.map((node, index) => {
+        node.style.setProperty('--round3-hit-x', '0px');
+        node.style.setProperty('--round3-hit-y', '0px');
+        const left = parseFloat(node.style.left);
+        const top = parseFloat(node.style.top);
+        const x = Number.isFinite(left) ? box.width * left / 100 : node.offsetLeft;
+        const y = Number.isFinite(top) ? box.height * top / 100 : node.offsetTop;
+        return { node, index, x, y, dx: 0, dy: 0 };
+      });
+
+      const minDistance = 28;
+      const radius = 12;
+      for (let pass = 0; pass < 24; pass += 1) {
+        let changed = false;
+        for (let i = 0; i < points.length; i += 1) {
+          for (let j = i + 1; j < points.length; j += 1) {
+            const a = points[i];
+            const b = points[j];
+            let vx = (b.x + b.dx) - (a.x + a.dx);
+            let vy = (b.y + b.dy) - (a.y + a.dy);
+            let distance = Math.hypot(vx, vy);
+            if (distance >= minDistance) continue;
+            if (distance < 0.01) {
+              const angle = ((a.index * 17 + b.index * 31) % 360) * Math.PI / 180;
+              vx = Math.cos(angle);
+              vy = Math.sin(angle);
+              distance = 1;
+            }
+            const push = (minDistance - distance) / 2 + 0.35;
+            const ux = vx / distance;
+            const uy = vy / distance;
+            a.dx -= ux * push;
+            a.dy -= uy * push;
+            b.dx += ux * push;
+            b.dy += uy * push;
+            changed = true;
+          }
+        }
+
+        for (const point of points) {
+          const nx = Math.min(box.width - radius, Math.max(radius, point.x + point.dx));
+          const ny = Math.min(box.height - radius, Math.max(radius, point.y + point.dy));
+          point.dx = nx - point.x;
+          point.dy = ny - point.y;
+        }
+        if (!changed) break;
+      }
+
+      for (const point of points) {
+        point.node.style.setProperty('--round3-hit-x', `${point.dx.toFixed(2)}px`);
+        point.node.style.setProperty('--round3-hit-y', `${point.dy.toFixed(2)}px`);
+      }
+    }
 
     enhance(stage);
     new MutationObserver(records => {
@@ -89,6 +172,11 @@
         if (node.nodeType === 1) enhance(node);
       }));
     }).observe(stage, { childList: true, subtree: true });
+
+    document.addEventListener('click', event => {
+      if (event.target.closest('[data-atlas-mode], .atlas-modes button, .atlas-view-controls button')) scheduleSeparation();
+    });
+    addEventListener('resize', scheduleSeparation, { passive: true });
   }
 
   function installScrollableRegionSemantics() {
