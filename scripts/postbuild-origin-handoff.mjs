@@ -7,77 +7,57 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 
 const exitCss = String.raw`
-/* Origin → GeoGeek handoff. This is intentionally outside the 00–08 scene system. */
-.origin-exit{position:relative;min-height:150svh;overflow:hidden;padding:0 max(28px,7vw);isolation:isolate}
-.origin-exit::before,.origin-exit::after{content:"";position:absolute;z-index:0;background:rgba(242,240,233,.115);pointer-events:none}
-.origin-exit::before{left:max(24px,10vw);right:max(24px,10vw);top:50%;height:1px}
-.origin-exit::after{top:14%;bottom:14%;left:50%;width:1px}
-.origin-exit-reticle{position:absolute;z-index:1;left:50%;top:50%;width:126px;height:126px;transform:translate(-50%,-50%);border:1px solid rgba(242,240,233,.17);border-radius:50%;pointer-events:none}
-.origin-exit-reticle::before,.origin-exit-reticle::after{content:"";position:absolute;left:50%;top:50%;background:rgba(242,240,233,.42);transform:translate(-50%,-50%)}
-.origin-exit-reticle::before{width:19px;height:1px}.origin-exit-reticle::after{width:1px;height:19px}
-.origin-exit-reticle i{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:var(--signal);transform:translate(-50%,-50%);box-shadow:0 0 22px rgba(166,70,36,.38)}
-.origin-exit-copy{position:absolute;z-index:2;left:50%;top:50%;width:min(1020px,88vw);transform:translate(-50%,-50%);text-align:center;text-shadow:0 1px 18px rgba(0,0,0,.9)}
-.origin-exit-kicker{margin:0 0 42px;font:650 11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.15em;color:var(--muted);text-transform:uppercase}
-.origin-exit-title{margin:0;font-family:"Songti SC","STSong","Noto Serif SC",serif;font-size:clamp(58px,9.2vw,138px);font-weight:400;line-height:.96;letter-spacing:-.055em;color:var(--fg);text-wrap:balance}
-.origin-exit-body{margin:34px auto 0;max-width:680px;font-family:"Songti SC","STSong","Noto Serif SC",serif;font-size:clamp(18px,1.55vw,24px);line-height:1.75;letter-spacing:.025em;color:var(--soft)}
-.origin-exit-link{display:inline-flex;align-items:center;gap:13px;min-height:46px;margin-top:58px;padding:0 6px;color:rgba(242,240,233,.86);text-decoration:none;font:650 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase}
-.origin-exit-link::before{content:"";width:34px;height:1px;background:rgba(242,240,233,.42);transition:width .35s var(--ease),background-color .35s ease}
-.origin-exit-link::after{content:"→";color:var(--fg);transition:transform .35s var(--ease)}
-.origin-exit-link:hover::before,.origin-exit-link:focus-visible::before{width:52px;background:rgba(242,240,233,.82)}
-.origin-exit-link:hover::after,.origin-exit-link:focus-visible::after{transform:translateX(4px)}
+/* Origin → GeoGeek handoff. Outside 00–08, but visually inside the same Origin instrument. */
+.brand{min-height:32px}
+.origin-exit{position:relative;min-height:188svh;padding:14vh max(28px,7vw);isolation:isolate}
+.origin-exit-copy{position:sticky;z-index:6;top:50vh;width:min(980px,84vw);margin-inline:auto;transform:translateY(-50%);text-align:center;text-shadow:0 1px 16px rgba(0,0,0,.86)}
+.origin-exit-kicker{margin:0 0 26px;font:650 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.origin-exit-title{margin:0;font-family:"Songti SC","STSong","Noto Serif SC",serif;font-size:clamp(62px,9.3vw,142px);font-weight:400;line-height:.96;letter-spacing:-.055em;color:var(--fg);text-wrap:balance}
+.origin-exit-body{margin:44px auto 0;max-width:760px;font-family:"Songti SC","STSong","Noto Serif SC",serif;font-size:clamp(20px,1.85vw,29px);line-height:1.8;letter-spacing:.06em;color:var(--soft);text-wrap:balance}
+.origin-exit-link{display:inline-flex;align-items:center;gap:13px;min-height:46px;margin-top:62px;padding:0 6px;color:var(--muted);text-decoration:none;font:650 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 12px #000}
+.origin-exit-link::before{content:"";width:28px;height:1px;background:var(--line);transition:width .35s var(--ease),background-color .35s ease}
+.origin-exit-link::after{content:"↓";color:var(--fg);transition:transform .35s var(--ease)}
+.origin-exit-link:hover,.origin-exit-link:focus-visible{color:var(--fg)}
+.origin-exit-link:hover::before,.origin-exit-link:focus-visible::before{width:44px;background:rgba(242,240,233,.72)}
+.origin-exit-link:hover::after,.origin-exit-link:focus-visible::after{transform:translateY(4px)}
 .origin-exit-link:focus-visible{outline:1px solid rgba(255,255,255,.72);outline-offset:6px}
-.origin-exit-axis{position:absolute;z-index:1;margin:0;font:650 9px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:rgba(242,240,233,.34);text-transform:uppercase;pointer-events:none}
-.origin-exit-axis.top{left:50%;top:9%;transform:translateX(-50%)}
-.origin-exit-axis.bottom{left:50%;bottom:9%;transform:translateX(-50%)}
-.origin-exit-axis.left{left:max(26px,4vw);top:50%;transform:translateY(-50%)}
-.origin-exit-axis.right{right:max(26px,4vw);top:50%;transform:translateY(-50%)}
-.origin-exit-foot{position:absolute;z-index:2;left:50%;bottom:4.5%;transform:translateX(-50%);margin:0;white-space:nowrap;font:650 8px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:rgba(242,240,233,.24);text-transform:uppercase}
+/* Scene 08 is allowed to fade to silence; the terminal page then restores the Origin chrome. */
+body.origin-exit-active{--ending-fade:1!important;--grain-opacity:.027!important}
+body.origin-exit-active .brand,body.origin-exit-active .origin-nav,body.origin-exit-active .count,body.origin-exit-active .rail,body.origin-exit-active .dots,body.origin-exit-active .sound{opacity:1!important}
+body.origin-exit-active .rail i{transform:scaleY(1)!important}
+body.origin-exit-active .hint{opacity:0!important}
+body.origin-home-leaving .origin-exit-copy,body.origin-home-leaving .brand,body.origin-home-leaving .origin-nav,body.origin-home-leaving .count,body.origin-home-leaving .rail,body.origin-home-leaving .dots,body.origin-home-leaving .sound{opacity:0!important;transition:opacity .22s ease!important}
 @media(max-width:760px){
-  .origin-exit{min-height:136svh;padding-inline:22px}
-  .origin-exit::before{left:22px;right:22px}.origin-exit::after{top:10%;bottom:10%}
-  .origin-exit-reticle{width:96px;height:96px}
-  .origin-exit-copy{width:min(92vw,620px)}
-  .origin-exit-kicker{margin-bottom:32px;font-size:9px}
-  .origin-exit-title{font-size:clamp(48px,15vw,78px);letter-spacing:-.045em}
-  .origin-exit-body{margin-top:26px;font-size:clamp(16px,4.4vw,20px);line-height:1.65}
-  .origin-exit-link{margin-top:44px;font-size:10px}
-  .origin-exit-axis.left,.origin-exit-axis.right{display:none}
-  .origin-exit-foot{bottom:3.5%;max-width:88vw;white-space:normal;text-align:center;font-size:7px;line-height:1.7}
+  .brand{min-height:32px}
+  .origin-exit{min-height:176svh;padding:14vh 22px}
+  .origin-exit-copy{width:min(92vw,720px)}
+  .origin-exit-kicker{margin-bottom:22px;font-size:10px}
+  .origin-exit-title{font-size:clamp(50px,15vw,82px);letter-spacing:-.045em}
+  .origin-exit-body{margin-top:30px;font-size:clamp(17px,4.8vw,22px);line-height:1.7}
+  .origin-exit-link{margin-top:46px;font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.origin-exit-link::before,.origin-exit-link::after{transition:none}}
 `;
 
 const copyByLocale = {
   en: {
-    lang: 'en',
     kicker: 'HOMECOMING / COMPLETE',
     title: 'YOU ARE HERE.',
     body: 'The journey ends where attention begins.',
     cta: 'ENTER GEOGEEK',
     aria: 'Enter the GeoGeek home page',
-    top: 'ORIGIN · 00',
-    bottom: 'HOME · HERE',
-    left: 'STAR-STUFF',
-    right: 'GEOGEEK',
-    foot: 'FROM ORIGIN TO POSITION · FROM POSITION TO SEEING',
   },
   zh: {
-    lang: 'zh-CN',
-    kicker: '归途 / 完成',
-    title: '你在这里。',
-    body: '旅程止于此处，观看由此开始。',
-    cta: '进入 GEOGEEK',
-    aria: '进入 GeoGeek 首页',
-    top: '来处 · 00',
-    bottom: '归途 · 此处',
-    left: '星尘',
-    right: 'GEOGEEK',
-    foot: '从来处到位置 · 从位置到观看',
+    kicker: '归途 / 已竟',
+    title: '此刻为你',
+    body: '行至水穷，坐看云起。',
+    cta: '开始GeoGeek',
+    aria: '开始 GeoGeek，进入首页',
   },
 };
 
 function portalMarkup(copy) {
-  return `\n<section class="origin-exit" id="originExit" aria-labelledby="originExitTitle">\n  <p class="origin-exit-axis top">${copy.top}</p>\n  <p class="origin-exit-axis bottom">${copy.bottom}</p>\n  <p class="origin-exit-axis left">${copy.left}</p>\n  <p class="origin-exit-axis right">${copy.right}</p>\n  <div class="origin-exit-reticle" aria-hidden="true"><i></i></div>\n  <div class="origin-exit-copy">\n    <p class="origin-exit-kicker">${copy.kicker}</p>\n    <h2 class="origin-exit-title" id="originExitTitle">${copy.title}</h2>\n    <p class="origin-exit-body">${copy.body}</p>\n    <a class="origin-exit-link" href="/index.html" aria-label="${copy.aria}">${copy.cta}</a>\n  </div>\n  <p class="origin-exit-foot">${copy.foot}</p>\n</section>\n`;
+  return `\n<section class="origin-exit" id="originExit" aria-labelledby="originExitTitle">\n  <div class="origin-exit-copy">\n    <p class="origin-exit-kicker">${copy.kicker}</p>\n    <h2 class="origin-exit-title" id="originExitTitle">${copy.title}</h2>\n    <p class="origin-exit-body">${copy.body}</p>\n    <a class="origin-exit-link" href="/index.html" aria-label="${copy.aria}">${copy.cta}</a>\n  </div>\n</section>\n`;
 }
 
 function replaceOnce(html, needle, replacement, label) {
@@ -118,7 +98,7 @@ function injectOriginHandoff(html, locale) {
   );
 
   const nearestNeedle = '  function nearestSceneByScroll(y=scrollY){';
-  const exitHelpers = `  function exitScrollY(){\n    if(!originExit) return maxScroll();\n    return clamp(originExit.offsetTop+originExit.offsetHeight*.5-H*.5,0,maxScroll());\n  }\n  function inExitZone(y=scrollY){\n    return !!originExit && y>sceneScrollY(sections.length-1)+H*.35;\n  }\n  function glideToExit(){\n    if(!originExit) return;\n    const dest=exitScrollY();\n    if(reduced){scrollTo(0,dest);syncScroller();updateScrollState(true);return}\n    const diff=Math.abs(dest-scrollY);\n    scroller.startY=scrollY;scroller.y=scrollY;scroller.target=dest;scroller.startT=performance.now();\n    scroller.duration=clamp(360+diff*.045,420,720);\n    scroller.active=true;scroller.driving=true;scroller.exit=true;scroller.targetScene=sections.length-1;\n  }\n`;
+  const exitHelpers = `  let homeCommitted=false,exitTouchY=null;\n  function exitScrollY(){\n    if(!originExit) return maxScroll();\n    return clamp(originExit.offsetTop+originExit.offsetHeight*.5-H*.5,0,maxScroll());\n  }\n  function inExitZone(y=scrollY){\n    return !!originExit && y>sceneScrollY(sections.length-1)+H*.35;\n  }\n  function syncExitChrome(){\n    document.body.classList.toggle('origin-exit-active',inExitZone());\n  }\n  function enterHome(){\n    if(homeCommitted) return;\n    homeCommitted=true;\n    document.body.classList.add('origin-home-leaving');\n    setTimeout(()=>location.assign('/index.html'),reduced?0:220);\n  }\n  function glideToExit(){\n    if(!originExit) return;\n    const dest=exitScrollY();\n    if(reduced){scrollTo(0,dest);syncScroller();updateScrollState(true);syncExitChrome();return}\n    const diff=Math.abs(dest-scrollY);\n    scroller.startY=scrollY;scroller.y=scrollY;scroller.target=dest;scroller.startT=performance.now();\n    scroller.duration=clamp(360+diff*.045,420,720);\n    scroller.active=true;scroller.driving=true;scroller.exit=true;scroller.targetScene=sections.length-1;\n  }\n  addEventListener('scroll',syncExitChrome,{passive:true});\n  addEventListener('resize',syncExitChrome,{passive:true});\n  addEventListener('touchstart',e=>{if(e.touches.length===1)exitTouchY=e.touches[0].clientY},{passive:true});\n  addEventListener('touchend',e=>{\n    if(exitTouchY===null) return;\n    const endY=e.changedTouches&&e.changedTouches[0]?e.changedTouches[0].clientY:exitTouchY;\n    const dy=endY-exitTouchY;exitTouchY=null;\n    if(inExitZone()&&scrollY>=maxScroll()-Math.max(8,H*.02)&&dy<-48) enterHome();\n  },{passive:true});\n  requestAnimationFrame(syncExitChrome);\n`;
   html = replaceOnce(html, nearestNeedle, `${exitHelpers}${nearestNeedle}`, 'nearest-scene function');
 
   const glideStateNeedle = '    scroller.active=true;scroller.driving=true;scroller.targetScene=index;';
@@ -133,7 +113,7 @@ function injectOriginHandoff(html, locale) {
   html = replaceOnce(
     html,
     settleNeedle,
-    '      const wasExit=scroller.exit;scrollTo(0,scroller.target);scroller.y=scroller.target;scroller.active=false;scroller.driving=false;scroller.exit=false;updateScrollState();if(!wasExit)dockScene(scroller.targetScene);',
+    '      const wasExit=scroller.exit;scrollTo(0,scroller.target);scroller.y=scroller.target;scroller.active=false;scroller.driving=false;scroller.exit=false;updateScrollState();syncExitChrome();if(!wasExit)dockScene(scroller.targetScene);',
     'smooth-scroll settle',
   );
 
@@ -141,12 +121,16 @@ function injectOriginHandoff(html, locale) {
   const nativeSnapReplacement = `    if(!scroller.driving&&!inExitZone()){\n      scroller.y=scrollY;scroller.startY=scrollY;scroller.target=scrollY;\n      clearTimeout(nativeSnapTimer);\n      // Scrollbar drags and other native scroll sources still settle on a reading position.\n      nativeSnapTimer=setTimeout(()=>{if(!scroller.driving&&!mobile()&&!inExitZone())glideToScene(nearestSceneByScroll(scrollY),false)},130);\n    }`;
   html = replaceOnce(html, nativeSnapNeedle, nativeSnapReplacement, 'native snap guard');
 
+  const wheelGuardNeedle = `    if(reduced||mobile()||e.ctrlKey) return;\n    e.preventDefault();`;
+  const wheelGuardReplacement = `    if(mobile()||e.ctrlKey) return;\n    if(reduced){\n      if(inExitZone()&&e.deltaY>0&&scrollY>=maxScroll()-8) enterHome();\n      return;\n    }\n    e.preventDefault();`;
+  html = replaceOnce(html, wheelGuardNeedle, wheelGuardReplacement, 'wheel reduced-motion guard');
+
   const wheelNeedle = `    const direction=Math.sign(wheelGesture.sum||raw);\n    const target=clamp(nearest+direction,0,sections.length-1);\n    wheelGesture.locked=true;wheelGesture.sum=0;glideToScene(target,true);`;
-  const wheelReplacement = `    const direction=Math.sign(wheelGesture.sum||raw);\n    if(inExitZone()){\n      wheelGesture.locked=true;wheelGesture.sum=0;\n      if(direction<0) glideToScene(sections.length-1,true);\n      return;\n    }\n    if(nearest===sections.length-1&&direction>0){\n      wheelGesture.locked=true;wheelGesture.sum=0;glideToExit();return;\n    }\n    const target=clamp(nearest+direction,0,sections.length-1);\n    wheelGesture.locked=true;wheelGesture.sum=0;glideToScene(target,true);`;
+  const wheelReplacement = `    const direction=Math.sign(wheelGesture.sum||raw);\n    if(inExitZone()){\n      wheelGesture.locked=true;wheelGesture.sum=0;\n      if(direction<0) glideToScene(sections.length-1,true);\n      else enterHome();\n      return;\n    }\n    if(nearest===sections.length-1&&direction>0){\n      wheelGesture.locked=true;wheelGesture.sum=0;glideToExit();return;\n    }\n    const target=clamp(nearest+direction,0,sections.length-1);\n    wheelGesture.locked=true;wheelGesture.sum=0;glideToScene(target,true);`;
   html = replaceOnce(html, wheelNeedle, wheelReplacement, 'wheel navigation');
 
   const keyNeedle = `    if(['ArrowDown','PageDown'].includes(e.key)){e.preventDefault();glideToScene(Math.min(activeScene+1,8),true)}\n    else if(['ArrowUp','PageUp'].includes(e.key)){e.preventDefault();glideToScene(Math.max(activeScene-1,0),true)}\n    else if(e.key==='Home'){e.preventDefault();glideToScene(0,true)}\n    else if(e.key==='End'){e.preventDefault();glideToScene(8,true)}`;
-  const keyReplacement = `    if(['ArrowDown','PageDown'].includes(e.key)){\n      e.preventDefault();\n      if(inExitZone()) return;\n      if(activeScene>=sections.length-1) glideToExit();\n      else glideToScene(activeScene+1,true);\n    }\n    else if(['ArrowUp','PageUp'].includes(e.key)){\n      e.preventDefault();\n      if(inExitZone()) glideToScene(sections.length-1,true);\n      else glideToScene(Math.max(activeScene-1,0),true);\n    }\n    else if(e.key==='Home'){e.preventDefault();glideToScene(0,true)}\n    else if(e.key==='End'){e.preventDefault();glideToExit()}`;
+  const keyReplacement = `    if(['ArrowDown','PageDown'].includes(e.key)){\n      e.preventDefault();\n      if(inExitZone()){enterHome();return}\n      if(activeScene>=sections.length-1) glideToExit();\n      else glideToScene(activeScene+1,true);\n    }\n    else if(['ArrowUp','PageUp'].includes(e.key)){\n      e.preventDefault();\n      if(inExitZone()) glideToScene(sections.length-1,true);\n      else glideToScene(Math.max(activeScene-1,0),true);\n    }\n    else if(e.key==='Home'){e.preventDefault();glideToScene(0,true)}\n    else if(e.key==='End'){e.preventDefault();glideToExit()}`;
   html = replaceOnce(html, keyNeedle, keyReplacement, 'keyboard navigation');
 
   return html;
@@ -173,4 +157,4 @@ for (const page of [
 }
 
 await canonicalizeHome();
-console.log('Added Origin → GeoGeek handoff and canonicalized / to /index.html.');
+console.log('Added integrated Origin → GeoGeek handoff and canonicalized / to /index.html.');
