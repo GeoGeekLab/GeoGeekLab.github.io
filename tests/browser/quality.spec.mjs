@@ -113,7 +113,11 @@ test('Field Notes filters static rows without legacy hydration', async ({ page }
     if (url.origin === 'http://127.0.0.1:4173' && request.resourceType() === 'script') localScripts.push(url.pathname);
   });
 
-  await page.goto('/field-notes.html', { waitUntil: 'domcontentloaded' });
+  const response = await page.goto('/field-notes.html', { waitUntil: 'domcontentloaded' });
+  const source = await response.text();
+  expect(source).toContain('ux-mobile-v5');
+  expect(source).toContain('ux-page-field-notes');
+
   const rows = page.locator('[data-static-note-list] .static-note-row');
   const total = await rows.count();
   expect(total).toBeGreaterThan(10);
@@ -131,10 +135,29 @@ test('Field Notes filters static rows without legacy hydration', async ({ page }
 
 test('Lab prioritizes its first-view Earth preview image', async ({ page }) => {
   await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
+  const preload = page.locator('link[rel="preload"][as="image"][href*="earth-observatory.jpg"]');
+  await expect(preload).toHaveCount(1);
+  await expect(preload).toHaveAttribute('fetchpriority', 'high');
+
   const image = page.locator('.earth-preview-screen > img');
   await expect(image).toBeVisible();
   await expect(image).toHaveAttribute('loading', 'eager');
   await expect(image).toHaveAttribute('fetchpriority', 'high');
+});
+
+test('home defers Commons runtime until the section approaches the viewport', async ({ page }) => {
+  const commonsRuntime = [];
+  page.on('request', request => {
+    if (/\/commons\/commons\.js(?:[?#]|$)/.test(request.url())) commonsRuntime.push(request.url());
+  });
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(700);
+  expect(commonsRuntime).toHaveLength(0);
+
+  await page.locator('#commons').scrollIntoViewIfNeeded();
+  await expect.poll(() => commonsRuntime.length, { timeout: 10000 }).toBeGreaterThan(0);
+  await expect.poll(async () => page.locator('#commons').getAttribute('data-commons-ready'), { timeout: 10000 }).toBe('true');
 });
 
 test('Earth defers MapLibre until explicit activation', async ({ page }) => {
