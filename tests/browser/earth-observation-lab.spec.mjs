@@ -33,6 +33,9 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   await expect(lab).toBeVisible({ timeout: 10000 });
   await expect(page.locator('#eoInspectorTitle')).toHaveText('True color');
   await expect(page.locator('[data-earth-layer]')).toHaveCount(3);
+  await expect(page.locator('#eoLatest')).toHaveText('SAFE DATE');
+  await expect(page.locator('#eoInspectorMeta')).toContainText('RECENT-DATE POLICY');
+  await expect(page.locator('.instrument-status')).toContainText('STATUS / READY');
   await expectNoSeriousAxeViolations(page);
 
   await page.locator('[data-group="THERMAL"]').click();
@@ -40,6 +43,7 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   await expect(thermal).toBeVisible();
   await thermal.click();
   await expect(page.locator('#eoInspectorTitle')).toHaveText('Land surface temperature');
+  await expect(page.locator('#eoInspectorMeta')).toContainText('Conservative T-2 day request window');
   await expect(page.locator('#eoOpacityWrap')).toBeVisible();
 
   const compare = page.locator('#eoCompare');
