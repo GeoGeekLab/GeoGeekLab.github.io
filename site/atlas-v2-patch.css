@@ -1,0 +1,10 @@
+/* Atlas v2 finishing alignment. */
+@media (min-width: 1101px) {
+  .atlas-page > .scale-ui { right: calc(var(--pad) + 316px) !important; }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .atlas-page > .scale-ui { right: calc(var(--pad) + 286px) !important; }
+}
+@media (max-width: 760px) {
+  .atlas-page > .scale-ui { right: 16px !important; }
+}
