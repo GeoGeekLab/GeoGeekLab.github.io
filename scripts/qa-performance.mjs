@@ -34,6 +34,7 @@ function accidentalBlockingLocalScripts(html) {
 const home = await read('index.html');
 const fieldNotes = await read('field-notes.html');
 const lab = await read('lab.html');
+const atlas = await read('atlas.html');
 const earth = await read('earth/index.html');
 const labPreview = await read('lab-real-previews.js');
 const styles = await read('styles.css');
@@ -43,6 +44,7 @@ const rows = [...fieldNotes.matchAll(/<article\b[^>]*class=(['"])[^'"]*static-no
 check(rows.length === 23, 'PERF-01 all 23 static Field Notes expose filter metadata');
 check(rows.every(match => /^(observation|scale|causality|representation|practice)$/.test(match[3])), 'PERF-01 Field Note rows use canonical series keys');
 check(/<body[^>]*\bclass=(['"])[^'"]*ux-mobile-v5[^'"]*ux-page-field-notes[^'"]*\1/i.test(fieldNotes), 'PERF-01 Field Notes mobile reading state exists in first-response HTML');
+check(/<body[^>]*\bclass=(['"])[^'"]*ux-mobile-v5[^'"]*ux-page-atlas[^'"]*\1/i.test(atlas), 'PERF-01 Atlas mobile layout state exists in first-response HTML');
 check(/editorial-layout\.css/.test(fieldNotes) && /geo-interactions\.css/.test(fieldNotes), 'PERF-02 Field Notes layout styles are first-response resources');
 check(!/data-idle-\s+src\s*=/i.test(fieldNotes), 'PERF-03 data-idle-src attributes remain inert and intact');
 check(accidentalBlockingLocalScripts(fieldNotes).length === 0, 'PERF-03 Field Notes has no accidental blocking local classic scripts');
@@ -51,7 +53,8 @@ check(/id="earthActivate"/.test(earth) && /src="boot\.js\?v=20261001a"/.test(ear
 check(!/unpkg\.com\/maplibre-gl@6\.6\.0\/dist\/maplibre-gl\.css/.test(earth), 'PERF-04 MapLibre CSS is off the Earth critical path');
 
 check(/rel="preload" as="image" href="\/assets\/lab\/previews\/earth-observatory\.jpg\?v=20260930i" fetchpriority="high"/.test(lab), 'PERF-05 Lab LCP preview is discoverable from the initial document');
-check(/loading = eager \? 'eager' : 'lazy'/.test(labPreview) && /fetchPriority = 'high'/.test(labPreview), 'PERF-05 Lab LCP preview is eager and high priority');
+check(/earth-preview-screen is-real-output[^>]*data-real-preview="true"[^>]*>[\s\S]*?<img[^>]+earth-observatory\.jpg\?v=20260930i[^>]+loading="eager"[^>]+fetchpriority="high"/i.test(lab), 'PERF-05 Lab LCP image is present in first-response HTML');
+check(/loading = eager \? 'eager' : 'lazy'/.test(labPreview) && /fetchPriority = 'high'/.test(labPreview), 'PERF-05 Lab preview enhancement preserves eager priority semantics');
 
 check(/\/commons\/loader\.js\?v=20261001a/.test(home), 'PERF-06 Home uses the viewport-driven Commons loader');
 check(!/<script[^>]+src=(['"])(?:\.?\/)?commons\/(?:config|geo|demo-data|commons-data|commons)\.js[^'"]*\1/i.test(home), 'PERF-06 heavy Commons runtime is absent from the initial Home script graph');
