@@ -47,19 +47,30 @@
 
     if (disclosure.dataset.round3Bound !== '1') {
       disclosure.dataset.round3Bound = '1';
-      disclosure.addEventListener('keydown', event => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        // Own keyboard activation explicitly. This prevents the legacy wrapper
-        // listener and the browser's synthesized click from producing a second toggle.
+      let suppressSyntheticClickUntil = 0;
+
+      // The legacy ux-refinements runtime still has bubble listeners on the wrapper.
+      // Own disclosure activation during capture so one user action cannot toggle twice.
+      scale.addEventListener('keydown', event => {
+        if (event.target !== disclosure || (event.key !== 'Enter' && event.key !== ' ')) return;
         event.preventDefault();
         event.stopImmediatePropagation();
+        suppressSyntheticClickUntil = performance.now() + 700;
         toggle();
-      });
-      disclosure.addEventListener('click', event => {
+      }, true);
+
+      scale.addEventListener('click', event => {
+        if (event.target !== disclosure) return;
         event.preventDefault();
         event.stopImmediatePropagation();
+        if (event.detail === 0 && performance.now() < suppressSyntheticClickUntil) {
+          suppressSyntheticClickUntil = 0;
+          return;
+        }
+        suppressSyntheticClickUntil = 0;
         toggle();
-      });
+      }, true);
+
       document.addEventListener('click', () => {
         if (!scale.classList.contains('is-open')) return;
         scale.classList.remove('is-open');
@@ -122,8 +133,8 @@
         return { node, index, x, y, dx: 0, dy: 0 };
       });
 
-      const minDistance = 28;
-      const radius = 12;
+      const minDistance = 30;
+      const radius = 12.5;
       for (let pass = 0; pass < 24; pass += 1) {
         let changed = false;
         for (let i = 0; i < points.length; i += 1) {
