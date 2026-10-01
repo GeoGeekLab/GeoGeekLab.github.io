@@ -74,7 +74,6 @@
     return String(p.ADMIN || p.NAME_LONG || p.NAME || '').toLowerCase();
   }
 
-
   function appendWorld(host, world, kind) {
     const art = $('.preview-art', host);
     if (!art || $('.preview-geo-svg', art)) return;
@@ -112,7 +111,6 @@
     }
 
     if (kind === 'path') {
-      // Representative points for three mutually adjacent steps: France → Germany → Poland.
       const points=[[2.35,48.86],[13.405,52.52],[21.0122,52.2297]].map(project);
       if (points.length > 1) {
         const path=document.createElementNS(NS,'path');
@@ -196,4 +194,5 @@
   geographicSpecimens();
   pulsePreview();
   orbitMotion();
+  import('./orbital/orbital-enhancements-v3.js?v=20261002b').catch(() => {});
 })();
