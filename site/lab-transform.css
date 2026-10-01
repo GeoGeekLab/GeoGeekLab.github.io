@@ -1,0 +1,263 @@
+/* Image → Trace / transform-family workbench.
+   Preserve raster geometry, enlarge the working field, and reduce chrome. */
+
+.instrument-dialog[data-instrument-family="transform"] {
+  width: min(1660px, calc(100vw - 20px));
+  height: min(900px, calc(100dvh - 20px));
+  border: 1px solid rgba(226,232,227,.15);
+  background: #111a15;
+  box-shadow: 0 24px 82px rgba(5,10,7,.30);
+}
+.instrument-dialog[data-instrument-family="transform"]::backdrop {
+  background: rgba(14,21,17,.60);
+  backdrop-filter: blur(3px);
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-shell {
+  grid-template-rows: auto auto minmax(0,1fr) 42px;
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-head {
+  min-height: 82px;
+  align-items: center;
+  padding: 13px 18px 11px;
+  border-bottom-color: rgba(225,231,226,.085);
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-kicker {
+  color: #849087;
+  font-size: 9px;
+  letter-spacing: .105em;
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-head h2 {
+  margin-top: 6px;
+  font-size: clamp(34px,3.35vw,50px);
+  line-height: .93;
+  letter-spacing: -.046em;
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-close {
+  width: 38px;
+  height: 38px;
+  flex-basis: 38px;
+  border-color: rgba(225,231,226,.17);
+  color: #929e95;
+  font-size: 21px;
+}
+
+.instrument-dialog[data-instrument-family="transform"] .instrument-meta {
+  grid-template-columns: minmax(300px,.9fr) minmax(560px,1.1fr);
+  gap: 20px;
+  align-items: center;
+  min-height: 62px;
+  padding: 8px 18px 9px;
+  border-bottom-color: rgba(225,231,226,.075);
+}
+.instrument-dialog[data-instrument-family="transform"] #instrumentDescription {
+  margin: 0;
+  max-width: 78ch;
+  color: #c1c9c2;
+  font-size: 11.5px;
+  line-height: 1.42;
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-conditions {
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  border-left-color: rgba(225,231,226,.075);
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-conditions div {
+  gap: 3px;
+  padding: 1px 8px 2px 11px;
+  border-right: 1px solid rgba(225,231,226,.055);
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-conditions div:last-child { border-right: 0; }
+.instrument-dialog[data-instrument-family="transform"] .instrument-conditions dt {
+  color: #748178;
+  font-size: 8px;
+  line-height: 1.2;
+  letter-spacing: .09em;
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-conditions dd {
+  color: #d4dad5;
+  font-size: 9.5px;
+  line-height: 1.28;
+  overflow-wrap: normal;
+}
+
+.instrument-dialog[data-instrument-family="transform"] .instrument-stage {
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(238,241,238,.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238,241,238,.022) 1px, transparent 1px),
+    radial-gradient(circle at 44% 44%, rgba(57,84,67,.10), transparent 43%),
+    #0b120e;
+  background-size: 56px 56px,56px 56px,auto,auto;
+}
+
+.instrument-dialog[data-instrument-family="transform"] .figure-layout {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 300px;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+  padding: 10px;
+  overflow: hidden;
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 8px;
+  border: 1px solid rgba(225,231,226,.10);
+  border-radius: 0 !important;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(41,67,53,.11), transparent 53%),
+    #080e0b;
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-frame {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background: #07100d;
+  box-shadow: inset 0 0 0 1px rgba(225,231,226,.065);
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-canvas,
+.instrument-dialog[data-instrument-family="transform"] .figure-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-svg { pointer-events: none; }
+.instrument-dialog[data-instrument-family="transform"] .figure-raster-status {
+  left: 10px;
+  bottom: 10px;
+  padding: 5px 7px;
+  border: 1px solid rgba(225,231,226,.09);
+  background: rgba(7,13,10,.76);
+  color: #9ea9a1;
+  font-size: 8px;
+  letter-spacing: .075em;
+}
+
+.instrument-dialog[data-instrument-family="transform"] .figure-control {
+  min-width: 0;
+  min-height: 0;
+  align-content: start;
+  gap: 13px;
+  overflow-y: auto;
+  padding: 15px 14px 13px;
+  border: 1px solid rgba(225,231,226,.10);
+  border-radius: 0 !important;
+  background: #101914;
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-control .orbit-panel-label {
+  margin-bottom: 2px;
+  color: #7f8c83;
+  font-size: 9px;
+  letter-spacing: .10em;
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-control label {
+  gap: 7px;
+  margin: 0;
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-control label > span {
+  color: #9ca79f;
+  font-size: 10px;
+  line-height: 1.25;
+  letter-spacing: .075em;
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-control input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--signal);
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-control p {
+  margin: 5px 0 0;
+  color: #98a39b;
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+.instrument-dialog[data-instrument-family="transform"] .figure-control .source-line {
+  margin-top: 0;
+  color: #7f8b83;
+  font-size: 8px;
+  line-height: 1.4;
+  letter-spacing: .045em;
+}
+
+.instrument-dialog[data-instrument-family="transform"] .instrument-foot {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-top-color: rgba(225,231,226,.085);
+  color: #7e8a82;
+  font-size: 8.5px;
+  letter-spacing: .07em;
+}
+.instrument-dialog[data-instrument-family="transform"] .instrument-status {
+  min-height: 23px;
+  margin: 0;
+  padding: 0 8px;
+  border-color: rgba(225,231,226,.09);
+  font-size: 8.5px;
+}
+.instrument-dialog[data-instrument-family="transform"] #instrumentBoundary { text-align: right; }
+
+@media (max-width: 1100px) {
+  .instrument-dialog[data-instrument-family="transform"] .instrument-meta {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .instrument-dialog[data-instrument-family="transform"] .instrument-conditions { border-left: 0; }
+  .instrument-dialog[data-instrument-family="transform"] .figure-layout {
+    grid-template-columns: minmax(0,1fr) 260px;
+  }
+}
+
+@media (max-width: 760px) {
+  .instrument-dialog[data-instrument-family="transform"] {
+    width: 100vw;
+    height: 100dvh;
+    border: 0;
+  }
+  .instrument-dialog[data-instrument-family="transform"] .instrument-shell {
+    grid-template-rows: auto auto minmax(0,1fr) auto;
+  }
+  .instrument-dialog[data-instrument-family="transform"] .instrument-head {
+    min-height: 72px;
+    padding: max(12px,env(safe-area-inset-top)) 14px 10px;
+  }
+  .instrument-dialog[data-instrument-family="transform"] .instrument-head h2 {
+    font-size: clamp(31px,11vw,44px);
+  }
+  .instrument-dialog[data-instrument-family="transform"] .instrument-meta {
+    padding: 8px 14px;
+  }
+  .instrument-dialog[data-instrument-family="transform"] .instrument-conditions {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+  .instrument-dialog[data-instrument-family="transform"] .figure-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(330px,58svh) auto;
+    gap: 8px;
+    padding: 8px;
+    overflow-y: auto;
+  }
+  .instrument-dialog[data-instrument-family="transform"] .figure-stage { min-height: 330px; }
+  .instrument-dialog[data-instrument-family="transform"] .figure-control {
+    overflow: visible;
+    padding: 14px;
+  }
+  .instrument-dialog[data-instrument-family="transform"] .instrument-foot {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    min-height: 0;
+    padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+  }
+  .instrument-dialog[data-instrument-family="transform"] #instrumentBoundary { text-align: left; }
+}
