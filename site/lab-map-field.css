@@ -1,0 +1,529 @@
+/* Lab round 2 — MAP + FIELD families.
+   Map instruments privilege the spatial field; field instruments privilege the task/relationship. */
+
+/* ---------------------------------------------------------
+   MAP family / Flow · Pulse · World
+   --------------------------------------------------------- */
+.instrument-dialog[data-instrument-family="map"][data-instrument-kind="flow"],
+.instrument-dialog[data-instrument-family="map"][data-instrument-kind="pulse"],
+.instrument-dialog[data-instrument-family="map"][data-instrument-kind="world"] {
+  width: min(1640px, calc(100vw - 20px));
+  height: min(890px, calc(100dvh - 20px));
+}
+
+.instrument-dialog[data-instrument-kind="flow"] .instrument-meta,
+.instrument-dialog[data-instrument-kind="pulse"] .instrument-meta,
+.instrument-dialog[data-instrument-kind="world"] .instrument-meta {
+  min-height: 58px;
+  padding-top: 7px;
+  padding-bottom: 8px;
+}
+.instrument-dialog[data-instrument-kind="flow"] #instrumentDescription,
+.instrument-dialog[data-instrument-kind="pulse"] #instrumentDescription,
+.instrument-dialog[data-instrument-kind="world"] #instrumentDescription {
+  font-size: 11px;
+  line-height: 1.38;
+}
+
+/* Flow: the live field owns the entire stage. */
+.instrument-dialog[data-instrument-kind="flow"] .flow-layout {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #09100c;
+}
+.instrument-dialog[data-instrument-kind="flow"] .flow-layout iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+}
+.instrument-dialog[data-instrument-kind="flow"] .flow-caption {
+  left: 14px;
+  top: auto;
+  bottom: 14px;
+  max-width: 320px;
+  padding: 8px 10px 9px;
+  border: 1px solid rgba(232,237,233,.11);
+  border-radius: 0;
+  background: rgba(8,14,10,.80);
+  backdrop-filter: none;
+}
+.instrument-dialog[data-instrument-kind="flow"] .flow-caption span {
+  margin-bottom: 4px;
+  color: #87938a;
+  font-size: 8px;
+  letter-spacing: .09em;
+}
+.instrument-dialog[data-instrument-kind="flow"] .flow-caption strong {
+  color: #e4e6df;
+  font-size: clamp(15px,1.2vw,19px);
+  line-height: 1.18;
+  font-weight: 400;
+}
+
+/* Pulse: larger observation map, compact readout. */
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-layout {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 242px;
+  gap: 0;
+  height: 100%;
+  min-height: 0;
+  background: #0a110d;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map-wrap {
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  border-right: 1px solid rgba(229,234,230,.085);
+  border-radius: 0 !important;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(51,79,62,.11), transparent 48%),
+    #090f0c;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map {
+  width: 100%;
+  height: 100%;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform .16s ease, filter .16s ease, opacity .16s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-map circle:hover {
+    transform: scale(1.45);
+    filter: drop-shadow(0 0 5px rgba(198,86,48,.34));
+  }
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel {
+  min-height: 0;
+  align-content: start;
+  gap: 11px;
+  overflow-y: auto;
+  padding: 14px 14px 12px;
+  border: 0;
+  border-radius: 0 !important;
+  background: #111a15;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel .orbit-panel-label {
+  color: #7f8b83;
+  font-size: 8px;
+  letter-spacing: .1em;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel > strong {
+  color: #e0e4df;
+  font: 400 19px/1.12 var(--serif);
+  letter-spacing: -.02em;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel dl {
+  gap: 0;
+  margin: 2px 0 0;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel dl div {
+  display: grid;
+  grid-template-columns: 82px minmax(0,1fr);
+  gap: 8px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-top: 1px solid rgba(229,234,230,.07);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel dt {
+  color: #738078;
+  font: 700 8px/1.2 var(--mono);
+  letter-spacing: .075em;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel dd {
+  margin: 0;
+  color: #c9d0ca;
+  font: 600 9px/1.35 var(--mono);
+}
+
+/* World: projection is the interaction; controls become a compact instrument rail. */
+.instrument-dialog[data-instrument-kind="world"] .world-layout {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 254px;
+  gap: 0;
+  height: 100%;
+  min-height: 0;
+  background: #09100c;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-map-wrap {
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  border-right: 1px solid rgba(229,234,230,.085);
+  border-radius: 0 !important;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(54,82,65,.12), transparent 48%),
+    #09100c;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-panel {
+  min-width: 0;
+  min-height: 0;
+  align-content: start;
+  gap: 11px;
+  overflow-y: auto;
+  padding: 14px 14px 12px;
+  border: 0;
+  border-radius: 0 !important;
+  background: #111a15;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-controls {
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 0;
+  border: 1px solid rgba(229,234,230,.12);
+}
+.instrument-dialog[data-instrument-kind="world"] .world-controls button {
+  min-height: 32px;
+  padding: 0 5px;
+  border: 0;
+  border-right: 1px solid rgba(229,234,230,.09);
+  border-radius: 0;
+  background: transparent;
+  color: #88958c;
+  font: 700 7.5px/1 var(--mono);
+  letter-spacing: .055em;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-controls button:last-child { border-right: 0; }
+.instrument-dialog[data-instrument-kind="world"] .world-controls button:hover,
+.instrument-dialog[data-instrument-kind="world"] .world-controls button.is-active {
+  color: #e0e5e0;
+  background: rgba(166,70,36,.10);
+  box-shadow: inset 0 2px 0 #a64624;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-distortion-toggle {
+  min-height: 32px;
+  border: 1px solid rgba(229,234,230,.12);
+  border-radius: 0;
+  background: transparent;
+  color: #8f9a92;
+  font: 700 8px/1 var(--mono);
+  letter-spacing: .075em;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-distortion-toggle:hover,
+.instrument-dialog[data-instrument-kind="world"] .world-distortion-toggle.is-active {
+  color: #e0e5e0;
+  border-color: rgba(166,70,36,.48);
+  background: rgba(166,70,36,.08);
+}
+.instrument-dialog[data-instrument-kind="world"] .world-panel dl { margin: 0; }
+.instrument-dialog[data-instrument-kind="world"] .world-panel dl div {
+  grid-template-columns: 90px minmax(0,1fr);
+  gap: 8px;
+  padding: 7px 0;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-panel dt {
+  font-size: 7.5px;
+  letter-spacing: .075em;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-panel dd {
+  font-size: 9px;
+  line-height: 1.35;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-hover {
+  padding: 4px 7px;
+  border-radius: 0;
+  background: rgba(7,12,9,.90);
+  font: 650 8.5px/1.2 var(--mono);
+}
+.instrument-dialog[data-instrument-kind="world"] .world-map path {
+  transition: fill .15s ease, stroke .15s ease, opacity .15s ease;
+}
+
+/* Shared MAP disclosures. */
+.instrument-dialog[data-instrument-kind="pulse"] .instrument-disclosure,
+.instrument-dialog[data-instrument-kind="world"] .instrument-disclosure {
+  margin-top: 6px;
+  padding-top: 7px;
+}
+
+/* ---------------------------------------------------------
+   FIELD family / Locate · Zone · Path
+   --------------------------------------------------------- */
+.instrument-dialog[data-instrument-family="field"] {
+  width: min(1600px, calc(100vw - 20px));
+  height: min(880px, calc(100dvh - 20px));
+  border: 1px solid rgba(226,232,227,.15);
+  border-radius: 0;
+  background: #111a15;
+  box-shadow: 0 24px 82px rgba(5,10,7,.30);
+}
+.instrument-dialog[data-instrument-family="field"]::backdrop {
+  background: rgba(14,21,17,.60);
+  backdrop-filter: blur(3px);
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-shell {
+  grid-template-rows: auto auto minmax(0,1fr) 42px;
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-head {
+  min-height: 78px;
+  align-items: center;
+  padding: 12px 18px 10px;
+  border-bottom-color: rgba(225,231,226,.085);
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-kicker {
+  color: #849087;
+  font-size: 8.5px;
+  letter-spacing: .105em;
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-head h2 {
+  margin-top: 6px;
+  font-size: clamp(32px,3vw,46px);
+  line-height: .94;
+  letter-spacing: -.043em;
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-close {
+  width: 38px;
+  height: 38px;
+  flex-basis: 38px;
+  border-color: rgba(225,231,226,.17);
+  color: #929e95;
+  font-size: 21px;
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-meta {
+  grid-template-columns: minmax(280px,.8fr) minmax(560px,1.2fr);
+  gap: 18px;
+  align-items: center;
+  min-height: 58px;
+  padding: 7px 18px 8px;
+  border-bottom-color: rgba(225,231,226,.075);
+}
+.instrument-dialog[data-instrument-family="field"] #instrumentDescription {
+  margin: 0;
+  max-width: 74ch;
+  color: #c1c9c2;
+  font-size: 11px;
+  line-height: 1.38;
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-conditions {
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  border-left-color: rgba(225,231,226,.075);
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-conditions div {
+  gap: 2px;
+  padding: 1px 8px 2px 10px;
+  border-right: 1px solid rgba(225,231,226,.055);
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-conditions div:last-child { border-right: 0; }
+.instrument-dialog[data-instrument-family="field"] .instrument-conditions dt {
+  color: #738078;
+  font-size: 7.5px;
+  line-height: 1.2;
+  letter-spacing: .08em;
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-conditions dd {
+  color: #d4dad5;
+  font-size: 9px;
+  line-height: 1.3;
+  overflow-wrap: normal;
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-stage {
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(238,241,238,.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238,241,238,.022) 1px, transparent 1px),
+    #0a110d;
+  background-size: 56px 56px;
+}
+.instrument-dialog[data-instrument-family="field"] .game-layout {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 260px;
+  height: 100%;
+  min-height: 0;
+  background: #09100c;
+}
+.instrument-dialog[data-instrument-family="field"] .game-map-wrap {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 0;
+  border-right: 1px solid rgba(229,234,230,.085);
+  background:
+    radial-gradient(circle at 50% 48%, rgba(52,80,64,.12), transparent 50%),
+    #09100c;
+}
+.instrument-dialog[data-instrument-family="field"] .game-map {
+  width: 100%;
+  height: 100%;
+}
+.instrument-dialog[data-instrument-family="field"] .game-panel {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px;
+  border: 0;
+  background: #111a15;
+  backdrop-filter: none;
+}
+.instrument-dialog[data-instrument-family="field"] .game-panel > .orbit-panel-label {
+  color: #7d8981;
+  font-size: 8px;
+  letter-spacing: .1em;
+}
+.instrument-dialog[data-instrument-family="field"] .game-panel > strong {
+  margin-top: 8px;
+  color: #e1e5e0;
+  font: 400 19px/1.12 var(--serif);
+  letter-spacing: -.02em;
+}
+.instrument-dialog[data-instrument-family="field"] .game-statline {
+  margin-top: 13px;
+  padding: 8px 0;
+  color: #7f8b83;
+  font-size: 8px;
+}
+.instrument-dialog[data-instrument-family="field"] .game-prompt {
+  margin-top: 14px;
+  color: #e4e7e1;
+  font: 400 clamp(20px,1.9vw,29px)/1.05 var(--serif);
+  letter-spacing: -.025em;
+}
+.instrument-dialog[data-instrument-family="field"] .game-hint {
+  margin-top: 10px;
+  color: #909c93;
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+.instrument-dialog[data-instrument-family="field"] .game-feedback {
+  min-height: 34px;
+  margin-top: 11px;
+  padding-top: 9px;
+  color: #c5cdc6;
+  font-size: 8.5px;
+  line-height: 1.45;
+}
+.instrument-dialog[data-instrument-family="field"] .game-next {
+  min-height: 34px;
+  margin-top: 8px;
+  border: 1px solid rgba(229,234,230,.14);
+  border-radius: 0;
+  background: transparent;
+  color: #b8c0ba;
+  font: 700 8.5px/1 var(--mono);
+  letter-spacing: .08em;
+}
+.instrument-dialog[data-instrument-family="field"] .game-next:not(:disabled):hover {
+  color: #e5e7e1;
+  border-color: rgba(166,70,36,.48);
+  background: rgba(166,70,36,.08);
+}
+.instrument-dialog[data-instrument-family="field"] .game-references {
+  margin-top: 9px;
+  padding-top: 8px;
+  gap: 6px;
+  border-top-color: rgba(229,234,230,.07);
+  font-size: 7.5px;
+}
+
+/* The field should respond as a field, not as a card. */
+.instrument-dialog[data-instrument-family="field"] .game-countries path {
+  stroke: rgba(235,239,236,.20);
+  stroke-width: .58;
+  transition: fill .14s ease, stroke .14s ease, opacity .14s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+  .instrument-dialog[data-instrument-family="field"] .game-countries path:hover {
+    fill: #25372c;
+    stroke: rgba(241,239,231,.62);
+  }
+}
+.instrument-dialog[data-instrument-family="field"] .game-countries path.is-correct,
+.instrument-dialog[data-instrument-family="field"] .game-countries path.is-current {
+  stroke-width: 1.2;
+  filter: drop-shadow(0 0 5px rgba(166,70,36,.18));
+}
+.instrument-dialog[data-instrument-family="field"] .game-answer-line {
+  stroke-width: 1.15;
+  stroke-dasharray: 4 6;
+}
+.instrument-dialog[data-instrument-family="field"] .game-guess-point,
+.instrument-dialog[data-instrument-family="field"] .game-target-point {
+  filter: drop-shadow(0 0 5px rgba(166,70,36,.20));
+}
+
+.instrument-dialog[data-instrument-family="field"] .instrument-foot {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-top-color: rgba(225,231,226,.085);
+  color: #7e8a82;
+  font-size: 8.5px;
+  letter-spacing: .07em;
+}
+.instrument-dialog[data-instrument-family="field"] .instrument-status {
+  min-height: 23px;
+  margin: 0;
+  padding: 0 8px;
+  border-color: rgba(225,231,226,.09);
+  font-size: 8.5px;
+}
+.instrument-dialog[data-instrument-family="field"] #instrumentBoundary { text-align: right; }
+
+@media (max-width:1100px) {
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-layout,
+  .instrument-dialog[data-instrument-kind="world"] .world-layout,
+  .instrument-dialog[data-instrument-family="field"] .game-layout {
+    grid-template-columns: minmax(0,1fr) 228px;
+  }
+}
+
+@media (max-width:760px) {
+  .instrument-dialog[data-instrument-family="field"] {
+    width: 100vw;
+    height: 100dvh;
+    border: 0;
+  }
+  .instrument-dialog[data-instrument-family="field"] .instrument-shell {
+    grid-template-rows: auto auto minmax(0,1fr) auto;
+  }
+  .instrument-dialog[data-instrument-family="field"] .instrument-meta {
+    grid-template-columns: 1fr;
+    gap: 7px;
+    padding: 7px 14px;
+  }
+  .instrument-dialog[data-instrument-family="field"] .instrument-conditions {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    border-left: 0;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-layout,
+  .instrument-dialog[data-instrument-kind="world"] .world-layout,
+  .instrument-dialog[data-instrument-family="field"] .game-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(330px,58svh) auto;
+    overflow-y: auto;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-map-wrap,
+  .instrument-dialog[data-instrument-kind="world"] .world-map-wrap,
+  .instrument-dialog[data-instrument-family="field"] .game-map-wrap {
+    min-height: 330px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(229,234,230,.085);
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-panel,
+  .instrument-dialog[data-instrument-kind="world"] .world-panel,
+  .instrument-dialog[data-instrument-family="field"] .game-panel {
+    overflow: visible;
+  }
+  .instrument-dialog[data-instrument-family="field"] .instrument-foot {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    min-height: 0;
+    padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+  }
+  .instrument-dialog[data-instrument-family="field"] #instrumentBoundary { text-align: left; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-map circle,
+  .instrument-dialog[data-instrument-kind="world"] .world-map path,
+  .instrument-dialog[data-instrument-family="field"] .game-countries path { transition: none; }
+}
