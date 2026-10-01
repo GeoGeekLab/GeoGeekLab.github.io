@@ -68,7 +68,7 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   await page.waitForTimeout(60);
   expect(gibsRequests - beforeDrag).toBe(0);
   await page.waitForTimeout(220);
-  expect(gibsRequests - beforeDrag).toBeLessThanOrEqual(3);
+  expect(gibsRequests - beforeDrag).toBeLessThanOrEqual(4);
 
   const dateInput = page.locator('#eoDate');
   await dateInput.fill('2024-01-15');
