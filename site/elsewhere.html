@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -13,9 +12,10 @@
 <title>Elsewhere — GeoGeek</title>
 <link href="styles.css" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
+<link href="/elsewhere-page.css?v=20261001a" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20260930g"></script>
 </head>
-<body>
+<body data-page-kind="elsewhere">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-nav">
 <a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
@@ -40,9 +40,111 @@
 </div>
 </div>
 <div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
-<main class="page-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
-<section class="page-title"><div><div class="eyebrow">THE UNMEASURED FIELD</div><h1>Elsewhere</h1></div><p class="page-intro">Some things resist quantification and still alter orientation.</p></section>
-<section class="elsewhere-grid" id="elsewhereGrid"></section>
+<main class="page-shell elsewhere-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
+<section class="page-title">
+<div><div class="eyebrow">THE UNMEASURED FIELD</div><h1>Elsewhere</h1></div>
+<p class="page-intro">Some things resist quantification and still alter orientation.</p>
+</section>
+
+<div class="elsewhere-register" aria-label="Elsewhere collection summary">
+<span><strong>CURRENT ENTRIES</strong> / 03</span>
+<span>PLACE · READING · LISTENING</span>
+</div>
+
+<section class="elsewhere-field" aria-label="Elsewhere entries">
+<article class="elsewhere-card elsewhere-entry contour-target" id="e01" data-record-ref="elsewhere:e01" data-local-scale="1 : 2,500" data-local-level="RECORD">
+<div class="elsewhere-entry-index">01</div>
+<div class="elsewhere-entry-copy">
+<div class="eyebrow">PLACE</div>
+<h2>After rain</h2>
+<p class="elsewhere-entry-lede">A wet street doubles the sky. A familiar route becomes another surface.</p>
+<dl class="elsewhere-entry-register">
+<dt>CHANGE</dt><dd>SURFACE / FAMILIARITY</dd>
+<dt>TRACE</dt><dd>WALK · PHOTOGRAPHS · NOTES</dd>
+<dt>KEPT WHEN</dt><dd>A FAMILIAR ROUTE BECOMES VISUALLY UNFAMILIAR</dd>
+</dl>
+</div>
+<div class="elsewhere-trace" aria-hidden="true">
+<svg viewBox="0 0 620 360" preserveAspectRatio="none">
+<line class="trace-soft" x1="0" y1="180" x2="620" y2="180"/>
+<path class="trace-line" d="M24 142 C112 118 176 154 254 132 S398 104 596 138"/>
+<path class="trace-line" d="M24 218 C112 242 176 206 254 228 S398 256 596 222"/>
+<path class="trace-signal" d="M78 180 C142 169 205 171 270 180 S410 192 542 180"/>
+<circle class="trace-dot" cx="124" cy="129" r="5"/>
+<circle class="trace-dot is-signal" cx="312" cy="180" r="5"/>
+<circle class="trace-dot" cx="486" cy="232" r="5"/>
+<text x="34" y="126">SKY</text>
+<text x="34" y="198">SURFACE</text>
+<text x="34" y="244">REFLECTION</text>
+</svg>
+</div>
+</article>
+
+<article class="elsewhere-card elsewhere-entry contour-target" id="e02" data-record-ref="elsewhere:e02" data-local-scale="1 : 2,500" data-local-level="RECORD">
+<div class="elsewhere-entry-index">02</div>
+<div class="elsewhere-entry-copy">
+<div class="eyebrow">READING</div>
+<h2>Books that moved the horizon</h2>
+<p class="elsewhere-entry-lede">Some books do not add facts; they change the distance from which facts are seen.</p>
+<dl class="elsewhere-entry-register">
+<dt>CHANGE</dt><dd>FRAME / DISTANCE</dd>
+<dt>TRACE</dt><dd>BOOKS · MARGINS · MEMORY</dd>
+<dt>KEPT WHEN</dt><dd>A TEXT CHANGES HOW LATER FACTS ARE SEEN</dd>
+</dl>
+</div>
+<div class="elsewhere-trace" aria-hidden="true">
+<svg viewBox="0 0 620 360" preserveAspectRatio="none">
+<line class="trace-soft" x1="70" y1="82" x2="548" y2="82"/>
+<line class="trace-soft" x1="70" y1="136" x2="504" y2="136"/>
+<line class="trace-line" x1="70" y1="190" x2="550" y2="190"/>
+<line class="trace-line" x1="70" y1="244" x2="474" y2="244"/>
+<path class="trace-signal" d="M86 276 L270 276 L344 218 L548 218"/>
+<circle class="trace-dot" cx="270" cy="276" r="5"/>
+<circle class="trace-dot is-signal" cx="344" cy="218" r="5"/>
+<text x="70" y="68">FACT</text>
+<text x="70" y="176">FRAME</text>
+<text x="70" y="304">HORIZON</text>
+</svg>
+</div>
+</article>
+
+<article class="elsewhere-card elsewhere-entry contour-target" id="e03" data-record-ref="elsewhere:e03" data-local-scale="1 : 2,500" data-local-level="RECORD">
+<div class="elsewhere-entry-index">03</div>
+<div class="elsewhere-entry-copy">
+<div class="eyebrow">LISTENING</div>
+<h2>Sound as landscape</h2>
+<p class="elsewhere-entry-lede">What has no coordinate can still give direction.</p>
+<dl class="elsewhere-entry-register">
+<dt>CHANGE</dt><dd>ATTENTION / MOVEMENT</dd>
+<dt>TRACE</dt><dd>MUSIC · MOVEMENT · ATMOSPHERE</dd>
+<dt>KEPT WHEN</dt><dd>LISTENING CHANGES PACE, DISTANCE, OR ATTENTION</dd>
+</dl>
+</div>
+<div class="elsewhere-trace" aria-hidden="true">
+<svg viewBox="0 0 620 360" preserveAspectRatio="none">
+<path class="trace-soft" d="M28 180 C72 180 72 142 116 142 S160 226 204 226 248 108 292 108 336 242 380 242 424 152 468 152 512 194 592 194"/>
+<path class="trace-line" d="M28 180 C72 180 72 156 116 156 S160 210 204 210 248 126 292 126 336 224 380 224 424 164 468 164 512 186 592 186"/>
+<path class="trace-signal" d="M28 180 C72 180 72 170 116 170 S160 194 204 194 248 146 292 146 336 204 380 204 424 174 468 174 512 182 592 182"/>
+<circle class="trace-dot" cx="116" cy="170" r="5"/>
+<circle class="trace-dot is-signal" cx="292" cy="146" r="5"/>
+<circle class="trace-dot" cx="468" cy="174" r="5"/>
+<text x="34" y="112">SOUND</text>
+<text x="34" y="202">PACE</text>
+<text x="34" y="278">ATTENTION</text>
+</svg>
+</div>
+</article>
+</section>
+
+<section class="elsewhere-boundary" aria-labelledby="elsewhereBoundaryTitle">
+<div class="elsewhere-boundary-label" id="elsewhereBoundaryTitle">ENTRY CONDITIONS</div>
+<div class="elsewhere-boundary-copy">
+<div class="elsewhere-condition"><span>PLACE</span><strong>Perception changes the route.</strong><p>Keep the encounter when a familiar environment becomes newly legible.</p></div>
+<div class="elsewhere-condition"><span>READING</span><strong>The frame changes, not only the facts.</strong><p>Keep the text when it alters the scale or distance from which later work is seen.</p></div>
+<div class="elsewhere-condition"><span>LISTENING</span><strong>Attention acquires direction.</strong><p>Keep the sound when it changes movement, pace, atmosphere, or felt distance.</p></div>
+</div>
+<a class="elsewhere-atlas-link" href="atlas.html">SEE THESE RECORDS IN RELATION / ATLAS ↗</a>
+</section>
 </main>
 <footer class="footer">
 <div class="footer-brand">GeoGeek</div>
