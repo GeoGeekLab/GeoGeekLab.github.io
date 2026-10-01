@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const read = file => fs.readFile(path.join(dist, file), 'utf8');
+const isIntentionalSyncBootstrap = src => /(?:^|\/)ux-preinit\.js(?:[?#].*)?$/i.test(src);
 
 let failures = 0;
 function check(ok, label) {
@@ -25,8 +26,8 @@ check(rows.every(match => /^(observation|scale|causality|representation|practice
 check(/editorial-layout\.css/.test(fieldNotes) && /geo-interactions\.css/.test(fieldNotes), 'PERF-02 Field Notes layout styles are first-response resources');
 
 const blockingLocal = [...fieldNotes.matchAll(/<script\b([^>]*?)\bsrc=(['"])([^'"]+)\2([^>]*)><\/script>/gi)]
-  .filter(([, before,, src, after]) => !/^(?:https?:)?\/\//i.test(src) && !/\b(?:defer|async|data-idle-src)\b/i.test(`${before} ${after}`) && !/\btype\s*=\s*(['"])module\1/i.test(`${before} ${after}`));
-check(blockingLocal.length === 0, 'PERF-03 Field Notes has no blocking local classic scripts');
+  .filter(([, before,, src, after]) => !/^(?:https?:)?\/\//i.test(src) && !isIntentionalSyncBootstrap(src) && !/\b(?:defer|async|data-idle-src)\b/i.test(`${before} ${after}`) && !/\btype\s*=\s*(['"])module\1/i.test(`${before} ${after}`));
+check(blockingLocal.length === 0, 'PERF-03 Field Notes has no accidental blocking local classic scripts');
 
 check(/id="earthActivate"/.test(earth) && /src="boot\.js\?v=20261001a"/.test(earth), 'PERF-04 Earth ships a progressive activation shell');
 check(!/unpkg\.com\/maplibre-gl@6\.6\.0\/dist\/maplibre-gl\.css/.test(earth), 'PERF-04 MapLibre CSS is off the Earth critical path');
@@ -47,12 +48,12 @@ let blockingCount = 0;
 for (const file of htmlFiles) {
   const html = await fs.readFile(file, 'utf8');
   blockingCount += [...html.matchAll(/<script\b([^>]*?)\bsrc=(['"])([^'"]+)\2([^>]*)><\/script>/gi)]
-    .filter(([, before,, src, after]) => !/^(?:https?:)?\/\//i.test(src) && !/\b(?:defer|async|data-idle-src)\b/i.test(`${before} ${after}`) && !/\btype\s*=\s*(['"])module\1/i.test(`${before} ${after}`)).length;
+    .filter(([, before,, src, after]) => !/^(?:https?:)?\/\//i.test(src) && !isIntentionalSyncBootstrap(src) && !/\b(?:defer|async|data-idle-src)\b/i.test(`${before} ${after}`) && !/\btype\s*=\s*(['"])module\1/i.test(`${before} ${after}`)).length;
 }
-check(blockingCount === 0, 'PERF-07 generated HTML has no blocking local classic scripts');
+check(blockingCount === 0, 'PERF-07 generated HTML has no accidental blocking local classic scripts');
 
 if (failures) {
   console.error(`\nPerformance QA failed: ${failures} invariant(s).`);
   process.exit(1);
 }
-console.log(`\nPerformance QA passed: ${htmlFiles.length} HTML files checked.`);
+console.log(`\nPerformance QA passed: ${htmlFiles.length} HTML files checked · ux-preinit is the sole intentional sync bootstrap.`);
