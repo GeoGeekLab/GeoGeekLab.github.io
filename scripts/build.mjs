@@ -3,7 +3,9 @@
 // Normal mode:
 //   1) run legacy QA; its internal build call is redirected to build.legacy.mjs,
 //   2) post-process the legacy artifact into the static-delivery form,
-//   3) inject runtime stability guards and static fallbacks.
+//   3) inject runtime stability guards and static fallbacks,
+//   4) apply browser-performance delivery transforms to the final artifact,
+//   5) prime first-response mobile layout state for measured entry pages.
 // Legacy-build-only mode is used only by qa.legacy.mjs to avoid recursion.
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -23,4 +25,6 @@ if (process.env.GEOGEEK_LEGACY_BUILD_ONLY === '1') {
   if (qa.status !== 0) process.exit(qa.status ?? 1);
   await import('./postbuild-static-delivery.mjs');
   await import('./postbuild-runtime-stability.mjs');
+  await import('./postbuild-performance.mjs');
+  await import('./postbuild-first-view-state.mjs');
 }

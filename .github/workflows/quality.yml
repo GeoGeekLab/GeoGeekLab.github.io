@@ -45,6 +45,12 @@ jobs:
           npm install --no-save @playwright/test@1.55.0 axe-core@4.11.3 @lhci/cli@0.15.1
           npx playwright install --with-deps chromium
 
+      - name: Install responsive image optimizer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends imagemagick
+          convert -version
+
       - name: Capture production Lab previews
         run: node scripts/capture-lab-previews.mjs
 

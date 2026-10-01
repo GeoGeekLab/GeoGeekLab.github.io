@@ -106,6 +106,78 @@ test('Field Notes exposes a statically navigable article', async ({ page }, test
   await runAxe(page, testInfo);
 });
 
+test('Field Notes filters static rows without legacy hydration', async ({ page }) => {
+  const localScripts = [];
+  page.on('request', request => {
+    const url = new URL(request.url());
+    if (url.origin === 'http://127.0.0.1:4173' && request.resourceType() === 'script') localScripts.push(url.pathname);
+  });
+
+  const response = await page.goto('/field-notes.html', { waitUntil: 'domcontentloaded' });
+  const source = await response.text();
+  expect(source).toContain('ux-mobile-v5');
+  expect(source).toContain('ux-page-field-notes');
+
+  const rows = page.locator('[data-static-note-list] .static-note-row');
+  const total = await rows.count();
+  expect(total).toBeGreaterThan(10);
+
+  const filter = page.locator('[data-note-filter="observation"]');
+  await filter.click();
+  await expect(filter).toHaveAttribute('aria-pressed', 'true');
+  const visible = await rows.evaluateAll(nodes => nodes.filter(node => !node.hidden).length);
+  expect(visible).toBeGreaterThan(0);
+  expect(visible).toBeLessThan(total);
+
+  await page.waitForTimeout(2000);
+  expect(localScripts.some(path => /\/(?:content|archive-content|app)\.js$/.test(path) || /\/core\/(?:site-model|modules)\.js$/.test(path))).toBe(false);
+});
+
+test('Lab prioritizes its first-view Earth preview image', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
+  const preload = page.locator('link[rel="preload"][as="image"][href*="earth-observatory.jpg"]');
+  await expect(preload).toHaveCount(1);
+  await expect(preload).toHaveAttribute('fetchpriority', 'high');
+
+  const image = page.locator('.earth-preview-screen > img');
+  await expect(image).toBeVisible();
+  await expect(image).toHaveAttribute('loading', 'eager');
+  await expect(image).toHaveAttribute('fetchpriority', 'high');
+});
+
+test('home defers Commons runtime until the section approaches the viewport', async ({ page }) => {
+  const commonsRuntime = [];
+  page.on('request', request => {
+    if (/\/commons\/commons\.js(?:[?#]|$)/.test(request.url())) commonsRuntime.push(request.url());
+  });
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(700);
+  expect(commonsRuntime).toHaveLength(0);
+
+  await page.locator('#commons').scrollIntoViewIfNeeded();
+  await expect.poll(() => commonsRuntime.length, { timeout: 10000 }).toBeGreaterThan(0);
+  await expect.poll(async () => page.locator('#commons').getAttribute('data-commons-ready'), { timeout: 10000 }).toBe('true');
+});
+
+test('Earth defers MapLibre until explicit activation', async ({ page }) => {
+  const maplibreRequests = [];
+  page.on('request', request => {
+    if (/maplibre-gl@6\.6\.0/.test(request.url())) maplibreRequests.push(request.url());
+  });
+
+  await page.goto('/earth/', { waitUntil: 'domcontentloaded' });
+  const activate = page.locator('#earthActivate');
+  await expect(activate).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(maplibreRequests).toHaveLength(0);
+
+  await activate.click();
+  await expect.poll(() => maplibreRequests.length, { timeout: 10000 }).toBeGreaterThan(0);
+  await page.waitForFunction(() => !!document.querySelector('#map canvas'), null, { timeout: 30000 });
+  await expect(page.locator('#earthBoot')).toHaveCount(0);
+});
+
 test('unknown routes return a real HTTP 404 in the test server', async ({ page }) => {
   const response = await page.goto('/__quality_missing_route__', { waitUntil: 'domcontentloaded' });
   expect(response.status()).toBe(404);

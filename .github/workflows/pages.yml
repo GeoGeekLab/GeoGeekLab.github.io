@@ -44,6 +44,11 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
+      - name: Install responsive image optimizer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends imagemagick
+          convert -version
       - name: Capture real Lab previews
         run: node scripts/capture-lab-previews.mjs
       - name: Verify real Lab previews
