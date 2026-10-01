@@ -47,8 +47,9 @@ for (const css of ['static-delivery.css', 'runtime-stability.css', 'earth-lab-pr
   check(!new RegExp(`<link\\b[^>]*href=(['"])[^'"]*${css.replace('.', '\\.')}[^'"]*\\1`, 'i').test(lab), `R3-PERF-02 ${css} is not a blocking Lab stylesheet request`);
 }
 check(/geo-interactions\.css[^>]*media=(['"])print\1[^>]*onload=/i.test(lab), 'R3-PERF-03 Geo interaction styling is non-blocking on Lab');
-check(/geo-interactions\.js[^>]*\bdefer\b/i.test(lab), 'R3-PERF-03 Geo interaction runtime is deferred on Lab');
-check(/lab-real-previews\.js[^>]*\bdefer\b/i.test(lab), 'R3-PERF-03 Lab preview enhancement is deferred');
+check(/data-round3-lab-postload/i.test(lab), 'R3-PERF-03 Lab noncritical runtimes use a post-load bootstrap');
+check(!/<script\b[^>]*src=(['"])[^'"]*(?:geo-interactions|lab-real-previews)\.js/i.test(lab), 'R3-PERF-03 noncritical Lab runtimes are not parser-discovered');
+check(/requestIdleCallback/.test(lab) && /addEventListener\('load'/.test(lab), 'R3-PERF-03 Lab enhancements wait for load plus idle time');
 check(/round3-accessibility\.js[^>]*\bdefer\b/i.test(origin), 'R3-A11Y-06 Origin receives the deferred Round 3 accessibility runtime');
 
 if (failures) {
