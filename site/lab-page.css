@@ -227,6 +227,314 @@
   border-radius: 0 !important;
 }
 
+/* ---------------------------------------------------------
+   Lab workbench v1
+   Shared instrument grammar + first MAP-family implementation.
+   --------------------------------------------------------- */
+
+.instrument-dialog[data-instrument-family="map"] {
+  width: min(1580px, calc(100vw - 24px));
+  height: min(870px, calc(100dvh - 24px));
+  border: 1px solid rgba(222,228,223,.16);
+  background: #111a15;
+  box-shadow: 0 28px 90px rgba(5,10,7,.34);
+}
+.instrument-dialog[data-instrument-family="map"]::backdrop {
+  background: rgba(14,21,17,.62);
+  backdrop-filter: blur(4px);
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-shell {
+  grid-template-rows: auto auto minmax(0,1fr) 44px;
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-head {
+  min-height: 88px;
+  align-items: center;
+  padding: 14px 20px 12px;
+  border-bottom-color: rgba(225,231,226,.09);
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-kicker {
+  color: #839087;
+  font-size: 9px;
+  letter-spacing: .11em;
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-head h2 {
+  margin-top: 7px;
+  font-size: clamp(32px,3vw,46px);
+  line-height: .94;
+  letter-spacing: -.043em;
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-close {
+  width: 38px;
+  height: 38px;
+  flex-basis: 38px;
+  border-color: rgba(225,231,226,.17);
+  color: #8e9a92;
+  font-size: 21px;
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-meta {
+  grid-template-columns: minmax(300px,.92fr) minmax(520px,1.08fr);
+  gap: 22px;
+  align-items: center;
+  min-height: 66px;
+  padding: 9px 20px 10px;
+  border-bottom-color: rgba(225,231,226,.075);
+}
+.instrument-dialog[data-instrument-family="map"] #instrumentDescription {
+  margin: 0;
+  max-width: 76ch;
+  color: #c4cbc5;
+  font-size: 12px;
+  line-height: 1.42;
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-conditions {
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  border-left-color: rgba(225,231,226,.075);
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-conditions div {
+  gap: 3px;
+  padding: 1px 9px 2px 12px;
+  border-right: 1px solid rgba(225,231,226,.055);
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-conditions div:last-child { border-right: 0; }
+.instrument-dialog[data-instrument-family="map"] .instrument-conditions dt {
+  color: #77857c;
+  font-size: 8px;
+  line-height: 1.2;
+  letter-spacing: .09em;
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-conditions dd {
+  color: #d5dad6;
+  font-size: 9.5px;
+  line-height: 1.28;
+  overflow-wrap: normal;
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-stage {
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-top: 0;
+  background:
+    radial-gradient(circle at 45% 42%, rgba(58,83,68,.11), transparent 40%),
+    #0c130f;
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-foot {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-top-color: rgba(225,231,226,.085);
+  color: #7f8b83;
+  font-size: 8.5px;
+  letter-spacing: .07em;
+}
+.instrument-dialog[data-instrument-family="map"] .instrument-status {
+  min-height: 24px;
+  margin: 0;
+  padding: 0 8px;
+  border-color: rgba(225,231,226,.09);
+  font-size: 8.5px;
+}
+.instrument-dialog[data-instrument-family="map"] #instrumentBoundary { text-align: right; }
+
+/* Secondary explanation is present, but no longer competes with the map. */
+.instrument-disclosure {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(225,231,226,.075);
+  color: #8f9b93;
+}
+.instrument-disclosure summary {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+  color: #849087;
+  cursor: pointer;
+  font: 700 8px/1 var(--mono);
+  letter-spacing: .10em;
+  text-transform: uppercase;
+}
+.instrument-disclosure summary::-webkit-details-marker { display: none; }
+.instrument-disclosure summary::after { content: "+"; color: #a3ada6; font-size: 13px; font-weight: 400; }
+.instrument-disclosure[open] summary::after { content: "−"; }
+.instrument-disclosure-body { padding: 5px 0 1px; }
+.instrument-disclosure-body p,
+.instrument-disclosure-body .source-line {
+  margin: 7px 0 0 !important;
+  color: #89958d !important;
+  font-size: 9.5px !important;
+  line-height: 1.5 !important;
+}
+.instrument-disclosure-body .source-line {
+  display: block;
+  font-family: var(--mono);
+  letter-spacing: .035em;
+}
+
+/* EARTH / temporal map */
+.instrument-dialog[data-instrument-kind="earth"] .earth-layout {
+  grid-template-columns: minmax(0,1fr) 258px;
+  height: 100%;
+  min-height: 0;
+  background: #0b120e;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-image-wrap {
+  min-width: 0;
+  min-height: 0;
+  padding: 16px;
+  background:
+    linear-gradient(rgba(238,241,238,.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238,241,238,.024) 1px, transparent 1px),
+    radial-gradient(circle at 48% 46%, rgba(62,92,73,.11), transparent 46%),
+    #0a100d;
+  background-size: 64px 64px,64px 64px,auto,auto;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-map-frame {
+  width: 100%;
+  max-width: none;
+  max-height: 100%;
+  aspect-ratio: 2 / 1;
+  border-color: rgba(226,232,227,.12);
+  background: #080d0a;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.22);
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-map-frame img {
+  object-fit: contain;
+  background: #080d0a;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-grid {
+  opacity: .22;
+  background-size: 12.5% 25%;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-stamp {
+  left: 12px;
+  bottom: 11px;
+  padding: 6px 7px;
+  border: 1px solid rgba(225,231,226,.09);
+  background: rgba(8,13,10,.76);
+  color: #aeb8b0;
+  font-size: 8.5px;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-controls {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 17px 16px 14px;
+  border-left: 1px solid rgba(225,231,226,.085);
+  background: #121c16;
+  backdrop-filter: none;
+}
+.instrument-dialog[data-instrument-kind="earth"] .orbit-panel-label {
+  margin-bottom: 10px;
+  color: #7d8b82;
+  font-size: 8px;
+  letter-spacing: .10em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-controls > strong {
+  font-size: 19px;
+  line-height: 1.08;
+  letter-spacing: -.02em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-controls label {
+  gap: 6px;
+  margin: 18px 0 8px;
+  color: #859188;
+  font-size: 8px;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-controls output { font-size: 10px; }
+.instrument-dialog[data-instrument-kind="earth"] .earth-controls input[type="range"] { accent-color: #b85431; }
+.instrument-dialog[data-instrument-kind="earth"] .earth-controls button {
+  min-height: 34px;
+  margin-top: 12px;
+  padding: 0 10px;
+  font-size: 8.5px;
+}
+
+/* ORBIT / navigable field */
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab {
+  grid-template-columns: minmax(0,1fr) 258px;
+  height: 100%;
+  min-height: 0;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-stage {
+  min-width: 0;
+  min-height: 0;
+  background:
+    linear-gradient(rgba(239,241,239,.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(239,241,239,.022) 1px, transparent 1px),
+    radial-gradient(circle at 50% 48%, rgba(59,88,70,.14), transparent 43%),
+    #090f0c;
+  background-size: 72px 72px,72px 72px,auto,auto;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-status {
+  left: 16px;
+  top: 15px;
+  padding-left: 11px;
+  border-left: 1px solid rgba(209,99,57,.60);
+  color: #99a59d;
+  font-size: 9px;
+  letter-spacing: .08em;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-hover {
+  top: 14px;
+  padding: 6px 8px;
+  border-color: rgba(225,231,226,.10);
+  background: rgba(7,12,9,.78);
+  color: #bcc5be;
+  font-size: 9px;
+  backdrop-filter: none;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-panel {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 17px 16px 14px;
+  border-left: 1px solid rgba(225,231,226,.085);
+  background: #121c16;
+  backdrop-filter: none;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-panel .orbit-panel-label {
+  margin-bottom: 10px;
+  color: #7d8b82;
+  font-size: 8px;
+  letter-spacing: .10em;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-panel > strong {
+  font-size: 19px;
+  line-height: 1.08;
+  letter-spacing: -.02em;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-panel dl { margin: 16px 0 0; }
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-panel dl div {
+  grid-template-columns: 74px minmax(0,1fr);
+  gap: 10px;
+  padding: 7px 0;
+  border-top-color: rgba(225,231,226,.07);
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-panel dt {
+  color: #78857d;
+  font-size: 8px;
+  line-height: 1.3;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-panel dd {
+  color: #cfd5d0;
+  font-size: 9px;
+  line-height: 1.35;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-trace-legend {
+  gap: 7px;
+  margin-top: 14px;
+  padding-top: 11px;
+  border-top-color: rgba(225,231,226,.07);
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbital-trace-legend span { font-size: 8px; }
+.instrument-dialog[data-instrument-kind="orbit"] .trace-orbit,
+.instrument-dialog[data-instrument-kind="orbit"] .trace-ground { width: 20px; }
+
 @media (max-width: 1100px) {
   .lab-build-row { grid-template-columns: 64px minmax(180px,.7fr) minmax(0,1fr); }
   .lab-build-open { grid-column: 2 / -1; justify-self: start; }
@@ -234,6 +542,24 @@
   .lab-group-observatory .project-grid,
   .lab-group-studies .project-grid { grid-template-columns: 1fr; }
   .instrument-meta { grid-template-columns: 1fr; }
+
+  .instrument-dialog[data-instrument-family="map"] .instrument-meta {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding-block: 9px;
+  }
+  .instrument-dialog[data-instrument-family="map"] #instrumentDescription {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .instrument-dialog[data-instrument-family="map"] .instrument-conditions {
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    border-left: 0;
+    border-top: 1px solid rgba(225,231,226,.065);
+    padding-top: 7px;
+  }
+  .instrument-dialog[data-instrument-family="map"] .instrument-conditions div:first-child { padding-left: 0; }
 }
 
 @media (max-width: 760px) {
@@ -251,4 +577,66 @@
   .lab-build-row p { font-size: 14px; }
   .lab-list { margin-top: 78px; }
   .instrument-stage { padding: 0; }
+
+  .instrument-dialog[data-instrument-family="map"] {
+    width: 100vw;
+    height: 100dvh;
+    border: 0;
+  }
+  .instrument-dialog[data-instrument-family="map"] .instrument-shell {
+    grid-template-rows: auto auto minmax(0,1fr) auto;
+  }
+  .instrument-dialog[data-instrument-family="map"] .instrument-head {
+    min-height: 72px;
+    padding: max(12px,env(safe-area-inset-top)) 16px 10px;
+  }
+  .instrument-dialog[data-instrument-family="map"] .instrument-head h2 { font-size: 30px; }
+  .instrument-dialog[data-instrument-family="map"] .instrument-meta { padding: 8px 16px; }
+  .instrument-dialog[data-instrument-family="map"] #instrumentDescription {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    font-size: 11px;
+  }
+  .instrument-dialog[data-instrument-family="map"] .instrument-conditions {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+  .instrument-dialog[data-instrument-family="map"] .instrument-conditions div { padding: 5px 8px 5px 0; }
+  .instrument-dialog[data-instrument-family="map"] .instrument-stage { overflow-y: auto; }
+  .instrument-dialog[data-instrument-family="map"] .instrument-foot {
+    grid-template-columns: 1fr auto;
+    gap: 7px 12px;
+    min-height: 54px;
+    padding: 8px 16px max(8px,env(safe-area-inset-bottom));
+  }
+  .instrument-dialog[data-instrument-family="map"] .instrument-status {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: start;
+  }
+  .instrument-dialog[data-instrument-family="map"] #instrumentBoundary { text-align: right; }
+
+  .instrument-dialog[data-instrument-kind="earth"] .earth-layout,
+  .instrument-dialog[data-instrument-kind="orbit"] .orbital-lab {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(50svh,1fr) auto;
+    overflow: visible;
+  }
+  .instrument-dialog[data-instrument-kind="earth"] .earth-image-wrap {
+    min-height: 50svh;
+    padding: 10px;
+  }
+  .instrument-dialog[data-instrument-kind="earth"] .earth-controls,
+  .instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-panel {
+    max-height: none;
+    overflow: visible;
+    padding: 16px;
+    border-left: 0;
+    border-top: 1px solid rgba(225,231,226,.085);
+  }
+  .instrument-dialog[data-instrument-kind="orbit"] .orbital-lab-stage { min-height: 52svh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .instrument-dialog[data-instrument-family="map"] * { scroll-behavior: auto !important; }
 }
