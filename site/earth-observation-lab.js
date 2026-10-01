@@ -1,8 +1,9 @@
 (() => {
   'use strict';
 
-  const VERSION = '20261001a';
+  const VERSION = '20261002a';
   const GIBS_WMS = 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi';
+  const DAY_MS = 86400000;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -80,23 +81,25 @@
   const pad = n => String(n).padStart(2,'0');
   const day = date => `${date.getUTCFullYear()}-${pad(date.getUTCMonth()+1)}-${pad(date.getUTCDate())}`;
   const utcDate = value => new Date(`${value}T00:00:00Z`);
-  const addDays = (date, amount) => new Date(date.getTime() + amount * 86400000);
+  const addDays = (date, amount) => new Date(date.getTime() + amount * DAY_MS);
+  const daysBetween = (later, earlier) => Math.max(0, Math.round((later - earlier) / DAY_MS));
   const clampDate = (date, min, max) => date < min ? min : date > max ? max : date;
-  const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt',"'":'&#39;','"':'&quot;'}[c]));
 
-  function latestDate(layer) {
+  function safeDate(layer) {
     const now = new Date();
-    return utcDate(day(addDays(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())), -layer.lag)));
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    return addDays(today, -layer.lag);
   }
 
   function getInitialState() {
     const url = new URL(location.href);
     const layer = byId.get(url.searchParams.get('earthLayer')) || layers[0];
-    const latest = latestDate(layer);
+    const recent = safeDate(layer);
     const requested = url.searchParams.get('earthDate');
-    const parsed = requested && /^\d{4}-\d{2}-\d{2}$/.test(requested) ? utcDate(requested) : latest;
+    const parsed = requested && /^\d{4}-\d{2}-\d{2}$/.test(requested) ? utcDate(requested) : recent;
     const min = utcDate(layer.start);
-    const primary = clampDate(parsed, min, latest);
+    const primary = clampDate(parsed, min, recent);
     const compareOffset = Math.max(1, Math.min(365, Number(url.searchParams.get('earthOffset') || 7) || 7));
     return {
       layerId: layer.id,
@@ -105,7 +108,7 @@
       compareOffset,
       split: Math.max(12, Math.min(88, Number(url.searchParams.get('earthSplit') || 50) || 50)),
       playing:false,
-      speed:1100,
+      speed:1300,
       showGrid:true,
       overlayOpacity:layer.opacity ?? 1,
       probe:null
@@ -126,9 +129,9 @@
     if (!lab?.conditions) return;
     lab.conditions.earth = [
       ['EXTENT','GLOBAL · EPSG:4326'],
-      ['TIME','DATE-CONTROLLED · UTC'],
+      ['TIME','DATE-CONTROLLED · CONSERVATIVE RECENT WINDOW'],
       ['SOURCE','NASA EOSDIS GIBS'],
-      ['METHOD','SWIPE COMPARE · SENSOR-AWARE']
+      ['METHOD','2:1 EQUIRECTANGULAR · SWIPE COMPARE']
     ];
   }
 
@@ -139,7 +142,11 @@
     let timer = null;
     let loadGeneration = 0;
     let keyHandler = null;
+    let visibilityHandler = null;
+    let resizeHandler = null;
+    let resizeObserver = null;
     let dragPointer = null;
+    const pendingImages = new Set();
 
     stage.innerHTML = `
       <div class="earth-observation-lab">
@@ -151,16 +158,18 @@
             <button type="button" id="eoReset" class="eo-quiet-button">RESET</button>
           </header>
 
-          <div class="earth-observation-frame" id="eoFrame">
-            <div class="eo-image-stack eo-image-a" id="eoImageA" aria-label="Primary observation"></div>
-            <div class="eo-image-stack eo-image-b" id="eoImageB" aria-label="Reference observation"></div>
-            <div class="eo-loading" id="eoLoading" aria-live="polite"><i></i><span>REQUESTING OBSERVATION</span></div>
-            <div class="eo-graticule" id="eoGraticule" aria-hidden="true"></div>
-            <div class="eo-probe" id="eoProbe" hidden><i></i><span id="eoProbeLabel"></span></div>
-            <button class="eo-compare-handle" id="eoCompareHandle" type="button" role="slider" aria-label="Comparison split" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" hidden><span></span></button>
-            <div class="eo-map-label eo-label-a"><span>A</span><b id="eoLabelA">—</b></div>
-            <div class="eo-map-label eo-label-b" id="eoLabelBWrap" hidden><span>B</span><b id="eoLabelB">—</b></div>
-            <div class="eo-frame-note"><span>DISPLAY / EPSG:4326</span><span>CLICK TO PROBE LON/LAT</span></div>
+          <div class="earth-observation-frame-shell" id="eoFrameShell" style="min-height:0;display:grid;place-items:center;overflow:hidden;background:#060b08;">
+            <div class="earth-observation-frame" id="eoFrame" aria-label="Global observation in EPSG:4326, displayed at a fixed two-to-one equirectangular aspect ratio">
+              <div class="eo-image-stack eo-image-a" id="eoImageA" aria-label="Primary observation"></div>
+              <div class="eo-image-stack eo-image-b" id="eoImageB" aria-label="Reference observation"></div>
+              <div class="eo-loading" id="eoLoading" aria-live="polite"><i></i><span>REQUESTING OBSERVATION</span></div>
+              <div class="eo-graticule" id="eoGraticule" aria-hidden="true"></div>
+              <div class="eo-probe" id="eoProbe" hidden><i></i><span id="eoProbeLabel"></span></div>
+              <button class="eo-compare-handle" id="eoCompareHandle" type="button" role="slider" aria-label="Comparison split" aria-valuemin="5" aria-valuemax="95" aria-valuenow="50" aria-valuetext="50 percent reveal" hidden><span></span></button>
+              <div class="eo-map-label eo-label-a"><span>A</span><b id="eoLabelA">—</b></div>
+              <div class="eo-map-label eo-label-b" id="eoLabelBWrap" hidden><span>B</span><b id="eoLabelB">—</b></div>
+              <div class="eo-frame-note" id="eoProjectionNote"><span>DISPLAY / EPSG:4326 · 2:1</span><span>CLICK TO PROBE LON/LAT</span></div>
+            </div>
           </div>
 
           <footer class="earth-timeline" aria-label="Observation timeline">
@@ -168,11 +177,11 @@
               <button type="button" id="eoPrev" aria-label="Previous day">−1D</button>
               <button type="button" id="eoPlay" aria-pressed="false">PLAY</button>
               <button type="button" id="eoNext" aria-label="Next day">+1D</button>
-              <button type="button" id="eoLatest">LATEST</button>
+              <button type="button" id="eoLatest" aria-label="Jump to conservative recent observation date" title="Uses a conservative product-specific latency window; provider availability can differ.">SAFE DATE</button>
             </div>
             <div class="eo-timeline-track">
               <div class="eo-timeline-head"><span id="eoCoverageStart">—</span><strong id="eoTimelineDate">—</strong><span id="eoCoverageEnd">—</span></div>
-              <input id="eoRange" type="range" min="0" max="120" value="0" step="1" aria-label="Days before latest available observation" />
+              <input id="eoRange" type="range" min="0" max="120" value="0" step="1" aria-label="Days before conservative recent observation date" />
               <div class="eo-ticks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
             </div>
             <label class="eo-date-input">UTC DATE<input id="eoDate" type="date" /></label>
@@ -182,14 +191,14 @@
         <aside class="earth-observation-panel">
           <section class="eo-panel-card eo-layer-card">
             <div class="eo-panel-head"><div><span>OBSERVATION LAYERS</span><strong>Choose what the sensor means.</strong></div><em id="eoLayerMode">VISUAL</em></div>
-            <div class="eo-layer-groups" id="eoLayerGroups" role="tablist" aria-label="Observation layer categories"></div>
-            <div class="eo-layer-list" id="eoLayerList"></div>
+            <div class="eo-layer-groups" id="eoLayerGroups" role="tablist" aria-orientation="horizontal" aria-label="Observation layer categories"></div>
+            <div class="eo-layer-list" id="eoLayerList" role="tabpanel" aria-label="Observation products in the selected category"></div>
           </section>
 
           <section class="eo-panel-card">
             <div class="eo-panel-head"><div><span>COMPARE</span><strong>Change requires a reference.</strong></div><em id="eoCompareState">OFF</em></div>
             <button type="button" class="eo-compare-toggle" id="eoCompare" aria-pressed="false"><i></i><span><b>SWIPE A / B</b><small>Same layer, two UTC dates</small></span></button>
-            <div class="eo-compare-presets" id="eoComparePresets" aria-label="Reference date offset">
+            <div class="eo-compare-presets" id="eoComparePresets" aria-label="Requested reference date offset">
               <button type="button" data-offset="1">1 DAY</button>
               <button type="button" data-offset="7" class="is-active">7 DAYS</button>
               <button type="button" data-offset="30">30 DAYS</button>
@@ -215,6 +224,7 @@
         </aside>
       </div>`;
 
+    const frameShell = $('#eoFrameShell', stage);
     const frame = $('#eoFrame', stage);
     const stackA = $('#eoImageA', stage);
     const stackB = $('#eoImageB', stage);
@@ -227,7 +237,7 @@
     const playButton = $('#eoPlay', stage);
     const prevButton = $('#eoPrev', stage);
     const nextButton = $('#eoNext', stage);
-    const latestButton = $('#eoLatest', stage);
+    const recentButton = $('#eoLatest', stage);
     const compareButton = $('#eoCompare', stage);
     const compareState = $('#eoCompareState', stage);
     const layerList = $('#eoLayerList', stage);
@@ -244,11 +254,35 @@
     let activeGroup = byId.get(state.layerId)?.group || 'VISUAL';
 
     function currentLayer() { return byId.get(state.layerId) || layers[0]; }
-    function boundsFor(layer=currentLayer()) { return { min:utcDate(layer.start), max:latestDate(layer) }; }
+    function boundsFor(layer=currentLayer()) { return { min:utcDate(layer.start), max:safeDate(layer) }; }
     function compareDate() {
       const { min } = boundsFor();
-      return addDays(state.date, -state.compareOffset) < min ? min : addDays(state.date, -state.compareOffset);
+      const requested = addDays(state.date, -state.compareOffset);
+      return requested < min ? min : requested;
     }
+    function actualCompareOffset() { return daysBetween(state.date, compareDate()); }
+
+    function sizeProjectionFrame() {
+      const rect = frameShell?.getBoundingClientRect();
+      if (!rect || rect.width < 2 || rect.height < 1) return;
+      let width = rect.width;
+      let height = width / 2;
+      if (height > rect.height) {
+        height = rect.height;
+        width = height * 2;
+      }
+      frame.style.width = `${Math.max(2, Math.floor(width))}px`;
+      frame.style.height = `${Math.max(1, Math.floor(height))}px`;
+    }
+
+    if ('ResizeObserver' in window) {
+      resizeObserver = new ResizeObserver(sizeProjectionFrame);
+      resizeObserver.observe(frameShell);
+    } else {
+      resizeHandler = sizeProjectionFrame;
+      window.addEventListener('resize', resizeHandler, { passive:true });
+    }
+    sizeProjectionFrame();
 
     function persist() {
       const url = new URL(location.href);
@@ -276,14 +310,41 @@
       return $$('img', container);
     }
 
-    function preload(src) {
+    function preload(src, timeout = 15000) {
       return new Promise(resolve => {
+        if (signal?.aborted) return resolve({ ok:false, src, aborted:true });
         const img = new Image();
+        pendingImages.add(img);
+        let settled = false;
+        let timerId = 0;
+        const finish = (ok, extra = {}) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timerId);
+          pendingImages.delete(img);
+          signal?.removeEventListener?.('abort', onAbort);
+          img.onload = null;
+          img.onerror = null;
+          resolve({ ok, src, ...extra });
+        };
+        const onAbort = () => {
+          try { img.src = ''; } catch {}
+          finish(false, { aborted:true });
+        };
         img.referrerPolicy = 'no-referrer';
-        img.onload = () => resolve({ ok:true, src });
-        img.onerror = () => resolve({ ok:false, src });
+        img.onload = () => finish(true);
+        img.onerror = () => finish(false);
+        signal?.addEventListener?.('abort', onAbort, { once:true });
+        timerId = setTimeout(() => {
+          try { img.src = ''; } catch {}
+          finish(false, { timeout:true });
+        }, timeout);
         img.src = src;
       });
+    }
+
+    function backgroundPrefetch(entries) {
+      entries.forEach(entry => { preload(entry.src, 12000).catch(() => {}); });
     }
 
     async function renderImages() {
@@ -295,7 +356,7 @@
       const sources = [...aEntries, ...(state.compare ? bEntries : [])].map(item => item.src);
       loading.hidden = false;
       loading.dataset.state = 'loading';
-      const results = await Promise.all(sources.map(preload));
+      const results = await Promise.all(sources.map(src => preload(src)));
       if (generation !== loadGeneration || signal?.aborted) return;
       const failed = results.some(result => !result.ok);
       const aImages = renderStack(stackA, aEntries, `${layer.short} ${day(state.date)}`);
@@ -311,21 +372,31 @@
       const status = document.querySelector('.instrument-status');
       if (status) {
         status.dataset.state = failed ? 'error' : 'live';
-        status.textContent = failed ? 'STATUS / ERROR' : `STATUS / LIVE · UPDATED ${day(state.date)} UTC`;
+        status.textContent = failed ? 'STATUS / ERROR' : `STATUS / READY · VIEW ${day(state.date)} UTC`;
+        status.title = failed ? 'One or more requested image layers failed to load.' : 'Date-controlled observation loaded. READY does not mean real-time provider latest.';
       }
-      const { min } = boundsFor(layer);
-      const next = addDays(state.date, -1);
-      if (next >= min) frameImages(layer, next).forEach(entry => { const img = new Image(); img.referrerPolicy='no-referrer'; img.src=entry.src; });
+      const { min, max } = boundsFor(layer);
+      [-1, 1].forEach(delta => {
+        const candidate = addDays(state.date, delta);
+        if (candidate >= min && candidate <= max) backgroundPrefetch(frameImages(layer, candidate));
+      });
     }
 
     function updateSplit() {
       stackB.style.clipPath = `inset(0 0 0 ${state.split}%)`;
       handle.style.left = `${state.split}%`;
-      handle.setAttribute('aria-valuenow', String(Math.round(state.split)));
+      const rounded = Math.round(state.split);
+      handle.setAttribute('aria-valuenow', String(rounded));
+      handle.setAttribute('aria-valuetext', `${rounded} percent reveal`);
     }
 
     function renderGroups() {
-      groupList.innerHTML = groups.map(group => `<button type="button" role="tab" aria-selected="${group===activeGroup}" class="${group===activeGroup?'is-active':''}" data-group="${group}">${group}</button>`).join('');
+      groupList.innerHTML = groups.map((group, index) => {
+        const selected = group === activeGroup;
+        return `<button id="eoLayerGroup-${index}" type="button" role="tab" aria-selected="${selected}" aria-controls="eoLayerList" tabindex="${selected ? '0' : '-1'}" class="${selected?'is-active':''}" data-group="${group}">${group}</button>`;
+      }).join('');
+      const selected = groupList.querySelector('[aria-selected="true"]');
+      if (selected) layerList.setAttribute('aria-labelledby', selected.id);
     }
 
     function renderLayerList() {
@@ -338,13 +409,18 @@
     function renderInspector() {
       const layer = currentLayer();
       const reference = compareDate();
+      const actualOffset = actualCompareOffset();
+      const compareValue = state.compare
+        ? `${day(reference)} ↔ ${day(state.date)} · ${actualOffset} actual day${actualOffset === 1 ? '' : 's'}${actualOffset !== state.compareOffset ? ` · requested ${state.compareOffset}, clipped by coverage` : ''}`
+        : 'OFF · one observation date';
       $('#eoInspectorTitle',stage).textContent = layer.label;
       $('#eoInspectorMeta',stage).innerHTML = [
         ['SOURCE', layer.source],
         ['TIME', `${day(state.date)} UTC · ${layer.cadence}`],
         ['RESOLUTION', layer.resolution],
-        ['PROJECTION', 'EPSG:4326 · plate carrée display'],
-        ['COMPARE', state.compare ? `${day(reference)} ↔ ${day(state.date)} · ${state.compareOffset} day offset` : 'OFF · one observation date'],
+        ['PROJECTION', 'EPSG:4326 · 2:1 equirectangular display'],
+        ['RECENT-DATE POLICY', `Conservative T-${layer.lag} day request window; provider availability and upstream revisions can differ.`],
+        ['COMPARE', compareValue],
         ['LIMIT', layer.limit]
       ].map(([key,value]) => `<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('');
       $('#eoSourceLink',stage).href = layer.sourceUrl;
@@ -375,18 +451,20 @@
       const layer = currentLayer();
       const { min, max } = boundsFor(layer);
       state.date = clampDate(state.date, min, max);
-      const age = Math.max(0, Math.round((max - state.date) / 86400000));
-      range.max = String(Math.max(120, age));
+      const age = daysBetween(max, state.date);
+      const archiveDays = Math.max(1, daysBetween(max, min));
+      range.max = String(archiveDays);
       range.value = String(age);
       dateInput.min = day(min);
       dateInput.max = day(max);
       dateInput.value = day(state.date);
       $('#eoCoverageStart',stage).textContent = layer.start;
-      $('#eoCoverageEnd',stage).textContent = `LATEST ${day(max)}`;
+      $('#eoCoverageEnd',stage).textContent = `SAFE THROUGH ${day(max)}`;
       $('#eoTimelineDate',stage).textContent = day(state.date);
       $('#eoHudLayer',stage).textContent = layer.short;
       $('#eoHudDate',stage).textContent = `${day(state.date)} UTC`;
-      $('#eoHudReference',stage).textContent = state.compare ? `${day(compareDate())} · ${state.compareOffset}D` : 'OFF';
+      const actualOffset = actualCompareOffset();
+      $('#eoHudReference',stage).textContent = state.compare ? `${day(compareDate())} · ${actualOffset}D${actualOffset !== state.compareOffset ? '*' : ''}` : 'OFF';
       $('#eoLabelA',stage).textContent = day(state.date);
       $('#eoLabelB',stage).textContent = day(compareDate());
       compareButton.classList.toggle('is-active', state.compare);
@@ -394,7 +472,12 @@
       compareState.textContent = state.compare ? 'A / B' : 'OFF';
       nextButton.disabled = day(state.date) >= day(max);
       prevButton.disabled = day(state.date) <= day(min);
-      $$('#eoComparePresets [data-offset]',stage).forEach(button => button.classList.toggle('is-active', Number(button.dataset.offset) === state.compareOffset));
+      recentButton.disabled = day(state.date) >= day(max);
+      $$('#eoComparePresets [data-offset]',stage).forEach(button => {
+        const selected = Number(button.dataset.offset) === state.compareOffset;
+        button.classList.toggle('is-active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
       renderGroups();
       renderLayerList();
       renderInspector();
@@ -419,6 +502,7 @@
       playButton.textContent = state.playing ? 'PAUSE' : 'PLAY';
       if (state.playing) {
         timer = setInterval(() => {
+          if (loading.dataset.state === 'loading') return;
           const { min, max } = boundsFor();
           const next = addDays(state.date, 1);
           setDate(next > max ? min : next);
@@ -426,14 +510,26 @@
       }
     }
 
+    function selectGroup(group, { focus=false } = {}) {
+      if (!groups.includes(group)) return;
+      activeGroup = group;
+      renderGroups();
+      renderLayerList();
+      if (focus) groupList.querySelector(`[data-group="${group}"]`)?.focus();
+    }
+
     stage.addEventListener('click', event => {
       const layerButton = event.target.closest?.('[data-earth-layer]');
       if (layerButton) {
         const next = byId.get(layerButton.dataset.earthLayer);
         if (!next) return;
+        const previous = currentLayer();
+        const previousMax = safeDate(previous);
+        const wasAtSafeDate = day(state.date) === day(previousMax);
         state.layerId = next.id;
         activeGroup = next.group;
-        state.date = latestDate(next);
+        const nextBounds = boundsFor(next);
+        state.date = wasAtSafeDate ? nextBounds.max : clampDate(state.date, nextBounds.min, nextBounds.max);
         state.overlayOpacity = next.opacity ?? 1;
         state.probe = null;
         togglePlay(false);
@@ -442,9 +538,7 @@
       }
       const groupButton = event.target.closest?.('[data-group]');
       if (groupButton) {
-        activeGroup = groupButton.dataset.group;
-        renderGroups();
-        renderLayerList();
+        selectGroup(groupButton.dataset.group);
         return;
       }
       const offsetButton = event.target.closest?.('[data-offset]');
@@ -453,6 +547,20 @@
         state.compare = true;
         renderState();
       }
+    });
+
+    groupList.addEventListener('keydown', event => {
+      const current = event.target.closest?.('[data-group]');
+      if (!current) return;
+      const index = groups.indexOf(current.dataset.group);
+      let nextIndex = -1;
+      if (event.key === 'ArrowRight') nextIndex = (index + 1) % groups.length;
+      if (event.key === 'ArrowLeft') nextIndex = (index - 1 + groups.length) % groups.length;
+      if (event.key === 'Home') nextIndex = 0;
+      if (event.key === 'End') nextIndex = groups.length - 1;
+      if (nextIndex < 0) return;
+      event.preventDefault();
+      selectGroup(groups[nextIndex], { focus:true });
     });
 
     range.addEventListener('input', () => {
@@ -464,7 +572,7 @@
     });
     prevButton.addEventListener('click', () => setDate(addDays(state.date,-1)));
     nextButton.addEventListener('click', () => setDate(addDays(state.date,1)));
-    latestButton.addEventListener('click', () => setDate(boundsFor().max));
+    recentButton.addEventListener('click', () => setDate(boundsFor().max));
     playButton.addEventListener('click', () => togglePlay());
     compareButton.addEventListener('click', () => { state.compare = !state.compare; renderState(); });
     gridButton.addEventListener('click', () => {
@@ -484,7 +592,7 @@
       const layer = layers[0];
       state.layerId = layer.id;
       activeGroup = layer.group;
-      state.date = latestDate(layer);
+      state.date = safeDate(layer);
       state.compare = false;
       state.compareOffset = 7;
       state.split = 50;
@@ -493,6 +601,7 @@
       state.showGrid = true;
       graticule.hidden = false;
       gridButton.classList.add('is-active');
+      gridButton.setAttribute('aria-pressed', 'true');
       togglePlay(false);
       renderState();
     });
@@ -500,6 +609,7 @@
     frame.addEventListener('click', event => {
       if (event.target.closest?.('.eo-compare-handle')) return;
       const rect = frame.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) return;
       const x = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
       const y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
       const lon = (x / rect.width) * 360 - 180;
@@ -510,6 +620,7 @@
 
     function setSplitFromPointer(event) {
       const rect = frame.getBoundingClientRect();
+      if (rect.width < 1) return;
       state.split = Math.max(5, Math.min(95, ((event.clientX - rect.left) / rect.width) * 100));
       updateSplit();
       persist();
@@ -524,16 +635,18 @@
     handle.addEventListener('pointerup', event => { if (dragPointer === event.pointerId) { dragPointer = null; handle.releasePointerCapture?.(event.pointerId); } });
     handle.addEventListener('pointercancel', () => { dragPointer = null; });
     handle.addEventListener('keydown', event => {
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Home' || event.key === 'End') {
         event.preventDefault();
-        state.split = Math.max(5, Math.min(95, state.split + (event.key === 'ArrowLeft' ? -5 : 5)));
+        if (event.key === 'Home') state.split = 5;
+        else if (event.key === 'End') state.split = 95;
+        else state.split = Math.max(5, Math.min(95, state.split + (event.key === 'ArrowLeft' ? -5 : 5)));
         updateSplit();
         persist();
       }
     });
 
     keyHandler = event => {
-      if (!stage.isConnected || event.target?.matches?.('input,textarea,select,button')) return;
+      if (!stage.isConnected || event.target?.closest?.('input,textarea,select,button,a,[contenteditable="true"],[role="slider"]')) return;
       if (event.code === 'Space') { event.preventDefault(); togglePlay(); }
       if (event.key === 'ArrowLeft') setDate(addDays(state.date,-1));
       if (event.key === 'ArrowRight') setDate(addDays(state.date,1));
@@ -542,12 +655,21 @@
     };
     document.addEventListener('keydown', keyHandler);
 
+    visibilityHandler = () => { if (document.hidden && state.playing) togglePlay(false); };
+    document.addEventListener('visibilitychange', visibilityHandler);
+
     renderState({ images:true, url:true });
+    requestAnimationFrame(sizeProjectionFrame);
 
     return () => {
       clearInterval(timer);
       loadGeneration += 1;
+      pendingImages.forEach(img => { try { img.src = ''; } catch {} });
+      pendingImages.clear();
+      resizeObserver?.disconnect();
+      if (resizeHandler) window.removeEventListener('resize', resizeHandler);
       document.removeEventListener('keydown', keyHandler);
+      document.removeEventListener('visibilitychange', visibilityHandler);
       stage.innerHTML = '';
     };
   }
