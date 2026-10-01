@@ -34,12 +34,17 @@ async function loadFieldNoteSeriesKeys() {
   return map;
 }
 
+function isIntentionalSyncBootstrap(src) {
+  return /(?:^|\/)ux-preinit\.js(?:[?#].*)?$/i.test(src);
+}
+
 function addDeferToClassicLocalScripts(html) {
   return html.replace(/<script\b([^>]*?)\bsrc=(['"])([^'"]+)\2([^>]*)><\/script>/gi, (match, before, quote, src, after) => {
     const attrs = `${before} ${after}`;
     if (/\b(?:defer|async)\b/i.test(attrs) || /\btype\s*=\s*(['"])module\1/i.test(attrs)) return match;
     if (/^(?:https?:)?\/\//i.test(src)) return match;
     if (/\bdata-idle-src\b/i.test(attrs)) return match;
+    if (isIntentionalSyncBootstrap(src)) return match;
     return `<script${before} src=${quote}${src}${quote}${after} defer></script>`;
   });
 }
