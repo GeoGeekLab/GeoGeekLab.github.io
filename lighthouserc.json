@@ -11,7 +11,7 @@
         "http://127.0.0.1:4173/elsewhere.html",
         "http://127.0.0.1:4173/earth/"
       ],
-      "numberOfRuns": 1,
+      "numberOfRuns": 2,
       "settings": {
         "chromeFlags": "--no-sandbox"
       }
