@@ -1,6 +1,15 @@
 /* GeoGeek UX v4 — early state bootstrap. */
 (() => {
   'use strict';
+
+  // /index.html is the canonical home artifact. GitHub Pages can cache `/` and
+  // `/index.html` under separate CDN keys, so normalize the root path before
+  // any page-state bootstrap runs and preserve deep-link query/hash state.
+  if (location.pathname === '/') {
+    location.replace('/index.html' + location.search + location.hash);
+    return;
+  }
+
   document.documentElement.lang = 'en';
 
   // Editorial layout refinements load after the page stylesheet so short title
