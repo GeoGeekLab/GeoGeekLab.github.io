@@ -17,6 +17,7 @@
       scale.removeAttribute('tabindex');
       scale.removeAttribute('aria-haspopup');
       scale.removeAttribute('aria-expanded');
+      scale.removeAttribute('aria-label');
       normalizing = false;
     };
 
@@ -62,7 +63,7 @@
     const observer = new MutationObserver(sync);
     observer.observe(scale, {
       attributes: true,
-      attributeFilter: ['class', 'role', 'tabindex', 'aria-haspopup', 'aria-expanded']
+      attributeFilter: ['class', 'role', 'tabindex', 'aria-haspopup', 'aria-expanded', 'aria-label']
     });
     sync();
   }
