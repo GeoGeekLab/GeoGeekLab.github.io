@@ -113,8 +113,8 @@
       horizon = button.dataset.homeCommonsHorizon || '30d';
       buttons.forEach(item => {
         const active = item === button;
-        button.classList.toggle('is-active', active);
-        button.setAttribute('aria-pressed', String(active));
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-pressed', String(active));
       });
       if (started) {
         try { await render(); }
