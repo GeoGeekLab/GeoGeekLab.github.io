@@ -1,4 +1,14 @@
 /* Static Delivery Architecture — progressive-enhancement layer only. */
+
+/* Shared desktop Scale geometry. The compact readout used to rely on
+   content-sized auto width, which could resolve a couple of pixels
+   differently across routes despite identical markup and typography.
+   A single shared width keeps Lab, Atlas, and the other desktop routes on
+   the same instrument contract without changing the mobile dock behavior. */
+@media (min-width: 861px) {
+  .scale-ui { width: 173px; }
+}
+
 .static-orientation {
   margin: clamp(1.4rem, 4vw, 3rem) 0;
   max-width: 62rem;
