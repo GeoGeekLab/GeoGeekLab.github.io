@@ -1,8 +1,9 @@
 (() => {
   'use strict';
 
-  const VERSION = '20261002a';
+  const VERSION = '20261002b';
   const GIBS_WMS = 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi';
+  const WORLDVIEW = 'https://worldview.earthdata.nasa.gov/';
   const DAY_MS = 86400000;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -11,56 +12,64 @@
     {
       id:'terra-true', label:'True color', short:'TERRA / TRUE COLOR', group:'VISUAL',
       layer:'MODIS_Terra_CorrectedReflectance_TrueColor', format:'image/jpeg', mode:'base', lag:2, start:'2000-02-24', resolution:'250 m nominal', cadence:'DAILY / ORBIT COMPOSITE',
-      source:'NASA EOSDIS GIBS · Terra / MODIS', sourceUrl:'https://worldview.earthdata.nasa.gov/',
+      source:'NASA EOSDIS GIBS · Terra / MODIS',
+      color:'RGB corrected-reflectance composite. Display color is visual context, not a single physical variable.',
       limit:'Cloud, atmosphere, overpass time, swath gaps, and compositing condition what is visible. A view date is not one instantaneous photograph.',
       note:'A familiar optical view. Read clouds and acquisition gaps as part of the observation, not as missing decoration.'
     },
     {
       id:'viirs-true', label:'True color', short:'SUOMI NPP / TRUE COLOR', group:'VISUAL',
       layer:'VIIRS_SNPP_CorrectedReflectance_TrueColor', format:'image/jpeg', mode:'base', lag:1, start:'2015-11-24', resolution:'250 m nominal', cadence:'DAILY / ORBIT COMPOSITE',
-      source:'NASA EOSDIS GIBS · Suomi NPP / VIIRS', sourceUrl:'https://worldview.earthdata.nasa.gov/',
+      source:'NASA EOSDIS GIBS · Suomi NPP / VIIRS',
+      color:'RGB corrected-reflectance composite. Display color is visual context, not a single physical variable.',
       limit:'Cloud and orbit geometry affect coverage. Near-real-time imagery can lag the selected UTC date and may be revised upstream.',
       note:'Higher-revisit optical context from VIIRS, useful for comparing the sensor/time relationship against MODIS.'
     },
     {
       id:'false-color', label:'False color 7-2-1', short:'TERRA / BANDS 7-2-1', group:'VISUAL',
       layer:'MODIS_Terra_CorrectedReflectance_Bands721', format:'image/jpeg', mode:'base', lag:2, start:'2000-02-24', resolution:'250–500 m band-dependent', cadence:'DAILY / ORBIT COMPOSITE',
-      source:'NASA EOSDIS GIBS · Terra / MODIS', sourceUrl:'https://worldview.earthdata.nasa.gov/',
+      source:'NASA EOSDIS GIBS · Terra / MODIS',
+      color:'False-color band assignment 7-2-1. Displayed hues are intentionally non-literal.',
       limit:'False-color composites are interpretive products: displayed color is not literal visible color and depends on the band assignment.',
       note:'A deliberately non-literal composite that makes surface and burn/scar contrasts easier to inspect.'
     },
     {
       id:'surface-temp', label:'Land surface temperature', short:'NOAA-20 / LST DAY', group:'THERMAL',
       layer:'VIIRS_NOAA20_Land_Surface_Temp_Day', format:'image/png', mode:'overlay', lag:2, start:'2018-01-05', resolution:'750 m nominal product scale', cadence:'DAILY / DAYTIME', opacity:.76,
-      source:'NASA EOSDIS GIBS · NOAA-20 / VIIRS', sourceUrl:'https://worldview.earthdata.nasa.gov/',
+      source:'NASA EOSDIS GIBS · NOAA-20 / VIIRS',
+      color:'Provider-rendered quantitative palette. Use the NASA Worldview handoff for the authoritative color legend.',
       limit:'Land-surface temperature is skin temperature, not 2 m air temperature. Clouds create retrieval gaps and local time varies with overpass.',
       note:'Thermal retrieval over land. It should not be read as weather-station air temperature.'
     },
     {
       id:'precip', label:'Precipitation rate', short:'IMERG / PRECIPITATION', group:'ATMOSPHERE',
       layer:'IMERG_Precipitation_Rate', format:'image/png', mode:'overlay', lag:3, start:'2000-06-01', resolution:'0.1° product grid', cadence:'HALF-HOURLY SOURCE / DAILY VIEW', opacity:.82,
-      source:'NASA GPM IMERG via EOSDIS GIBS', sourceUrl:'https://worldview.earthdata.nasa.gov/',
+      source:'NASA GPM IMERG via EOSDIS GIBS',
+      color:'Provider-rendered precipitation-rate palette. Use the NASA Worldview handoff for quantitative legend values.',
       limit:'IMERG combines satellite precipitation estimates. Retrieval uncertainty varies by precipitation regime, surface, sensor availability, and latency.',
       note:'A precipitation estimate, not a rain-gauge field. The global picture is a modeled/merged observation product.'
     },
     {
       id:'aerosol', label:'Aerosol optical depth', short:'AQUA / AOD 3 KM', group:'ATMOSPHERE',
       layer:'MODIS_Aqua_Aerosol_Optical_Depth_3km', format:'image/png', mode:'overlay', lag:3, start:'2002-07-04', resolution:'3 km nominal retrieval', cadence:'DAILY / ORBIT RETRIEVAL', opacity:.76,
-      source:'NASA EOSDIS GIBS · Aqua / MODIS', sourceUrl:'https://worldview.earthdata.nasa.gov/',
+      source:'NASA EOSDIS GIBS · Aqua / MODIS',
+      color:'Provider-rendered AOD palette. Use the NASA Worldview handoff for quantitative legend values.',
       limit:'AOD is column-integrated optical loading, not ground-level PM2.5. Clouds, bright surfaces, and retrieval screening create spatial gaps.',
       note:'Atmospheric optical loading. Empty areas can mean screening or no valid retrieval, not zero aerosol.'
     },
     {
       id:'snow', label:'Snow cover', short:'SUOMI NPP / NDSI', group:'CRYOSPHERE',
       layer:'VIIRS_SNPP_NDSI_Snow_Cover', format:'image/png', mode:'overlay', lag:2, start:'2012-01-19', resolution:'375 m nominal product scale', cadence:'DAILY / DAYTIME', opacity:.8,
-      source:'NASA EOSDIS GIBS · Suomi NPP / VIIRS', sourceUrl:'https://worldview.earthdata.nasa.gov/',
+      source:'NASA EOSDIS GIBS · Suomi NPP / VIIRS',
+      color:'Provider-rendered NDSI snow palette. Use the NASA Worldview handoff for legend semantics.',
       limit:'NDSI snow mapping is affected by cloud, illumination, forests, terrain, and classification thresholds. It is not snow depth.',
       note:'A categorical/continuous snow signal derived from spectral contrast, distinct from depth or water equivalent.'
     },
     {
       id:'chlorophyll', label:'Chlorophyll-a', short:'PACE OCI / OCEAN COLOR', group:'OCEAN',
       layer:'OCI_PACE_Chlorophyll_a', format:'image/png', mode:'overlay', lag:3, start:'2024-03-01', resolution:'~1 km mapped product', cadence:'DAILY / OCEAN COLOR', opacity:.82,
-      source:'NASA EOSDIS GIBS · PACE / OCI', sourceUrl:'https://worldview.earthdata.nasa.gov/',
+      source:'NASA EOSDIS GIBS · PACE / OCI',
+      color:'Provider-rendered chlorophyll-a palette. Use the NASA Worldview handoff for quantitative legend values.',
       limit:'Satellite chlorophyll is an algorithmic ocean-color estimate. Clouds, aerosols, sun glint, coastal water complexity, and algorithm choice affect retrievals.',
       note:'Ocean-color estimate of chlorophyll-a, useful for reading biological patterns without treating color as direct concentration measurement.'
     }
@@ -84,7 +93,7 @@
   const addDays = (date, amount) => new Date(date.getTime() + amount * DAY_MS);
   const daysBetween = (later, earlier) => Math.max(0, Math.round((later - earlier) / DAY_MS));
   const clampDate = (date, min, max) => date < min ? min : date > max ? max : date;
-  const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt',"'":'&#39;','"':'&quot;'}[c]));
+  const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 
   function safeDate(layer) {
     const now = new Date();
@@ -140,13 +149,15 @@
     ensureStyle();
     const state = getInitialState();
     let timer = null;
+    let rangeCommitTimer = null;
     let loadGeneration = 0;
     let keyHandler = null;
     let visibilityHandler = null;
     let resizeHandler = null;
     let resizeObserver = null;
     let dragPointer = null;
-    const pendingImages = new Set();
+    const foregroundLoads = new Set();
+    const backgroundLoads = new Set();
 
     stage.innerHTML = `
       <div class="earth-observation-lab">
@@ -219,7 +230,7 @@
             <div class="eo-panel-head"><div><span>OBSERVATION CONDITIONS</span><strong id="eoInspectorTitle">—</strong></div><em>GIBS</em></div>
             <dl id="eoInspectorMeta"></dl>
             <div class="eo-probe-readout" id="eoProbeReadout"><span>GEOMETRIC PROBE</span><strong>CLICK THE MAP</strong><small>No pixel-value decoding; coordinates describe location, not measurement value.</small></div>
-            <a id="eoSourceLink" target="_blank" rel="noreferrer">OPEN IN NASA WORLDVIEW ↗</a>
+            <a id="eoSourceLink" target="_blank" rel="noreferrer">OPEN SAME VIEW IN NASA WORLDVIEW ↗</a>
           </section>
         </aside>
       </div>`;
@@ -251,6 +262,7 @@
     const gridButton = $('#eoGrid', stage);
     const clearProbeButton = $('#eoClearProbe', stage);
     const resetButton = $('#eoReset', stage);
+    const sourceLink = $('#eoSourceLink', stage);
     let activeGroup = byId.get(state.layerId)?.group || 'VISUAL';
 
     function currentLayer() { return byId.get(state.layerId) || layers[0]; }
@@ -284,6 +296,13 @@
     }
     sizeProjectionFrame();
 
+    function requestDimensions() {
+      const cssWidth = frame.clientWidth || Math.min(window.innerWidth || 1200, 1200);
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      const width = Math.round(Math.max(720, Math.min(1600, cssWidth * dpr)));
+      return { width, height:Math.round(width / 2) };
+    }
+
     function persist() {
       const url = new URL(location.href);
       url.searchParams.set('earthLayer', state.layerId);
@@ -294,13 +313,35 @@
       history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
     }
 
+    function worldviewLayerList(layer) {
+      if (layer.mode !== 'overlay') return layer.layer;
+      return `MODIS_Terra_CorrectedReflectance_TrueColor,${layer.layer}(opacity=${state.overlayOpacity.toFixed(2)})`;
+    }
+
+    function worldviewUrl(layer=currentLayer()) {
+      const url = new URL(WORLDVIEW);
+      url.searchParams.set('p', 'geographic');
+      url.searchParams.set('v', '-180,-90,180,90');
+      url.searchParams.set('l', worldviewLayerList(layer));
+      url.searchParams.set('t', `${day(state.date)}T00:00:00Z`);
+      if (state.compare) {
+        url.searchParams.set('l1', worldviewLayerList(layer));
+        url.searchParams.set('t1', `${day(compareDate())}T00:00:00Z`);
+        url.searchParams.set('ca', 'true');
+        url.searchParams.set('cm', 'swipe');
+        url.searchParams.set('cv', String(Math.round(state.split)));
+      }
+      return url.href;
+    }
+
     function frameImages(layer, dateValue) {
       const parts = [];
+      const { width, height } = requestDimensions();
       if (layer.mode === 'overlay') {
-        parts.push({ role:'context', src:wmsUrl('MODIS_Terra_CorrectedReflectance_TrueColor', dateValue, {format:'image/jpeg',transparent:false}), opacity:1 });
-        parts.push({ role:'observation', src:wmsUrl(layer.layer, dateValue, {format:layer.format,transparent:true}), opacity:state.overlayOpacity });
+        parts.push({ role:'context', src:wmsUrl('MODIS_Terra_CorrectedReflectance_TrueColor', dateValue, {format:'image/jpeg',transparent:false,width,height}), opacity:1 });
+        parts.push({ role:'observation', src:wmsUrl(layer.layer, dateValue, {format:layer.format,transparent:true,width,height}), opacity:state.overlayOpacity });
       } else {
-        parts.push({ role:'observation', src:wmsUrl(layer.layer, dateValue, {format:layer.format,transparent:false}), opacity:1 });
+        parts.push({ role:'observation', src:wmsUrl(layer.layer, dateValue, {format:layer.format,transparent:false,width,height}), opacity:1 });
       }
       return parts;
     }
@@ -310,27 +351,34 @@
       return $$('img', container);
     }
 
-    function preload(src, timeout = 15000) {
+    function cancelLoads(bucket) {
+      [...bucket].forEach(record => record.cancel?.());
+    }
+
+    function preload(src, { timeout=15000, bucket=foregroundLoads } = {}) {
       return new Promise(resolve => {
         if (signal?.aborted) return resolve({ ok:false, src, aborted:true });
         const img = new Image();
-        pendingImages.add(img);
         let settled = false;
         let timerId = 0;
+        let record = null;
         const finish = (ok, extra = {}) => {
           if (settled) return;
           settled = true;
           clearTimeout(timerId);
-          pendingImages.delete(img);
+          if (record) bucket.delete(record);
           signal?.removeEventListener?.('abort', onAbort);
           img.onload = null;
           img.onerror = null;
           resolve({ ok, src, ...extra });
         };
-        const onAbort = () => {
+        const cancel = () => {
           try { img.src = ''; } catch {}
           finish(false, { aborted:true });
         };
+        const onAbort = cancel;
+        record = { cancel };
+        bucket.add(record);
         img.referrerPolicy = 'no-referrer';
         img.onload = () => finish(true);
         img.onerror = () => finish(false);
@@ -344,12 +392,14 @@
     }
 
     function backgroundPrefetch(entries) {
-      entries.forEach(entry => { preload(entry.src, 12000).catch(() => {}); });
+      cancelLoads(backgroundLoads);
+      entries.forEach(entry => { preload(entry.src, { timeout:12000, bucket:backgroundLoads }).catch(() => {}); });
     }
 
     async function renderImages() {
       if (signal?.aborted) return;
       const generation = ++loadGeneration;
+      cancelLoads(foregroundLoads);
       const layer = currentLayer();
       const aEntries = frameImages(layer, state.date);
       const bEntries = frameImages(layer, compareDate());
@@ -376,10 +426,12 @@
         status.title = failed ? 'One or more requested image layers failed to load.' : 'Date-controlled observation loaded. READY does not mean real-time provider latest.';
       }
       const { min, max } = boundsFor(layer);
+      const adjacent = [];
       [-1, 1].forEach(delta => {
         const candidate = addDays(state.date, delta);
-        if (candidate >= min && candidate <= max) backgroundPrefetch(frameImages(layer, candidate));
+        if (candidate >= min && candidate <= max) adjacent.push(...frameImages(layer, candidate));
       });
+      if (adjacent.length) backgroundPrefetch(adjacent);
     }
 
     function updateSplit() {
@@ -410,6 +462,7 @@
       const layer = currentLayer();
       const reference = compareDate();
       const actualOffset = actualCompareOffset();
+      const { width, height } = requestDimensions();
       const compareValue = state.compare
         ? `${day(reference)} ↔ ${day(state.date)} · ${actualOffset} actual day${actualOffset === 1 ? '' : 's'}${actualOffset !== state.compareOffset ? ` · requested ${state.compareOffset}, clipped by coverage` : ''}`
         : 'OFF · one observation date';
@@ -417,13 +470,15 @@
       $('#eoInspectorMeta',stage).innerHTML = [
         ['SOURCE', layer.source],
         ['TIME', `${day(state.date)} UTC · ${layer.cadence}`],
-        ['RESOLUTION', layer.resolution],
+        ['NATIVE RESOLUTION', layer.resolution],
+        ['DISPLAY SAMPLE', `${width} × ${height} WMS raster · resampled to viewport`],
         ['PROJECTION', 'EPSG:4326 · 2:1 equirectangular display'],
+        ['COLOR', layer.color],
         ['RECENT-DATE POLICY', `Conservative T-${layer.lag} day request window; provider availability and upstream revisions can differ.`],
         ['COMPARE', compareValue],
         ['LIMIT', layer.limit]
       ].map(([key,value]) => `<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('');
-      $('#eoSourceLink',stage).href = layer.sourceUrl;
+      sourceLink.href = worldviewUrl(layer);
       $('#eoLayerNote',stage).textContent = layer.note;
       $('#eoLayerMode',stage).textContent = layer.group;
       opacityWrap.hidden = layer.mode !== 'overlay';
@@ -492,6 +547,12 @@
       state.date = clampDate(next, min, max);
       state.probe = null;
       renderState(options);
+    }
+
+    function commitRangeDate() {
+      clearTimeout(rangeCommitTimer);
+      rangeCommitTimer = null;
+      renderState({ images:true, url:true });
     }
 
     function togglePlay(force) {
@@ -565,8 +626,11 @@
 
     range.addEventListener('input', () => {
       const max = boundsFor().max;
-      setDate(addDays(max, -Number(range.value)));
+      setDate(addDays(max, -Number(range.value)), { images:false, url:false });
+      clearTimeout(rangeCommitTimer);
+      rangeCommitTimer = setTimeout(commitRangeDate, 140);
     });
+    range.addEventListener('change', commitRangeDate);
     dateInput.addEventListener('change', () => {
       if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput.value)) setDate(utcDate(dateInput.value));
     });
@@ -624,6 +688,7 @@
       state.split = Math.max(5, Math.min(95, ((event.clientX - rect.left) / rect.width) * 100));
       updateSplit();
       persist();
+      renderInspector();
     }
     handle.addEventListener('pointerdown', event => {
       dragPointer = event.pointerId;
@@ -642,6 +707,7 @@
         else state.split = Math.max(5, Math.min(95, state.split + (event.key === 'ArrowLeft' ? -5 : 5)));
         updateSplit();
         persist();
+        renderInspector();
       }
     });
 
@@ -663,9 +729,10 @@
 
     return () => {
       clearInterval(timer);
+      clearTimeout(rangeCommitTimer);
       loadGeneration += 1;
-      pendingImages.forEach(img => { try { img.src = ''; } catch {} });
-      pendingImages.clear();
+      cancelLoads(foregroundLoads);
+      cancelLoads(backgroundLoads);
       resizeObserver?.disconnect();
       if (resizeHandler) window.removeEventListener('resize', resizeHandler);
       document.removeEventListener('keydown', keyHandler);
