@@ -14,6 +14,7 @@
 <link href="/ux-refinements.css" rel="stylesheet"/>
 <link href="atlas-page.css?v=20260930h" rel="stylesheet"/>
 <link href="atlas-focus.css?v=20260930a" rel="stylesheet"/>
+<link href="atlas-layout-refinement.css?v=20261001a" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20260930g"></script>
 </head>
 <body class="atlas-page">
@@ -27,19 +28,6 @@
 <a href="elsewhere.html">Elsewhere</a>
 </nav>
 </header>
-<div aria-label="Scale of view" class="scale-ui" tabindex="0">
-<span>INFORMATION SCALE</span>
-<strong id="scaleText">1 : 250,000</strong>
-<em id="scaleLevel">SITE</em>
-<small class="scale-mode">RELATIVE</small>
-<div class="scale-legend">
-<i><b>1 : 250,000</b><small>SITE</small></i>
-<i><b>1 : 100,000</b><small>POSITION</small></i>
-<i><b>1 : 25,000</b><small>COLLECTION</small></i>
-<i><b>1 : 2,500</b><small>RECORD</small></i>
-<i><b>1 : 500</b><small>DETAIL</small></i>
-</div>
-</div>
 <div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
 <main class="page-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
 <section class="page-title">
@@ -75,21 +63,38 @@
     <div aria-hidden="true" class="atlas-guides" id="atlasGuides"></div>
     <div aria-hidden="true" class="atlas-labels" id="atlasLabels"></div>
   </section>
-  <aside class="atlas-tooltip atlas-inspector is-empty" id="atlasTip" aria-live="polite">
-    <button class="atlas-inspector-close" id="atlasInspectorClose" type="button" aria-label="Close selection">×</button>
-    <span>ATLAS / RELATION</span>
-    <strong>Hover a record. Click to keep it selected.</strong>
-  </aside>
-</div>
 
-<div class="atlas-key" aria-label="Atlas key">
-  <span class="atlas-key-title">READ THE FIELD</span>
-  <span><i class="atlas-key-node is-note"></i>NOTE</span>
-  <span><i class="atlas-key-node is-lab"></i>LAB</span>
-  <span><i class="atlas-key-node is-place"></i>ELSEWHERE</span>
-  <span><i class="atlas-key-line"></i>CURRENT RELATION</span>
-  <span>HOVER / PREVIEW</span>
-  <span>CLICK / HOLD</span>
+  <div class="atlas-sidebar" aria-label="Atlas reading tools">
+    <div aria-label="Scale of view" class="scale-ui" tabindex="0">
+      <span>INFORMATION SCALE</span>
+      <strong id="scaleText">1 : 250,000</strong>
+      <em id="scaleLevel">SITE</em>
+      <small class="scale-mode">RELATIVE</small>
+      <div class="scale-legend">
+        <i><b>1 : 250,000</b><small>SITE</small></i>
+        <i><b>1 : 100,000</b><small>POSITION</small></i>
+        <i><b>1 : 25,000</b><small>COLLECTION</small></i>
+        <i><b>1 : 2,500</b><small>RECORD</small></i>
+        <i><b>1 : 500</b><small>DETAIL</small></i>
+      </div>
+    </div>
+
+    <aside class="atlas-tooltip atlas-inspector is-empty" id="atlasTip" aria-live="polite">
+      <button class="atlas-inspector-close" id="atlasInspectorClose" type="button" aria-label="Close selection">×</button>
+      <span>ATLAS / RELATION</span>
+      <strong>Hover a record. Click to keep it selected.</strong>
+    </aside>
+
+    <div class="atlas-key" aria-label="Atlas key">
+      <span class="atlas-key-title">READ THE FIELD</span>
+      <span><i class="atlas-key-node is-note"></i>NOTE</span>
+      <span><i class="atlas-key-node is-lab"></i>LAB</span>
+      <span><i class="atlas-key-node is-place"></i>ELSEWHERE</span>
+      <span><i class="atlas-key-line"></i>CURRENT RELATION</span>
+      <span>HOVER / PREVIEW</span>
+      <span>CLICK / HOLD</span>
+    </div>
+  </div>
 </div>
 
 <div class="atlas-foot">
