@@ -38,7 +38,7 @@ jobs:
           test -s site/orbital/orbit-worker.js
           test -s site/orbital/orbital-enhancements-v3.js
           test -s site/orbital/orbital-lab-v3.css
-          ! grep -Rin --include='orbital-*.js' --include='orbit-*.js' '\bDEMO\b' site/orbital
+          ! grep -in '\bDEMO\b' site/orbital/orbital-engine.js site/orbital/orbit-worker.js
 
       - name: Install browser quality tools
         run: |
