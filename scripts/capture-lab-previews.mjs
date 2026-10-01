@@ -63,10 +63,11 @@ async function captureInstrument(kind) {
     await page.waitForSelector('#instrumentStage > *', { state: 'visible', timeout: 20000 });
 
     if (kind === 'earth') {
+      await page.waitForSelector('.earth-observation-lab', { state: 'visible', timeout: 10000 });
       await page.waitForFunction(() => {
-        const img = document.querySelector('#earthImage');
-        return !!img && img.complete && img.naturalWidth > 0;
-      }, null, { timeout: 25000 }).catch(() => {});
+        const loading = document.querySelector('#eoLoading');
+        return !!loading && loading.dataset.state !== 'loading';
+      }, null, { timeout: 18000 }).catch(() => {});
     }
 
     const settle = kind === 'flow' || kind === 'orbit' ? 6500 : 2800;
