@@ -53,10 +53,6 @@ test('Round 3 scale uses a dedicated disclosure button rather than an interactiv
   await expect(scale).not.toHaveAttribute('role', 'button');
   await expect(scale).not.toHaveAttribute('tabindex', /.+/);
 
-  // UX v5.1 intentionally removes the persistent Scale overlay on phones; the
-  // information-scale concept remains available inside Site Index. A hidden
-  // overlay should stay outside the keyboard/accessibility path rather than be
-  // made artificially focusable to satisfy a desktop interaction contract.
   if (testInfo.project.name === 'mobile-chromium') {
     await expect(scale).toBeHidden();
     await expect(disclosure).toBeHidden();
@@ -82,12 +78,14 @@ test('Round 3 Atlas node controls expose at least a 24px hit box', async ({ page
   expect(undersized).toEqual([]);
 });
 
-test('Round 3 Lab first response removes synchronous style discovery', async ({ page }) => {
+test('Round 3 Lab keeps noncritical enhancement off the first-view path', async ({ page }) => {
   const response = await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
   const source = await response.text();
   expect(source).toContain('data-round3-lab-critical');
   expect(source).not.toMatch(/src=["'][^"']*ux-preinit\.js/);
   expect(source).toMatch(/geo-interactions\.css[^>]*media=["']print["'][^>]*onload=/);
-  expect(source).toMatch(/geo-interactions\.js[^>]*\bdefer\b/);
-  expect(source).toMatch(/lab-real-previews\.js[^>]*\bdefer\b/);
+  expect(source).toContain('data-round3-lab-postload');
+  expect(source).not.toMatch(/<script\b[^>]*src=["'][^"']*(?:geo-interactions|lab-real-previews)\.js/i);
+  expect(source).toContain('requestIdleCallback');
+  expect(source).toContain("addEventListener('load'");
 });
