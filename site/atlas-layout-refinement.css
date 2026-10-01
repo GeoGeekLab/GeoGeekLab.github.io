@@ -10,13 +10,6 @@
     min-width: 0;
   }
 
-  /* Atlas must use the same viewport-level Scale position as Lab. The base
-     Atlas stylesheet historically shifted it left to clear the inspector;
-     reset only that legacy offset and let shared Scale CSS own everything else. */
-  .atlas-page > .scale-ui {
-    right: var(--pad);
-  }
-
   .atlas-page .atlas-sidebar .atlas-tooltip {
     width: 100%;
     box-sizing: border-box;
