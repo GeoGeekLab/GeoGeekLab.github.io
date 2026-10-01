@@ -68,7 +68,7 @@ async function patchLab(html) {
   for (const name of criticalFiles) {
     const file = path.join(dist, name);
     if (!(await exists(file))) throw new Error(`Round 3 missing Lab critical CSS: ${name}`);
-    critical.push(`/* ${name} */\n${(await read(file)).replace(/<\\/style/gi, '<\\/style')}`);
+    critical.push(`/* ${name} */\n${await read(file)}`);
     html = removeStylesheet(html, name);
   }
 
@@ -100,7 +100,7 @@ async function main() {
   const a11yCssFile = path.join(dist, 'round3-accessibility.css');
   const a11yJsFile = path.join(dist, 'round3-accessibility.js');
   if (!(await exists(a11yCssFile)) || !(await exists(a11yJsFile))) throw new Error('Round 3 accessibility assets were not copied to dist.');
-  const a11yCss = (await read(a11yCssFile)).replace(/<\/style/gi, '<\\/style');
+  const a11yCss = await read(a11yCssFile);
   const inlineA11y = `<style data-round3-accessibility>\n${a11yCss}\n</style>`;
   const script = '<script src="/round3-accessibility.js?v=20261001a" defer data-round3-accessibility="true"></script>';
 
