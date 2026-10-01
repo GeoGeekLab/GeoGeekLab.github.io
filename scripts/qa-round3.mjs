@@ -19,6 +19,7 @@ const atlas = await read('atlas.html');
 const origin = await read('origin/index.html');
 const a11yCss = await read('round3-accessibility.css');
 const a11yJs = await read('round3-accessibility.js');
+const uxRuntime = await read('ux-refinements.js');
 
 function scaleOpenTag(html) {
   return html.match(/<div\b[^>]*\bclass=(['"])[^'"]*\bscale-ui\b[^'"]*\1[^>]*>/i)?.[0] || '';
@@ -34,6 +35,7 @@ for (const [name, html] of [['Home', home], ['Lab', lab], ['Atlas', atlas]]) {
 
 check(/data-round3-accessibility/i.test(home) && /round3-accessibility\.js\?v=20261001a/i.test(home), 'R3-A11Y-02 Round 3 accessibility layer is delivered on Home');
 check(/removeAttribute\('aria-label'\)/.test(a11yJs), 'R3-A11Y-02 runtime removes legacy wrapper naming semantics');
+check(/!scale\.querySelector\(':scope > \.scale-disclosure'\)/.test(uxRuntime), 'R3-A11Y-02 legacy Scale handler yields when the Round 3 disclosure exists');
 check(/width:\s*25px\s*!important/.test(a11yCss) && /height:\s*25px\s*!important/.test(a11yCss), 'R3-A11Y-03 Atlas controls enforce a 25px hit box with subpixel margin');
 check(/\.music-credit\s*\{[^}]*\.56/i.test(a11yCss), 'R3-A11Y-04 Origin credit contrast is raised above the measured threshold');
 check(/\.sound\s*\{[^}]*min-width:\s*44px/i.test(a11yCss) && /min-height:\s*44px/i.test(a11yCss), 'R3-A11Y-04 Origin sound control meets the 44px target contract');
