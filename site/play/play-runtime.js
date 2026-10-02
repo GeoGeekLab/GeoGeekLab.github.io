@@ -7,15 +7,15 @@
   const baseLoadInstrument = modules.loadInstrument.bind(modules);
   const PLAY_KINDS = new Set(['locate', 'zone', 'path', 'project']);
   const COMMON = [
-    'play/play-core.js?v=20261002b',
-    'play/play-shell.js?v=20261002b',
-    'play/play-trace.js?v=20261002b'
+    'play/play-core.js?v=20261002c',
+    'play/play-shell.js?v=20261002c',
+    'play/play-trace.js?v=20261002c'
   ];
   const SCRIPT = {
-    locate: 'play/orient/orient.js?v=20261002b',
-    zone: 'play/bound/bound.js?v=20261002b',
-    path: 'play/connect/connect.js?v=20261002b',
-    project: 'play/project/project.js?v=20261002b'
+    locate: 'play/orient/orient.js?v=20261002c',
+    zone: 'play/bound/bound.js?v=20261002c',
+    path: 'play/connect/connect.js?v=20261002c',
+    project: 'play/project/project.js?v=20261002c'
   };
   const REGISTER = {
     locate: () => window.GeoPlayOrient?.register?.(),
@@ -30,7 +30,6 @@
     for (const src of COMMON) await modules.loadScript(src);
     await modules.loadScript(SCRIPT[kind]);
     REGISTER[kind]?.();
-    // Legacy games may have registered locate while loading Zone/Path.
     if (window.GeoPlayOrient) window.GeoPlayOrient.register?.();
     return instruments || window.GeoInstruments;
   }
@@ -38,8 +37,6 @@
   modules.loadInstrument = loadPlay;
   modules.__geoSpatialPlayRuntime = true;
 
-  // Window capture runs before the older document-level instrument handlers.
-  // Spatial Play owns these four keys while the rest of Lab keeps the existing router.
   window.addEventListener('click', async event => {
     const trigger = event.target.closest?.('[data-instrument]');
     const kind = trigger?.dataset.instrument;
