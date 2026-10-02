@@ -174,6 +174,10 @@
     if (!root || root.dataset.shellEnhanced === '1') return;
     root.dataset.shellEnhanced = '1';
     const panel = root.querySelector('.pulse-panel');
+    if (panel) {
+      panel.tabIndex = 0;
+      panel.setAttribute('aria-label', 'Earthquake event details and observation conditions');
+    }
     buildDisclosure(panel, ':scope > p', 'READING NOTE', 'pulse-note');
   }
 
