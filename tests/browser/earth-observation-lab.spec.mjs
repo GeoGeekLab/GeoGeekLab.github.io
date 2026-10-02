@@ -20,10 +20,12 @@ async function expectNoSeriousAxeViolations(page) {
   expect(violations.map(item => `${item.impact}:${item.id}[${item.nodes.length}]`)).toEqual([]);
 }
 
-test('Earth temporal lab consumes unified GIBS products and exposes date-scoped raster provenance', async ({ page }) => {
+test('Earth temporal lab uses unified viewport WMS provenance, navigation and swipe compare', async ({ page }) => {
   let gibsRequests = 0;
+  const requestUrls = [];
   await page.route('https://gibs.earthdata.nasa.gov/**', route => {
     gibsRequests += 1;
+    requestUrls.push(route.request().url());
     return route.fulfill({
       status: 200,
       contentType: 'image/gif',
@@ -41,11 +43,13 @@ test('Earth temporal lab consumes unified GIBS products and exposes date-scoped 
   await expect(page.locator('#eoCoverageEnd')).toContainText('SAFE THROUGH');
   await expect(page.locator('#eoInspectorMeta')).toContainText('RECENT-DATE POLICY');
   await expect(page.locator('#eoInspectorMeta')).toContainText('DISPLAY SAMPLE');
+  await expect(page.locator('#eoInspectorMeta')).toContainText('VIEWPORT');
   await expect(page.locator('#eoInspectorMeta')).toContainText('DELIVERY');
   await expect(page.locator('#eoInspectorMeta')).toContainText('FRESHNESS');
-  await expect(page.locator('.instrument-status')).toContainText('STATUS / TILE · DATE-SCOPED');
+  await expect(page.locator('.instrument-status')).toContainText('STATUS / WMS · VIEWPORT · DATE-SCOPED');
   await expect(page.locator('.instrument-status')).not.toContainText('LIVE');
-  await expect(page.locator('#eoSupplyState')).toHaveText('TILE · DATE-SCOPED');
+  await expect(page.locator('#eoSupplyState')).toHaveText('WMS · VIEWPORT');
+  await expect(page.locator('#eoZoomReadout')).toHaveText('Z 1.0');
 
   const contract = await page.evaluate(() => {
     const description = window.GeoDataSupply.describe('nasa-gibs');
@@ -56,6 +60,9 @@ test('Earth temporal lab consumes unified GIBS products and exposes date-scoped 
       requestProduct:description.request?.productId,
       transport:description.transport,
       observationTime:description.request?.observationTime,
+      scope:description.request?.scope,
+      bbox:document.querySelector('#eoFrame')?.dataset.bbox,
+      zoom:document.querySelector('#eoFrame')?.dataset.zoom,
       hasPrivateMode:window.GeoEarthTemporalLab.layers.some(layer => Object.hasOwn(layer, 'mode') || Object.hasOwn(layer, 'lag') || Object.hasOwn(layer, 'start'))
     };
   });
@@ -65,6 +72,9 @@ test('Earth temporal lab consumes unified GIBS products and exposes date-scoped 
   expect(contract.requestProduct).toBe('terra-true');
   expect(contract.transport).toBe('provider-raster');
   expect(contract.observationTime).toMatch(/^\d{4}-\d{2}-\d{2}T00:00:00Z$/);
+  expect(contract.scope).toContain('VIEWPORT · EPSG:4326 · BBOX');
+  expect(contract.bbox).toBe('-180.0000,-90.0000,180.0000,90.0000');
+  expect(contract.zoom).toBe('1.00');
   expect(contract.hasPrivateMode).toBe(false);
 
   await expect.poll(async () => {
@@ -73,6 +83,51 @@ test('Earth temporal lab consumes unified GIBS products and exposes date-scoped 
   }, { timeout: 10000 }).toBeGreaterThan(1.98);
   const frameBox = await page.locator('#eoFrame').boundingBox();
   expect(frameBox.width / frameBox.height).toBeLessThan(2.02);
+
+  const initialWms = new URL(requestUrls.find(url => url.includes('REQUEST=GetMap') || url.includes('request=GetMap')) || requestUrls.at(-1));
+  expect(initialWms.searchParams.get('bbox')).toBe('-180.000000,-90.000000,180.000000,90.000000');
+
+  const beforeZoom = gibsRequests;
+  await page.locator('#eoZoomIn').click();
+  await expect(page.locator('#eoZoomReadout')).not.toHaveText('Z 1.0');
+  await expect(page).toHaveURL(/earthZ=/);
+  await expect.poll(() => page.evaluate(() => window.GeoDataSupply.describe('nasa-gibs').request?.status)).toBe('available');
+  expect(gibsRequests).toBeGreaterThan(beforeZoom);
+
+  const zoomState = await page.evaluate(() => {
+    const frame = document.querySelector('#eoFrame');
+    const description = window.GeoDataSupply.describe('nasa-gibs');
+    return { bbox:frame.dataset.bbox.split(',').map(Number), zoom:Number(frame.dataset.zoom), scope:description.request?.scope };
+  });
+  expect(zoomState.zoom).toBeGreaterThan(1);
+  expect(zoomState.bbox[2] - zoomState.bbox[0]).toBeLessThan(360);
+  expect(zoomState.bbox[3] - zoomState.bbox[1]).toBeLessThan(180);
+  expect(zoomState.scope).toContain('VIEWPORT');
+
+  const beforeWheel = gibsRequests;
+  const frame = page.locator('#eoFrame');
+  const frameRect = await frame.boundingBox();
+  for (let i = 0; i < 5; i += 1) {
+    await page.mouse.move(frameRect.x + frameRect.width * .62, frameRect.y + frameRect.height * .45);
+    await page.mouse.wheel(0, -80);
+  }
+  await page.waitForTimeout(80);
+  expect(gibsRequests - beforeWheel).toBe(0);
+  await page.waitForTimeout(220);
+  expect(gibsRequests - beforeWheel).toBeLessThanOrEqual(2);
+
+  const beforePan = gibsRequests;
+  const rect = await frame.boundingBox();
+  await page.mouse.move(rect.x + rect.width * .55, rect.y + rect.height * .55);
+  await page.mouse.down();
+  await page.mouse.move(rect.x + rect.width * .42, rect.y + rect.height * .48, { steps:4 });
+  await page.mouse.up();
+  await expect.poll(() => page.evaluate(() => window.GeoDataSupply.describe('nasa-gibs').request?.status)).toBe('available');
+  expect(gibsRequests).toBeGreaterThan(beforePan);
+  const pannedUrl = new URL(requestUrls.at(-1));
+  expect(pannedUrl.searchParams.get('bbox')).not.toBe('-180.000000,-90.000000,180.000000,90.000000');
+  await expect(page).toHaveURL(/earthLon=/);
+  await expect(page).toHaveURL(/earthLat=/);
 
   const range = page.locator('#eoRange');
   const archiveDays = await range.evaluate(node => Number(node.max));
@@ -110,7 +165,7 @@ test('Earth temporal lab consumes unified GIBS products and exposes date-scoped 
   await expect(page.locator('#eoInspectorTitle')).toHaveText('Land surface temperature');
   await expect(page.locator('#eoInspectorMeta')).toContainText('Conservative T-2 day request window');
   await expect(page.locator('#eoInspectorMeta')).toContainText('authoritative color legend');
-  await expect(page.locator('#eoInspectorMeta')).toContainText('HTTPS WMS · PROVIDER RASTER');
+  await expect(page.locator('#eoInspectorMeta')).toContainText('HTTPS WMS 1.1.1 · PROVIDER RASTER');
   await expect(page.locator('#eoOpacityWrap')).toBeVisible();
   await expect(dateInput).toHaveValue('2024-01-15');
   await expect.poll(() => page.evaluate(() => window.GeoDataSupply.describe('nasa-gibs').request?.productId)).toBe('surface-temp');
@@ -140,8 +195,41 @@ test('Earth temporal lab consumes unified GIBS products and exposes date-scoped 
   expect(worldview.searchParams.get('ca')).toBe('true');
   expect(worldview.searchParams.get('cm')).toBe('swipe');
   expect(worldview.searchParams.get('cv')).toBe('95');
+  expect(worldview.searchParams.get('v')).not.toBe('-180,-90,180,90');
+
+  await page.locator('#eoFit').click();
+  await expect(page.locator('#eoZoomReadout')).toHaveText('Z 1.0');
+  await expect(page).not.toHaveURL(/earthZ=/);
+  await expect(page.locator('#eoFrame')).toHaveAttribute('data-bbox', '-180.0000,-90.0000,180.0000,90.0000');
 
   await page.locator('#eoGrid').click();
   await expect(page.locator('#eoGrid')).toHaveAttribute('aria-pressed', 'false');
   await expectNoSeriousAxeViolations(page);
+});
+
+test('Earth viewport WMS keeps the last real frame when the provider becomes unavailable', async ({ page }) => {
+  let failProvider = false;
+  await page.route('https://gibs.earthdata.nasa.gov/**', route => {
+    if (failProvider) {
+      return route.fulfill({ status:503, contentType:'text/plain', body:'provider unavailable' });
+    }
+    return route.fulfill({ status:200, contentType:'image/gif', body:tinyGif });
+  });
+
+  await page.goto('/lab.html?instrument=earth#l05', { waitUntil:'domcontentloaded' });
+  await expect(page.locator('.earth-observation-lab')).toBeVisible({ timeout:10000 });
+  await expect.poll(() => page.evaluate(() => window.GeoDataSupply.describe('nasa-gibs').request?.status)).toBe('available');
+
+  const previousSrc = await page.locator('#eoImageA img[data-eo-role="observation"]').getAttribute('src');
+  expect(previousSrc).toContain('gibs.earthdata.nasa.gov');
+
+  failProvider = true;
+  await page.locator('#eoZoomIn').click();
+  await expect.poll(() => page.evaluate(() => window.GeoDataSupply.describe('nasa-gibs').request?.status)).toBe('unavailable');
+  await expect(page.locator('#eoSupplyState')).toHaveText('UNAVAILABLE');
+  await expect(page.locator('.instrument-status')).toContainText('STATUS / UNAVAILABLE · WMS VIEWPORT');
+  await expect(page.locator('.instrument-status')).not.toContainText('LIVE');
+  await expect(page.locator('#eoLoading')).toContainText('PREVIOUS FRAME RETAINED');
+  await expect(page.locator('#eoImageA img[data-eo-role="observation"]')).toHaveAttribute('src', previousSrc);
+  await expect(page.locator('#instrumentStage')).not.toContainText('DEMO');
 });
