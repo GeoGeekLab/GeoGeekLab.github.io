@@ -1,0 +1,291 @@
+/* Earth / L05 round two — product-first, time-centered observation workspace. */
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-lab{
+  --earth-round2-rail:clamp(332px,23vw,390px);
+  grid-template-columns:minmax(0,1fr) var(--earth-round2-rail)!important;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-panel{
+  position:relative;
+  gap:0!important;
+  overscroll-behavior:contain;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav{
+  position:sticky;
+  z-index:30;
+  top:0;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  min-height:40px;
+  border-bottom:1px solid var(--lab-workspace-line);
+  background:rgba(12,20,15,.96);
+  backdrop-filter:blur(14px);
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav button{
+  min-width:0;
+  border:0;
+  border-right:1px solid var(--lab-workspace-line-soft);
+  background:transparent;
+  color:var(--lab-workspace-faint);
+  cursor:pointer;
+  font:700 8px/1 var(--mono);
+  letter-spacing:.075em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav button:last-child{border-right:0}
+.instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav button:hover,
+.instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav button:focus-visible{color:var(--lab-workspace-fg)}
+.instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav button[aria-pressed="true"]{
+  color:var(--lab-workspace-fg);
+  background:rgba(209,99,57,.055);
+  box-shadow:inset 0 -2px 0 rgba(209,99,57,.72);
+}
+
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-summary{
+  display:grid;
+  gap:6px;
+  padding:15px 16px 14px;
+  border-bottom:1px solid var(--lab-workspace-line);
+  background:linear-gradient(180deg,rgba(255,255,255,.022),transparent);
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-summary>span{
+  color:var(--lab-workspace-faint);
+  font:700 8px/1 var(--mono);
+  letter-spacing:.105em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-summary>strong{
+  color:var(--lab-workspace-fg);
+  font:500 19px/1.12 var(--serif);
+  letter-spacing:-.025em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-summary-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  align-items:center;
+  color:var(--lab-workspace-muted);
+  font:650 9px/1.35 var(--mono);
+  letter-spacing:.035em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-summary-meta b{color:#d7ddd8;font-weight:700}
+.instrument-dialog[data-instrument-kind="earth"] .earth-summary-meta i{opacity:.38;font-style:normal}
+.instrument-dialog[data-instrument-kind="earth"] .earth-summary-state{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:2px;
+  color:#aeb8b0;
+  font:700 8px/1 var(--mono);
+  letter-spacing:.07em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-summary-state i{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#80c9c0;
+  box-shadow:0 0 0 3px rgba(128,201,192,.08);
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-summary[data-request-state="requesting"] .earth-summary-state i{
+  background:#e6b560;
+  box-shadow:0 0 0 3px rgba(230,181,96,.08);
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-summary[data-request-state="unavailable"] .earth-summary-state i{
+  background:#d16339;
+  box-shadow:0 0 0 3px rgba(209,99,57,.1);
+}
+
+/* The raster is the primary document; reduce chrome around it. */
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-hud{
+  min-height:48px;
+  padding:5px 8px;
+  background:rgba(7,12,9,.88);
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-hud>div{gap:3px;padding:0 9px}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-hud strong{font-size:10px}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-frame-shell{background:#050a07}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-frame::after{box-shadow:inset 0 0 72px rgba(0,0,0,.25)}
+.instrument-dialog[data-instrument-kind="earth"] .eo-map-label{
+  top:11px;
+  min-height:27px;
+  border-radius:0;
+  background:rgba(5,9,7,.72);
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-label-a{left:11px}
+.instrument-dialog[data-instrument-kind="earth"] .eo-label-b{right:11px}
+.instrument-dialog[data-instrument-kind="earth"] .eo-map-label span{border-radius:0}
+.instrument-dialog[data-instrument-kind="earth"] .eo-nav-controls{
+  border-radius:0;
+  background:rgba(5,9,7,.76);
+  box-shadow:none;
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-nav-controls button{border-radius:0}
+.instrument-dialog[data-instrument-kind="earth"] .eo-loading{border-radius:0;background:rgba(5,9,7,.82)}
+
+.instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation{
+  position:absolute;
+  z-index:12;
+  left:11px;
+  top:49px;
+  display:grid;
+  grid-template-columns:auto auto;
+  gap:4px 12px;
+  align-items:center;
+  min-width:236px;
+  padding:9px 10px;
+  border:1px solid rgba(241,239,231,.16);
+  background:rgba(5,9,7,.84);
+  backdrop-filter:blur(10px);
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+  pointer-events:auto;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation[hidden]{display:none!important}
+.instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation>span{
+  grid-column:1/-1;
+  color:var(--lab-workspace-faint);
+  font:700 7.5px/1 var(--mono);
+  letter-spacing:.11em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation strong{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--lab-workspace-fg);
+  font:700 10px/1.15 var(--mono);
+  letter-spacing:.025em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation strong i{color:#80c9c0;font-style:normal;font-weight:400}
+.instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation small{
+  grid-column:1;
+  color:var(--lab-workspace-muted);
+  font:650 7.5px/1.2 var(--mono);
+  letter-spacing:.055em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation button{
+  grid-column:2;
+  grid-row:2/4;
+  min-height:30px;
+  padding:0 8px;
+  border:1px solid rgba(241,239,231,.13);
+  border-radius:0;
+  background:transparent;
+  color:var(--lab-workspace-muted);
+  cursor:pointer;
+  font:700 7.5px/1 var(--mono);
+  letter-spacing:.06em;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation button:hover{border-color:rgba(209,99,57,.5);color:var(--lab-workspace-fg)}
+
+/* Timeline is the temporal instrument, not a floating footer widget. */
+@media(min-width:921px){
+  .instrument-dialog[data-instrument-kind="earth"] .earth-timeline{
+    left:0;
+    right:0;
+    bottom:0;
+    min-height:58px;
+    padding:8px 11px;
+    border-left:0;
+    border-right:0;
+    border-bottom:0;
+    border-radius:0;
+    background:rgba(7,12,9,.93);
+    box-shadow:none;
+  }
+  .instrument-dialog[data-instrument-kind="earth"] .eo-nav-controls{bottom:74px}
+  .instrument-dialog[data-instrument-kind="earth"] .eo-frame-note{bottom:72px}
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-timeline-controls button,
+.instrument-dialog[data-instrument-kind="earth"] .eo-compare-presets button,
+.instrument-dialog[data-instrument-kind="earth"] .eo-map-tools button,
+.instrument-dialog[data-instrument-kind="earth"] .eo-date-input input{
+  border-radius:0;
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-timeline-head strong{font-size:12px}
+.instrument-dialog[data-instrument-kind="earth"] .earth-timeline-hint{
+  color:rgba(241,239,231,.42);
+  font:650 7.5px/1 var(--mono);
+  letter-spacing:.075em;
+}
+
+/* Rail sections read as a continuous document instead of independent cards. */
+.instrument-dialog[data-instrument-kind="earth"] .eo-panel-card{
+  gap:12px!important;
+  padding:17px 16px 18px!important;
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-panel-head>div{gap:5px}
+.instrument-dialog[data-instrument-kind="earth"] .eo-panel-head span{font-size:8px!important;letter-spacing:.105em!important}
+.instrument-dialog[data-instrument-kind="earth"] .eo-panel-head strong{
+  font-family:var(--sans)!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1.3!important;
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-panel-head em{border-radius:0}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer-groups{gap:0;padding:0;border:1px solid var(--lab-workspace-line-soft)}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer-groups button{
+  flex:1 0 auto;
+  min-height:31px;
+  border:0;
+  border-right:1px solid var(--lab-workspace-line-soft);
+  border-radius:0;
+  padding:0 8px;
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer-groups button:last-child{border-right:0}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer-groups button.is-active{
+  background:rgba(209,99,57,.07);
+  box-shadow:inset 0 -2px 0 rgba(209,99,57,.62);
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer-list{gap:0;border-top:1px solid var(--lab-workspace-line-soft)}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer{
+  min-height:56px;
+  border:0;
+  border-bottom:1px solid var(--lab-workspace-line-soft);
+  border-radius:0;
+  background:transparent;
+  padding:9px 7px;
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer:hover{background:rgba(255,255,255,.018)}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer.is-active{
+  background:rgba(209,99,57,.055);
+  box-shadow:inset 2px 0 0 rgba(209,99,57,.76);
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer strong{font-size:12.5px;line-height:1.2}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer small{font-size:9px;line-height:1.35}
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer em{font-size:8.5px}
+.instrument-dialog[data-instrument-kind="earth"] .eo-compare-toggle{border-radius:0}
+.instrument-dialog[data-instrument-kind="earth"] .eo-probe-readout,
+.instrument-dialog[data-instrument-kind="earth"] #eoSourceLink{border-radius:0}
+
+.instrument-dialog[data-instrument-kind="earth"][data-workspace-mode="inspect"] .earth-observation-lab{
+  grid-template-columns:minmax(0,1fr) var(--lab-workspace-rail-inspect)!important;
+}
+.instrument-dialog[data-instrument-kind="earth"][data-workspace-mode="work"] [data-earth-section="source"]{display:none!important}
+.instrument-dialog[data-instrument-kind="earth"][data-workspace-mode="focus"] .earth-temporal-relation{top:44px}
+
+@media(max-width:920px){
+  .instrument-dialog[data-instrument-kind="earth"] .earth-observation-lab{
+    grid-template-columns:1fr!important;
+    grid-template-rows:minmax(540px,68svh) auto!important;
+    overflow:auto!important;
+  }
+  .instrument-dialog[data-instrument-kind="earth"] .earth-observation-panel{
+    border-left:0!important;
+    border-top:1px solid var(--lab-workspace-line)!important;
+    overflow:visible!important;
+  }
+  .instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav{top:0}
+  .instrument-dialog[data-instrument-kind="earth"] .earth-observation-summary{padding:13px 14px}
+  .instrument-dialog[data-instrument-kind="earth"] .earth-observation-summary>strong{font-size:18px}
+  .instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation{top:45px;left:8px;min-width:210px;padding:8px}
+}
+
+@media(max-width:700px){
+  .instrument-dialog[data-instrument-kind="earth"] .earth-observation-lab{grid-template-rows:minmax(500px,66svh) auto!important}
+  .instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav{overflow:auto;grid-template-columns:repeat(5,minmax(72px,1fr));scrollbar-width:none}
+  .instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav::-webkit-scrollbar{display:none}
+  .instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation{right:8px;min-width:0}
+  .instrument-dialog[data-instrument-kind="earth"] .earth-temporal-relation small{display:none}
+  .instrument-dialog[data-instrument-kind="earth"] .eo-frame-note span:last-child{display:none}
+  .instrument-dialog[data-instrument-kind="earth"] .earth-timeline-hint{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .instrument-dialog[data-instrument-kind="earth"] .earth-rail-nav button,
+  .instrument-dialog[data-instrument-kind="earth"] .eo-layer{scroll-behavior:auto}
+}
