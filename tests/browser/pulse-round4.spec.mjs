@@ -135,7 +135,7 @@ test('Pulse Round 4 restores deep-linked temporal filters and count-grid represe
     quakeTransport:window.GeoDataSupply.describe('usgs-earthquakes-day')?.transport,
     referenceTransport:window.GeoDataSupply.describe('natural-earth-land-110m')?.transport
   }));
-  expect(contract.version).toBe('20261002c');
+  expect(contract.version).toBe('20261002e');
   expect(contract.deepLink).toEqual(['pulseCutoff','pulseMag','pulseDepth','pulseStatus','pulseView']);
   expect(contract.quakeTransport).toBe('same-origin-snapshot');
   expect(contract.referenceTransport).toBe('same-origin-reference');
