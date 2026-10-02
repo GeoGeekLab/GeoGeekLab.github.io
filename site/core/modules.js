@@ -7,6 +7,7 @@
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
   const DATA_SUPPLY_RUNTIME = 'core/data-supply.js?v=20261002c';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v2.js?v=20261002c';
+  const PULSE_OBSERVATION_LAB = 'pulse-observation-lab.js?v=20261002a';
 
   function cache(url, promise) {
     const guarded = promise.catch(error => {
@@ -89,6 +90,11 @@
       await loadScript(EARTH_OBSERVATION_LAB);
       if (!window.GeoEarthTemporalLab) throw new Error('Earth observation Lab failed to bind the unified data-supply contract.');
     }
+    if (kind === 'pulse' && !window.GeoPulseObservationLab) {
+      await loadModule(DATA_SUPPLY_RUNTIME);
+      await loadScript(PULSE_OBSERVATION_LAB);
+      if (!window.GeoPulseObservationLab) throw new Error('Pulse observation Lab failed to bind the unified data-supply contract.');
+    }
     if (kind === 'figure' && !window.GeoFigureWorkbench) await loadScript('figure-analysis-workbench.js?v=20261001c');
     if (kind === 'figure' && !window.GeoFigureViewerV2) await loadScript('figure-viewer-v2.js?v=20261001d');
     if (kind === 'figure' && !window.GeoFigureViewerV2Polish) await loadScript('figure-viewer-v2-polish.js?v=20261001e');
@@ -123,6 +129,7 @@
       orbitEnhancementNeeded ||
       (kind === 'world' && !window.GeoProjectionLab) ||
       (kind === 'earth' && !window.GeoEarthTemporalLab) ||
+      (kind === 'pulse' && !window.GeoPulseObservationLab) ||
       (kind === 'flow' && (!window.GeoFlowLab || !window.GeoFlowLabPolish)) ||
       (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish));
     if (window.GeoInstruments && !enhancementNeeded) return;
