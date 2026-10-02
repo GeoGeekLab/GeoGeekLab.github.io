@@ -1,12 +1,21 @@
-import { DATA_SUPPLY_SCHEMA_VERSION, DATASETS, DATASET_BY_ID, DATASET_BY_ADAPTER, siteAssetUrl } from '../data/supply-registry.js';
+import { DATA_SUPPLY_SCHEMA_VERSION, DATASETS, DATASET_BY_ID, DATASET_BY_ADAPTER, productFor, productsFor, siteAssetUrl } from '../data/supply-registry.js';
 
 const nativeFetch = window.fetch.bind(window);
 const states = new Map();
 const installedAt = Date.now();
 const DAY_MS = 86400000;
 
+const resolveDataset = idOrAdapter => DATASET_BY_ID.get(idOrAdapter) || DATASET_BY_ADAPTER.get(idOrAdapter) || null;
 const stateFor = id => {
-  if (!states.has(id)) states.set(id, { metadata:null, metadataError:null, metadataPromise:null, lastTransport:null, lastRequestAt:null });
+  if (!states.has(id)) states.set(id, {
+    metadata:null,
+    metadataError:null,
+    metadataPromise:null,
+    lastTransport:null,
+    lastRequestAt:null,
+    requestSequence:0,
+    request:null
+  });
   return states.get(id);
 };
 
@@ -128,6 +137,55 @@ function record(dataset, transport) {
   emit(dataset.id);
 }
 
+function beginRequest(idOrAdapter, details = {}) {
+  const dataset = resolveDataset(idOrAdapter);
+  if (!dataset) throw new Error(`Unknown data-supply dataset: ${idOrAdapter}.`);
+  const state = stateFor(dataset.id);
+  const sequence = ++state.requestSequence;
+  const requestedAt = new Date().toISOString();
+  const transport = details.transport || (dataset.mode === 'tile' ? 'provider-raster' : 'provider-query');
+  const request = {
+    sequence,
+    status:'requesting',
+    transport,
+    productId:details.productId || null,
+    scope:details.scope || dataset.scope,
+    observationTime:details.observationTime || null,
+    requestUrl:details.requestUrl || null,
+    purpose:details.purpose || 'foreground',
+    requestedAt,
+    completedAt:null,
+    error:null
+  };
+  state.request = request;
+  state.lastTransport = transport;
+  state.lastRequestAt = requestedAt;
+  emit(dataset.id);
+
+  const finish = (status, extra = {}) => {
+    if (state.requestSequence !== sequence) return false;
+    const error = extra.error instanceof Error ? extra.error.message : extra.error || null;
+    state.request = {
+      ...request,
+      ...extra,
+      error,
+      status,
+      completedAt:new Date().toISOString()
+    };
+    emit(dataset.id);
+    return true;
+  };
+
+  return Object.freeze({
+    datasetId:dataset.id,
+    sequence,
+    isCurrent:() => state.requestSequence === sequence,
+    succeed:extra => finish('available', extra),
+    fail:(error, extra = {}) => finish('unavailable', { ...extra, error }),
+    abort:extra => finish('aborted', extra)
+  });
+}
+
 async function routedFetch(input, init) {
   const url = normalizeUrl(input);
   const dataset = matchDataset(url);
@@ -158,7 +216,7 @@ async function routedFetch(input, init) {
 }
 
 function describe(idOrAdapter) {
-  const dataset = DATASET_BY_ID.get(idOrAdapter) || DATASET_BY_ADAPTER.get(idOrAdapter);
+  const dataset = resolveDataset(idOrAdapter);
   if (!dataset) return null;
   const state = stateFor(dataset.id);
   const age = ageMs(state.metadata);
@@ -174,6 +232,8 @@ function describe(idOrAdapter) {
     ageLabel: ageLabel(age),
     stale,
     transport: state.lastTransport || defaultTransport,
+    request: state.request ? { ...state.request } : null,
+    product: state.request?.productId ? productFor(dataset.id, state.request.productId) : null,
     installedAt
   };
 }
@@ -190,9 +250,12 @@ if (!window.GeoDataSupply?.installed) {
     datasets: DATASETS,
     get: id => DATASET_BY_ID.get(id) || null,
     byAdapter: adapter => DATASET_BY_ADAPTER.get(adapter) || null,
+    products: productsFor,
+    product: productFor,
     classify: input => matchDataset(normalizeUrl(input)),
     metadata,
     describe,
+    beginRequest,
     refreshMetadata: id => metadata(id, { refresh:true }),
     nativeFetch
   };
