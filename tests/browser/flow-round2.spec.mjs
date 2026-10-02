@@ -61,3 +61,18 @@ test('Flow round two makes movement grammar, geography and inference boundaries 
   await expect(page.locator('.flow-projection-readout')).toContainText('PLATE CARRÉE');
   await expect(page.locator('#instrumentStage')).not.toContainText('Windy');
 });
+
+test('Flow round two survives closing and reopening the instrument in the same page', async ({ page }) => {
+  await openFlow(page);
+  await expect(page.locator('.flow-active-summary')).toHaveCount(1);
+  await page.locator('#instrumentClose').click();
+  await expect(page.locator('#instrumentDialog')).not.toHaveAttribute('open', '');
+
+  const trigger = page.locator('[data-instrument="flow"]').first();
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+
+  await expect(page.locator('.flow-lab[data-flow-round2="1"]')).toBeVisible({ timeout:10000 });
+  await expect(page.locator('.flow-active-summary')).toHaveCount(1);
+  await expect(page.locator('.flow-tabs [data-mode="field"]')).toHaveAttribute('role', 'tab');
+});
