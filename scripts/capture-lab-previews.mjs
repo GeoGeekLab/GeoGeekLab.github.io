@@ -44,6 +44,15 @@ const browser = await chromium.launch({ headless: true, args: ['--disable-dev-sh
 
 async function newPage(viewport = { width: 1600, height: 1000 }) {
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1, reducedMotion: 'reduce' });
+
+  // Preview capture should verify application rendering, not the availability of a
+  // third-party font CDN. Aborting font resources makes screenshots deterministic
+  // and prevents Playwright's screenshot font-wait from stalling unrelated labs.
+  await page.route('**/*', route => {
+    if (route.request().resourceType() === 'font') return route.abort();
+    return route.continue();
+  });
+
   await page.addInitScript(() => {
     let seed = 73421;
     Math.random = () => {
@@ -85,7 +94,8 @@ async function captureInstrument(kind) {
       path: path.join(output, `${kind}.jpg`),
       type: 'jpeg',
       quality: 86,
-      animations: 'disabled'
+      animations: 'disabled',
+      timeout: 20000
     });
     console.log(`Captured Lab instrument: ${kind}`);
   } finally {
@@ -108,7 +118,8 @@ async function captureEarthObservatory() {
       path: path.join(output, 'earth-observatory.jpg'),
       type: 'jpeg',
       quality: 86,
-      animations: 'disabled'
+      animations: 'disabled',
+      timeout: 20000
     });
     console.log('Captured Earth Observatory');
   } finally {
