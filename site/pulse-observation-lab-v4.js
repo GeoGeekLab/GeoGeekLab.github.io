@@ -1,20 +1,44 @@
 (() => {
   'use strict';
 
-  const VERSION = '20261002d';
+  const VERSION = '20261002e';
   const BASE_SRC = 'pulse-observation-lab-v3.js?v=20261002c';
+  const EVENT_ATTACH_BATCH = 160;
   const previous = window.GeoPulseObservationLab;
   let basePromise = null;
+  let stylePromise = null;
   let baseMount = previous?.version === '20261002c' ? previous.mount : null;
   let baseMeta = previous?.version === '20261002c' ? previous : null;
 
   function ensureStyle() {
-    if (document.querySelector('link[data-pulse-round5]')) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = `pulse-observation-round5.css?v=${VERSION}`;
-    link.dataset.pulseRound5 = '1';
-    document.head.appendChild(link);
+    if (stylePromise) return stylePromise;
+    const existing = document.querySelector('link[data-pulse-round5]');
+    const link = existing || document.createElement('link');
+    if (existing?.dataset.loaded === 'true' || existing?.sheet) {
+      link.dataset.loaded = 'true';
+      return Promise.resolve(true);
+    }
+    stylePromise = new Promise(resolve => {
+      const finish = () => {
+        link.dataset.loaded = 'true';
+        link.dataset.loadFailed = 'false';
+        resolve(true);
+      };
+      const fail = () => {
+        link.dataset.loadFailed = 'true';
+        console.warn('[GeoGeek] Pulse Round 5 control styling failed to load; baseline Pulse remains available.');
+        resolve(false);
+      };
+      link.addEventListener('load', finish, { once:true });
+      link.addEventListener('error', fail, { once:true });
+      if (!existing) {
+        link.rel = 'stylesheet';
+        link.href = `pulse-observation-round5.css?v=${VERSION}`;
+        link.dataset.pulseRound5 = '1';
+        document.head.appendChild(link);
+      }
+    });
+    return stylePromise;
   }
 
   function ensureBase() {
@@ -56,6 +80,9 @@
       forwardedTimelineFrames:0,
       eventNodeCount:eventNodes.length,
       detachedEventCount:0,
+      liveEventCount:eventNodes.length,
+      attachBatches:0,
+      progressiveEventDom:false,
       representation:root.dataset.representation || 'events'
     };
     window.GeoPulseRound5Stats = stats;
@@ -63,21 +90,56 @@
     let timelineFrame = 0;
     let pendingTimelineValue = null;
     let forwardingTimeline = false;
+    let attachFrame = 0;
+    let attachQueue = [];
+
+    const updateEventStats = () => {
+      if (!eventGroup) return;
+      stats.liveEventCount = eventGroup.querySelectorAll('.pulse-event').length;
+      stats.detachedEventCount = eventNodes.length - stats.liveEventCount;
+      stats.progressiveEventDom = attachQueue.length > 0 || Boolean(attachFrame);
+    };
+
+    const stopProgressiveAttach = () => {
+      if (attachFrame) cancelAnimationFrame(attachFrame);
+      attachFrame = 0;
+      attachQueue = [];
+      stats.progressiveEventDom = false;
+    };
+
+    const attachBatch = () => {
+      attachFrame = 0;
+      if (!eventGroup?.isConnected || root.dataset.representation !== 'events') {
+        stopProgressiveAttach();
+        updateEventStats();
+        return;
+      }
+      const fragment = document.createDocumentFragment();
+      const batch = attachQueue.splice(0, EVENT_ATTACH_BATCH);
+      batch.forEach(node => fragment.appendChild(node));
+      if (batch.length) {
+        eventGroup.appendChild(fragment);
+        stats.attachBatches += 1;
+      }
+      updateEventStats();
+      if (attachQueue.length) attachFrame = requestAnimationFrame(attachBatch);
+    };
 
     const syncEventDom = () => {
       if (!eventGroup) return;
       const density = root.dataset.representation === 'density';
       stats.representation = density ? 'density' : 'events';
+      stopProgressiveAttach();
       if (density) {
         eventNodes.forEach(node => {
           if (node.parentNode === eventGroup) detachedEvents.appendChild(node);
         });
-      } else {
-        eventNodes.forEach(node => {
-          if (node.parentNode !== eventGroup) eventGroup.appendChild(node);
-        });
+        updateEventStats();
+        return;
       }
-      stats.detachedEventCount = eventNodes.filter(node => node.parentNode !== eventGroup).length;
+      attachQueue = eventNodes.filter(node => node.parentNode !== eventGroup);
+      updateEventStats();
+      if (attachQueue.length) attachFrame = requestAnimationFrame(attachBatch);
     };
 
     const representationObserver = new MutationObserver(records => {
@@ -145,6 +207,7 @@
 
     return () => {
       if (timelineFrame) cancelAnimationFrame(timelineFrame);
+      stopProgressiveAttach();
       representationObserver.disconnect();
       timeline?.removeEventListener('input', coalesceTimeline, true);
       playButton?.removeEventListener('click', reducedPlayHandler, true);
@@ -155,7 +218,6 @@
   }
 
   async function resilientMount(context = {}) {
-    ensureStyle();
     const stage = context.stage || document.getElementById('instrumentStage');
     const busyToken = `pulse-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     if (stage) {
@@ -166,8 +228,11 @@
     let baseCleanup = null;
     let resilienceCleanup = null;
     try {
-      const mount = await ensureBase();
+      const [mount] = await Promise.all([ensureBase(), ensureStyle()]);
       baseCleanup = await mount(context);
+      // v3 loads v2 lazily during its first mount and rebinds itself afterwards.
+      // Restore v4 only after that nested lifecycle has fully completed.
+      bindResilient();
       if (context.signal?.aborted) return () => { baseCleanup?.(); };
       resilienceCleanup = installResilience(stage);
       return () => {
@@ -193,12 +258,13 @@
       resilience:{
         timeline:'requestAnimationFrame-coalesced',
         densityDom:'event-nodes-detached-while-count-grid-active',
+        eventDom:'progressive-batched-reattach',
         reducedMotion:'manual-one-hour-step',
         loading:'abort-safe-aria-busy'
       }
     };
   }
 
-  ensureStyle();
+  void ensureStyle();
   bindResilient();
 })();
