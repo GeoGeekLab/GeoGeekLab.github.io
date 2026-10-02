@@ -44,6 +44,7 @@ jobs:
       - name: Verify data supply runtime and snapshots
         env:
           DATA_SUPPLY_REQUIRE_REFERENCES: '1'
+          DATA_SUPPLY_REQUIRE_LAST_KNOWN_GOOD: '1'
         run: |
           test -s site/core/data-supply.js
           test -s site/data/supply-registry.js
