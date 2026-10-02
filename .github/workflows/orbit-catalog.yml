@@ -1,0 +1,51 @@
+name: Refresh Orbit Catalog
+
+on:
+  schedule:
+    - cron: '23 */2 * * *'
+  workflow_dispatch:
+  push:
+    branches: [feature/orbit-snapshot-pipeline]
+    paths:
+      - scripts/update-orbit-catalog.mjs
+      - .github/workflows/orbit-catalog.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orbit-catalog-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Refresh CelesTrak active OMM snapshot
+        run: node scripts/update-orbit-catalog.mjs
+      - name: Validate snapshot files
+        run: |
+          test -s site/orbital/data/active.json
+          test -s site/orbital/data/active.meta.json
+          node -e "const fs=require('fs');const a=JSON.parse(fs.readFileSync('site/orbital/data/active.json'));const m=JSON.parse(fs.readFileSync('site/orbital/data/active.meta.json'));if(!Array.isArray(a)||a.length<5000||m.recordCount!==a.length)process.exit(1);console.log('validated',a.length,'records',m.fetchedAt)"
+      - name: Commit refreshed snapshot
+        run: |
+          if git diff --quiet -- site/orbital/data/active.json site/orbital/data/active.meta.json; then
+            echo 'Orbit snapshot is already current.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add site/orbital/data/active.json site/orbital/data/active.meta.json
+          git commit -m 'Refresh Orbit catalog snapshot'
+          git push origin HEAD:${GITHUB_REF_NAME}
