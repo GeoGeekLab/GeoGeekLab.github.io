@@ -2,10 +2,10 @@ import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DATASETS, DATASET_BY_ID, snapshotDatasets, referenceDatasets } from '../site/data/supply-registry.js';
+import { DATA_SUPPLY_SCHEMA_VERSION, DATASETS, DATASET_BY_ID, snapshotDatasets, referenceDatasets } from '../site/data/supply-registry.js';
 
 export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-export { DATASETS, DATASET_BY_ID, snapshotDatasets, referenceDatasets };
+export { DATA_SUPPLY_SCHEMA_VERSION, DATASETS, DATASET_BY_ID, snapshotDatasets, referenceDatasets };
 
 export const exists = file => fs.access(file).then(() => true).catch(() => false);
 export const readJson = async file => { try { return JSON.parse(await fs.readFile(file, 'utf8')); } catch { return null; } };
@@ -141,7 +141,7 @@ export function validatePayload(dataset, payload, previousMeta = null) {
       providerApiVersion:String(payload?.metadata?.api || ''),
       eventTimeRange:summarizeTimes(eventTimes),
       eventUpdatedRange:summarizeTimes(updatedTimes),
-      scope:dataset.scope || { type:'rolling-window', duration:'PT24H', extent:'global' },
+      scopeDetail:{ type:'rolling-window', duration:'PT24H', extent:'global' },
     };
   }
 
@@ -195,29 +195,26 @@ export function serializePayload(payload) {
   return `${JSON.stringify(payload)}\n`;
 }
 
-function formatFor(dataset) {
-  if (dataset.id === 'orbit-active') return 'CCSDS OMM JSON';
-  if (['smithsonian-volcanoes','emsc-events','usgs-earthquakes-day','natural-earth-land-110m'].includes(dataset.id)) return 'GeoJSON';
-  return 'JSON';
-}
-
 export function metadataFor(dataset, payload, response, validation, fetchedAt, contentHash, sourceUrl) {
   const common = {
-    schemaVersion:1,
+    schemaVersion:DATA_SUPPLY_SCHEMA_VERSION,
     supplyId:dataset.id,
     dataset:dataset.metadataDataset || dataset.id,
+    datasetLabel:dataset.dataset,
     provider:dataset.provider,
-    format:formatFor(dataset),
+    format:dataset.format,
     source:sourceUrl,
-    delivery:'GeoGeek same-origin snapshot',
+    delivery:dataset.delivery,
+    transport:dataset.transport,
+    scope:dataset.scope,
     fetchedAt,
     sourceLastModified:asIso(response?.headers?.get?.('last-modified')),
     recordCount:validation.recordCount,
     sha256:contentHash,
     timeSemantics:dataset.timeSemantics,
+    freshnessSemantics:dataset.freshnessSemantics,
     resolution:dataset.resolution,
     limit:dataset.limit,
-    scope:dataset.scope || null,
     refreshPolicy:{
       minimumMs:dataset.refreshEveryMs,
       staleAfterMs:dataset.staleAfterMs,
@@ -233,7 +230,7 @@ export function metadataFor(dataset, payload, response, validation, fetchedAt, c
     common.providerCount = validation.providerCount;
     common.eventTimeRange = validation.eventTimeRange;
     common.eventUpdatedRange = validation.eventUpdatedRange;
-    common.scope = validation.scope;
+    common.scopeDetail = validation.scopeDetail;
   }
   if (dataset.id === 'emsc-events') {
     const u = new URL(sourceUrl);
