@@ -79,5 +79,6 @@ test('PROJECT traverses area, keyboard route, and viewpoint representation chang
   await expect(shell.locator('.play-readout')).toContainText('THE WORLD STAYED');
   await shell.getByRole('button', { name:'VIEW TRACE →' }).click();
   await expect(shell.locator('.play-trace-title')).toContainText('PROJECT');
-  await expect(shell.locator('.play-conditions')).toContainText('SCORENONE');
+  await expect(shell.locator('.play-conditions')).toContainText('SCORE');
+  await expect(shell.locator('.play-conditions')).toContainText('NONE');
 });
