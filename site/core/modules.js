@@ -3,6 +3,7 @@
 
   const loaded = new Map();
   const scriptUrl = src => new URL(src, document.baseURI).href;
+  const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
 
   function cache(url, promise) {
     const guarded = promise.catch(error => {
@@ -41,6 +42,12 @@
     return cache(url, promise);
   }
 
+  function loadModule(src) {
+    const url = scriptUrl(src);
+    if (loaded.has(url)) return loaded.get(url);
+    return cache(url, import(url));
+  }
+
   async function loadMap() {
     if (!window.GeoMap) await loadScript('map/site-map.js');
     return window.GeoMap;
@@ -62,6 +69,9 @@
       await loadScript('instruments.js?v=20260930c');
       await loadScript('figure-instrument.js?v=20261001a');
     }
+    if (kind === 'orbit') {
+      await loadModule(ORBIT_ENHANCEMENT);
+    }
     if (kind === 'world' && !window.GeoProjectionLab) {
       await loadScript('world-projection-lab.js?v=20261001a');
     }
@@ -77,7 +87,7 @@
     return window.GeoInstruments;
   }
 
-  window.GeoModules = { loadScript, loadMap, loadCommons, loadInstrument };
+  window.GeoModules = { loadScript, loadModule, loadMap, loadCommons, loadInstrument };
 
   const mapToggle = document.getElementById('navToggle');
   mapToggle?.addEventListener('click', async event => {
@@ -96,7 +106,9 @@
     const button = event.target.closest?.('[data-instrument]');
     if (!button) return;
     const kind = button.dataset.instrument;
+    const orbitEnhancementNeeded = kind === 'orbit' && !loaded.has(scriptUrl(ORBIT_ENHANCEMENT));
     const enhancementNeeded =
+      orbitEnhancementNeeded ||
       (kind === 'world' && !window.GeoProjectionLab) ||
       (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish));
     if (window.GeoInstruments && !enhancementNeeded) return;
