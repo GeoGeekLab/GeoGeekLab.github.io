@@ -1,0 +1,91 @@
+(() => {
+  'use strict';
+
+  if (!document.querySelector('link[data-lab-fullpage]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'lab-fullpage.css?v=20261002a';
+    link.dataset.labFullpage = '1';
+    document.head.appendChild(link);
+  }
+
+  const dialog = document.getElementById('instrumentDialog');
+  const head = dialog?.querySelector('.instrument-head');
+  const close = document.getElementById('instrumentClose');
+  if (!dialog || !head || !close) return;
+
+  const CORE = new Set(['world', 'figure', 'orbit', 'earth', 'flow', 'pulse']);
+  const MODES = ['focus', 'work', 'inspect'];
+  const STORAGE = 'geogeek.lab.workspaceMode';
+  let activeKind = '';
+
+  const toolbar = document.createElement('div');
+  toolbar.className = 'instrument-workspace-modes';
+  toolbar.setAttribute('role', 'group');
+  toolbar.setAttribute('aria-label', 'Workspace density');
+  toolbar.hidden = true;
+  toolbar.innerHTML = MODES.map(mode => (
+    `<button type="button" data-workspace-mode="${mode}" aria-pressed="${mode === 'work'}" title="${mode === 'focus' ? 'Visualization only' : mode === 'inspect' ? 'Show full context and provenance' : 'Visualization with primary controls'}">${mode.toUpperCase()}</button>`
+  )).join('');
+  close.before(toolbar);
+
+  const buttons = [...toolbar.querySelectorAll('[data-workspace-mode]')];
+
+  function storedMode() {
+    try {
+      const value = localStorage.getItem(STORAGE);
+      return MODES.includes(value) ? value : 'work';
+    } catch {
+      return 'work';
+    }
+  }
+
+  function setMode(mode, { persist = true } = {}) {
+    const next = MODES.includes(mode) ? mode : 'work';
+    dialog.dataset.workspaceMode = next;
+    buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.workspaceMode === next)));
+    if (persist) {
+      try { localStorage.setItem(STORAGE, next); } catch {}
+    }
+    document.dispatchEvent(new CustomEvent('geogeek:workspace-mode', { detail:{ kind:activeKind, mode:next } }));
+  }
+
+  function syncIdentity() {
+    const kind = dialog.dataset.instrumentKind || '';
+    const isCore = CORE.has(kind);
+    activeKind = isCore ? kind : '';
+    dialog.dataset.labWorkspace = isCore ? 'true' : 'false';
+    toolbar.hidden = !isCore;
+
+    if (!isCore) {
+      delete dialog.dataset.workspaceMode;
+      close.textContent = '×';
+      close.setAttribute('aria-label', 'Close');
+      return;
+    }
+
+    close.textContent = '← LAB INDEX';
+    close.setAttribute('aria-label', 'Return to Lab index');
+    setMode(dialog.dataset.workspaceMode || storedMode(), { persist:false });
+  }
+
+  buttons.forEach(button => button.addEventListener('click', () => setMode(button.dataset.workspaceMode)));
+
+  document.addEventListener('keydown', event => {
+    if (!dialog.open || !activeKind) return;
+    const target = event.target;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement || target?.isContentEditable) return;
+    if (!event.altKey) return;
+    const index = ['1','2','3'].indexOf(event.key);
+    if (index < 0) return;
+    event.preventDefault();
+    setMode(MODES[index]);
+  });
+
+  const observer = new MutationObserver(records => {
+    if (records.some(record => record.attributeName === 'data-instrument-kind' || record.attributeName === 'open')) syncIdentity();
+  });
+  observer.observe(dialog, { attributes:true, attributeFilter:['data-instrument-kind', 'open'] });
+  dialog.addEventListener('close', syncIdentity);
+  syncIdentity();
+})();
