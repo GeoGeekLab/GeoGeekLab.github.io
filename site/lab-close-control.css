@@ -1,0 +1,110 @@
+/* Shared exit affordance for the six full-page core Labs.
+   The workspace-density controls belong to the instrument; the circular close
+   control belongs to the page shell and always returns to the Lab index. */
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-head {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-right: max(88px, calc(env(safe-area-inset-right, 0px) + 82px));
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-workspace-modes {
+  margin-right: 0;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"] {
+  position: absolute;
+  z-index: 24;
+  top: max(18px, calc(env(safe-area-inset-top, 0px) + 14px));
+  right: max(22px, calc(env(safe-area-inset-right, 0px) + 14px));
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  padding: 0;
+  border: 1px solid rgba(232, 237, 233, .16);
+  border-radius: 999px;
+  background: rgba(9, 15, 11, .62);
+  color: rgba(241, 239, 231, .72);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .14);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font: 400 25px/1 var(--sans);
+  letter-spacing: 0;
+  white-space: normal;
+  cursor: pointer;
+  transition: color .14s ease, border-color .14s ease, background-color .14s ease, transform .14s ease, box-shadow .14s ease;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"]::after {
+  content: "Lab Index";
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: max-content;
+  max-width: 160px;
+  padding: 6px 8px;
+  border: 1px solid rgba(232, 237, 233, .11);
+  background: rgba(8, 13, 10, .96);
+  color: rgba(241, 239, 231, .72);
+  font: 700 8px/1 var(--mono);
+  letter-spacing: .075em;
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity .12s ease, transform .12s ease;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"]:hover {
+  border-color: rgba(209, 99, 57, .5);
+  background: rgba(16, 25, 19, .84);
+  color: var(--lab-workspace-fg);
+  transform: translateY(-1px);
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"]:hover::after,
+.instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"]:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"]:active {
+  transform: translateY(0) scale(.97);
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"]:focus-visible {
+  outline: none;
+  border-color: rgba(209, 99, 57, .78);
+  color: var(--lab-workspace-fg);
+  box-shadow:
+    0 0 0 3px rgba(209, 99, 57, .18),
+    0 8px 26px rgba(0, 0, 0, .16);
+}
+
+@media (max-width: 760px) {
+  .instrument-dialog[data-lab-workspace="true"] .instrument-head {
+    padding-right: max(74px, calc(env(safe-area-inset-right, 0px) + 70px));
+  }
+
+  .instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"] {
+    top: max(12px, calc(env(safe-area-inset-top, 0px) + 10px));
+    right: max(12px, calc(env(safe-area-inset-right, 0px) + 10px));
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    font-size: 24px;
+  }
+
+  .instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"]::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"],
+  .instrument-dialog[data-lab-workspace="true"] .instrument-close[data-lab-exit="true"]::after {
+    transition: none;
+  }
+}
