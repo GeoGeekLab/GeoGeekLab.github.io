@@ -64,24 +64,34 @@ async function loadMetadata() {
   return metadataPromise;
 }
 
-async function migrateLegacyCacheOnce() {
-  let current = null;
-  try { current = localStorage.getItem(SOURCE_VERSION_KEY); } catch {}
-  if (current === SOURCE_VERSION) return;
+async function deleteCatalogCache() {
   try {
     if ('caches' in window) {
       const cache = await caches.open(CACHE_NAME);
       await cache.delete(UPSTREAM_URL);
     }
   } catch {}
-  try {
-    localStorage.removeItem(CACHE_TS_KEY);
-    localStorage.setItem(SOURCE_VERSION_KEY, SOURCE_VERSION);
-  } catch {}
+  try { localStorage.removeItem(CACHE_TS_KEY); } catch {}
+}
+
+async function migrateLegacyCacheOnce() {
+  let current = null;
+  try { current = localStorage.getItem(SOURCE_VERSION_KEY); } catch {}
+  if (current === SOURCE_VERSION) return;
+  await deleteCatalogCache();
+  try { localStorage.setItem(SOURCE_VERSION_KEY, SOURCE_VERSION); } catch {}
+}
+
+async function alignCacheWithSnapshot() {
+  const snapshotMs = Date.parse(String(metadata?.fetchedAt || ''));
+  if (!Number.isFinite(snapshotMs)) return;
+  let cachedMs = NaN;
+  try { cachedMs = Number(localStorage.getItem(CACHE_TS_KEY) || NaN); } catch {}
+  if (!Number.isFinite(cachedMs)) return;
+  if (snapshotMs > cachedMs + 60_000) await deleteCatalogCache();
 }
 
 async function fetchSnapshot(init = {}) {
-  await loadMetadata();
   const headers = new Headers(init?.headers || {});
   if (!headers.has('Accept')) headers.set('Accept', 'application/json');
   const response = await nativeFetch(SNAPSHOT_URL, {
@@ -165,7 +175,9 @@ function queueUiSync() {
 
 if (!window.GeoOrbitCatalogSource?.installed) {
   await migrateLegacyCacheOnce();
-  loadMetadata();
+  await loadMetadata();
+  await alignCacheWithSnapshot();
+
   const wrappedFetch = (input, init) => isActiveCatalogRequest(input) ? fetchSnapshot(init) : nativeFetch(input, init);
   window.fetch = wrappedFetch;
 
