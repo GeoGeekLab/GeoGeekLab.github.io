@@ -230,35 +230,8 @@ async function captureInstrument(kind) {
   }
 }
 
-async function captureEarthObservatory() {
-  const page = await newPage({ width: 1920, height: 900 });
-  try {
-    await page.goto(`${base}/earth/`, { waitUntil: 'domcontentloaded', timeout: 45000 });
-    await page.waitForSelector('#map', { state: 'visible', timeout: 15000 });
-    await page.waitForFunction(() => !!document.querySelector('#map canvas'), null, { timeout: 25000 }).catch(() => {});
-    await page.waitForTimeout(7000);
-    if (await page.locator('.earth-fatal').count()) throw new Error('Earth Observatory rendered its degraded/fatal state');
-    const shell = page.locator('.app-shell');
-    const box = await shell.boundingBox();
-    if (!box || box.width < 800 || box.height < 500) throw new Error('Earth Observatory: invalid app bounds');
-    await shell.screenshot({
-      path: path.join(output, 'earth-observatory.jpg'),
-      type: 'jpeg',
-      quality: 86,
-      animations: 'disabled',
-      timeout: 20000
-    });
-    console.log('Captured Earth Observatory');
-  } finally {
-    await page.close();
-  }
-}
-
 const failures = [];
 try {
-  try { await captureEarthObservatory(); }
-  catch (error) { failures.push(`earth-observatory: ${error.message}`); console.error(error); }
-
   for (const kind of instruments) {
     try { await captureInstrument(kind); }
     catch (error) { failures.push(`${kind}: ${error.message}`); console.error(error); }
@@ -268,7 +241,7 @@ try {
   await new Promise(resolve => server.close(resolve));
 }
 
-const expected = ['earth-observatory', ...instruments].map(name => path.join(output, `${name}.jpg`));
+const expected = instruments.map(name => path.join(output, `${name}.jpg`));
 const missing = expected.filter(file => !fs.existsSync(file) || fs.statSync(file).size < 8000);
 if (failures.length || missing.length) {
   if (failures.length) console.error('Capture failures:', failures.join(' | '));
