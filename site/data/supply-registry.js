@@ -50,7 +50,7 @@ export const DATASETS = Object.freeze([
     upstream: 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e/110m/physical/ne_110m_land.json',
     reference: 'data/reference/natural-earth-land-110m.geojson',
     metadata: 'data/reference/natural-earth-land-110m.meta.json',
-    version: 'Natural Earth 5.x source export · pinned repository revision 0b9a6ceb0a70',
+    version: 'Data current 2024-01-24 · pinned GeoJSON revision 0b9a6ceb0a70',
     fallback: 'unavailable',
     scope: { type:'global-reference', extent:'global' },
     timeSemantics: 'Version-pinned cartographic reference geometry; independent of observation date and browser read time.',
