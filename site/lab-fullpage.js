@@ -1,6 +1,14 @@
 (() => {
   'use strict';
 
+  if (!document.querySelector('link[data-lab-fullpage]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'lab-fullpage.css?v=20261002a';
+    link.dataset.labFullpage = '1';
+    document.head.appendChild(link);
+  }
+
   const dialog = document.getElementById('instrumentDialog');
   const head = dialog?.querySelector('.instrument-head');
   const close = document.getElementById('instrumentClose');
