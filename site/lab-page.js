@@ -19,6 +19,45 @@
   const labStatus = window.GEOGEEK_DATA?.en?.ui?.lab?.status;
   if (labStatus) labStatus.demo = 'UNAVAILABLE';
 
+  function alignFlowContent() {
+    const root = window.GEOGEEK_DATA?.en;
+    const item = root?.lab?.find(entry => entry.id === 'l06');
+    if (item) Object.assign(item, {
+      status: 'Instrument',
+      title: 'Geographic Flow Laboratory',
+      tags: ['Movement', 'Flow', 'Trajectory'],
+      description: 'One workbench compares continuous vector fields, aggregate origin–destination networks, timestamped trajectories, and Lagrangian releases without pretending they are the same geometry.',
+      coord: 'field / OD / x(t)',
+      instrumentKicker: 'FLOW / FIELD / NETWORK / TRAJECTORY',
+      source: 'Open-Meteo · NOAA GFS · Natural Earth · reproducible demo data'
+    });
+    const ui = root?.ui;
+    if (ui?.lab?.conditions) ui.lab.conditions.flow = [
+      ['INPUT', 'Vector field · OD · timestamped paths'],
+      ['GEOMETRY', 'Field · network · trajectory · particles'],
+      ['TIME', 'Snapshot · aggregate · sequence'],
+      ['LIMIT', 'Representation ≠ phenomenon']
+    ];
+    if (ui?.lab) ui.lab.flow = { caption: 'MOVEMENT / FLOW', title: 'Flow is not one geometry.' };
+    if (ui?.a11y) ui.a11y.windFrame = 'Interactive geographic flow laboratory';
+
+    const card = document.querySelector('#l06');
+    if (!card) return;
+    const meta = card.querySelectorAll('.project-meta span');
+    if (meta[0]) meta[0].textContent = 'Instrument';
+    if (meta[1]) meta[1].textContent = 'Movement · Flow · Trajectory';
+    const title = card.querySelector('h2');
+    const copy = card.querySelector('.project-copy > p');
+    const coord = card.querySelector('.lab-coord');
+    const stamp = card.querySelector('.preview-stamp');
+    if (title) title.textContent = 'Geographic Flow Laboratory';
+    if (copy) copy.textContent = 'Compare field, OD network, timestamped trajectory, and particle release as distinct geographic movement grammars.';
+    if (coord) coord.textContent = 'field / OD / x(t)';
+    if (stamp) stamp.textContent = 'FIELD / OD / TRIPS / RELEASE';
+  }
+
+  alignFlowContent();
+
   const list = document.querySelector('#labList');
   const dialog = document.querySelector('#instrumentDialog');
   const stage = document.querySelector('#instrumentStage');
@@ -26,6 +65,7 @@
   if (list) {
     const instrumentIds = new Set(['l04','l05','l06','l07','l08','l09','l10','l11','l12']);
 
+    // The Lab collection should only show records that actually expose an instrument.
     list.querySelectorAll('.project-card').forEach(card => {
       if (!instrumentIds.has(card.id) || !card.querySelector('[data-instrument]')) {
         card.remove();
@@ -78,7 +118,7 @@
   function detectKind() {
     if (stage.querySelector('.earth-layout')) return 'earth';
     if (stage.querySelector('.orbital-lab, .orbit-v2')) return 'orbit';
-    if (stage.querySelector('.flow-layout')) return 'flow';
+    if (stage.querySelector('.flow-lab, .flow-layout')) return 'flow';
     if (stage.querySelector('.pulse-layout')) return 'pulse';
     if (stage.querySelector('.world-layout')) return 'world';
     if (stage.querySelector('.figure-layout')) return 'figure';
