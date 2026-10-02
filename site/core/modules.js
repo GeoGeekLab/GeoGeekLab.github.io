@@ -6,7 +6,7 @@
   const ORBIT_CATALOG_SOURCE = 'orbital/orbit-catalog-source.js?v=20261002b';
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
   const DATA_SUPPLY_RUNTIME = 'core/data-supply.js?v=20261002c';
-  const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v2.js?v=20261002c';
+  const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002d';
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab.js?v=20261002a';
 
   function alignPulseContract() {
@@ -131,7 +131,7 @@
     if (kind === 'world' && !window.GeoProjectionLab) await loadScript('world-projection-lab.js?v=20261001a');
     if (kind === 'earth' && !window.GeoEarthTemporalLab) {
       await loadModule(DATA_SUPPLY_RUNTIME);
-      await loadScript(EARTH_OBSERVATION_LAB);
+      await loadModule(EARTH_OBSERVATION_LAB);
       if (!window.GeoEarthTemporalLab) throw new Error('Earth observation Lab failed to bind the unified data-supply contract.');
     }
     if (kind === 'pulse' && !window.GeoPulseObservationLab) {
@@ -205,7 +205,7 @@
     const buttons = [...document.querySelectorAll('[data-home-commons-horizon]')];
     const render = async () => {
       const commons = await loadCommons();
-      await commons?.mountPreview?.(homeCommonsMapMount, { variant:'home', horizon });
+      await commons?.mountPreview?.(homeCommonsMount, { variant:'home', horizon });
     };
     buttons.forEach(button => button.addEventListener('click', async () => {
       horizon = button.dataset.homeCommonsHorizon || '30d';
