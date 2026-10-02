@@ -41,6 +41,7 @@ jobs:
       - name: Verify refreshed data supply
         env:
           DATA_SUPPLY_REQUIRE_REFERENCES: '1'
+          DATA_SUPPLY_REQUIRE_LAST_KNOWN_GOOD: '1'
         run: node scripts/verify-data-supply.mjs
       - name: Detect supply change
         id: delta
