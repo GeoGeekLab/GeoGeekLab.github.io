@@ -48,6 +48,7 @@ jobs:
           test -s site/orbital/data/active.meta.json
           ! grep -in '\bDEMO\b' site/orbital/orbital-engine.js site/orbital/orbit-worker.js
           node scripts/verify-data-supply.mjs
+          node scripts/test-data-supply-contract.mjs
 
       - name: Install browser quality tools
         run: |
