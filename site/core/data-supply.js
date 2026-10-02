@@ -74,7 +74,7 @@ async function metadata(id, { refresh = false } = {}) {
   }).then(async response => {
     if (!response.ok) throw new Error(`metadata HTTP ${response.status}`);
     const value = await response.json();
-    if (!value?.fetchedAt || !value?.sha256) throw new Error('metadata is missing fetchedAt/sha256');
+    if (!value?.fetchedAt || !value?.sha256 || !Number.isFinite(Date.parse(String(value.fetchedAt)))) throw new Error('metadata is missing a valid fetchedAt/sha256');
     if (dataset.metadataDataset && value.dataset !== dataset.metadataDataset && value.supplyId !== dataset.id) {
       throw new Error(`metadata dataset mismatch: ${value.dataset || 'unknown'}`);
     }
@@ -84,6 +84,7 @@ async function metadata(id, { refresh = false } = {}) {
     emit(dataset.id);
     return value;
   }).catch(error => {
+    state.metadata = null;
     state.metadataError = error;
     emit(dataset.id);
     return null;
@@ -93,14 +94,16 @@ async function metadata(id, { refresh = false } = {}) {
 
 function snapshotEligible(dataset, url, meta) {
   if (!dataset?.snapshot || !meta) return false;
+  const age = ageMs(meta);
   if (dataset.id === 'emsc-events') {
     if (!isTodayWindow(url)) return false;
     const windowStart = String(meta.window?.start || '');
-    return windowStart && windowStart.slice(0, 10) === new Date().toISOString().slice(0, 10);
+    if (!windowStart || windowStart.slice(0, 10) !== new Date().toISOString().slice(0, 10)) return false;
+    return Number.isFinite(age) && age <= dataset.staleAfterMs;
   }
-  const age = ageMs(meta);
   if (dataset.fallback === 'last-known-good') return true;
-  return !Number.isFinite(dataset.staleAfterMs) || !Number.isFinite(age) || age <= dataset.staleAfterMs;
+  if (!Number.isFinite(age)) return false;
+  return !Number.isFinite(dataset.staleAfterMs) || age <= dataset.staleAfterMs;
 }
 
 async function snapshotResponse(dataset, init = {}) {
@@ -160,7 +163,9 @@ function describe(idOrAdapter) {
   const state = stateFor(dataset.id);
   const age = ageMs(state.metadata);
   const stale = dataset.staleAfterMs && Number.isFinite(age) ? age > dataset.staleAfterMs : false;
-  const transport = state.lastTransport || (dataset.snapshot ? 'same-origin-snapshot' : dataset.mode === 'tile' ? 'provider-tile' : 'provider-query');
+  const defaultTransport = dataset.snapshot
+    ? state.metadataError && dataset.fallback === 'upstream' ? 'provider-fallback' : 'same-origin-snapshot'
+    : dataset.mode === 'tile' ? 'provider-tile' : 'provider-query';
   return {
     ...dataset,
     metadata: state.metadata,
@@ -168,7 +173,7 @@ function describe(idOrAdapter) {
     ageMs: age,
     ageLabel: ageLabel(age),
     stale,
-    transport,
+    transport: state.lastTransport || defaultTransport,
     installedAt
   };
 }
