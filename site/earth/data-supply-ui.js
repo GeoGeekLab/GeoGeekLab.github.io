@@ -51,9 +51,10 @@ document.addEventListener('click', event => {
   setTimeout(sync, 0);
 }, true);
 
-document.addEventListener('geogeek:data-supply', () => sync());
-
-const inspector = document.getElementById('inspector');
-if (inspector) new MutationObserver(() => sync()).observe(inspector, { childList:true, subtree:true, characterData:true });
+document.addEventListener('geogeek:data-supply', event => {
+  if (!currentSource) return;
+  const dataset = DataSupply.byAdapter(currentSource.adapter);
+  if (event.detail?.id === dataset?.id) sync();
+});
 
 window.GeoEarthDataSupply = { sync, get currentSource() { return currentSource; } };
