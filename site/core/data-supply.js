@@ -1,4 +1,4 @@
-import { DATASETS, DATASET_BY_ID, DATASET_BY_ADAPTER, siteAssetUrl } from '../data/supply-registry.js';
+import { DATA_SUPPLY_SCHEMA_VERSION, DATASETS, DATASET_BY_ID, DATASET_BY_ADAPTER, siteAssetUrl } from '../data/supply-registry.js';
 
 const nativeFetch = window.fetch.bind(window);
 const states = new Map();
@@ -186,7 +186,7 @@ if (!window.GeoDataSupply?.installed) {
   window.fetch = routedFetch;
   window.GeoDataSupply = {
     installed: true,
-    schemaVersion: 1,
+    schemaVersion: DATA_SUPPLY_SCHEMA_VERSION,
     datasets: DATASETS,
     get: id => DATASET_BY_ID.get(id) || null,
     byAdapter: adapter => DATASET_BY_ADAPTER.get(adapter) || null,
