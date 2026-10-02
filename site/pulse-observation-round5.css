@@ -8,17 +8,17 @@
 }
 
 @media (pointer:coarse){
-  .pulse-control-button,
-  .pulse-representation-group button,
-  .pulse-filter-grid select{
+  .pulse-observation-lab .pulse-control-button,
+  .pulse-observation-lab .pulse-representation-group button,
+  .pulse-observation-lab .pulse-filter-grid select{
     min-height:44px;
   }
 
-  #pulseTimeline{
+  .pulse-observation-lab #pulseTimeline{
     min-height:44px;
   }
 
-  .pulse-event-hit{
+  .pulse-observation-lab .pulse-event-hit{
     r:12px;
   }
 }
@@ -30,13 +30,13 @@
     width:100%;
   }
 
-  .pulse-control-button,
-  .pulse-representation-group button,
-  .pulse-filter-grid select{
+  .pulse-observation-lab .pulse-control-button,
+  .pulse-observation-lab .pulse-representation-group button,
+  .pulse-observation-lab .pulse-filter-grid select{
     min-height:44px;
   }
 
-  #pulseTimeline{
+  .pulse-observation-lab #pulseTimeline{
     min-height:44px;
   }
 }
