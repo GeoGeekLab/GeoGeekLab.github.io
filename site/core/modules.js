@@ -3,7 +3,7 @@
 
   const loaded = new Map();
   const scriptUrl = src => new URL(src, document.baseURI).href;
-  const ORBIT_CATALOG_SOURCE = 'orbital/orbit-catalog-source.js?v=20261002a';
+  const ORBIT_CATALOG_SOURCE = 'orbital/orbit-catalog-source.js?v=20261002b';
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
 
   function cache(url, promise) {
@@ -148,7 +148,7 @@
     const buttons = [...document.querySelectorAll('[data-home-commons-horizon]')];
     const render = async () => {
       const commons = await loadCommons();
-      await commons?.mountPreview?.(homeCommonsMount, { variant:'home', horizon });
+      await commons?.mountPreview?.(homeCommonsMapMount, { variant:'home', horizon });
     };
     buttons.forEach(button => button.addEventListener('click', async () => {
       horizon = button.dataset.homeCommonsHorizon || '30d';
