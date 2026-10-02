@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { DATASETS, snapshotDatasets, referenceDatasets, verifyDatasetFiles, verifyReferenceFiles } from './data-supply-lib.mjs';
+import { DATA_SUPPLY_SCHEMA_VERSION, DATASETS, snapshotDatasets, referenceDatasets, verifyDatasetFiles, verifyReferenceFiles } from './data-supply-lib.mjs';
 
 const ids = new Set();
 const modes = new Set(['snapshot','hybrid','query','tile','reference']);
@@ -9,6 +9,27 @@ const requiredContractFields = [
   'provider', 'dataset', 'label', 'delivery', 'transport', 'format', 'scope',
   'upstream', 'fallback', 'timeSemantics', 'freshnessSemantics', 'resolution', 'limit'
 ];
+
+function verifyStableMetadata(dataset, meta) {
+  const expected = {
+    schemaVersion:DATA_SUPPLY_SCHEMA_VERSION,
+    supplyId:dataset.id,
+    datasetLabel:dataset.dataset,
+    provider:dataset.provider,
+    format:dataset.format,
+    source:dataset.upstream,
+    delivery:dataset.delivery,
+    transport:dataset.transport,
+    scope:dataset.scope,
+    timeSemantics:dataset.timeSemantics,
+    freshnessSemantics:dataset.freshnessSemantics,
+    resolution:dataset.resolution,
+    limit:dataset.limit,
+  };
+  for (const [field, value] of Object.entries(expected)) {
+    if (meta?.[field] !== value) throw new Error(`${dataset.id} metadata ${field} mismatch.`);
+  }
+}
 
 for (const dataset of DATASETS) {
   if (!dataset.id || ids.has(dataset.id)) throw new Error(`Duplicate or missing data-supply id: ${dataset.id || '(empty)'}.`);
@@ -64,14 +85,31 @@ for (const dataset of DATASETS) {
 for (const dataset of snapshotDatasets()) {
   const required = dataset.id === 'orbit-active' || (requireLastKnownGood && dataset.fallback === 'last-known-good');
   const result = await verifyDatasetFiles(dataset, { allowMissing:!required });
-  if (result.missing) console.warn(`${dataset.id}: no seeded snapshot in this checkout; runtime remains unavailable until deployment publishes a validated snapshot.`);
-  else console.log(`${dataset.id}: ${result.validation.recordCount.toLocaleString()} records · ${result.hash.slice(0,12)} · ${result.meta.fetchedAt}`);
+  if (result.missing) {
+    console.warn(`${dataset.id}: no seeded snapshot in this checkout; runtime remains unavailable until deployment publishes a validated snapshot.`);
+    continue;
+  }
+  if (dataset.id === 'usgs-earthquakes-day') {
+    verifyStableMetadata(dataset, result.meta);
+    if (Number(result.meta.providerCount) !== result.validation.providerCount) throw new Error(`${dataset.id} metadata providerCount mismatch.`);
+    if (result.meta.providerGeneratedAt !== result.validation.providerGeneratedAt) throw new Error(`${dataset.id} metadata providerGeneratedAt mismatch.`);
+    if (JSON.stringify(result.meta.eventTimeRange) !== JSON.stringify(result.validation.eventTimeRange)) throw new Error(`${dataset.id} metadata eventTimeRange mismatch.`);
+    if (JSON.stringify(result.meta.eventUpdatedRange) !== JSON.stringify(result.validation.eventUpdatedRange)) throw new Error(`${dataset.id} metadata eventUpdatedRange mismatch.`);
+    if (JSON.stringify(result.meta.scopeDetail) !== JSON.stringify(result.validation.scopeDetail)) throw new Error(`${dataset.id} metadata scopeDetail mismatch.`);
+  }
+  console.log(`${dataset.id}: ${result.validation.recordCount.toLocaleString()} records · ${result.hash.slice(0,12)} · ${result.meta.fetchedAt}`);
 }
 
 for (const dataset of referenceDatasets()) {
   const result = await verifyReferenceFiles(dataset, { allowMissing:!requireReferences });
-  if (result.missing) console.warn(`${dataset.id}: version-pinned reference is not seeded in Git; production preparation must materialize it before deployment.`);
-  else console.log(`${dataset.id}: reference ${result.meta.version} · ${result.validation.recordCount.toLocaleString()} records · ${result.hash.slice(0,12)}`);
+  if (result.missing) {
+    console.warn(`${dataset.id}: version-pinned reference is not seeded in Git; production preparation must materialize it before deployment.`);
+    continue;
+  }
+  verifyStableMetadata(dataset, result.meta);
+  if (result.meta.version !== dataset.version) throw new Error(`${dataset.id} metadata version mismatch.`);
+  if (result.meta.freshness !== 'version-pinned') throw new Error(`${dataset.id} metadata freshness must be version-pinned.`);
+  console.log(`${dataset.id}: reference ${result.meta.version} · ${result.validation.recordCount.toLocaleString()} records · ${result.hash.slice(0,12)}`);
 }
 
 console.log(`Data supply registry verified: ${DATASETS.length} datasets · ${snapshotDatasets().length} snapshot-capable · ${referenceDatasets().length} reference.`);
