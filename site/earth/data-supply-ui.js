@@ -1,4 +1,4 @@
-import DataSupply from '../core/data-supply.js';
+import DataSupply from '../core/data-supply.js?v=20261002b';
 import { SOURCES } from './sources.js';
 
 const sourceById = new Map(SOURCES.map(source => [source.id, source]));
