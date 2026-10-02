@@ -231,7 +231,9 @@
       const [mount] = await Promise.all([ensureBase(), ensureStyle()]);
       baseCleanup = await mount(context);
       // v3 loads v2 lazily during its first mount and rebinds itself afterwards.
-      // Restore v4 only after that nested lifecycle has fully completed.
+      // Refresh inherited metadata after that nested lifecycle has completed.
+      const resolvedBase = window.GeoPulseObservationLab;
+      if (resolvedBase?.version === '20261002c') baseMeta = resolvedBase;
       bindResilient();
       if (context.signal?.aborted) return () => { baseCleanup?.(); };
       resilienceCleanup = installResilience(stage);
@@ -248,6 +250,8 @@
   }
 
   function bindResilient() {
+    const current = window.GeoPulseObservationLab;
+    if (current?.version === '20261002c') baseMeta = current;
     const metadata = baseMeta || {};
     window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};
     window.GeoGeekInstrumentMounts.pulse = resilientMount;
