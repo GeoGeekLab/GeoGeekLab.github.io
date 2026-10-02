@@ -6,21 +6,21 @@
   const TRIALS = [
     {
       id: 'three-regions', title: 'FORM THREE REGIONS', target: { type: 'components', value: 3 },
-      peaks: [[.27,.34,.76,.14,.13],[.60,.31,.70,.14,.14],[.48,.70,.64,.15,.13]], noise:.018,
-      domain:[.22,.68], start:.53, resolution:128,
+      peaks: [[.22,.30,.78,.10,.11],[.67,.28,.72,.11,.11],[.48,.72,.66,.11,.10]], noise:.01,
+      domain:[.18,.68], start:.45, resolution:128,
       perturb:{ type:'resolution', from:128, to:32 }
     },
     {
       id: 'two-peaks', title: 'KEEP TWO PEAKS SEPARATE', target: { type: 'components', value: 2 },
-      peaks: [[.34,.49,.78,.17,.18],[.66,.49,.75,.17,.18]], noise:.012,
-      domain:[.26,.72], start:.55, resolution:128,
+      peaks: [[.41,.50,.78,.07,.14],[.59,.50,.75,.07,.14]], noise:0,
+      domain:[.62,.76], start:.69, resolution:128,
       perturb:{ type:'smoothing', from:0, to:3 }
     },
     {
       id: 'small-island', title: 'KEEP THE SMALL ISLAND', target: { type: 'components', value: 2 },
-      peaks: [[.37,.52,.84,.19,.18],[.73,.35,.54,.10,.10]], noise:.014,
-      domain:[.18,.58], start:.43, resolution:128,
-      perturb:{ type:'resolution', from:128, to:32 }
+      peaks: [[.34,.55,.84,.16,.16],[.735,.315,.58,.025,.025]], noise:0,
+      domain:[.36,.56], start:.50, resolution:128,
+      perturb:{ type:'resolution', from:128, to:16 }
     }
   ];
 
