@@ -23,6 +23,41 @@ export const DATASETS = Object.freeze([
     limit: 'Predicted position quality degrades as orbital elements age; this is not authoritative space-surveillance data.'
   },
   {
+    id: 'usgs-earthquakes-day',
+    instrument: 'pulse',
+    adapter: 'pulseQuakes',
+    provider: 'USGS Earthquake Hazards Program',
+    label: 'All earthquakes · past day',
+    mode: 'snapshot',
+    upstream: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',
+    snapshot: 'data/snapshots/usgs-earthquakes-day.geojson',
+    metadata: 'data/snapshots/usgs-earthquakes-day.meta.json',
+    refreshEveryMs: HOUR,
+    staleAfterMs: 3 * HOUR,
+    fallback: 'last-known-good',
+    scope: { type:'rolling-window', duration:'PT24H', extent:'global' },
+    timeSemantics: 'Rolling past-24-hour event catalogue. Event origin time, event revision time, provider feed generation time and GeoGeek snapshot fetch time are distinct.',
+    resolution: 'Earthquake event solution',
+    limit: 'Hypocenter and magnitude solutions can be revised; global detection completeness varies spatially and by magnitude.'
+  },
+  {
+    id: 'natural-earth-land-110m',
+    instrument: 'shared',
+    adapter: 'naturalEarth110m',
+    provider: 'Natural Earth',
+    label: 'Land · 1:110m reference geometry',
+    mode: 'reference',
+    upstream: 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e/110m/physical/ne_110m_land.json',
+    reference: 'data/reference/natural-earth-land-110m.geojson',
+    metadata: 'data/reference/natural-earth-land-110m.meta.json',
+    version: 'Natural Earth 5.x source export · pinned repository revision 0b9a6ceb0a70',
+    fallback: 'unavailable',
+    scope: { type:'global-reference', extent:'global' },
+    timeSemantics: 'Version-pinned cartographic reference geometry; independent of observation date and browser read time.',
+    resolution: 'Natural Earth small scale · 1:110m',
+    limit: 'Generalized small-scale land geometry; not a legal boundary authority and not suitable for local measurement.'
+  },
+  {
     id: 'noaa-aurora',
     instrument: 'earth',
     adapter: 'aurora',
@@ -108,5 +143,9 @@ export function siteAssetUrl(path, base = import.meta.url) {
 }
 
 export function snapshotDatasets() {
-  return DATASETS.filter(dataset => dataset.snapshot && dataset.metadata);
+  return DATASETS.filter(dataset => (dataset.mode === 'snapshot' || dataset.mode === 'hybrid') && dataset.snapshot && dataset.metadata);
+}
+
+export function referenceDatasets() {
+  return DATASETS.filter(dataset => dataset.mode === 'reference' && dataset.reference && dataset.metadata);
 }
