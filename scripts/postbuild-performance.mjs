@@ -165,8 +165,8 @@ function lazyHomeCommons(html) {
 function progressiveEarth(html) {
   if (!/id=(['"])map\1/i.test(html)) return html;
   html = html.replace(/\s*<link\b[^>]*href=(['"])https:\/\/unpkg\.com\/maplibre-gl@6\.6\.0\/dist\/maplibre-gl\.css\1[^>]*>\s*/i, '\n');
-  html = html.replace(/<div id=(['"])map\1([^>]*)><\/div>/i, (_m, q, rest) => `<div id=${q}map${q}${rest}><div class="earth-boot" id="earthBoot"><div class="earth-boot-card"><span>EARTH OBSERVATORY / INTERACTIVE RENDERER</span><strong>Load the map when you need it.</strong><p id="earthBootStatus">The source catalogue shell is available immediately. MapLibre, tiles, and live provider requests stay off the critical path until activation.</p><button id="earthActivate" type="button">ACTIVATE INTERACTIVE MAP</button><small>ON DEMAND · SAVES INITIAL CPU / NETWORK / BATTERY</small></div></div></div>`);
-  html = html.replace(/<script\b[^>]*\btype=(['"])module\1[^>]*\bsrc=(['"])app\.js(?:\?[^'"]*)?\2[^>]*><\/script>/i, '<script type="module" src="boot.js?v=20261001a"></script>');
+  html = html.replace(/<div id=(['"])map\1([^>]*)><\/div>/i, (_m, q, rest) => `<div id=${q}map${q}${rest}><div class="earth-boot" id="earthBoot"><div class="earth-boot-card"><span>EARTH OBSERVATORY / INTERACTIVE RENDERER</span><strong>Load the map when you need it.</strong><p id="earthBootStatus">The source catalogue shell is available immediately. MapLibre, tiles, and provider requests stay off the critical path until activation.</p><button id="earthActivate" type="button">ACTIVATE INTERACTIVE MAP</button><small>ON DEMAND · SAVES INITIAL CPU / NETWORK / BATTERY</small></div></div></div>`);
+  html = html.replace(/<script\b[^>]*\btype=(['"])module\1[^>]*\bsrc=(['"])(?:app|runtime)\.js(?:\?[^'"]*)?\2[^>]*><\/script>/i, '<script type="module" src="boot.js?v=20261002a"></script>');
   return html;
 }
 

@@ -24,12 +24,12 @@ jobs:
           node-version: 24
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Prime Orbit snapshot from live Pages
-        run: node scripts/prime-orbit-catalog-from-live.mjs
-      - name: Refresh Orbit snapshot for deploy
+      - name: Prime data supply from live Pages
+        run: node scripts/prime-data-supply-from-live.mjs
+      - name: Refresh data supply for deploy
         env:
-          ORBIT_ALLOW_STALE: '1'
-        run: node scripts/update-orbit-catalog.mjs
+          DATA_SUPPLY_ALLOW_STALE: '1'
+        run: node scripts/update-data-supply.mjs
       - name: Prepare Lab raster
         run: |
           mkdir -p site/assets/lab
@@ -37,10 +37,14 @@ jobs:
             --output site/assets/lab/sentinel2.jpg \
             https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
           test -s site/assets/lab/sentinel2.jpg
-          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261002a"#' site/lab.html
-          grep -F 'src="core/modules.js?v=20261002a"' site/lab.html
-      - name: Verify Orbit runtime and snapshot
+          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261002b"#' site/lab.html
+          grep -F 'src="core/modules.js?v=20261002b"' site/lab.html
+      - name: Verify data supply runtime and snapshots
         run: |
+          test -s site/core/data-supply.js
+          test -s site/data/supply-registry.js
+          test -s site/earth/runtime.js
+          test -s site/earth/data-supply-ui.js
           test -s site/orbital/orbital-engine.js
           test -s site/orbital/orbit-worker.js
           test -s site/orbital/orbit-catalog-source.js
@@ -49,7 +53,7 @@ jobs:
           test -s site/orbital/data/active.json
           test -s site/orbital/data/active.meta.json
           ! grep -in '\bDEMO\b' site/orbital/orbital-engine.js site/orbital/orbit-worker.js
-          node scripts/verify-orbit-catalog.mjs
+          node scripts/verify-data-supply.mjs
       - name: Install preview browser
         run: |
           npm install --no-save playwright@1.55.0

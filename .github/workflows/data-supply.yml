@@ -1,8 +1,8 @@
-name: Refresh Orbit Catalog
+name: Refresh GeoGeek Data Supply
 
 on:
   schedule:
-    - cron: '23 */2 * * *'
+    - cron: '23 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -27,29 +27,29 @@ jobs:
           node-version: 24
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Prime from currently deployed Orbit snapshot
-        run: node scripts/prime-orbit-catalog-from-live.mjs
-      - name: Record current snapshot fingerprint
+      - name: Prime from currently deployed data supply
+        run: node scripts/prime-data-supply-from-live.mjs
+      - name: Record current supply fingerprint
         id: before
         run: |
-          fingerprint=$(node -e "const m=require('./site/orbital/data/active.meta.json');process.stdout.write(String(m.sha256)+':'+String(m.fetchedAt))")
+          fingerprint=$(node scripts/data-supply-fingerprint.mjs)
           echo "fingerprint=$fingerprint" >> "$GITHUB_OUTPUT"
-      - name: Refresh CelesTrak active OMM snapshot
-        run: node scripts/update-orbit-catalog.mjs
-      - name: Verify refreshed snapshot
-        run: node scripts/verify-orbit-catalog.mjs
-      - name: Detect snapshot change
+      - name: Refresh upstream snapshots
+        run: node scripts/update-data-supply.mjs
+      - name: Verify refreshed data supply
+        run: node scripts/verify-data-supply.mjs
+      - name: Detect supply change
         id: delta
         env:
           BEFORE: ${{ steps.before.outputs.fingerprint }}
         run: |
-          after=$(node -e "const m=require('./site/orbital/data/active.meta.json');process.stdout.write(String(m.sha256)+':'+String(m.fetchedAt))")
+          after=$(node scripts/data-supply-fingerprint.mjs)
           if [ "$BEFORE" = "$after" ]; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
-            echo 'Published Orbit snapshot is already current; deployment is unnecessary.'
+            echo 'Published data supply is already current; deployment is unnecessary.'
           else
             echo 'changed=true' >> "$GITHUB_OUTPUT"
-            echo "Orbit snapshot changed: $BEFORE -> $after"
+            echo "Data supply changed: $BEFORE -> $after"
           fi
       - name: Reuse current Lab preview assets
         if: steps.delta.outputs.changed == 'true'
@@ -63,8 +63,8 @@ jobs:
               --output "site/assets/lab/previews/${name}.jpg" \
               "https://geogeeklab.github.io/assets/lab/previews/${name}.jpg"
           done
-          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261002a"#' site/lab.html
-          grep -F 'src="core/modules.js?v=20261002a"' site/lab.html
+          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261002b"#' site/lab.html
+          grep -F 'src="core/modules.js?v=20261002b"' site/lab.html
       - name: Install responsive image optimizer
         if: steps.delta.outputs.changed == 'true'
         run: |
@@ -96,6 +96,6 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - name: Deploy refreshed Orbit snapshot
+      - name: Deploy refreshed data supply
         id: deployment
         uses: actions/deploy-pages@v4
