@@ -69,10 +69,13 @@ async function newPage(viewport = { width: 1600, height: 1000 }) {
   return page;
 }
 
-async function installLegacyPulseFixtures(page) {
-  const now = Date.parse('2026-10-02T02:00:00Z');
-  const world = {
-    objects:{ countries:{} },
+async function installPulseFixtures(page) {
+  const generated = Date.now() - 4 * 60 * 1000;
+  const fetchedAt = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+  const landSource = 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e/110m/physical/ne_110m_land.json';
+  const landVersion = 'Data current 2024-01-24 · pinned GeoJSON revision 0b9a6ceb0a70';
+  const land = {
+    type:'FeatureCollection',
     features:[
       { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[-168,12],[-130,12],[-105,35],[-115,70],[-160,70],[-168,12]]] } },
       { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[-82,10],[-34,10],[-38,-55],[-74,-52],[-82,10]]] } },
@@ -81,29 +84,76 @@ async function installLegacyPulseFixtures(page) {
       { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[110,-10],[155,-10],[153,-45],[112,-45],[110,-10]]] } },
     ],
   };
+  const features = Array.from({ length:48 }, (_, index) => ({
+    type:'Feature', id:`preview-${index}`,
+    properties:{
+      mag:1.8 + (index % 7) * .65,
+      place:`Deterministic preview event ${index + 1}`,
+      time:generated - (index + 1) * 24 * 60 * 1000,
+      updated:generated - index * 18 * 60 * 1000,
+      status:index % 3 ? 'reviewed' : 'automatic',
+      magType:index % 2 ? 'ml' : 'mww',
+      sig:60 + index * 5,
+      felt:index % 5 === 0 ? 12 + index : null,
+      cdi:index % 5 === 0 ? 2.5 + (index % 4) * .4 : null,
+      mmi:index % 6 === 0 ? 2.8 + (index % 3) * .5 : null,
+      url:`https://earthquake.usgs.gov/earthquakes/eventpage/preview-${index}`
+    },
+    geometry:{ type:'Point', coordinates:[-165 + (index * 29) % 330, -55 + (index * 17) % 110, 8 + (index * 31) % 520] },
+  }));
   const quakes = {
     type:'FeatureCollection',
-    features:Array.from({ length:24 }, (_, index) => ({
-      type:'Feature', id:`preview-${index}`,
-      properties:{
-        mag:2.2 + (index % 6) * .6,
-        place:`Deterministic preview event ${index + 1}`,
-        time:now - index * 45 * 60 * 1000,
-      },
-      geometry:{ type:'Point', coordinates:[-165 + (index * 29) % 330, -55 + (index * 17) % 110, 8 + (index * 31) % 420] },
-    })),
+    metadata:{ generated, count:features.length, api:'preview-fixture' },
+    features,
   };
-  await page.route('https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js', route => route.fulfill({
-    status:200,
-    contentType:'application/javascript',
-    body:'window.topojson={feature:function(world){return {type:"FeatureCollection",features:world.features||[]};}};'
+  const quakeMeta = {
+    schemaVersion:2,
+    supplyId:'usgs-earthquakes-day',
+    dataset:'usgs-earthquakes-day',
+    provider:'USGS Earthquake Hazards Program',
+    format:'GeoJSON',
+    source:'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',
+    delivery:'GeoGeek same-origin snapshot',
+    transport:'HTTPS GeoJSON feed → scheduled refresh → Pages snapshot',
+    scope:'Global rolling past-24-hour event catalogue shared by all visitors',
+    fetchedAt,
+    recordCount:features.length,
+    providerCount:features.length,
+    providerGeneratedAt:new Date(generated).toISOString(),
+    providerApiVersion:'preview-fixture',
+    sha256:'preview-fixture-sha'
+  };
+  const landMeta = {
+    schemaVersion:2,
+    supplyId:'natural-earth-land-110m',
+    dataset:'natural-earth-land-110m',
+    provider:'Natural Earth',
+    format:'GeoJSON',
+    source:landSource,
+    delivery:'GeoGeek same-origin reference',
+    version:landVersion,
+    recordCount:land.features.length,
+    sha256:'preview-reference-sha'
+  };
+
+  await page.route('**/data/snapshots/usgs-earthquakes-day.meta.json', route => route.fulfill({
+    status:200, contentType:'application/json', body:JSON.stringify(quakeMeta)
   }));
-  await page.route('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json', route => route.fulfill({
-    status:200, contentType:'application/json', body:JSON.stringify(world)
-  }));
-  await page.route('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson', route => route.fulfill({
+  await page.route('**/data/snapshots/usgs-earthquakes-day.geojson', route => route.fulfill({
     status:200, contentType:'application/geo+json', body:JSON.stringify(quakes)
   }));
+  await page.route('**/data/reference/natural-earth-land-110m.meta.json', route => route.fulfill({
+    status:200, contentType:'application/json', body:JSON.stringify(landMeta)
+  }));
+  await page.route('**/data/reference/natural-earth-land-110m.geojson', route => route.fulfill({
+    status:200, contentType:'application/geo+json', body:JSON.stringify(land)
+  }));
+
+  // A preview must fail rather than silently regress to direct provider/CDN access.
+  await page.route('https://earthquake.usgs.gov/**', route => route.abort());
+  await page.route('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/**', route => route.abort());
+  await page.route('https://cdn.jsdelivr.net/npm/topojson-client@**', route => route.abort());
+  await page.route('https://cdn.jsdelivr.net/npm/world-atlas@**', route => route.abort());
 }
 
 async function exerciseFlowLab(page) {
@@ -136,7 +186,7 @@ async function captureInstrument(kind) {
   const page = await newPage();
   const url = `${base}/lab.html?instrument=${encodeURIComponent(kind)}`;
   try {
-    if (kind === 'pulse') await installLegacyPulseFixtures(page);
+    if (kind === 'pulse') await installPulseFixtures(page);
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForFunction(() => document.getElementById('instrumentDialog')?.open === true, null, { timeout: 20000 });
     await page.waitForSelector('#instrumentStage > *', { state: 'visible', timeout: 20000 });
@@ -147,6 +197,11 @@ async function captureInstrument(kind) {
         const loading = document.querySelector('#eoLoading');
         return !!loading && loading.dataset.state !== 'loading';
       }, null, { timeout: 18000 }).catch(() => {});
+    }
+
+    if (kind === 'pulse') {
+      await page.waitForFunction(() => !!window.GeoPulseObservationLab && window.GeoGeekInstrumentMounts?.pulse === window.GeoPulseObservationLab.mount, null, { timeout:10000 });
+      await page.waitForSelector('.pulse-observation-lab[data-state="ready"]', { state:'visible', timeout:10000 });
     }
 
     if (kind === 'flow') await exerciseFlowLab(page);
