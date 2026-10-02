@@ -98,11 +98,18 @@
     return window.GeoCommons;
   }
 
-  function normalizeEarthAria(kind, root = document.getElementById('instrumentStage')) {
-    if (kind !== 'earth' || !root) return;
-    root.querySelectorAll(
-      '.earth-observation-lab div[aria-label]:not([role]), .earth-observation-lab footer[aria-label]:not([role])'
-    ).forEach(node => node.setAttribute('role', 'group'));
+  function normalizeInstrumentAria(kind, root = document.getElementById('instrumentStage')) {
+    if (!root) return;
+    if (kind === 'earth') {
+      root.querySelectorAll(
+        '.earth-observation-lab div[aria-label]:not([role]), .earth-observation-lab footer[aria-label]:not([role])'
+      ).forEach(node => node.setAttribute('role', 'group'));
+    }
+    if (kind === 'pulse') {
+      root.querySelectorAll('.pulse-observation-lab .pulse-map-wrap[aria-label]').forEach(node => {
+        if (!node.hasAttribute('tabindex')) node.setAttribute('tabindex', '0');
+      });
+    }
   }
 
   function quarantineLegacyPulseMount() {
@@ -153,7 +160,7 @@
     loadMap,
     loadCommons,
     loadInstrument,
-    normalizeInstrumentAria: normalizeEarthAria
+    normalizeInstrumentAria
   };
 
   const mapToggle = document.getElementById('navToggle');
@@ -189,7 +196,7 @@
     try {
       const instruments = await loadInstrument(kind);
       await instruments?.openByKind?.(kind, { updateUrl: true });
-      normalizeEarthAria(kind);
+      normalizeInstrumentAria(kind);
     } catch (error) {
       console.warn(`[GeoGeek] Instrument ${kind} failed to load; retry is available.`, error);
     }
