@@ -1,0 +1,629 @@
+/* GeoGeek Lab full-page workspace
+   Shared shell for the six core instruments: World, Figure, Orbit, Earth, Flow, Pulse.
+   The browser viewport is the instrument. Secondary information is progressively disclosed. */
+
+:root {
+  --lab-workspace-bg: #0b120e;
+  --lab-workspace-panel: #101913;
+  --lab-workspace-panel-2: #121c16;
+  --lab-workspace-fg: #f1efe7;
+  --lab-workspace-body: #c9d0ca;
+  --lab-workspace-muted: #909c94;
+  --lab-workspace-faint: #727f76;
+  --lab-workspace-line: rgba(232, 237, 233, .105);
+  --lab-workspace-line-soft: rgba(232, 237, 233, .065);
+  --lab-workspace-signal: #d16339;
+  --lab-workspace-rail: clamp(318px, 23vw, 392px);
+  --lab-workspace-rail-inspect: clamp(370px, 28vw, 470px);
+}
+
+/* A full-page instrument route, not a floating window. */
+.instrument-dialog:is(
+  [data-instrument-kind="world"],
+  [data-instrument-kind="figure"],
+  [data-instrument-kind="orbit"],
+  [data-instrument-kind="earth"],
+  [data-instrument-kind="flow"],
+  [data-instrument-kind="pulse"]
+) {
+  position: fixed;
+  inset: 0;
+  width: 100vw !important;
+  height: 100svh !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--lab-workspace-bg) !important;
+  color: var(--lab-workspace-fg);
+  box-shadow: none !important;
+  overflow: hidden;
+}
+
+.instrument-dialog:is(
+  [data-instrument-kind="world"],
+  [data-instrument-kind="figure"],
+  [data-instrument-kind="orbit"],
+  [data-instrument-kind="earth"],
+  [data-instrument-kind="flow"],
+  [data-instrument-kind="pulse"]
+)::backdrop {
+  background: var(--lab-workspace-bg) !important;
+  backdrop-filter: none !important;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-shell {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) 40px;
+  background:
+    linear-gradient(90deg, rgba(238,242,239,.025) 1px, transparent 1px),
+    var(--lab-workspace-bg);
+  background-size: min(26vw, 420px) 100%, auto;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: clamp(18px, 2vw, 34px);
+  align-items: end;
+  min-height: 94px;
+  padding: 18px clamp(22px, 2.2vw, 38px) 15px;
+  border-bottom: 1px solid var(--lab-workspace-line);
+  background: rgba(12, 20, 15, .94);
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-kicker {
+  color: var(--lab-workspace-muted);
+  font-size: 9.5px;
+  line-height: 1;
+  letter-spacing: .13em;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-head h2 {
+  margin-top: 8px;
+  color: var(--lab-workspace-fg);
+  font-family: var(--serif);
+  font-size: clamp(40px, 3.35vw, 58px);
+  font-weight: 400;
+  line-height: .9;
+  letter-spacing: -.047em;
+  text-wrap: balance;
+}
+
+.instrument-workspace-modes {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--lab-workspace-line-soft);
+  background: rgba(255,255,255,.018);
+}
+
+.instrument-workspace-modes button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--lab-workspace-faint);
+  cursor: pointer;
+  font: 700 8.5px/1 var(--mono);
+  letter-spacing: .085em;
+}
+
+.instrument-workspace-modes button:hover,
+.instrument-workspace-modes button:focus-visible {
+  color: var(--lab-workspace-fg);
+}
+
+.instrument-workspace-modes button[aria-pressed="true"] {
+  background: rgba(209, 99, 57, .105);
+  color: var(--lab-workspace-fg);
+  box-shadow: inset 0 -1px 0 rgba(209, 99, 57, .75);
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-close {
+  width: auto;
+  height: 34px;
+  min-width: 92px;
+  padding: 0 11px;
+  border: 1px solid var(--lab-workspace-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--lab-workspace-muted);
+  font: 700 8.5px/1 var(--mono);
+  letter-spacing: .075em;
+  white-space: nowrap;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-close:hover,
+.instrument-dialog[data-lab-workspace="true"] .instrument-close:focus-visible {
+  border-color: rgba(209,99,57,.48);
+  color: var(--lab-workspace-fg);
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-meta {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: minmax(330px, .9fr) minmax(560px, 1.1fr);
+  gap: clamp(22px, 2vw, 38px);
+  align-items: center;
+  padding: 11px clamp(22px, 2.2vw, 38px) 12px;
+  border-bottom: 1px solid var(--lab-workspace-line-soft);
+  background: rgba(14, 23, 18, .9);
+}
+
+.instrument-dialog[data-lab-workspace="true"] #instrumentDescription {
+  max-width: 78ch;
+  margin: 0;
+  color: var(--lab-workspace-body);
+  font-size: clamp(13px, .95vw, 15px);
+  line-height: 1.48;
+  letter-spacing: -.006em;
+  text-wrap: pretty;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-conditions {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-left: 1px solid var(--lab-workspace-line-soft);
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-conditions div {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  padding: 1px 13px 2px;
+  border-right: 1px solid var(--lab-workspace-line-soft);
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-conditions div:last-child { border-right: 0; }
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-conditions dt {
+  color: var(--lab-workspace-faint);
+  font-size: 8px;
+  line-height: 1.2;
+  letter-spacing: .1em;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-conditions dd {
+  margin: 0;
+  color: #d9ddd9;
+  font-size: clamp(9.5px, .72vw, 11px);
+  line-height: 1.32;
+  overflow-wrap: anywhere;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-stage {
+  min-height: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden;
+  background: #08100c;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-foot {
+  min-height: 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 18px;
+  align-items: center;
+  padding: 0 clamp(22px, 2.2vw, 38px);
+  border-top: 1px solid var(--lab-workspace-line);
+  background: #101913;
+  color: var(--lab-workspace-muted);
+  font-size: 8.5px;
+  line-height: 1;
+  letter-spacing: .075em;
+}
+
+.instrument-dialog[data-lab-workspace="true"] .instrument-status {
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  margin: 0;
+  border: 1px solid var(--lab-workspace-line-soft);
+  color: #aeb7b0;
+  background: rgba(255,255,255,.012);
+  font-size: 8.5px;
+}
+
+/* Progressive disclosure: Focus gives the visualization the browser; Inspect gives context more room. */
+.instrument-dialog[data-lab-workspace="true"][data-workspace-mode="focus"] .instrument-shell {
+  grid-template-rows: auto minmax(0, 1fr) 36px;
+}
+.instrument-dialog[data-lab-workspace="true"][data-workspace-mode="focus"] .instrument-meta { display: none; }
+.instrument-dialog[data-lab-workspace="true"][data-workspace-mode="focus"] .instrument-head {
+  min-height: 68px;
+  padding-top: 11px;
+  padding-bottom: 10px;
+}
+.instrument-dialog[data-lab-workspace="true"][data-workspace-mode="focus"] .instrument-head h2 {
+  margin-top: 5px;
+  font-size: clamp(31px, 2.5vw, 42px);
+}
+.instrument-dialog[data-lab-workspace="true"][data-workspace-mode="focus"] .instrument-foot {
+  min-height: 36px;
+}
+
+/* ORBIT — object field first, catalogue second. */
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-layout {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail) !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-stage,
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-globe {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-panel {
+  border-left: 1px solid var(--lab-workspace-line) !important;
+  background: var(--lab-workspace-panel) !important;
+  border-radius: 0 !important;
+  scrollbar-gutter: stable;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-card {
+  border: 0 !important;
+  border-bottom: 1px solid var(--lab-workspace-line-soft) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 17px 16px !important;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-card-head strong { font-size: 14px !important; line-height: 1.28 !important; }
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-card-head span,
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-filter-counts { color: var(--lab-workspace-muted) !important; }
+.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="inspect"] .orbit-layout {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail-inspect) !important;
+}
+.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="focus"] .orbit-layout { grid-template-columns: minmax(0, 1fr) !important; }
+.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="focus"] .orbit-panel { display: none !important; }
+
+/* EARTH — the date-scoped image is the primary document. */
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-lab {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail) !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-canvas {
+  min-width: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="earth"] .earth-observation-panel {
+  padding: 0 !important;
+  border-left: 1px solid var(--lab-workspace-line) !important;
+  background: var(--lab-workspace-panel) !important;
+  border-radius: 0 !important;
+  scrollbar-gutter: stable;
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-panel-card {
+  margin: 0 !important;
+  padding: 17px 16px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--lab-workspace-line-soft) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="earth"] .eo-panel-head strong { font-size: 14px !important; line-height: 1.28 !important; }
+.instrument-dialog[data-instrument-kind="earth"] .eo-layer-note { color: var(--lab-workspace-body) !important; font-size: 11.5px !important; line-height: 1.5 !important; }
+.instrument-dialog[data-instrument-kind="earth"][data-workspace-mode="work"] .eo-inspector { display: none !important; }
+.instrument-dialog[data-instrument-kind="earth"][data-workspace-mode="inspect"] .earth-observation-lab {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail-inspect) !important;
+}
+.instrument-dialog[data-instrument-kind="earth"][data-workspace-mode="focus"] .earth-observation-lab { grid-template-columns: minmax(0, 1fr) !important; }
+.instrument-dialog[data-instrument-kind="earth"][data-workspace-mode="focus"] .earth-observation-panel { display: none !important; }
+
+/* FLOW — one representation switch, one uninterrupted geographic field. */
+.instrument-dialog[data-instrument-kind="flow"] .flow-lab {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail) !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+}
+.instrument-dialog[data-instrument-kind="flow"] .flow-map-shell {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="flow"] .flow-rail {
+  gap: 0 !important;
+  border-left: 1px solid var(--lab-workspace-line);
+  background: var(--lab-workspace-panel);
+  scrollbar-gutter: stable;
+}
+.instrument-dialog[data-instrument-kind="flow"] .flow-card {
+  gap: 10px !important;
+  padding: 17px 16px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--lab-workspace-line-soft) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="flow"] .flow-card-head strong { font-size: 14px !important; line-height: 1.28 !important; }
+.instrument-dialog[data-instrument-kind="flow"] .flow-mode-copy,
+.instrument-dialog[data-instrument-kind="flow"] .flow-question { font-size: 11.5px !important; line-height: 1.5 !important; }
+.instrument-dialog[data-instrument-kind="flow"][data-workspace-mode="inspect"] .flow-lab {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail-inspect) !important;
+}
+.instrument-dialog[data-instrument-kind="flow"][data-workspace-mode="focus"] .flow-lab { grid-template-columns: minmax(0, 1fr) !important; }
+.instrument-dialog[data-instrument-kind="flow"][data-workspace-mode="focus"] .flow-rail { display: none !important; }
+
+/* PULSE — the seismic field remains primary; provenance is available in Inspect. */
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail) !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map-wrap {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel {
+  border-left: 1px solid var(--lab-workspace-line) !important;
+  background: var(--lab-workspace-panel) !important;
+  border-radius: 0 !important;
+  scrollbar-gutter: stable;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel-section {
+  margin: 0 !important;
+  padding: 17px 16px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--lab-workspace-line-soft) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel-section > strong,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-control-heading strong { font-size: 14px !important; line-height: 1.28 !important; }
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel-section p { color: var(--lab-workspace-body) !important; font-size: 11px !important; line-height: 1.5 !important; }
+.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="work"] .pulse-encoding,
+.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="work"] .pulse-provenance { display: none !important; }
+.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="inspect"] .pulse-observation-lab {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail-inspect) !important;
+}
+.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="focus"] .pulse-observation-lab { grid-template-columns: minmax(0, 1fr) !important; }
+.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="focus"] .pulse-panel { display: none !important; }
+
+/* FIGURE — source image and derived field form one visual argument. */
+.instrument-dialog[data-instrument-kind="figure"] .figure-workbench,
+.instrument-dialog[data-instrument-kind="figure"] .figure-layout {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail) !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+}
+.instrument-dialog[data-instrument-kind="figure"] .figure-stage {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="figure"] .figure-control {
+  gap: 0 !important;
+  padding: 0 !important;
+  border-left: 1px solid var(--lab-workspace-line) !important;
+  background: var(--lab-workspace-panel) !important;
+  scrollbar-gutter: stable;
+}
+.instrument-dialog[data-instrument-kind="figure"] .figure-card {
+  margin: 0 !important;
+  padding: 17px 16px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--lab-workspace-line-soft) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="figure"] .figure-card-head strong { font-size: 14px !important; line-height: 1.28 !important; }
+.instrument-dialog[data-instrument-kind="figure"] .figure-note,
+.instrument-dialog[data-instrument-kind="figure"] .figure-drop { color: var(--lab-workspace-body) !important; font-size: 11px !important; line-height: 1.5 !important; }
+.instrument-dialog[data-instrument-kind="figure"][data-workspace-mode="inspect"] .figure-workbench,
+.instrument-dialog[data-instrument-kind="figure"][data-workspace-mode="inspect"] .figure-layout {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail-inspect) !important;
+}
+.instrument-dialog[data-instrument-kind="figure"][data-workspace-mode="focus"] .figure-workbench,
+.instrument-dialog[data-instrument-kind="figure"][data-workspace-mode="focus"] .figure-layout { grid-template-columns: minmax(0, 1fr) !important; }
+.instrument-dialog[data-instrument-kind="figure"][data-workspace-mode="focus"] .figure-control { display: none !important; }
+
+/* WORLD — projection geometry occupies the page; explanation reads as a rail, not a card. */
+.instrument-dialog[data-instrument-kind="world"] .world-layout {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail) !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-map-wrap {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-panel {
+  min-width: 0;
+  padding: 18px 16px !important;
+  border: 0 !important;
+  border-left: 1px solid var(--lab-workspace-line) !important;
+  border-radius: 0 !important;
+  background: var(--lab-workspace-panel) !important;
+  box-shadow: none !important;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+.instrument-dialog[data-instrument-kind="world"] .world-panel > strong { font-size: 15px !important; line-height: 1.25 !important; }
+.instrument-dialog[data-instrument-kind="world"] .world-panel p { color: var(--lab-workspace-body) !important; font-size: 11.5px !important; line-height: 1.55 !important; }
+.instrument-dialog[data-instrument-kind="world"][data-workspace-mode="inspect"] .world-layout {
+  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail-inspect) !important;
+}
+.instrument-dialog[data-instrument-kind="world"][data-workspace-mode="focus"] .world-layout { grid-template-columns: minmax(0, 1fr) !important; }
+.instrument-dialog[data-instrument-kind="world"][data-workspace-mode="focus"] .world-panel { display: none !important; }
+
+/* Shared reduction of visual chrome. Rounded controls still communicate clickability; structural containers do not. */
+.instrument-dialog[data-lab-workspace="true"] :is(
+  .orbit-card,
+  .eo-panel-card,
+  .flow-card,
+  .pulse-panel-section,
+  .figure-card,
+  .world-panel
+) { backdrop-filter: none !important; }
+
+.instrument-dialog[data-lab-workspace="true"] :is(
+  .orbit-card-head span,
+  .eo-panel-head span,
+  .flow-card-head span,
+  .flow-kicker,
+  .figure-card-head span,
+  .figure-group-label,
+  .orbit-panel-label
+) {
+  color: var(--lab-workspace-muted) !important;
+  font-size: 8px !important;
+  letter-spacing: .115em !important;
+}
+
+.instrument-dialog[data-lab-workspace="true"] :is(
+  .orbit-panel,
+  .earth-observation-panel,
+  .flow-rail,
+  .pulse-panel,
+  .figure-control,
+  .world-panel
+)::-webkit-scrollbar { width: 7px; }
+.instrument-dialog[data-lab-workspace="true"] :is(
+  .orbit-panel,
+  .earth-observation-panel,
+  .flow-rail,
+  .pulse-panel,
+  .figure-control,
+  .world-panel
+)::-webkit-scrollbar-track { background: transparent; }
+.instrument-dialog[data-lab-workspace="true"] :is(
+  .orbit-panel,
+  .earth-observation-panel,
+  .flow-rail,
+  .pulse-panel,
+  .figure-control,
+  .world-panel
+)::-webkit-scrollbar-thumb { background: rgba(218,225,219,.18); }
+
+@media (max-width: 1040px) {
+  .instrument-dialog[data-lab-workspace="true"] .instrument-head {
+    grid-template-columns: minmax(0,1fr) auto;
+    min-height: 86px;
+  }
+  .instrument-workspace-modes { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+  .instrument-dialog[data-lab-workspace="true"] .instrument-meta {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+  .instrument-dialog[data-lab-workspace="true"] .instrument-conditions { border-left: 0; }
+
+  .instrument-dialog[data-lab-workspace="true"] :is(
+    .orbit-layout,
+    .earth-observation-lab,
+    .flow-lab,
+    .pulse-observation-lab,
+    .figure-workbench,
+    .figure-layout,
+    .world-layout
+  ) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(440px, 64vh) auto !important;
+    height: auto !important;
+    overflow: auto !important;
+  }
+
+  .instrument-dialog[data-lab-workspace="true"] :is(
+    .orbit-panel,
+    .earth-observation-panel,
+    .flow-rail,
+    .pulse-panel,
+    .figure-control,
+    .world-panel
+  ) {
+    display: grid !important;
+    border-left: 0 !important;
+    border-top: 1px solid var(--lab-workspace-line) !important;
+    overflow: visible !important;
+  }
+
+  .instrument-dialog[data-lab-workspace="true"][data-workspace-mode="focus"] :is(
+    .orbit-panel,
+    .earth-observation-panel,
+    .flow-rail,
+    .pulse-panel,
+    .figure-control,
+    .world-panel
+  ) { display: none !important; }
+}
+
+@media (max-width: 700px) {
+  .instrument-dialog[data-lab-workspace="true"] .instrument-shell {
+    grid-template-rows: auto minmax(0,1fr) 36px;
+  }
+  .instrument-dialog[data-lab-workspace="true"] .instrument-head {
+    min-height: 76px;
+    padding: 12px 14px 10px;
+    gap: 10px;
+  }
+  .instrument-dialog[data-lab-workspace="true"] .instrument-head h2 {
+    font-size: clamp(30px, 10vw, 42px);
+  }
+  .instrument-dialog[data-lab-workspace="true"] .instrument-meta { display: none; }
+  .instrument-workspace-modes { overflow-x: auto; max-width: calc(100vw - 28px); }
+  .instrument-workspace-modes button { min-height: 34px; padding-inline: 9px; }
+  .instrument-dialog[data-lab-workspace="true"] .instrument-close {
+    min-width: 42px;
+    width: 42px;
+    padding: 0;
+    font-size: 0;
+  }
+  .instrument-dialog[data-lab-workspace="true"] .instrument-close::before {
+    content: "←";
+    font: 700 15px/1 var(--mono);
+  }
+  .instrument-dialog[data-lab-workspace="true"] .instrument-foot {
+    grid-template-columns: minmax(0,1fr) auto;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .instrument-dialog[data-lab-workspace="true"] #instrumentBoundary { display: none; }
+
+  .instrument-dialog[data-lab-workspace="true"] :is(
+    .orbit-layout,
+    .earth-observation-lab,
+    .flow-lab,
+    .pulse-observation-lab,
+    .figure-workbench,
+    .figure-layout,
+    .world-layout
+  ) {
+    grid-template-rows: minmax(390px, 66vh) auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .instrument-dialog[data-lab-workspace="true"] *,
+  .instrument-dialog[data-lab-workspace="true"] *::before,
+  .instrument-dialog[data-lab-workspace="true"] *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .001ms !important;
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
