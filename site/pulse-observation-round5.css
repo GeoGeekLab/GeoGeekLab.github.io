@@ -1,0 +1,42 @@
+.pulse-observation-lab[data-motion="reduced"] .pulse-event{
+  transition:none;
+}
+
+.pulse-observation-lab[data-motion="reduced"] #pulsePlay::after{
+  content:" · REDUCED MOTION";
+  color:var(--pulse-muted);
+}
+
+@media (pointer:coarse){
+  .pulse-observation-lab .pulse-control-button,
+  .pulse-observation-lab .pulse-representation-group button,
+  .pulse-observation-lab .pulse-filter-grid select{
+    min-height:44px;
+  }
+
+  .pulse-observation-lab #pulseTimeline{
+    min-height:44px;
+  }
+
+  .pulse-observation-lab .pulse-event-hit{
+    r:12px;
+  }
+}
+
+@media (max-width:760px){
+  .pulse-observation-lab .pulse-panel,
+  .pulse-observation-lab .pulse-map-wrap{
+    min-width:0;
+    width:100%;
+  }
+
+  .pulse-observation-lab .pulse-control-button,
+  .pulse-observation-lab .pulse-representation-group button,
+  .pulse-observation-lab .pulse-filter-grid select{
+    min-height:44px;
+  }
+
+  .pulse-observation-lab #pulseTimeline{
+    min-height:44px;
+  }
+}
