@@ -7,36 +7,36 @@
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
   const DATA_SUPPLY_RUNTIME = 'core/data-supply.js?v=20261002c';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v2.js?v=20261002c';
-  const PULSE_OBSERVATION_LAB = 'pulse-observation-lab.js?v=20261002a';
+  const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v2.js?v=20261002b';
 
   function alignPulseContract() {
     const root = window.GEOGEEK_DATA?.en;
     const item = root?.lab?.find(entry => entry.instrument === 'pulse');
     if (item) Object.assign(item, {
       status:'Instrument',
-      tags:['Seismicity', '24 h snapshot', 'USGS'],
-      description:'A rolling 24-hour earthquake field that keeps event time, solution revision, feed generation, and GeoGeek delivery time distinct.',
+      tags:['Seismicity', '24 h timeline', 'USGS'],
+      description:'Scrub, filter, and spatially aggregate one validated rolling 24-hour USGS snapshot without treating it as a historical archive or hazard model.',
       source:'USGS Earthquake Hazards Program · GeoGeek validated snapshot'
     });
     const lab = root?.ui?.lab;
     if (lab?.conditions) lab.conditions.pulse = [
       ['SOURCE', 'USGS Earthquake Hazards Program'],
       ['DELIVERY', 'GeoGeek same-origin snapshot'],
-      ['TIME', 'Rolling past 24 h · event origin time'],
-      ['LIMIT', 'Solutions revise · completeness varies']
+      ['TIME', 'Snapshot-internal event-origin cutoff'],
+      ['LIMIT', 'Count grid ≠ hazard · snapshot ≠ archive']
     ];
 
     const card = document.querySelector('#l10');
     if (!card) return;
     const meta = card.querySelectorAll('.project-meta span');
     if (meta[0]) meta[0].textContent = 'Instrument';
-    if (meta[1]) meta[1].textContent = 'Seismicity · 24 h snapshot · USGS';
+    if (meta[1]) meta[1].textContent = 'Seismicity · 24 h timeline · USGS';
     const copy = card.querySelector('.project-copy > p');
     const coord = card.querySelector('.lab-coord');
     const stamp = card.querySelector('.preview-stamp');
-    if (copy) copy.textContent = 'Read a rolling 24-hour seismic field with source time, snapshot freshness, and event revision kept explicit.';
+    if (copy) copy.textContent = 'Scrub event-origin time, filter the current snapshot, and switch between individual events and an explicitly bounded count grid.';
     if (coord) coord.textContent = 'lon / lat / depth / time';
-    if (stamp) stamp.textContent = 'USGS / SNAPSHOT / 24 H';
+    if (stamp) stamp.textContent = 'USGS / 24 H / FILTER / GRID';
   }
 
   alignPulseContract();
