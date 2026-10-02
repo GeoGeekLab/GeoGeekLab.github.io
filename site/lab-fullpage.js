@@ -19,7 +19,8 @@
   const STORAGE = 'geogeek.lab.workspaceMode';
   const REFINEMENTS = {
     orbit:'orbital/orbit-round2.js?v=20261002a',
-    earth:'earth-observation-v3/earth-round2.js?v=20261002a'
+    earth:'earth-observation-v3/earth-round2.js?v=20261002a',
+    flow:'flow/flow-round2.js?v=20261002d'
   };
   const refinementLoads = new Map();
   let activeKind = '';
