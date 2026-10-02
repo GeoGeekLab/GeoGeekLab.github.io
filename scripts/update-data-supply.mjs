@@ -13,7 +13,8 @@ async function handleFailure(dataset, reason, previousMeta) {
   if (!hasSnapshot) {
     const message = `${dataset.id} refresh failed with no last-known-good snapshot: ${reason}`;
     if (strict || dataset.id === 'orbit-active') throw new Error(message);
-    console.warn(`${message}. Runtime will use the declared provider fallback.`);
+    if (dataset.fallback === 'last-known-good') console.warn(`${message}. Dataset remains unavailable until a validated snapshot can be published.`);
+    else console.warn(`${message}. Runtime will use the declared provider fallback.`);
     return;
   }
   const age = Date.now() - Date.parse(String(previousMeta.fetchedAt));
@@ -57,13 +58,13 @@ for (const dataset of datasets) {
 
   const content = serializePayload(payload);
   const contentHash = sha256(content);
-  const fetchedAt = new Date().toISOString();
-  const meta = metadataFor(dataset, payload, response, validation, fetchedAt, contentHash, sourceUrl);
   if (previousMeta?.sha256 === contentHash) {
-    await atomicWrite(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
-    console.log(`${dataset.id} confirmed unchanged · ${validation.recordCount.toLocaleString()} records · refreshed ${fetchedAt}.`);
+    console.log(`${dataset.id} confirmed unchanged · ${validation.recordCount.toLocaleString()} records · published ${previousMeta.fetchedAt}.`);
     continue;
   }
+
+  const fetchedAt = new Date().toISOString();
+  const meta = metadataFor(dataset, payload, response, validation, fetchedAt, contentHash, sourceUrl);
   await atomicWrite(dataPath, content);
   await atomicWrite(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
   console.log(`${dataset.id} updated · ${validation.recordCount.toLocaleString()} records · ${contentHash.slice(0,12)} · ${fetchedAt}`);
