@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 const ORBIT_FIXTURE = [{
   OBJECT_NAME: 'ORBIT INTERACTION FIXTURE',
   OBJECT_ID: '1998-067A',
-  EPOCH: '2025-03-26T05:19:34.116960',
+  EPOCH: '2026-10-01T22:19:34.116960',
   MEAN_MOTION: 15.00555103,
   ECCENTRICITY: 0.000583,
   INCLINATION: 98.3164,
@@ -20,19 +20,41 @@ const ORBIT_FIXTURE = [{
   MEAN_MOTION_DDOT: 0,
 }];
 
-async function stubOrbitCatalog(page) {
-  await page.route(/https:\/\/celestrak\.org\/NORAD\/elements\/gp\.php\?.*/, route => route.fulfill({
+async function stubOrbitSnapshot(page) {
+  const fetchedAt = new Date().toISOString();
+  await page.route('**/orbital/data/active.json', route => route.fulfill({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(ORBIT_FIXTURE),
   }));
+  await page.route('**/orbital/data/active.meta.json', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      schemaVersion: 1,
+      dataset: 'celestrak-active-gp',
+      format: 'CCSDS OMM JSON',
+      source: 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON',
+      delivery: 'GeoGeek same-origin snapshot',
+      fetchedAt,
+      recordCount: ORBIT_FIXTURE.length,
+      sha256: 'fixture',
+      epochs: { oldest:ORBIT_FIXTURE[0].EPOCH, median:ORBIT_FIXTURE[0].EPOCH, newest:ORBIT_FIXTURE[0].EPOCH },
+      refreshPolicy: { minimumHours:2, officialRequestsPerRun:1, retryOnHttpError:false, lastKnownGoodOnFailure:true },
+    }),
+  }));
 }
 
 test.beforeEach(async ({ page }) => {
-  await stubOrbitCatalog(page);
+  await stubOrbitSnapshot(page);
 });
 
 test('Orbit exposes advanced controls and forwards wheel zoom across the field', async ({ page }) => {
+  const upstreamRequests = [];
+  page.on('request', request => {
+    if (/celestrak\.org\/NORAD\/elements\/gp\.php/i.test(request.url())) upstreamRequests.push(request.url());
+  });
+
   await page.goto('/lab.html?instrument=orbit#l04', { waitUntil: 'domcontentloaded' });
 
   const orbit = page.locator('.orbit-v2');
@@ -42,7 +64,11 @@ test('Orbit exposes advanced controls and forwards wheel zoom across the field',
   await expect(page.locator('.orbit-station-editor')).toBeVisible();
 
   const status = page.locator('.instrument-status');
-  await expect(status).not.toContainText(/DEMO/i);
+  await expect(status).toContainText(/SNAPSHOT/i);
+  await expect(status).not.toContainText(/DEMO|LIVE CATALOG/i);
+  await expect(orbit).toHaveAttribute('data-catalog-delivery', 'snapshot');
+  await expect(page.locator('[data-orbit-delivery="snapshot"]')).toContainText(/same-origin snapshot/i);
+  expect(upstreamRequests).toHaveLength(0);
 
   await page.evaluate(() => {
     window.__orbitWheelCount = 0;
@@ -66,10 +92,11 @@ test('Orbit exposes advanced controls and forwards wheel zoom across the field',
   await expect.poll(async () => Number(await range.inputValue())).toBeGreaterThan(start);
 });
 
-test('Orbit deep links a selected catalog object and never presents a synthetic fallback label', async ({ page }) => {
+test('Orbit deep links a selected catalog object using the same-origin snapshot', async ({ page }) => {
   await page.goto('/lab.html?instrument=orbit&sat=25544#l04', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.orbit-v2')).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.orbit-enhancement-tools')).toBeVisible();
+  await expect(page.locator('.instrument-status')).toContainText(/SNAPSHOT/i);
   await expect(page.locator('.instrument-status')).not.toContainText(/DEMO/i);
   await expect(page.locator('#orbitNorad')).toContainText('25544', { timeout: 10000 });
   await expect(page.locator('.orbit-ground-relation-legend')).toContainText('GEOMETRIC HORIZON');
