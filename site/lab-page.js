@@ -13,6 +13,51 @@
   ensureStyle('lab-transform.css?v=20261001a', 'lab-transform');
   ensureStyle('lab-map-field.css?v=20261001a', 'lab-map-field');
 
+  // Lab status vocabulary describes source condition, not a product mode.
+  // Any older fallback path that still requests the synthetic status is exposed
+  // to visitors as unavailable instead of presenting a misleading mode label.
+  const labStatus = window.GEOGEEK_DATA?.en?.ui?.lab?.status;
+  if (labStatus) labStatus.demo = 'UNAVAILABLE';
+
+  function alignFlowContent() {
+    const root = window.GEOGEEK_DATA?.en;
+    const item = root?.lab?.find(entry => entry.id === 'l06');
+    if (item) Object.assign(item, {
+      status: 'Instrument',
+      title: 'Geographic Flow Laboratory',
+      tags: ['Movement', 'Flow', 'Trajectory'],
+      description: 'One workbench compares continuous vector fields, aggregate origin–destination networks, timestamped trajectories, and Lagrangian releases without pretending they are the same geometry.',
+      coord: 'field / OD / x(t)',
+      instrumentKicker: 'FLOW / FIELD / NETWORK / TRAJECTORY',
+      source: 'Open-Meteo · NOAA GFS · Natural Earth · reproducible demo data'
+    });
+    const ui = root?.ui;
+    if (ui?.lab?.conditions) ui.lab.conditions.flow = [
+      ['INPUT', 'Vector field · OD · timestamped paths'],
+      ['GEOMETRY', 'Field · network · trajectory · particles'],
+      ['TIME', 'Snapshot · aggregate · sequence'],
+      ['LIMIT', 'Representation ≠ phenomenon']
+    ];
+    if (ui?.lab) ui.lab.flow = { caption: 'MOVEMENT / FLOW', title: 'Flow is not one geometry.' };
+    if (ui?.a11y) ui.a11y.windFrame = 'Interactive geographic flow laboratory';
+
+    const card = document.querySelector('#l06');
+    if (!card) return;
+    const meta = card.querySelectorAll('.project-meta span');
+    if (meta[0]) meta[0].textContent = 'Instrument';
+    if (meta[1]) meta[1].textContent = 'Movement · Flow · Trajectory';
+    const title = card.querySelector('h2');
+    const copy = card.querySelector('.project-copy > p');
+    const coord = card.querySelector('.lab-coord');
+    const stamp = card.querySelector('.preview-stamp');
+    if (title) title.textContent = 'Geographic Flow Laboratory';
+    if (copy) copy.textContent = 'Compare field, OD network, timestamped trajectory, and particle release as distinct geographic movement grammars.';
+    if (coord) coord.textContent = 'field / OD / x(t)';
+    if (stamp) stamp.textContent = 'FIELD / OD / TRIPS / RELEASE';
+  }
+
+  alignFlowContent();
+
   const list = document.querySelector('#labList');
   const dialog = document.querySelector('#instrumentDialog');
   const stage = document.querySelector('#instrumentStage');
@@ -72,8 +117,8 @@
 
   function detectKind() {
     if (stage.querySelector('.earth-layout')) return 'earth';
-    if (stage.querySelector('.orbital-lab')) return 'orbit';
-    if (stage.querySelector('.flow-layout')) return 'flow';
+    if (stage.querySelector('.orbital-lab, .orbit-v2')) return 'orbit';
+    if (stage.querySelector('.flow-lab, .flow-layout')) return 'flow';
     if (stage.querySelector('.pulse-layout')) return 'pulse';
     if (stage.querySelector('.world-layout')) return 'world';
     if (stage.querySelector('.figure-layout')) return 'figure';
@@ -109,10 +154,10 @@
   }
 
   function enhanceOrbit() {
-    const root = stage.querySelector('.orbital-lab');
+    const root = stage.querySelector('.orbital-lab, .orbit-v2');
     if (!root || root.dataset.shellEnhanced === '1') return;
     root.dataset.shellEnhanced = '1';
-    const panel = root.querySelector('.orbital-lab-panel');
+    const panel = root.querySelector('.orbital-lab-panel, .orbit-panel');
     buildDisclosure(panel, ':scope > p', 'READING NOTE', 'orbit-note');
   }
 
@@ -165,6 +210,34 @@
 
   const initialKind = new URLSearchParams(location.search).get('instrument');
   if (initialKind) setInstrumentIdentity(initialKind);
+
+  if (initialKind && families[initialKind]) {
+    let attempts = 0;
+    let opening = false;
+    const openRequested = async () => {
+      if (dialog.open || opening) return true;
+      const modules = window.GeoModules;
+      if (!modules?.loadInstrument) return false;
+      opening = true;
+      try {
+        const instruments = await modules.loadInstrument(initialKind);
+        if (!dialog.open) await instruments?.openByKind?.(initialKind, { updateUrl: false });
+        return dialog.open;
+      } catch (error) {
+        console.warn(`[GeoGeek] Direct instrument ${initialKind} could not initialize yet.`, error);
+        return false;
+      } finally {
+        opening = false;
+      }
+    };
+    const retry = async () => {
+      if (dialog.open || attempts >= 120) return;
+      attempts += 1;
+      if (await openRequested()) return;
+      setTimeout(retry, 50);
+    };
+    queueMicrotask(retry);
+  }
 
   document.addEventListener('pointerdown', event => {
     const trigger = event.target.closest?.('[data-instrument]');

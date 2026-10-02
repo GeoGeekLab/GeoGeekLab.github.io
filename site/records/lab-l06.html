@@ -10,10 +10,10 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
-<title>Wind Field — GeoGeek</title>
-<meta name="description" content="A live wind field makes circulation visible. What appears as a stable surface becomes legible as process, direction, and change."/>
-<meta property="og:title" content="Wind Field"/>
-<meta property="og:description" content=""/>
+<title>Geographic Flow Laboratory — GeoGeek</title>
+<meta name="description" content="Compare vector fields, origin–destination networks, timestamped trajectories, and Lagrangian particle releases as distinct geographic movement representations."/>
+<meta property="og:title" content="Geographic Flow Laboratory"/>
+<meta property="og:description" content="Flow is not one geometry: field, network, trajectory, and particle advection answer different geographic questions."/>
 <link href="styles.css" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
 <script src="/ux-preinit.js"></script>
@@ -75,6 +75,23 @@
 <div class="footer-meta"><span>© 2026 GeoGeek</span><a href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank">GitHub ↗</a></div>
 </footer>
 <script src="content.js"></script>
+<script>
+(() => {
+  const record = window.GEOGEEK_ARCHIVE?.records?.find(item => item.ref === 'lab:l06');
+  const replacement = {
+    status: 'Instrument',
+    title: 'Geographic Flow Laboratory',
+    tags: ['Movement', 'Flow', 'Trajectory'],
+    description: 'One workbench compares continuous vector fields, aggregate origin–destination networks, timestamped trajectories, and Lagrangian releases without pretending they are the same geometry.',
+    coord: 'field / OD / x(t)',
+    instrumentKicker: 'FLOW / FIELD / NETWORK / TRAJECTORY',
+    source: 'Open-Meteo · NOAA GFS · Natural Earth · reproducible demo data'
+  };
+  if (record?.text?.en) Object.assign(record.text.en, replacement);
+  const item = window.GEOGEEK_DATA?.en?.lab?.find(entry => entry.id === 'l06');
+  if (item) Object.assign(item, replacement);
+})();
+</script>
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
 <script src="app.js?v=20260929-sheet-index-revert"></script>
