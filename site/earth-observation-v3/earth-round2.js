@@ -162,8 +162,13 @@
     const observer = new MutationObserver(render);
     [compare, primary, reference, hudReference].filter(Boolean).forEach(node => observer.observe(node, { attributes:true, attributeFilter:['aria-pressed'], childList:true, characterData:true, subtree:true }));
     root._earthRound2RelationObserver = observer;
-    relation.addEventListener('click', event => {
-      if (event.target.closest('[data-earth-relation-off]')) compare?.click();
+
+    const offButton = $('[data-earth-relation-off]', relation);
+    offButton?.addEventListener('pointerdown', event => event.stopPropagation());
+    offButton?.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      compare?.click();
     });
     render();
   }
