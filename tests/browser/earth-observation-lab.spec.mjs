@@ -20,7 +20,7 @@ async function expectNoSeriousAxeViolations(page) {
   expect(violations.map(item => `${item.impact}:${item.id}[${item.nodes.length}]`)).toEqual([]);
 }
 
-test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async ({ page }) => {
+test('Earth temporal lab consumes unified GIBS products and exposes date-scoped raster provenance', async ({ page }) => {
   let gibsRequests = 0;
   await page.route('https://gibs.earthdata.nasa.gov/**', route => {
     gibsRequests += 1;
@@ -41,7 +41,31 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   await expect(page.locator('#eoCoverageEnd')).toContainText('SAFE THROUGH');
   await expect(page.locator('#eoInspectorMeta')).toContainText('RECENT-DATE POLICY');
   await expect(page.locator('#eoInspectorMeta')).toContainText('DISPLAY SAMPLE');
-  await expect(page.locator('.instrument-status')).toContainText('STATUS / READY');
+  await expect(page.locator('#eoInspectorMeta')).toContainText('DELIVERY');
+  await expect(page.locator('#eoInspectorMeta')).toContainText('FRESHNESS');
+  await expect(page.locator('.instrument-status')).toContainText('STATUS / TILE · DATE-SCOPED');
+  await expect(page.locator('.instrument-status')).not.toContainText('LIVE');
+  await expect(page.locator('#eoSupplyState')).toHaveText('TILE · DATE-SCOPED');
+
+  const contract = await page.evaluate(() => {
+    const description = window.GeoDataSupply.describe('nasa-gibs');
+    return {
+      sameProducts:window.GeoEarthTemporalLab.layers === window.GeoDataSupply.products('nasa-gibs'),
+      productCount:window.GeoEarthTemporalLab.layers.length,
+      requestStatus:description.request?.status,
+      requestProduct:description.request?.productId,
+      transport:description.transport,
+      observationTime:description.request?.observationTime,
+      hasPrivateMode:window.GeoEarthTemporalLab.layers.some(layer => Object.hasOwn(layer, 'mode') || Object.hasOwn(layer, 'lag') || Object.hasOwn(layer, 'start'))
+    };
+  });
+  expect(contract.sameProducts).toBe(true);
+  expect(contract.productCount).toBe(8);
+  expect(contract.requestStatus).toBe('available');
+  expect(contract.requestProduct).toBe('terra-true');
+  expect(contract.transport).toBe('provider-raster');
+  expect(contract.observationTime).toMatch(/^\d{4}-\d{2}-\d{2}T00:00:00Z$/);
+  expect(contract.hasPrivateMode).toBe(false);
 
   await expect.poll(async () => {
     const box = await page.locator('#eoFrame').boundingBox();
@@ -86,8 +110,11 @@ test('Earth temporal lab exposes sensor-aware timeline and swipe compare', async
   await expect(page.locator('#eoInspectorTitle')).toHaveText('Land surface temperature');
   await expect(page.locator('#eoInspectorMeta')).toContainText('Conservative T-2 day request window');
   await expect(page.locator('#eoInspectorMeta')).toContainText('authoritative color legend');
+  await expect(page.locator('#eoInspectorMeta')).toContainText('HTTPS WMS · PROVIDER RASTER');
   await expect(page.locator('#eoOpacityWrap')).toBeVisible();
   await expect(dateInput).toHaveValue('2024-01-15');
+  await expect.poll(() => page.evaluate(() => window.GeoDataSupply.describe('nasa-gibs').request?.productId)).toBe('surface-temp');
+  await expect.poll(() => page.evaluate(() => window.GeoDataSupply.describe('nasa-gibs').request?.status)).toBe('available');
 
   const compare = page.locator('#eoCompare');
   await compare.click();
