@@ -19,7 +19,7 @@ async function expectNoSeriousAxeViolations(page) {
   expect(violations.map(item => `${item.impact}:${item.id}[${item.nodes.length}]`)).toEqual([]);
 }
 
-async function installPulseSupplyFixtures(page, { count = 205, stale = false } = {}) {
+async function installPulseSupplyFixtures(page, { count = 205, stale = false, spacingMinutes = 6 } = {}) {
   const now = Date.now();
   const generated = now - 5 * 60 * 1000;
   const fetchedAt = new Date(now - (stale ? 4 * 60 * 60 * 1000 : 2 * 60 * 1000)).toISOString();
@@ -33,7 +33,7 @@ async function installPulseSupplyFixtures(page, { count = 205, stale = false } =
     properties:{
       mag:index === 7 ? null : 1.3 + (index % 9) * .55,
       place:`Fixture seismic event ${index + 1}`,
-      time:generated - (index + 1) * 6 * 60 * 1000,
+      time:generated - (index + 1) * spacingMinutes * 60 * 1000,
       updated:generated - index * 4 * 60 * 1000,
       status:index % 4 ? 'reviewed' : 'automatic',
       magType:index % 2 ? 'ml' : 'mww',
@@ -202,6 +202,95 @@ test('Pulse keeps stale last-known-good visible and labels it stale without prov
   await expect(page.locator('.instrument-status')).toContainText('STALE SNAPSHOT');
   await expect(page.locator('.pulse-provenance')).toContainText('STALE SNAPSHOT');
   await expect(page.locator('.pulse-event')).toHaveCount(32);
+  expect(fixtures.snapshotHits()).toBeGreaterThan(0);
+  expect(fixtures.referenceHits()).toBeGreaterThan(0);
+});
+
+test('Pulse Round 4 scrubs snapshot time, filters events, plays forward, and aggregates dense views without changing supply semantics', async ({ page }) => {
+  const fixtures = await installPulseSupplyFixtures(page, { count:420, spacingMinutes:3 });
+  await page.goto('/lab.html?instrument=pulse#l10', { waitUntil:'domcontentloaded' });
+
+  const lab = page.locator('.pulse-observation-lab[data-state="ready"]');
+  await expect(lab).toBeVisible({ timeout:10000 });
+  await expect(page.locator('.pulse-temporal-controls')).toBeVisible();
+  await expect(page.locator('.pulse-filter-controls')).toBeVisible();
+  await expect(page.locator('#pulseTimeline')).toHaveValue('1440');
+  await expect(page.locator('#pulseTimelineState')).toHaveText('FULL SNAPSHOT');
+  await expect(page.locator('#pulseFieldTitle')).toHaveText('420 EVENTS · ROLLING 24 H');
+  await expect(page.locator('#pulseVisibleCount')).toHaveText('420 VISIBLE');
+
+  await expect(lab).toHaveAttribute('data-representation', 'density');
+  await expect(page.locator('#pulseRepresentationState')).toHaveText('AUTO → COUNT GRID');
+  expect(await page.locator('.pulse-density-cell').count()).toBeGreaterThan(0);
+  await expect(page.locator('.pulse-filter-controls')).toContainText('not equal-area');
+  await expect(page.locator('.pulse-filter-controls')).toContainText('not a hazard');
+  await expect(page.locator('#pulseTimelineHelp')).toContainText('never requests historical data');
+
+  await page.getByRole('button', { name:'EVENTS', exact:true }).click();
+  await expect(lab).toHaveAttribute('data-representation', 'events');
+
+  await page.locator('#pulseMagnitudeFilter').selectOption('4');
+  await page.locator('#pulseDepthFilter').selectOption('deep');
+  await page.locator('#pulseStatusFilter').selectOption('reviewed');
+
+  const fullExpected = fixtures.features.filter(feature => {
+    const mag = feature.properties.mag;
+    const depth = feature.geometry.coordinates[2];
+    const status = feature.properties.status;
+    const time = feature.properties.time;
+    return Number.isFinite(mag) && mag >= 4 && depth >= 300 && status === 'reviewed' &&
+      time >= fixtures.generated - 24 * 60 * 60 * 1000 && time <= fixtures.generated;
+  }).length;
+  await expect(page.locator('#pulseVisibleCount')).toHaveText(`${fullExpected} VISIBLE`);
+  await expect(page.locator('.pulse-event[data-visible="true"]')).toHaveCount(fullExpected);
+  await expect(page.locator('#pulseFieldTitle')).toHaveText('420 EVENTS · ROLLING 24 H');
+
+  await page.locator('#pulseTimeline').evaluate(input => {
+    input.value = '720';
+    input.dispatchEvent(new Event('input', { bubbles:true }));
+  });
+  const cutoff = fixtures.generated - 12 * 60 * 60 * 1000;
+  const halfExpected = fixtures.features.filter(feature => {
+    const mag = feature.properties.mag;
+    const depth = feature.geometry.coordinates[2];
+    const status = feature.properties.status;
+    const time = feature.properties.time;
+    return Number.isFinite(mag) && mag >= 4 && depth >= 300 && status === 'reviewed' &&
+      time >= fixtures.generated - 24 * 60 * 60 * 1000 && time <= cutoff;
+  }).length;
+  await expect(page.locator('#pulseVisibleCount')).toHaveText(`${halfExpected} VISIBLE`);
+  await expect(page.locator('#pulseTimelineState')).toHaveText('12 H FROM WINDOW START');
+
+  await page.locator('#pulseMagnitudeFilter').selectOption('all');
+  await page.locator('#pulseDepthFilter').selectOption('all');
+  await page.locator('#pulseStatusFilter').selectOption('all');
+  await page.locator('#pulseTimeline').evaluate(input => {
+    input.value = '0';
+    input.dispatchEvent(new Event('input', { bubbles:true }));
+  });
+  await page.locator('#pulsePlay').click();
+  await expect(page.locator('#pulsePlay')).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(async () => Number(await page.locator('#pulseTimeline').inputValue()), { timeout:3000 }).toBeGreaterThan(0);
+  await page.locator('#pulsePlay').click();
+  await expect(page.locator('#pulsePlay')).toHaveAttribute('aria-pressed', 'false');
+
+  await page.locator('#pulseFull').click();
+  await page.getByRole('button', { name:'AUTO', exact:true }).click();
+  await expect(lab).toHaveAttribute('data-representation', 'density');
+  await expect(page.locator('#pulseVisibleCount')).toHaveText('420 VISIBLE');
+
+  const contract = await page.evaluate(() => ({
+    timeline:window.GeoPulseObservationLab?.timeline,
+    density:window.GeoPulseObservationLab?.density,
+    quakeTransport:window.GeoDataSupply.describe('usgs-earthquakes-day')?.transport,
+    referenceTransport:window.GeoDataSupply.describe('natural-earth-land-110m')?.transport
+  }));
+  expect(contract.timeline).toBe('snapshot-internal-origin-cutoff');
+  expect(contract.density).toBe('12x10-degree-count-grid');
+  expect(contract.quakeTransport).toBe('same-origin-snapshot');
+  expect(contract.referenceTransport).toBe('same-origin-reference');
+
+  await expectNoSeriousAxeViolations(page);
   expect(fixtures.snapshotHits()).toBeGreaterThan(0);
   expect(fixtures.referenceHits()).toBeGreaterThan(0);
 });
