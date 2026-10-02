@@ -252,7 +252,7 @@ test('Pulse mobile controls stay touch-sized and avoid horizontal overflow', asy
   expect(sizes.timeline).toBeGreaterThanOrEqual(44);
   expect(sizes.overflow).toBeLessThanOrEqual(1);
 
-  await page.locator('[data-pulse-representation="density"]').tap();
+  await page.locator('[data-pulse-representation="density"]').click();
   await expect(page.locator('.pulse-observation-lab')).toHaveAttribute('data-representation', 'density');
   await page.locator('#pulseMagnitudeFilter').selectOption('4');
   await expectNoSeriousAxeViolations(page);
