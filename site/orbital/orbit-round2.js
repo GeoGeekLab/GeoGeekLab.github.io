@@ -38,17 +38,16 @@
 
   function consolidateView(root, sections) {
     const extra = $('.orbit-enhancement-card', root);
-    if (!extra || !sections.view || extra === sections.view) return;
-    const controls = document.createElement('div');
-    controls.className = 'orbit-view-advanced';
-    while (extra.firstChild) controls.appendChild(extra.firstChild);
-    sections.view.appendChild(controls);
-    extra.remove();
+    if (!extra || !sections.view || extra === sections.view || extra.parentElement === sections.view) return;
+    // Keep the original enhancement card intact so its delegated click handler
+    // for presets and time steps moves with it. CSS removes the nested card chrome.
+    extra.classList.add('orbit-view-advanced');
+    sections.view.appendChild(extra);
   }
 
   function activateWorkspaceMode(mode) {
     const dialog = $('#instrumentDialog');
-    const button = $(`[data-workspace-mode="${mode}"]`, dialog || document);
+    const button = $(`.instrument-workspace-modes button[data-workspace-mode="${mode}"]`, dialog || document);
     if (button && button.getAttribute('aria-pressed') !== 'true') button.click();
   }
 
