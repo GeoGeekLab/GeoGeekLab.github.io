@@ -63,7 +63,8 @@ jobs:
               --output "site/assets/lab/previews/${name}.jpg" \
               "https://geogeeklab.github.io/assets/lab/previews/${name}.jpg"
           done
-          sed -i 's#src="core/modules.js"#src="core/modules.js?v=20261002a"#' site/lab.html
+          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261002a"#' site/lab.html
+          grep -F 'src="core/modules.js?v=20261002a"' site/lab.html
       - name: Install responsive image optimizer
         if: steps.delta.outputs.changed == 'true'
         run: |
