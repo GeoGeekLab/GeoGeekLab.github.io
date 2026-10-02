@@ -386,14 +386,27 @@
       }
     }
 
+    function clearSelection() {
+      lockedEvent = null;
+      nodeById.forEach(node => {
+        node.classList.remove('is-selected');
+        node.setAttribute('aria-pressed', 'false');
+      });
+      clearInspector();
+    }
+
     function lock(event) {
-      lockedEvent = lockedEvent?.id === event.id ? null : event;
+      if (lockedEvent?.id === event.id) {
+        clearSelection();
+        return;
+      }
+      lockedEvent = event;
       nodeById.forEach((node, id) => {
-        const selected = lockedEvent?.id === id;
+        const selected = event.id === id;
         node.classList.toggle('is-selected', selected);
         node.setAttribute('aria-pressed', String(selected));
       });
-      inspect(lockedEvent || event);
+      inspect(event);
     }
 
     for (const event of events) {
@@ -439,21 +452,18 @@
       eventGroup.appendChild(group);
     }
 
-    const keyHandler = event => {
-      if (event.key !== 'Escape' || !lockedEvent || !root.isConnected) return;
-      lockedEvent = null;
-      nodeById.forEach(node => {
-        node.classList.remove('is-selected');
-        node.setAttribute('aria-pressed', 'false');
-      });
-      clearInspector();
+    const dialog = document.getElementById('instrumentDialog');
+    const cancelHandler = event => {
+      if (!lockedEvent || !root.isConnected) return;
+      event.preventDefault();
+      clearSelection();
     };
-    document.addEventListener('keydown', keyHandler);
+    dialog?.addEventListener('cancel', cancelHandler);
 
     clearInspector();
 
     return () => {
-      document.removeEventListener('keydown', keyHandler);
+      dialog?.removeEventListener('cancel', cancelHandler);
       stage.innerHTML = '';
     };
   }
