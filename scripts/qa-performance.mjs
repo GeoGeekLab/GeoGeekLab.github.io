@@ -49,7 +49,7 @@ check(/editorial-layout\.css/.test(fieldNotes) && /geo-interactions\.css/.test(f
 check(!/data-idle-\s+src\s*=/i.test(fieldNotes), 'PERF-03 data-idle-src attributes remain inert and intact');
 check(accidentalBlockingLocalScripts(fieldNotes).length === 0, 'PERF-03 Field Notes has no accidental blocking local classic scripts');
 
-check(/id="earthActivate"/.test(earth) && /src="boot\.js\?v=20261001a"/.test(earth), 'PERF-04 Earth ships a progressive activation shell');
+check(/id="earthActivate"/.test(earth) && /src="boot\.js(?:\?[^\"]*)?"/.test(earth), 'PERF-04 Earth ships a progressive activation shell');
 check(!/unpkg\.com\/maplibre-gl@6\.6\.0\/dist\/maplibre-gl\.css/.test(earth), 'PERF-04 MapLibre CSS is off the Earth critical path');
 
 check(/rel="preload" as="image" href="\/assets\/lab\/previews\/earth-observatory\.jpg\?v=20260930i" fetchpriority="high"/.test(lab), 'PERF-05 Lab LCP preview is discoverable from the initial document');
