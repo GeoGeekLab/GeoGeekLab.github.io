@@ -25,7 +25,7 @@
   }
 
   const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[c]));
-  const finite = value => Number.isFinite(Number(value)) ? Number(value) : null;
+  const finite = value => value == null || value === '' ? null : Number.isFinite(Number(value)) ? Number(value) : null;
   const utc = value => {
     const ms = typeof value === 'number' ? value : Date.parse(String(value || ''));
     if (!Number.isFinite(ms)) return '—';
@@ -82,15 +82,19 @@
   function ringPath(ring) {
     let d = '';
     let previousLon = null;
+    let segmentOpen = false;
     for (const coordinate of ring || []) {
       const lon = finite(coordinate?.[0]);
       const lat = finite(coordinate?.[1]);
       if (lon == null || lat == null) continue;
       const [x, y] = project(lon, lat);
       const discontinuity = previousLon != null && Math.abs(lon - previousLon) > 180;
-      d += `${!d || discontinuity ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)} `;
+      if (discontinuity && segmentOpen) d += 'Z ';
+      d += `${!segmentOpen || discontinuity ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)} `;
+      segmentOpen = true;
       previousLon = lon;
     }
+    if (segmentOpen) d += 'Z';
     return d.trim();
   }
 
