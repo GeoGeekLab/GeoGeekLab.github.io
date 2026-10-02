@@ -9,6 +9,14 @@
     document.head.appendChild(link);
   }
 
+  if (!document.querySelector('link[data-lab-close-control]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'lab-close-control.css?v=20261002a';
+    link.dataset.labCloseControl = '1';
+    document.head.appendChild(link);
+  }
+
   const dialog = document.getElementById('instrumentDialog');
   const head = dialog?.querySelector('.instrument-head');
   const close = document.getElementById('instrumentClose');
@@ -69,22 +77,32 @@
     return promise;
   }
 
+  function syncCloseControl(isCore) {
+    close.textContent = '×';
+    if (!isCore) {
+      delete close.dataset.labExit;
+      close.setAttribute('aria-label', 'Close');
+      close.setAttribute('title', 'Close');
+      return;
+    }
+    close.dataset.labExit = 'true';
+    close.setAttribute('aria-label', 'Return to Lab Index');
+    close.setAttribute('title', 'Lab Index');
+  }
+
   function syncIdentity() {
     const kind = dialog.dataset.instrumentKind || '';
     const isCore = CORE.has(kind);
     activeKind = isCore ? kind : '';
     dialog.dataset.labWorkspace = isCore ? 'true' : 'false';
     toolbar.hidden = !isCore;
+    syncCloseControl(isCore);
 
     if (!isCore) {
       delete dialog.dataset.workspaceMode;
-      close.textContent = '×';
-      close.setAttribute('aria-label', 'Close');
       return;
     }
 
-    close.textContent = '← LAB INDEX';
-    close.setAttribute('aria-label', 'Return to Lab index');
     setMode(dialog.dataset.workspaceMode || storedMode(), { persist:false });
     loadRefinement(kind).catch(error => console.warn(`[GeoGeek] ${kind} refinement failed to load; base instrument remains available.`, error));
   }
