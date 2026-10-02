@@ -222,6 +222,7 @@
       try {
         const instruments = await modules.loadInstrument(initialKind);
         if (!dialog.open) await instruments?.openByKind?.(initialKind, { updateUrl: false });
+        modules.normalizeInstrumentAria?.(initialKind);
         return dialog.open;
       } catch (error) {
         console.warn(`[GeoGeek] Direct instrument ${initialKind} could not initialize yet.`, error);
