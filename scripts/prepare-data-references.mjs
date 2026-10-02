@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import { referenceDatasets, referencePathsFor, validatePayload, serializePayload, sha256, atomicWrite, exists, readJson } from './data-supply-lib.mjs';
+import { promises as fs } from 'node:fs';
+import { DATA_SUPPLY_SCHEMA_VERSION, referenceDatasets, referencePathsFor, validatePayload, serializePayload, sha256, atomicWrite, exists, readJson } from './data-supply-lib.mjs';
 
 for (const dataset of referenceDatasets()) {
   const { dataPath, metaPath } = referencePathsFor(dataset);
   const existingMeta = await readJson(metaPath);
   if (await exists(dataPath) && existingMeta?.sha256 && existingMeta?.version === dataset.version && existingMeta?.source === dataset.upstream) {
-    const raw = await (await import('node:fs/promises')).readFile(dataPath, 'utf8');
+    const raw = await fs.readFile(dataPath, 'utf8');
     if (sha256(raw) === existingMeta.sha256) {
       const payload = JSON.parse(raw);
       const validation = validatePayload(dataset, payload, existingMeta);
@@ -34,22 +35,25 @@ for (const dataset of referenceDatasets()) {
   const raw = serializePayload(payload);
   const hash = sha256(raw);
   const meta = {
-    schemaVersion:1,
+    schemaVersion:DATA_SUPPLY_SCHEMA_VERSION,
     supplyId:dataset.id,
     dataset:dataset.id,
+    datasetLabel:dataset.dataset,
     provider:dataset.provider,
-    format:'GeoJSON',
+    format:dataset.format,
     source:dataset.upstream,
-    delivery:'GeoGeek same-origin reference',
+    delivery:dataset.delivery,
+    transport:dataset.transport,
     version:dataset.version,
     recordCount:validation.recordCount,
     sha256:hash,
     timeSemantics:dataset.timeSemantics,
+    freshnessSemantics:dataset.freshnessSemantics,
     resolution:dataset.resolution,
     limit:dataset.limit,
-    scope:dataset.scope || null,
+    scope:dataset.scope,
     freshness:'version-pinned',
-    fallback:'unavailable',
+    fallback:dataset.fallback,
     transform:'JSON normalized for static delivery; source geometries are otherwise unchanged.'
   };
   await atomicWrite(dataPath, raw);
