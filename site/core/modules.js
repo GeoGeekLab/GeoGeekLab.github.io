@@ -86,6 +86,12 @@
     if (kind === 'figure' && !window.GeoFigureViewerV2Polish) {
       await loadScript('figure-viewer-v2-polish.js?v=20261001e');
     }
+    if (kind === 'flow' && !window.GeoFlowLab) {
+      await loadScript('flow-lab.js?v=20261002a');
+    }
+    if (kind === 'flow' && !window.GeoFlowLabPolish) {
+      await loadScript('flow-lab-polish.js?v=20261002b');
+    }
     return window.GeoInstruments;
   }
 
@@ -114,6 +120,7 @@
     const enhancementNeeded =
       orbitEnhancementNeeded ||
       (kind === 'world' && !window.GeoProjectionLab) ||
+      (kind === 'flow' && (!window.GeoFlowLab || !window.GeoFlowLabPolish)) ||
       (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish));
     if (window.GeoInstruments && !enhancementNeeded) return;
     event.preventDefault();
@@ -140,7 +147,7 @@
     const buttons = [...document.querySelectorAll('[data-home-commons-horizon]')];
     const render = async () => {
       const commons = await loadCommons();
-      await commons?.mountPreview?.(homeCommonsMount, { variant:'home', horizon });
+      await commons?.mountPreview?.(homeCommonsMapMount, { variant:'home', horizon });
     };
     buttons.forEach(button => button.addEventListener('click', async () => {
       horizon = button.dataset.homeCommonsHorizon || '30d';
