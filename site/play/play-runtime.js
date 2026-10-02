@@ -6,6 +6,12 @@
 
   const baseLoadInstrument = modules.loadInstrument.bind(modules);
   const PLAY_KINDS = new Set(['locate', 'zone', 'path', 'project']);
+  const PLAY_DOM_KIND = {
+    locate: 'orient',
+    zone: 'bound',
+    path: 'connect',
+    project: 'project'
+  };
   const COMMON = [
     'play/play-core.js?v=20261002c',
     'play/play-shell.js?v=20261002c',
@@ -30,8 +36,16 @@
     for (const src of COMMON) await modules.loadScript(src);
     await modules.loadScript(SCRIPT[kind]);
     REGISTER[kind]?.();
+    // games.js can be loaded later for a transitional Play and will re-register
+    // its legacy locate mount. Restore ORIENT whenever its implementation exists.
     if (window.GeoPlayOrient) window.GeoPlayOrient.register?.();
     return instruments || window.GeoInstruments;
+  }
+
+  function isPlayMounted(kind) {
+    const stage = document.getElementById('instrumentStage');
+    const domKind = PLAY_DOM_KIND[kind];
+    return Boolean(stage?.querySelector(`.play-shell[data-play-kind="${domKind}"]`));
   }
 
   modules.loadInstrument = loadPlay;
@@ -52,15 +66,18 @@
     }
   }, true);
 
-  // lab-page.js may have scheduled a direct ?instrument= request before this
-  // runtime replaced GeoModules.loadInstrument. Re-open only when the requested
-  // Play has not already mounted; openByKind is idempotent at the dialog level.
+  // lab-page.js can begin resolving a direct ?instrument= request before this
+  // runtime takes ownership. Load the requested Play first, then inspect the
+  // actual mounted DOM rather than trusting the transitional instrument key:
+  // legacy Locate/Zone/Path and their replacements intentionally share keys.
   const requested = new URLSearchParams(location.search).get('instrument');
   if (PLAY_KINDS.has(requested)) queueMicrotask(async () => {
-    if (window.GeoInstruments?.getActive?.() === requested) return;
     try {
       const instruments = await loadPlay(requested);
-      await instruments?.openByKind?.(requested, { updateUrl: false });
+      const active = window.GeoInstruments?.getActive?.() === requested;
+      if (!active || !isPlayMounted(requested)) {
+        await instruments?.openByKind?.(requested, { updateUrl: false });
+      }
     } catch (error) {
       console.warn(`[GeoGeek] Direct Play ${requested} could not initialize.`, error);
     }
