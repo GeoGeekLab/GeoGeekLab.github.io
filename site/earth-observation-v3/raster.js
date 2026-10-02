@@ -1,5 +1,24 @@
 import { bboxArray, requestDimensions, viewportBounds, wmsUrl } from './model.js';
 
+// Preloaded provider images are queued by URL so the committed DOM frame can
+// reuse the exact Image objects that already completed. This prevents the
+// render phase from issuing a second provider request for the same WMS URL.
+const loadedImages = new Map();
+
+function queueLoadedImage(src, image) {
+  const queue = loadedImages.get(src) || [];
+  queue.push(image);
+  loadedImages.set(src, queue);
+}
+
+function takeLoadedImage(src) {
+  const queue = loadedImages.get(src);
+  if (!queue?.length) return null;
+  const image = queue.shift();
+  if (!queue.length) loadedImages.delete(src);
+  return image;
+}
+
 export function createImageLoader(signal) {
   const foreground = new Set();
 
@@ -22,6 +41,7 @@ export function createImageLoader(signal) {
         signal?.removeEventListener?.('abort', onAbort);
         image.onload = null;
         image.onerror = null;
+        if (ok) queueLoadedImage(src, image);
         resolve({ ok, src, image:ok ? image : null, ...extra });
       };
       const cancel = () => {
@@ -47,7 +67,10 @@ export function createImageLoader(signal) {
   return {
     preload,
     cancelForeground,
-    cancelAll:cancelForeground
+    cancelAll() {
+      cancelForeground();
+      loadedImages.clear();
+    }
   };
 }
 
@@ -90,4 +113,24 @@ export function commitLoadedStack(container, entries, results, altPrefix) {
   });
   container.replaceChildren(fragment);
   return [...container.querySelectorAll('img')];
+}
+
+// Compatibility surface used by mount.js. The images are taken from the
+// successful preload queue, so the caller does not need to create another
+// network-backed Image element. Returning no images deliberately makes the
+// legacy same-URL assignment loop a no-op.
+export function renderStack(container, entries, altPrefix) {
+  const fragment = document.createDocumentFragment();
+  entries.forEach((entry, index) => {
+    const image = takeLoadedImage(entry.src);
+    if (!image) return;
+    image.dataset.eoRole = entry.role;
+    image.alt = `${altPrefix}${index ? ' overlay' : ''}`;
+    image.referrerPolicy = 'no-referrer';
+    image.draggable = false;
+    image.style.opacity = String(entry.opacity);
+    fragment.appendChild(image);
+  });
+  container.replaceChildren(fragment);
+  return [];
 }
