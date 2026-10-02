@@ -54,6 +54,32 @@ async function newPage(viewport = { width: 1600, height: 1000 }) {
   return page;
 }
 
+async function exerciseFlowLab(page) {
+  await page.waitForFunction(() => {
+    const lab = document.querySelector('#instrumentStage .flow-lab');
+    return !!lab && !!window.GeoFlowLab && !!window.GeoFlowLabPolish && window.GeoGeekInstrumentMounts?.flow === window.GeoFlowLab.mount;
+  }, null, { timeout: 25000 });
+
+  const tabs = page.locator('#instrumentStage .flow-tabs [data-mode]');
+  const count = await tabs.count();
+  if (count !== 4) throw new Error(`flow: expected four representation modes, found ${count}`);
+
+  const title = await page.locator('#instrumentTitle').textContent();
+  if (title?.trim() !== 'Geographic Flow Laboratory') throw new Error(`flow: stale instrument title "${title?.trim() || ''}"`);
+
+  const checks = [
+    ['od', '#instrumentStage .flow-svg [data-type="od"]'],
+    ['trips', '#instrumentStage #flTripTime'],
+    ['release', '#instrumentStage #flReleaseCount'],
+    ['field', '#instrumentStage #flDensity']
+  ];
+  for (const [mode, selector] of checks) {
+    await page.locator(`#instrumentStage .flow-tabs [data-mode="${mode}"]`).click();
+    await page.waitForFunction(value => document.querySelector('#instrumentStage .flow-lab')?.dataset.mode === value, mode, { timeout: 5000 });
+    await page.waitForSelector(selector, { state: 'visible', timeout: 5000 });
+  }
+}
+
 async function captureInstrument(kind) {
   const page = await newPage();
   const url = `${base}/lab.html?instrument=${encodeURIComponent(kind)}`;
@@ -69,14 +95,7 @@ async function captureInstrument(kind) {
       }, null, { timeout: 25000 }).catch(() => {});
     }
 
-    if (kind === 'flow') {
-      await page.waitForFunction(() => {
-        const lab = document.querySelector('#instrumentStage .flow-lab');
-        return !!lab && !!window.GeoFlowLab && !!window.GeoFlowLabPolish && window.GeoGeekInstrumentMounts?.flow === window.GeoFlowLab.mount;
-      }, null, { timeout: 25000 });
-      const tabs = await page.locator('#instrumentStage .flow-tabs [data-mode]').count();
-      if (tabs !== 4) throw new Error(`flow: expected four representation modes, found ${tabs}`);
-    }
+    if (kind === 'flow') await exerciseFlowLab(page);
 
     const settle = kind === 'flow' || kind === 'orbit' ? 6500 : 2800;
     await page.waitForTimeout(settle);
