@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 const instruments = [
-  ['orbit', '<div class="orbit-layout"><section class="orbit-stage">FIELD</section><aside class="orbit-panel"><div class="orbit-card">CATALOG</div></aside></div>', '.orbit-panel'],
-  ['earth', '<div class="earth-observation-lab"><section class="earth-observation-canvas">RASTER</section><aside class="earth-observation-panel"><div class="eo-panel-card">LAYERS</div></aside></div>', '.earth-observation-panel'],
+  ['orbit', '<div class="orbit-v2 orbit-layout"><section class="orbit-stage">FIELD</section><aside class="orbit-panel"><div class="orbit-card">CATALOG</div></aside></div>', '.orbit-panel'],
+  ['earth', '<div class="earth-layout earth-observation-lab"><section class="earth-observation-canvas">RASTER</section><aside class="earth-observation-panel"><div class="eo-panel-card">LAYERS</div></aside></div>', '.earth-observation-panel'],
   ['flow', '<div class="flow-lab"><section class="flow-map-shell">FIELD</section><aside class="flow-rail"><div class="flow-card">REPRESENTATION</div></aside></div>', '.flow-rail'],
-  ['pulse', '<div class="pulse-observation-lab"><section class="pulse-map-wrap">EVENT FIELD</section><aside class="pulse-panel"><div class="pulse-panel-section">TEMPORAL CONTROL</div></aside></div>', '.pulse-panel'],
+  ['pulse', '<div class="pulse-layout pulse-observation-lab"><section class="pulse-map-wrap">EVENT FIELD</section><aside class="pulse-panel"><div class="pulse-panel-section">TEMPORAL CONTROL</div></aside></div>', '.pulse-panel'],
   ['figure', '<div class="figure-layout figure-workbench"><section class="figure-stage">IMAGE / TRACE</section><aside class="figure-control"><div class="figure-card">SCALAR FIELD</div></aside></div>', '.figure-control'],
   ['world', '<div class="world-layout"><section class="world-map-wrap">PROJECTION</section><aside class="world-panel">PROJECTION CONTROLS</aside></div>', '.world-panel']
 ];
