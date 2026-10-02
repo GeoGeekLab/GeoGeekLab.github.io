@@ -4,13 +4,12 @@
   const VERSION = '20260930i';
   const root = '/assets/lab/previews';
 
-  function makeImage(name, alt, { eager = false } = {}) {
+  function makeImage(name, alt) {
     const img = document.createElement('img');
     img.src = `${root}/${name}.jpg?v=${VERSION}`;
     img.alt = alt;
-    img.loading = eager ? 'eager' : 'lazy';
+    img.loading = 'lazy';
     img.decoding = 'async';
-    if (eager) img.fetchPriority = 'high';
     return img;
   }
 
@@ -19,15 +18,6 @@
     if (!href) return '';
     try { return new URL(href, location.href).searchParams.get('instrument') || ''; }
     catch { return ''; }
-  }
-
-  function replaceEarthPreview() {
-    const screen = document.querySelector('.earth-preview-screen');
-    if (!screen || screen.dataset.realPreview === 'true') return;
-    const image = makeImage('earth-observatory', 'Real Earth Observatory interface preview', { eager: true });
-    screen.replaceChildren(image);
-    screen.dataset.realPreview = 'true';
-    screen.classList.add('is-real-output');
   }
 
   function replaceInstrumentCards() {
@@ -44,7 +34,6 @@
   }
 
   function apply() {
-    replaceEarthPreview();
     replaceInstrumentCards();
     document.documentElement.classList.add('lab-real-previews-ready');
   }

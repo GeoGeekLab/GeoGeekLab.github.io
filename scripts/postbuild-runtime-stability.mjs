@@ -32,17 +32,10 @@ function injectAssets(html) {
 }
 
 function patchLab(html) {
-  html = html
-    .replace('LIVE FIELD / 50 SOURCES / ONE MAP', 'EARTH FIELD / 50 SOURCES / ONE MAP')
-    .replace('<span><i></i>LIVE</span><b>UTC 13:25</b>', '<span><i></i>PREVIEW</span><b>SAMPLE</b>')
-    .replace('TIME / 2026-09-15 13:25 UTC', 'TIME / ILLUSTRATIVE')
-    .replace('08 ACTIVE', 'SAMPLE VIEW')
-    .replace('LIVE INSTRUMENT', 'INSTRUMENT PREVIEW');
-
   const fallback = `<div class="runtime-fallback lab-static-fallback" role="note">
     <strong>Lab index fallback</strong>
-    <p>The interactive project index is enhanced with JavaScript. The Earth Observatory remains directly accessible even if the dynamic index cannot initialize.</p>
-    <a href="earth/">Open Earth Observatory ↗</a>
+    <p>The instrument index is enhanced with JavaScript. If it cannot initialize, the rest of GeoGeek remains available through the primary navigation.</p>
+    <a href="field-notes.html">Browse Field Notes ↗</a>
   </div>`;
   html = html.replace('<section class="lab-list" id="labList"></section>', `<section class="lab-list" id="labList">${fallback}</section>`);
   return html;

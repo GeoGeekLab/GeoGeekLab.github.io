@@ -37,8 +37,6 @@ jobs:
           test -s site/assets/lab/sentinel2.jpg
           test -s site/core/data-supply.js
           test -s site/data/supply-registry.js
-          test -s site/earth/runtime.js
-          test -s site/earth/data-supply-ui.js
           test -s site/orbital/orbital-engine.js
           test -s site/orbital/orbit-worker.js
           test -s site/orbital/orbit-catalog-source.js
@@ -66,7 +64,7 @@ jobs:
 
       - name: Verify production Lab previews
         run: |
-          for name in earth-observatory orbit earth flow pulse figure world locate zone path; do
+          for name in orbit earth flow pulse figure world locate zone path; do
             test -s "site/assets/lab/previews/${name}.jpg"
           done
 
