@@ -1,4 +1,4 @@
-import { DATASETS, DATASET_BY_ID, DATASET_BY_ADAPTER, siteAssetUrl } from '../data/supply-registry.js';
+import { DATA_SUPPLY_SCHEMA_VERSION, DATASETS, DATASET_BY_ID, DATASET_BY_ADAPTER, siteAssetUrl } from '../data/supply-registry.js';
 
 const nativeFetch = window.fetch.bind(window);
 const states = new Map();
@@ -71,7 +71,7 @@ function ageLabel(ms) {
   if (minutes < 60) return `${minutes} min`;
   const hours = ms / 3600000;
   if (hours < 48) return `${hours.toFixed(hours < 10 ? 1 : 0)} h`;
-  return `${(ms / DAY_MS).toFixed(1)} d`;
+  return `${(hours / DAY_MS).toFixed(1)} d`;
 }
 
 async function metadata(id, { refresh = false } = {}) {
@@ -231,7 +231,7 @@ if (!window.GeoDataSupply?.installed) {
   window.fetch = routedFetch;
   window.GeoDataSupply = {
     installed: true,
-    schemaVersion: 1,
+    schemaVersion: DATA_SUPPLY_SCHEMA_VERSION,
     datasets: DATASETS,
     get: id => DATASET_BY_ID.get(id) || null,
     byAdapter: adapter => DATASET_BY_ADAPTER.get(adapter) || null,
