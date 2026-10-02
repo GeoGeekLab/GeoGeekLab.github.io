@@ -456,14 +456,15 @@
     const cancelHandler = event => {
       if (!lockedEvent || !root.isConnected) return;
       event.preventDefault();
+      event.stopImmediatePropagation();
       clearSelection();
     };
-    dialog?.addEventListener('cancel', cancelHandler);
+    dialog?.addEventListener('cancel', cancelHandler, true);
 
     clearInspector();
 
     return () => {
-      dialog?.removeEventListener('cancel', cancelHandler);
+      dialog?.removeEventListener('cancel', cancelHandler, true);
       stage.innerHTML = '';
     };
   }
