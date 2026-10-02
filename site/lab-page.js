@@ -20,7 +20,6 @@
   if (list) {
     const instrumentIds = new Set(['l04','l05','l06','l07','l08','l09','l10','l11','l12']);
 
-    // The Lab collection should only show records that actually expose an instrument.
     list.querySelectorAll('.project-card').forEach(card => {
       if (!instrumentIds.has(card.id) || !card.querySelector('[data-instrument]')) {
         card.remove();
@@ -72,7 +71,7 @@
 
   function detectKind() {
     if (stage.querySelector('.earth-layout')) return 'earth';
-    if (stage.querySelector('.orbital-lab')) return 'orbit';
+    if (stage.querySelector('.orbital-lab, .orbit-v2')) return 'orbit';
     if (stage.querySelector('.flow-layout')) return 'flow';
     if (stage.querySelector('.pulse-layout')) return 'pulse';
     if (stage.querySelector('.world-layout')) return 'world';
@@ -109,10 +108,10 @@
   }
 
   function enhanceOrbit() {
-    const root = stage.querySelector('.orbital-lab');
+    const root = stage.querySelector('.orbital-lab, .orbit-v2');
     if (!root || root.dataset.shellEnhanced === '1') return;
     root.dataset.shellEnhanced = '1';
-    const panel = root.querySelector('.orbital-lab-panel');
+    const panel = root.querySelector('.orbital-lab-panel, .orbit-panel');
     buildDisclosure(panel, ':scope > p', 'READING NOTE', 'orbit-note');
   }
 
@@ -165,6 +164,37 @@
 
   const initialKind = new URLSearchParams(location.search).get('instrument');
   if (initialKind) setInstrumentIdentity(initialKind);
+
+  // Direct instrument URLs are a first-class route. Production optimizers defer
+  // the Lab runtime, so do not rely on one script happening to read the query at
+  // the right instant: wait for the module loader and open the requested field once.
+  if (initialKind && families[initialKind]) {
+    let attempts = 0;
+    let opening = false;
+    const openRequested = async () => {
+      if (dialog.open || opening) return true;
+      const modules = window.GeoModules;
+      if (!modules?.loadInstrument) return false;
+      opening = true;
+      try {
+        const instruments = await modules.loadInstrument(initialKind);
+        if (!dialog.open) await instruments?.openByKind?.(initialKind, { updateUrl: false });
+        return dialog.open;
+      } catch (error) {
+        console.warn(`[GeoGeek] Direct instrument ${initialKind} could not initialize yet.`, error);
+        return false;
+      } finally {
+        opening = false;
+      }
+    };
+    const retry = async () => {
+      if (dialog.open || attempts >= 120) return;
+      attempts += 1;
+      if (await openRequested()) return;
+      setTimeout(retry, 50);
+    };
+    queueMicrotask(retry);
+  }
 
   document.addEventListener('pointerdown', event => {
     const trigger = event.target.closest?.('[data-instrument]');
