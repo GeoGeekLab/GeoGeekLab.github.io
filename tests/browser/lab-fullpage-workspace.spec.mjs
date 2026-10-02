@@ -13,6 +13,7 @@ for (const [kind, fixture, railSelector] of instruments) {
   test(`${kind} uses the shared full-page Focus / Work / Inspect workspace`, async ({ page }) => {
     await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
     await page.waitForFunction(() => Boolean(document.querySelector('link[data-lab-fullpage]')?.sheet));
+    await page.waitForFunction(() => Boolean(document.querySelector('link[data-lab-close-control]')?.sheet));
 
     // Feed the same stage mutation used by the real Lab runtime. lab-page.js owns
     // instrument identity; the full-page layer observes that declared identity.
@@ -32,7 +33,15 @@ for (const [kind, fixture, railSelector] of instruments) {
 
     await expect(dialog).toHaveAttribute('data-workspace-mode', 'work');
     await expect(page.locator('.instrument-workspace-modes')).toBeVisible();
-    await expect(page.locator('#instrumentClose')).toContainText('LAB INDEX');
+
+    const close = page.locator('#instrumentClose');
+    await expect(close).toBeVisible();
+    await expect(close).toHaveText('×');
+    await expect(close).toHaveAttribute('data-lab-exit', 'true');
+    await expect(close).toHaveAttribute('aria-label', 'Return to Lab Index');
+    await expect(close).toHaveAttribute('title', 'Lab Index');
+    await close.focus();
+    await expect(close).toBeFocused();
 
     const viewport = page.viewportSize();
     const box = await dialog.boundingBox();
@@ -41,6 +50,16 @@ for (const [kind, fixture, railSelector] of instruments) {
     expect(Math.abs(box.y)).toBeLessThanOrEqual(1);
     expect(Math.abs(box.width - viewport.width)).toBeLessThanOrEqual(2);
     expect(Math.abs(box.height - viewport.height)).toBeLessThanOrEqual(2);
+
+    const closeBox = await close.boundingBox();
+    expect(closeBox).not.toBeNull();
+    expect(closeBox.width).toBeGreaterThanOrEqual(43);
+    expect(closeBox.width).toBeLessThanOrEqual(48);
+    expect(Math.abs(closeBox.width - closeBox.height)).toBeLessThanOrEqual(1);
+    expect(viewport.width - (closeBox.x + closeBox.width)).toBeLessThanOrEqual(40);
+    expect(closeBox.y).toBeLessThanOrEqual(36);
+    const closeRadius = await close.evaluate(node => parseFloat(getComputedStyle(node).borderTopLeftRadius));
+    expect(closeRadius).toBeGreaterThanOrEqual(20);
 
     const rail = page.locator(railSelector);
     await expect(rail).toBeVisible();
