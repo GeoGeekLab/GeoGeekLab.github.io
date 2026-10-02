@@ -24,6 +24,12 @@ jobs:
           node-version: 24
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Prime Orbit snapshot from live Pages
+        run: node scripts/prime-orbit-catalog-from-live.mjs
+      - name: Refresh Orbit snapshot for deploy
+        env:
+          ORBIT_ALLOW_STALE: '1'
+        run: node scripts/update-orbit-catalog.mjs
       - name: Prepare Lab raster
         run: |
           mkdir -p site/assets/lab
