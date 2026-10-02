@@ -147,7 +147,8 @@ test('Pulse stays lazy until the instrument is opened', async ({ page }) => {
   expect(pulseAssets.some(url => url.includes('pulse-observation-lab-v4.js'))).toBe(true);
   expect(pulseAssets.some(url => url.includes('pulse-observation-lab-v3.js'))).toBe(true);
   expect(pulseAssets.some(url => url.includes('pulse-observation-lab-v2.js'))).toBe(true);
-  expect(await page.evaluate(() => window.GeoPulseObservationLab?.version)).toBe('20261002d');
+  expect(await page.evaluate(() => window.GeoPulseObservationLab?.version)).toBe('20261002e');
+  expect(await page.evaluate(() => window.GeoGeekInstrumentMounts?.pulse === window.GeoPulseObservationLab?.mount)).toBe(true);
 });
 
 test('Pulse aborts a slow snapshot cleanly when closed before mount completes', async ({ page }) => {
@@ -189,8 +190,14 @@ test('Pulse detaches dense event DOM and coalesces rapid timeline scrubbing per 
 
   await page.locator('[data-pulse-representation="events"]').click();
   await expect(lab).toHaveAttribute('data-representation', 'events');
-  await expect(page.locator('.pulse-events .pulse-event')).toHaveCount(2400);
-  await page.locator('[data-pulse-representation="density"]').click();
+  await expect.poll(async () => (await page.evaluate(() => window.GeoPulseRound5Stats?.attachBatches || 0))).toBeGreaterThan(0);
+  await expect.poll(async () => (await page.evaluate(() => window.GeoPulseRound5Stats?.liveEventCount || 0))).toBeGreaterThan(0);
+
+  // Switch back while reattachment may still be in progress. The wrapper must
+  // cancel the remaining batches rather than forcing all 2,400 SVG groups live.
+  await page.evaluate(() => document.querySelector('[data-pulse-representation="density"]')?.click());
+  await expect(lab).toHaveAttribute('data-representation', 'density');
+  await expect.poll(async () => (await page.evaluate(() => window.GeoPulseRound5Stats?.liveEventCount ?? -1))).toBe(0);
   await expect(page.locator('.pulse-events .pulse-event')).toHaveCount(0);
 
   await page.evaluate(() => {
