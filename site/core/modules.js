@@ -188,15 +188,8 @@
     }
   }, true);
 
-  const requested = new URLSearchParams(location.search).get('instrument');
-  if (requested && document.getElementById('instrumentDialog')) {
-    loadInstrument(requested)
-      .then(async instruments => {
-        await instruments?.openByKind?.(requested, { updateUrl: false });
-        normalizeEarthAria(requested);
-      })
-      .catch(error => console.warn(`[GeoGeek] Requested instrument ${requested} failed to load.`, error));
-  }
+  // Direct ?instrument= activation is owned by lab-page.js. Keeping URL lifecycle
+  // in one place prevents duplicate openByKind calls and double instrument mounts.
 
   const homeCommonsMount = document.getElementById('homeCommonsMapMount');
   if (homeCommonsMount) {
@@ -205,7 +198,7 @@
     const buttons = [...document.querySelectorAll('[data-home-commons-horizon]')];
     const render = async () => {
       const commons = await loadCommons();
-      await commons?.mountPreview?.(homeCommonsMount, { variant:'home', horizon });
+      await commons?.mountPreview?.(homeCommonsMapMount, { variant:'home', horizon });
     };
     buttons.forEach(button => button.addEventListener('click', async () => {
       horizon = button.dataset.homeCommonsHorizon || '30d';
