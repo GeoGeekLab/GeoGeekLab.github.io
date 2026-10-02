@@ -7,6 +7,39 @@
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
   const DATA_SUPPLY_RUNTIME = 'core/data-supply.js?v=20261002c';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002d';
+  const PULSE_OBSERVATION_LAB = 'pulse-observation-lab.js?v=20261002a';
+
+  function alignPulseContract() {
+    const root = window.GEOGEEK_DATA?.en;
+    const item = root?.lab?.find(entry => entry.instrument === 'pulse');
+    if (item) Object.assign(item, {
+      status:'Instrument',
+      tags:['Seismicity', '24 h snapshot', 'USGS'],
+      description:'A rolling 24-hour earthquake field that keeps event time, solution revision, feed generation, and GeoGeek delivery time distinct.',
+      source:'USGS Earthquake Hazards Program · GeoGeek validated snapshot'
+    });
+    const lab = root?.ui?.lab;
+    if (lab?.conditions) lab.conditions.pulse = [
+      ['SOURCE', 'USGS Earthquake Hazards Program'],
+      ['DELIVERY', 'GeoGeek same-origin snapshot'],
+      ['TIME', 'Rolling past 24 h · event origin time'],
+      ['LIMIT', 'Solutions revise · completeness varies']
+    ];
+
+    const card = document.querySelector('#l10');
+    if (!card) return;
+    const meta = card.querySelectorAll('.project-meta span');
+    if (meta[0]) meta[0].textContent = 'Instrument';
+    if (meta[1]) meta[1].textContent = 'Seismicity · 24 h snapshot · USGS';
+    const copy = card.querySelector('.project-copy > p');
+    const coord = card.querySelector('.lab-coord');
+    const stamp = card.querySelector('.preview-stamp');
+    if (copy) copy.textContent = 'Read a rolling 24-hour seismic field with source time, snapshot freshness, and event revision kept explicit.';
+    if (coord) coord.textContent = 'lon / lat / depth / time';
+    if (stamp) stamp.textContent = 'USGS / SNAPSHOT / 24 H';
+  }
+
+  alignPulseContract();
 
   function cache(url, promise) {
     const guarded = promise.catch(error => {
@@ -72,12 +105,24 @@
     ).forEach(node => node.setAttribute('role', 'group'));
   }
 
+  function quarantineLegacyPulseMount() {
+    const mounts = window.GeoGeekInstrumentMounts;
+    if (!mounts || window.GeoPulseObservationLab) return;
+    mounts.pulse = ({ stage = document.getElementById('instrumentStage') } = {}) => {
+      if (stage) stage.innerHTML = '<div class="instrument-error"><strong>Pulse enhancement unavailable.</strong><p>The legacy browser-direct USGS/CDN path is disabled. GeoGeek will not bypass the unified data-supply contract.</p></div>';
+      return () => {};
+    };
+  }
+
   const gameKinds = new Set(['locate', 'zone', 'path']);
   async function loadInstrument(kind) {
     if (!window.GeoInstruments) {
       if (gameKinds.has(kind)) await loadScript('games.js');
       await loadScript('instruments.js?v=20260930c');
+      quarantineLegacyPulseMount();
       await loadScript('figure-instrument.js?v=20261001a');
+    } else {
+      quarantineLegacyPulseMount();
     }
     if (kind === 'orbit') {
       await loadModule(ORBIT_CATALOG_SOURCE);
@@ -89,6 +134,11 @@
       await loadModule(EARTH_OBSERVATION_LAB);
       if (!window.GeoEarthTemporalLab) throw new Error('Earth observation Lab failed to bind the unified data-supply contract.');
     }
+    if (kind === 'pulse' && !window.GeoPulseObservationLab) {
+      await loadModule(DATA_SUPPLY_RUNTIME);
+      await loadScript(PULSE_OBSERVATION_LAB);
+      if (!window.GeoPulseObservationLab) throw new Error('Pulse observation Lab failed to bind the unified data-supply contract.');
+    }
     if (kind === 'figure' && !window.GeoFigureWorkbench) await loadScript('figure-analysis-workbench.js?v=20261001c');
     if (kind === 'figure' && !window.GeoFigureViewerV2) await loadScript('figure-viewer-v2.js?v=20261001d');
     if (kind === 'figure' && !window.GeoFigureViewerV2Polish) await loadScript('figure-viewer-v2-polish.js?v=20261001e');
@@ -97,7 +147,14 @@
     return window.GeoInstruments;
   }
 
-  window.GeoModules = { loadScript, loadModule, loadMap, loadCommons, loadInstrument };
+  window.GeoModules = {
+    loadScript,
+    loadModule,
+    loadMap,
+    loadCommons,
+    loadInstrument,
+    normalizeInstrumentAria: normalizeEarthAria
+  };
 
   const mapToggle = document.getElementById('navToggle');
   mapToggle?.addEventListener('click', async event => {
@@ -123,6 +180,7 @@
       orbitEnhancementNeeded ||
       (kind === 'world' && !window.GeoProjectionLab) ||
       (kind === 'earth' && !window.GeoEarthTemporalLab) ||
+      (kind === 'pulse' && !window.GeoPulseObservationLab) ||
       (kind === 'flow' && (!window.GeoFlowLab || !window.GeoFlowLabPolish)) ||
       (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish));
     if (window.GeoInstruments && !enhancementNeeded) return;
@@ -137,15 +195,8 @@
     }
   }, true);
 
-  const requested = new URLSearchParams(location.search).get('instrument');
-  if (requested && document.getElementById('instrumentDialog')) {
-    loadInstrument(requested)
-      .then(async instruments => {
-        await instruments?.openByKind?.(requested, { updateUrl: false });
-        normalizeEarthAria(requested);
-      })
-      .catch(error => console.warn(`[GeoGeek] Requested instrument ${requested} failed to load.`, error));
-  }
+  // Direct ?instrument= activation is owned by lab-page.js. Keeping URL lifecycle
+  // in one place prevents duplicate openByKind calls and double instrument mounts.
 
   const homeCommonsMount = document.getElementById('homeCommonsMapMount');
   if (homeCommonsMount) {
@@ -154,7 +205,7 @@
     const buttons = [...document.querySelectorAll('[data-home-commons-horizon]')];
     const render = async () => {
       const commons = await loadCommons();
-      await commons?.mountPreview?.(homeCommonsMapMount, { variant:'home', horizon });
+      await commons?.mountPreview?.(homeCommonsMount, { variant:'home', horizon });
     };
     buttons.forEach(button => button.addEventListener('click', async () => {
       horizon = button.dataset.homeCommonsHorizon || '30d';
