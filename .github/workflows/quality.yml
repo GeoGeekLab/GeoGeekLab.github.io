@@ -64,7 +64,7 @@ jobs:
 
       - name: Verify production Lab previews
         run: |
-          for name in orbit earth flow pulse figure world locate zone path; do
+          for name in orbit earth flow pulse figure world locate zone path project; do
             test -s "site/assets/lab/previews/${name}.jpg"
           done
 
