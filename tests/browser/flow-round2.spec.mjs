@@ -56,8 +56,15 @@ test('Flow round two makes movement grammar, geography and inference boundaries 
   await expect(pacific).toBeVisible();
   const d = await pacific.getAttribute('d');
   expect((d?.match(/M/g) || []).length).toBeGreaterThan(1);
-  await expect(page.locator('#instrumentStage')).not.toContainText(/\bDEMO\b/i);
 
+  const time = page.locator('#flTripTime');
+  const before = Number(await time.inputValue());
+  await page.locator('#flTripPlay').click();
+  await expect.poll(async () => Number(await time.inputValue()), { timeout:2500 }).not.toBe(before);
+  await expect(pacific).toBeVisible();
+  await page.locator('#flTripPlay').click();
+
+  await expect(page.locator('#instrumentStage')).not.toContainText(/\bDEMO\b/i);
   await expect(page.locator('.flow-projection-readout')).toContainText('PLATE CARRÉE');
   await expect(page.locator('#instrumentStage')).not.toContainText('Windy');
 });
