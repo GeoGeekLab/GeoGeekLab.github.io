@@ -8,6 +8,10 @@
   const DATA_SUPPLY_RUNTIME = 'core/data-supply.js?v=20261002c';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002e';
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261002e';
+  const PLAY_CORE = 'play/play-core.js?v=20261002a';
+  const PLAY_SHELL = 'play/play-shell.js?v=20261002a';
+  const PLAY_TRACE = 'play/play-trace.js?v=20261002a';
+  const PLAY_ORIENT = 'play/orient/orient.js?v=20261002a';
 
   function alignPulseContract() {
     const root = window.GEOGEEK_DATA?.en;
@@ -121,16 +125,40 @@
     };
   }
 
-  const gameKinds = new Set(['locate', 'zone', 'path']);
+  const legacyGameKinds = new Set(['zone', 'path']);
+
+  async function loadOrientPlay() {
+    await loadScript(PLAY_CORE);
+    await loadScript(PLAY_SHELL);
+    await loadScript(PLAY_TRACE);
+    await loadScript(PLAY_ORIENT);
+    window.GeoPlayOrient?.register?.();
+  }
+
+  async function loadLegacyGame(kind) {
+    if (!legacyGameKinds.has(kind)) return;
+    if (!window.GeoGeekInstrumentMounts?.[kind]) await loadScript('games.js');
+    // games.js still registers the legacy locate mount; ORIENT wins whenever loaded.
+    window.GeoPlayOrient?.register?.();
+  }
+
   async function loadInstrument(kind) {
+    if (kind === 'locate') await loadOrientPlay();
+    if (legacyGameKinds.has(kind)) await loadLegacyGame(kind);
+
     if (!window.GeoInstruments) {
-      if (gameKinds.has(kind)) await loadScript('games.js');
       await loadScript('instruments.js?v=20260930c');
       quarantineLegacyPulseMount();
       await loadScript('figure-instrument.js?v=20261001a');
     } else {
       quarantineLegacyPulseMount();
     }
+
+    // Loading legacy games after instruments.js is supported for sessions that
+    // opened another instrument first. The registry is read at open time.
+    if (kind === 'locate' && !window.GeoGeekInstrumentMounts?.locate) await loadOrientPlay();
+    if (legacyGameKinds.has(kind) && !window.GeoGeekInstrumentMounts?.[kind]) await loadLegacyGame(kind);
+
     if (kind === 'orbit') {
       await loadModule(ORBIT_CATALOG_SOURCE);
       await loadModule(ORBIT_ENHANCEMENT);
@@ -183,8 +211,12 @@
     const orbitEnhancementNeeded = kind === 'orbit' && (
       !loaded.has(scriptUrl(ORBIT_CATALOG_SOURCE)) || !loaded.has(scriptUrl(ORBIT_ENHANCEMENT))
     );
+    const playEnhancementNeeded = kind === 'locate' && !window.GeoPlayOrient;
+    const legacyGameNeeded = legacyGameKinds.has(kind) && !window.GeoGeekInstrumentMounts?.[kind];
     const enhancementNeeded =
       orbitEnhancementNeeded ||
+      playEnhancementNeeded ||
+      legacyGameNeeded ||
       (kind === 'world' && !window.GeoProjectionLab) ||
       (kind === 'earth' && !window.GeoEarthTemporalLab) ||
       (kind === 'pulse' && !window.GeoPulseObservationLab) ||
