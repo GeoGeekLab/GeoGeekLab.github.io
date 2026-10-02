@@ -1,4 +1,4 @@
-const VERSION = '20261002b';
+const VERSION = '20261002c';
 
 await import(new URL('../flow-lab-round2.js?v=20261002a', import.meta.url).href);
 
@@ -20,24 +20,39 @@ function rewriteText(root) {
   }
 }
 
+const stage = document.getElementById('instrumentStage');
+let hadFlow = Boolean(stage?.querySelector('.flow-lab'));
+
 function normalizeFlowCopy() {
-  const root = document.querySelector('#instrumentStage .flow-lab');
+  const root = stage?.querySelector('.flow-lab');
   if (!root) return;
   rewriteText(root);
   const status = root.querySelector('#flStatus');
   if (status?.textContent.trim().toUpperCase() === 'DEMO') status.textContent = 'REFERENCE';
 }
 
-normalizeFlowCopy();
+function syncLifecycle() {
+  if (!stage) return;
+  const hasFlow = Boolean(stage.querySelector('.flow-lab'));
+  if (!hasFlow && hadFlow) {
+    stage._flowRound2Cleanup?.();
+    delete stage._flowRound2Cleanup;
+    delete stage.dataset.flowRound2;
+  }
+  hadFlow = hasFlow;
+  if (hasFlow) normalizeFlowCopy();
+}
+
+syncLifecycle();
 let frame = 0;
 const observer = new MutationObserver(() => {
   if (frame) return;
   frame = requestAnimationFrame(() => {
     frame = 0;
-    normalizeFlowCopy();
+    syncLifecycle();
   });
 });
-observer.observe(document.getElementById('instrumentStage') || document.documentElement, {
+observer.observe(stage || document.documentElement, {
   childList:true,
   subtree:true,
   characterData:true
@@ -45,6 +60,7 @@ observer.observe(document.getElementById('instrumentStage') || document.document
 
 window.addEventListener('pagehide', () => {
   observer.disconnect();
+  stage?._flowRound2Cleanup?.();
   if (frame) cancelAnimationFrame(frame);
 }, { once:true });
 
