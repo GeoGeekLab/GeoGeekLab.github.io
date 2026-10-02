@@ -43,6 +43,20 @@
   backdrop-filter:blur(10px);
 }
 .flow-lab[data-flow-round2="1"] .flow-hud strong{font-size:8.5px}
+.flow-lab[data-flow-round2="1"] .flow-tabs{
+  left:0;
+  top:42px;
+  padding:0;
+  border-left:0;
+  border-radius:0;
+  background:rgba(5,10,7,.80);
+  backdrop-filter:blur(9px);
+}
+.flow-lab[data-flow-round2="1"] .flow-tabs button{
+  min-width:70px;
+  height:40px;
+  border-radius:0;
+}
 .flow-lab[data-flow-round2="1"] .flow-hud button,
 .flow-lab[data-flow-round2="1"] .flow-zoom,
 .flow-lab[data-flow-round2="1"] .flow-zoom button,
@@ -121,7 +135,7 @@
   z-index:7;
   left:0;
   right:0;
-  top:42px;
+  top:82px;
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   border-top:0;
@@ -208,7 +222,7 @@
 .instrument-dialog[data-workspace-mode="focus"] .flow-lab[data-flow-round2="1"]{grid-template-columns:1fr}
 .instrument-dialog[data-workspace-mode="focus"] .flow-lab[data-flow-round2="1"] .flow-rail{display:none}
 .instrument-dialog[data-workspace-mode="focus"] .flow-lab[data-flow-round2="1"] .flow-map-shell{border-color:transparent}
-.flow-lab[data-flow-round2="1"] .flow-tabs button[aria-selected="true"]{background:rgba(209,99,57,.15);color:#f1efe7;box-shadow:inset 0 0 0 1px rgba(209,99,57,.35)}
+.flow-lab[data-flow-round2="1"] .flow-tabs button[aria-selected="true"]{background:rgba(209,99,57,.15);color:#f1efe7;box-shadow:inset 0 -2px rgba(209,99,57,.65)}
 
 @media(max-width:1000px){
   .flow-lab[data-flow-round2="1"]{grid-template-columns:1fr;grid-template-rows:minmax(520px,64vh) auto}
@@ -220,6 +234,8 @@
 @media(max-width:680px){
   .flow-lab[data-flow-round2="1"]{grid-template-rows:minmax(430px,60vh) auto}
   .flow-lab[data-flow-round2="1"] .flow-rail{grid-template-columns:1fr}
+  .flow-lab[data-flow-round2="1"] .flow-tabs{right:0;overflow:auto}
+  .flow-lab[data-flow-round2="1"] .flow-tabs button{min-width:25%;height:40px}
   .flow-grammar-strip{grid-template-columns:repeat(2,1fr)}
   .flow-grammar-strip div:nth-child(2){border-right:0}
   .flow-grammar-strip div:nth-child(-n+2){border-bottom:1px solid rgba(241,239,231,.07)}
