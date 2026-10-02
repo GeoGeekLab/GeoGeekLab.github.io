@@ -123,7 +123,8 @@ export function metadataFor(dataset, payload, response, validation, fetchedAt, c
   const common = {
     schemaVersion:DATA_SUPPLY_SCHEMA_VERSION,
     supplyId:dataset.id,
-    dataset:dataset.metadataDataset || dataset.dataset || dataset.id,
+    dataset:dataset.metadataDataset || dataset.id,
+    datasetLabel:dataset.dataset,
     provider:dataset.provider,
     format:dataset.format,
     source:sourceUrl,
