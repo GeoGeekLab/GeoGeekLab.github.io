@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "dataset": "celestrak-active-gp",
+  "format": "CCSDS OMM JSON",
+  "source": "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON",
+  "delivery": "GeoGeek same-origin snapshot",
+  "fetchedAt": "2026-10-02T00:31:39.798Z",
+  "sourceLastModified": null,
+  "recordCount": 16636,
+  "sha256": "3e5e407967cd9cb90ba999187c300aa37552e450c5f86c6632b7c1fbd9a669ef",
+  "epochs": {
+    "oldest": "2026-09-11T12:27:56.057Z",
+    "median": "2026-10-01T08:32:54.493Z",
+    "newest": "2026-10-02T03:42:59.671Z"
+  },
+  "refreshPolicy": {
+    "minimumHours": 2,
+    "officialRequestsPerRun": 1,
+    "retryOnHttpError": false,
+    "lastKnownGoodOnFailure": true
+  }
+}

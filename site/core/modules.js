@@ -3,6 +3,7 @@
 
   const loaded = new Map();
   const scriptUrl = src => new URL(src, document.baseURI).href;
+  const ORBIT_CATALOG_SOURCE = 'orbital/orbit-catalog-source.js?v=20261002a';
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
 
   function cache(url, promise) {
@@ -70,6 +71,7 @@
       await loadScript('figure-instrument.js?v=20261001a');
     }
     if (kind === 'orbit') {
+      await loadModule(ORBIT_CATALOG_SOURCE);
       await loadModule(ORBIT_ENHANCEMENT);
     }
     if (kind === 'world' && !window.GeoProjectionLab) {
@@ -112,7 +114,9 @@
     const button = event.target.closest?.('[data-instrument]');
     if (!button) return;
     const kind = button.dataset.instrument;
-    const orbitEnhancementNeeded = kind === 'orbit' && !loaded.has(scriptUrl(ORBIT_ENHANCEMENT));
+    const orbitEnhancementNeeded = kind === 'orbit' && (
+      !loaded.has(scriptUrl(ORBIT_CATALOG_SOURCE)) || !loaded.has(scriptUrl(ORBIT_ENHANCEMENT))
+    );
     const enhancementNeeded =
       orbitEnhancementNeeded ||
       (kind === 'world' && !window.GeoProjectionLab) ||
