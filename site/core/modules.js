@@ -3,6 +3,7 @@
 
   const loaded = new Map();
   const scriptUrl = src => new URL(src, document.baseURI).href;
+  const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
 
   function cache(url, promise) {
     const guarded = promise.catch(error => {
@@ -41,6 +42,12 @@
     return cache(url, promise);
   }
 
+  function loadModule(src) {
+    const url = scriptUrl(src);
+    if (loaded.has(url)) return loaded.get(url);
+    return cache(url, import(url));
+  }
+
   async function loadMap() {
     if (!window.GeoMap) await loadScript('map/site-map.js');
     return window.GeoMap;
@@ -59,9 +66,7 @@
     if (kind !== 'earth' || !root) return;
     root.querySelectorAll(
       '.earth-observation-lab div[aria-label]:not([role]), .earth-observation-lab footer[aria-label]:not([role])'
-    ).forEach(node => {
-      node.setAttribute('role', 'group');
-    });
+    ).forEach(node => node.setAttribute('role', 'group'));
   }
 
   const gameKinds = new Set(['locate', 'zone', 'path']);
@@ -71,25 +76,18 @@
       await loadScript('instruments.js?v=20260930c');
       await loadScript('figure-instrument.js?v=20261001a');
     }
-    if (kind === 'world' && !window.GeoProjectionLab) {
-      await loadScript('world-projection-lab.js?v=20261001a');
-    }
-    if (kind === 'earth' && !window.GeoEarthTemporalLab) {
-      await loadScript('earth-observation-lab.js?v=20261002b');
-    }
-    if (kind === 'figure' && !window.GeoFigureWorkbench) {
-      await loadScript('figure-analysis-workbench.js?v=20261001c');
-    }
-    if (kind === 'figure' && !window.GeoFigureViewerV2) {
-      await loadScript('figure-viewer-v2.js?v=20261001d');
-    }
-    if (kind === 'figure' && !window.GeoFigureViewerV2Polish) {
-      await loadScript('figure-viewer-v2-polish.js?v=20261001e');
-    }
+    if (kind === 'orbit') await loadModule(ORBIT_ENHANCEMENT);
+    if (kind === 'world' && !window.GeoProjectionLab) await loadScript('world-projection-lab.js?v=20261001a');
+    if (kind === 'earth' && !window.GeoEarthTemporalLab) await loadScript('earth-observation-lab.js?v=20261002b');
+    if (kind === 'figure' && !window.GeoFigureWorkbench) await loadScript('figure-analysis-workbench.js?v=20261001c');
+    if (kind === 'figure' && !window.GeoFigureViewerV2) await loadScript('figure-viewer-v2.js?v=20261001d');
+    if (kind === 'figure' && !window.GeoFigureViewerV2Polish) await loadScript('figure-viewer-v2-polish.js?v=20261001e');
+    if (kind === 'flow' && !window.GeoFlowLab) await loadScript('flow-lab.js?v=20261002a');
+    if (kind === 'flow' && !window.GeoFlowLabPolish) await loadScript('flow-lab-polish.js?v=20261002b');
     return window.GeoInstruments;
   }
 
-  window.GeoModules = { loadScript, loadMap, loadCommons, loadInstrument };
+  window.GeoModules = { loadScript, loadModule, loadMap, loadCommons, loadInstrument };
 
   const mapToggle = document.getElementById('navToggle');
   mapToggle?.addEventListener('click', async event => {
@@ -108,9 +106,12 @@
     const button = event.target.closest?.('[data-instrument]');
     if (!button) return;
     const kind = button.dataset.instrument;
+    const orbitEnhancementNeeded = kind === 'orbit' && !loaded.has(scriptUrl(ORBIT_ENHANCEMENT));
     const enhancementNeeded =
+      orbitEnhancementNeeded ||
       (kind === 'world' && !window.GeoProjectionLab) ||
       (kind === 'earth' && !window.GeoEarthTemporalLab) ||
+      (kind === 'flow' && (!window.GeoFlowLab || !window.GeoFlowLabPolish)) ||
       (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish));
     if (window.GeoInstruments && !enhancementNeeded) return;
     event.preventDefault();
