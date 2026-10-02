@@ -12,6 +12,7 @@ const instruments = [
 for (const [kind, fixture, railSelector] of instruments) {
   test(`${kind} uses the shared full-page Focus / Work / Inspect workspace`, async ({ page }) => {
     await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+    await page.waitForFunction(() => Boolean(document.querySelector('link[data-lab-fullpage]')?.sheet));
 
     await page.evaluate(({ kind, fixture }) => {
       const dialog = document.getElementById('instrumentDialog');
