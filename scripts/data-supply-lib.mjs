@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DATASETS, DATASET_BY_ID, snapshotDatasets } from '../site/data/supply-registry.js';
+import { DATA_SUPPLY_SCHEMA_VERSION, DATASETS, DATASET_BY_ID, snapshotDatasets } from '../site/data/supply-registry.js';
 
 export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export { DATASETS, DATASET_BY_ID, snapshotDatasets };
@@ -121,18 +121,21 @@ export function serializePayload(payload) {
 
 export function metadataFor(dataset, payload, response, validation, fetchedAt, contentHash, sourceUrl) {
   const common = {
-    schemaVersion:1,
+    schemaVersion:DATA_SUPPLY_SCHEMA_VERSION,
     supplyId:dataset.id,
-    dataset:dataset.metadataDataset || dataset.id,
+    dataset:dataset.metadataDataset || dataset.dataset || dataset.id,
     provider:dataset.provider,
-    format:dataset.id === 'orbit-active' ? 'CCSDS OMM JSON' : dataset.id === 'smithsonian-volcanoes' || dataset.id === 'emsc-events' ? 'GeoJSON' : 'JSON',
+    format:dataset.format,
     source:sourceUrl,
-    delivery:'GeoGeek same-origin snapshot',
+    delivery:dataset.delivery,
+    transport:dataset.transport,
+    scope:dataset.scope,
     fetchedAt,
     sourceLastModified:asIso(response?.headers?.get?.('last-modified')),
     recordCount:validation.recordCount,
     sha256:contentHash,
     timeSemantics:dataset.timeSemantics,
+    freshnessSemantics:dataset.freshnessSemantics,
     resolution:dataset.resolution,
     limit:dataset.limit,
     refreshPolicy:{
