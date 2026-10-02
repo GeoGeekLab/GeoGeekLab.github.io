@@ -13,7 +13,6 @@
 <title>Lab — GeoGeek</title>
 <link href="styles.css" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
-<link href="earth-lab-preview.css?v=20260930g" rel="stylesheet"/>
 <link href="lab-page.css?v=20260930a" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20260930g"></script>
 </head>
@@ -44,105 +43,6 @@
 <div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
 <main class="page-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
 <section class="page-title"><div><div class="eyebrow">FIELD / INSTRUMENT / LIMIT</div><h1>Lab</h1></div><p class="page-intro">Build tools that expose their scale, assumptions, and limits.</p></section>
-<section class="lab-principle earth-observatory-heading" aria-label="Earth Observatory">
-  <span>EARTH OBSERVATORY / PREVIEW</span>
-  <p><a href="earth/">50 sources across live, dated, and reference layers. Open the full instrument ↗</a></p>
-</section>
-
-<a class="earth-lab-preview" href="earth/" aria-label="Open the full Earth Observatory instrument">
-  <div class="earth-preview-screen" aria-hidden="true">
-    <header class="earth-preview-topbar">
-      <div class="earth-preview-brand"><i></i><span>GeoGeek / Lab</span></div>
-      <div class="earth-preview-title"><small>STATIC LAB PREVIEW</small><strong>EARTH OBSERVATORY</strong></div>
-      <div class="earth-preview-status"><span>LIVE + HISTORICAL DATA</span></div>
-    </header>
-
-    <div class="earth-preview-workspace">
-      <aside class="earth-preview-layers">
-        <div class="earth-preview-layers-head"><span>DATA SEMANTICS</span><b>50 SOURCES</b></div>
-        <div class="earth-preview-layer-group">
-          <span>TIME</span>
-          <b><i></i>LIVE / NOW</b>
-          <b><i></i>DATE-CONTROLLED</b>
-          <b><i></i>REFERENCE</b>
-        </div>
-        <div class="earth-preview-layer-group">
-          <span>FIELDS</span>
-          <b>ATMOSPHERE</b>
-          <b>HAZARDS</b>
-          <b>BIOSPHERE</b>
-          <b>ORBIT</b>
-        </div>
-      </aside>
-
-      <section class="earth-preview-map">
-        <div class="earth-preview-map-readout">GLOBAL · MULTI-SOURCE</div>
-        <div class="earth-preview-map-tag">SCHEMATIC / NOT LIVE</div>
-        <svg class="earth-preview-world" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid slice">
-          <g class="earth-preview-graticule">
-            <path d="M0 86H1000M0 173H1000M0 260H1000M0 347H1000M0 434H1000"/>
-            <path d="M125 0V520M250 0V520M375 0V520M500 0V520M625 0V520M750 0V520M875 0V520"/>
-          </g>
-          <g class="earth-preview-land">
-            <path d="M79 126C115 75 197 58 265 78c42 12 62 38 97 45 34 8 56 25 45 52-12 29-57 30-77 51-15 16-17 48-49 57-36 10-54-18-73-36-22-20-67-16-91-37-25-22-60-54-38-84Z"/>
-            <path d="M280 286c31-7 75 10 88 39 14 31-3 57-8 84-4 24 2 57-19 75-18 15-47-4-55-28-8-23 5-42-6-65-10-20-31-27-34-49-4-25 8-49 34-56Z"/>
-            <path d="M450 124c55-42 150-51 210-26 37 15 54 44 91 47 45 5 108-16 142 11 33 27 3 58-30 65-33 7-56 9-77 37-17 23-54 32-79 14-22-16-31-46-65-48-43-2-65 27-103 23-42-5-72-37-109-52-24-10-3-52 20-71Z"/>
-            <path d="M548 248c30-14 67 2 80 31 13 29 0 68-10 96-9 25-16 58-43 64-30 6-58-26-58-55 0-30 20-46 13-76-5-22-5-49 18-60Z"/>
-            <path d="M815 347c26-20 69-16 88 9 18 24 3 55-22 64-26 9-67 2-78-25-8-21-5-35 12-48Z"/>
-            <path d="M477 66c24-19 67-18 83-2 14 14 0 31-20 37-23 7-58 2-72-12-9-9-3-15 9-23Z"/>
-          </g>
-          <g class="earth-preview-currents">
-            <path d="M21 249C154 186 258 182 365 246s226 86 343 20 181-64 292-18"/>
-            <path d="M51 358c116-74 238-66 328-17s174 83 280 45 208-101 333-57"/>
-            <path d="M94 154c104 30 188 7 252-30 79-46 144-39 208 7 65 46 138 74 221 54 67-16 127-49 193-39"/>
-          </g>
-          <g class="earth-preview-orbits">
-            <ellipse cx="515" cy="264" rx="414" ry="119" transform="rotate(-12 515 264)"/>
-            <ellipse cx="499" cy="258" rx="319" ry="178" transform="rotate(19 499 258)"/>
-          </g>
-          <g class="earth-preview-points is-cities">
-            <circle cx="177" cy="163" r="3"/><circle cx="215" cy="205" r="2"/><circle cx="339" cy="337" r="2.5"/><circle cx="552" cy="153" r="3"/><circle cx="608" cy="176" r="2"/><circle cx="704" cy="179" r="3"/><circle cx="790" cy="211" r="2.5"/><circle cx="861" cy="377" r="2"/>
-          </g>
-          <g class="earth-preview-points is-fire">
-            <circle cx="301" cy="325" r="4"/><circle cx="330" cy="349" r="2.5"/><circle cx="565" cy="334" r="3.5"/><circle cx="612" cy="351" r="2.5"/><circle cx="775" cy="244" r="3.5"/><circle cx="842" cy="382" r="2.5"/>
-          </g>
-          <g class="earth-preview-event">
-            <circle cx="301" cy="325" r="14"/><circle cx="301" cy="325" r="25"/>
-          </g>
-        </svg>
-        <div class="earth-preview-legend"><span><i class="wind"></i>WIND</span><span><i class="fire"></i>FIRE</span><span><i class="quake"></i>EVENT</span><span><i class="orbit"></i>ORBIT</span></div>
-      </section>
-
-      <aside class="earth-preview-inspector">
-        <span class="earth-preview-inspector-kicker">EXAMPLE LAYER</span>
-        <strong>VIIRS ACTIVE FIRE</strong>
-        <p>One example of how the full instrument declares observation conditions.</p>
-        <dl>
-          <div><dt>SOURCE</dt><dd>NASA FIRMS</dd></div>
-          <div><dt>TIME</dt><dd>PROVIDER-CURRENT</dd></div>
-          <div><dt>RESOLUTION</dt><dd>375 m</dd></div>
-          <div><dt>LIMIT</dt><dd>HOTSPOT ≠ PERIMETER</dd></div>
-        </dl>
-      </aside>
-    </div>
-
-    <footer class="earth-preview-console">
-      <span>PREVIEW / STATIC</span>
-      <span>TIME / LAYER-SPECIFIC</span>
-      <span>OPEN FULL INSTRUMENT ↗</span>
-    </footer>
-  </div>
-
-  <div class="earth-preview-caption">
-    <div class="earth-preview-caption-head"><span>EARTH OBSERVATORY</span><span>WEB · CARTOGRAPHY · EARTH OBSERVATION</span></div>
-    <div class="earth-preview-caption-main">
-      <div><strong>50 sources, one field of view.</strong><p>The full instrument separates provider-current, date-controlled, and reference layers instead of treating every source as the same kind of “now.”</p></div>
-      <span class="earth-preview-open">OPEN INSTRUMENT <b>↗</b></span>
-    </div>
-    <div class="earth-preview-caption-foot"><span>SOURCE / TIME / RESOLUTION / LIMIT</span><span>LIVE + HISTORICAL</span></div>
-  </div>
-</a>
-
 <section class="lab-builds" aria-labelledby="labBuildsTitle">
   <div class="lab-builds-head">
     <span>WHAT I'M BUILDING</span>
