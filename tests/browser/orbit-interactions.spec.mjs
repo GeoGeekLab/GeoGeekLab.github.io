@@ -1,5 +1,37 @@
 import { test, expect } from '@playwright/test';
 
+const ORBIT_FIXTURE = [{
+  OBJECT_NAME: 'ORBIT INTERACTION FIXTURE',
+  OBJECT_ID: '1998-067A',
+  EPOCH: '2025-03-26T05:19:34.116960',
+  MEAN_MOTION: 15.00555103,
+  ECCENTRICITY: 0.000583,
+  INCLINATION: 98.3164,
+  RA_OF_ASC_NODE: 103.8411,
+  ARG_OF_PERICENTER: 20.5667,
+  MEAN_ANOMALY: 339.5789,
+  EPHEMERIS_TYPE: 0,
+  CLASSIFICATION_TYPE: 'U',
+  NORAD_CAT_ID: 25544,
+  ELEMENT_SET_NO: 999,
+  REV_AT_EPOCH: 8655,
+  BSTAR: 0.00048021,
+  MEAN_MOTION_DOT: 0.00005995,
+  MEAN_MOTION_DDOT: 0,
+}];
+
+async function stubOrbitCatalog(page) {
+  await page.route(/https:\/\/celestrak\.org\/NORAD\/elements\/gp\.php\?.*/, route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify(ORBIT_FIXTURE),
+  }));
+}
+
+test.beforeEach(async ({ page }) => {
+  await stubOrbitCatalog(page);
+});
+
 test('Orbit exposes advanced controls and forwards wheel zoom across the field', async ({ page }) => {
   await page.goto('/lab.html?instrument=orbit#l04', { waitUntil: 'domcontentloaded' });
 
@@ -39,5 +71,6 @@ test('Orbit deep links a selected catalog object and never presents a synthetic 
   await expect(page.locator('.orbit-v2')).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.orbit-enhancement-tools')).toBeVisible();
   await expect(page.locator('.instrument-status')).not.toContainText(/DEMO/i);
+  await expect(page.locator('#orbitNorad')).toContainText('25544', { timeout: 10000 });
   await expect(page.locator('.orbit-ground-relation-legend')).toContainText('GEOMETRIC HORIZON');
 });
