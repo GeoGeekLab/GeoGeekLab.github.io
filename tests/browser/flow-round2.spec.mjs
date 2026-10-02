@@ -34,6 +34,8 @@ test('Flow round two makes movement grammar, geography and inference boundaries 
   await expect(page.locator('.flow-active-summary')).toContainText('PLACE PAIRS');
   await expect(page.locator('.flow-active-summary')).toContainText('arc ≠ literal route');
   await expect(page).toHaveURL(/flowMode=od/);
+  await expect(page.locator('#flStatus')).toContainText('REFERENCE');
+  await expect(page.locator('#instrumentStage')).not.toContainText(/\bDEMO\b/i);
 
   const source = page.locator('[data-flow-section="source"]');
   await expect(source).toBeHidden();
@@ -54,6 +56,7 @@ test('Flow round two makes movement grammar, geography and inference boundaries 
   await expect(pacific).toBeVisible();
   const d = await pacific.getAttribute('d');
   expect((d?.match(/M/g) || []).length).toBeGreaterThan(1);
+  await expect(page.locator('#instrumentStage')).not.toContainText(/\bDEMO\b/i);
 
   await expect(page.locator('.flow-projection-readout')).toContainText('PLATE CARRÉE');
   await expect(page.locator('#instrumentStage')).not.toContainText('Windy');
