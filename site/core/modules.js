@@ -105,12 +105,24 @@
     ).forEach(node => node.setAttribute('role', 'group'));
   }
 
+  function quarantineLegacyPulseMount() {
+    const mounts = window.GeoGeekInstrumentMounts;
+    if (!mounts || window.GeoPulseObservationLab) return;
+    mounts.pulse = ({ stage = document.getElementById('instrumentStage') } = {}) => {
+      if (stage) stage.innerHTML = '<div class="instrument-error"><strong>Pulse enhancement unavailable.</strong><p>The legacy browser-direct USGS/CDN path is disabled. GeoGeek will not bypass the unified data-supply contract.</p></div>';
+      return () => {};
+    };
+  }
+
   const gameKinds = new Set(['locate', 'zone', 'path']);
   async function loadInstrument(kind) {
     if (!window.GeoInstruments) {
       if (gameKinds.has(kind)) await loadScript('games.js');
       await loadScript('instruments.js?v=20260930c');
+      quarantineLegacyPulseMount();
       await loadScript('figure-instrument.js?v=20261001a');
+    } else {
+      quarantineLegacyPulseMount();
     }
     if (kind === 'orbit') {
       await loadModule(ORBIT_CATALOG_SOURCE);
@@ -193,7 +205,7 @@
     const buttons = [...document.querySelectorAll('[data-home-commons-horizon]')];
     const render = async () => {
       const commons = await loadCommons();
-      await commons?.mountPreview?.(homeCommonsMapMount, { variant:'home', horizon });
+      await commons?.mountPreview?.(homeCommonsMount, { variant:'home', horizon });
     };
     buttons.forEach(button => button.addEventListener('click', async () => {
       horizon = button.dataset.homeCommonsHorizon || '30d';
@@ -221,7 +233,7 @@
         observer.disconnect();
         start();
       }, { rootMargin:'520px 0px' });
-      observer.observe(homeCommonsMapMount);
+      observer.observe(homeCommonsMount);
     } else start();
   }
 })();
