@@ -194,5 +194,4 @@
   geographicSpecimens();
   pulsePreview();
   orbitMotion();
-  import('./orbital/orbital-enhancements-v3.js?v=20261002b').catch(() => {});
 })();
