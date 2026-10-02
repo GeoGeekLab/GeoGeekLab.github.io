@@ -20,7 +20,8 @@
   const REFINEMENTS = {
     orbit:'orbital/orbit-round2.js?v=20261002a',
     earth:'earth-observation-v3/earth-round2.js?v=20261002a',
-    flow:'flow/flow-round2.js?v=20261002d'
+    flow:'flow/flow-round2.js?v=20261002d',
+    pulse:'pulse/pulse-round6.js?v=20261002a'
   };
   const refinementLoads = new Map();
   let activeKind = '';
