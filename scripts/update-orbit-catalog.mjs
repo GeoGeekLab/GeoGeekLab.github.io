@@ -9,7 +9,7 @@ const outDir = path.join(root, 'site', 'orbital', 'data');
 const dataPath = path.join(outDir, 'active.json');
 const metaPath = path.join(outDir, 'active.meta.json');
 const sourceUrl = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON';
-const minimumIntervalMs = 2 * 60 * 60 * 1000 + 5 * 60 * 1000;
+const minimumIntervalMs = 2 * 60 * 60 * 1000;
 const staleFailureMs = 8 * 60 * 60 * 1000;
 const minimumRecords = 5000;
 
@@ -144,7 +144,7 @@ async function handleFetchFailure(reason, previousMeta) {
   if (!hasSnapshot) throw new Error(`Orbit catalog refresh failed with no last-known-good snapshot: ${reason}`);
   const age = Date.now() - Date.parse(String(previousMeta.fetchedAt));
   console.warn(`Orbit catalog refresh failed; keeping last-known-good snapshot from ${previousMeta.fetchedAt}. ${reason}`);
-  if (!Number.isFinite(age) || age >= staleFailureMs) {
+  if ((!Number.isFinite(age) || age >= staleFailureMs) && process.env.ORBIT_ALLOW_STALE !== '1') {
     throw new Error(`Last-known-good Orbit snapshot is stale (${Math.round(age / 3600000)} h). ${reason}`);
   }
 }
