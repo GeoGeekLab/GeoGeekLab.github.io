@@ -55,6 +55,13 @@
     return window.GeoCommons;
   }
 
+  function normalizeInstrumentAria(root = document.getElementById('instrumentStage')) {
+    if (!root) return;
+    root.querySelectorAll('div[aria-label]:not([role]), footer[aria-label]:not([role])').forEach(node => {
+      node.setAttribute('role', 'group');
+    });
+  }
+
   const gameKinds = new Set(['locate', 'zone', 'path']);
   async function loadInstrument(kind) {
     if (!window.GeoInstruments) {
@@ -108,7 +115,8 @@
     event.stopImmediatePropagation();
     try {
       const instruments = await loadInstrument(kind);
-      instruments?.openByKind?.(kind, { updateUrl: true });
+      await instruments?.openByKind?.(kind, { updateUrl: true });
+      normalizeInstrumentAria();
     } catch (error) {
       console.warn(`[GeoGeek] Instrument ${kind} failed to load; retry is available.`, error);
     }
@@ -117,7 +125,10 @@
   const requested = new URLSearchParams(location.search).get('instrument');
   if (requested && document.getElementById('instrumentDialog')) {
     loadInstrument(requested)
-      .then(instruments => instruments?.openByKind?.(requested, { updateUrl: false }))
+      .then(async instruments => {
+        await instruments?.openByKind?.(requested, { updateUrl: false });
+        normalizeInstrumentAria();
+      })
       .catch(error => console.warn(`[GeoGeek] Requested instrument ${requested} failed to load.`, error));
   }
 
