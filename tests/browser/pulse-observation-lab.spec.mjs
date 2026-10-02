@@ -94,26 +94,37 @@ async function installPulseSupplyFixtures(page, { count = 205, stale = false } =
     sha256:'browser-reference-sha'
   };
 
+  let snapshotHits = 0;
+  let referenceHits = 0;
   await page.route('**/data/snapshots/usgs-earthquakes-day.meta.json', route => route.fulfill({
     status:200, contentType:'application/json', body:JSON.stringify(quakeMeta)
   }));
-  await page.route('**/data/snapshots/usgs-earthquakes-day.geojson', route => route.fulfill({
-    status:200, contentType:'application/geo+json', body:JSON.stringify(quakes)
-  }));
+  await page.route('**/data/snapshots/usgs-earthquakes-day.geojson', route => {
+    snapshotHits += 1;
+    return route.fulfill({ status:200, contentType:'application/geo+json', body:JSON.stringify(quakes) });
+  });
   await page.route('**/data/reference/natural-earth-land-110m.meta.json', route => route.fulfill({
     status:200, contentType:'application/json', body:JSON.stringify(landMeta)
   }));
-  await page.route('**/data/reference/natural-earth-land-110m.geojson', route => route.fulfill({
-    status:200, contentType:'application/geo+json', body:JSON.stringify(land)
-  }));
+  await page.route('**/data/reference/natural-earth-land-110m.geojson', route => {
+    referenceHits += 1;
+    return route.fulfill({ status:200, contentType:'application/geo+json', body:JSON.stringify(land) });
+  });
 
-  let providerHits = 0;
-  await page.route('https://earthquake.usgs.gov/**', route => { providerHits += 1; return route.abort(); });
-  await page.route('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/**', route => { providerHits += 1; return route.abort(); });
-  await page.route('https://cdn.jsdelivr.net/npm/topojson-client@**', route => { providerHits += 1; return route.abort(); });
-  await page.route('https://cdn.jsdelivr.net/npm/world-atlas@**', route => { providerHits += 1; return route.abort(); });
+  // Provider URLs are logical dataset request identifiers. Keep every external
+  // transport hard-aborted; successful rendering must therefore come from the
+  // explicit same-origin snapshot/reference routes above.
+  await page.route('https://earthquake.usgs.gov/**', route => route.abort());
+  await page.route('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/**', route => route.abort());
+  await page.route('https://cdn.jsdelivr.net/npm/topojson-client@**', route => route.abort());
+  await page.route('https://cdn.jsdelivr.net/npm/world-atlas@**', route => route.abort());
 
-  return { providerHits:() => providerHits, generated, features };
+  return {
+    snapshotHits:() => snapshotHits,
+    referenceHits:() => referenceHits,
+    generated,
+    features
+  };
 }
 
 test('Pulse consumes unified snapshot/reference supply and preserves seismic field semantics', async ({ page }) => {
@@ -146,7 +157,8 @@ test('Pulse consumes unified snapshot/reference supply and preserves seismic fie
   expect(contract.referenceTransport).toBe('same-origin-reference');
   expect(contract.referenceFreshness).toBe('VERSION-PINNED');
   expect(contract.projection).toBe('equirectangular-2:1');
-  expect(fixtures.providerHits()).toBe(0);
+  expect(fixtures.snapshotHits()).toBeGreaterThan(0);
+  expect(fixtures.referenceHits()).toBeGreaterThan(0);
 
   await expect.poll(async () => {
     const box = await page.locator('.pulse-map-frame').boundingBox();
@@ -179,7 +191,8 @@ test('Pulse consumes unified snapshot/reference supply and preserves seismic fie
   await expect(page.locator('.pulse-encoding')).toContainText('false southward stem');
 
   await expectNoSeriousAxeViolations(page);
-  expect(fixtures.providerHits()).toBe(0);
+  expect(fixtures.snapshotHits()).toBeGreaterThan(0);
+  expect(fixtures.referenceHits()).toBeGreaterThan(0);
 });
 
 test('Pulse keeps stale last-known-good visible and labels it stale without provider fallback', async ({ page }) => {
@@ -189,5 +202,6 @@ test('Pulse keeps stale last-known-good visible and labels it stale without prov
   await expect(page.locator('.instrument-status')).toContainText('STALE SNAPSHOT');
   await expect(page.locator('.pulse-provenance')).toContainText('STALE SNAPSHOT');
   await expect(page.locator('.pulse-event')).toHaveCount(32);
-  expect(fixtures.providerHits()).toBe(0);
+  expect(fixtures.snapshotHits()).toBeGreaterThan(0);
+  expect(fixtures.referenceHits()).toBeGreaterThan(0);
 });
