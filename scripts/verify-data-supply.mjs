@@ -4,6 +4,7 @@ import { DATASETS, snapshotDatasets, referenceDatasets, verifyDatasetFiles, veri
 const ids = new Set();
 const modes = new Set(['snapshot','hybrid','query','tile','reference']);
 const requireReferences = process.env.DATA_SUPPLY_REQUIRE_REFERENCES === '1';
+const requireLastKnownGood = process.env.DATA_SUPPLY_REQUIRE_LAST_KNOWN_GOOD === '1';
 for (const dataset of DATASETS) {
   if (!dataset.id || ids.has(dataset.id)) throw new Error(`Duplicate or missing data-supply id: ${dataset.id || '(empty)'}.`);
   ids.add(dataset.id);
@@ -14,8 +15,8 @@ for (const dataset of DATASETS) {
 }
 
 for (const dataset of snapshotDatasets()) {
-  const allowMissing = dataset.id !== 'orbit-active';
-  const result = await verifyDatasetFiles(dataset, { allowMissing });
+  const required = dataset.id === 'orbit-active' || (requireLastKnownGood && dataset.fallback === 'last-known-good');
+  const result = await verifyDatasetFiles(dataset, { allowMissing:!required });
   if (result.missing) console.warn(`${dataset.id}: no seeded snapshot in this checkout; runtime remains unavailable until deployment publishes a validated snapshot.`);
   else console.log(`${dataset.id}: ${result.validation.recordCount.toLocaleString()} records · ${result.hash.slice(0,12)} · ${result.meta.fetchedAt}`);
 }
