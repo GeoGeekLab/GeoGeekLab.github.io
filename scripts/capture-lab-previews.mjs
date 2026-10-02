@@ -69,6 +69,15 @@ async function captureInstrument(kind) {
       }, null, { timeout: 25000 }).catch(() => {});
     }
 
+    if (kind === 'flow') {
+      await page.waitForFunction(() => {
+        const lab = document.querySelector('#instrumentStage .flow-lab');
+        return !!lab && !!window.GeoFlowLab && !!window.GeoFlowLabPolish && window.GeoGeekInstrumentMounts?.flow === window.GeoFlowLab.mount;
+      }, null, { timeout: 25000 });
+      const tabs = await page.locator('#instrumentStage .flow-tabs [data-mode]').count();
+      if (tabs !== 4) throw new Error(`flow: expected four representation modes, found ${tabs}`);
+    }
+
     const settle = kind === 'flow' || kind === 'orbit' ? 6500 : 2800;
     await page.waitForTimeout(settle);
 
