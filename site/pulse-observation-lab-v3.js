@@ -146,6 +146,7 @@
         control.removeEventListener('click', sync);
       });
       dialog?.removeEventListener('close', closeHandler);
+      clearOwnState();
     };
   }
 
