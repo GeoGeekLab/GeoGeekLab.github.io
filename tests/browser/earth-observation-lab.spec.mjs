@@ -85,7 +85,7 @@ test('Earth temporal lab uses unified viewport WMS provenance, navigation and sw
   expect(frameBox.width / frameBox.height).toBeLessThan(2.02);
 
   const initialWms = new URL(requestUrls.find(url => url.includes('REQUEST=GetMap') || url.includes('request=GetMap')) || requestUrls.at(-1));
-  expect(initialWms.searchParams.get('bbox')).toBe('-180.000000,-90.000000,180.000000,90.000000');
+  expect(initialWms.searchParams.get('bbox').split(',').map(Number)).toEqual([-180, -90, 180, 90]);
 
   const beforeZoom = gibsRequests;
   await page.locator('#eoZoomIn').click();
@@ -105,9 +105,9 @@ test('Earth temporal lab uses unified viewport WMS provenance, navigation and sw
   expect(zoomState.scope).toContain('VIEWPORT');
 
   // Isolate the wheel gesture from the request that committed the previous
-  // button zoom. The assertion below verifies both halves of the contract:
-  // no provider request during the gesture, then one coalesced viewport
-  // refresh after the wheel stream has been quiet long enough.
+  // button zoom. Dispatch one deterministic burst inside the browser so this
+  // verifies application debounce semantics rather than Playwright command
+  // scheduling latency between individual wheel calls.
   await expect.poll(() => page.evaluate(() => window.GeoDataSupply.describe('nasa-gibs').request?.status)).toBe('available');
   const settledBeforeWheel = gibsRequests;
   await page.waitForTimeout(90);
@@ -115,11 +115,18 @@ test('Earth temporal lab uses unified viewport WMS provenance, navigation and sw
 
   const beforeWheel = gibsRequests;
   const frame = page.locator('#eoFrame');
-  const frameRect = await frame.boundingBox();
-  for (let i = 0; i < 5; i += 1) {
-    await page.mouse.move(frameRect.x + frameRect.width * .62, frameRect.y + frameRect.height * .45);
-    await page.mouse.wheel(0, -80);
-  }
+  await frame.evaluate(node => {
+    const rect = node.getBoundingClientRect();
+    const init = {
+      bubbles:true,
+      cancelable:true,
+      deltaY:-80,
+      deltaMode:0,
+      clientX:rect.left + rect.width * .62,
+      clientY:rect.top + rect.height * .45
+    };
+    for (let i = 0; i < 5; i += 1) node.dispatchEvent(new WheelEvent('wheel', init));
+  });
   await page.waitForTimeout(80);
   expect(gibsRequests - beforeWheel).toBe(0);
   await page.waitForTimeout(360);
