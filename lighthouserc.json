@@ -8,8 +8,7 @@
         "http://127.0.0.1:4173/field-notes.html",
         "http://127.0.0.1:4173/lab.html",
         "http://127.0.0.1:4173/atlas.html",
-        "http://127.0.0.1:4173/elsewhere.html",
-        "http://127.0.0.1:4173/earth/"
+        "http://127.0.0.1:4173/elsewhere.html"
       ],
       "numberOfRuns": 2,
       "settings": {
