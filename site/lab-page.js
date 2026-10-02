@@ -13,6 +13,12 @@
   ensureStyle('lab-transform.css?v=20261001a', 'lab-transform');
   ensureStyle('lab-map-field.css?v=20261001a', 'lab-map-field');
 
+  // Lab status vocabulary describes source condition, not a product mode.
+  // Any older fallback path that still requests the synthetic status is exposed
+  // to visitors as unavailable instead of presenting a misleading mode label.
+  const labStatus = window.GEOGEEK_DATA?.en?.ui?.lab?.status;
+  if (labStatus) labStatus.demo = 'UNAVAILABLE';
+
   const list = document.querySelector('#labList');
   const dialog = document.querySelector('#instrumentDialog');
   const stage = document.querySelector('#instrumentStage');
@@ -165,9 +171,6 @@
   const initialKind = new URLSearchParams(location.search).get('instrument');
   if (initialKind) setInstrumentIdentity(initialKind);
 
-  // Direct instrument URLs are a first-class route. Production optimizers defer
-  // the Lab runtime, so do not rely on one script happening to read the query at
-  // the right instant: wait for the module loader and open the requested field once.
   if (initialKind && families[initialKind]) {
     let attempts = 0;
     let opening = false;
