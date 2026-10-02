@@ -34,9 +34,14 @@ jobs:
         run: |
           fingerprint=$(node scripts/data-supply-fingerprint.mjs)
           echo "fingerprint=$fingerprint" >> "$GITHUB_OUTPUT"
+      - name: Materialize pinned reference supply
+        run: node scripts/prepare-data-references.mjs
       - name: Refresh upstream snapshots
         run: node scripts/update-data-supply.mjs
       - name: Verify refreshed data supply
+        env:
+          DATA_SUPPLY_REQUIRE_REFERENCES: '1'
+          DATA_SUPPLY_REQUIRE_LAST_KNOWN_GOOD: '1'
         run: node scripts/verify-data-supply.mjs
       - name: Detect supply change
         id: delta

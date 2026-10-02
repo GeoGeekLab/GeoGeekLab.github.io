@@ -189,6 +189,51 @@ export const DATASETS = Object.freeze([
     limit: 'Predicted position quality degrades as orbital elements age; this is not authoritative space-surveillance data.'
   },
   {
+    id: 'usgs-earthquakes-day',
+    instrument: 'pulse',
+    adapter: 'pulseQuakes',
+    provider: 'USGS Earthquake Hazards Program',
+    dataset: 'Earthquake GeoJSON Summary Feed · all earthquakes / past day',
+    label: 'All earthquakes · past day',
+    mode: 'snapshot',
+    delivery: 'GeoGeek same-origin snapshot',
+    transport: 'HTTPS GeoJSON feed → scheduled refresh → Pages snapshot',
+    format: 'GeoJSON',
+    scope: 'Global rolling past-24-hour event catalogue shared by all visitors',
+    upstream: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',
+    snapshot: 'data/snapshots/usgs-earthquakes-day.geojson',
+    metadata: 'data/snapshots/usgs-earthquakes-day.meta.json',
+    refreshEveryMs: HOUR,
+    staleAfterMs: 3 * HOUR,
+    fallback: 'last-known-good',
+    freshnessSemantics: 'GeoGeek freshness is snapshot age from fetchedAt. USGS feed generation time and each event revision time remain distinct metadata.',
+    timeSemantics: 'Rolling past-24-hour event catalogue. Event origin time, event revision time, provider feed generation time and GeoGeek snapshot fetch time are distinct.',
+    resolution: 'Earthquake event solution',
+    limit: 'Hypocenter and magnitude solutions can be revised; global detection completeness varies spatially and by magnitude.'
+  },
+  {
+    id: 'natural-earth-land-110m',
+    instrument: 'shared',
+    adapter: 'naturalEarth110m',
+    provider: 'Natural Earth',
+    dataset: 'Natural Earth 1:110m land geometry',
+    label: 'Land · 1:110m reference geometry',
+    mode: 'reference',
+    delivery: 'GeoGeek same-origin reference',
+    transport: 'Pinned upstream GeoJSON revision → validated Pages reference asset',
+    format: 'GeoJSON',
+    scope: 'Global version-pinned 1:110m land reference geometry',
+    upstream: 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e/110m/physical/ne_110m_land.json',
+    reference: 'data/reference/natural-earth-land-110m.geojson',
+    metadata: 'data/reference/natural-earth-land-110m.meta.json',
+    version: 'Data current 2024-01-24 · pinned GeoJSON revision 0b9a6ceb0a70',
+    fallback: 'unavailable',
+    freshnessSemantics: 'Version-pinned reference; snapshot-age freshness does not apply. Currency is identified by the declared data date and pinned source revision.',
+    timeSemantics: 'Version-pinned cartographic reference geometry; independent of observation date and browser read time.',
+    resolution: 'Natural Earth small scale · 1:110m',
+    limit: 'Generalized small-scale land geometry; not a legal boundary authority and not suitable for local measurement.'
+  },
+  {
     id: 'noaa-aurora',
     instrument: 'earth',
     adapter: 'aurora',
@@ -373,4 +418,8 @@ export function siteAssetUrl(path, base = import.meta.url) {
 
 export function snapshotDatasets() {
   return DATASETS.filter(dataset => dataset.snapshot && dataset.metadata);
+}
+
+export function referenceDatasets() {
+  return DATASETS.filter(dataset => dataset.mode === 'reference' && dataset.reference && dataset.metadata);
 }

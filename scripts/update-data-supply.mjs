@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { snapshotDatasets, readJson, pathsFor, sourceUrlFor, validatePayload, serializePayload, sha256, metadataFor, atomicWrite, exists } from './data-supply-lib.mjs';
+import { DATA_SUPPLY_SCHEMA_VERSION, snapshotDatasets, readJson, pathsFor, sourceUrlFor, validatePayload, serializePayload, sha256, metadataFor, atomicWrite, exists } from './data-supply-lib.mjs';
 
 const only = new Set(String(process.env.DATA_SUPPLY_ONLY || '').split(',').map(s => s.trim()).filter(Boolean));
 const force = process.env.DATA_SUPPLY_FORCE === '1';
@@ -7,13 +7,35 @@ const strict = process.env.DATA_SUPPLY_STRICT === '1';
 const allowStale = process.env.DATA_SUPPLY_ALLOW_STALE === '1';
 const datasets = snapshotDatasets().filter(dataset => !only.size || only.has(dataset.id));
 
+function metadataContractMatches(dataset, meta) {
+  if (!meta) return false;
+  const expectedDataset = dataset.metadataDataset || dataset.id;
+  return meta.schemaVersion === DATA_SUPPLY_SCHEMA_VERSION
+    && meta.supplyId === dataset.id
+    && meta.dataset === expectedDataset
+    && meta.datasetLabel === dataset.dataset
+    && meta.provider === dataset.provider
+    && meta.format === dataset.format
+    && meta.delivery === dataset.delivery
+    && meta.transport === dataset.transport
+    && meta.scope === dataset.scope
+    && meta.timeSemantics === dataset.timeSemantics
+    && meta.freshnessSemantics === dataset.freshnessSemantics
+    && meta.resolution === dataset.resolution
+    && meta.limit === dataset.limit
+    && Number(meta.refreshPolicy?.minimumMs) === Number(dataset.refreshEveryMs)
+    && Number(meta.refreshPolicy?.staleAfterMs) === Number(dataset.staleAfterMs)
+    && Boolean(meta.refreshPolicy?.lastKnownGoodOnFailure) === (dataset.fallback === 'last-known-good');
+}
+
 async function handleFailure(dataset, reason, previousMeta) {
   const { dataPath } = pathsFor(dataset);
   const hasSnapshot = await exists(dataPath) && previousMeta?.fetchedAt;
   if (!hasSnapshot) {
     const message = `${dataset.id} refresh failed with no last-known-good snapshot: ${reason}`;
     if (strict || dataset.id === 'orbit-active') throw new Error(message);
-    console.warn(`${message}. Runtime will use the declared provider fallback.`);
+    if (dataset.fallback === 'last-known-good') console.warn(`${message}. Dataset remains unavailable until a validated snapshot can be published.`);
+    else console.warn(`${message}. Runtime will use the declared provider fallback.`);
     return;
   }
   const age = Date.now() - Date.parse(String(previousMeta.fetchedAt));
@@ -25,7 +47,8 @@ for (const dataset of datasets) {
   const { dataPath, metaPath } = pathsFor(dataset);
   const previousMeta = await readJson(metaPath);
   const previousFetchedAt = Date.parse(String(previousMeta?.fetchedAt || ''));
-  if (!force && Number.isFinite(previousFetchedAt) && Date.now() - previousFetchedAt < dataset.refreshEveryMs) {
+  const contractCurrent = metadataContractMatches(dataset, previousMeta);
+  if (!force && contractCurrent && Number.isFinite(previousFetchedAt) && Date.now() - previousFetchedAt < dataset.refreshEveryMs) {
     console.log(`${dataset.id} refresh skipped: ${previousMeta.fetchedAt}.`);
     continue;
   }
@@ -57,13 +80,20 @@ for (const dataset of datasets) {
 
   const content = serializePayload(payload);
   const contentHash = sha256(content);
-  const fetchedAt = new Date().toISOString();
-  const meta = metadataFor(dataset, payload, response, validation, fetchedAt, contentHash, sourceUrl);
   if (previousMeta?.sha256 === contentHash) {
-    await atomicWrite(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
-    console.log(`${dataset.id} confirmed unchanged · ${validation.recordCount.toLocaleString()} records · refreshed ${fetchedAt}.`);
+    if (!contractCurrent) {
+      const publishedAt = previousMeta?.fetchedAt || new Date().toISOString();
+      const meta = metadataFor(dataset, payload, response, validation, publishedAt, contentHash, sourceUrl);
+      await atomicWrite(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
+      console.log(`${dataset.id} payload unchanged · metadata contract upgraded to schema ${DATA_SUPPLY_SCHEMA_VERSION} · published ${publishedAt}.`);
+    } else {
+      console.log(`${dataset.id} confirmed unchanged · ${validation.recordCount.toLocaleString()} records · published ${previousMeta.fetchedAt}.`);
+    }
     continue;
   }
+
+  const fetchedAt = new Date().toISOString();
+  const meta = metadataFor(dataset, payload, response, validation, fetchedAt, contentHash, sourceUrl);
   await atomicWrite(dataPath, content);
   await atomicWrite(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
   console.log(`${dataset.id} updated · ${validation.recordCount.toLocaleString()} records · ${contentHash.slice(0,12)} · ${fetchedAt}`);

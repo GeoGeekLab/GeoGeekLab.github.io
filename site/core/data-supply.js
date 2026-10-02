@@ -26,6 +26,11 @@ function normalizeUrl(input) {
   } catch { return null; }
 }
 
+function sameUrl(a, b) {
+  try { return new URL(a).href === new URL(b).href; }
+  catch { return false; }
+}
+
 function isTodayWindow(url) {
   const start = url.searchParams.get('starttime');
   const end = url.searchParams.get('endtime');
@@ -41,12 +46,18 @@ function isTodayWindow(url) {
 
 function matchDataset(url) {
   if (!url) return null;
+
+  // Version-pinned references are exact products, not provider families.
+  const reference = DATASETS.find(dataset => dataset.mode === 'reference' && sameUrl(url.href, dataset.upstream));
+  if (reference) return reference;
+
   const host = url.hostname.toLowerCase();
   const path = url.pathname.toLowerCase();
 
   if (host === 'celestrak.org' && path === '/norad/elements/gp.php'
     && String(url.searchParams.get('GROUP') || '').toLowerCase() === 'active'
     && String(url.searchParams.get('FORMAT') || '').toLowerCase() === 'json') return DATASET_BY_ID.get('orbit-active');
+  if (host === 'earthquake.usgs.gov' && path === '/earthquakes/feed/v1.0/summary/all_day.geojson') return DATASET_BY_ID.get('usgs-earthquakes-day');
   if (host === 'services.swpc.noaa.gov' && path === '/json/ovation_aurora_latest.json') return DATASET_BY_ID.get('noaa-aurora');
   if (host === 'webservices.volcano.si.edu' && /\/geoserver\/gvp-votw\/ows$/i.test(url.pathname)) return DATASET_BY_ID.get('smithsonian-volcanoes');
   if (host === 'www.seismicportal.eu' && path === '/fdsnws/event/1/query') return DATASET_BY_ID.get('emsc-events');
@@ -83,7 +94,12 @@ async function metadata(id, { refresh = false } = {}) {
   }).then(async response => {
     if (!response.ok) throw new Error(`metadata HTTP ${response.status}`);
     const value = await response.json();
-    if (!value?.fetchedAt || !value?.sha256 || !Number.isFinite(Date.parse(String(value.fetchedAt)))) throw new Error('metadata is missing a valid fetchedAt/sha256');
+    if (!value?.sha256) throw new Error('metadata is missing sha256');
+    if (dataset.mode === 'reference') {
+      if (!value?.version || !value?.source) throw new Error('reference metadata is missing version/source');
+    } else if (!value?.fetchedAt || !Number.isFinite(Date.parse(String(value.fetchedAt)))) {
+      throw new Error('metadata is missing a valid fetchedAt');
+    }
     if (dataset.metadataDataset && value.dataset !== dataset.metadataDataset && value.supplyId !== dataset.id) {
       throw new Error(`metadata dataset mismatch: ${value.dataset || 'unknown'}`);
     }
@@ -115,18 +131,26 @@ function snapshotEligible(dataset, url, meta) {
   return !Number.isFinite(dataset.staleAfterMs) || age <= dataset.staleAfterMs;
 }
 
-async function snapshotResponse(dataset, init = {}) {
+async function sameOriginResponse(path, init = {}) {
   const headers = new Headers(init?.headers || {});
   if (!headers.has('Accept')) headers.set('Accept', 'application/json');
-  const response = await nativeFetch(siteAssetUrl(dataset.snapshot), {
+  const response = await nativeFetch(siteAssetUrl(path), {
     ...init,
     mode: 'same-origin',
     credentials: 'same-origin',
     cache: 'no-store',
     headers
   });
-  if (!response.ok) throw new Error(`${dataset.id} snapshot HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`same-origin data HTTP ${response.status}`);
   return response;
+}
+
+function snapshotResponse(dataset, init = {}) {
+  return sameOriginResponse(dataset.snapshot, init);
+}
+
+function referenceResponse(dataset, init = {}) {
+  return sameOriginResponse(dataset.reference, init);
 }
 
 function record(dataset, transport) {
@@ -190,6 +214,24 @@ async function routedFetch(input, init) {
   const url = normalizeUrl(input);
   const dataset = matchDataset(url);
   if (!dataset) return nativeFetch(input, init);
+
+  if (dataset.mode === 'reference') {
+    const meta = await metadata(dataset.id);
+    if (!meta) {
+      record(dataset, 'reference-unavailable');
+      throw new Error(`${dataset.label} reference metadata is unavailable.`);
+    }
+    try {
+      const response = await referenceResponse(dataset, init);
+      record(dataset, 'same-origin-reference');
+      return response;
+    } catch (error) {
+      stateFor(dataset.id).metadataError = error;
+      record(dataset, 'reference-unavailable');
+      throw new Error(`${dataset.label} same-origin reference is unavailable.`);
+    }
+  }
+
   if (!dataset.snapshot) {
     record(dataset, dataset.mode === 'tile' ? 'provider-tile' : 'provider-query');
     return nativeFetch(input, init);
@@ -219,17 +261,20 @@ function describe(idOrAdapter) {
   const dataset = resolveDataset(idOrAdapter);
   if (!dataset) return null;
   const state = stateFor(dataset.id);
-  const age = ageMs(state.metadata);
-  const stale = dataset.staleAfterMs && Number.isFinite(age) ? age > dataset.staleAfterMs : false;
-  const defaultTransport = dataset.snapshot
-    ? state.metadataError && dataset.fallback === 'upstream' ? 'provider-fallback' : 'same-origin-snapshot'
-    : dataset.mode === 'tile' ? 'provider-tile' : 'provider-query';
+  const age = dataset.mode === 'reference' ? NaN : ageMs(state.metadata);
+  const stale = dataset.mode === 'reference' ? false : Boolean(dataset.staleAfterMs && Number.isFinite(age) && age > dataset.staleAfterMs);
+  const defaultTransport = dataset.mode === 'reference'
+    ? 'same-origin-reference'
+    : dataset.snapshot
+      ? state.metadataError && dataset.fallback === 'upstream' ? 'provider-fallback' : 'same-origin-snapshot'
+      : dataset.mode === 'tile' ? 'provider-tile' : 'provider-query';
   return {
     ...dataset,
     metadata: state.metadata,
     metadataError: state.metadataError,
     ageMs: age,
-    ageLabel: ageLabel(age),
+    ageLabel: dataset.mode === 'reference' ? 'version-pinned' : ageLabel(age),
+    freshnessLabel: dataset.mode === 'reference' ? 'VERSION-PINNED' : ageLabel(age).toUpperCase(),
     stale,
     transport: state.lastTransport || defaultTransport,
     request: state.request ? { ...state.request } : null,

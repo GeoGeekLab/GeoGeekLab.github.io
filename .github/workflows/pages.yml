@@ -26,6 +26,8 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Prime data supply from live Pages
         run: node scripts/prime-data-supply-from-live.mjs
+      - name: Materialize pinned reference supply
+        run: node scripts/prepare-data-references.mjs
       - name: Refresh data supply for deploy
         env:
           DATA_SUPPLY_ALLOW_STALE: '1'
@@ -40,6 +42,9 @@ jobs:
           sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261002b"#' site/lab.html
           grep -F 'src="core/modules.js?v=20261002b"' site/lab.html
       - name: Verify data supply runtime and snapshots
+        env:
+          DATA_SUPPLY_REQUIRE_REFERENCES: '1'
+          DATA_SUPPLY_REQUIRE_LAST_KNOWN_GOOD: '1'
         run: |
           test -s site/core/data-supply.js
           test -s site/data/supply-registry.js
