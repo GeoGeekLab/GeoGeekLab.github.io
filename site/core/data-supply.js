@@ -182,7 +182,7 @@ function beginRequest(idOrAdapter, details = {}) {
     isCurrent:() => state.requestSequence === sequence,
     succeed:extra => finish('available', extra),
     fail:(error, extra = {}) => finish('unavailable', { ...extra, error }),
-    abort:extra => finish('aborted', extra)
+    abort:extra => extra?.reason === 'superseded' ? false : finish('aborted', extra)
   });
 }
 
