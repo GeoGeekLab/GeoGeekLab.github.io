@@ -72,7 +72,6 @@ async function patchLab(html) {
   const criticalFiles = [
     'static-delivery.css',
     'runtime-stability.css',
-    'earth-lab-preview.css',
     'lab-page.css',
     'lab-real-previews.css',
     'editorial-layout.css'
