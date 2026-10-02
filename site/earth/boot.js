@@ -47,7 +47,7 @@ async function activateEarth() {
   }
   document.documentElement.classList.add('earth-is-activating');
   activation = loadMapLibreCss()
-    .then(() => import('./app.js?v=20261001a'))
+    .then(() => import('./runtime.js?v=20261002a'))
     .then(() => {
       $('#earthBoot')?.remove();
       document.documentElement.classList.remove('earth-is-activating');
