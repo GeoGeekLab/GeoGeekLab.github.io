@@ -55,9 +55,11 @@
     return window.GeoCommons;
   }
 
-  function normalizeInstrumentAria(root = document.getElementById('instrumentStage')) {
-    if (!root) return;
-    root.querySelectorAll('div[aria-label]:not([role]), footer[aria-label]:not([role])').forEach(node => {
+  function normalizeEarthAria(kind, root = document.getElementById('instrumentStage')) {
+    if (kind !== 'earth' || !root) return;
+    root.querySelectorAll(
+      '.earth-observation-lab div[aria-label]:not([role]), .earth-observation-lab footer[aria-label]:not([role])'
+    ).forEach(node => {
       node.setAttribute('role', 'group');
     });
   }
@@ -116,7 +118,7 @@
     try {
       const instruments = await loadInstrument(kind);
       await instruments?.openByKind?.(kind, { updateUrl: true });
-      normalizeInstrumentAria();
+      normalizeEarthAria(kind);
     } catch (error) {
       console.warn(`[GeoGeek] Instrument ${kind} failed to load; retry is available.`, error);
     }
@@ -127,7 +129,7 @@
     loadInstrument(requested)
       .then(async instruments => {
         await instruments?.openByKind?.(requested, { updateUrl: false });
-        normalizeInstrumentAria();
+        normalizeEarthAria(requested);
       })
       .catch(error => console.warn(`[GeoGeek] Requested instrument ${requested} failed to load.`, error));
   }
