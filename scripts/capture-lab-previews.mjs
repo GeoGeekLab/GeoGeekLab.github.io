@@ -45,7 +45,7 @@ await new Promise((resolve, reject) => {
 });
 
 const base = 'http://127.0.0.1:4173';
-const instruments = ['orbit', 'earth', 'flow', 'pulse', 'figure', 'world', 'locate', 'zone', 'path'];
+const instruments = ['orbit', 'earth', 'flow', 'pulse', 'figure', 'world', 'locate', 'zone', 'path', 'project'];
 const browser = await chromium.launch({ headless: true, args: ['--disable-dev-shm-usage'] });
 
 async function newPage(viewport = { width: 1600, height: 1000 }) {
