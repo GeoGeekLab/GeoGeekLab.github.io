@@ -45,32 +45,6 @@
 
   alignOrientContent();
 
-  const modules = window.GeoModules;
-  if (!modules?.loadInstrument || modules.__geoPlayWrapped) return;
-  const baseLoadInstrument = modules.loadInstrument.bind(modules);
-
-  modules.loadInstrument = async kind => {
-    const instruments = await baseLoadInstrument(kind);
-
-    if (kind === 'locate') {
-      await modules.loadScript('play/play-core.js?v=20261002a');
-      await modules.loadScript('play/play-shell.js?v=20261002a');
-      await modules.loadScript('play/play-trace.js?v=20261002a');
-      await modules.loadScript('play/orient/orient.js?v=20261002a');
-      window.GeoPlayOrient?.register?.();
-    }
-
-    if ((kind === 'zone' || kind === 'path') && !window.GeoGeekInstrumentMounts?.[kind]) {
-      await modules.loadScript('games.js');
-      // Legacy games register locate too; restore the new ORIENT mount if it has been loaded.
-      window.GeoPlayOrient?.register?.();
-    }
-
-    return instruments || window.GeoInstruments;
-  };
-
-  modules.__geoPlayWrapped = true;
-
   // Trace replaces the field contents. Restart by remounting the instrument rather
   // than attempting to reuse the detached SVG from the completed session.
   document.addEventListener('click', event => {
