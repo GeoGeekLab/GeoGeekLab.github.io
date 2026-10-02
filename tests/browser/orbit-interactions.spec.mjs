@@ -60,8 +60,10 @@ test('Orbit exposes advanced controls and forwards wheel zoom across the field',
   const orbit = page.locator('.orbit-v2');
   await expect(orbit).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.orbit-enhancement-tools')).toBeVisible();
-  await expect(page.locator('.orbit-enhancement-card')).toBeVisible();
   await expect(page.locator('.orbit-station-editor')).toBeVisible();
+  await expect(page.locator('.orbit-rail-nav')).toBeVisible();
+  await expect(page.locator('.orbit-panel > .orbit-enhancement-card')).toHaveCount(0);
+  await expect(page.locator('#orbit-section-view > .orbit-enhancement-card.orbit-view-advanced')).toBeVisible();
 
   const status = page.locator('.instrument-status');
   await expect(status).toContainText(/SNAPSHOT/i);
@@ -100,4 +102,34 @@ test('Orbit deep links a selected catalog object using the same-origin snapshot'
   await expect(page.locator('.instrument-status')).not.toContainText(/DEMO/i);
   await expect(page.locator('#orbitNorad')).toContainText('25544', { timeout: 10000 });
   await expect(page.locator('.orbit-ground-relation-legend')).toContainText('GEOMETRIC HORIZON');
+  await expect(page.locator('.orbit-selection-bar')).toBeVisible();
+  await expect(page.locator('[data-selection-name]')).toContainText('ORBIT INTERACTION FIXTURE');
+});
+
+test('Orbit round-two rail keeps object tasks primary and provenance progressive', async ({ page }) => {
+  await page.goto('/lab.html?instrument=orbit#l04', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.orbit-v2')).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.orbit-rail-nav')).toBeVisible();
+  await expect(page.locator('.instrument-dialog')).toHaveAttribute('data-workspace-mode', /work|focus|inspect/);
+
+  await page.locator('.instrument-workspace-modes button[data-workspace-mode="work"]').click();
+  await expect(page.locator('.orbit-provenance')).toBeHidden();
+
+  const search = page.locator('#orbitSearch');
+  await search.fill('25544');
+  await expect(page.locator('[data-search-index]')).toHaveCount(1);
+  await search.press('ArrowDown');
+  await expect(page.locator('[data-search-index]')).toHaveClass(/is-key-active/);
+  await search.press('Enter');
+
+  await expect(page.locator('#orbitNorad')).toContainText('25544');
+  await expect(page.locator('.orbit-selection-bar')).toBeVisible();
+  await expect(page.locator('[data-orbit-jump="object"]')).toHaveClass(/has-selection/);
+
+  await page.locator('[data-orbit-jump="source"]').click();
+  await expect(page.locator('.instrument-dialog')).toHaveAttribute('data-workspace-mode', 'inspect');
+  await expect(page.locator('.orbit-provenance')).toBeVisible();
+
+  await page.locator('[data-selection-clear]').click();
+  await expect(page.locator('.orbit-selection-bar')).toBeHidden();
 });
