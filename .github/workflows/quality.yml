@@ -32,13 +32,17 @@ jobs:
           curl --fail --location --retry 3 \
             --output site/assets/lab/sentinel2.jpg \
             https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
-          sed -i 's#src="core/modules.js"#src="core/modules.js?v=20260930c"#' site/lab.html
+          sed -i 's#src="core/modules.js"#src="core/modules.js?v=20261002a"#' site/lab.html
           test -s site/assets/lab/sentinel2.jpg
           test -s site/orbital/orbital-engine.js
           test -s site/orbital/orbit-worker.js
+          test -s site/orbital/orbit-catalog-source.js
           test -s site/orbital/orbital-enhancements-v3.js
           test -s site/orbital/orbital-lab-v3.css
+          test -s site/orbital/data/active.json
+          test -s site/orbital/data/active.meta.json
           ! grep -in '\bDEMO\b' site/orbital/orbital-engine.js site/orbital/orbit-worker.js
+          node scripts/verify-orbit-catalog.mjs
 
       - name: Install browser quality tools
         run: |
