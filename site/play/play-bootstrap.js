@@ -70,4 +70,14 @@
   };
 
   modules.__geoPlayWrapped = true;
+
+  // Trace replaces the field contents. Restart by remounting the instrument rather
+  // than attempting to reuse the detached SVG from the completed session.
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('.play-shell[data-play-kind="orient"][data-play-state="trace"] .play-action.is-secondary');
+    if (!button || button.textContent.trim() !== 'RESTART ORIENT') return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    window.GeoInstruments?.openByKind?.('locate', { updateUrl: false });
+  }, true);
 })();
