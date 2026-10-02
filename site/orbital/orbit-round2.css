@@ -111,9 +111,14 @@
 .instrument-dialog[data-instrument-kind="orbit"] .orbit-view-advanced{
   display:grid;
   gap:10px;
-  margin-top:2px;
-  padding-top:13px;
-  border-top:1px solid var(--lab-workspace-line-soft);
+  margin:2px 0 0!important;
+  padding:13px 0 0!important;
+  border:0!important;
+  border-top:1px solid var(--lab-workspace-line-soft)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  min-height:auto!important;
 }
 .instrument-dialog[data-instrument-kind="orbit"] .orbit-view-advanced .orbit-card-head{
   display:none;
@@ -127,6 +132,9 @@
 }
 .instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="inspect"] .orbit-card{
   padding:18px 18px!important;
+}
+.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="inspect"] .orbit-view-advanced{
+  padding:13px 0 0!important;
 }
 .instrument-dialog[data-instrument-kind="orbit"] .orbit-inspector .orbit-empty,
 .instrument-dialog[data-instrument-kind="orbit"] .orbit-provenance dd{
