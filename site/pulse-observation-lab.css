@@ -43,15 +43,17 @@
   padding:14px;
   border:1px solid var(--pulse-line);
   border-radius:22px;
-  overflow:hidden;
+  overflow:auto;
   background:linear-gradient(180deg,rgba(14,19,16,.98),rgba(8,11,9,.98));
+  scrollbar-width:thin;
 }
 
 .pulse-map-frame{
   position:relative;
+  flex:0 0 auto;
   width:100%;
+  height:auto;
   aspect-ratio:2 / 1;
-  max-height:100%;
   overflow:hidden;
   border:1px solid rgba(241,239,231,.09);
   border-radius:16px;
@@ -86,6 +88,7 @@
 .pulse-map-badge-left{ left:10px; }
 .pulse-map-badge-right{ right:10px; text-align:right; }
 .pulse-map-note{
+  flex:0 0 auto;
   color:var(--pulse-muted);
   font:600 10px/1.45 var(--mono);
   letter-spacing:.035em;
@@ -234,7 +237,7 @@
     height:auto;
     overflow-y:auto;
   }
-  .pulse-observation-lab .pulse-map-wrap{ min-height:0; }
+  .pulse-observation-lab .pulse-map-wrap{ min-height:0; overflow:visible; }
   .pulse-observation-lab .pulse-panel{ overflow:visible; }
 }
 
