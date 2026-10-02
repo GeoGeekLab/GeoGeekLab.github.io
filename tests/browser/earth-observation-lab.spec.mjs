@@ -104,6 +104,14 @@ test('Earth temporal lab uses unified viewport WMS provenance, navigation and sw
   expect(zoomState.bbox[3] - zoomState.bbox[1]).toBeLessThan(180);
   expect(zoomState.scope).toContain('VIEWPORT');
 
+  // Isolate the wheel gesture from the request that committed the previous
+  // button zoom. The assertion below is about coalescing wheel input, not
+  // about provider requests that were already in flight before the gesture.
+  await expect.poll(() => page.evaluate(() => window.GeoDataSupply.describe('nasa-gibs').request?.status)).toBe('available');
+  const settledBeforeWheel = gibsRequests;
+  await page.waitForTimeout(90);
+  expect(gibsRequests).toBe(settledBeforeWheel);
+
   const beforeWheel = gibsRequests;
   const frame = page.locator('#eoFrame');
   const frameRect = await frame.boundingBox();
