@@ -4,6 +4,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
+// These screenshots validate that each Lab instrument renders a usable preview;
+// they are not typography visual-regression tests. Playwright otherwise waits
+// for document.fonts.ready before every screenshot, which can deadlock CI when
+// a third-party webfont is slow or blocked.
+process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY = '1';
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const site = path.join(root, 'site');
 const output = path.join(site, 'assets', 'lab', 'previews');
@@ -44,6 +50,15 @@ const browser = await chromium.launch({ headless: true, args: ['--disable-dev-sh
 
 async function newPage(viewport = { width: 1600, height: 1000 }) {
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1, reducedMotion: 'reduce' });
+
+  // Preview capture should verify application rendering, not the availability of a
+  // third-party font CDN. Aborting font resources makes screenshots deterministic
+  // and prevents screenshot font-wait stalls in unrelated labs.
+  await page.route('**/*', route => {
+    if (route.request().resourceType() === 'font') return route.abort();
+    return route.continue();
+  });
+
   await page.addInitScript(() => {
     let seed = 73421;
     Math.random = () => {
@@ -89,10 +104,11 @@ async function captureInstrument(kind) {
     await page.waitForSelector('#instrumentStage > *', { state: 'visible', timeout: 20000 });
 
     if (kind === 'earth') {
+      await page.waitForSelector('.earth-observation-lab', { state: 'visible', timeout: 10000 });
       await page.waitForFunction(() => {
-        const img = document.querySelector('#earthImage');
-        return !!img && img.complete && img.naturalWidth > 0;
-      }, null, { timeout: 25000 }).catch(() => {});
+        const loading = document.querySelector('#eoLoading');
+        return !!loading && loading.dataset.state !== 'loading';
+      }, null, { timeout: 18000 }).catch(() => {});
     }
 
     if (kind === 'flow') await exerciseFlowLab(page);
@@ -112,7 +128,8 @@ async function captureInstrument(kind) {
       path: path.join(output, `${kind}.jpg`),
       type: 'jpeg',
       quality: 86,
-      animations: 'disabled'
+      animations: 'disabled',
+      timeout: 20000
     });
     console.log(`Captured Lab instrument: ${kind}`);
   } finally {
@@ -135,7 +152,8 @@ async function captureEarthObservatory() {
       path: path.join(output, 'earth-observatory.jpg'),
       type: 'jpeg',
       quality: 86,
-      animations: 'disabled'
+      animations: 'disabled',
+      timeout: 20000
     });
     console.log('Captured Earth Observatory');
   } finally {

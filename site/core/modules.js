@@ -63,6 +63,13 @@
     return window.GeoCommons;
   }
 
+  function normalizeEarthAria(kind, root = document.getElementById('instrumentStage')) {
+    if (kind !== 'earth' || !root) return;
+    root.querySelectorAll(
+      '.earth-observation-lab div[aria-label]:not([role]), .earth-observation-lab footer[aria-label]:not([role])'
+    ).forEach(node => node.setAttribute('role', 'group'));
+  }
+
   const gameKinds = new Set(['locate', 'zone', 'path']);
   async function loadInstrument(kind) {
     if (!window.GeoInstruments) {
@@ -74,24 +81,13 @@
       await loadModule(ORBIT_CATALOG_SOURCE);
       await loadModule(ORBIT_ENHANCEMENT);
     }
-    if (kind === 'world' && !window.GeoProjectionLab) {
-      await loadScript('world-projection-lab.js?v=20261001a');
-    }
-    if (kind === 'figure' && !window.GeoFigureWorkbench) {
-      await loadScript('figure-analysis-workbench.js?v=20261001c');
-    }
-    if (kind === 'figure' && !window.GeoFigureViewerV2) {
-      await loadScript('figure-viewer-v2.js?v=20261001d');
-    }
-    if (kind === 'figure' && !window.GeoFigureViewerV2Polish) {
-      await loadScript('figure-viewer-v2-polish.js?v=20261001e');
-    }
-    if (kind === 'flow' && !window.GeoFlowLab) {
-      await loadScript('flow-lab.js?v=20261002a');
-    }
-    if (kind === 'flow' && !window.GeoFlowLabPolish) {
-      await loadScript('flow-lab-polish.js?v=20261002b');
-    }
+    if (kind === 'world' && !window.GeoProjectionLab) await loadScript('world-projection-lab.js?v=20261001a');
+    if (kind === 'earth' && !window.GeoEarthTemporalLab) await loadScript('earth-observation-lab.js?v=20261002b');
+    if (kind === 'figure' && !window.GeoFigureWorkbench) await loadScript('figure-analysis-workbench.js?v=20261001c');
+    if (kind === 'figure' && !window.GeoFigureViewerV2) await loadScript('figure-viewer-v2.js?v=20261001d');
+    if (kind === 'figure' && !window.GeoFigureViewerV2Polish) await loadScript('figure-viewer-v2-polish.js?v=20261001e');
+    if (kind === 'flow' && !window.GeoFlowLab) await loadScript('flow-lab.js?v=20261002a');
+    if (kind === 'flow' && !window.GeoFlowLabPolish) await loadScript('flow-lab-polish.js?v=20261002b');
     return window.GeoInstruments;
   }
 
@@ -120,6 +116,7 @@
     const enhancementNeeded =
       orbitEnhancementNeeded ||
       (kind === 'world' && !window.GeoProjectionLab) ||
+      (kind === 'earth' && !window.GeoEarthTemporalLab) ||
       (kind === 'flow' && (!window.GeoFlowLab || !window.GeoFlowLabPolish)) ||
       (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish));
     if (window.GeoInstruments && !enhancementNeeded) return;
@@ -127,7 +124,8 @@
     event.stopImmediatePropagation();
     try {
       const instruments = await loadInstrument(kind);
-      instruments?.openByKind?.(kind, { updateUrl: true });
+      await instruments?.openByKind?.(kind, { updateUrl: true });
+      normalizeEarthAria(kind);
     } catch (error) {
       console.warn(`[GeoGeek] Instrument ${kind} failed to load; retry is available.`, error);
     }
@@ -136,7 +134,10 @@
   const requested = new URLSearchParams(location.search).get('instrument');
   if (requested && document.getElementById('instrumentDialog')) {
     loadInstrument(requested)
-      .then(instruments => instruments?.openByKind?.(requested, { updateUrl: false }))
+      .then(async instruments => {
+        await instruments?.openByKind?.(requested, { updateUrl: false });
+        normalizeEarthAria(requested);
+      })
       .catch(error => console.warn(`[GeoGeek] Requested instrument ${requested} failed to load.`, error));
   }
 
@@ -147,7 +148,7 @@
     const buttons = [...document.querySelectorAll('[data-home-commons-horizon]')];
     const render = async () => {
       const commons = await loadCommons();
-      await commons?.mountPreview?.(homeCommonsMapMount, { variant:'home', horizon });
+      await commons?.mountPreview?.(homeCommonsMount, { variant:'home', horizon });
     };
     buttons.forEach(button => button.addEventListener('click', async () => {
       horizon = button.dataset.homeCommonsHorizon || '30d';
