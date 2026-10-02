@@ -1,82 +1,24 @@
 (() => {
   'use strict';
 
-  const VERSION = '20261002b';
-  const GIBS_WMS = 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi';
+  const VERSION = '20261002c';
   const WORLDVIEW = 'https://worldview.earthdata.nasa.gov/';
   const DAY_MS = 86400000;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const supply = window.GeoDataSupply;
+  const dataset = supply?.get?.('nasa-gibs');
+  const layers = supply?.products?.('nasa-gibs') || [];
 
-  const layers = [
-    {
-      id:'terra-true', label:'True color', short:'TERRA / TRUE COLOR', group:'VISUAL',
-      layer:'MODIS_Terra_CorrectedReflectance_TrueColor', format:'image/jpeg', mode:'base', lag:2, start:'2000-02-24', resolution:'250 m nominal', cadence:'DAILY / ORBIT COMPOSITE',
-      source:'NASA EOSDIS GIBS · Terra / MODIS',
-      color:'RGB corrected-reflectance composite. Display color is visual context, not a single physical variable.',
-      limit:'Cloud, atmosphere, overpass time, swath gaps, and compositing condition what is visible. A view date is not one instantaneous photograph.',
-      note:'A familiar optical view. Read clouds and acquisition gaps as part of the observation, not as missing decoration.'
-    },
-    {
-      id:'viirs-true', label:'True color', short:'SUOMI NPP / TRUE COLOR', group:'VISUAL',
-      layer:'VIIRS_SNPP_CorrectedReflectance_TrueColor', format:'image/jpeg', mode:'base', lag:1, start:'2015-11-24', resolution:'250 m nominal', cadence:'DAILY / ORBIT COMPOSITE',
-      source:'NASA EOSDIS GIBS · Suomi NPP / VIIRS',
-      color:'RGB corrected-reflectance composite. Display color is visual context, not a single physical variable.',
-      limit:'Cloud and orbit geometry affect coverage. Near-real-time imagery can lag the selected UTC date and may be revised upstream.',
-      note:'Higher-revisit optical context from VIIRS, useful for comparing the sensor/time relationship against MODIS.'
-    },
-    {
-      id:'false-color', label:'False color 7-2-1', short:'TERRA / BANDS 7-2-1', group:'VISUAL',
-      layer:'MODIS_Terra_CorrectedReflectance_Bands721', format:'image/jpeg', mode:'base', lag:2, start:'2000-02-24', resolution:'250–500 m band-dependent', cadence:'DAILY / ORBIT COMPOSITE',
-      source:'NASA EOSDIS GIBS · Terra / MODIS',
-      color:'False-color band assignment 7-2-1. Displayed hues are intentionally non-literal.',
-      limit:'False-color composites are interpretive products: displayed color is not literal visible color and depends on the band assignment.',
-      note:'A deliberately non-literal composite that makes surface and burn/scar contrasts easier to inspect.'
-    },
-    {
-      id:'surface-temp', label:'Land surface temperature', short:'NOAA-20 / LST DAY', group:'THERMAL',
-      layer:'VIIRS_NOAA20_Land_Surface_Temp_Day', format:'image/png', mode:'overlay', lag:2, start:'2018-01-05', resolution:'750 m nominal product scale', cadence:'DAILY / DAYTIME', opacity:.76,
-      source:'NASA EOSDIS GIBS · NOAA-20 / VIIRS',
-      color:'Provider-rendered quantitative palette. Use the NASA Worldview handoff for the authoritative color legend.',
-      limit:'Land-surface temperature is skin temperature, not 2 m air temperature. Clouds create retrieval gaps and local time varies with overpass.',
-      note:'Thermal retrieval over land. It should not be read as weather-station air temperature.'
-    },
-    {
-      id:'precip', label:'Precipitation rate', short:'IMERG / PRECIPITATION', group:'ATMOSPHERE',
-      layer:'IMERG_Precipitation_Rate', format:'image/png', mode:'overlay', lag:3, start:'2000-06-01', resolution:'0.1° product grid', cadence:'HALF-HOURLY SOURCE / DAILY VIEW', opacity:.82,
-      source:'NASA GPM IMERG via EOSDIS GIBS',
-      color:'Provider-rendered precipitation-rate palette. Use the NASA Worldview handoff for quantitative legend values.',
-      limit:'IMERG combines satellite precipitation estimates. Retrieval uncertainty varies by precipitation regime, surface, sensor availability, and latency.',
-      note:'A precipitation estimate, not a rain-gauge field. The global picture is a modeled/merged observation product.'
-    },
-    {
-      id:'aerosol', label:'Aerosol optical depth', short:'AQUA / AOD 3 KM', group:'ATMOSPHERE',
-      layer:'MODIS_Aqua_Aerosol_Optical_Depth_3km', format:'image/png', mode:'overlay', lag:3, start:'2002-07-04', resolution:'3 km nominal retrieval', cadence:'DAILY / ORBIT RETRIEVAL', opacity:.76,
-      source:'NASA EOSDIS GIBS · Aqua / MODIS',
-      color:'Provider-rendered AOD palette. Use the NASA Worldview handoff for quantitative legend values.',
-      limit:'AOD is column-integrated optical loading, not ground-level PM2.5. Clouds, bright surfaces, and retrieval screening create spatial gaps.',
-      note:'Atmospheric optical loading. Empty areas can mean screening or no valid retrieval, not zero aerosol.'
-    },
-    {
-      id:'snow', label:'Snow cover', short:'SUOMI NPP / NDSI', group:'CRYOSPHERE',
-      layer:'VIIRS_SNPP_NDSI_Snow_Cover', format:'image/png', mode:'overlay', lag:2, start:'2012-01-19', resolution:'375 m nominal product scale', cadence:'DAILY / DAYTIME', opacity:.8,
-      source:'NASA EOSDIS GIBS · Suomi NPP / VIIRS',
-      color:'Provider-rendered NDSI snow palette. Use the NASA Worldview handoff for legend semantics.',
-      limit:'NDSI snow mapping is affected by cloud, illumination, forests, terrain, and classification thresholds. It is not snow depth.',
-      note:'A categorical/continuous snow signal derived from spectral contrast, distinct from depth or water equivalent.'
-    },
-    {
-      id:'chlorophyll', label:'Chlorophyll-a', short:'PACE OCI / OCEAN COLOR', group:'OCEAN',
-      layer:'OCI_PACE_Chlorophyll_a', format:'image/png', mode:'overlay', lag:3, start:'2024-03-01', resolution:'~1 km mapped product', cadence:'DAILY / OCEAN COLOR', opacity:.82,
-      source:'NASA EOSDIS GIBS · PACE / OCI',
-      color:'Provider-rendered chlorophyll-a palette. Use the NASA Worldview handoff for quantitative legend values.',
-      limit:'Satellite chlorophyll is an algorithmic ocean-color estimate. Clouds, aerosols, sun glint, coastal water complexity, and algorithm choice affect retrievals.',
-      note:'Ocean-color estimate of chlorophyll-a, useful for reading biological patterns without treating color as direct concentration measurement.'
-    }
-  ];
+  if (!supply?.installed || !dataset || !layers.length) {
+    console.error('[GeoGeek] L05 requires the unified nasa-gibs data-supply contract.');
+    return;
+  }
 
   const byId = new Map(layers.map(layer => [layer.id, layer]));
-  const groups = ['VISUAL','THERMAL','ATMOSPHERE','CRYOSPHERE','OCEAN'];
+  const groups = [...new Set(layers.map(layer => layer.group))];
+  const contextLayer = byId.get('terra-true') || layers.find(layer => layer.renderMode === 'base') || layers[0];
+  const GIBS_WMS = new URL('wms/epsg4326/best/wms.cgi', dataset.upstream).href;
 
   function ensureStyle() {
     if (document.querySelector('link[data-earth-observation-lab]')) return;
@@ -87,18 +29,19 @@
     document.head.appendChild(link);
   }
 
-  const pad = n => String(n).padStart(2,'0');
-  const day = date => `${date.getUTCFullYear()}-${pad(date.getUTCMonth()+1)}-${pad(date.getUTCDate())}`;
+  const pad = n => String(n).padStart(2, '0');
+  const day = date => `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
   const utcDate = value => new Date(`${value}T00:00:00Z`);
   const addDays = (date, amount) => new Date(date.getTime() + amount * DAY_MS);
   const daysBetween = (later, earlier) => Math.max(0, Math.round((later - earlier) / DAY_MS));
   const clampDate = (date, min, max) => date < min ? min : date > max ? max : date;
-  const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[c]));
+  const opacityFor = layer => layer.defaultOpacity ?? 1;
 
   function safeDate(layer) {
     const now = new Date();
     const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    return addDays(today, -layer.lag);
+    return addDays(today, -layer.conservativeLagDays);
   }
 
   function getInitialState() {
@@ -107,19 +50,19 @@
     const recent = safeDate(layer);
     const requested = url.searchParams.get('earthDate');
     const parsed = requested && /^\d{4}-\d{2}-\d{2}$/.test(requested) ? utcDate(requested) : recent;
-    const min = utcDate(layer.start);
+    const min = utcDate(layer.availabilityStart);
     const primary = clampDate(parsed, min, recent);
     const compareOffset = Math.max(1, Math.min(365, Number(url.searchParams.get('earthOffset') || 7) || 7));
     return {
-      layerId: layer.id,
-      date: primary,
-      compare: url.searchParams.get('earthCompare') === '1',
+      layerId:layer.id,
+      date:primary,
+      compare:url.searchParams.get('earthCompare') === '1',
       compareOffset,
-      split: Math.max(12, Math.min(88, Number(url.searchParams.get('earthSplit') || 50) || 50)),
+      split:Math.max(12, Math.min(88, Number(url.searchParams.get('earthSplit') || 50) || 50)),
       playing:false,
       speed:1300,
       showGrid:true,
-      overlayOpacity:layer.opacity ?? 1,
+      overlayOpacity:opacityFor(layer),
       probe:null
     };
   }
@@ -137,11 +80,19 @@
     const lab = window.GEOGEEK_DATA?.en?.ui?.lab;
     if (!lab?.conditions) return;
     lab.conditions.earth = [
-      ['EXTENT','GLOBAL · EPSG:4326'],
-      ['TIME','DATE-CONTROLLED · CONSERVATIVE RECENT WINDOW'],
-      ['SOURCE','NASA EOSDIS GIBS'],
-      ['METHOD','2:1 EQUIRECTANGULAR · SWIPE COMPARE']
+      ['EXTENT', 'GLOBAL · EPSG:4326'],
+      ['TIME', 'DATE-CONTROLLED · PRODUCT-SPECIFIC SAFE WINDOW'],
+      ['SOURCE', dataset.provider],
+      ['DELIVERY', `${dataset.delivery} · ${dataset.transport}`]
     ];
+  }
+
+  function setInstrumentStatus(state, text, title) {
+    const status = document.querySelector('.instrument-status');
+    if (!status) return;
+    status.dataset.state = state;
+    status.textContent = text;
+    status.title = title || '';
   }
 
   async function mountEnhancedEarth({ signal, stage } = {}) {
@@ -156,6 +107,7 @@
     let resizeHandler = null;
     let resizeObserver = null;
     let dragPointer = null;
+    let activeSupplyRequest = null;
     const foregroundLoads = new Set();
     const backgroundLoads = new Set();
 
@@ -179,7 +131,7 @@
               <button class="eo-compare-handle" id="eoCompareHandle" type="button" role="slider" aria-label="Comparison split" aria-valuemin="5" aria-valuemax="95" aria-valuenow="50" aria-valuetext="50 percent reveal" hidden><span></span></button>
               <div class="eo-map-label eo-label-a"><span>A</span><b id="eoLabelA">—</b></div>
               <div class="eo-map-label eo-label-b" id="eoLabelBWrap" hidden><span>B</span><b id="eoLabelB">—</b></div>
-              <div class="eo-frame-note" id="eoProjectionNote"><span>DISPLAY / EPSG:4326 · 2:1</span><span>CLICK TO PROBE LON/LAT</span></div>
+              <div class="eo-frame-note"><span>DISPLAY / EPSG:4326 · 2:1</span><span>CLICK TO PROBE LON/LAT</span></div>
             </div>
           </div>
 
@@ -188,7 +140,7 @@
               <button type="button" id="eoPrev" aria-label="Previous day">−1D</button>
               <button type="button" id="eoPlay" aria-pressed="false">PLAY</button>
               <button type="button" id="eoNext" aria-label="Next day">+1D</button>
-              <button type="button" id="eoLatest" aria-label="Jump to conservative recent observation date" title="Uses a conservative product-specific latency window; provider availability can differ.">SAFE DATE</button>
+              <button type="button" id="eoLatest" aria-label="Jump to conservative recent observation date" title="Uses a product-specific conservative request window; provider availability can differ.">SAFE DATE</button>
             </div>
             <div class="eo-timeline-track">
               <div class="eo-timeline-head"><span id="eoCoverageStart">—</span><strong id="eoTimelineDate">—</strong><span id="eoCoverageEnd">—</span></div>
@@ -201,20 +153,20 @@
 
         <aside class="earth-observation-panel">
           <section class="eo-panel-card eo-layer-card">
-            <div class="eo-panel-head"><div><span>OBSERVATION LAYERS</span><strong>Choose what the sensor means.</strong></div><em id="eoLayerMode">VISUAL</em></div>
+            <div class="eo-panel-head"><div><span>OBSERVATION LAYERS</span><strong>Choose what the sensor means.</strong></div><em id="eoLayerMode">—</em></div>
             <div class="eo-layer-groups" id="eoLayerGroups" role="tablist" aria-orientation="horizontal" aria-label="Observation layer categories"></div>
             <div class="eo-layer-list" id="eoLayerList" role="tabpanel" aria-label="Observation products in the selected category"></div>
           </section>
 
           <section class="eo-panel-card">
             <div class="eo-panel-head"><div><span>COMPARE</span><strong>Change requires a reference.</strong></div><em id="eoCompareState">OFF</em></div>
-            <button type="button" class="eo-compare-toggle" id="eoCompare" aria-pressed="false"><i></i><span><b>SWIPE A / B</b><small>Same layer, two UTC dates</small></span></button>
+            <button type="button" class="eo-compare-toggle" id="eoCompare" aria-pressed="false"><i></i><span><b>SWIPE A / B</b><small>Same product, two UTC dates</small></span></button>
             <div class="eo-compare-presets" id="eoComparePresets" aria-label="Requested reference date offset">
               <button type="button" data-offset="1">1 DAY</button>
               <button type="button" data-offset="7" class="is-active">7 DAYS</button>
               <button type="button" data-offset="30">30 DAYS</button>
             </div>
-            <div class="eo-opacity" id="eoOpacityWrap" hidden><label for="eoOpacity">OVERLAY OPACITY</label><output id="eoOpacityValue">76%</output><input id="eoOpacity" type="range" min="15" max="100" value="76" step="1" /></div>
+            <div class="eo-opacity" id="eoOpacityWrap" hidden><label for="eoOpacity">OVERLAY OPACITY</label><output id="eoOpacityValue">100%</output><input id="eoOpacity" type="range" min="15" max="100" value="100" step="1" /></div>
           </section>
 
           <section class="eo-panel-card">
@@ -227,7 +179,7 @@
           </section>
 
           <section class="eo-panel-card eo-inspector">
-            <div class="eo-panel-head"><div><span>OBSERVATION CONDITIONS</span><strong id="eoInspectorTitle">—</strong></div><em>GIBS</em></div>
+            <div class="eo-panel-head"><div><span>OBSERVATION CONDITIONS</span><strong id="eoInspectorTitle">—</strong></div><em id="eoSupplyState">TILE</em></div>
             <dl id="eoInspectorMeta"></dl>
             <div class="eo-probe-readout" id="eoProbeReadout"><span>GEOMETRIC PROBE</span><strong>CLICK THE MAP</strong><small>No pixel-value decoding; coordinates describe location, not measurement value.</small></div>
             <a id="eoSourceLink" target="_blank" rel="noreferrer">OPEN SAME VIEW IN NASA WORLDVIEW ↗</a>
@@ -263,10 +215,10 @@
     const clearProbeButton = $('#eoClearProbe', stage);
     const resetButton = $('#eoReset', stage);
     const sourceLink = $('#eoSourceLink', stage);
-    let activeGroup = byId.get(state.layerId)?.group || 'VISUAL';
+    let activeGroup = byId.get(state.layerId)?.group || groups[0];
 
     function currentLayer() { return byId.get(state.layerId) || layers[0]; }
-    function boundsFor(layer=currentLayer()) { return { min:utcDate(layer.start), max:safeDate(layer) }; }
+    function boundsFor(layer = currentLayer()) { return { min:utcDate(layer.availabilityStart), max:safeDate(layer) }; }
     function compareDate() {
       const { min } = boundsFor();
       const requested = addDays(state.date, -state.compareOffset);
@@ -307,18 +259,18 @@
       const url = new URL(location.href);
       url.searchParams.set('earthLayer', state.layerId);
       url.searchParams.set('earthDate', day(state.date));
-      if (state.compare) url.searchParams.set('earthCompare','1'); else url.searchParams.delete('earthCompare');
+      if (state.compare) url.searchParams.set('earthCompare', '1'); else url.searchParams.delete('earthCompare');
       url.searchParams.set('earthOffset', String(state.compareOffset));
       if (state.compare) url.searchParams.set('earthSplit', String(Math.round(state.split))); else url.searchParams.delete('earthSplit');
       history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
     }
 
     function worldviewLayerList(layer) {
-      if (layer.mode !== 'overlay') return layer.layer;
-      return `MODIS_Terra_CorrectedReflectance_TrueColor,${layer.layer}(opacity=${state.overlayOpacity.toFixed(2)})`;
+      if (layer.renderMode !== 'overlay') return layer.layer;
+      return `${contextLayer.layer},${layer.layer}(opacity=${state.overlayOpacity.toFixed(2)})`;
     }
 
-    function worldviewUrl(layer=currentLayer()) {
+    function worldviewUrl(layer = currentLayer()) {
       const url = new URL(WORLDVIEW);
       url.searchParams.set('p', 'geographic');
       url.searchParams.set('v', '-180,-90,180,90');
@@ -337,11 +289,11 @@
     function frameImages(layer, dateValue) {
       const parts = [];
       const { width, height } = requestDimensions();
-      if (layer.mode === 'overlay') {
-        parts.push({ role:'context', src:wmsUrl('MODIS_Terra_CorrectedReflectance_TrueColor', dateValue, {format:'image/jpeg',transparent:false,width,height}), opacity:1 });
-        parts.push({ role:'observation', src:wmsUrl(layer.layer, dateValue, {format:layer.format,transparent:true,width,height}), opacity:state.overlayOpacity });
+      if (layer.renderMode === 'overlay') {
+        parts.push({ role:'context', src:wmsUrl(contextLayer.layer, dateValue, { format:contextLayer.format, transparent:false, width, height }), opacity:1 });
+        parts.push({ role:'observation', src:wmsUrl(layer.layer, dateValue, { format:layer.format, transparent:true, width, height }), opacity:state.overlayOpacity });
       } else {
-        parts.push({ role:'observation', src:wmsUrl(layer.layer, dateValue, {format:layer.format,transparent:false,width,height}), opacity:1 });
+        parts.push({ role:'observation', src:wmsUrl(layer.layer, dateValue, { format:layer.format, transparent:false, width, height }), opacity:1 });
       }
       return parts;
     }
@@ -396,19 +348,47 @@
       entries.forEach(entry => { preload(entry.src, { timeout:12000, bucket:backgroundLoads }).catch(() => {}); });
     }
 
+    function renderSupplyState() {
+      const description = supply.describe('nasa-gibs');
+      const request = description?.request;
+      $('#eoSupplyState', stage).textContent = request?.status === 'requesting'
+        ? 'REQUESTING'
+        : request?.status === 'unavailable'
+          ? 'UNAVAILABLE'
+          : 'TILE · DATE-SCOPED';
+    }
+
     async function renderImages() {
       if (signal?.aborted) return;
       const generation = ++loadGeneration;
       cancelLoads(foregroundLoads);
+      activeSupplyRequest?.abort?.({ reason:'superseded' });
       const layer = currentLayer();
       const aEntries = frameImages(layer, state.date);
       const bEntries = frameImages(layer, compareDate());
       const sources = [...aEntries, ...(state.compare ? bEntries : [])].map(item => item.src);
+      activeSupplyRequest = supply.beginRequest('nasa-gibs', {
+        productId:layer.id,
+        transport:'provider-raster',
+        observationTime:`${day(state.date)}T00:00:00Z`,
+        scope:`GLOBAL · EPSG:4326 · ${day(state.date)} · ${state.compare ? 'COMPARE' : 'SINGLE'} VIEW`,
+        requestUrl:aEntries.at(-1)?.src || null,
+        purpose:'foreground-frame'
+      });
       loading.hidden = false;
       loading.dataset.state = 'loading';
+      setInstrumentStatus('loading', `STATUS / REQUESTING · TILE · ${day(state.date)} UTC`, 'Provider raster request in progress. This is not a LIVE claim.');
+      renderSupplyState();
+      renderInspector();
+
       const results = await Promise.all(sources.map(src => preload(src)));
-      if (generation !== loadGeneration || signal?.aborted) return;
-      const failed = results.some(result => !result.ok);
+      if (generation !== loadGeneration || signal?.aborted) {
+        activeSupplyRequest?.abort?.({ reason:signal?.aborted ? 'instrument-abort' : 'superseded' });
+        return;
+      }
+
+      const failedResults = results.filter(result => !result.ok);
+      const failed = failedResults.length > 0;
       const aImages = renderStack(stackA, aEntries, `${layer.short} ${day(state.date)}`);
       const bImages = state.compare ? renderStack(stackB, bEntries, `${layer.short} ${day(compareDate())}`) : [];
       aImages.forEach((img, i) => { img.src = aEntries[i].src; });
@@ -419,12 +399,21 @@
       handle.hidden = !state.compare;
       labelBWrap.hidden = !state.compare;
       updateSplit();
-      const status = document.querySelector('.instrument-status');
-      if (status) {
-        status.dataset.state = failed ? 'error' : 'live';
-        status.textContent = failed ? 'STATUS / ERROR' : `STATUS / READY · VIEW ${day(state.date)} UTC`;
-        status.title = failed ? 'One or more requested image layers failed to load.' : 'Date-controlled observation loaded. READY does not mean real-time provider latest.';
+
+      if (failed) {
+        activeSupplyRequest?.fail?.('One or more provider raster images failed to load.', {
+          imageCount:sources.length,
+          failedCount:failedResults.length
+        });
+        setInstrumentStatus('error', `STATUS / UNAVAILABLE · TILE · ${day(state.date)} UTC`, 'The requested date-scoped provider raster was not fully available.');
+      } else {
+        activeSupplyRequest?.succeed?.({ imageCount:sources.length });
+        setInstrumentStatus('dated', `STATUS / TILE · DATE-SCOPED · ${day(state.date)} UTC`, 'Provider raster loaded for the selected UTC date. Availability does not imply real-time freshness.');
       }
+      activeSupplyRequest = null;
+      renderSupplyState();
+      renderInspector();
+
       const { min, max } = boundsFor(layer);
       const adjacent = [];
       [-1, 1].forEach(delta => {
@@ -445,7 +434,7 @@
     function renderGroups() {
       groupList.innerHTML = groups.map((group, index) => {
         const selected = group === activeGroup;
-        return `<button id="eoLayerGroup-${index}" type="button" role="tab" aria-selected="${selected}" aria-controls="eoLayerList" tabindex="${selected ? '0' : '-1'}" class="${selected?'is-active':''}" data-group="${group}">${group}</button>`;
+        return `<button id="eoLayerGroup-${index}" type="button" role="tab" aria-selected="${selected}" aria-controls="eoLayerList" tabindex="${selected ? '0' : '-1'}" class="${selected ? 'is-active' : ''}" data-group="${group}">${group}</button>`;
       }).join('');
       const selected = groupList.querySelector('[aria-selected="true"]');
       if (selected) layerList.setAttribute('aria-labelledby', selected.id);
@@ -453,7 +442,7 @@
 
     function renderLayerList() {
       layerList.innerHTML = layers.filter(layer => layer.group === activeGroup).map(layer => `
-        <button type="button" class="eo-layer ${layer.id===state.layerId?'is-active':''}" data-earth-layer="${layer.id}" aria-pressed="${layer.id===state.layerId}">
+        <button type="button" class="eo-layer ${layer.id === state.layerId ? 'is-active' : ''}" data-earth-layer="${layer.id}" aria-pressed="${layer.id === state.layerId}">
           <i></i><span><strong>${esc(layer.label)}</strong><small>${esc(layer.short)}</small></span><em>${esc(layer.resolution)}</em>
         </button>`).join('');
     }
@@ -463,26 +452,34 @@
       const reference = compareDate();
       const actualOffset = actualCompareOffset();
       const { width, height } = requestDimensions();
+      const supplyState = supply.describe('nasa-gibs');
+      const request = supplyState?.request;
       const compareValue = state.compare
         ? `${day(reference)} ↔ ${day(state.date)} · ${actualOffset} actual day${actualOffset === 1 ? '' : 's'}${actualOffset !== state.compareOffset ? ` · requested ${state.compareOffset}, clipped by coverage` : ''}`
         : 'OFF · one observation date';
-      $('#eoInspectorTitle',stage).textContent = layer.label;
-      $('#eoInspectorMeta',stage).innerHTML = [
+      const requestState = request?.status ? request.status.toUpperCase() : 'IDLE';
+      $('#eoInspectorTitle', stage).textContent = layer.label;
+      $('#eoInspectorMeta', stage).innerHTML = [
         ['SOURCE', layer.source],
-        ['TIME', `${day(state.date)} UTC · ${layer.cadence}`],
+        ['TIME', `${day(state.date)} UTC view date · ${layer.cadence}`],
+        ['DELIVERY', dataset.delivery],
+        ['TRANSPORT', request?.transport === 'provider-raster' ? 'HTTPS WMS · PROVIDER RASTER' : dataset.transport],
+        ['REQUEST STATE', requestState],
+        ['FRESHNESS', layer.freshnessSemantics],
         ['NATIVE RESOLUTION', layer.resolution],
         ['DISPLAY SAMPLE', `${width} × ${height} WMS raster · resampled to viewport`],
+        ['SCOPE', request?.scope || dataset.scope],
         ['PROJECTION', 'EPSG:4326 · 2:1 equirectangular display'],
         ['COLOR', layer.color],
-        ['RECENT-DATE POLICY', `Conservative T-${layer.lag} day request window; provider availability and upstream revisions can differ.`],
+        ['RECENT-DATE POLICY', `Conservative T-${layer.conservativeLagDays} day request window; this is a selection guard, not a freshness timestamp.`],
         ['COMPARE', compareValue],
         ['LIMIT', layer.limit]
-      ].map(([key,value]) => `<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('');
+      ].map(([key, value]) => `<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('');
       sourceLink.href = worldviewUrl(layer);
-      $('#eoLayerNote',stage).textContent = layer.note;
-      $('#eoLayerMode',stage).textContent = layer.group;
-      opacityWrap.hidden = layer.mode !== 'overlay';
-      opacity.value = String(Math.round((state.overlayOpacity || layer.opacity || 1) * 100));
+      $('#eoLayerNote', stage).textContent = layer.note;
+      $('#eoLayerMode', stage).textContent = layer.group;
+      opacityWrap.hidden = layer.renderMode !== 'overlay';
+      opacity.value = String(Math.round(state.overlayOpacity * 100));
       opacityValue.textContent = `${opacity.value}%`;
     }
 
@@ -513,22 +510,22 @@
       dateInput.min = day(min);
       dateInput.max = day(max);
       dateInput.value = day(state.date);
-      $('#eoCoverageStart',stage).textContent = layer.start;
-      $('#eoCoverageEnd',stage).textContent = `SAFE THROUGH ${day(max)}`;
-      $('#eoTimelineDate',stage).textContent = day(state.date);
-      $('#eoHudLayer',stage).textContent = layer.short;
-      $('#eoHudDate',stage).textContent = `${day(state.date)} UTC`;
+      $('#eoCoverageStart', stage).textContent = layer.availabilityStart;
+      $('#eoCoverageEnd', stage).textContent = `SAFE THROUGH ${day(max)}`;
+      $('#eoTimelineDate', stage).textContent = day(state.date);
+      $('#eoHudLayer', stage).textContent = layer.short;
+      $('#eoHudDate', stage).textContent = `${day(state.date)} UTC`;
       const actualOffset = actualCompareOffset();
-      $('#eoHudReference',stage).textContent = state.compare ? `${day(compareDate())} · ${actualOffset}D${actualOffset !== state.compareOffset ? '*' : ''}` : 'OFF';
-      $('#eoLabelA',stage).textContent = day(state.date);
-      $('#eoLabelB',stage).textContent = day(compareDate());
+      $('#eoHudReference', stage).textContent = state.compare ? `${day(compareDate())} · ${actualOffset}D${actualOffset !== state.compareOffset ? '*' : ''}` : 'OFF';
+      $('#eoLabelA', stage).textContent = day(state.date);
+      $('#eoLabelB', stage).textContent = day(compareDate());
       compareButton.classList.toggle('is-active', state.compare);
       compareButton.setAttribute('aria-pressed', String(state.compare));
       compareState.textContent = state.compare ? 'A / B' : 'OFF';
       nextButton.disabled = day(state.date) >= day(max);
       prevButton.disabled = day(state.date) <= day(min);
       recentButton.disabled = day(state.date) >= day(max);
-      $$('#eoComparePresets [data-offset]',stage).forEach(button => {
+      $$('#eoComparePresets [data-offset]', stage).forEach(button => {
         const selected = Number(button.dataset.offset) === state.compareOffset;
         button.classList.toggle('is-active', selected);
         button.setAttribute('aria-pressed', String(selected));
@@ -542,7 +539,7 @@
       if (images) renderImages();
     }
 
-    function setDate(next, options={}) {
+    function setDate(next, options = {}) {
       const { min, max } = boundsFor();
       state.date = clampDate(next, min, max);
       state.probe = null;
@@ -591,7 +588,7 @@
         activeGroup = next.group;
         const nextBounds = boundsFor(next);
         state.date = wasAtSafeDate ? nextBounds.max : clampDate(state.date, nextBounds.min, nextBounds.max);
-        state.overlayOpacity = next.opacity ?? 1;
+        state.overlayOpacity = opacityFor(next);
         state.probe = null;
         togglePlay(false);
         renderState();
@@ -634,8 +631,8 @@
     dateInput.addEventListener('change', () => {
       if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput.value)) setDate(utcDate(dateInput.value));
     });
-    prevButton.addEventListener('click', () => setDate(addDays(state.date,-1)));
-    nextButton.addEventListener('click', () => setDate(addDays(state.date,1)));
+    prevButton.addEventListener('click', () => setDate(addDays(state.date, -1)));
+    nextButton.addEventListener('click', () => setDate(addDays(state.date, 1)));
     recentButton.addEventListener('click', () => setDate(boundsFor().max));
     playButton.addEventListener('click', () => togglePlay());
     compareButton.addEventListener('click', () => { state.compare = !state.compare; renderState(); });
@@ -648,7 +645,7 @@
     opacity.addEventListener('input', () => {
       state.overlayOpacity = Number(opacity.value) / 100;
       opacityValue.textContent = `${opacity.value}%`;
-      $$('[data-eo-role="observation"]', stage).forEach(img => { if (currentLayer().mode === 'overlay') img.style.opacity = state.overlayOpacity; });
+      $$('[data-eo-role="observation"]', stage).forEach(img => { if (currentLayer().renderMode === 'overlay') img.style.opacity = state.overlayOpacity; });
       renderInspector();
     });
     clearProbeButton.addEventListener('click', () => { state.probe = null; renderProbe(); });
@@ -660,7 +657,7 @@
       state.compare = false;
       state.compareOffset = 7;
       state.split = 50;
-      state.overlayOpacity = 1;
+      state.overlayOpacity = opacityFor(layer);
       state.probe = null;
       state.showGrid = true;
       graticule.hidden = false;
@@ -678,7 +675,7 @@
       const y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
       const lon = (x / rect.width) * 360 - 180;
       const lat = 90 - (y / rect.height) * 180;
-      state.probe = { lon, lat, xPct:(x/rect.width)*100, yPct:(y/rect.height)*100 };
+      state.probe = { lon, lat, xPct:(x / rect.width) * 100, yPct:(y / rect.height) * 100 };
       renderProbe();
     });
 
@@ -697,27 +694,31 @@
       event.stopPropagation();
     });
     handle.addEventListener('pointermove', event => { if (dragPointer === event.pointerId) setSplitFromPointer(event); });
-    handle.addEventListener('pointerup', event => { if (dragPointer === event.pointerId) { dragPointer = null; handle.releasePointerCapture?.(event.pointerId); } });
+    handle.addEventListener('pointerup', event => {
+      if (dragPointer === event.pointerId) {
+        dragPointer = null;
+        handle.releasePointerCapture?.(event.pointerId);
+      }
+    });
     handle.addEventListener('pointercancel', () => { dragPointer = null; });
     handle.addEventListener('keydown', event => {
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Home' || event.key === 'End') {
-        event.preventDefault();
-        if (event.key === 'Home') state.split = 5;
-        else if (event.key === 'End') state.split = 95;
-        else state.split = Math.max(5, Math.min(95, state.split + (event.key === 'ArrowLeft' ? -5 : 5)));
-        updateSplit();
-        persist();
-        renderInspector();
-      }
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      if (event.key === 'Home') state.split = 5;
+      else if (event.key === 'End') state.split = 95;
+      else state.split = Math.max(5, Math.min(95, state.split + (event.key === 'ArrowLeft' ? -5 : 5)));
+      updateSplit();
+      persist();
+      renderInspector();
     });
 
     keyHandler = event => {
       if (!stage.isConnected || event.target?.closest?.('input,textarea,select,button,a,[contenteditable="true"],[role="slider"]')) return;
       if (event.code === 'Space') { event.preventDefault(); togglePlay(); }
-      if (event.key === 'ArrowLeft') setDate(addDays(state.date,-1));
-      if (event.key === 'ArrowRight') setDate(addDays(state.date,1));
+      if (event.key === 'ArrowLeft') setDate(addDays(state.date, -1));
+      if (event.key === 'ArrowRight') setDate(addDays(state.date, 1));
       if (event.key.toLowerCase() === 'c') { state.compare = !state.compare; renderState(); }
-      if (event.key.toLowerCase() === 'g') { gridButton.click(); }
+      if (event.key.toLowerCase() === 'g') gridButton.click();
     };
     document.addEventListener('keydown', keyHandler);
 
@@ -731,6 +732,7 @@
       clearInterval(timer);
       clearTimeout(rangeCommitTimer);
       loadGeneration += 1;
+      if (supply.describe('nasa-gibs')?.request?.status === 'requesting') activeSupplyRequest?.abort?.({ reason:'instrument-close' });
       cancelLoads(foregroundLoads);
       cancelLoads(backgroundLoads);
       resizeObserver?.disconnect();
@@ -745,5 +747,5 @@
   setConditions();
   window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};
   window.GeoGeekInstrumentMounts.earth = mountEnhancedEarth;
-  window.GeoEarthTemporalLab = { version:VERSION, mount:mountEnhancedEarth, layers };
+  window.GeoEarthTemporalLab = { version:VERSION, mount:mountEnhancedEarth, datasetId:'nasa-gibs', layers };
 })();

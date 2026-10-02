@@ -5,6 +5,8 @@
   const scriptUrl = src => new URL(src, document.baseURI).href;
   const ORBIT_CATALOG_SOURCE = 'orbital/orbit-catalog-source.js?v=20261002b';
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
+  const DATA_SUPPLY_RUNTIME = 'core/data-supply.js?v=20261002c';
+  const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v2.js?v=20261002c';
 
   function cache(url, promise) {
     const guarded = promise.catch(error => {
@@ -82,7 +84,11 @@
       await loadModule(ORBIT_ENHANCEMENT);
     }
     if (kind === 'world' && !window.GeoProjectionLab) await loadScript('world-projection-lab.js?v=20261001a');
-    if (kind === 'earth' && !window.GeoEarthTemporalLab) await loadScript('earth-observation-lab.js?v=20261002b');
+    if (kind === 'earth' && !window.GeoEarthTemporalLab) {
+      await loadModule(DATA_SUPPLY_RUNTIME);
+      await loadScript(EARTH_OBSERVATION_LAB);
+      if (!window.GeoEarthTemporalLab) throw new Error('Earth observation Lab failed to bind the unified data-supply contract.');
+    }
     if (kind === 'figure' && !window.GeoFigureWorkbench) await loadScript('figure-analysis-workbench.js?v=20261001c');
     if (kind === 'figure' && !window.GeoFigureViewerV2) await loadScript('figure-viewer-v2.js?v=20261001d');
     if (kind === 'figure' && !window.GeoFigureViewerV2Polish) await loadScript('figure-viewer-v2-polish.js?v=20261001e');

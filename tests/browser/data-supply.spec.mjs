@@ -4,7 +4,7 @@ const isoDay = date => date.toISOString().slice(0, 10);
 
 function snapshotMeta({ id, fetchedAt, count = 1, window = null }) {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     supplyId: id,
     dataset: id,
     provider: 'TEST',
@@ -99,4 +99,54 @@ test('stale Earth snapshot falls back to provider while Orbit remains last-known
   expect(result.stale).toBe(true);
   expect(result.transport).toBe('provider-fallback');
   expect(noaaUpstream).toBe(1);
+});
+
+test('explicit raster lifecycle is latest-request-wins and preserves date-scoped provenance', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+  const result = await page.evaluate(async () => {
+    await import('/core/data-supply.js?v=raster-lifecycle-test');
+    const supply = window.GeoDataSupply;
+    const first = supply.beginRequest('nasa-gibs', {
+      productId:'terra-true',
+      transport:'provider-raster',
+      observationTime:'2026-09-28T00:00:00Z',
+      scope:'GLOBAL · EPSG:4326 · 2026-09-28 · SINGLE VIEW',
+      requestUrl:'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?time=2026-09-28'
+    });
+    const requesting = supply.describe('nasa-gibs');
+    const second = supply.beginRequest('nasa-gibs', {
+      productId:'surface-temp',
+      transport:'provider-raster',
+      observationTime:'2026-09-29T00:00:00Z',
+      scope:'GLOBAL · EPSG:4326 · 2026-09-29 · SINGLE VIEW'
+    });
+    const staleAccepted = first.succeed({ imageCount:1 });
+    const latestAccepted = second.succeed({ imageCount:2 });
+    const final = supply.describe('nasa-gibs');
+    return {
+      schemaVersion:supply.schemaVersion,
+      productCount:supply.products('nasa-gibs').length,
+      requestingStatus:requesting.request.status,
+      requestingProduct:requesting.product?.id,
+      staleAccepted,
+      latestAccepted,
+      finalStatus:final.request.status,
+      finalTransport:final.transport,
+      finalProduct:final.product?.id,
+      finalObservationTime:final.request.observationTime,
+      finalScope:final.request.scope
+    };
+  });
+
+  expect(result.schemaVersion).toBe(2);
+  expect(result.productCount).toBe(8);
+  expect(result.requestingStatus).toBe('requesting');
+  expect(result.requestingProduct).toBe('terra-true');
+  expect(result.staleAccepted).toBe(false);
+  expect(result.latestAccepted).toBe(true);
+  expect(result.finalStatus).toBe('available');
+  expect(result.finalTransport).toBe('provider-raster');
+  expect(result.finalProduct).toBe('surface-temp');
+  expect(result.finalObservationTime).toBe('2026-09-29T00:00:00Z');
+  expect(result.finalScope).toContain('2026-09-29');
 });
