@@ -22,7 +22,7 @@ function snapshotMeta({ id, fetchedAt, count = 1, window = null }) {
 
 function referenceMeta() {
   return {
-    schemaVersion:1,
+    schemaVersion:2,
     supplyId:'natural-earth-land-110m',
     dataset:'natural-earth-land-110m',
     provider:'Natural Earth',
@@ -43,8 +43,8 @@ test('unified supply routes snapshots, hybrid dates, queries, tiles and referenc
   const yesterday = isoDay(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1)));
   let noaaUpstream = 0;
   let emscUpstream = 0;
-  let usgsUpstream = 0;
-  let referenceUpstream = 0;
+  let pulseSnapshotHits = 0;
+  let referenceSnapshotHits = 0;
 
   await page.route('**/data/snapshots/noaa-aurora.meta.json', route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify(snapshotMeta({ id:'noaa-aurora', fetchedAt:now.toISOString(), count:1 }))
@@ -55,17 +55,21 @@ test('unified supply routes snapshots, hybrid dates, queries, tiles and referenc
   await page.route('**/data/snapshots/usgs-earthquakes-day.meta.json', route => route.fulfill({
     status:200, contentType:'application/json', body:JSON.stringify(snapshotMeta({ id:'usgs-earthquakes-day', fetchedAt:now.toISOString(), count:1 }))
   }));
-  await page.route('**/data/snapshots/usgs-earthquakes-day.geojson', route => route.fulfill({
-    status:200, contentType:'application/json', body:JSON.stringify({ type:'FeatureCollection', source:'pulse-snapshot', features:[] })
-  }));
+  await page.route('**/data/snapshots/usgs-earthquakes-day.geojson', route => {
+    pulseSnapshotHits += 1;
+    return route.fulfill({ status:200, contentType:'application/json', body:JSON.stringify({ type:'FeatureCollection', source:'pulse-snapshot', features:[] }) });
+  });
   await page.route('**/data/reference/natural-earth-land-110m.meta.json', route => route.fulfill({
     status:200, contentType:'application/json', body:JSON.stringify(referenceMeta())
   }));
-  await page.route('**/data/reference/natural-earth-land-110m.geojson', route => route.fulfill({
-    status:200, contentType:'application/geo+json', body:JSON.stringify({
-      type:'FeatureCollection', source:'reference', features:[{ type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[0,0],[1,0],[1,1],[0,0]]] } }]
-    })
-  }));
+  await page.route('**/data/reference/natural-earth-land-110m.geojson', route => {
+    referenceSnapshotHits += 1;
+    return route.fulfill({
+      status:200, contentType:'application/geo+json', body:JSON.stringify({
+        type:'FeatureCollection', source:'reference', features:[{ type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[0,0],[1,0],[1,1],[0,0]]] } }]
+      })
+    });
+  });
   await page.route('**/data/snapshots/emsc-current-day.meta.json', route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify(snapshotMeta({
       id:'emsc-events', fetchedAt:now.toISOString(), count:1,
@@ -79,14 +83,11 @@ test('unified supply routes snapshots, hybrid dates, queries, tiles and referenc
     noaaUpstream += 1;
     return route.fulfill({ status:200, contentType:'application/json', body:JSON.stringify({ source:'upstream', coordinates:[] }) });
   });
-  await page.route('https://earthquake.usgs.gov/**', route => {
-    usgsUpstream += 1;
-    return route.fulfill({ status:200, contentType:'application/json', body:JSON.stringify({ type:'FeatureCollection', source:'upstream', features:[] }) });
-  });
-  await page.route(NATURAL_EARTH_SOURCE, route => {
-    referenceUpstream += 1;
-    return route.fulfill({ status:200, contentType:'application/json', body:JSON.stringify({ type:'FeatureCollection', source:'upstream-reference', features:[] }) });
-  });
+  // These providers are intentionally unreachable in this browser test. A
+  // successful Pulse/reference read therefore proves same-origin delivery,
+  // while the runtime transport state verifies which contract path was used.
+  await page.route('https://earthquake.usgs.gov/**', route => route.abort());
+  await page.route(NATURAL_EARTH_SOURCE, route => route.abort());
   await page.route('https://www.seismicportal.eu/**', route => {
     emscUpstream += 1;
     return route.fulfill({ status:200, contentType:'application/json', body:JSON.stringify({ type:'FeatureCollection', source:'upstream', features:[] }) });
@@ -125,8 +126,8 @@ test('unified supply routes snapshots, hybrid dates, queries, tiles and referenc
   expect(result.current).toBe('snapshot');
   expect(result.past).toBe('upstream');
   expect(noaaUpstream).toBe(0);
-  expect(usgsUpstream).toBe(0);
-  expect(referenceUpstream).toBe(0);
+  expect(pulseSnapshotHits).toBeGreaterThan(0);
+  expect(referenceSnapshotHits).toBeGreaterThan(0);
   expect(emscUpstream).toBe(1);
   expect(result.modes['orbit-active']).toBe('snapshot');
   expect(result.modes['usgs-earthquakes-day']).toBe('snapshot');
@@ -145,24 +146,22 @@ test('unified supply routes snapshots, hybrid dates, queries, tiles and referenc
 test('stale provider-fallback and last-known-good snapshots keep distinct transport semantics', async ({ page }) => {
   const stale = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString();
   let noaaUpstream = 0;
-  let usgsUpstream = 0;
+  let pulseSnapshotHits = 0;
   await page.route('**/data/snapshots/noaa-aurora.meta.json', route => route.fulfill({
     status:200, contentType:'application/json', body:JSON.stringify(snapshotMeta({ id:'noaa-aurora', fetchedAt:stale }))
   }));
   await page.route('**/data/snapshots/usgs-earthquakes-day.meta.json', route => route.fulfill({
     status:200, contentType:'application/json', body:JSON.stringify(snapshotMeta({ id:'usgs-earthquakes-day', fetchedAt:stale }))
   }));
-  await page.route('**/data/snapshots/usgs-earthquakes-day.geojson', route => route.fulfill({
-    status:200, contentType:'application/json', body:JSON.stringify({ type:'FeatureCollection', source:'last-known-good', features:[] })
-  }));
+  await page.route('**/data/snapshots/usgs-earthquakes-day.geojson', route => {
+    pulseSnapshotHits += 1;
+    return route.fulfill({ status:200, contentType:'application/json', body:JSON.stringify({ type:'FeatureCollection', source:'last-known-good', features:[] }) });
+  });
   await page.route('https://services.swpc.noaa.gov/**', route => {
     noaaUpstream += 1;
     return route.fulfill({ status:200, contentType:'application/json', body:JSON.stringify({ source:'upstream', coordinates:[] }) });
   });
-  await page.route('https://earthquake.usgs.gov/**', route => {
-    usgsUpstream += 1;
-    return route.fulfill({ status:200, contentType:'application/json', body:JSON.stringify({ type:'FeatureCollection', source:'upstream', features:[] }) });
-  });
+  await page.route('https://earthquake.usgs.gov/**', route => route.abort());
   await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
   const result = await page.evaluate(async () => {
     await import('/core/data-supply.js?v=stale-test');
@@ -187,7 +186,7 @@ test('stale provider-fallback and last-known-good snapshots keep distinct transp
   expect(result.pulseSource).toBe('last-known-good');
   expect(result.pulseStale).toBe(true);
   expect(result.pulseTransport).toBe('same-origin-snapshot');
-  expect(usgsUpstream).toBe(0);
+  expect(pulseSnapshotHits).toBeGreaterThan(0);
 });
 
 test('explicit raster lifecycle is latest-request-wins and preserves date-scoped provenance', async ({ page }) => {
