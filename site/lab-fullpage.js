@@ -17,6 +17,10 @@
   const CORE = new Set(['world', 'figure', 'orbit', 'earth', 'flow', 'pulse']);
   const MODES = ['focus', 'work', 'inspect'];
   const STORAGE = 'geogeek.lab.workspaceMode';
+  const REFINEMENTS = {
+    orbit:'orbital/orbit-round2.js?v=20261002a'
+  };
+  const refinementLoads = new Map();
   let activeKind = '';
 
   const toolbar = document.createElement('div');
@@ -50,6 +54,18 @@
     document.dispatchEvent(new CustomEvent('geogeek:workspace-mode', { detail:{ kind:activeKind, mode:next } }));
   }
 
+  function loadRefinement(kind) {
+    const src = REFINEMENTS[kind];
+    if (!src) return Promise.resolve();
+    if (refinementLoads.has(src)) return refinementLoads.get(src);
+    const promise = import(new URL(src, document.baseURI).href).catch(error => {
+      refinementLoads.delete(src);
+      throw error;
+    });
+    refinementLoads.set(src, promise);
+    return promise;
+  }
+
   function syncIdentity() {
     const kind = dialog.dataset.instrumentKind || '';
     const isCore = CORE.has(kind);
@@ -67,6 +83,7 @@
     close.textContent = '← LAB INDEX';
     close.setAttribute('aria-label', 'Return to Lab index');
     setMode(dialog.dataset.workspaceMode || storedMode(), { persist:false });
+    loadRefinement(kind).catch(error => console.warn(`[GeoGeek] ${kind} refinement failed to load; base instrument remains available.`, error));
   }
 
   buttons.forEach(button => button.addEventListener('click', () => setMode(button.dataset.workspaceMode)));
