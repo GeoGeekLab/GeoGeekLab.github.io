@@ -9,7 +9,7 @@
     if (document.querySelector('link[data-orbit-round2]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = new URL('./orbit-round2.css?v=20261002a', document.baseURI).href;
+    link.href = new URL('./orbit-round2.css?v=20261002a', import.meta.url).href;
     link.dataset.orbitRound2 = '1';
     document.head.appendChild(link);
   }
@@ -105,7 +105,7 @@
         let current = 'catalog';
         for (const name of ['catalog','view','ground','object','source']) {
           const card = map[name];
-          if (card && card.offsetTop <= y) current = name;
+          if (card && card.offsetParent !== null && card.offsetTop <= y) current = name;
         }
         setActive(current);
       });
