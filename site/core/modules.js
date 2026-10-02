@@ -7,7 +7,7 @@
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
   const DATA_SUPPLY_RUNTIME = 'core/data-supply.js?v=20261002c';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002d';
-  const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261002d';
+  const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261002e';
 
   function alignPulseContract() {
     const root = window.GEOGEEK_DATA?.en;
