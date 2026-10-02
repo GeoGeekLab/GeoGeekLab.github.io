@@ -51,4 +51,18 @@
       console.warn(`[GeoGeek] Play ${kind} failed to load; retry remains available.`, error);
     }
   }, true);
+
+  // lab-page.js may have scheduled a direct ?instrument= request before this
+  // runtime replaced GeoModules.loadInstrument. Re-open only when the requested
+  // Play has not already mounted; openByKind is idempotent at the dialog level.
+  const requested = new URLSearchParams(location.search).get('instrument');
+  if (PLAY_KINDS.has(requested)) queueMicrotask(async () => {
+    if (window.GeoInstruments?.getActive?.() === requested) return;
+    try {
+      const instruments = await loadPlay(requested);
+      await instruments?.openByKind?.(requested, { updateUrl: false });
+    } catch (error) {
+      console.warn(`[GeoGeek] Direct Play ${requested} could not initialize.`, error);
+    }
+  });
 })();
