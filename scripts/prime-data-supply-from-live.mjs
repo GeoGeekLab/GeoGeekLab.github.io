@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import { snapshotDatasets, readJson, pathsFor, validatePayload, sha256, atomicWrite } from './data-supply-lib.mjs';
+import { snapshotDatasets, referenceDatasets, readJson, pathsFor, referencePathsFor, validatePayload, sha256, atomicWrite } from './data-supply-lib.mjs';
 
 const liveBase = process.env.DATA_SUPPLY_LIVE_BASE || 'https://geogeeklab.github.io/';
 const only = new Set(String(process.env.DATA_SUPPLY_ONLY || '').split(',').map(s => s.trim()).filter(Boolean));
-const datasets = snapshotDatasets().filter(dataset => !only.size || only.has(dataset.id));
+const snapshots = snapshotDatasets().filter(dataset => !only.size || only.has(dataset.id));
+const references = referenceDatasets().filter(dataset => !only.size || only.has(dataset.id));
 
-for (const dataset of datasets) {
+for (const dataset of snapshots) {
   const remoteMetaUrl = new URL(dataset.metadata, liveBase).href;
   let metaResponse;
   try { metaResponse = await fetch(remoteMetaUrl, { cache:'no-store', headers:{ accept:'application/json' } }); }
@@ -34,4 +35,36 @@ for (const dataset of datasets) {
   await atomicWrite(dataPath, raw.endsWith('\n') ? raw : `${raw}\n`);
   await atomicWrite(metaPath, `${JSON.stringify(remoteMeta, null, 2)}\n`);
   console.log(`${dataset.id}: primed from live Pages · ${validation.recordCount.toLocaleString()} records · ${remoteMeta.fetchedAt}`);
+}
+
+for (const dataset of references) {
+  const remoteMetaUrl = new URL(dataset.metadata, liveBase).href;
+  let metaResponse;
+  try { metaResponse = await fetch(remoteMetaUrl, { cache:'no-store', headers:{ accept:'application/json' } }); }
+  catch (error) { console.warn(`${dataset.id}: deployed reference metadata unavailable (${error?.message || error}); keeping checkout reference.`); continue; }
+  if (!metaResponse.ok) { console.warn(`${dataset.id}: deployed reference metadata HTTP ${metaResponse.status}; keeping checkout reference.`); continue; }
+  let remoteMeta;
+  try { remoteMeta = await metaResponse.json(); } catch { console.warn(`${dataset.id}: deployed reference metadata is not JSON; keeping checkout reference.`); continue; }
+  if (!remoteMeta?.sha256 || remoteMeta?.version !== dataset.version || remoteMeta?.source !== dataset.upstream) {
+    console.warn(`${dataset.id}: deployed reference metadata does not match the registry pin; keeping checkout reference.`);
+    continue;
+  }
+
+  const { dataPath, metaPath } = referencePathsFor(dataset);
+  const localMeta = await readJson(metaPath);
+  if (localMeta?.sha256 === remoteMeta.sha256 && localMeta?.version === dataset.version) {
+    console.log(`${dataset.id}: checkout reference matches deployed version.`);
+    continue;
+  }
+
+  const dataResponse = await fetch(new URL(dataset.reference, liveBase).href, { cache:'no-store', headers:{ accept:'application/json' } });
+  if (!dataResponse.ok) { console.warn(`${dataset.id}: deployed reference HTTP ${dataResponse.status}; keeping checkout reference.`); continue; }
+  const raw = await dataResponse.text();
+  if (sha256(raw) !== remoteMeta.sha256) throw new Error(`${dataset.id}: deployed reference checksum does not match metadata.`);
+  const payload = JSON.parse(raw);
+  const validation = validatePayload(dataset, payload, remoteMeta);
+  if (validation.recordCount !== Number(remoteMeta.recordCount)) throw new Error(`${dataset.id}: deployed reference recordCount mismatch.`);
+  await atomicWrite(dataPath, raw.endsWith('\n') ? raw : `${raw}\n`);
+  await atomicWrite(metaPath, `${JSON.stringify(remoteMeta, null, 2)}\n`);
+  console.log(`${dataset.id}: primed immutable reference ${remoteMeta.version} from live Pages.`);
 }

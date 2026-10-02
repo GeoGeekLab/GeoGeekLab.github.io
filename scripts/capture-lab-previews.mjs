@@ -69,6 +69,43 @@ async function newPage(viewport = { width: 1600, height: 1000 }) {
   return page;
 }
 
+async function installLegacyPulseFixtures(page) {
+  const now = Date.parse('2026-10-02T02:00:00Z');
+  const world = {
+    objects:{ countries:{} },
+    features:[
+      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[-168,12],[-130,12],[-105,35],[-115,70],[-160,70],[-168,12]]] } },
+      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[-82,10],[-34,10],[-38,-55],[-74,-52],[-82,10]]] } },
+      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[-10,36],[45,36],[52,-35],[5,-35],[-10,36]]] } },
+      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[25,35],[170,35],[150,75],[40,70],[25,35]]] } },
+      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[110,-10],[155,-10],[153,-45],[112,-45],[110,-10]]] } },
+    ],
+  };
+  const quakes = {
+    type:'FeatureCollection',
+    features:Array.from({ length:24 }, (_, index) => ({
+      type:'Feature', id:`preview-${index}`,
+      properties:{
+        mag:2.2 + (index % 6) * .6,
+        place:`Deterministic preview event ${index + 1}`,
+        time:now - index * 45 * 60 * 1000,
+      },
+      geometry:{ type:'Point', coordinates:[-165 + (index * 29) % 330, -55 + (index * 17) % 110, 8 + (index * 31) % 420] },
+    })),
+  };
+  await page.route('https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js', route => route.fulfill({
+    status:200,
+    contentType:'application/javascript',
+    body:'window.topojson={feature:function(world){return {type:"FeatureCollection",features:world.features||[]};}};'
+  }));
+  await page.route('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json', route => route.fulfill({
+    status:200, contentType:'application/json', body:JSON.stringify(world)
+  }));
+  await page.route('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson', route => route.fulfill({
+    status:200, contentType:'application/geo+json', body:JSON.stringify(quakes)
+  }));
+}
+
 async function exerciseFlowLab(page) {
   await page.waitForFunction(() => {
     const lab = document.querySelector('#instrumentStage .flow-lab');
@@ -99,6 +136,7 @@ async function captureInstrument(kind) {
   const page = await newPage();
   const url = `${base}/lab.html?instrument=${encodeURIComponent(kind)}`;
   try {
+    if (kind === 'pulse') await installLegacyPulseFixtures(page);
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForFunction(() => document.getElementById('instrumentDialog')?.open === true, null, { timeout: 20000 });
     await page.waitForSelector('#instrumentStage > *', { state: 'visible', timeout: 20000 });
