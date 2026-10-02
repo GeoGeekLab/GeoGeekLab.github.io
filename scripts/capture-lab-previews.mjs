@@ -4,6 +4,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
+// These screenshots validate that each Lab instrument renders a usable preview;
+// they are not typography visual-regression tests. Playwright otherwise waits
+// for document.fonts.ready before every screenshot, which can deadlock CI when
+// a third-party webfont is slow or blocked.
+process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY = '1';
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const site = path.join(root, 'site');
 const output = path.join(site, 'assets', 'lab', 'previews');
