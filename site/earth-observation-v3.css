@@ -52,6 +52,30 @@
 .eo-nav-controls output{display:grid;place-items:center;height:30px;color:var(--eo-fg);font:700 9px/1 var(--mono);letter-spacing:.04em}
 .eo-loading[data-state="error"]{border-color:rgba(209,99,57,.38);color:#e7ae98}
 
+/*
+ * On desktop the 2:1 EPSG:4326 frame is height-limited. Float the timeline
+ * over the map instead of consuming a whole grid row, so the world view gains
+ * real pixels without stretching or cropping the geographic extent.
+ */
+@media(min-width:921px){
+  .earth-observation-canvas{position:relative;grid-template-rows:auto minmax(0,1fr)}
+  .earth-timeline{
+    position:absolute;
+    z-index:12;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    min-height:64px;
+    border:1px solid var(--eo-line);
+    border-radius:14px;
+    background:rgba(8,14,10,.90);
+    backdrop-filter:blur(14px);
+    box-shadow:0 14px 36px rgba(0,0,0,.26);
+  }
+  .eo-nav-controls{bottom:92px}
+  .eo-frame-note{bottom:88px}
+}
+
 @media(max-width:1180px){
   .earth-observation-lab{grid-template-columns:minmax(0,1.6fr) minmax(300px,.68fr)}
   .earth-observation-hud{grid-template-columns:1.1fr .8fr .75fr auto}
@@ -59,6 +83,8 @@
 }
 @media(max-width:920px){
   .earth-observation-lab{height:auto;min-height:100%;grid-template-columns:1fr;grid-template-rows:minmax(560px,70vh) auto;overflow:auto}
+  .earth-observation-canvas{grid-template-rows:auto minmax(0,1fr) auto}
+  .earth-timeline{position:static;min-height:78px;border-radius:0;backdrop-filter:none;box-shadow:none}
 }
 @media(max-width:700px){
   .earth-observation-lab{padding:8px;gap:8px;grid-template-rows:minmax(520px,68vh) auto}
@@ -67,4 +93,5 @@
   .earth-observation-hud>div:nth-child(3),
   .earth-observation-hud>div:nth-child(4){display:none}
   .eo-nav-controls{right:8px;bottom:30px;grid-template-columns:32px 52px 32px 40px}
+  .eo-frame-note{bottom:10px}
 }

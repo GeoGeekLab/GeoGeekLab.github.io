@@ -1,6 +1,6 @@
 import { createEarthObservationModule } from './earth-observation-v3/mount.js';
 
-const VERSION = '20261002d';
+const VERSION = '20261002e';
 const supply = window.GeoDataSupply;
 const module = createEarthObservationModule(supply);
 
