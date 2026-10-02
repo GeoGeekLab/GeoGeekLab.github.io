@@ -9,6 +9,38 @@
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v2.js?v=20261002c';
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab.js?v=20261002a';
 
+  function alignPulseContract() {
+    const root = window.GEOGEEK_DATA?.en;
+    const item = root?.lab?.find(entry => entry.instrument === 'pulse');
+    if (item) Object.assign(item, {
+      status:'Instrument',
+      tags:['Seismicity', '24 h snapshot', 'USGS'],
+      description:'A rolling 24-hour earthquake field that keeps event time, solution revision, feed generation, and GeoGeek delivery time distinct.',
+      source:'USGS Earthquake Hazards Program · GeoGeek validated snapshot'
+    });
+    const lab = root?.ui?.lab;
+    if (lab?.conditions) lab.conditions.pulse = [
+      ['SOURCE', 'USGS Earthquake Hazards Program'],
+      ['DELIVERY', 'GeoGeek same-origin snapshot'],
+      ['TIME', 'Rolling past 24 h · event origin time'],
+      ['LIMIT', 'Solutions revise · completeness varies']
+    ];
+
+    const card = document.querySelector('#l10');
+    if (!card) return;
+    const meta = card.querySelectorAll('.project-meta span');
+    if (meta[0]) meta[0].textContent = 'Instrument';
+    if (meta[1]) meta[1].textContent = 'Seismicity · 24 h snapshot · USGS';
+    const copy = card.querySelector('.project-copy > p');
+    const coord = card.querySelector('.lab-coord');
+    const stamp = card.querySelector('.preview-stamp');
+    if (copy) copy.textContent = 'Read a rolling 24-hour seismic field with source time, snapshot freshness, and event revision kept explicit.';
+    if (coord) coord.textContent = 'lon / lat / depth / time';
+    if (stamp) stamp.textContent = 'USGS / SNAPSHOT / 24 H';
+  }
+
+  alignPulseContract();
+
   function cache(url, promise) {
     const guarded = promise.catch(error => {
       loaded.delete(url);
@@ -189,7 +221,7 @@
         observer.disconnect();
         start();
       }, { rootMargin:'520px 0px' });
-      observer.observe(homeCommonsMount);
+      observer.observe(homeCommonsMapMount);
     } else start();
   }
 })();
