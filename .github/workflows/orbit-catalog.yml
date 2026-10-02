@@ -40,7 +40,7 @@ jobs:
           node -e "const fs=require('fs');const a=JSON.parse(fs.readFileSync('site/orbital/data/active.json'));const m=JSON.parse(fs.readFileSync('site/orbital/data/active.meta.json'));if(!Array.isArray(a)||a.length<5000||m.recordCount!==a.length)process.exit(1);console.log('validated',a.length,'records',m.fetchedAt)"
       - name: Commit refreshed snapshot
         run: |
-          if git diff --quiet -- site/orbital/data/active.json site/orbital/data/active.meta.json; then
+          if [ -z "$(git status --porcelain -- site/orbital/data/active.json site/orbital/data/active.meta.json)" ]; then
             echo 'Orbit snapshot is already current.'
             exit 0
           fi
