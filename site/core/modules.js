@@ -147,7 +147,14 @@
     return window.GeoInstruments;
   }
 
-  window.GeoModules = { loadScript, loadModule, loadMap, loadCommons, loadInstrument };
+  window.GeoModules = {
+    loadScript,
+    loadModule,
+    loadMap,
+    loadCommons,
+    loadInstrument,
+    normalizeInstrumentAria: normalizeEarthAria
+  };
 
   const mapToggle = document.getElementById('navToggle');
   mapToggle?.addEventListener('click', async event => {
