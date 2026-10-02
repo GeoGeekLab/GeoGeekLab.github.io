@@ -3,6 +3,8 @@ import {
   requestDimensions, screenToGeo, viewportBounds
 } from './model.js';
 
+const WHEEL_COMMIT_DELAY_MS = 320;
+
 function niceStep(span, targetLines = 6) {
   const target = span / Math.max(2, targetLines);
   const steps = [.25, .5, 1, 2, 5, 10, 15, 30, 45, 60, 90];
@@ -81,9 +83,12 @@ export function createMapCamera({ state, stage, frameShell, frame, stackA, stack
     [stackA, stackB, graticule].forEach(node => { if (node) node.style.transform = ''; });
   }
 
-  function commitSoon(delay = 140) {
+  function commitSoon(delay = WHEEL_COMMIT_DELAY_MS) {
     clearTimeout(wheelTimer);
-    wheelTimer = setTimeout(() => { wheelTimer = null; onCommit?.(); }, delay);
+    wheelTimer = setTimeout(() => {
+      wheelTimer = null;
+      onCommit?.();
+    }, delay);
   }
 
   function setZoomAt(nextZoom, clientX = null, clientY = null, { immediate=false } = {}) {
@@ -101,8 +106,13 @@ export function createMapCamera({ state, stage, frameShell, frame, stackA, stack
     normalizeCamera(state);
     render();
     onPreview?.();
-    if (immediate) { clearTimeout(wheelTimer); wheelTimer = null; onCommit?.(); }
-    else commitSoon();
+    if (immediate) {
+      clearTimeout(wheelTimer);
+      wheelTimer = null;
+      onCommit?.();
+    } else {
+      commitSoon();
+    }
   }
 
   function fitWorld({ immediate=true } = {}) {
@@ -112,7 +122,11 @@ export function createMapCamera({ state, stage, frameShell, frame, stackA, stack
     state.probe = null;
     render();
     onPreview?.();
-    if (immediate) onCommit?.();
+    if (immediate) {
+      clearTimeout(wheelTimer);
+      wheelTimer = null;
+      onCommit?.();
+    }
   }
 
   const onPointerDown = event => {
@@ -120,6 +134,8 @@ export function createMapCamera({ state, stage, frameShell, frame, stackA, stack
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     const rect = frame.getBoundingClientRect();
     if (rect.width < 1 || rect.height < 1) return;
+    clearTimeout(wheelTimer);
+    wheelTimer = null;
     pointer = event.pointerId;
     moved = false;
     pan = {
