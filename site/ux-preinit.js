@@ -38,16 +38,6 @@
     homeViewportStyle.href = '/home-viewport-fit.css?v=20261003f';
     homeViewportStyle.dataset.homeViewportFit = 'style';
     document.head.appendChild(homeViewportStyle);
-
-    // The homepage uses section ownership for its semantic scale. The generic
-    // IntersectionObserver can report only threshold-changing entries, which can
-    // leave Commons stuck at POSITION. Run a deterministic viewport-anchor pass
-    // after parsing so SITE → POSITION → COLLECTION always follows the section.
-    const homeScaleScript = document.createElement('script');
-    homeScaleScript.src = '/home-scale.js?v=20261004a';
-    homeScaleScript.defer = true;
-    homeScaleScript.dataset.homeScale = 'script';
-    document.head.appendChild(homeScaleScript);
   }
 
   const isLab = /(?:^|\/)lab\.html$/.test(location.pathname);
@@ -86,6 +76,17 @@
       script.dataset.geoInteraction = 'script';
       script.async = false;
       document.head.appendChild(script);
+    }
+
+    // The homepage uses section ownership for its semantic scale. Load this
+    // after the DOM and synchronous page scripts are complete so GeoScale and
+    // all three homepage sections already exist.
+    if (isHome && !document.querySelector('script[data-home-scale="script"]')) {
+      const homeScaleScript = document.createElement('script');
+      homeScaleScript.src = '/home-scale.js?v=20261004a';
+      homeScaleScript.dataset.homeScale = 'script';
+      homeScaleScript.async = false;
+      document.head.appendChild(homeScaleScript);
     }
 
     if (isLab && !document.querySelector('script[data-lab-real-previews="script"]')) {
