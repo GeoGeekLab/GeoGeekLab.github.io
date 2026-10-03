@@ -4,8 +4,16 @@
   const D3_CDN = 'https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js';
   const TOPOJSON_CDN = 'https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js';
   const WORLD_ATLAS = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
-  const EARTH_RADIUS_KM = 6371;
-  const MAX_DISTANCE_KM = Math.PI * EARTH_RADIUS_KM;
+  const geometry = window.GeoPlay?.orient?.geometry;
+  if (!geometry) throw new Error('ORIENT geometry unavailable.');
+  const {
+    MAX_GREAT_CIRCLE_DISTANCE_KM: MAX_DISTANCE_KM,
+    haversine,
+    initialBearing,
+    normalizeBearing,
+    signedAngle,
+    distanceRatio
+  } = geometry;
 
   const PLACES = {
     nairobi: { label: 'Nairobi', lat: -1.2921, lon: 36.8219 },
@@ -23,22 +31,6 @@
   ];
 
   const toRad = degrees => degrees * Math.PI / 180;
-  function haversine(a, b) {
-    const p1 = toRad(a.lat); const p2 = toRad(b.lat);
-    const dp = toRad(b.lat - a.lat); const dl = toRad(b.lon - a.lon);
-    const h = Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
-    return EARTH_RADIUS_KM * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-  }
-
-  function bearingTo(a, b) {
-    const y = Math.sin(toRad(b.lon - a.lon)) * Math.cos(toRad(b.lat));
-    const x = Math.cos(toRad(a.lat)) * Math.sin(toRad(b.lat)) - Math.sin(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.cos(toRad(b.lon - a.lon));
-    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
-  }
-
-  function signedAngle(value) {
-    return ((value + 540) % 360) - 180;
-  }
 
   function fmtKm(value) {
     return `${Math.round(Math.abs(value)).toLocaleString()} KM`;
@@ -137,7 +129,7 @@
         point: end,
         coordinate,
         distanceKm: haversine(current.from, coordinate),
-        bearingDeg: bearingTo(current.from, coordinate)
+        bearingDeg: initialBearing(current.from, coordinate)
       };
       judgmentLine.attr('x2', end[0]).attr('y2', end[1]).attr('opacity', 1);
       judgmentPoint.attr('cx', end[0]).attr('cy', end[1]).attr('opacity', 1);
@@ -229,7 +221,7 @@
       hit?.style('pointer-events', 'none');
 
       const trueDistance = haversine(current.from, current.to);
-      const trueBearing = bearingTo(current.from, current.to);
+      const trueBearing = initialBearing(current.from, current.to);
       const distanceResidual = estimate.distanceKm - trueDistance;
       const bearingResidual = signedAngle(estimate.bearingDeg - trueBearing);
       const targetPoint = projection([current.to.lon, current.to.lat]);
@@ -252,7 +244,7 @@
         relation: { distanceKm: trueDistance, bearingDeg: trueBearing },
         result: {
           distanceResidualKm: distanceResidual,
-          distanceRatio: trueDistance ? distanceResidual / trueDistance : 0,
+          distanceRatio: distanceRatio(estimate.distanceKm, trueDistance),
           bearingResidualDeg: bearingResidual
         },
         conditions: { before: { ...current.trial.conditions }, after: null },
@@ -319,7 +311,7 @@
       if (event.key === 'ArrowRight') bearing += bearingStep;
       if (event.key === 'ArrowUp') distance += distanceStep;
       if (event.key === 'ArrowDown') distance -= distanceStep;
-      bearing = (bearing + 360) % 360;
+      bearing = normalizeBearing(bearing);
       distance = GeoPlay.core.clamp(distance, 0, MAX_DISTANCE_KM * .985);
       updateEstimate(endpointFromPolar(distance, bearing));
     });
