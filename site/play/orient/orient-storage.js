@@ -6,7 +6,9 @@
 
   const ACTIVE_KEY = 'geogeek.orient.active.v1';
   const HISTORY_KEY = 'geogeek.play.orient.history.v1';
+  const PRIMER_KEY = 'geogeek.orient.primer.v1';
   const HISTORY_VERSION = 'orient-history-1';
+  const PRIMER_VERSION = 'orient-primer-1';
   const ACTIVE_SCHEMA_VERSION = 1;
   const HISTORY_LIMIT = 32;
 
@@ -62,8 +64,11 @@
     return {
       version: plan.version || 'orient-session-unknown',
       seed: String(plan.seed || ''),
+      targetSize: Math.max(plan.trials.length, Number(plan.targetSize) || plan.trials.length),
       contentVersion: plan.contentVersion || null,
+      relationVersion: plan.relationVersion || null,
       difficultyModelVersion: plan.difficultyModelVersion || null,
+      adaptationStrategyVersion: plan.adaptationStrategyVersion || null,
       historyApplied: Boolean(plan.historyApplied),
       cooldownReseeds: Number(plan.cooldownReseeds) || 0,
       fallback: Boolean(plan.fallback),
@@ -78,7 +83,9 @@
         to: trial.to,
         conditions: { ...(trial.conditions || {}) },
         difficulty: trial.difficulty ? { ...trial.difficulty } : null,
-        contrast: trial.contrast ? clone(trial.contrast) : null
+        contrast: trial.contrast ? clone(trial.contrast) : null,
+        challengeFamily: trial.challengeFamily || null,
+        adaptation: trial.adaptation ? clone(trial.adaptation) : null
       }))
     };
   }
@@ -102,7 +109,7 @@
     return `${String(sessionId)}:t${Math.max(1, Number(slot) || 1)}`;
   }
 
-  function createActiveSession({ plan, sessionId = createSessionId(plan?.seed), currentSlot = 1, committedRecordIds = [] } = {}) {
+  function createActiveSession({ plan, sessionId = createSessionId(plan?.seed), currentSlot = 1, committedRecordIds = [], skippedRelationIds = [] } = {}) {
     const safePlan = sanitizePlan(plan);
     const maxSlot = safePlan.trials.length + 1;
     const slot = Math.max(1, Math.min(maxSlot, Number(currentSlot) || 1));
@@ -117,6 +124,7 @@
       status: 'active',
       currentSlot: slot,
       committedRecordIds: [...new Set((committedRecordIds || []).filter(value => typeof value === 'string'))],
+      skippedRelationIds: [...new Set((skippedRelationIds || []).filter(value => typeof value === 'string'))],
       plan: safePlan,
       startedAt: now,
       updatedAt: now
@@ -129,12 +137,16 @@
     if (!value.plan || !Array.isArray(value.plan.trials) || !value.plan.trials.length) return false;
     if (!Number.isInteger(value.currentSlot) || value.currentSlot < 1 || value.currentSlot > value.plan.trials.length + 1) return false;
     if (!Array.isArray(value.committedRecordIds)) return false;
+    if (value.skippedRelationIds != null && !Array.isArray(value.skippedRelationIds)) return false;
     return true;
   }
 
   function readActive(store) {
     const value = readJson(ACTIVE_KEY, null, store);
-    return validActive(value) ? clone(value) : null;
+    if (!validActive(value)) return null;
+    const normalized = clone(value);
+    if (!Array.isArray(normalized.skippedRelationIds)) normalized.skippedRelationIds = [];
+    return normalized;
   }
 
   function writeActive(active, store) {
@@ -154,10 +166,38 @@
       ...clone(active),
       currentSlot: Math.max(1, Math.min(maxSlot, Number(nextSlot) || active.currentSlot)),
       committedRecordIds,
+      skippedRelationIds: [...(active.skippedRelationIds || [])],
       updatedAt: new Date().toISOString()
     };
     if (!writeActive(updated, store)) return null;
     return updated;
+  }
+
+  function replaceActivePlan(active, plan, { skippedRelationId = null } = {}, store) {
+    if (!validActive(active)) return null;
+    const safePlan = sanitizePlan(plan);
+    const skippedRelationIds = [...new Set([...(active.skippedRelationIds || []), ...(skippedRelationId ? [skippedRelationId] : [])])];
+    const updated = {
+      ...clone(active),
+      sessionSeed: safePlan.seed,
+      contentVersion: safePlan.contentVersion,
+      difficultyModelVersion: safePlan.difficultyModelVersion,
+      sessionVersion: safePlan.version,
+      plan: safePlan,
+      skippedRelationIds,
+      updatedAt: new Date().toISOString()
+    };
+    if (!writeActive(updated, store)) return null;
+    return updated;
+  }
+
+  function hasSeenPrimer(store) {
+    const value = readJson(PRIMER_KEY, null, store);
+    return Boolean(value && value.version === PRIMER_VERSION && value.seen === true);
+  }
+
+  function markPrimerSeen(store) {
+    return writeJson(PRIMER_KEY, { version: PRIMER_VERSION, seen: true, updatedAt: new Date().toISOString() }, store);
   }
 
   function readHistory(store) {
@@ -242,7 +282,9 @@
   orient.storage = Object.freeze({
     ACTIVE_KEY,
     HISTORY_KEY,
+    PRIMER_KEY,
     HISTORY_VERSION,
+    PRIMER_VERSION,
     ACTIVE_SCHEMA_VERSION,
     HISTORY_LIMIT,
     sanitizePlan,
@@ -253,6 +295,9 @@
     writeActive,
     clearActive,
     commitActive,
+    replaceActivePlan,
+    hasSeenPrimer,
+    markPrimerSeen,
     readHistory,
     rememberRelation,
     normalizeTraceRecord,
