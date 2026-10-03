@@ -23,11 +23,16 @@ test('ORIENT uses a reproducible four-slot seeded session with a matched cue con
   await expect(shell.locator('.play-conditions')).toContainText('ON');
   await expect(shell.locator('.orient-target')).toHaveCount(0);
 
-  const firstPair = await shell.locator('.play-task').innerText();
+  const firstFrom = (await shell.locator('.play-pair').nth(0).locator('strong').textContent())?.trim();
+  const firstTo = (await shell.locator('.play-pair').nth(1).locator('strong').textContent())?.trim();
+  expect(firstFrom).toBeTruthy();
+  expect(firstTo).toBeTruthy();
+
   await page.reload({ waitUntil: 'domcontentloaded' });
   const reloaded = page.locator('.play-shell[data-play-kind="orient"]');
   await expect(reloaded).toHaveAttribute('data-orient-seed', 'browser-contract', { timeout: 20_000 });
-  await expect(reloaded.locator('.play-task')).toHaveText(firstPair);
+  await expect(reloaded.locator('.play-pair').nth(0).locator('strong')).toHaveText(firstFrom);
+  await expect(reloaded.locator('.play-pair').nth(1).locator('strong')).toHaveText(firstTo);
 
   await commitKeyboardTrial(page, reloaded);
   await reloaded.getByRole('button', { name: 'NEXT RELATION →' }).click();
