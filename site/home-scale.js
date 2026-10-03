@@ -4,6 +4,12 @@
 
   if (!/(?:^|\/)index\.html$/.test(location.pathname)) return;
 
+  const SCALE = {
+    SITE: '1 : 250,000',
+    POSITION: '1 : 100,000',
+    COLLECTION: '1 : 25,000'
+  };
+
   const sections = [
     { id: 'origin', level: 'SITE' },
     { id: 'now', level: 'POSITION' },
@@ -12,6 +18,8 @@
 
   if (!sections.length) return;
 
+  const scaleText = document.getElementById('scaleText');
+  const scaleLevel = document.getElementById('scaleLevel');
   let raf = 0;
   let lastLevel = '';
   let lastSection = '';
@@ -44,11 +52,20 @@
 
     document.body.dataset.currentSection = current.id;
 
+    if (!window.GeoScale?.apply) {
+      requestAnimationFrame(schedule);
+      return;
+    }
+
+    const visualMismatch =
+      scaleLevel?.textContent?.trim() !== current.level ||
+      scaleText?.textContent?.trim() !== SCALE[current.level];
+
     // GeoScale owns the visual readout and GeoSemantic active level.
-    // Use a durable apply so leaving a temporary hover state restores to
-    // the actual homepage section, not to an earlier IntersectionObserver hit.
-    if (current.level !== lastLevel || current.id !== lastSection) {
-      window.GeoScale?.apply?.(current.level, false);
+    // Use a durable apply so leaving any temporary interaction restores to
+    // the actual homepage section, not to an earlier observer hit.
+    if (visualMismatch || current.level !== lastLevel || current.id !== lastSection) {
+      window.GeoScale.apply(current.level, false);
       lastLevel = current.level;
       lastSection = current.id;
     }
@@ -62,6 +79,12 @@
   addEventListener('resize', schedule, { passive: true });
   addEventListener('pageshow', schedule, { passive: true });
   addEventListener('hashchange', schedule, { passive: true });
+
+  // The legacy section observer can write a stale level after a threshold
+  // transition. Correct any visual mismatch against the current viewport owner.
+  const scaleObserver = new MutationObserver(schedule);
+  if (scaleText) scaleObserver.observe(scaleText, { childList: true, characterData: true, subtree: true });
+  if (scaleLevel) scaleObserver.observe(scaleLevel, { childList: true, characterData: true, subtree: true });
 
   // Run after the synchronous homepage scripts have initialized GeoScale.
   requestAnimationFrame(() => requestAnimationFrame(apply));
