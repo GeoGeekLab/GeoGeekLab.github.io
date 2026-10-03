@@ -15,6 +15,9 @@ async function openOrient(page, seed) {
   const shell = page.locator('.play-shell[data-play-kind="orient"]');
   await expect(shell).toBeVisible({ timeout: 20_000 });
   await expect(shell).toHaveAttribute('data-orient-ergonomics-version', 'orient-ergonomics-1', { timeout: 10_000 });
+  // The shell mounts before world/session assets finish loading. Tests that use
+  // the active session must wait for the session contract, not only the shell.
+  await expect(shell).toHaveAttribute('data-orient-session-id', /\S+/, { timeout: 20_000 });
   return shell;
 }
 

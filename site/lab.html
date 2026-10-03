@@ -6,6 +6,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#f4f2ea" name="theme-color"/>
 <meta content="GeoGeek" name="application-name"/>
+<meta name="description" content="Interactive geographic instruments for observing change, comparing representations, and reasoning through space."/>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
@@ -15,9 +16,10 @@
 <link href="/ux-refinements.css" rel="stylesheet"/>
 <link href="lab-page.css?v=20260930a" rel="stylesheet"/>
 <link href="play/play-collection.css?v=20261002c" rel="stylesheet"/>
+<link href="lab-optimization.css?v=20261003a" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20260930g"></script>
 </head>
-<body>
+<body class="lab-page">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-nav">
 <a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
@@ -28,7 +30,7 @@
 <a href="elsewhere.html">Elsewhere</a>
 </nav>
 </header>
-<div aria-label="Scale of view" class="scale-ui" tabindex="0">
+<div aria-label="Scale of view" aria-describedby="scaleExplainer" class="scale-ui" tabindex="0" title="Semantic information scale, not a geographic map scale">
 <span>INFORMATION SCALE</span>
 <strong id="scaleText">1 : 250,000</strong>
 <em id="scaleLevel">SITE</em>
@@ -40,14 +42,37 @@
 <i><b>1 : 2,500</b><small>RECORD</small></i>
 <i><b>1 : 500</b><small>DETAIL</small></i>
 </div>
+<p class="scale-explainer" id="scaleExplainer">Semantic scale — changes information depth, not geographic map scale.</p>
 </div>
 <div aria-hidden="true" class="bg-field"><canvas id="contourCanvas"></canvas></div>
 <main class="page-shell" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="main">
-<section class="page-title"><div><div class="eyebrow">FIELD / INSTRUMENT / LIMIT</div><h1>Lab</h1></div><p class="page-intro">Build tools that expose their scale, assumptions, and limits.</p></section>
+<section class="page-title">
+  <div><div class="eyebrow">FIELD / INSTRUMENT / LIMIT</div><h1>Lab</h1></div>
+  <div>
+    <p class="page-intro">Interactive geographic instruments for observing change, comparing representations, and reasoning through space.</p>
+    <p class="lab-method-note">Built to expose scale, assumptions, sources, and limits.</p>
+  </div>
+</section>
+
+<section class="lab-instruments" aria-labelledby="labInstrumentsTitle">
+  <div class="lab-instruments-head">
+    <span>INTERACTIVE INSTRUMENTS</span>
+    <div class="lab-instruments-heading-copy">
+      <h2 id="labInstrumentsTitle">Observe, compare, and reason through space.</h2>
+      <p>Each entry opens a working geographic instrument, not a static demo. Read the record for context, then enter the workspace for direct observation.</p>
+    </div>
+  </div>
+  <section class="lab-list" id="labList" aria-label="Interactive geographic instruments"></section>
+  <section class="lab-principle instrument-principle" aria-label="Instrument principle">
+    <span>EXTENT / RESOLUTION / LIMIT</span>
+    <p id="labPrinciple">Every instrument declares what it can see — and what it cannot.</p>
+  </section>
+</section>
+
 <section class="lab-builds" aria-labelledby="labBuildsTitle">
   <div class="lab-builds-head">
-    <span>WHAT I'M BUILDING</span>
-    <h2 id="labBuildsTitle">Open-source tools in active development.</h2>
+    <span>OPEN-SOURCE BUILDS</span>
+    <h2 id="labBuildsTitle">Engineering tools behind the practice.</h2>
   </div>
   <div class="lab-build-list">
     <a class="lab-build-row" href="https://github.com/GeoGeekLab/geodebug" target="_blank" rel="noreferrer">
@@ -82,18 +107,15 @@
     </a>
   </div>
 </section>
-
-<section class="lab-list" id="labList"></section>
-<section class="lab-principle instrument-principle" aria-label="Instrument principle">
-  <span>EXTENT / RESOLUTION / LIMIT</span>
-  <p id="labPrinciple">Each instrument declares its extent, resolution, and limit.</p>
-</section>
 </main>
 <dialog class="instrument-dialog" id="instrumentDialog" aria-labelledby="instrumentTitle">
   <div class="instrument-shell">
     <header class="instrument-head">
-      <div><span class="instrument-kicker" id="instrumentKicker">INSTRUMENT</span><h2 id="instrumentTitle">Instrument</h2></div>
-      <button class="instrument-close" id="instrumentClose" type="button" aria-label="Close">×</button>
+      <div>
+        <div class="instrument-breadcrumb" aria-label="Instrument location"><span>LAB</span><span id="instrumentGroupLabel">INSTRUMENT</span></div>
+        <span class="instrument-kicker" id="instrumentKicker">INSTRUMENT</span><h2 id="instrumentTitle">Instrument</h2>
+      </div>
+      <button class="instrument-close" id="instrumentClose" type="button" aria-label="Close" aria-keyshortcuts="Escape">×</button>
     </header>
     <div class="instrument-meta"><p id="instrumentDescription"></p><dl class="instrument-conditions" id="instrumentConditions" aria-label="Observation conditions"></dl></div>
     <div class="instrument-stage" id="instrumentStage"></div>
@@ -103,6 +125,7 @@
 <footer class="footer"><div class="footer-brand">GeoGeek</div><div class="footer-meta"><span>© 2026 GeoGeek</span><a href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank">GitHub ↗</a></div></footer>
 <script src="content.js"></script>
 <script src="archive-content.js"></script>
+<script src="lab-copy-preinit.js?v=20261003a"></script>
 <script src="core/site-model.js"></script>
 <script src="app.js?v=20260930g"></script>
 <script src="lab-page.js?v=20260930a"></script>
@@ -115,5 +138,6 @@
 <script src="commons/config.js"></script>
 <script src="commons/visit-tracker.js"></script>
 <script src="/ux-refinements.js"></script>
+<script src="lab-optimization.js?v=20261003a" defer></script>
 </body>
 </html>

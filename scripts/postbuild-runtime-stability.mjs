@@ -37,7 +37,10 @@ function patchLab(html) {
     <p>The instrument index is enhanced with JavaScript. If it cannot initialize, the rest of GeoGeek remains available through the primary navigation.</p>
     <a href="field-notes.html">Browse Field Notes ↗</a>
   </div>`;
-  html = html.replace('<section class="lab-list" id="labList"></section>', `<section class="lab-list" id="labList">${fallback}</section>`);
+  // Preserve accessibility/data attributes on the Lab collection shell. The
+  // fallback contract must not depend on one exact serialization of the tag.
+  html = html.replace(/(<section\b(?=[^>]*\bclass=["'][^"']*\blab-list\b[^"']*["'])(?=[^>]*\bid=["']labList["'])[^>]*>)(\s*)<\/section>/i,
+    (_, opening, space) => `${opening}${space}${fallback}</section>`);
   return html;
 }
 
