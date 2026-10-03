@@ -61,10 +61,10 @@ jobs:
           test -s site/orbital/data/active.meta.json
           ! grep -in '\bDEMO\b' site/orbital/orbital-engine.js site/orbital/orbit-worker.js
           node scripts/verify-data-supply.mjs
-      - name: Install preview browser
+      - name: Install release browser tools
         run: |
-          npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium
+          npm install --no-save playwright@1.55.0 @playwright/test@1.55.0
+          npx playwright install --with-deps chromium firefox webkit
       - name: Install responsive image optimizer
         run: |
           sudo apt-get update -qq
@@ -111,6 +111,8 @@ jobs:
         run: node scripts/verify-field-note-pages.mjs
       - name: QA
         run: node scripts/qa.mjs
+      - name: ORIENT release browsers
+        run: npm run qa:orient:release-browser
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
@@ -125,7 +127,24 @@ jobs:
     permissions:
       pages: write
       id-token: write
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  smoke:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify public ORIENT release
+        env:
+          ORIENT_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: npm run qa:orient:production
