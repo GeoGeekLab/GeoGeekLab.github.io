@@ -17,11 +17,15 @@
     'play/play-shell.js?v=20261002c',
     'play/play-trace.js?v=20261002c'
   ];
-  const PRE_SCRIPT = {
-    locate: 'play/orient/orient-geometry.js?v=20261003a'
+  const PRE_SCRIPTS = {
+    locate: [
+      'play/orient/orient-geometry.js?v=20261003a',
+      'play/orient/orient-config.js?v=20261003b',
+      'play/orient/orient-metrics.js?v=20261003b'
+    ]
   };
   const SCRIPT = {
-    locate: 'play/orient/orient.js?v=20261003a',
+    locate: 'play/orient/orient.js?v=20261003b',
     zone: 'play/bound/bound.js?v=20261002c',
     path: 'play/connect/connect.js?v=20261002c',
     project: 'play/project/project.js?v=20261002c'
@@ -37,7 +41,7 @@
     const instruments = await baseLoadInstrument(kind);
     if (!PLAY_KINDS.has(kind)) return instruments;
     for (const src of COMMON) await modules.loadScript(src);
-    if (PRE_SCRIPT[kind]) await modules.loadScript(PRE_SCRIPT[kind]);
+    for (const src of PRE_SCRIPTS[kind] || []) await modules.loadScript(src);
     await modules.loadScript(SCRIPT[kind]);
     REGISTER[kind]?.();
     // games.js can be loaded later for a transitional Play and will re-register
