@@ -78,7 +78,7 @@
         to: trial.to,
         conditions: { ...(trial.conditions || {}) },
         difficulty: trial.difficulty ? { ...trial.difficulty } : null,
-        contrast: trial.contrast ? clone(trial.contrast) : undefined
+        contrast: trial.contrast ? clone(trial.contrast) : null
       }))
     };
   }
