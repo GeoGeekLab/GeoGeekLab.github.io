@@ -43,7 +43,8 @@
     locate: [
       'play/orient/orient-feedback.js?v=20261003g',
       'play/orient/orient-trace-view.js?v=20261003h',
-      'play/orient/orient-trace-enhancer.js?v=20261003h'
+      'play/orient/orient-trace-enhancer.js?v=20261003h',
+      'play/orient/orient-ergonomics.js?v=20261003i'
     ]
   };
   const REGISTER = {
@@ -52,6 +53,7 @@
     path: () => window.GeoPlayConnect?.register?.(),
     project: () => window.GeoPlayProject?.register?.()
   };
+  const opening = new Map();
 
   async function loadPlay(kind) {
     const instruments = await baseLoadInstrument(kind);
@@ -161,6 +163,27 @@
     enableProjectRouteKeyboard(stage);
   }
 
+  async function openPlay(kind, { updateUrl = false } = {}) {
+    if (!PLAY_KINDS.has(kind)) return null;
+    if (opening.has(kind)) return opening.get(kind);
+    const pending = (async () => {
+      const instruments = await loadPlay(kind);
+      const active = window.GeoInstruments?.getActive?.() === kind;
+      if (!active || !isPlayMounted(kind)) {
+        await instruments?.openByKind?.(kind, { updateUrl });
+      }
+      modules.normalizeInstrumentAria?.(kind);
+      queueMicrotask(enhancePlayAccessibility);
+      return instruments;
+    })();
+    opening.set(kind, pending);
+    try {
+      return await pending;
+    } finally {
+      if (opening.get(kind) === pending) opening.delete(kind);
+    }
+  }
+
   const stage = document.getElementById('instrumentStage');
   if (stage) {
     const observer = new MutationObserver(() => queueMicrotask(enhancePlayAccessibility));
@@ -178,10 +201,7 @@
     event.preventDefault();
     event.stopImmediatePropagation();
     try {
-      const instruments = await loadPlay(kind);
-      await instruments?.openByKind?.(kind, { updateUrl: true });
-      modules.normalizeInstrumentAria?.(kind);
-      queueMicrotask(enhancePlayAccessibility);
+      await openPlay(kind, { updateUrl: true });
     } catch (error) {
       console.warn(`[GeoGeek] Play ${kind} failed to load; retry remains available.`, error);
     }
@@ -190,12 +210,7 @@
   const requested = new URLSearchParams(location.search).get('instrument');
   if (PLAY_KINDS.has(requested)) queueMicrotask(async () => {
     try {
-      const instruments = await loadPlay(requested);
-      const active = window.GeoInstruments?.getActive?.() === requested;
-      if (!active || !isPlayMounted(requested)) {
-        await instruments?.openByKind?.(requested, { updateUrl: false });
-      }
-      queueMicrotask(enhancePlayAccessibility);
+      await openPlay(requested, { updateUrl: false });
     } catch (error) {
       console.warn(`[GeoGeek] Direct Play ${requested} could not initialize.`, error);
     }
