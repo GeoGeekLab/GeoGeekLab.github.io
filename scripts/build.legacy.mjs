@@ -54,6 +54,12 @@ for (const record of records) {
   if (fs.existsSync(figures)) copyDir(figures, path.join(previewFigureRoot, record.id));
 }
 
+// ORIENT relations are deterministic generated content. Keep the authored place
+// pool in Git and materialize the relation artifact immediately before copying
+// the source site so local/CI/Pages builds all ship the same versioned pool.
+const { writeRelationArtifact } = await import('./build-orient-relations.mjs');
+writeRelationArtifact();
+
 // Production artifact.
 fs.rmSync(dist, { recursive: true, force: true });
 copyDir(sourceDir, dist);
