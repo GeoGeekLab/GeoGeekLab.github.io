@@ -4,6 +4,7 @@
   const root = window.GeoPlay = window.GeoPlay || {};
   const orient = root.orient = root.orient || {};
   if (orient.ergonomics?.version === 'orient-ergonomics-1') return;
+  root.core?.ensureStyle?.('play/orient/orient-ergonomics.css?v=20261003i', 'orient-ergonomics');
 
   const VERSION = 'orient-ergonomics-1';
   const INPUT_HELP_ID = 'orientInputHelp';
