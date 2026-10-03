@@ -42,7 +42,7 @@
   function setEntryCopy() {
     const intro = document.querySelector('.page-title .page-intro');
     if (intro) {
-      intro.textContent = 'Interactive geographic instruments for observing change, comparing representations, and reasoning through space.';
+      intro.textContent = 'Observe, compare, and reason through space.';
     }
 
     const method = document.querySelector('.lab-method-note');
