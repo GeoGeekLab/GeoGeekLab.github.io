@@ -35,6 +35,7 @@
 
   const clamp01 = value => Math.max(0, Math.min(1, Number(value) || 0));
   const mean = values => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+  const finiteNumber = value => typeof value === 'number' && Number.isFinite(value) ? value : null;
 
   function hashSeed(seed) {
     const text = String(seed ?? 'orient');
@@ -336,8 +337,8 @@
 
   function adaptationEvidence(records = []) {
     const evidence = (Array.isArray(records) ? records : []).slice(0, BASE_TRIAL_COUNT).filter(record => record?.residual);
-    const distanceErrors = evidence.map(record => Number(record.residual.distanceLogError)).filter(Number.isFinite);
-    const bearingErrors = evidence.map(record => Number(record.residual.bearingDeg)).filter(Number.isFinite);
+    const distanceErrors = evidence.map(record => finiteNumber(record.residual.distanceLogError)).filter(value => value !== null);
+    const bearingErrors = evidence.map(record => finiteNumber(record.residual.bearingDeg)).filter(value => value !== null);
     const distanceMagnitude = mean(distanceErrors.map(Math.abs));
     const bearingMagnitude = mean(bearingErrors.map(Math.abs));
     const distanceScore = distanceMagnitude / Math.log(1.25);
@@ -353,8 +354,9 @@
     let sourceSlot = 1;
     let sourceMagnitude = -1;
     evidence.forEach((record, index) => {
-      const value = axis === 'distance' ? Math.abs(Number(record.residual.distanceLogError)) : Math.abs(Number(record.residual.bearingDeg));
-      if (Number.isFinite(value) && value > sourceMagnitude) {
+      const raw = axis === 'distance' ? finiteNumber(record.residual.distanceLogError) : finiteNumber(record.residual.bearingDeg);
+      const value = raw === null ? null : Math.abs(raw);
+      if (value !== null && value > sourceMagnitude) {
         sourceMagnitude = value;
         sourceSlot = Number(record.trial?.slot) || index + 1;
       }
