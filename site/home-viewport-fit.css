@@ -1,8 +1,8 @@
 /* GeoGeek homepage viewport fit.
    Scope: desktop Coordinates + Commons only.
-   Second compact pass: preserve the cartographic/editorial system while fitting each section in one viewport. */
+   Apply one-screen fit by desktop width; do not depend on CSS viewport height. */
 
-@media (min-width: 981px) and (min-height: 720px) {
+@media (min-width: 981px) {
   #now.coordinates-section,
   #commons.home-commons-full.commons-page {
     box-sizing: border-box;
@@ -194,8 +194,8 @@
   #commons .commons-side-stack .commons-participate { gap: 12px; padding: 10px 11px 14px; }
 }
 
-/* Short desktop fallback: keep natural scrolling rather than making text unreadable. */
-@media (min-width: 981px) and (max-height: 719px) {
+/* Only extremely short desktop windows fall back to natural scrolling. */
+@media (min-width: 981px) and (max-height: 559px) {
   #now.coordinates-section,
   #commons.home-commons-full.commons-page {
     height: auto;
