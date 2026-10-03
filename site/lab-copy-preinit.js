@@ -7,7 +7,7 @@
   if (!ui) return;
 
   if (ui.pages?.lab) {
-    ui.pages.lab.intro = 'Interactive geographic instruments for observing change, comparing representations, and reasoning through space.';
+    ui.pages.lab.intro = 'Observe, compare, and reason through space.';
   }
 
   if (ui.lab) {
