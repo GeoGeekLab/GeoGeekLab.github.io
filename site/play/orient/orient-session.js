@@ -11,6 +11,7 @@
   const RECENT_HISTORY_LIMIT = 32;
   const CORE_MATCH_MAX_DISTANCE_RATIO = 0.15;
   const CORE_MATCH_MIN_BEARING_SEPARATION_DEG = 60;
+  const MAX_COOLDOWN_RESEEDS = 16;
   const INDEX_CACHE = new WeakMap();
 
   const SLOT_CONDITIONS = Object.freeze({
@@ -265,18 +266,38 @@
     };
   }
 
+  function composeFreshSession({ seed, placeArtifact, relationArtifact, recentRelationIds = [] } = {}) {
+    const baseSeed = String(seed ?? 'orient-default');
+    const recent = relationFreshnessSet(recentRelationIds);
+    let plan = null;
+    let reseeds = 0;
+    for (; reseeds <= MAX_COOLDOWN_RESEEDS; reseeds += 1) {
+      const candidateSeed = reseeds === 0 ? baseSeed : `${baseSeed}~${reseeds}`;
+      plan = composeSession({ seed: candidateSeed, placeArtifact, relationArtifact, recentRelationIds: [] });
+      const overlaps = plan.trials.some(trial => recent.has(trial.relationId));
+      if (!overlaps) break;
+    }
+    return {
+      ...plan,
+      historyApplied: recent.size > 0,
+      cooldownReseeds: Math.min(reseeds, MAX_COOLDOWN_RESEEDS + 1)
+    };
+  }
+
   orient.session = Object.freeze({
     SESSION_VERSION,
     SESSION_SIZE,
     RECENT_HISTORY_LIMIT,
     CORE_MATCH_MAX_DISTANCE_RATIO,
     CORE_MATCH_MIN_BEARING_SEPARATION_DEG,
+    MAX_COOLDOWN_RESEEDS,
     SLOT_CONDITIONS,
     hashSeed,
     createRng,
     bearingSeparation,
     isCoreMatched,
     cueDifficulty,
-    composeSession
+    composeSession,
+    composeFreshSession
   });
 })();
