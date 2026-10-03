@@ -40,7 +40,11 @@
     project: 'play/project/project.js?v=20261002c'
   };
   const OPTIONAL_POST_SCRIPTS = {
-    locate: ['play/orient/orient-feedback.js?v=20261003g']
+    locate: [
+      'play/orient/orient-feedback.js?v=20261003g',
+      'play/orient/orient-trace-view.js?v=20261003h',
+      'play/orient/orient-trace-enhancer.js?v=20261003h'
+    ]
   };
   const REGISTER = {
     locate: () => window.GeoPlayOrient?.register?.(),
@@ -62,7 +66,7 @@
       }
     }
     await modules.loadScript(SCRIPT[kind]);
-    if (kind === 'locate') window.GeoPlay?.core?.ensureStyle?.('play/orient/orient.css?v=20261003g', 'orient-feedback');
+    if (kind === 'locate') window.GeoPlay?.core?.ensureStyle?.('play/orient/orient.css?v=20261003h', 'orient-trace');
     for (const src of OPTIONAL_POST_SCRIPTS[kind] || []) {
       try {
         await modules.loadScript(src);
