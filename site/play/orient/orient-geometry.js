@@ -9,6 +9,11 @@
   const toRad = degrees => degrees * Math.PI / 180;
   const toDeg = radians => radians * 180 / Math.PI;
 
+  function coordinates(point) {
+    if (Array.isArray(point)) return point;
+    return [point?.lon, point?.lat];
+  }
+
   function normalizeBearing(angle) {
     if (!Number.isFinite(angle)) return Number.NaN;
     return ((angle % 360) + 360) % 360;
@@ -20,8 +25,9 @@
   }
 
   function haversine(a, b) {
-    const [lon1, lat1] = a;
-    const [lon2, lat2] = b;
+    const [lon1, lat1] = coordinates(a);
+    const [lon2, lat2] = coordinates(b);
+    if (![lon1, lat1, lon2, lat2].every(Number.isFinite)) return Number.NaN;
     const phi1 = toRad(lat1);
     const phi2 = toRad(lat2);
     const dPhi = toRad(lat2 - lat1);
@@ -32,8 +38,9 @@
   }
 
   function initialBearing(a, b) {
-    const [lon1, lat1] = a;
-    const [lon2, lat2] = b;
+    const [lon1, lat1] = coordinates(a);
+    const [lon2, lat2] = coordinates(b);
+    if (![lon1, lat1, lon2, lat2].every(Number.isFinite)) return Number.NaN;
     const phi1 = toRad(lat1);
     const phi2 = toRad(lat2);
     const lambdaDelta = toRad(lon2 - lon1);
