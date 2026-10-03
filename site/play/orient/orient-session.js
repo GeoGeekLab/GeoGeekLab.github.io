@@ -21,6 +21,14 @@
     challenge: Object.freeze({ coast: false, graticule: false, rings: false })
   });
 
+  const CHALLENGE_FAMILIES = Object.freeze([
+    Object.freeze({ id: 'dateline', test: relation => Boolean(relation.geometry?.crossesDateLine) }),
+    Object.freeze({ id: 'equator', test: relation => Boolean(relation.geometry?.crossesEquator) }),
+    Object.freeze({ id: 'latitude', test: relation => Number(relation.geometry?.latitudeDemand) >= 0.55 }),
+    Object.freeze({ id: 'oblique', test: relation => relation.geometry?.bearingShape === 'oblique' }),
+    Object.freeze({ id: 'global', test: relation => ['very-long', 'global'].includes(relation.geometry?.distanceBand) })
+  ]);
+
   const clamp01 = value => Math.max(0, Math.min(1, Number(value) || 0));
 
   function hashSeed(seed) {
@@ -130,6 +138,21 @@
     return chosen;
   }
 
+  function bandChoice(candidates, score, rng, tolerance = 0.30) {
+    if (!candidates.length) return null;
+    const entries = [];
+    let minimum = Infinity;
+    for (const item of candidates) {
+      const value = Number(score(item));
+      if (!Number.isFinite(value)) continue;
+      entries.push({ item, value });
+      if (value < minimum) minimum = value;
+    }
+    if (!entries.length) return null;
+    const band = entries.filter(entry => entry.value <= minimum + tolerance);
+    return band[Math.floor(rng() * band.length)]?.item || band[0].item;
+  }
+
   function preferFresh(candidates, recent) {
     const fresh = candidates.filter(relation => !recent.has(relation.id));
     return fresh.length ? fresh : candidates;
@@ -174,19 +197,43 @@
   }
 
   function challengeScore(index, relation, usedPlaces) {
-    const fromTier = placeTier(index, relation, 'from');
-    const toTier = placeTier(index, relation, 'to');
-    const recognitionPenalty = fromTier === 'extended' ? 0.38 : 0;
-    const reusedPlacePenalty = (usedPlaces.has(relation.from) ? 0.35 : 0) + (usedPlaces.has(relation.to) ? 0.25 : 0);
-    const noveltyBonus = (relation.geometry?.crossesDateLine ? -0.24 : 0)
-      + (relation.geometry?.crossesEquator ? -0.10 : 0)
-      + ((relation.geometry?.bearingShape === 'oblique') ? -0.08 : 0);
-    const demand = (relation.difficulty?.geometry ?? 0.5) * 0.62 + (relation.difficulty?.place ?? 0.5) * 0.28 + (relation.geometry?.antipodalRatio ?? 0) * 0.10;
-    const targetTierBonus = toTier === 'extended' ? -0.08 : 0;
-    return -demand + recognitionPenalty + reusedPlacePenalty + noveltyBonus + targetTierBonus;
+    const reusedPlacePenalty = (usedPlaces.has(relation.from) ? 0.36 : 0) + (usedPlaces.has(relation.to) ? 0.24 : 0);
+    const geometry = relation.difficulty?.geometry ?? 0.5;
+    const place = relation.difficulty?.place ?? 0.5;
+    const geometryTargetCost = Math.abs(geometry - 0.68) * 0.62;
+    const placeTargetCost = Math.abs(place - 0.52) * 0.18;
+    const antipodalPenalty = Math.max(0, (relation.geometry?.antipodalRatio ?? 0) - 0.78) * 1.8;
+    const toTierPenalty = placeTier(index, relation, 'to') === 'extended' ? 0.04 : 0;
+    return reusedPlacePenalty + geometryTargetCost + placeTargetCost + antipodalPenalty + toTierPenalty;
   }
 
-  function makeTrial(slot, role, relation, conditions) {
+  function chooseChallenge(index, candidates, usedPlaces, rng) {
+    const familyStart = Math.floor(rng() * CHALLENGE_FAMILIES.length);
+    let family = null;
+    let familyPool = [];
+    for (let offset = 0; offset < CHALLENGE_FAMILIES.length; offset += 1) {
+      const candidateFamily = CHALLENGE_FAMILIES[(familyStart + offset) % CHALLENGE_FAMILIES.length];
+      const candidatePool = candidates.filter(candidateFamily.test);
+      if (candidatePool.length >= 8) {
+        family = candidateFamily;
+        familyPool = candidatePool;
+        break;
+      }
+    }
+    if (!family) {
+      family = { id: 'general' };
+      familyPool = candidates;
+    }
+
+    const unrepeatedPlaces = familyPool.filter(relation => !usedPlaces.has(relation.from) && !usedPlaces.has(relation.to));
+    const choicePool = unrepeatedPlaces.length >= 8 ? unrepeatedPlaces : familyPool;
+    return {
+      family: family.id,
+      relation: bandChoice(choicePool, relation => challengeScore(index, relation, usedPlaces), rng, 0.34)
+    };
+  }
+
+  function makeTrial(slot, role, relation, conditions, metadata = {}) {
     return {
       slot,
       role,
@@ -196,6 +243,7 @@
       to: relation.to,
       conditions: { ...conditions },
       difficulty: cueDifficulty(relation, conditions),
+      ...metadata,
       relation
     };
   }
@@ -244,7 +292,8 @@
       placeTier(index, relation, 'from') !== 'extended'
       && (relation.difficulty?.geometry ?? 0) >= 0.46
       && relation.geometry?.antipodalRatio < 0.84);
-    const t4 = scoredChoice(challengeCandidates.length ? challengeCandidates : challengePool, relation => challengeScore(index, relation, usedPlaces), rng, 0.32);
+    const challengeSelection = chooseChallenge(index, challengeCandidates.length ? challengeCandidates : challengePool, usedPlaces, rng);
+    const t4 = challengeSelection.relation;
     if (!t4) throw new Error('Unable to compose ORIENT challenge trial.');
     used.add(t4.id);
 
@@ -252,7 +301,7 @@
       makeTrial(1, 'orientation', t1, SLOT_CONDITIONS.orientation),
       makeTrial(2, 'baseline', t2, SLOT_CONDITIONS.baseline),
       makeTrial(3, 'contrast', t3, SLOT_CONDITIONS.contrast),
-      makeTrial(4, 'challenge', t4, SLOT_CONDITIONS.challenge)
+      makeTrial(4, 'challenge', t4, SLOT_CONDITIONS.challenge, { challengeFamily: challengeSelection.family })
     ];
 
     return {
@@ -292,6 +341,7 @@
     CORE_MATCH_MIN_BEARING_SEPARATION_DEG,
     MAX_COOLDOWN_RESEEDS,
     SLOT_CONDITIONS,
+    CHALLENGE_FAMILIES,
     hashSeed,
     createRng,
     bearingSeparation,
