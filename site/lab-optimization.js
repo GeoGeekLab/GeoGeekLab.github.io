@@ -149,10 +149,10 @@
     }
 
     list.querySelectorAll('.project-card').forEach(card => makeActionsExplicit(card));
-    applyHashTarget();
+    applyHashTarget({ reveal: true });
   }
 
-  function applyHashTarget() {
+  function applyHashTarget({ reveal = false } = {}) {
     if (!list) return;
     list.querySelectorAll('[data-deep-link-target]').forEach(node => node.removeAttribute('data-deep-link-target'));
     list.querySelectorAll('.is-target-reveal').forEach(node => node.classList.remove('is-target-reveal'));
@@ -164,6 +164,11 @@
     target.classList.add('is-target-reveal');
     target.setAttribute('data-deep-link-target', 'true');
     setTimeout(() => target.classList.remove('is-target-reveal'), reduced ? 0 : 1500);
+
+    const directInstrument = new URLSearchParams(location.search).has('instrument');
+    if (reveal && !directInstrument) {
+      requestAnimationFrame(() => target.scrollIntoView({ block: 'center', behavior: reduced ? 'auto' : 'smooth' }));
+    }
   }
 
   function ensureWorkspaceBreadcrumb() {
@@ -231,7 +236,7 @@
     syncWorkspaceIdentity();
     preserveReturnContext();
 
-    addEventListener('hashchange', applyHashTarget);
+    addEventListener('hashchange', () => applyHashTarget({ reveal: true }));
 
     if (dialog) {
       const dialogObserver = new MutationObserver(records => {
