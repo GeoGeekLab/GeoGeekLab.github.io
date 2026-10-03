@@ -62,6 +62,7 @@
       }
     }
     await modules.loadScript(SCRIPT[kind]);
+    if (kind === 'locate') window.GeoPlay?.core?.ensureStyle?.('play/orient/orient.css?v=20261003g', 'orient-feedback');
     for (const src of OPTIONAL_POST_SCRIPTS[kind] || []) {
       try {
         await modules.loadScript(src);
