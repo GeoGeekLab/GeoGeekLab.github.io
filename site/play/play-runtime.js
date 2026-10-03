@@ -22,18 +22,18 @@
       'play/orient/orient-geometry.js?v=20261003a',
       'play/orient/orient-config.js?v=20261003b',
       'play/orient/orient-metrics.js?v=20261003b',
-      'play/orient/orient-state.js?v=20261003e',
-      'play/orient/orient-storage.js?v=20261003e'
+      'play/orient/orient-state.js?v=20261003f',
+      'play/orient/orient-storage.js?v=20261003f'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {
     locate: [
       'play/orient/orient-content.js?v=20261003c',
-      'play/orient/orient-session.js?v=20261003d'
+      'play/orient/orient-session.js?v=20261003f'
     ]
   };
   const SCRIPT = {
-    locate: 'play/orient/orient.js?v=20261003e',
+    locate: 'play/orient/orient.js?v=20261003f',
     zone: 'play/bound/bound.js?v=20261002c',
     path: 'play/connect/connect.js?v=20261002c',
     project: 'play/project/project.js?v=20261002c'
