@@ -39,6 +39,9 @@
     path: 'play/connect/connect.js?v=20261002c',
     project: 'play/project/project.js?v=20261002c'
   };
+  const OPTIONAL_POST_SCRIPTS = {
+    locate: ['play/orient/orient-feedback.js?v=20261003g']
+  };
   const REGISTER = {
     locate: () => window.GeoPlayOrient?.register?.(),
     zone: () => window.GeoPlayBound?.register?.(),
@@ -59,6 +62,13 @@
       }
     }
     await modules.loadScript(SCRIPT[kind]);
+    for (const src of OPTIONAL_POST_SCRIPTS[kind] || []) {
+      try {
+        await modules.loadScript(src);
+      } catch (error) {
+        console.warn(`[GeoGeek] Optional Play view enhancement failed: ${src}. Core instrument remains available.`, error);
+      }
+    }
     REGISTER[kind]?.();
     if (window.GeoPlayOrient) window.GeoPlayOrient.register?.();
     return instruments || window.GeoInstruments;
