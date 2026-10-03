@@ -22,9 +22,10 @@ function composeFresh(seed, recentRelationIds = []) {
   return session.composeFreshSession({ seed, placeArtifact: places, relationArtifact: relations, recentRelationIds });
 }
 
-function assertSessionContract(plan) {
-  assert.equal(plan.version, 'orient-session-1');
+function assertBaseSessionContract(plan) {
+  assert.equal(plan.version, 'orient-session-2');
   assert.equal(plan.contentVersion, 'orient-content-1');
+  assert.equal(plan.targetSize, 5);
   assert.equal(plan.trials.length, 4);
   assert.deepEqual(plan.trials.map(trial => trial.role), ['orientation', 'baseline', 'contrast', 'challenge']);
   assert.equal(new Set(plan.trials.map(trial => trial.relationId)).size, 4);
@@ -43,14 +44,28 @@ function assertSessionContract(plan) {
   assert.deepEqual(conditionChanges, ['coast']);
 }
 
-test('session composer freezes v1 roles, constraints and deterministic seed behavior', () => {
-  assert.equal(session.SESSION_SIZE, 4);
+function evidence(plan, { distance = 0.22, bearing = 2 } = {}) {
+  return plan.trials.map((trial, index) => ({
+    trial: { slot: index + 1, relationId: trial.relationId },
+    residual: {
+      distanceLogError: distance + index * 0.01,
+      distanceRatio: Math.exp(distance + index * 0.01) - 1,
+      bearingDeg: bearing + index * 0.5,
+      distanceClass: distance >= 0 ? 'long' : 'short',
+      bearingClass: bearing >= 0 ? 'clockwise' : 'counterclockwise'
+    }
+  }));
+}
+
+test('session composer freezes v2 base roles while reserving a fifth adaptive slot', () => {
+  assert.equal(session.SESSION_SIZE, 5);
+  assert.equal(session.BASE_TRIAL_COUNT, 4);
   assert.equal(session.CORE_MATCH_MAX_DISTANCE_RATIO, 0.15);
   assert.equal(session.CORE_MATCH_MIN_BEARING_SEPARATION_DEG, 60);
   const first = compose('contract-seed');
   const second = compose('contract-seed');
   assert.deepEqual(first, second);
-  assertSessionContract(first);
+  assertBaseSessionContract(first);
 });
 
 test('trial-level cue demand is separate from static relation difficulty', () => {
@@ -64,11 +79,11 @@ test('trial-level cue demand is separate from static relation difficulty', () =>
   assert.equal('cue' in relation.difficulty, false);
 });
 
-test('direct recent filtering avoids the preceding session when the pool can do so', () => {
+test('direct recent filtering avoids the preceding base session when the pool can do so', () => {
   const first = compose('cooldown-seed');
   const recent = first.trials.map(trial => trial.relationId);
   const second = compose('cooldown-seed', recent);
-  assertSessionContract(second);
+  assertBaseSessionContract(second);
   assert.equal(second.historyApplied, true);
   assert.deepEqual(second.trials.filter(trial => recent.includes(trial.relationId)), []);
 });
@@ -77,7 +92,7 @@ test('runtime cooldown reseeds until fresh while final seed remains independentl
   const first = compose('fresh-contract');
   const recent = first.trials.map(trial => trial.relationId);
   const fresh = composeFresh('fresh-contract', recent);
-  assertSessionContract(fresh);
+  assertBaseSessionContract(fresh);
   assert.equal(fresh.historyApplied, true);
   assert.ok(fresh.cooldownReseeds >= 1);
   assert.deepEqual(fresh.trials.filter(trial => recent.includes(trial.relationId)), []);
@@ -85,11 +100,56 @@ test('runtime cooldown reseeds until fresh while final seed remains independentl
   assert.deepEqual(reproduced.trials, fresh.trials);
 });
 
-test('10,000 seeded sessions remain valid, matched and meaningfully varied', () => {
+test('distance-dominant residual evidence deterministically composes a fresh fifth adaptation trial', () => {
+  const base = compose('adapt-distance');
+  const records = evidence(base, { distance: 0.24, bearing: 1.5 });
+  const first = session.composeAdaptationTrial({ plan: base, records, placeArtifact: places, relationArtifact: relations, recentRelationIds: base.trials.map(trial => trial.relationId) });
+  const second = session.composeAdaptationTrial({ plan: base, records, placeArtifact: places, relationArtifact: relations, recentRelationIds: base.trials.map(trial => trial.relationId) });
+  assert.deepEqual(first, second);
+  assert.equal(first.trials.length, 5);
+  const t5 = first.trials[4];
+  assert.equal(t5.slot, 5);
+  assert.equal(t5.role, 'adaptation');
+  assert.equal(t5.adaptation.axis, 'distance');
+  assert.equal(t5.adaptation.direction, 'long');
+  assert.ok(relationIds.has(t5.relationId));
+  assert.equal(base.trials.some(trial => trial.relationId === t5.relationId), false);
+});
+
+test('bearing-dominant evidence targets bearing without exposing a score', () => {
+  const base = compose('adapt-bearing');
+  const records = evidence(base, { distance: 0.01, bearing: 32 });
+  const result = session.composeAdaptationTrial({ plan: base, records, placeArtifact: places, relationArtifact: relations });
+  assert.equal(result.trials[4].adaptation.axis, 'bearing');
+  assert.equal(result.trials[4].adaptation.direction, 'clockwise');
+  assert.equal(result.trials[4].role, 'adaptation');
+  assert.equal('score' in result.trials[4].adaptation, false);
+});
+
+test('NOT FAMILIAR replacement of baseline also rebuilds a matched contrast', () => {
+  const plan = compose('replace-baseline');
+  const beforeBaseline = plan.trials[1].relationId;
+  const beforeContrast = plan.trials[2].relationId;
+  const replaced = session.replaceUnfamiliarTrial({
+    plan,
+    slot: 2,
+    attempt: 1,
+    placeArtifact: places,
+    relationArtifact: relations,
+    recentRelationIds: [beforeBaseline, beforeContrast]
+  });
+  assert.notEqual(replaced.trials[1].relationId, beforeBaseline);
+  assert.notEqual(replaced.trials[2].relationId, beforeContrast);
+  assert.equal(session.isCoreMatched(replaced.trials[1].relation, replaced.trials[2].relation), true);
+  assert.deepEqual(replaced.trials[1].conditions, session.SLOT_CONDITIONS.baseline);
+  assert.deepEqual(replaced.trials[2].conditions, session.SLOT_CONDITIONS.contrast);
+});
+
+test('10,000 seeded base sessions remain valid, matched and meaningfully varied', () => {
   const uniqueBySlot = [new Set(), new Set(), new Set(), new Set()];
   for (let index = 0; index < 10_000; index += 1) {
     const plan = compose(`qa-${index}`);
-    assertSessionContract(plan);
+    assertBaseSessionContract(plan);
     plan.trials.forEach((trial, slot) => uniqueBySlot[slot].add(trial.relationId));
   }
   assert.ok(uniqueBySlot[0].size >= 20, `orientation diversity too low: ${uniqueBySlot[0].size}`);
