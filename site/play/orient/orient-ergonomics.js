@@ -85,7 +85,8 @@
     controls.hidden = shell.dataset.playState !== 'judge';
     controls.querySelectorAll('button').forEach(button => { button.disabled = !enabled; });
     const note = controls.querySelector('.orient-fine-note');
-    if (note) note.textContent = enabled ? 'FINE ADJUST · SAME STEPS AS ARROW KEYS' : 'DRAG OR USE ARROWS FIRST';
+    const nextNote = enabled ? 'FINE ADJUST · SAME STEPS AS ARROW KEYS' : 'DRAG OR USE ARROWS FIRST';
+    if (note && note.textContent !== nextNote) note.textContent = nextNote;
   }
 
   function ensureFineControls(shell) {
