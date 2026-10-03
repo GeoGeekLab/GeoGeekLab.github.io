@@ -151,7 +151,8 @@
         return freezeState({ ...state, phase: PHASES.INSIGHT });
 
       case EVENTS.TRACE_REQUESTED:
-        if (![PHASES.COMPARE, PHASES.INSIGHT].includes(state.phase)) return state;
+        if (![PHASES.COMPARE, PHASES.INSIGHT].includes(state.phase) && !event.recovered) return state;
+        if (event.recovered && ![PHASES.BOOT, PHASES.LOADING_TRIAL, PHASES.COMPARE, PHASES.INSIGHT].includes(state.phase)) return state;
         return freezeState({ ...state, phase: PHASES.TRACE, judgment: null, confidence: null });
 
       default:
