@@ -142,7 +142,7 @@
       if (event.key === 'ArrowUp') hit.dataset.routeOffsetY = String(Number(hit.dataset.routeOffsetY || -80) - step);
       else if (event.key === 'ArrowDown') hit.dataset.routeOffsetY = String(Number(hit.dataset.routeOffsetY || -80) + step);
       else if (event.key === 'ArrowLeft') hit.dataset.routeOffsetX = String(Number(hit.dataset.routeOffsetX || 0) - step);
-      else if (event.key === 'ArrowRight') hit.dataset.routeOffsetY = String(Number(hit.dataset.routeOffsetY || -80) + step);
+      else if (event.key === 'ArrowRight') hit.dataset.routeOffsetX = String(Number(hit.dataset.routeOffsetX || 0) + step);
       else if (event.key === 'Enter') {
         const currentCommit = [...shell.querySelectorAll('.play-action')].find(button => button.textContent.trim() === 'COMMIT ROUTE');
         if (currentCommit && !currentCommit.disabled) {
