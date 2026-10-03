@@ -21,7 +21,9 @@
     locate: [
       'play/orient/orient-geometry.js?v=20261003a',
       'play/orient/orient-config.js?v=20261003b',
-      'play/orient/orient-metrics.js?v=20261003b'
+      'play/orient/orient-metrics.js?v=20261003b',
+      'play/orient/orient-state.js?v=20261003e',
+      'play/orient/orient-storage.js?v=20261003e'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {
@@ -31,7 +33,7 @@
     ]
   };
   const SCRIPT = {
-    locate: 'play/orient/orient.js?v=20261003d',
+    locate: 'play/orient/orient.js?v=20261003e',
     zone: 'play/bound/bound.js?v=20261002c',
     path: 'play/connect/connect.js?v=20261002c',
     project: 'play/project/project.js?v=20261002c'
@@ -57,8 +59,6 @@
     }
     await modules.loadScript(SCRIPT[kind]);
     REGISTER[kind]?.();
-    // games.js can be loaded later for a transitional Play and will re-register
-    // its legacy locate mount. Restore ORIENT whenever its implementation exists.
     if (window.GeoPlayOrient) window.GeoPlayOrient.register?.();
     return instruments || window.GeoInstruments;
   }
@@ -171,10 +171,6 @@
     }
   }, true);
 
-  // lab-page.js can begin resolving a direct ?instrument= request before this
-  // runtime takes ownership. Load the requested Play first, then inspect the
-  // actual mounted DOM rather than trusting the transitional instrument key:
-  // legacy Locate/Zone/Path and their replacements intentionally share keys.
   const requested = new URLSearchParams(location.search).get('instrument');
   if (PLAY_KINDS.has(requested)) queueMicrotask(async () => {
     try {
