@@ -13,7 +13,10 @@ test.describe('Lab entry hierarchy', () => {
     else expect(introWhiteSpace).toBe('normal');
 
     await expect(page.locator('.lab-method-note')).toContainText('scale, assumptions, sources, and limits');
-    await expect(page.locator('#labInstrumentsTitle')).toHaveText('Observe, compare, and reason through space.');
+    await expect(page.locator('.lab-instruments-head')).toHaveCount(0);
+    await expect(page.getByText('INTERACTIVE INSTRUMENTS', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('Observe, compare, and reason through space.', { exact: true })).toHaveCount(1);
+    await expect(page.getByText('Each entry opens a working geographic instrument, not a static demo.', { exact: false })).toHaveCount(0);
 
     const instrumentsBeforeBuilds = await page.evaluate(() => {
       const instruments = document.querySelector('.lab-instruments');
