@@ -184,7 +184,7 @@
   }
 
   function explainWorkspaceModes() {
-    document.querySelectorAll('[data-workspace-mode]').forEach(button => {
+    document.querySelectorAll('.instrument-workspace-modes [data-workspace-mode]').forEach(button => {
       const mode = button.dataset.workspaceMode;
       const help = MODE_HELP[mode];
       if (!help) return;
