@@ -6,6 +6,7 @@
 
   const PHASES = Object.freeze({
     BOOT: 'boot',
+    PRIMER: 'primer',
     LOADING_TRIAL: 'loading-trial',
     JUDGE_EMPTY: 'judge-empty',
     JUDGE_ACTIVE: 'judge-active',
@@ -21,7 +22,10 @@
 
   const EVENTS = Object.freeze({
     SESSION_READY: 'SESSION_READY',
+    PRIMER_REQUESTED: 'PRIMER_REQUESTED',
+    PRIMER_COMPLETED: 'PRIMER_COMPLETED',
     TRIAL_LOADED: 'TRIAL_LOADED',
+    TRIAL_REPLACED: 'TRIAL_REPLACED',
     JUDGMENT_CHANGED: 'JUDGMENT_CHANGED',
     CONFIDENCE_SELECTED: 'CONFIDENCE_SELECTED',
     RESET: 'RESET',
@@ -87,6 +91,14 @@
           error: null
         });
 
+      case EVENTS.PRIMER_REQUESTED:
+        if (state.phase !== PHASES.LOADING_TRIAL) return state;
+        return freezeState({ ...state, phase: PHASES.PRIMER, judgment: null, confidence: null });
+
+      case EVENTS.PRIMER_COMPLETED:
+        if (state.phase !== PHASES.PRIMER) return state;
+        return freezeState({ ...state, phase: PHASES.LOADING_TRIAL, judgment: null, confidence: null });
+
       case EVENTS.TRIAL_LOADED:
         if (![PHASES.BOOT, PHASES.LOADING_TRIAL, PHASES.COMPARE, PHASES.INSIGHT].includes(state.phase)) return state;
         return freezeState({
@@ -100,13 +112,18 @@
           error: null
         });
 
+      case EVENTS.TRIAL_REPLACED:
+        if (![PHASES.JUDGE_EMPTY, PHASES.JUDGE_ACTIVE, PHASES.READY].includes(state.phase)) return state;
+        return freezeState({ ...state, phase: PHASES.LOADING_TRIAL, judgment: null, confidence: null, committedRecordId: null });
+
       case EVENTS.JUDGMENT_CHANGED:
         if (![PHASES.JUDGE_EMPTY, PHASES.JUDGE_ACTIVE, PHASES.READY].includes(state.phase)) return state;
         if (!event.judgment) return state;
         return freezeState({
           ...state,
           judgment: event.judgment,
-          phase: readinessPhase(state, event.judgment, state.confidence)
+          confidence: null,
+          phase: readinessPhase(state, event.judgment, null)
         });
 
       case EVENTS.CONFIDENCE_SELECTED:
@@ -136,7 +153,7 @@
         return freezeState({ ...state, phase: PHASES.COMPARE });
 
       case EVENTS.NEXT_REQUESTED:
-        if (state.phase !== PHASES.COMPARE) return state;
+        if (![PHASES.COMPARE, PHASES.INSIGHT].includes(state.phase)) return state;
         return freezeState({
           ...state,
           phase: PHASES.LOADING_TRIAL,

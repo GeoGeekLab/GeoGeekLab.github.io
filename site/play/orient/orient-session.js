@@ -6,8 +6,10 @@
   const contentModel = orient.contentModel;
   if (!contentModel) throw new Error('ORIENT content model unavailable.');
 
-  const SESSION_VERSION = 'orient-session-1';
-  const SESSION_SIZE = 4;
+  const SESSION_VERSION = 'orient-session-2';
+  const SESSION_SIZE = 5;
+  const BASE_TRIAL_COUNT = 4;
+  const ADAPTATION_STRATEGY_VERSION = 'orient-adaptation-1';
   const RECENT_HISTORY_LIMIT = 32;
   const CORE_MATCH_MAX_DISTANCE_RATIO = 0.15;
   const CORE_MATCH_MIN_BEARING_SEPARATION_DEG = 60;
@@ -18,7 +20,9 @@
     orientation: Object.freeze({ coast: true, graticule: false, rings: true }),
     baseline: Object.freeze({ coast: true, graticule: false, rings: false }),
     contrast: Object.freeze({ coast: false, graticule: false, rings: false }),
-    challenge: Object.freeze({ coast: false, graticule: false, rings: false })
+    challenge: Object.freeze({ coast: false, graticule: false, rings: false }),
+    adaptation: Object.freeze({ coast: true, graticule: false, rings: false }),
+    confirmation: Object.freeze({ coast: true, graticule: false, rings: false })
   });
 
   const CHALLENGE_FAMILIES = Object.freeze([
@@ -30,6 +34,8 @@
   ]);
 
   const clamp01 = value => Math.max(0, Math.min(1, Number(value) || 0));
+  const mean = values => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+  const finiteNumber = value => typeof value === 'number' && Number.isFinite(value) ? value : null;
 
   function hashSeed(seed) {
     const text = String(seed ?? 'orient');
@@ -70,9 +76,6 @@
   }
 
   function cueDifficulty(relation, conditions = {}) {
-    // Rings directly support radial distance calibration; coast geometry mainly
-    // supports directional orientation. Their absence therefore adds demand at
-    // the Trial layer rather than mutating the static Relation difficulty.
     const ringsPenalty = conditions.rings ? 0 : 0.30;
     const coastPenalty = conditions.coast ? 0 : 0.20;
     const distance = clamp01(Number(relation?.difficulty?.distanceBase) + ringsPenalty);
@@ -95,6 +98,7 @@
     const relations = relationArtifact?.relations || [];
     if (!places.length || !relations.length) throw new Error('ORIENT content pool is empty.');
     const placeById = new Map(places.map(place => [place.id, place]));
+    const relationById = new Map(relations.map(relation => [relation.id, relation]));
     const relationsByFrom = new Map();
     for (const relation of relations) {
       if (!placeById.has(relation.from) || !placeById.has(relation.to)) continue;
@@ -105,12 +109,10 @@
 
     const matchedById = new Map();
     for (const bucket of relationsByFrom.values()) {
-      for (const base of bucket) {
-        matchedById.set(base.id, bucket.filter(candidate => isCoreMatched(base, candidate)));
-      }
+      for (const base of bucket) matchedById.set(base.id, bucket.filter(candidate => isCoreMatched(base, candidate)));
     }
 
-    const index = { places, relations, placeById, relationsByFrom, matchedById };
+    const index = { places, relations, placeById, relationById, relationsByFrom, matchedById };
     if (relationArtifact && typeof relationArtifact === 'object') INDEX_CACHE.set(relationArtifact, { placeArtifact, index });
     return index;
   }
@@ -224,7 +226,6 @@
       family = { id: 'general' };
       familyPool = candidates;
     }
-
     const unrepeatedPlaces = familyPool.filter(relation => !usedPlaces.has(relation.from) && !usedPlaces.has(relation.to));
     const choicePool = unrepeatedPlaces.length >= 8 ? unrepeatedPlaces : familyPool;
     return {
@@ -295,7 +296,6 @@
     const challengeSelection = chooseChallenge(index, challengeCandidates.length ? challengeCandidates : challengePool, usedPlaces, rng);
     const t4 = challengeSelection.relation;
     if (!t4) throw new Error('Unable to compose ORIENT challenge trial.');
-    used.add(t4.id);
 
     const trials = [
       makeTrial(1, 'orientation', t1, SLOT_CONDITIONS.orientation),
@@ -307,9 +307,11 @@
     return {
       version: SESSION_VERSION,
       seed: normalizedSeed,
+      targetSize: SESSION_SIZE,
       contentVersion: placeArtifact?.version || contentModel.CONTENT_VERSION,
       relationVersion: relationArtifact?.version || null,
       difficultyModelVersion: contentModel.DIFFICULTY_MODEL_VERSION,
+      adaptationStrategyVersion: ADAPTATION_STRATEGY_VERSION,
       historyApplied: recent.size > 0,
       trials
     };
@@ -333,9 +335,157 @@
     };
   }
 
+  function adaptationEvidence(records = []) {
+    const evidence = (Array.isArray(records) ? records : []).slice(0, BASE_TRIAL_COUNT).filter(record => record?.residual);
+    const distanceErrors = evidence.map(record => finiteNumber(record.residual.distanceLogError)).filter(value => value !== null);
+    const bearingErrors = evidence.map(record => finiteNumber(record.residual.bearingDeg)).filter(value => value !== null);
+    const distanceMagnitude = mean(distanceErrors.map(Math.abs));
+    const bearingMagnitude = mean(bearingErrors.map(Math.abs));
+    const distanceScore = distanceMagnitude / Math.log(1.25);
+    const bearingScore = bearingMagnitude / 20;
+    const axis = distanceScore >= bearingScore ? 'distance' : 'bearing';
+    const signedDistance = mean(distanceErrors);
+    const signedBearing = mean(bearingErrors);
+    const direction = axis === 'distance'
+      ? (signedDistance > Math.log(1.05) ? 'long' : signedDistance < Math.log(1 / 1.05) ? 'short' : 'mixed')
+      : (signedBearing > 5 ? 'clockwise' : signedBearing < -5 ? 'counterclockwise' : 'mixed');
+    const dominantMagnitude = axis === 'distance' ? distanceScore : bearingScore;
+    const mode = dominantMagnitude >= 0.75 && direction !== 'mixed' ? 'adaptation' : 'confirmation';
+    let sourceSlot = 1;
+    let sourceMagnitude = -1;
+    evidence.forEach((record, index) => {
+      const raw = axis === 'distance' ? finiteNumber(record.residual.distanceLogError) : finiteNumber(record.residual.bearingDeg);
+      const value = raw === null ? null : Math.abs(raw);
+      if (value !== null && value > sourceMagnitude) {
+        sourceMagnitude = value;
+        sourceSlot = Number(record.trial?.slot) || index + 1;
+      }
+    });
+    return Object.freeze({ axis, direction, mode, sourceSlot, evidenceCount: evidence.length });
+  }
+
+  function adaptationCost(index, relation, reference, evidence, usedPlaces) {
+    const geometry = relation.difficulty?.geometry ?? 0.5;
+    const place = relation.difficulty?.place ?? 0.5;
+    const recognitionPenalty = (placeTier(index, relation, 'from') === 'extended' ? 0.8 : 0)
+      + (placeTier(index, relation, 'to') === 'extended' ? 0.55 : 0);
+    const reusedPlacePenalty = (usedPlaces.has(relation.from) ? 0.12 : 0) + (usedPlaces.has(relation.to) ? 0.10 : 0);
+    const moderateCost = Math.abs(geometry - 0.48) * 0.8 + Math.abs(place - 0.42) * 0.25;
+    const antipodalPenalty = Math.max(0, (relation.geometry?.antipodalRatio ?? 0) - 0.76) * 2;
+    let matchCost = 0;
+    if (reference) {
+      if (evidence.axis === 'distance') {
+        const refDistance = Number(reference.geometry?.distanceKm);
+        const distance = Number(relation.geometry?.distanceKm);
+        const scaleDelta = refDistance > 0 && distance > 0 ? Math.abs(Math.log(distance / refDistance)) : 1;
+        matchCost += reference.geometry?.distanceBand === relation.geometry?.distanceBand ? 0 : 0.38;
+        matchCost += scaleDelta * 0.45;
+      } else {
+        matchCost += reference.geometry?.bearingShape === relation.geometry?.bearingShape ? 0 : 0.20;
+        matchCost += Math.abs((reference.geometry?.latitudeDemand ?? 0.5) - (relation.geometry?.latitudeDemand ?? 0.5)) * 0.45;
+      }
+    }
+    return recognitionPenalty + reusedPlacePenalty + moderateCost + antipodalPenalty + matchCost;
+  }
+
+  function composeAdaptationTrial({ plan, records = [], placeArtifact, relationArtifact, recentRelationIds = [] } = {}) {
+    if (!plan || !Array.isArray(plan.trials) || plan.trials.length < BASE_TRIAL_COUNT) throw new Error('ORIENT adaptation requires four base trials.');
+    if (plan.trials.length >= SESSION_SIZE) return plan;
+    const index = buildIndex(placeArtifact, relationArtifact);
+    const evidence = adaptationEvidence(records);
+    const sourceTrial = plan.trials.find(trial => Number(trial.slot) === evidence.sourceSlot) || plan.trials[0];
+    const reference = index.relationById.get(sourceTrial?.relationId || sourceTrial?.id) || null;
+    const usedIds = new Set(plan.trials.map(trial => trial.relationId || trial.id));
+    const recent = relationFreshnessSet(recentRelationIds);
+    const usedPlaces = new Set(plan.trials.flatMap(trial => [trial.from, trial.to]));
+    let candidates = index.relations.filter(relation => !usedIds.has(relation.id) && !recent.has(relation.id));
+    if (!candidates.length) candidates = index.relations.filter(relation => !usedIds.has(relation.id));
+    const recognized = candidates.filter(relation => placeTier(index, relation, 'from') !== 'extended' && placeTier(index, relation, 'to') !== 'extended');
+    if (recognized.length >= 12) candidates = recognized;
+    const seed = `${plan.seed}|${ADAPTATION_STRATEGY_VERSION}|${evidence.axis}|${evidence.direction}|${evidence.mode}|${evidence.sourceSlot}`;
+    const rng = createRng(seed);
+    const relation = bandChoice(candidates, candidate => adaptationCost(index, candidate, reference, evidence, usedPlaces), rng, 0.26);
+    if (!relation) throw new Error('Unable to compose ORIENT adaptation trial.');
+    const role = evidence.mode;
+    const trial = makeTrial(SESSION_SIZE, role, relation, SLOT_CONDITIONS[role], { adaptation: { ...evidence } });
+    return { ...plan, targetSize: SESSION_SIZE, adaptationStrategyVersion: ADAPTATION_STRATEGY_VERSION, trials: [...plan.trials, trial] };
+  }
+
+  function chooseOrientationReplacement(index, candidates, rng) {
+    const constrained = candidates.filter(relation => placeTier(index, relation, 'from') === 'anchor'
+      && placeTier(index, relation, 'to') === 'anchor'
+      && !relation.geometry?.crossesDateLine
+      && ['medium', 'long'].includes(relation.geometry?.distanceBand));
+    return scoredChoice(constrained.length ? constrained : candidates, relation => orientationScore(index, relation), rng, 0.22);
+  }
+
+  function replaceUnfamiliarTrial({ plan, slot, attempt = 1, records = [], placeArtifact, relationArtifact, recentRelationIds = [] } = {}) {
+    if (!plan || !Array.isArray(plan.trials)) throw new Error('ORIENT replacement requires a valid plan.');
+    const index = buildIndex(placeArtifact, relationArtifact);
+    const slotNumber = Number(slot);
+    const currentIndex = plan.trials.findIndex(trial => Number(trial.slot) === slotNumber);
+    if (currentIndex < 0) throw new Error('ORIENT replacement slot is unavailable.');
+    const current = plan.trials[currentIndex];
+    const recent = relationFreshnessSet([...recentRelationIds, current.relationId || current.id]);
+    const rng = createRng(`${plan.seed}|unfamiliar|${slotNumber}|${attempt}|${current.relationId || current.id}`);
+    const preservedIds = new Set(plan.trials.filter((_, indexValue) => indexValue !== currentIndex).map(trial => trial.relationId || trial.id));
+    let candidates = index.relations.filter(relation => !preservedIds.has(relation.id) && !recent.has(relation.id));
+    if (!candidates.length) candidates = index.relations.filter(relation => !preservedIds.has(relation.id) && relation.id !== current.relationId);
+    const nextTrials = plan.trials.slice();
+
+    if (slotNumber === 1) {
+      const relation = chooseOrientationReplacement(index, candidates, rng);
+      if (!relation) throw new Error('No alternate orientation relation is available.');
+      nextTrials[0] = makeTrial(1, 'orientation', relation, SLOT_CONDITIONS.orientation);
+    } else if (slotNumber === 2) {
+      const keepIds = new Set(plan.trials.filter(trial => ![2, 3].includes(Number(trial.slot))).map(trial => trial.relationId || trial.id));
+      const baselinePool = index.relations.filter(relation => !keepIds.has(relation.id) && !recent.has(relation.id));
+      const baselineCandidates = baselinePool.filter(base => placeTier(index, base, 'from') !== 'extended'
+        && (index.matchedById.get(base.id) || []).some(candidate => !keepIds.has(candidate.id) && candidate.id !== base.id));
+      const base = scoredChoice(baselineCandidates.length ? baselineCandidates : baselinePool,
+        relation => baselineScore(index, relation, (index.matchedById.get(relation.id) || []).length), rng, 0.24);
+      if (!base) throw new Error('No alternate baseline relation is available.');
+      const matches = (index.matchedById.get(base.id) || []).filter(candidate => !keepIds.has(candidate.id) && candidate.id !== base.id);
+      const contrast = scoredChoice(matches, relation => contrastCost(index, base, relation), rng, 0.08);
+      if (!contrast) throw new Error('No matched contrast relation is available.');
+      nextTrials[1] = makeTrial(2, 'baseline', base, SLOT_CONDITIONS.baseline);
+      nextTrials[2] = makeTrial(3, 'contrast', contrast, SLOT_CONDITIONS.contrast);
+    } else if (slotNumber === 3) {
+      const base = index.relationById.get(plan.trials.find(trial => Number(trial.slot) === 2)?.relationId);
+      if (!base) throw new Error('Baseline relation is unavailable.');
+      const matches = (index.matchedById.get(base.id) || []).filter(candidate => !preservedIds.has(candidate.id) && candidate.id !== current.relationId && !recent.has(candidate.id));
+      const fallbackMatches = (index.matchedById.get(base.id) || []).filter(candidate => !preservedIds.has(candidate.id) && candidate.id !== current.relationId);
+      const relation = scoredChoice(matches.length ? matches : fallbackMatches, candidate => contrastCost(index, base, candidate), rng, 0.06);
+      if (!relation) throw new Error('No alternate contrast relation is available.');
+      nextTrials[2] = makeTrial(3, 'contrast', relation, SLOT_CONDITIONS.contrast);
+    } else if (slotNumber === 4) {
+      const usedPlaces = new Set(plan.trials.filter(trial => Number(trial.slot) < 4).flatMap(trial => [trial.from, trial.to]));
+      const challengeCandidates = candidates.filter(relation => placeTier(index, relation, 'from') !== 'extended'
+        && (relation.difficulty?.geometry ?? 0) >= 0.46 && relation.geometry?.antipodalRatio < 0.84);
+      const selection = chooseChallenge(index, challengeCandidates.length ? challengeCandidates : candidates, usedPlaces, rng);
+      if (!selection.relation) throw new Error('No alternate challenge relation is available.');
+      nextTrials[3] = makeTrial(4, 'challenge', selection.relation, SLOT_CONDITIONS.challenge, { challengeFamily: selection.family });
+    } else if (slotNumber === 5) {
+      const basePlan = { ...plan, trials: plan.trials.filter(trial => Number(trial.slot) < 5) };
+      return composeAdaptationTrial({
+        plan: basePlan,
+        records,
+        placeArtifact,
+        relationArtifact,
+        recentRelationIds: [...recentRelationIds, current.relationId || current.id]
+      });
+    } else {
+      throw new Error('ORIENT replacement slot is outside the session.');
+    }
+
+    return { ...plan, trials: nextTrials };
+  }
+
   orient.session = Object.freeze({
     SESSION_VERSION,
     SESSION_SIZE,
+    BASE_TRIAL_COUNT,
+    ADAPTATION_STRATEGY_VERSION,
     RECENT_HISTORY_LIMIT,
     CORE_MATCH_MAX_DISTANCE_RATIO,
     CORE_MATCH_MIN_BEARING_SEPARATION_DEG,
@@ -347,7 +497,10 @@
     bearingSeparation,
     isCoreMatched,
     cueDifficulty,
+    adaptationEvidence,
     composeSession,
-    composeFreshSession
+    composeFreshSession,
+    composeAdaptationTrial,
+    replaceUnfamiliarTrial
   });
 })();

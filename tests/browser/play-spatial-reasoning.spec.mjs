@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 async function openPlay(page, instrument, kind) {
+  if (instrument === 'locate') {
+    await page.addInitScript(() => {
+      localStorage.setItem('geogeek.orient.primer.v1', JSON.stringify({ version: 'orient-primer-1', seen: true }));
+    });
+  }
   await page.goto(`/lab.html?instrument=${instrument}`, { waitUntil:'domcontentloaded' });
   const shell = page.locator(`.play-shell[data-play-kind="${kind}"]`);
   await expect(shell).toBeVisible({ timeout:20_000 });
@@ -9,16 +14,19 @@ async function openPlay(page, instrument, kind) {
   return shell;
 }
 
-test('ORIENT commits a keyboard spatial judgment and reveals separate residuals', async ({ page }) => {
+test('ORIENT commits a keyboard spatial judgment with confidence and reveals separate residuals', async ({ page }) => {
   const shell = await openPlay(page, 'locate', 'orient');
   const map = shell.locator('.orient-map');
   await map.focus();
   await page.keyboard.press('ArrowRight');
+  await expect(shell.getByRole('button', { name:'COMMIT' })).toBeDisabled();
+  await page.keyboard.press('2');
   await expect(shell.getByRole('button', { name:'COMMIT' })).toBeEnabled();
   await page.keyboard.press('Enter');
   await expect(shell.locator('.play-readout')).toContainText('RESIDUAL');
   await expect(shell.locator('.play-readout')).toContainText('DISTANCE');
   await expect(shell.locator('.play-readout')).toContainText('BEARING');
+  await expect(shell.locator('.play-readout')).toContainText('CONFIDENCE');
   await expect(shell).not.toContainText('SCORE');
 });
 
