@@ -35,7 +35,7 @@
   if (isHome) {
     const homeViewportStyle = document.createElement('link');
     homeViewportStyle.rel = 'stylesheet';
-    homeViewportStyle.href = '/home-viewport-fit.css?v=20261003b';
+    homeViewportStyle.href = '/home-viewport-fit.css?v=20261003c';
     homeViewportStyle.dataset.homeViewportFit = 'style';
     document.head.appendChild(homeViewportStyle);
   }
@@ -49,7 +49,27 @@
     document.head.appendChild(labPreviewStyle);
   }
 
+  // Coordinates originally used the section-head component while Commons used
+  // page-title. Normalize the Coordinates title band before the interaction
+  // layer initializes so both sections share typography, border, reveal motion,
+  // and page-title behavior without changing either section's content logic.
+  const normalizeHomeConceptHeaders = () => {
+    if (!isHome) return;
+    const coordinatesHeader = document.querySelector('#now .coordinates-head');
+    if (!coordinatesHeader) return;
+
+    coordinatesHeader.classList.add('page-title', 'coordinates-home-title');
+
+    const label = coordinatesHeader.querySelector('.section-label');
+    if (label) label.classList.add('eyebrow');
+
+    const intro = coordinatesHeader.querySelector('.concept-section-intro');
+    if (intro) intro.classList.add('page-intro');
+  };
+
   const loadInteractions = () => {
+    normalizeHomeConceptHeaders();
+
     if (!document.querySelector('script[data-geo-interaction="script"]')) {
       const script = document.createElement('script');
       script.src = '/geo-interactions.js?v=20260930g';
