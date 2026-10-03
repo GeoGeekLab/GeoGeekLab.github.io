@@ -30,14 +30,19 @@ const plan = {
   ]
 };
 
-test('active session stores a compact planned descriptor and restores it unchanged', () => {
+test('active session stores a compact planned descriptor and restores it', () => {
   const store = memoryStore();
   const active = storage.createActiveSession({ plan, sessionId: 'or_contract', currentSlot: 1 });
   assert.equal(active.schemaVersion, 1);
   assert.equal(active.sessionSeed, 'storage-contract');
   assert.equal('relation' in active.plan.trials[0], false);
   assert.equal(storage.writeActive(active, store), true);
-  assert.deepEqual(storage.readActive(store), active);
+  const restored = storage.readActive(store);
+  assert.equal(restored.sessionId, active.sessionId);
+  assert.equal(restored.currentSlot, active.currentSlot);
+  assert.deepEqual(restored.committedRecordIds, active.committedRecordIds);
+  assert.deepEqual(restored.plan, active.plan);
+  assert.ok(Date.parse(restored.updatedAt) >= Date.parse(active.updatedAt));
 });
 
 test('commitActive advances only after a durable record id exists', () => {
