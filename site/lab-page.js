@@ -62,6 +62,34 @@
   const dialog = document.querySelector('#instrumentDialog');
   const stage = document.querySelector('#instrumentStage');
 
+  // Lab has one explicit semantic-scale contract:
+  // collection index -> record card -> instrument detail.
+  // Keep DETAIL locked while the modal instrument owns interaction so a card
+  // pointerleave/focusout cannot restore the collection underneath the dialog.
+  const setCollectionScale = () => window.GeoScale?.apply?.('COLLECTION', false);
+  const setRecordScale = () => window.GeoScale?.apply?.('RECORD');
+  const setDetailScale = () => window.GeoScale?.apply?.('DETAIL');
+  const releaseCardScale = () => {
+    if (dialog?.open || document.body.classList.contains('instrument-open')) setDetailScale();
+    else window.GeoScale?.restore?.();
+  };
+
+  function bindCardScale(card) {
+    if (!card || card.dataset.labScaleBound === '1') return;
+    card.dataset.labScaleBound = '1';
+    card.addEventListener('pointerenter', () => {
+      if (!dialog?.open) setRecordScale();
+    });
+    card.addEventListener('focusin', () => {
+      if (!dialog?.open) setRecordScale();
+    });
+    card.addEventListener('pointerleave', releaseCardScale);
+    card.addEventListener('focusout', event => {
+      if (card.contains(event.relatedTarget)) return;
+      releaseCardScale();
+    });
+  }
+
   if (list) {
     const instrumentIds = new Set(['l04','l05','l06','l07','l08','l09','l10','l11','l12']);
 
@@ -73,6 +101,7 @@
       }
       const trigger = card.querySelector('[data-instrument]');
       if (trigger?.dataset.instrument) card.dataset.instrumentKind = trigger.dataset.instrument;
+      bindCardScale(card);
     });
 
     list.querySelectorAll('.lab-group-block').forEach(block => {
@@ -88,6 +117,10 @@
       else if (ids.has('l07') || ids.has('l08') || ids.has('l09')) block.classList.add('lab-group-play');
     });
   }
+
+  // Establish the collection as the durable page scale. Card and instrument
+  // states are temporary descendants of this baseline.
+  setCollectionScale();
 
   if (!dialog || !stage) return;
 
@@ -251,6 +284,14 @@
 
   const observer = new MutationObserver(() => queueMicrotask(syncInstrumentShell));
   observer.observe(stage, { childList: true, subtree: true });
+
+  // A modal instrument is always DETAIL, including the transition where the
+  // originating card loses pointer/focus after showModal().
+  const scaleObserver = new MutationObserver(() => {
+    if (dialog.open) setDetailScale();
+  });
+  scaleObserver.observe(dialog, { attributes: true, attributeFilter: ['open'] });
+
   dialog.addEventListener('close', () => setInstrumentIdentity(''));
   syncInstrumentShell();
 })();
