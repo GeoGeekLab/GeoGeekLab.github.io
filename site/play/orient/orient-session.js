@@ -11,6 +11,7 @@
   const RECENT_HISTORY_LIMIT = 32;
   const CORE_MATCH_MAX_DISTANCE_RATIO = 0.15;
   const CORE_MATCH_MIN_BEARING_SEPARATION_DEG = 60;
+  const INDEX_CACHE = new WeakMap();
 
   const SLOT_CONDITIONS = Object.freeze({
     orientation: Object.freeze({ coast: true, graticule: false, rings: true }),
@@ -60,6 +61,9 @@
   }
 
   function cueDifficulty(relation, conditions = {}) {
+    // Rings directly support radial distance calibration; coast geometry mainly
+    // supports directional orientation. Their absence therefore adds demand at
+    // the Trial layer rather than mutating the static Relation difficulty.
     const ringsPenalty = conditions.rings ? 0 : 0.30;
     const coastPenalty = conditions.coast ? 0 : 0.20;
     const distance = clamp01(Number(relation?.difficulty?.distanceBase) + ringsPenalty);
@@ -73,6 +77,11 @@
   }
 
   function buildIndex(placeArtifact, relationArtifact) {
+    if (relationArtifact && typeof relationArtifact === 'object') {
+      const cached = INDEX_CACHE.get(relationArtifact);
+      if (cached?.placeArtifact === placeArtifact) return cached.index;
+    }
+
     const places = placeArtifact?.places || [];
     const relations = relationArtifact?.relations || [];
     if (!places.length || !relations.length) throw new Error('ORIENT content pool is empty.');
@@ -84,7 +93,17 @@
       bucket.push(relation);
       relationsByFrom.set(relation.from, bucket);
     }
-    return { places, relations, placeById, relationsByFrom };
+
+    const matchedById = new Map();
+    for (const bucket of relationsByFrom.values()) {
+      for (const base of bucket) {
+        matchedById.set(base.id, bucket.filter(candidate => isCoreMatched(base, candidate)));
+      }
+    }
+
+    const index = { places, relations, placeById, relationsByFrom, matchedById };
+    if (relationArtifact && typeof relationArtifact === 'object') INDEX_CACHE.set(relationArtifact, { placeArtifact, index });
+    return index;
   }
 
   function placeTier(index, relation, side) {
@@ -95,15 +114,19 @@
     return new Set((Array.isArray(recentRelationIds) ? recentRelationIds : []).slice(-RECENT_HISTORY_LIMIT));
   }
 
-  function topChoice(candidates, score, rng, width = 12) {
-    if (!candidates.length) return null;
-    const ranked = candidates
-      .map(item => ({ item, score: Number(score(item)) }))
-      .filter(entry => Number.isFinite(entry.score))
-      .sort((a, b) => a.score - b.score || String(a.item.id).localeCompare(String(b.item.id)))
-      .slice(0, Math.max(1, width));
-    if (!ranked.length) return null;
-    return ranked[Math.floor(rng() * ranked.length)]?.item || ranked[0].item;
+  function scoredChoice(candidates, score, rng, jitter = 0.20) {
+    let chosen = null;
+    let chosenValue = Infinity;
+    for (const item of candidates) {
+      const baseScore = Number(score(item));
+      if (!Number.isFinite(baseScore)) continue;
+      const value = baseScore + rng() * jitter;
+      if (value < chosenValue || (value === chosenValue && String(item.id) < String(chosen?.id || ''))) {
+        chosen = item;
+        chosenValue = value;
+      }
+    }
+    return chosen;
   }
 
   function preferFresh(candidates, recent) {
@@ -183,7 +206,7 @@
     const recent = relationFreshnessSet(recentRelationIds);
     const used = new Set();
 
-    let pool = preferFresh(index.relations, recent);
+    const pool = preferFresh(index.relations, recent);
     const orientationCandidates = pool.filter(relation => {
       const fromTier = placeTier(index, relation, 'from');
       const toTier = placeTier(index, relation, 'to');
@@ -191,29 +214,26 @@
         && !relation.geometry?.crossesDateLine
         && (relation.geometry?.distanceBand === 'medium' || relation.geometry?.distanceBand === 'long');
     });
-    const t1 = topChoice(orientationCandidates.length ? orientationCandidates : pool, relation => orientationScore(index, relation), rng, 18);
+    const t1 = scoredChoice(orientationCandidates.length ? orientationCandidates : pool, relation => orientationScore(index, relation), rng, 0.34);
     if (!t1) throw new Error('Unable to compose ORIENT orientation trial.');
     used.add(t1.id);
 
     const baselineSource = unused(preferFresh(index.relations, recent), used);
     const baselineCandidates = baselineSource.filter(base => {
       if (placeTier(index, base, 'from') === 'extended') return false;
-      const matches = (index.relationsByFrom.get(base.from) || []).filter(candidate => isCoreMatched(base, candidate) && candidate.id !== t1.id);
-      return matches.length >= 2;
+      const matches = index.matchedById.get(base.id) || [];
+      return matches.filter(candidate => candidate.id !== t1.id).length >= 2;
     });
     const t2Pool = baselineCandidates.length ? baselineCandidates : baselineSource.filter(base =>
-      (index.relationsByFrom.get(base.from) || []).some(candidate => isCoreMatched(base, candidate) && candidate.id !== t1.id));
-    const t2 = topChoice(t2Pool, relation => {
-      const matches = (index.relationsByFrom.get(relation.from) || []).filter(candidate => isCoreMatched(relation, candidate));
-      return baselineScore(index, relation, matches.length);
-    }, rng, 24);
+      (index.matchedById.get(base.id) || []).some(candidate => candidate.id !== t1.id));
+    const t2 = scoredChoice(t2Pool, relation => baselineScore(index, relation, (index.matchedById.get(relation.id) || []).length), rng, 0.38);
     if (!t2) throw new Error('Unable to compose ORIENT baseline trial.');
     used.add(t2.id);
 
-    const allMatches = (index.relationsByFrom.get(t2.from) || []).filter(candidate => isCoreMatched(t2, candidate) && !used.has(candidate.id));
+    const allMatches = (index.matchedById.get(t2.id) || []).filter(candidate => !used.has(candidate.id));
     const freshMatches = allMatches.filter(candidate => !recent.has(candidate.id));
     const t3Pool = freshMatches.length ? freshMatches : allMatches;
-    const t3 = topChoice(t3Pool, relation => contrastCost(index, t2, relation), rng, 12);
+    const t3 = scoredChoice(t3Pool, relation => contrastCost(index, t2, relation), rng, 0.10);
     if (!t3) throw new Error('Unable to compose ORIENT contrast trial.');
     used.add(t3.id);
 
@@ -223,7 +243,7 @@
       placeTier(index, relation, 'from') !== 'extended'
       && (relation.difficulty?.geometry ?? 0) >= 0.46
       && relation.geometry?.antipodalRatio < 0.84);
-    const t4 = topChoice(challengeCandidates.length ? challengeCandidates : challengePool, relation => challengeScore(index, relation, usedPlaces), rng, 28);
+    const t4 = scoredChoice(challengeCandidates.length ? challengeCandidates : challengePool, relation => challengeScore(index, relation, usedPlaces), rng, 0.32);
     if (!t4) throw new Error('Unable to compose ORIENT challenge trial.');
     used.add(t4.id);
 
