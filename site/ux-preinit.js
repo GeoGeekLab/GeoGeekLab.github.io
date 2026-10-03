@@ -35,7 +35,7 @@
   if (isHome) {
     const homeViewportStyle = document.createElement('link');
     homeViewportStyle.rel = 'stylesheet';
-    homeViewportStyle.href = '/home-viewport-fit.css?v=20261003c';
+    homeViewportStyle.href = '/home-viewport-fit.css?v=20261003d';
     homeViewportStyle.dataset.homeViewportFit = 'style';
     document.head.appendChild(homeViewportStyle);
   }
