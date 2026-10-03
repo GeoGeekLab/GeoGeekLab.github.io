@@ -4,16 +4,18 @@
   const D3_CDN = 'https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js';
   const TOPOJSON_CDN = 'https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js';
   const WORLD_ATLAS = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
-  const geometry = window.GeoPlay?.orient?.geometry;
-  if (!geometry) throw new Error('ORIENT geometry unavailable.');
+  const orient = window.GeoPlay?.orient;
+  const geometry = orient?.geometry;
+  const config = orient?.config;
+  const metrics = orient?.metrics;
+  if (!geometry || !config || !metrics) throw new Error('ORIENT domain modules unavailable.');
   const {
     MAX_GREAT_CIRCLE_DISTANCE_KM: MAX_DISTANCE_KM,
     haversine,
     initialBearing,
-    normalizeBearing,
-    signedAngle,
-    distanceRatio
+    normalizeBearing
   } = geometry;
+  const { computeResidual } = metrics;
 
   const PLACES = {
     nairobi: { label: 'Nairobi', lat: -1.2921, lon: 36.8219 },
@@ -222,8 +224,14 @@
 
       const trueDistance = haversine(current.from, current.to);
       const trueBearing = initialBearing(current.from, current.to);
-      const distanceResidual = estimate.distanceKm - trueDistance;
-      const bearingResidual = signedAngle(estimate.bearingDeg - trueBearing);
+      const residual = computeResidual({
+        estimateDistanceKm: estimate.distanceKm,
+        estimateBearingDeg: estimate.bearingDeg,
+        truthDistanceKm: trueDistance,
+        truthBearingDeg: trueBearing
+      });
+      const distanceResidual = residual.distanceResidualKm;
+      const bearingResidual = residual.bearingResidualDeg;
       const targetPoint = projection([current.to.lon, current.to.lat]);
 
       machine.set('reveal');
@@ -244,7 +252,7 @@
         relation: { distanceKm: trueDistance, bearingDeg: trueBearing },
         result: {
           distanceResidualKm: distanceResidual,
-          distanceRatio: distanceRatio(estimate.distanceKm, trueDistance),
+          distanceRatio: residual.distanceRatio,
           bearingResidualDeg: bearingResidual
         },
         conditions: { before: { ...current.trial.conditions }, after: null },
@@ -254,8 +262,8 @@
       GeoPlay.trace.append(record);
 
       machine.set('compare');
-      const distanceWord = distanceResidual >= 0 ? 'LONG' : 'SHORT';
-      const bearingWord = bearingResidual > 0 ? 'CLOCKWISE' : bearingResidual < 0 ? 'COUNTERCLOCKWISE' : 'ALIGNED';
+      const distanceWord = residual.distanceClass.toUpperCase();
+      const bearingWord = residual.bearingClass.toUpperCase();
       shell.setReadout(`
         <div class="play-kicker">RESIDUAL</div>
         <div class="play-metrics">
@@ -276,8 +284,10 @@
       svg.on('.drag', null);
       const distanceBias = mean(sessionRecords.map(record => record.result.distanceRatio)) * 100;
       const bearingBias = mean(sessionRecords.map(record => record.result.bearingResidualDeg));
-      const distanceWord = distanceBias > 1 ? 'LONG' : distanceBias < -1 ? 'SHORT' : 'BALANCED';
-      const bearingWord = bearingBias > 1 ? 'CLOCKWISE' : bearingBias < -1 ? 'COUNTERCLOCKWISE' : 'BALANCED';
+      const distanceThreshold = config.legacyTrace.distanceBalancedRatio * 100;
+      const bearingThreshold = config.legacyTrace.bearingBalancedDeg;
+      const distanceWord = distanceBias > distanceThreshold ? 'LONG' : distanceBias < -distanceThreshold ? 'SHORT' : 'BALANCED';
+      const bearingWord = bearingBias > bearingThreshold ? 'CLOCKWISE' : bearingBias < -bearingThreshold ? 'COUNTERCLOCKWISE' : 'BALANCED';
 
       shell.field.innerHTML = `
         <div style="display:grid;place-items:center;width:100%;height:100%;padding:32px;text-align:center">
