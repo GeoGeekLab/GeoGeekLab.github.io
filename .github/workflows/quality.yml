@@ -110,6 +110,9 @@ jobs:
       - name: Internal links and assets
         run: npm run qa:links
 
+      - name: Validate ORIENT release browser suite
+        run: npx playwright test -c playwright.orient-release.config.mjs --list
+
       - name: Browser and accessibility baseline
         run: npm run qa:browser
 
