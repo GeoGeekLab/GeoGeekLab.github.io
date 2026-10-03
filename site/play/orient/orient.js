@@ -4,10 +4,18 @@
   const D3_CDN = 'https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js';
   const TOPOJSON_CDN = 'https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js';
   const WORLD_ATLAS = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
+  const PLACES_URL = 'play/orient/data/places.v1.json';
+  const RELATIONS_URL = 'play/orient/data/relations.v1.json';
+  const HISTORY_KEY = 'geogeek.play.orient.history.v1';
+  const HISTORY_VERSION = 'orient-history-1';
+  const HISTORY_LIMIT = 32;
+
   const orient = window.GeoPlay?.orient;
   const geometry = orient?.geometry;
   const config = orient?.config;
   const metrics = orient?.metrics;
+  const contentModel = orient?.contentModel;
+  const sessionComposer = orient?.session;
   if (!geometry || !config || !metrics) throw new Error('ORIENT domain modules unavailable.');
   const {
     MAX_GREAT_CIRCLE_DISTANCE_KM: MAX_DISTANCE_KM,
@@ -17,7 +25,7 @@
   } = geometry;
   const { computeResidual } = metrics;
 
-  const PLACES = {
+  const FALLBACK_PLACES = {
     nairobi: { label: 'Nairobi', lat: -1.2921, lon: 36.8219 },
     jakarta: { label: 'Jakarta', lat: -6.2088, lon: 106.8456 },
     paris: { label: 'Paris', lat: 48.8566, lon: 2.3522 },
@@ -26,10 +34,10 @@
     lima: { label: 'Lima', lat: -12.0464, lon: -77.0428 }
   };
 
-  const TRIALS = [
-    { id: 'nairobi-jakarta', from: 'nairobi', to: 'jakarta', conditions: { coast: true, graticule: false, rings: false } },
-    { id: 'paris-vancouver', from: 'paris', to: 'vancouver', conditions: { coast: false, graticule: false, rings: false } },
-    { id: 'tokyo-lima', from: 'tokyo', to: 'lima', conditions: { coast: false, graticule: false, rings: true } }
+  const FALLBACK_TRIALS = [
+    { id: 'nairobi-jakarta', relationId: 'nairobi-jakarta', role: 'orientation', from: 'nairobi', to: 'jakarta', conditions: { coast: true, graticule: false, rings: false } },
+    { id: 'paris-vancouver', relationId: 'paris-vancouver', role: 'baseline', from: 'paris', to: 'vancouver', conditions: { coast: false, graticule: false, rings: false } },
+    { id: 'tokyo-lima', relationId: 'tokyo-lima', role: 'challenge', from: 'tokyo', to: 'lima', conditions: { coast: false, graticule: false, rings: true } }
   ];
 
   const toRad = degrees => degrees * Math.PI / 180;
@@ -40,6 +48,101 @@
 
   function mean(values) {
     return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+  }
+
+  function normalizeSeed(value) {
+    const text = String(value ?? '').trim().slice(0, 64);
+    return text || null;
+  }
+
+  function randomSeed() {
+    try {
+      if (window.crypto?.getRandomValues) {
+        const words = new Uint32Array(2);
+        window.crypto.getRandomValues(words);
+        return `${words[0].toString(36)}-${words[1].toString(36)}`;
+      }
+    } catch (_) {}
+    return `${Date.now().toString(36)}-${Math.floor(Math.random() * 0xffffffff).toString(36)}`;
+  }
+
+  function seedFromUrl() {
+    return normalizeSeed(new URLSearchParams(location.search).get('orientSeed'));
+  }
+
+  function syncSeedToUrl(seed) {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.set('orientSeed', seed);
+      history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
+    } catch (_) {}
+  }
+
+  function readHistory() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || 'null');
+      if (!parsed || parsed.version !== HISTORY_VERSION || !Array.isArray(parsed.relationIds)) return [];
+      return parsed.relationIds.filter(value => typeof value === 'string').slice(-HISTORY_LIMIT);
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function rememberRelation(relationId) {
+    if (!relationId || typeof relationId !== 'string') return;
+    try {
+      const previous = readHistory().filter(id => id !== relationId);
+      previous.push(relationId);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify({ version: HISTORY_VERSION, relationIds: previous.slice(-HISTORY_LIMIT) }));
+    } catch (_) {}
+  }
+
+  async function fetchJson(url, signal) {
+    const response = await fetch(url, { signal, cache: 'no-cache' });
+    if (!response.ok) throw new Error(`${url} ${response.status}`);
+    return response.json();
+  }
+
+  async function loadSessionAssets(signal) {
+    if (!contentModel || !sessionComposer) throw new Error('ORIENT session modules unavailable.');
+    const placeArtifact = await fetchJson(PLACES_URL, signal);
+    let relationArtifact;
+    try {
+      relationArtifact = await fetchJson(RELATIONS_URL, signal);
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      // Source-mode/local servers may not materialize the generated relation
+      // artifact. Derivation from the versioned place file is deterministic.
+      relationArtifact = contentModel.buildRelationArtifact(placeArtifact);
+    }
+    if (!Array.isArray(relationArtifact?.relations) || !relationArtifact.relations.length) {
+      relationArtifact = contentModel.buildRelationArtifact(placeArtifact);
+    }
+    return { placeArtifact, relationArtifact };
+  }
+
+  function runtimePlaces(placeArtifact) {
+    return Object.fromEntries((placeArtifact?.places || []).map(place => [place.id, {
+      label: place.label,
+      lat: Number(place.location?.lat),
+      lon: Number(place.location?.lon)
+    }]));
+  }
+
+  function fallbackRuntime(seed, reason) {
+    return {
+      plan: {
+        version: 'orient-session-fallback-1',
+        seed,
+        contentVersion: 'fallback-release-pairs',
+        difficultyModelVersion: null,
+        historyApplied: false,
+        fallback: true,
+        fallbackReason: reason || 'content-unavailable',
+        trials: FALLBACK_TRIALS.map((trial, index) => ({ ...trial, slot: index + 1 }))
+      },
+      places: { ...FALLBACK_PLACES }
+    };
   }
 
   async function loadWorld(signal) {
@@ -75,24 +178,44 @@
     shell.setConditions([['PROJECTION', 'AZIMUTHAL EQUIDISTANT']]);
     shell.setActions([]);
 
+    const requestedSeed = seedFromUrl();
+    let sessionSeed = requestedSeed || randomSeed();
+    let sessionAssets = null;
+
+    async function prepareSession(seed, { applyHistory = true } = {}) {
+      try {
+        if (!sessionAssets) sessionAssets = await loadSessionAssets(signal);
+        const plan = sessionComposer.composeSession({
+          seed,
+          placeArtifact: sessionAssets.placeArtifact,
+          relationArtifact: sessionAssets.relationArtifact,
+          recentRelationIds: applyHistory ? readHistory() : []
+        });
+        return { plan, places: runtimePlaces(sessionAssets.placeArtifact) };
+      } catch (error) {
+        if (signal?.aborted) throw error;
+        console.warn('[GeoGeek] ORIENT content session unavailable; using release-pair fallback.', error);
+        return fallbackRuntime(seed, error?.message || 'content-unavailable');
+      }
+    }
+
     let land;
+    let runtime;
     try {
-      land = await loadWorld(signal);
+      [land, runtime] = await Promise.all([
+        loadWorld(signal),
+        prepareSession(sessionSeed, { applyHistory: !requestedSeed })
+      ]);
     } catch (error) {
       if (!signal?.aborted) shell.field.innerHTML = '<div class="instrument-error"><strong>FIELD UNAVAILABLE</strong><p>World geometry could not be loaded.</p></div>';
       return () => {};
     }
     if (signal?.aborted) return () => {};
 
+    syncSeedToUrl(sessionSeed);
+
     const d3 = window.d3;
     const width = 800; const height = 800; const cx = 400; const cy = 400; const radius = 342;
-    const svg = d3.select(shell.field).append('svg')
-      .attr('class', 'orient-map')
-      .attr('viewBox', `0 0 ${width} ${height}`)
-      .attr('role', 'application')
-      .attr('tabindex', '0')
-      .attr('aria-label', 'ORIENT reference field. Drag from the reference point to estimate the target relation.');
-
     let trialIndex = 0;
     let estimate = null;
     let current = null;
@@ -102,10 +225,38 @@
     let judgmentLine = null;
     let judgmentPoint = null;
     let hit = null;
+    let sessionPlan = runtime.plan;
+    let sessionTrials = runtime.plan.trials;
+    let placeLookup = runtime.places;
+    let svg = null;
+
+    function createMap() {
+      const map = d3.select(shell.field).append('svg')
+        .attr('class', 'orient-map')
+        .attr('viewBox', `0 0 ${width} ${height}`)
+        .attr('role', 'application')
+        .attr('tabindex', '0')
+        .attr('aria-label', 'ORIENT reference field. Drag from the reference point to estimate the target relation.');
+      map.on('keydown', handleKeydown);
+      return map;
+    }
+
+    function applyRuntime(nextRuntime) {
+      sessionPlan = nextRuntime.plan;
+      sessionTrials = nextRuntime.plan.trials;
+      placeLookup = nextRuntime.places;
+      shell.root.dataset.orientSeed = sessionPlan.seed;
+      shell.root.dataset.orientSessionVersion = sessionPlan.version;
+      shell.root.dataset.orientFallback = sessionPlan.fallback ? 'true' : 'false';
+    }
+
+    applyRuntime(runtime);
+    svg = createMap();
 
     const conditionsFor = trial => [
       ['PROJECTION', 'AZIMUTHAL EQUIDISTANT'],
-      ['REFERENCE', PLACES[trial.from].label.toUpperCase()],
+      ['ROLE', String(trial.role || 'relation').toUpperCase()],
+      ['REFERENCE', placeLookup[trial.from].label.toUpperCase()],
       ['COAST', trial.conditions.coast ? 'ON' : 'OFF'],
       ['GRATICULE', trial.conditions.graticule ? 'ON' : 'OFF'],
       ['DISTANCE RINGS', trial.conditions.rings ? 'ON' : 'OFF']
@@ -155,8 +306,13 @@
     function drawTrial() {
       machine.set('observe');
       estimate = null;
-      const trial = TRIALS[trialIndex];
-      const from = PLACES[trial.from]; const to = PLACES[trial.to];
+      const trial = sessionTrials[trialIndex];
+      const from = placeLookup[trial.from]; const to = placeLookup[trial.to];
+      if (!trial || !from || !to) {
+        shell.field.innerHTML = '<div class="instrument-error"><strong>FIELD UNAVAILABLE</strong><p>Session content could not be resolved.</p></div>';
+        shell.setActions([{ label: 'RETURN TO LAB', onClick: () => document.getElementById('instrumentClose')?.click() }]);
+        return;
+      }
       current = { trial, from, to };
 
       svg.selectAll('*').remove();
@@ -212,7 +368,7 @@
         <p>Estimate the relation.</p>`);
       shell.setReadout('');
       shell.setConditions(conditionsFor(trial));
-      shell.setFieldNote(`RELATION ${trialIndex + 1} / ${TRIALS.length} · DRAG FROM REFERENCE`);
+      shell.setFieldNote(`RELATION ${trialIndex + 1} / ${sessionTrials.length} · ${String(trial.role || 'relation').toUpperCase()} · DRAG FROM REFERENCE`);
       renderJudgeActions();
       requestAnimationFrame(() => machine.set('judge'));
     }
@@ -248,6 +404,15 @@
       const record = {
         play: 'orient',
         trialId: current.trial.id,
+        relationId: current.trial.relationId || current.trial.id,
+        session: {
+          version: sessionPlan.version,
+          seed: sessionPlan.seed,
+          contentVersion: sessionPlan.contentVersion,
+          slot: current.trial.slot || trialIndex + 1,
+          role: current.trial.role || 'relation',
+          fallback: Boolean(sessionPlan.fallback)
+        },
         judgment: { distanceKm: estimate.distanceKm, bearingDeg: estimate.bearingDeg },
         relation: { distanceKm: trueDistance, bearingDeg: trueBearing },
         result: {
@@ -255,11 +420,13 @@
           distanceRatio: residual.distanceRatio,
           bearingResidualDeg: bearingResidual
         },
+        difficulty: current.trial.difficulty ? { ...current.trial.difficulty } : null,
         conditions: { before: { ...current.trial.conditions }, after: null },
         effect: {}
       };
       sessionRecords.push(record);
       GeoPlay.trace.append(record);
+      if (!sessionPlan.fallback) rememberRelation(record.relationId);
 
       machine.set('compare');
       const distanceWord = residual.distanceClass.toUpperCase();
@@ -272,7 +439,7 @@
         </div>`);
       shell.setFieldNote('JUDGMENT / WHITE · RELATION / SIGNAL');
 
-      if (trialIndex < TRIALS.length - 1) {
+      if (trialIndex < sessionTrials.length - 1) {
         shell.setActions([{ label: 'NEXT RELATION →', onClick: () => { trialIndex += 1; drawTrial(); } }]);
       } else {
         shell.setActions([{ label: 'VIEW TRACE →', onClick: showTrace }]);
@@ -281,33 +448,56 @@
 
     function showTrace() {
       machine.set('trace');
-      svg.on('.drag', null);
+      hit?.on('pointerdown pointermove pointerup pointercancel', null);
       const distanceBias = mean(sessionRecords.map(record => record.result.distanceRatio)) * 100;
       const bearingBias = mean(sessionRecords.map(record => record.result.bearingResidualDeg));
       const distanceThreshold = config.legacyTrace.distanceBalancedRatio * 100;
       const bearingThreshold = config.legacyTrace.bearingBalancedDeg;
       const distanceWord = distanceBias > distanceThreshold ? 'LONG' : distanceBias < -distanceThreshold ? 'SHORT' : 'BALANCED';
       const bearingWord = bearingBias > bearingThreshold ? 'CLOCKWISE' : bearingBias < -bearingThreshold ? 'COUNTERCLOCKWISE' : 'BALANCED';
+      const relationCount = sessionRecords.length;
 
       shell.field.innerHTML = `
         <div style="display:grid;place-items:center;width:100%;height:100%;padding:32px;text-align:center">
-          <div><div class="play-trace-title">YOUR SPATIAL TRACE</div><p style="max-width:420px;margin:12px auto 0;color:rgba(241,239,231,.58);font:450 12px/1.6 var(--sans)">Not a score. A record of what changed across three reference fields.</p></div>
+          <div><div class="play-trace-title">YOUR SPATIAL TRACE</div><p style="max-width:420px;margin:12px auto 0;color:rgba(241,239,231,.58);font:450 12px/1.6 var(--sans)">Not a score. A record of what changed across ${relationCount} reference fields.</p></div>
         </div>`;
-      shell.setTask('<div class="play-kicker">YOUR TRACE</div><p>Three committed relations.</p>');
+      shell.setTask(`<div class="play-kicker">YOUR TRACE</div><p>${relationCount} committed relations.</p>`);
       shell.setReadout(`
         <div class="play-metrics">
           <div class="play-metric"><span>DISTANCE TENDENCY</span><strong>${distanceBias >= 0 ? '+' : '−'}${Math.abs(distanceBias).toFixed(1)}%</strong><em>${distanceWord}</em></div>
           <div class="play-metric"><span>BEARING TENDENCY</span><strong>${bearingBias >= 0 ? '+' : '−'}${Math.abs(bearingBias).toFixed(1)}°</strong><em>${bearingWord}</em></div>
         </div>`);
-      shell.setConditions([['RELATIONS', String(sessionRecords.length)], ['MODEL', 'SPHERICAL EARTH'], ['RESULT', 'OBSERVATIONAL']]);
+      shell.setConditions([
+        ['RELATIONS', String(relationCount)],
+        ['MODEL', 'SPHERICAL EARTH'],
+        ['RESULT', 'OBSERVATIONAL'],
+        ['SESSION', String(sessionPlan.seed).slice(0, 12).toUpperCase()]
+      ]);
       shell.setFieldNote('NOT A SCORE · A RECORD OF WHAT CHANGED');
       shell.setActions([
-        { label: 'RESTART ORIENT', secondary: true, onClick: () => { trialIndex = 0; sessionRecords = []; drawTrial(); } },
+        { label: 'ANOTHER FIELD', secondary: true, onClick: startAnotherField },
         { label: 'RETURN TO LAB', onClick: () => document.getElementById('instrumentClose')?.click() }
       ]);
     }
 
-    svg.on('keydown', event => {
+    async function startAnotherField() {
+      machine.set('observe');
+      shell.setTask('<div class="play-kicker">CALIBRATING NEXT FIELD…</div>');
+      shell.setReadout('');
+      shell.setActions([]);
+      sessionSeed = randomSeed();
+      syncSeedToUrl(sessionSeed);
+      const nextRuntime = await prepareSession(sessionSeed, { applyHistory: true });
+      if (signal?.aborted) return;
+      trialIndex = 0;
+      sessionRecords = [];
+      shell.field.innerHTML = '';
+      applyRuntime(nextRuntime);
+      svg = createMap();
+      drawTrial();
+    }
+
+    function handleKeydown(event) {
       if (machine.state !== 'judge') return;
       if (event.key === 'Enter' && estimate) { event.preventDefault(); commit(); return; }
       if (event.key.toLowerCase() === 'r') { event.preventDefault(); resetEstimate(); return; }
@@ -324,12 +514,12 @@
       bearing = normalizeBearing(bearing);
       distance = GeoPlay.core.clamp(distance, 0, MAX_DISTANCE_KM * .985);
       updateEstimate(endpointFromPolar(distance, bearing));
-    });
+    }
 
     drawTrial();
     return () => {
       dragging = false;
-      svg.on('keydown', null);
+      svg?.on('keydown', null);
       hit?.on('pointerdown pointermove pointerup pointercancel', null);
       stage.innerHTML = '';
     };
@@ -340,6 +530,11 @@
     mounts.locate = mountOrient;
   }
 
-  window.GeoPlayOrient = { mount: mountOrient, register, trials: TRIALS, places: PLACES };
+  window.GeoPlayOrient = {
+    mount: mountOrient,
+    register,
+    fallbackTrials: FALLBACK_TRIALS,
+    sessionVersion: sessionComposer?.SESSION_VERSION || 'fallback'
+  };
   register();
 })();
