@@ -38,6 +38,16 @@
     homeViewportStyle.href = '/home-viewport-fit.css?v=20261003f';
     homeViewportStyle.dataset.homeViewportFit = 'style';
     document.head.appendChild(homeViewportStyle);
+
+    // The homepage uses section ownership for its semantic scale. The generic
+    // IntersectionObserver can report only threshold-changing entries, which can
+    // leave Commons stuck at POSITION. Run a deterministic viewport-anchor pass
+    // after parsing so SITE → POSITION → COLLECTION always follows the section.
+    const homeScaleScript = document.createElement('script');
+    homeScaleScript.src = '/home-scale.js?v=20261004a';
+    homeScaleScript.defer = true;
+    homeScaleScript.dataset.homeScale = 'script';
+    document.head.appendChild(homeScaleScript);
   }
 
   const isLab = /(?:^|\/)lab\.html$/.test(location.pathname);
