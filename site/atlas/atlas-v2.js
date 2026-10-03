@@ -40,6 +40,35 @@
     geographic: 'GEOGRAPHIC REFERENCE'
   };
 
+  function recordTime(item) {
+    const record = model.recordIndex?.get(item.ref);
+    const rawDate = String(record?.item?.date || '').trim();
+    const match = rawDate.match(/^(\d{4})(?:[.\/-](\d{1,2}))?/);
+    const dateYear = Number(match?.[1]);
+    const dateMonth = Number(match?.[2]);
+    const layoutMonth = Number(model.atlasLayout?.get(item.ref)?.month);
+    const year = Number.isFinite(dateYear) && dateYear > 0 ? dateYear : item.year;
+    const month = Number.isInteger(dateMonth) && dateMonth >= 1 && dateMonth <= 12
+      ? dateMonth
+      : Number.isInteger(layoutMonth) && layoutMonth >= 1 && layoutMonth <= 12
+        ? layoutMonth
+        : null;
+
+    // Keep year-only records explicit. The end-of-year bucket avoids inventing a month.
+    const index = year * 12 + (month ? month - 1 : 11.5);
+    const label = month ? `${year}-${String(month).padStart(2, '0')}` : `${year}-??`;
+    return { year, month, index, label, key: label };
+  }
+
+  const timeMeta = new Map(items.map(item => [item.ref, recordTime(item)]));
+  const timeOf = item => timeMeta.get(item.ref) || {
+    year: item.year,
+    month: null,
+    index: item.year * 12 + 11.5,
+    label: `${item.year}-??`,
+    key: `${item.year}-??`
+  };
+
   const STOP = new Set('the a an and or of to in on for with from as by at is are be being this that these those into through about across within without what why how when where which one same records record field world geo geogeek'.split(' '));
   const normalizeTokens = value => new Set(String(value || '')
     .toLowerCase()
@@ -273,16 +302,17 @@
     if (mode === 'field') return relationPositions[index] || [item.x, item.y];
 
     if (mode === 'time') {
-      const years = items.map(value => value.year);
-      const min = Math.min(...years);
-      const max = Math.max(...years);
+      const times = items.map(value => timeOf(value).index);
+      const min = Math.min(...times);
+      const max = Math.max(...times);
       const span = Math.max(1, max - min);
-      const sameYear = items.filter(value => value.year === item.year).sort((a, b) => typeOrder[a.type] - typeOrder[b.type] || a.title.localeCompare(b.title));
-      const localIndex = sameYear.indexOf(item);
+      const itemTime = timeOf(item);
+      const sameTime = items.filter(value => timeOf(value).key === itemTime.key).sort((a, b) => typeOrder[a.type] - typeOrder[b.type] || a.title.localeCompare(b.title));
+      const localIndex = sameTime.indexOf(item);
       const bandY = { note: .30, lab: .48, place: .66, photo: .80 }[item.type] || .58;
       return [
-        .10 + ((item.year - min) / span) * .80,
-        bandY + (localIndex - (sameYear.length - 1) / 2) * .022
+        .10 + ((itemTime.index - min) / span) * .80,
+        bandY + (localIndex - (sameTime.length - 1) / 2) * .022
       ];
     }
 
@@ -369,7 +399,7 @@
     const indexed = items.map((item, index) => [item, index]);
 
     if (mode === 'time') {
-      const sorted = [...indexed].sort((a, b) => a[0].year - b[0].year || a[0].title.localeCompare(b[0].title));
+      const sorted = [...indexed].sort((a, b) => timeOf(a[0]).index - timeOf(b[0]).index || a[0].title.localeCompare(b[0].title));
       sorted.slice(0, -1).forEach((entry, offset) => add(entry[1], sorted[offset + 1][1], 1, 'time'));
       return pairs;
     }
@@ -431,6 +461,7 @@
     inspector.classList.remove('is-empty');
     inspector.dataset.pinned = pinned ? 'true' : 'false';
     const context = layout.mode === 'geographic' ? geoLabel(item) : item.place;
+    const displayTime = layout.mode === 'time' ? timeOf(item).label : item.year;
     const neighbors = neighborsFor(item.ref).slice(0, 4);
     const neighborCopy = neighbors.length
       ? `<div class="atlas-related"><span>RELATED / ${neighbors.length}</span>${neighbors.map(({ item: neighbor }) => `<button type="button" data-atlas-related="${neighbor.ref}">${neighbor.title}</button>`).join('')}</div>`
@@ -440,7 +471,7 @@
       <button class="atlas-inspector-close" id="atlasInspectorClose" type="button" aria-label="Close selection">×</button>
       <span>SELECTION / ${typeLabel[item.type] || item.type}</span>
       <strong>${item.title}</strong>
-      <small>${item.topic} · ${item.year} · ${context}</small>
+      <small>${item.topic} · ${displayTime} · ${context}</small>
       ${neighborCopy}
       <a class="atlas-open-record" href="${model.hrefForRecord(item.ref)}" data-atlas-open="${item.ref}">${L.open}</a>`;
     bindInspectorClose();
@@ -653,9 +684,13 @@
       });
       addGuide('SEMANTIC FIELD / WEIGHTED LINKS', .055, .945, 'atlas-stage-note');
     } else if (mode === 'time') {
-      const years = [...new Set(items.map(item => item.year))].sort();
-      const min = Math.min(...years); const max = Math.max(...years); const span = Math.max(1, max - min);
-      years.forEach(year => addGuide(String(year), .10 + ((year - min) / span) * .80, .08, 'time-tick'));
+      const ticks = [...new Map(items.map(item => {
+        const time = timeOf(item);
+        return [time.key, time];
+      })).values()].sort((a, b) => a.index - b.index || a.label.localeCompare(b.label));
+      const values = ticks.map(tick => tick.index);
+      const min = Math.min(...values); const max = Math.max(...values); const span = Math.max(1, max - min);
+      ticks.forEach(tick => addGuide(tick.label, .10 + ((tick.index - min) / span) * .80, .08, 'time-tick'));
       Object.entries({ NOTE: .30, LAB: .48, ELSEWHERE: .66 }).forEach(([label, y]) => addGuide(label, .025, y, 'lane-label'));
     } else if (mode === 'type') {
       const types = [...new Set(items.map(item => item.type))];
