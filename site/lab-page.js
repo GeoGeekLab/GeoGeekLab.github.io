@@ -61,32 +61,35 @@
   const list = document.querySelector('#labList');
   const dialog = document.querySelector('#instrumentDialog');
   const stage = document.querySelector('#instrumentStage');
+  const buildRows = [...document.querySelectorAll('.lab-build-row')];
 
   // Lab has one explicit semantic-scale contract:
-  // collection index -> record card -> instrument detail.
+  // collection index -> individual record/object -> instrument detail.
+  // An external build is still an individual information object, so hovering
+  // its row is RECORD even though its destination is outside the site model.
   // Keep DETAIL locked while the modal instrument owns interaction so a card
   // pointerleave/focusout cannot restore the collection underneath the dialog.
   const setCollectionScale = () => window.GeoScale?.apply?.('COLLECTION', false);
   const setRecordScale = () => window.GeoScale?.apply?.('RECORD');
   const setDetailScale = () => window.GeoScale?.apply?.('DETAIL');
-  const releaseCardScale = () => {
+  const releaseRecordScale = () => {
     if (dialog?.open || document.body.classList.contains('instrument-open')) setDetailScale();
     else window.GeoScale?.restore?.();
   };
 
-  function bindCardScale(card) {
-    if (!card || card.dataset.labScaleBound === '1') return;
-    card.dataset.labScaleBound = '1';
-    card.addEventListener('pointerenter', () => {
+  function bindRecordScaleTarget(target) {
+    if (!target || target.dataset.labScaleBound === '1') return;
+    target.dataset.labScaleBound = '1';
+    target.addEventListener('pointerenter', () => {
       if (!dialog?.open) setRecordScale();
     });
-    card.addEventListener('focusin', () => {
+    target.addEventListener('focusin', () => {
       if (!dialog?.open) setRecordScale();
     });
-    card.addEventListener('pointerleave', releaseCardScale);
-    card.addEventListener('focusout', event => {
-      if (card.contains(event.relatedTarget)) return;
-      releaseCardScale();
+    target.addEventListener('pointerleave', releaseRecordScale);
+    target.addEventListener('focusout', event => {
+      if (target.contains(event.relatedTarget)) return;
+      releaseRecordScale();
     });
   }
 
@@ -101,7 +104,7 @@
       }
       const trigger = card.querySelector('[data-instrument]');
       if (trigger?.dataset.instrument) card.dataset.instrumentKind = trigger.dataset.instrument;
-      bindCardScale(card);
+      bindRecordScaleTarget(card);
     });
 
     list.querySelectorAll('.lab-group-block').forEach(block => {
@@ -118,8 +121,10 @@
     });
   }
 
-  // Establish the collection as the durable page scale. Card and instrument
-  // states are temporary descendants of this baseline.
+  buildRows.forEach(bindRecordScaleTarget);
+
+  // Establish the collection as the durable page scale. Individual rows and
+  // instrument workspaces are temporary descendants of this baseline.
   setCollectionScale();
 
   if (!dialog || !stage) return;
