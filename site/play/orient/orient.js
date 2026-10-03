@@ -40,7 +40,7 @@
     { id: 'paris-vancouver', relationId: 'paris-vancouver', role: 'baseline', from: 'paris', to: 'vancouver', conditions: { coast: true, graticule: false, rings: false } },
     { id: 'paris-tokyo', relationId: 'paris-tokyo', role: 'contrast', from: 'paris', to: 'tokyo', conditions: { coast: false, graticule: false, rings: false } },
     { id: 'tokyo-lima', relationId: 'tokyo-lima', role: 'challenge', from: 'tokyo', to: 'lima', conditions: { coast: false, graticule: false, rings: false } },
-    { id: 'vancouver-jakarta', relationId: 'vancouver-jakarta', role: 'confirmation', from: 'vancouver', to: 'jakarta', conditions: { coast: true, graticule: false, rings: false }, adaptation: { axis: 'distance', direction: 'mixed', mode: 'confirmation', sourceSlot: 1, evidenceCount: 4 } }
+    { id: 'vancouver-jakarta', relationId: 'vancouver-jakarta', role: 'confirmation', from: 'vancouver', to: 'jakarta', conditions: { coast: true, graticule: false, rings: false } }
   ];
 
   const toRad = degrees => degrees * Math.PI / 180;
