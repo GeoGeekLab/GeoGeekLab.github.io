@@ -23,8 +23,9 @@ test.describe('Lab entry hierarchy', () => {
     await expect(page.locator('#l10 .project-link span')).toHaveText('READ RECORD');
     await expect(page.locator('#l10 .lab-enter span')).toHaveText('OPEN INSTRUMENT');
     await expect(page.locator('#l10 .lab-card-conditions > div')).toHaveCount(2);
-    await expect(page.locator('#l10 .lab-card-conditions')).toContainText('FEED');
-    await expect(page.locator('#l10 .lab-card-conditions')).toContainText('WINDOW');
+    const pulseConditionLabels = await page.locator('#l10 .lab-card-conditions dt').allTextContents();
+    expect(pulseConditionLabels).toEqual(['SOURCE', 'TIME']);
+    await expect(page.locator('#l10 .lab-card-conditions')).toContainText('USGS');
 
     await expect(page.locator('.lab-principle')).toContainText('what it can see');
     await expect(page.locator('.lab-builds-head > span')).toHaveText('OPEN-SOURCE BUILDS');
@@ -59,9 +60,11 @@ test.describe('Lab workspace affordances', () => {
     });
 
     await expect(page.locator('#instrumentGroupLabel')).toHaveText('OBSERVATORY');
-    await expect(page.locator('[data-workspace-mode="focus"]')).toHaveAttribute('title', 'Visualization only');
-    await expect(page.locator('[data-workspace-mode="work"]')).toHaveAttribute('title', 'Primary controls');
-    await expect(page.locator('[data-workspace-mode="inspect"]')).toHaveAttribute('title', 'Full context + provenance');
+    const modes = page.locator('.instrument-workspace-modes');
+    await expect(modes.locator('[data-workspace-mode="focus"]')).toHaveAttribute('title', 'Visualization only');
+    await expect(modes.locator('[data-workspace-mode="work"]')).toHaveAttribute('title', 'Primary controls');
+    await expect(modes.locator('[data-workspace-mode="inspect"]')).toHaveAttribute('title', 'Full context + provenance');
+    await expect(page.locator('#instrumentDialog')).not.toHaveAttribute('data-mode-help', 'Primary controls');
     await expect(page.locator('#instrumentClose')).toHaveAttribute('aria-keyshortcuts', 'Escape');
   });
 });
