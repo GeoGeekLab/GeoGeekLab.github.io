@@ -81,6 +81,7 @@ jobs:
           test -s dist/play/orient/data/relations.v1.json
           test -s dist/play/orient/orient-content.js
           test -s dist/play/orient/orient-session.js
+          test -s dist/play/orient/orient-adaptation-guard.js
           test -s dist/play/orient/orient-state.js
           test -s dist/play/orient/orient-storage.js
           test -s dist/play/orient/orient.css
@@ -89,6 +90,7 @@ jobs:
           grep -F 'orient-state.js?v=20261003f' dist/play/play-runtime.js
           grep -F 'orient-storage.js?v=20261003f' dist/play/play-runtime.js
           grep -F 'orient-session.js?v=20261003f' dist/play/play-runtime.js
+          grep -F 'orient-adaptation-guard.js?v=20261003f' dist/play/play-runtime.js
           grep -F 'orient.js?v=20261003f' dist/play/play-runtime.js
 
       - name: Static QA
