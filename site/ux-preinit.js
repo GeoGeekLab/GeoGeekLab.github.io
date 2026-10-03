@@ -28,6 +28,18 @@
   interactionStyle.dataset.geoInteraction = 'style';
   document.head.appendChild(interactionStyle);
 
+  // Homepage-only viewport fit. Load this after shared layout/interaction styles
+  // so Coordinates and Commons can consume one desktop viewport without
+  // changing the design system or any inner page.
+  const isHome = /(?:^|\/)index\.html$/.test(location.pathname);
+  if (isHome) {
+    const homeViewportStyle = document.createElement('link');
+    homeViewportStyle.rel = 'stylesheet';
+    homeViewportStyle.href = '/home-viewport-fit.css?v=20261003a';
+    homeViewportStyle.dataset.homeViewportFit = 'style';
+    document.head.appendChild(homeViewportStyle);
+  }
+
   const isLab = /(?:^|\/)lab\.html$/.test(location.pathname);
   if (isLab) {
     const labPreviewStyle = document.createElement('link');
