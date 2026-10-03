@@ -140,10 +140,13 @@
       addGroupPurpose(block, key);
     });
 
-    ['observatory', 'studies', 'play'].forEach(key => {
-      const block = blocks.find(item => item.dataset.groupKey === key);
-      if (block) list.appendChild(block);
-    });
+    const desired = ['observatory', 'studies', 'play']
+      .map(key => blocks.find(item => item.dataset.groupKey === key))
+      .filter(Boolean);
+    const current = [...list.querySelectorAll(':scope > .lab-group-block')];
+    if (desired.some((block, index) => current[index] !== block)) {
+      desired.forEach(block => list.appendChild(block));
+    }
 
     list.querySelectorAll('.project-card').forEach(card => makeActionsExplicit(card));
     applyHashTarget();
@@ -151,8 +154,10 @@
 
   function applyHashTarget() {
     if (!list) return;
+    list.querySelectorAll('[data-deep-link-target]').forEach(node => node.removeAttribute('data-deep-link-target'));
     list.querySelectorAll('.is-target-reveal').forEach(node => node.classList.remove('is-target-reveal'));
-    const id = decodeURIComponent(location.hash.replace(/^#/, ''));
+    let id = '';
+    try { id = decodeURIComponent(location.hash.replace(/^#/, '')); } catch { id = location.hash.replace(/^#/, ''); }
     if (!id) return;
     const target = document.getElementById(id);
     if (!target?.classList.contains('project-card')) return;
@@ -227,11 +232,6 @@
     preserveReturnContext();
 
     addEventListener('hashchange', applyHashTarget);
-
-    if (list) {
-      const listObserver = new MutationObserver(() => enhanceCollection());
-      listObserver.observe(list, { childList: true });
-    }
 
     if (dialog) {
       const dialogObserver = new MutationObserver(records => {
