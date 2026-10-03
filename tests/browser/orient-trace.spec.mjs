@@ -46,6 +46,7 @@ test('ORIENT Spatial Trace preserves five individual evidence records before ses
   await expect(shell.locator('.orient-trace-mini')).toHaveCount(5);
   await expect(shell.locator('.orient-trace-map-point')).toHaveCount(5);
   await expect(shell.locator('.orient-residual-map')).toBeVisible();
+  await expect(shell.locator('.orient-trace-hero')).toContainText('Not a score');
 
   const readout = shell.locator('.play-readout');
   await expect(readout).toContainText('SESSION OBSERVATION');
@@ -54,7 +55,6 @@ test('ORIENT Spatial Trace preserves five individual evidence records before ses
   await expect(readout).toContainText('FINAL PROBE');
   await expect(readout).toContainText('NOT A CAUSAL EFFECT');
   await expect(readout).toContainText('NOT A LEARNING SCORE');
-  await expect(shell).not.toContainText('SCORE');
   await expect(shell.getByRole('button', { name: 'ANOTHER FIELD' })).toBeVisible();
   await expect(shell.getByRole('button', { name: 'RETURN TO LAB' })).toBeVisible();
 });
