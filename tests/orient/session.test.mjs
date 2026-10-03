@@ -18,6 +18,10 @@ function compose(seed, recentRelationIds = []) {
   return session.composeSession({ seed, placeArtifact: places, relationArtifact: relations, recentRelationIds });
 }
 
+function composeFresh(seed, recentRelationIds = []) {
+  return session.composeFreshSession({ seed, placeArtifact: places, relationArtifact: relations, recentRelationIds });
+}
+
 function assertSessionContract(plan) {
   assert.equal(plan.version, 'orient-session-1');
   assert.equal(plan.contentVersion, 'orient-content-1');
@@ -60,13 +64,25 @@ test('trial-level cue demand is separate from static relation difficulty', () =>
   assert.equal('cue' in relation.difficulty, false);
 });
 
-test('recent relation cooldown avoids the preceding session when the pool can do so', () => {
+test('direct recent filtering avoids the preceding session when the pool can do so', () => {
   const first = compose('cooldown-seed');
   const recent = first.trials.map(trial => trial.relationId);
   const second = compose('cooldown-seed', recent);
   assertSessionContract(second);
   assert.equal(second.historyApplied, true);
   assert.deepEqual(second.trials.filter(trial => recent.includes(trial.relationId)), []);
+});
+
+test('runtime cooldown reseeds until fresh while final seed remains independently reproducible', () => {
+  const first = compose('fresh-contract');
+  const recent = first.trials.map(trial => trial.relationId);
+  const fresh = composeFresh('fresh-contract', recent);
+  assertSessionContract(fresh);
+  assert.equal(fresh.historyApplied, true);
+  assert.ok(fresh.cooldownReseeds >= 1);
+  assert.deepEqual(fresh.trials.filter(trial => recent.includes(trial.relationId)), []);
+  const reproduced = compose(fresh.seed);
+  assert.deepEqual(reproduced.trials, fresh.trials);
 });
 
 test('10,000 seeded sessions remain valid, matched and meaningfully varied', () => {
