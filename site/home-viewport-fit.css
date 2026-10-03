@@ -12,16 +12,15 @@
     overflow: hidden;
   }
 
-  /* One shared editorial header component.
-     Coordinates is normalized to the same page-title contract as Commons at runtime. */
+  /* Shared editorial header, reduced by ~10% for one-screen scanning. */
   #now .coordinates-home-title,
   #commons .commons-home-title {
     display: grid;
-    grid-template-columns: minmax(400px, .78fr) minmax(0, 1.22fr);
-    gap: clamp(44px, 6vw, 92px);
+    grid-template-columns: minmax(360px, .78fr) minmax(0, 1.22fr);
+    gap: clamp(40px, 5.4vw, 83px);
     align-items: end;
-    margin-bottom: clamp(12px, 1.8vh, 18px);
-    padding-bottom: clamp(12px, 1.8vh, 16px);
+    margin-bottom: clamp(11px, 1.62vh, 16px);
+    padding-bottom: clamp(11px, 1.62vh, 14px);
     border-bottom: 1px solid var(--line);
   }
 
@@ -32,9 +31,9 @@
 
   #now .coordinates-home-title .eyebrow,
   #commons .commons-home-title .eyebrow {
-    margin: 0 0 10px;
+    margin: 0 0 9px;
     color: var(--muted);
-    font: 650 11px/1.25 var(--mono);
+    font: 650 10px/1.25 var(--mono);
     letter-spacing: .095em;
     text-transform: uppercase;
   }
@@ -44,7 +43,7 @@
     margin: 0;
     color: var(--fg);
     font-family: var(--sans);
-    font-size: clamp(48px, 4.8vw, 72px);
+    font-size: clamp(43px, 4.32vw, 65px);
     line-height: .92;
     letter-spacing: -.055em;
     font-weight: 560;
@@ -54,23 +53,22 @@
   #now .coordinates-home-title .page-intro,
   #commons .commons-home-title .page-intro {
     margin: 0 0 3px;
-    max-width: 760px;
+    max-width: 684px;
     color: #47534b;
     font-family: var(--serif);
-    font-size: clamp(18px, 1.45vw, 22px);
-    line-height: 1.45;
+    font-size: clamp(16px, 1.305vw, 20px);
+    line-height: 1.42;
     font-weight: 400;
     letter-spacing: 0;
   }
 
   /* 01 / COORDINATES
-     Preserve the two-column field/register logic.
-     Give the workbench the remaining height instead of a content-driven height. */
+     Keep field/register logic, but reduce chrome and typography by ~10%. */
   #now.coordinates-section {
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
-    padding-top: clamp(88px, 10.5vh, 104px);
-    padding-bottom: clamp(18px, 2.8vh, 26px);
+    padding-top: clamp(79px, 9.45vh, 94px);
+    padding-bottom: clamp(16px, 2.52vh, 23px);
   }
 
   #now .coordinates-workbench {
@@ -83,10 +81,47 @@
     grid-template-rows: auto minmax(0, 1fr) auto;
   }
 
+  #now .coordinates-field-head,
+  #now .coordinates-field-foot {
+    gap: 18px;
+    padding: 9px 14px;
+  }
+
+  #now .coordinates-field-foot {
+    min-height: 35px;
+  }
+
+  #now .coordinates-field-head span,
+  #now .coordinates-field-foot > span {
+    font-size: 9.5px;
+  }
+
+  #now .coordinates-field-head small {
+    font-size: 8.5px;
+  }
+
   #now .coordinates-plot {
     height: 100%;
     min-height: 0;
   }
+
+  #now .coordinate-node {
+    min-height: 40px;
+    padding: 7px 9px;
+  }
+
+  #now .coordinate-node b { font-size: 8.5px; }
+  #now .coordinate-node span { font-size: 10px; }
+  #now .coordinate-node em { font-size: 7.5px; }
+
+  #now .coordinate-readout {
+    width: min(387px, 62%);
+    padding: 14px 16px;
+  }
+
+  #now .coordinate-readout span { font-size: 8.5px; }
+  #now .coordinate-readout strong { font-size: 10.5px; line-height: 1.5; }
+  #now .coordinate-readout small { font-size: 7.5px; }
 
   #now .coordinates-register {
     min-height: 0;
@@ -101,24 +136,69 @@
   }
 
   #now .coordinate-register-button {
-    padding-top: clamp(12px, 1.8vh, 18px);
-    padding-bottom: clamp(12px, 1.8vh, 18px);
+    padding: clamp(10px, 1.62vh, 16px) 22px clamp(10px, 1.62vh, 16px) 27px;
+  }
+
+  #now .coordinate-register-meta {
+    margin-bottom: 9px;
+  }
+
+  #now .coordinate-register-meta b { font-size: 8.5px; }
+  #now .coordinate-register-meta span { font-size: 10px; }
+  #now .coordinate-register-meta em { font-size: 8px; }
+
+  #now .coordinates-register h3 {
+    margin-bottom: 9px;
+    font-size: clamp(22px, 1.8vw, 28px);
+    line-height: 1.06;
+  }
+
+  #now .coordinates-register article small {
+    font-size: 8.5px;
+    line-height: 1.4;
   }
 
   /* 02 / COMMONS
-     Keep title -> summary -> workspace hierarchy.
-     Let the map workspace consume the remaining viewport.
-     The side stack retains its own scroll for participation details. */
+     Keep title -> summary -> workspace hierarchy and reduce display density ~10%. */
   #commons.home-commons-full.commons-page {
     display: grid;
     grid-template-rows: auto auto minmax(0, 1fr);
-    padding-top: clamp(88px, 10.5vh, 104px);
-    padding-bottom: clamp(14px, 2.2vh, 22px);
+    padding-top: clamp(79px, 9.45vh, 94px);
+    padding-bottom: clamp(13px, 1.98vh, 20px);
   }
 
   #commons .commons-summary {
     margin: 0;
     min-height: 0;
+  }
+
+  #commons .commons-status-line {
+    min-height: 29px;
+    padding: 4px 0;
+    gap: 14px;
+  }
+
+  #commons .commons-status-line p {
+    max-width: 684px;
+    font-size: 10px;
+    line-height: 1.3;
+  }
+
+  #commons .commons-metrics article {
+    padding: 7px 11px 8px 0;
+  }
+
+  #commons .commons-metrics article + article {
+    padding-left: 11px;
+  }
+
+  #commons .commons-metrics span {
+    font-size: 10px;
+  }
+
+  #commons .commons-metrics strong {
+    margin-top: 4px;
+    font-size: clamp(18px, 1.8vw, 26px);
   }
 
   #commons .commons-workspace {
@@ -130,14 +210,40 @@
   }
 
   #commons .commons-toolbar {
-    min-height: 0;
-    padding-bottom: 6px;
+    min-height: 34px;
+    gap: 22px;
+    padding-bottom: 5px;
+  }
+
+  #commons .commons-layer-controls,
+  #commons .commons-horizon,
+  #commons .commons-time-modes,
+  #commons .commons-time-reference {
+    gap: 4px;
+  }
+
+  #commons .commons-layer-controls button,
+  #commons .commons-horizon button,
+  #commons .commons-time-modes button,
+  #commons .commons-time-reference button {
+    min-height: 31px;
+    padding: 0 9px;
+    font-size: 10px;
+  }
+
+  #commons .commons-time-controls {
+    gap: 11px;
+  }
+
+  #commons .commons-time-controls > span {
+    font-size: 10px;
   }
 
   #commons .commons-map-layout {
     height: 100%;
     min-height: 0;
-    padding-top: 8px;
+    gap: 16px;
+    padding-top: 7px;
     overflow: hidden;
   }
 
@@ -153,6 +259,42 @@
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
   }
+
+  #commons .commons-side-stack .commons-inspector {
+    padding: 12px 13px;
+  }
+
+  #commons .commons-side-stack .commons-inspector-kicker {
+    font-size: 10px;
+  }
+
+  #commons .commons-side-stack .commons-inspector h2 {
+    margin: 6px 0;
+    font-size: clamp(19px, 1.62vw, 24px);
+  }
+
+  #commons .commons-side-stack .commons-inspector > p {
+    font-size: 13px;
+    line-height: 1.48;
+  }
+
+  #commons .commons-side-stack .commons-inspector dl {
+    margin-top: 9px;
+  }
+
+  #commons .commons-side-stack .commons-inspector dl div {
+    padding: 5px 0;
+  }
+
+  #commons .commons-side-stack .commons-inspector dt,
+  #commons .commons-side-stack .commons-inspector dd {
+    font-size: 10px;
+  }
+
+  #commons .commons-side-stack .commons-participate {
+    gap: 14px;
+    padding: 12px 13px 16px;
+  }
 }
 
 /* Short desktop fallback.
@@ -162,11 +304,11 @@
   #commons.home-commons-full.commons-page {
     height: auto;
     min-height: 100svh;
-    padding-top: 84px;
-    padding-bottom: 30px;
+    padding-top: 76px;
+    padding-bottom: 27px;
   }
 
   #commons .commons-map-layout {
-    min-height: 420px;
+    min-height: 378px;
   }
 }
