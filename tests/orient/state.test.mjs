@@ -31,6 +31,20 @@ test('state reducer follows the legal confidence-gated judgment → commit → r
   assert.equal(state.confidence, null);
 });
 
+test('editing a judgment after confidence selection invalidates that confidence', () => {
+  let state = stateModel.createState({ totalTrials: 5, requireConfidence: true });
+  state = stateModel.reducer(state, { type: EVENTS.SESSION_READY, totalTrials: 5 });
+  state = stateModel.reducer(state, { type: EVENTS.TRIAL_LOADED, trialIndex: 0 });
+  state = stateModel.reducer(state, { type: EVENTS.JUDGMENT_CHANGED, judgment: { distanceKm: 5000, bearingDeg: 90 } });
+  state = stateModel.reducer(state, { type: EVENTS.CONFIDENCE_SELECTED, confidence: 'high' });
+  assert.equal(state.phase, PHASES.READY);
+  state = stateModel.reducer(state, { type: EVENTS.JUDGMENT_CHANGED, judgment: { distanceKm: 5250, bearingDeg: 92 } });
+  assert.equal(state.phase, PHASES.JUDGE_ACTIVE);
+  assert.equal(state.confidence, null);
+  const blocked = stateModel.reducer(state, { type: EVENTS.COMMIT_REQUESTED });
+  assert.equal(blocked, state);
+});
+
 test('primer is an explicit non-judgment state and returns to trial loading', () => {
   let state = stateModel.createState({ totalTrials: 5, requireConfidence: true });
   state = stateModel.reducer(state, { type: EVENTS.SESSION_READY, totalTrials: 5 });
