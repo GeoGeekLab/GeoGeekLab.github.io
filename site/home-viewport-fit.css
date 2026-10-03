@@ -12,23 +12,25 @@
     overflow: hidden;
   }
 
-  /* Header parity.
-     Coordinates and Commons use one editorial header contract. */
-  #now .coordinates-head.concept-section-head,
+  /* One shared editorial header component.
+     Coordinates is normalized to the same page-title contract as Commons at runtime. */
+  #now .coordinates-home-title,
   #commons .commons-home-title {
+    display: grid;
     grid-template-columns: minmax(400px, .78fr) minmax(0, 1.22fr);
     gap: clamp(44px, 6vw, 92px);
     align-items: end;
     margin-bottom: clamp(12px, 1.8vh, 18px);
     padding-bottom: clamp(12px, 1.8vh, 16px);
+    border-bottom: 1px solid var(--line);
   }
 
-  #now .coordinates-head.concept-section-head > div:first-child,
+  #now .coordinates-home-title > div:first-child,
   #commons .commons-home-title > div:first-child {
     min-width: 0;
   }
 
-  #now .coordinates-head.concept-section-head .section-label,
+  #now .coordinates-home-title .eyebrow,
   #commons .commons-home-title .eyebrow {
     margin: 0 0 10px;
     color: var(--muted);
@@ -37,7 +39,7 @@
     text-transform: uppercase;
   }
 
-  #now .coordinates-head.concept-section-head h2,
+  #now .coordinates-home-title h2,
   #commons .commons-home-title h1 {
     margin: 0;
     color: var(--fg);
@@ -49,8 +51,8 @@
     white-space: normal;
   }
 
-  #now .coordinates-head .concept-section-intro,
-  #commons .commons-home-title .concept-section-intro {
+  #now .coordinates-home-title .page-intro,
+  #commons .commons-home-title .page-intro {
     margin: 0 0 3px;
     max-width: 760px;
     color: #47534b;
