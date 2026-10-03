@@ -59,10 +59,38 @@
   padding: 1rem 0;
   color: inherit;
   text-decoration: none;
+  cursor: pointer;
+  transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 .static-note-copy { display: grid; gap: .3rem; }
-.static-note-copy strong { font-weight: 520; line-height: 1.28; }
-.static-note-copy small { max-width: 58rem; font-size: .9rem; line-height: 1.45; opacity: .72; }
+.static-note-copy strong { font-weight: 520; line-height: 1.28; transition: color .18s ease; }
+.static-note-copy small { max-width: 58rem; font-size: .9rem; line-height: 1.45; opacity: .72; transition: opacity .18s ease; }
+.static-note-ref,
+.static-note-row time { transition: color .18s ease, opacity .18s ease; }
+.static-note-row > a:hover,
+.static-note-row > a:focus-visible {
+  background: linear-gradient(90deg, rgba(166,70,36,.055), rgba(166,70,36,.018) 46%, transparent 78%);
+  box-shadow: inset 2px 0 0 rgba(166,70,36,.68);
+  transform: translateX(3px);
+}
+.static-note-row > a:hover .static-note-copy strong,
+.static-note-row > a:focus-visible .static-note-copy strong { color: var(--signal, #a64624); }
+.static-note-row > a:hover .static-note-copy small,
+.static-note-row > a:focus-visible .static-note-copy small { opacity: .9; }
+.static-note-row > a:hover .static-note-ref,
+.static-note-row > a:hover time,
+.static-note-row > a:focus-visible .static-note-ref,
+.static-note-row > a:focus-visible time {
+  color: var(--signal, #a64624);
+  opacity: .92;
+}
+
+/* A static collection stays at COLLECTION. Hovering or focusing one record
+   temporarily probes the RECORD level. */
+.scale-ui.static-record-hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
 
 .static-language-nav { display: flex; justify-content: flex-end; margin: 0 0 1rem; }
 .static-language-nav a {
@@ -122,4 +150,16 @@ html[lang="en"] .scene .keep {
   .static-note-row > a { grid-template-columns: 3.3rem minmax(0,1fr); }
   .static-selected-row time,
   .static-note-row time { grid-column: 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .static-note-row > a,
+  .static-note-copy strong,
+  .static-note-copy small,
+  .static-note-ref,
+  .static-note-row time,
+  .scale-ui.static-record-hover { transition: none !important; }
+  .static-note-row > a:hover,
+  .static-note-row > a:focus-visible,
+  .scale-ui.static-record-hover { transform: none; }
 }
