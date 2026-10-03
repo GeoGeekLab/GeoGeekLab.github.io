@@ -185,7 +185,10 @@
     async function prepareSession(seed, { applyHistory = true } = {}) {
       try {
         if (!sessionAssets) sessionAssets = await loadSessionAssets(signal);
-        const plan = sessionComposer.composeSession({
+        const composer = applyHistory && typeof sessionComposer.composeFreshSession === 'function'
+          ? sessionComposer.composeFreshSession
+          : sessionComposer.composeSession;
+        const plan = composer({
           seed,
           placeArtifact: sessionAssets.placeArtifact,
           relationArtifact: sessionAssets.relationArtifact,
@@ -212,6 +215,7 @@
     }
     if (signal?.aborted) return () => {};
 
+    sessionSeed = runtime.plan.seed || sessionSeed;
     syncSeedToUrl(sessionSeed);
 
     const d3 = window.d3;
@@ -307,8 +311,13 @@
       machine.set('observe');
       estimate = null;
       const trial = sessionTrials[trialIndex];
+      if (!trial) {
+        shell.field.innerHTML = '<div class="instrument-error"><strong>FIELD UNAVAILABLE</strong><p>Session content could not be resolved.</p></div>';
+        shell.setActions([{ label: 'RETURN TO LAB', onClick: () => document.getElementById('instrumentClose')?.click() }]);
+        return;
+      }
       const from = placeLookup[trial.from]; const to = placeLookup[trial.to];
-      if (!trial || !from || !to) {
+      if (!from || !to) {
         shell.field.innerHTML = '<div class="instrument-error"><strong>FIELD UNAVAILABLE</strong><p>Session content could not be resolved.</p></div>';
         shell.setActions([{ label: 'RETURN TO LAB', onClick: () => document.getElementById('instrumentClose')?.click() }]);
         return;
@@ -486,9 +495,10 @@
       shell.setReadout('');
       shell.setActions([]);
       sessionSeed = randomSeed();
-      syncSeedToUrl(sessionSeed);
       const nextRuntime = await prepareSession(sessionSeed, { applyHistory: true });
       if (signal?.aborted) return;
+      sessionSeed = nextRuntime.plan.seed || sessionSeed;
+      syncSeedToUrl(sessionSeed);
       trialIndex = 0;
       sessionRecords = [];
       shell.field.innerHTML = '';
