@@ -24,8 +24,14 @@
       'play/orient/orient-metrics.js?v=20261003b'
     ]
   };
+  const OPTIONAL_PRE_SCRIPTS = {
+    locate: [
+      'play/orient/orient-content.js?v=20261003c',
+      'play/orient/orient-session.js?v=20261003d'
+    ]
+  };
   const SCRIPT = {
-    locate: 'play/orient/orient.js?v=20261003b',
+    locate: 'play/orient/orient.js?v=20261003d',
     zone: 'play/bound/bound.js?v=20261002c',
     path: 'play/connect/connect.js?v=20261002c',
     project: 'play/project/project.js?v=20261002c'
@@ -42,6 +48,13 @@
     if (!PLAY_KINDS.has(kind)) return instruments;
     for (const src of COMMON) await modules.loadScript(src);
     for (const src of PRE_SCRIPTS[kind] || []) await modules.loadScript(src);
+    for (const src of OPTIONAL_PRE_SCRIPTS[kind] || []) {
+      try {
+        await modules.loadScript(src);
+      } catch (error) {
+        console.warn(`[GeoGeek] Optional Play domain module failed: ${src}. Runtime fallback remains available.`, error);
+      }
+    }
     await modules.loadScript(SCRIPT[kind]);
     REGISTER[kind]?.();
     // games.js can be loaded later for a transitional Play and will re-register
