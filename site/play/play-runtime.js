@@ -29,7 +29,8 @@
   const OPTIONAL_PRE_SCRIPTS = {
     locate: [
       'play/orient/orient-content.js?v=20261003c',
-      'play/orient/orient-session.js?v=20261003f'
+      'play/orient/orient-session.js?v=20261003f',
+      'play/orient/orient-adaptation-guard.js?v=20261003f'
     ]
   };
   const SCRIPT = {
