@@ -34,10 +34,10 @@ jobs:
             https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
           sed -Ei 's#src="lab-page\.js(\?[^\"]*)?"#src="lab-page.js?v=20261003e"#' site/lab.html
           sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261002b"#' site/lab.html
-          sed -Ei 's#src="play/play-runtime\.js(\?[^\"]*)?"#src="play/play-runtime.js?v=20261003e"#' site/lab.html
+          sed -Ei 's#src="play/play-runtime\.js(\?[^\"]*)?"#src="play/play-runtime.js?v=20261003f"#' site/lab.html
           grep -F 'src="lab-page.js?v=20261003e"' site/lab.html
           grep -F 'src="core/modules.js?v=20261002b"' site/lab.html
-          grep -F 'src="play/play-runtime.js?v=20261003e"' site/lab.html
+          grep -F 'src="play/play-runtime.js?v=20261003f"' site/lab.html
           test -s site/assets/lab/sentinel2.jpg
           test -s site/core/data-supply.js
           test -s site/data/supply-registry.js
@@ -83,11 +83,13 @@ jobs:
           test -s dist/play/orient/orient-session.js
           test -s dist/play/orient/orient-state.js
           test -s dist/play/orient/orient-storage.js
+          test -s dist/play/orient/orient.css
           grep -F 'lab-page.js?v=20261003e' dist/lab.html
-          grep -F 'play/play-runtime.js?v=20261003e' dist/lab.html
-          grep -F 'orient-state.js?v=20261003e' dist/play/play-runtime.js
-          grep -F 'orient-storage.js?v=20261003e' dist/play/play-runtime.js
-          grep -F 'orient.js?v=20261003e' dist/play/play-runtime.js
+          grep -F 'play/play-runtime.js?v=20261003f' dist/lab.html
+          grep -F 'orient-state.js?v=20261003f' dist/play/play-runtime.js
+          grep -F 'orient-storage.js?v=20261003f' dist/play/play-runtime.js
+          grep -F 'orient-session.js?v=20261003f' dist/play/play-runtime.js
+          grep -F 'orient.js?v=20261003f' dist/play/play-runtime.js
 
       - name: Static QA
         run: npm run qa
