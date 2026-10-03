@@ -1,1 +1,130 @@
-/* placeholder */
+/* GeoGeek homepage viewport fit.
+   Scope: desktop Coordinates + Commons only.
+   Keep the cartographic/editorial system unchanged; fit each section into one viewport. */
+
+@media (min-width: 981px) and (min-height: 720px) {
+  /* Both home instruments occupy exactly one viewport. The fixed site nav stays unchanged. */
+  #now.coordinates-section,
+  #commons.home-commons-full.commons-page {
+    box-sizing: border-box;
+    height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* 01 / COORDINATES
+     Preserve the two-column field/register logic.
+     Give the workbench the remaining height instead of a content-driven height. */
+  #now.coordinates-section {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    padding-top: clamp(88px, 10.5vh, 104px);
+    padding-bottom: clamp(18px, 2.8vh, 26px);
+  }
+
+  #now .coordinates-head {
+    margin-bottom: clamp(12px, 1.8vh, 18px);
+  }
+
+  #now .coordinates-workbench {
+    height: 100%;
+    min-height: 0;
+  }
+
+  #now .coordinates-field {
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  #now .coordinates-plot {
+    height: 100%;
+    min-height: 0;
+  }
+
+  #now .coordinates-register {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+  }
+
+  #now .coordinates-register article,
+  #now .coordinate-register-button {
+    min-height: 0;
+    height: 100%;
+  }
+
+  #now .coordinate-register-button {
+    padding-top: clamp(12px, 1.8vh, 18px);
+    padding-bottom: clamp(12px, 1.8vh, 18px);
+  }
+
+  /* 02 / COMMONS
+     Keep title -> summary -> workspace hierarchy.
+     Let the map workspace consume the remaining viewport.
+     The side stack retains its own scroll for participation details. */
+  #commons.home-commons-full.commons-page {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    padding-top: clamp(88px, 10.5vh, 104px);
+    padding-bottom: clamp(14px, 2.2vh, 22px);
+  }
+
+  #commons .commons-home-title {
+    margin-bottom: clamp(12px, 1.8vh, 18px);
+    padding-bottom: clamp(12px, 1.8vh, 16px);
+  }
+
+  #commons .commons-summary {
+    margin: 0;
+    min-height: 0;
+  }
+
+  #commons .commons-workspace {
+    min-height: 0;
+    margin-top: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  #commons .commons-toolbar {
+    min-height: 0;
+    padding-bottom: 6px;
+  }
+
+  #commons .commons-map-layout {
+    height: 100%;
+    min-height: 0;
+    padding-top: 8px;
+    overflow: hidden;
+  }
+
+  #commons .commons-map-stack,
+  #commons .commons-map-frame,
+  #commons .commons-side-stack {
+    min-height: 0;
+    height: 100%;
+  }
+
+  #commons .commons-side-stack {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+}
+
+/* Short desktop fallback.
+   Below 720px, preserve readability instead of forcing an unreadable one-screen layout. */
+@media (min-width: 981px) and (max-height: 719px) {
+  #now.coordinates-section,
+  #commons.home-commons-full.commons-page {
+    height: auto;
+    min-height: 100svh;
+    padding-top: 84px;
+    padding-bottom: 30px;
+  }
+
+  #commons .commons-map-layout {
+    min-height: 420px;
+  }
+}
