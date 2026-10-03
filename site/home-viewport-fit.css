@@ -12,6 +12,55 @@
     overflow: hidden;
   }
 
+  /* Header parity.
+     Coordinates and Commons use one editorial header contract. */
+  #now .coordinates-head.concept-section-head,
+  #commons .commons-home-title {
+    grid-template-columns: minmax(400px, .78fr) minmax(0, 1.22fr);
+    gap: clamp(44px, 6vw, 92px);
+    align-items: end;
+    margin-bottom: clamp(12px, 1.8vh, 18px);
+    padding-bottom: clamp(12px, 1.8vh, 16px);
+  }
+
+  #now .coordinates-head.concept-section-head > div:first-child,
+  #commons .commons-home-title > div:first-child {
+    min-width: 0;
+  }
+
+  #now .coordinates-head.concept-section-head .section-label,
+  #commons .commons-home-title .eyebrow {
+    margin: 0 0 10px;
+    color: var(--muted);
+    font: 650 11px/1.25 var(--mono);
+    letter-spacing: .095em;
+    text-transform: uppercase;
+  }
+
+  #now .coordinates-head.concept-section-head h2,
+  #commons .commons-home-title h1 {
+    margin: 0;
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: clamp(48px, 4.8vw, 72px);
+    line-height: .92;
+    letter-spacing: -.055em;
+    font-weight: 560;
+    white-space: normal;
+  }
+
+  #now .coordinates-head .concept-section-intro,
+  #commons .commons-home-title .concept-section-intro {
+    margin: 0 0 3px;
+    max-width: 760px;
+    color: #47534b;
+    font-family: var(--serif);
+    font-size: clamp(18px, 1.45vw, 22px);
+    line-height: 1.45;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
   /* 01 / COORDINATES
      Preserve the two-column field/register logic.
      Give the workbench the remaining height instead of a content-driven height. */
@@ -20,10 +69,6 @@
     grid-template-rows: auto minmax(0, 1fr);
     padding-top: clamp(88px, 10.5vh, 104px);
     padding-bottom: clamp(18px, 2.8vh, 26px);
-  }
-
-  #now .coordinates-head {
-    margin-bottom: clamp(12px, 1.8vh, 18px);
   }
 
   #now .coordinates-workbench {
@@ -67,11 +112,6 @@
     grid-template-rows: auto auto minmax(0, 1fr);
     padding-top: clamp(88px, 10.5vh, 104px);
     padding-bottom: clamp(14px, 2.2vh, 22px);
-  }
-
-  #commons .commons-home-title {
-    margin-bottom: clamp(12px, 1.8vh, 18px);
-    padding-bottom: clamp(12px, 1.8vh, 16px);
   }
 
   #commons .commons-summary {
