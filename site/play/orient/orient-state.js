@@ -122,7 +122,8 @@
         return freezeState({
           ...state,
           judgment: event.judgment,
-          phase: readinessPhase(state, event.judgment, state.confidence)
+          confidence: null,
+          phase: readinessPhase(state, event.judgment, null)
         });
 
       case EVENTS.CONFIDENCE_SELECTED:
