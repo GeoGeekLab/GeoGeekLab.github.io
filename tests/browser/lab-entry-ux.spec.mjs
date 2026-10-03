@@ -6,7 +6,12 @@ test.describe('Lab entry hierarchy', () => {
     await page.waitForFunction(() => document.querySelectorAll('#labList .project-card').length >= 9);
     await page.waitForFunction(() => document.querySelectorAll('.lab-group-purpose').length === 3);
 
-    await expect(page.locator('.page-title .page-intro')).toContainText('Interactive geographic instruments');
+    const intro = page.locator('.page-title .page-intro');
+    await expect(intro).toHaveText('Observe, compare, and reason through space.');
+    const introWhiteSpace = await intro.evaluate(node => getComputedStyle(node).whiteSpace);
+    if ((page.viewportSize()?.width || 0) > 1100) expect(introWhiteSpace).toBe('nowrap');
+    else expect(introWhiteSpace).toBe('normal');
+
     await expect(page.locator('.lab-method-note')).toContainText('scale, assumptions, sources, and limits');
     await expect(page.locator('#labInstrumentsTitle')).toHaveText('Observe, compare, and reason through space.');
 
@@ -27,7 +32,7 @@ test.describe('Lab entry hierarchy', () => {
     expect(pulseConditionLabels).toEqual(['SOURCE', 'TIME']);
     await expect(page.locator('#l10 .lab-card-conditions')).toContainText('USGS');
 
-    await expect(page.locator('.lab-principle')).toContainText('what it can see');
+    await expect(page.locator('.lab-principle span')).toHaveText('EXTENT / RESOLUTION / LIMIT');
     await expect(page.locator('.lab-builds-head > span')).toHaveText('OPEN-SOURCE BUILDS');
   });
 
