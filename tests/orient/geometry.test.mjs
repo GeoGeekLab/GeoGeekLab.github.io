@@ -34,6 +34,15 @@ test('haversine returns zero for the same point', () => {
   approx(haversine([139.6503, 35.6762], [139.6503, 35.6762]), 0);
 });
 
+test('geometry accepts both [lon, lat] arrays and runtime {lon, lat} points', () => {
+  const parisArray = [2.3522, 48.8566];
+  const vancouverArray = [-123.1207, 49.2827];
+  const parisObject = { lon: 2.3522, lat: 48.8566 };
+  const vancouverObject = { lon: -123.1207, lat: 49.2827 };
+  approx(haversine(parisArray, vancouverArray), haversine(parisObject, vancouverObject), 1e-9);
+  approx(initialBearing(parisArray, vancouverArray), initialBearing(parisObject, vancouverObject), 1e-9);
+});
+
 test('haversine is symmetric', () => {
   const a = [2.3522, 48.8566];
   const b = [-123.1207, 49.2827];
@@ -43,6 +52,18 @@ test('haversine is symmetric', () => {
 test('haversine matches quarter and half circumference on the equator', () => {
   approx(haversine([0, 0], [90, 0]), Math.PI * R / 2, 1e-9);
   approx(haversine([0, 0], [180, 0]), Math.PI * R, 1e-9);
+});
+
+test('released ORIENT relations retain the existing spherical-model values', () => {
+  const cases = [
+    [{ lon: 36.8219, lat: -1.2921 }, { lon: 106.8456, lat: -6.2088 }, 7783.9, 96.14],
+    [{ lon: 2.3522, lat: 48.8566 }, { lon: -123.1207, lat: 49.2827 }, 7920.8, 325.87],
+    [{ lon: 139.6503, lat: 35.6762 }, { lon: -77.0428, lat: -12.0464 }, 15495.3, 63.78],
+  ];
+  for (const [from, to, expectedDistance, expectedBearing] of cases) {
+    approx(haversine(from, to), expectedDistance, 0.1);
+    approx(initialBearing(from, to), expectedBearing, 0.01);
+  }
 });
 
 test('initialBearing handles cardinal directions', () => {
