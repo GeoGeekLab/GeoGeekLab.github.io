@@ -56,6 +56,7 @@ for(const id of units){
 
 check(!fs.existsSync(path.join(root,'field-notes')), 'Generated field-notes directories must not live in repository source root.');
 check(!fs.existsSync(path.join(root,'assets','archive')), 'Legacy generated archive assets must not live in repository source root.');
+check(!fs.existsSync(path.join(root,'site','previews.js')), 'Legacy Lab preview runtime must not exist in source.');
 check(fs.existsSync(path.join(root,'site','assets','brand','wechat-qr.jpg')),'WeChat QR asset missing from source.');
 check(fs.readFileSync(path.join(root,'site','field-notes.html'),'utf8').includes('wechat-archive-portal'),'Field Notes WeChat source channel panel missing.');
 check(fs.readFileSync(path.join(root,'templates','field-note.html'),'utf8').includes('record-wechat-portal'),'Record WeChat source channel panel missing.');
@@ -96,7 +97,6 @@ const englishOnlyRuntimeFiles = [
   'site/games.js',
   'site/instruments.js',
   'site/map/site-map.js',
-  'site/previews.js',
   'site/ux-preinit.js',
   'site/ux-refinements.js',
   'site/stories/geospatial-ai-limits/app.js',
