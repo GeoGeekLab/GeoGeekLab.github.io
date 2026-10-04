@@ -108,15 +108,16 @@ test('Round 3 Lab first painted Observatory frame already uses authoritative cap
       let scheduled = false;
       const capture = () => {
         const list = document.getElementById('labList');
-        if (!list || list.querySelectorAll('.project-card').length !== 10 || scheduled) return false;
+        const observatory = list?.querySelector(':scope > .lab-group-observatory');
+        if (!list || !observatory || list.querySelectorAll('.project-card').length !== 10 || observatory.querySelectorAll('.project-card').length !== 6 || scheduled) return false;
         scheduled = true;
         requestAnimationFrame(() => {
-          const captureImages = [...list.querySelectorAll('.project-visual > img')]
+          const captureImages = [...observatory.querySelectorAll('.project-visual > img')]
             .map(img => img.getAttribute('src') || '')
             .filter(src => src.includes('/assets/lab/previews/'));
           resolve({
             captureImages,
-            legacyArtCount: list.querySelectorAll('.preview-art, .live-earth-preview, .live-pulse-layer, .orbit-live-point').length
+            legacyArtCount: observatory.querySelectorAll('.preview-art, .live-earth-preview, .live-pulse-layer, .orbit-live-point').length
           });
         });
         return true;
