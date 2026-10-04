@@ -1,6 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
@@ -13,6 +14,7 @@ process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY = '1';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const site = path.join(root, 'site');
 const output = path.join(site, 'assets', 'lab', 'previews');
+const previewRuntime = path.join(site, 'lab-real-previews.js');
 fs.mkdirSync(output, { recursive: true });
 
 const mime = {
@@ -69,87 +71,25 @@ async function newPage(viewport = { width: 1600, height: 1000 }) {
   return page;
 }
 
-async function installPulseFixtures(page) {
-  const generated = Date.now() - 4 * 60 * 1000;
-  const fetchedAt = new Date(Date.now() - 2 * 60 * 1000).toISOString();
-  const landSource = 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e/110m/physical/ne_110m_land.json';
-  const landVersion = 'Data current 2024-01-24 · pinned GeoJSON revision 0b9a6ceb0a70';
-  const land = {
-    type:'FeatureCollection',
-    features:[
-      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[-168,12],[-130,12],[-105,35],[-115,70],[-160,70],[-168,12]]] } },
-      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[-82,10],[-34,10],[-38,-55],[-74,-52],[-82,10]]] } },
-      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[-10,36],[45,36],[52,-35],[5,-35],[-10,36]]] } },
-      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[25,35],[170,35],[150,75],[40,70],[25,35]]] } },
-      { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[110,-10],[155,-10],[153,-45],[112,-45],[110,-10]]] } },
-    ],
-  };
-  const features = Array.from({ length:48 }, (_, index) => ({
-    type:'Feature', id:`preview-${index}`,
-    properties:{
-      mag:1.8 + (index % 7) * .65,
-      place:`Deterministic preview event ${index + 1}`,
-      time:generated - (index + 1) * 24 * 60 * 1000,
-      updated:generated - index * 18 * 60 * 1000,
-      status:index % 3 ? 'reviewed' : 'automatic',
-      magType:index % 2 ? 'ml' : 'mww',
-      sig:60 + index * 5,
-      felt:index % 5 === 0 ? 12 + index : null,
-      cdi:index % 5 === 0 ? 2.5 + (index % 4) * .4 : null,
-      mmi:index % 6 === 0 ? 2.8 + (index % 3) * .5 : null,
-      url:`https://earthquake.usgs.gov/earthquakes/eventpage/preview-${index}`
-    },
-    geometry:{ type:'Point', coordinates:[-165 + (index * 29) % 330, -55 + (index * 17) % 110, 8 + (index * 31) % 520] },
-  }));
-  const quakes = {
-    type:'FeatureCollection',
-    metadata:{ generated, count:features.length, api:'preview-fixture' },
-    features,
-  };
-  const quakeMeta = {
-    schemaVersion:2,
-    supplyId:'usgs-earthquakes-day',
-    dataset:'usgs-earthquakes-day',
-    provider:'USGS Earthquake Hazards Program',
-    format:'GeoJSON',
-    source:'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',
-    delivery:'GeoGeek same-origin snapshot',
-    transport:'HTTPS GeoJSON feed → scheduled refresh → Pages snapshot',
-    scope:'Global rolling past-24-hour event catalogue shared by all visitors',
-    fetchedAt,
-    recordCount:features.length,
-    providerCount:features.length,
-    providerGeneratedAt:new Date(generated).toISOString(),
-    providerApiVersion:'preview-fixture',
-    sha256:'preview-fixture-sha'
-  };
-  const landMeta = {
-    schemaVersion:2,
-    supplyId:'natural-earth-land-110m',
-    dataset:'natural-earth-land-110m',
-    provider:'Natural Earth',
-    format:'GeoJSON',
-    source:landSource,
-    delivery:'GeoGeek same-origin reference',
-    version:landVersion,
-    recordCount:land.features.length,
-    sha256:'preview-reference-sha'
-  };
+function assertPulseProductionSupply() {
+  const required = [
+    'data/snapshots/usgs-earthquakes-day.meta.json',
+    'data/snapshots/usgs-earthquakes-day.geojson',
+    'data/reference/natural-earth-land-110m.meta.json',
+    'data/reference/natural-earth-land-110m.geojson'
+  ];
+  const missing = required.filter(relative => {
+    const file = path.join(site, relative);
+    return !fs.existsSync(file) || fs.statSync(file).size < 100;
+  });
+  if (missing.length) {
+    throw new Error(`pulse: production preview data missing: ${missing.join(', ')}. Prepare the data supply before preview capture.`);
+  }
+}
 
-  await page.route('**/data/snapshots/usgs-earthquakes-day.meta.json', route => route.fulfill({
-    status:200, contentType:'application/json', body:JSON.stringify(quakeMeta)
-  }));
-  await page.route('**/data/snapshots/usgs-earthquakes-day.geojson', route => route.fulfill({
-    status:200, contentType:'application/geo+json', body:JSON.stringify(quakes)
-  }));
-  await page.route('**/data/reference/natural-earth-land-110m.meta.json', route => route.fulfill({
-    status:200, contentType:'application/json', body:JSON.stringify(landMeta)
-  }));
-  await page.route('**/data/reference/natural-earth-land-110m.geojson', route => route.fulfill({
-    status:200, contentType:'application/geo+json', body:JSON.stringify(land)
-  }));
-
-  // A preview must fail rather than silently regress to direct provider/CDN access.
+async function lockPulseToSameOrigin(page) {
+  // A production preview must use the same files that the deployed instrument reads.
+  // Fail instead of silently falling back to provider or CDN access.
   await page.route('https://earthquake.usgs.gov/**', route => route.abort());
   await page.route('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/**', route => route.abort());
   await page.route('https://cdn.jsdelivr.net/npm/topojson-client@**', route => route.abort());
@@ -186,7 +126,11 @@ async function captureInstrument(kind) {
   const page = await newPage();
   const url = `${base}/lab.html?instrument=${encodeURIComponent(kind)}`;
   try {
-    if (kind === 'pulse') await installPulseFixtures(page);
+    if (kind === 'pulse') {
+      assertPulseProductionSupply();
+      await lockPulseToSameOrigin(page);
+    }
+
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForFunction(() => document.getElementById('instrumentDialog')?.open === true, null, { timeout: 20000 });
     await page.waitForSelector('#instrumentStage > *', { state: 'visible', timeout: 20000 });
@@ -200,8 +144,8 @@ async function captureInstrument(kind) {
     }
 
     if (kind === 'pulse') {
-      await page.waitForFunction(() => !!window.GeoPulseObservationLab && window.GeoGeekInstrumentMounts?.pulse === window.GeoPulseObservationLab.mount, null, { timeout:10000 });
-      await page.waitForSelector('.pulse-observation-lab[data-state="ready"]', { state:'visible', timeout:10000 });
+      await page.waitForFunction(() => !!window.GeoPulseObservationLab && window.GeoGeekInstrumentMounts?.pulse === window.GeoPulseObservationLab.mount, null, { timeout: 10000 });
+      await page.waitForSelector('.pulse-observation-lab[data-state="ready"]', { state: 'visible', timeout: 10000 });
     }
 
     if (kind === 'flow') await exerciseFlowLab(page);
@@ -230,6 +174,20 @@ async function captureInstrument(kind) {
   }
 }
 
+function updatePreviewCacheVersion(files) {
+  const hash = createHash('sha256');
+  for (const file of files) {
+    hash.update(path.basename(file));
+    hash.update(fs.readFileSync(file));
+  }
+  const version = `capture-${hash.digest('hex').slice(0, 12)}`;
+  const source = fs.readFileSync(previewRuntime, 'utf8');
+  const versionPattern = /const VERSION = ['"][^'"]+['"];/;
+  if (!versionPattern.test(source)) throw new Error('Lab preview runtime is missing the VERSION declaration.');
+  fs.writeFileSync(previewRuntime, source.replace(versionPattern, `const VERSION = '${version}';`));
+  console.log(`Lab preview cache version: ${version}`);
+}
+
 const failures = [];
 try {
   for (const kind of instruments) {
@@ -249,4 +207,5 @@ if (failures.length || missing.length) {
   process.exit(1);
 }
 
+updatePreviewCacheVersion(expected);
 console.log(`Generated ${expected.length} real Lab preview images.`);
