@@ -68,8 +68,11 @@ jobs:
               --output "site/assets/lab/previews/${name}.jpg" \
               "https://geogeeklab.github.io/assets/lab/previews/${name}.jpg"
           done
-          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261002b"#' site/lab.html
-          grep -F 'src="core/modules.js?v=20261002b"' site/lab.html
+          test -s site/core/provider-stability.js
+          test -s site/core/observatory-entry.js
+          grep -F 'unified-supply-v2' site/orbital/orbit-catalog-source.js
+          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261004a"#' site/lab.html
+          grep -F 'src="core/modules.js?v=20261004a"' site/lab.html
       - name: Install responsive image optimizer
         if: steps.delta.outputs.changed == 'true'
         run: |
@@ -83,7 +86,11 @@ jobs:
         run: node scripts/verify-field-note-pages.mjs
       - name: QA refreshed artifact
         if: steps.delta.outputs.changed == 'true'
-        run: node scripts/qa.mjs
+        run: |
+          grep -F 'core/modules.js?v=20261004a' dist/lab.html
+          test -s dist/core/provider-stability.js
+          test -s dist/core/observatory-entry.js
+          node scripts/qa.mjs
       - name: Upload Pages artifact
         if: steps.delta.outputs.changed == 'true'
         uses: actions/upload-pages-artifact@v4
@@ -100,7 +107,26 @@ jobs:
     permissions:
       pages: write
       id-token: write
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy refreshed data supply
         id: deployment
         uses: actions/deploy-pages@v4
+
+  smoke:
+    if: needs.build.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    needs: [build, deploy]
+    steps:
+      - name: Verify refreshed public Observatory supply
+        env:
+          BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${BASE_URL%/}"
+          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/lab.html" | grep -F 'core/modules.js?v=20261004a'
+          curl --fail --silent --show-error --location "$base/core/provider-stability.js" | grep -F '20261004a'
+          curl --fail --silent --show-error --location "$base/orbital/data/active.meta.json" -o /tmp/orbit-meta.json
+          curl --fail --silent --show-error --location "$base/data/snapshots/usgs-earthquakes-day.meta.json" -o /tmp/usgs-meta.json
+          node -e "for (const p of ['/tmp/orbit-meta.json','/tmp/usgs-meta.json']) { const m=require(p); if (!m.fetchedAt || !m.sha256) process.exit(1); }"
