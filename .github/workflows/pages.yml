@@ -40,10 +40,10 @@ jobs:
             https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
           test -s site/assets/lab/sentinel2.jpg
           sed -Ei 's#src="lab-page\.js(\?[^\"]*)?"#src="lab-page.js?v=20261003e"#' site/lab.html
-          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261002b"#' site/lab.html
+          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261004a"#' site/lab.html
           sed -Ei 's#src="play/play-runtime\.js(\?[^\"]*)?"#src="play/play-runtime.js?v=20261003i"#' site/lab.html
           grep -F 'src="lab-page.js?v=20261003e"' site/lab.html
-          grep -F 'src="core/modules.js?v=20261002b"' site/lab.html
+          grep -F 'src="core/modules.js?v=20261004a"' site/lab.html
           grep -F 'src="play/play-runtime.js?v=20261003i"' site/lab.html
       - name: Verify data supply runtime and snapshots
         env:
@@ -51,6 +51,8 @@ jobs:
           DATA_SUPPLY_REQUIRE_LAST_KNOWN_GOOD: '1'
         run: |
           test -s site/core/data-supply.js
+          test -s site/core/provider-stability.js
+          test -s site/core/observatory-entry.js
           test -s site/data/supply-registry.js
           test -s site/orbital/orbital-engine.js
           test -s site/orbital/orbit-worker.js
@@ -59,6 +61,9 @@ jobs:
           test -s site/orbital/orbital-lab-v3.css
           test -s site/orbital/data/active.json
           test -s site/orbital/data/active.meta.json
+          grep -F 'unified-supply-v2' site/orbital/orbit-catalog-source.js
+          grep -F '0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e' site/core/provider-stability.js
+          grep -F 'www.spaceweather.gov/products/aurora-30-minute-forecast' site/core/provider-stability.js
           ! grep -in '\bDEMO\b' site/orbital/orbital-engine.js site/orbital/orbit-worker.js
           node scripts/verify-data-supply.mjs
       - name: Install release browser tools
@@ -96,6 +101,7 @@ jobs:
           test -s dist/play/orient/orient-ergonomics.css
           test -s dist/play/orient/orient.css
           grep -F 'lab-page.js?v=20261003e' dist/lab.html
+          grep -F 'core/modules.js?v=20261004a' dist/lab.html
           grep -F 'play/play-runtime.js?v=20261003i' dist/lab.html
           grep -E "lab-real-previews\.js\?v=capture-[0-9a-f]{12}" dist/lab.html
           grep -F 'orient-state.js?v=20261003f' dist/play/play-runtime.js
@@ -146,6 +152,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Verify public Observatory release
+        env:
+          BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${BASE_URL%/}"
+          for path in \
+            lab.html \
+            core/modules.js \
+            core/data-supply.js \
+            core/provider-stability.js \
+            core/observatory-entry.js \
+            orbital/data/active.json \
+            orbital/data/active.meta.json \
+            data/snapshots/usgs-earthquakes-day.geojson \
+            data/snapshots/noaa-aurora.json \
+            assets/lab/sentinel2.jpg; do
+            curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path" -o "/tmp/$(basename "$path")"
+            test -s "/tmp/$(basename "$path")"
+          done
+          curl --fail --silent --show-error --location "$base/lab.html" | grep -F 'core/modules.js?v=20261004a'
+          curl --fail --silent --show-error --location "$base/core/modules.js" | grep -F 'provider-stability.js?v=20261004a'
+          curl --fail --silent --show-error --location "$base/orbital/orbit-catalog-source.js" | grep -F 'unified-supply-v2'
       - name: Verify public ORIENT release
         env:
           ORIENT_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
