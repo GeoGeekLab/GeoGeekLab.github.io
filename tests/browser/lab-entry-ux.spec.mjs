@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Lab entry hierarchy', () => {
-  test('presents instruments before builds with explicit actions and conditions', async ({ page }) => {
+  test('presents a six-record Observatory and four-record Play collection', async ({ page }) => {
     await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => document.querySelectorAll('#labList .project-card').length >= 9);
-    await page.waitForFunction(() => document.querySelectorAll('.lab-group-purpose').length === 3);
+    await page.waitForFunction(() => document.querySelectorAll('#labList .project-card').length === 10);
+    await page.waitForFunction(() => document.querySelectorAll('.lab-group-purpose').length === 2);
 
     const intro = page.locator('.page-title .page-intro');
     await expect(intro).toHaveText('Observe, compare, and reason through space.');
@@ -16,7 +16,6 @@ test.describe('Lab entry hierarchy', () => {
     await expect(page.locator('.lab-instruments-head')).toHaveCount(0);
     await expect(page.getByText('INTERACTIVE INSTRUMENTS', { exact: true })).toHaveCount(0);
     await expect(page.getByText('Observe, compare, and reason through space.', { exact: true })).toHaveCount(1);
-    await expect(page.getByText('Each entry opens a working geographic instrument, not a static demo.', { exact: false })).toHaveCount(0);
 
     const instrumentsBeforeBuilds = await page.evaluate(() => {
       const instruments = document.querySelector('.lab-instruments');
@@ -26,9 +25,23 @@ test.describe('Lab entry hierarchy', () => {
     expect(instrumentsBeforeBuilds).toBe(true);
 
     const groupOrder = await page.locator('#labList > .lab-group-block').evaluateAll(nodes => nodes.map(node => node.dataset.groupKey));
-    expect(groupOrder).toEqual(['observatory', 'studies', 'play']);
+    expect(groupOrder).toEqual(['observatory', 'play']);
 
-    await expect(page.locator('#l10 .project-link span')).toHaveText('READ RECORD');
+    const observatory = page.locator('#labList > .lab-group-observatory');
+    const play = page.locator('#labList > .lab-group-play');
+    await expect(observatory.locator('.project-card')).toHaveCount(6);
+    await expect(play.locator('.project-card')).toHaveCount(4);
+    await expect(observatory.locator('#l11')).toHaveCount(1);
+    await expect(observatory.locator('#l12')).toHaveCount(1);
+
+    const observatoryColumns = await observatory.locator('.project-grid').evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length);
+    if ((page.viewportSize()?.width || 0) > 980) expect(observatoryColumns).toBe(3);
+
+    const recordLinks = page.locator('#labList .project-link');
+    await expect(recordLinks).toHaveCount(10);
+    await expect(recordLinks.locator('span')).toHaveText(Array(10).fill('READ RECORD'));
+    await expect(page.locator('#l13 .project-link')).toHaveAttribute('href', 'records/lab-l13.html');
+
     await expect(page.locator('#l10 .lab-enter span')).toHaveText('OPEN INSTRUMENT');
     await expect(page.locator('#l10 .lab-card-conditions > div')).toHaveCount(2);
     const pulseConditionLabels = await page.locator('#l10 .lab-card-conditions dt').allTextContents();
@@ -37,6 +50,14 @@ test.describe('Lab entry hierarchy', () => {
 
     await expect(page.locator('.lab-principle span')).toHaveText('EXTENT / RESOLUTION / LIMIT');
     await expect(page.locator('.lab-builds-head > span')).toHaveText('OPEN-SOURCE BUILDS');
+  });
+
+  test('exposes a working record for Project', async ({ page }) => {
+    await page.goto('/records/lab-l13.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#recordTitle')).toHaveText('Project');
+    await expect(page.locator('#recordKicker')).toContainText('Play');
+    await expect(page.locator('#recordMeta')).toContainText('Natural Earth 1:110m');
+    await expect(page.locator('#recordActions .primary')).toHaveAttribute('href', 'lab.html?instrument=project#l13');
   });
 
   test('explains semantic scale and reveals hash targets', async ({ page }) => {
@@ -74,5 +95,11 @@ test.describe('Lab workspace affordances', () => {
     await expect(modes.locator('[data-workspace-mode="inspect"]')).toHaveAttribute('title', 'Full context + provenance');
     await expect(page.locator('#instrumentDialog')).not.toHaveAttribute('data-mode-help', 'Primary controls');
     await expect(page.locator('#instrumentClose')).toHaveAttribute('aria-keyshortcuts', 'Escape');
+
+    await page.evaluate(() => { document.getElementById('instrumentDialog').dataset.instrumentKind = 'figure'; });
+    await expect(page.locator('#instrumentGroupLabel')).toHaveText('OBSERVATORY');
+
+    await page.evaluate(() => { document.getElementById('instrumentDialog').dataset.instrumentKind = 'project'; });
+    await expect(page.locator('#instrumentGroupLabel')).toHaveText('PLAY / SPATIAL REASONING');
   });
 });
