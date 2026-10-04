@@ -77,6 +77,7 @@ jobs:
           for name in orbit earth flow pulse figure world locate zone path project; do
             test -s "site/assets/lab/previews/${name}.jpg"
           done
+          grep -E "const VERSION = 'capture-[0-9a-f]{12}';" site/lab-real-previews.js
       - name: Build
         run: node scripts/build.mjs
       - name: Verify ORIENT release assets
@@ -96,6 +97,7 @@ jobs:
           test -s dist/play/orient/orient.css
           grep -F 'lab-page.js?v=20261003e' dist/lab.html
           grep -F 'play/play-runtime.js?v=20261003i' dist/lab.html
+          grep -E "lab-real-previews\.js\?v=capture-[0-9a-f]{12}" dist/lab.html
           grep -F 'orient-state.js?v=20261003f' dist/play/play-runtime.js
           grep -F 'orient-storage.js?v=20261003f' dist/play/play-runtime.js
           grep -F 'orient-session.js?v=20261003f' dist/play/play-runtime.js
