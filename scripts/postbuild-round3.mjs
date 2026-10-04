@@ -55,6 +55,15 @@ function removeScript(html, basename) {
   return html.replace(new RegExp(`\\s*<script\\b[^>]*src=(['"])[^'"]*${escaped}(?:\\?[^'"]*)?\\1[^>]*><\\/script>\\s*`, 'ig'), '\n');
 }
 
+async function labPreviewVersion() {
+  const file = path.join(dist, 'lab-real-previews.js');
+  if (!(await exists(file))) throw new Error('Round 3 missing lab-real-previews.js runtime.');
+  const source = await read(file);
+  const match = source.match(/const VERSION = ['"]([^'"]+)['"];/);
+  if (!match) throw new Error('Round 3 could not resolve the Lab preview cache version.');
+  return match[1];
+}
+
 async function patchLegacyScaleRuntime() {
   const file = path.join(dist, 'ux-refinements.js');
   if (!(await exists(file))) throw new Error('Round 3 missing ux-refinements.js runtime.');
@@ -69,6 +78,7 @@ async function patchLegacyScaleRuntime() {
 }
 
 async function patchLab(html) {
+  const previewVersion = await labPreviewVersion();
   const criticalFiles = [
     'static-delivery.css',
     'runtime-stability.css',
@@ -115,7 +125,7 @@ async function patchLab(html) {
       document.head.appendChild(script);
     };
     inject('/geo-interactions.js?v=20260930g', 'geo-interactions');
-    inject('/lab-real-previews.js?v=20260930i', 'lab-previews');
+    inject('/lab-real-previews.js?v=${previewVersion}', 'lab-previews');
   };
   const idle = () => 'requestIdleCallback' in window
     ? requestIdleCallback(start, { timeout: 1600 })
