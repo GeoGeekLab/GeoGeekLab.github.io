@@ -52,7 +52,7 @@ check(!/<script\b[^>]*src=(['"])[^'"]*geo-interactions\.js/i.test(lab), 'R3-PERF
 check(/requestIdleCallback/.test(lab) && /addEventListener\('load'/.test(lab), 'R3-PERF-03 Geo interactions wait for load plus idle time');
 
 check(/<script\b[^>]*src=(['"])\/lab-real-previews\.js\?v=capture-[a-f0-9]{12}\1[^>]*\bdefer\b[^>]*data-round3-lab-previews=(['"])authoritative\2/i.test(lab), 'R3-PREVIEW-01 authoritative capture runtime is parser-discovered and deferred');
-check(!/<script\b[^>]*src=(['"])[^'"]*(?:^|\/)previews\.js(?:\?[^'"]*)?\1/i.test(lab), 'R3-PREVIEW-02 legacy Lab preview runtime is absent');
+check(!/<script\b[^>]*src=(['"])(?:\.?\/)?previews\.js(?:\?[^'"]*)?\1/i.test(lab), 'R3-PREVIEW-02 legacy Lab preview runtime is absent');
 check(!/earth-observatory\.jpg/i.test(lab), 'R3-PREVIEW-03 stale Earth Observatory preview asset is absent');
 check(!/gibs\.earthdata\.nasa\.gov|earthquake\.usgs\.gov|martynafford\/natural-earth-geojson\/master/i.test(lab), 'R3-PREVIEW-04 Lab first-response HTML has no direct legacy preview providers');
 check(!/data-round3-postload=(['"])lab-previews\1/i.test(lab), 'R3-PREVIEW-05 capture runtime is not delayed behind post-load idle work');
