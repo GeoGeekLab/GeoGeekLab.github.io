@@ -6,18 +6,8 @@
   box-shadow: inset 0 -1px 0 var(--signal);
 }
 
-.lab-page .page-title {
-  padding-top: clamp(54px, 7vw, 92px);
-  padding-bottom: 0;
-}
-
-.lab-page .page-title .page-intro {
-  max-width: none;
-  font-size: clamp(21px, 1.9vw, 34px);
-  line-height: 1.08;
-  letter-spacing: -.025em;
-  white-space: nowrap;
-}
+/* Keep the Lab entry header on the shared secondary-page grid.
+   Field Notes, Atlas, Elsewhere, and Lab now use the same page-title geometry. */
 
 .lab-method-note {
   max-width: 52ch;
@@ -60,9 +50,9 @@
   transform: translateY(0);
 }
 
-/* Instruments are the primary Lab content. */
+/* Instruments are the primary Lab content. Match the shared post-title rhythm. */
 .lab-instruments {
-  margin-top: clamp(58px, 6vw, 92px);
+  margin-top: 38px;
 }
 
 .lab-instruments-head {
@@ -273,12 +263,6 @@
   cursor: pointer;
 }
 
-@media (max-width: 1100px) {
-  .lab-page .page-title .page-intro {
-    white-space: normal;
-  }
-}
-
 @media (max-width: 980px) {
   .lab-instruments-head,
   .lab-builds-head {
@@ -304,20 +288,12 @@
 }
 
 @media (max-width: 680px) {
-  .lab-page .page-title {
-    padding-top: 34px;
-  }
-
-  .lab-page .page-title .page-intro {
-    font-size: clamp(21px, 7vw, 30px);
-  }
-
   .lab-method-note {
     margin-top: 14px;
   }
 
   .lab-instruments {
-    margin-top: 44px;
+    margin-top: 32px;
   }
 
   .lab-instruments-head,
