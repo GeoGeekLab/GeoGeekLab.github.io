@@ -3,11 +3,12 @@
 
   const loaded = new Map();
   const scriptUrl = src => new URL(src, document.baseURI).href;
-  const ORBIT_CATALOG_SOURCE = 'orbital/orbit-catalog-source.js?v=20261002b';
+  const ORBIT_CATALOG_SOURCE = 'orbital/orbit-catalog-source.js?v=20261004a';
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
-  const DATA_SUPPLY_RUNTIME = 'core/data-supply.js?v=20261002c';
+  const PROVIDER_STABILITY_RUNTIME = 'core/provider-stability.js?v=20261004a';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002e';
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261002e';
+  const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
     const root = window.GEOGEEK_DATA?.en;
@@ -123,6 +124,7 @@
 
   const gameKinds = new Set(['locate', 'zone', 'path']);
   async function loadInstrument(kind) {
+    if (observatoryKinds.has(kind)) await loadModule(PROVIDER_STABILITY_RUNTIME);
     if (!window.GeoInstruments) {
       if (gameKinds.has(kind)) await loadScript('games.js');
       await loadScript('instruments.js?v=20260930c');
@@ -137,12 +139,10 @@
     }
     if (kind === 'world' && !window.GeoProjectionLab) await loadScript('world-projection-lab.js?v=20261001a');
     if (kind === 'earth' && !window.GeoEarthTemporalLab) {
-      await loadModule(DATA_SUPPLY_RUNTIME);
       await loadModule(EARTH_OBSERVATION_LAB);
       if (!window.GeoEarthTemporalLab) throw new Error('Earth observation Lab failed to bind the unified data-supply contract.');
     }
     if (kind === 'pulse' && !window.GeoPulseObservationLab) {
-      await loadModule(DATA_SUPPLY_RUNTIME);
       await loadScript(PULSE_OBSERVATION_LAB);
       if (!window.GeoPulseObservationLab) throw new Error('Pulse observation Lab failed to bind the unified data-supply contract.');
     }
