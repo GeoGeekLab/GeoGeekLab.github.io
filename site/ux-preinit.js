@@ -12,6 +12,68 @@
 
   document.documentElement.lang = 'en';
 
+  // Shared primary navigation sizing. Keep the 72px bar geometry unchanged,
+  // but make the brand mark, brand name, and primary destinations more legible.
+  const navScaleStyle = document.createElement('style');
+  navScaleStyle.dataset.siteNavScale = '20261004a';
+  navScaleStyle.textContent = `
+    .site-nav .brand {
+      gap: 12px;
+      font-size: 18px;
+    }
+    .site-nav .brand > span:last-child {
+      font-size: 18px !important;
+      line-height: 1;
+    }
+    .site-nav .brand-mark {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      background: radial-gradient(circle at center, var(--signal) 0 2.5px, transparent 3px);
+    }
+    .site-nav .brand-mark::before {
+      left: 8px;
+      height: 18px;
+    }
+    .site-nav .brand-mark::after {
+      top: 8px;
+      width: 18px;
+    }
+    .site-nav .nav-links a {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      font-size: 15px;
+      line-height: 1;
+    }
+    .site-nav .nav-toggle {
+      min-height: 42px;
+      font-size: 14px;
+    }
+    @media (max-width: 760px) {
+      .site-nav .brand {
+        gap: 10px;
+      }
+      .site-nav .brand > span:last-child {
+        font-size: 16px !important;
+      }
+      .site-nav .brand-mark {
+        width: 17px;
+        height: 17px;
+        flex-basis: 17px;
+      }
+      .site-nav .brand-mark::before {
+        left: 7px;
+        height: 17px;
+      }
+      .site-nav .brand-mark::after {
+        top: 7px;
+        width: 17px;
+      }
+    }
+  `;
+  document.head.appendChild(navScaleStyle);
+
   // Editorial layout refinements load after the page stylesheet so short title
   // statements can use available desktop measure before wrapping.
   const editorialStyle = document.createElement('link');
