@@ -48,6 +48,37 @@ test.describe('Lab entry hierarchy', () => {
     await expect(page.locator('.lab-builds-head > span')).toHaveText('OPEN-SOURCE BUILDS');
   });
 
+  test('uses authoritative capture images before Observatory cards become observable', async ({ page }) => {
+    const legacyProviderRequests = [];
+    page.on('request', request => {
+      const url = request.url();
+      if (
+        url.includes('gibs.earthdata.nasa.gov') ||
+        url.includes('earthquake.usgs.gov/earthquakes/feed/') ||
+        url.includes('martynafford/natural-earth-geojson/master/')
+      ) legacyProviderRequests.push(url);
+    });
+
+    await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => document.querySelectorAll('#labList .project-card').length === 10);
+
+    const observatory = page.locator('#labList > .lab-group-observatory');
+    await expect(observatory.locator('.project-card')).toHaveCount(6);
+    await expect(observatory.locator('.project-visual > img')).toHaveCount(6);
+    await expect(observatory.locator('.preview-art')).toHaveCount(0);
+
+    const srcs = await observatory.locator('.project-visual > img').evaluateAll(images => images.map(image => image.getAttribute('src')));
+    expect(srcs).toHaveLength(6);
+    for (const kind of ['orbit', 'earth', 'flow', 'pulse', 'figure', 'world']) {
+      expect(srcs.some(src => new RegExp(`/assets/lab/previews/${kind}\\.jpg\\?v=capture-[a-f0-9]{12}$`, 'i').test(src || ''))).toBe(true);
+    }
+
+    await page.waitForTimeout(1000);
+    expect(legacyProviderRequests).toEqual([]);
+    await expect(page.locator('script[src*="previews.js"]')).toHaveCount(0);
+    await expect(page.locator('script[src*="lab-real-previews.js"]')).toHaveCount(1);
+  });
+
   test('exposes a working record for Project', async ({ page }) => {
     await page.goto('/records/lab-l13.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#recordTitle')).toHaveText('Project');
