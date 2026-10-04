@@ -47,9 +47,16 @@ for (const css of ['static-delivery.css', 'runtime-stability.css', 'earth-lab-pr
   check(!new RegExp(`<link\\b[^>]*href=(['"])[^'"]*${css.replace('.', '\\.')}[^'"]*\\1`, 'i').test(lab), `R3-PERF-02 ${css} is not a blocking Lab stylesheet request`);
 }
 check(/geo-interactions\.css[^>]*media=(['"])print\1[^>]*onload=/i.test(lab), 'R3-PERF-03 Geo interaction styling is non-blocking on Lab');
-check(/data-round3-lab-postload/i.test(lab), 'R3-PERF-03 Lab noncritical runtimes use a post-load bootstrap');
-check(!/<script\b[^>]*src=(['"])[^'"]*(?:geo-interactions|lab-real-previews)\.js/i.test(lab), 'R3-PERF-03 noncritical Lab runtimes are not parser-discovered');
-check(/requestIdleCallback/.test(lab) && /addEventListener\('load'/.test(lab), 'R3-PERF-03 Lab enhancements wait for load plus idle time');
+check(/data-round3-lab-postload/i.test(lab), 'R3-PERF-03 noncritical Geo interactions use a post-load bootstrap');
+check(!/<script\b[^>]*src=(['"])[^'"]*geo-interactions\.js/i.test(lab), 'R3-PERF-03 Geo interactions are not parser-discovered');
+check(/requestIdleCallback/.test(lab) && /addEventListener\('load'/.test(lab), 'R3-PERF-03 Geo interactions wait for load plus idle time');
+
+check(/<script\b[^>]*src=(['"])\/lab-real-previews\.js\?v=capture-[a-f0-9]{12}\1[^>]*\bdefer\b[^>]*data-round3-lab-previews=(['"])authoritative\2/i.test(lab), 'R3-PREVIEW-01 authoritative capture runtime is parser-discovered and deferred');
+check(!/<script\b[^>]*src=(['"])[^'"]*(?:^|\/)previews\.js(?:\?[^'"]*)?\1/i.test(lab), 'R3-PREVIEW-02 legacy Lab preview runtime is absent');
+check(!/earth-observatory\.jpg/i.test(lab), 'R3-PREVIEW-03 stale Earth Observatory preview asset is absent');
+check(!/gibs\.earthdata\.nasa\.gov|earthquake\.usgs\.gov|martynafford\/natural-earth-geojson\/master/i.test(lab), 'R3-PREVIEW-04 Lab first-response HTML has no direct legacy preview providers');
+check(!/data-round3-postload=(['"])lab-previews\1/i.test(lab), 'R3-PREVIEW-05 capture runtime is not delayed behind post-load idle work');
+
 check(/round3-accessibility\.js[^>]*\bdefer\b/i.test(origin), 'R3-A11Y-06 Origin receives the deferred Round 3 accessibility runtime');
 
 if (failures) {
