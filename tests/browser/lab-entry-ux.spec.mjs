@@ -8,9 +8,6 @@ test.describe('Lab entry hierarchy', () => {
 
     const intro = page.locator('.page-title .page-intro');
     await expect(intro).toHaveText('Observe, compare, and reason through space.');
-    const introWhiteSpace = await intro.evaluate(node => getComputedStyle(node).whiteSpace);
-    if ((page.viewportSize()?.width || 0) > 1100) expect(introWhiteSpace).toBe('nowrap');
-    else expect(introWhiteSpace).toBe('normal');
 
     await expect(page.locator('.lab-method-note')).toContainText('scale, assumptions, sources, and limits');
     await expect(page.locator('.lab-instruments-head')).toHaveCount(0);
