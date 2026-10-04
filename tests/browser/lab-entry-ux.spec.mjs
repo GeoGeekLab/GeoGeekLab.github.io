@@ -75,7 +75,7 @@ test.describe('Lab entry hierarchy', () => {
 
     await page.waitForTimeout(1000);
     expect(legacyProviderRequests).toEqual([]);
-    await expect(page.locator('script[src*="previews.js"]')).toHaveCount(0);
+    await expect(page.locator('script[src="previews.js"], script[src="/previews.js"], script[src^="previews.js?"], script[src^="/previews.js?"]')).toHaveCount(0);
     await expect(page.locator('script[src*="lab-real-previews.js"]')).toHaveCount(1);
   });
 
