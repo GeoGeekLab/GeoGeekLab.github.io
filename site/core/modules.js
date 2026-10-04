@@ -5,7 +5,7 @@
   const scriptUrl = src => new URL(src, document.baseURI).href;
   const ORBIT_CATALOG_SOURCE = 'orbital/orbit-catalog-source.js?v=20261004a';
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
-  const PROVIDER_STABILITY_RUNTIME = 'core/provider-stability.js?v=20261004a';
+  const PROVIDER_STABILITY_RUNTIME = 'core/provider-stability.js?v=20261004b';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002e';
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261002e';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
@@ -201,9 +201,6 @@
       console.warn(`[GeoGeek] Instrument ${kind} failed to load; retry is available.`, error);
     }
   }, true);
-
-  // Direct ?instrument= activation is owned by lab-page.js. Keeping URL lifecycle
-  // in one place prevents duplicate openByKind calls and double instrument mounts.
 
   const homeCommonsMount = document.getElementById('homeCommonsMapMount');
   if (homeCommonsMount) {
