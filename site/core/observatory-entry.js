@@ -1,5 +1,5 @@
 const ROOT = 'https://geogeeklab.github.io';
-const RELEASE = '20261004a';
+const RELEASE = '20261004b';
 const loadedScripts = new Map();
 const loadedStyles = new Set();
 
