@@ -1,11 +1,11 @@
-import DataSupply from '../core/data-supply.js?v=20261002b';
+import DataSupply from '../core/data-supply.js?v=20261004a';
 
 const DATASET_ID = 'orbit-active';
 const dataset = DataSupply.get(DATASET_ID);
 const CACHE_NAME = 'geogeek-orbit-v2';
 const CACHE_TS_KEY = 'geogeek.orbit.catalogFetchedAt';
 const SOURCE_VERSION_KEY = 'geogeek.orbit.catalogSourceVersion';
-const SOURCE_VERSION = 'unified-supply-v1';
+const SOURCE_VERSION = 'unified-supply-v2';
 let syncQueued = false;
 
 const SNAPSHOT_URL = new URL(`../${dataset.snapshot}`, import.meta.url).href;
