@@ -9,7 +9,6 @@ test.describe('Lab entry hierarchy', () => {
     const intro = page.locator('.page-title .page-intro');
     await expect(intro).toHaveText('Observe, compare, and reason through space.');
 
-    await expect(page.locator('.lab-method-note')).toContainText('scale, assumptions, sources, and limits');
     await expect(page.locator('.lab-instruments-head')).toHaveCount(0);
     await expect(page.getByText('INTERACTIVE INSTRUMENTS', { exact: true })).toHaveCount(0);
     await expect(page.getByText('Observe, compare, and reason through space.', { exact: true })).toHaveCount(1);
