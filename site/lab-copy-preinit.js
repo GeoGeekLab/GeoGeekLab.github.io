@@ -55,60 +55,98 @@
       actions.prepend(link);
     }
 
-    link.href = `records/lab-${id}.html`;
-    link.dataset.recordRef = `lab:${id}`;
+    const href = `records/lab-${id}.html`;
+    if (link.getAttribute('href') !== href) link.href = href;
+    if (link.dataset.recordRef !== `lab:${id}`) link.dataset.recordRef = `lab:${id}`;
     const label = link.querySelector('span');
     const arrow = link.querySelector('b');
-    if (label) label.textContent = 'READ RECORD';
-    if (arrow) arrow.textContent = '↗';
+    if (label?.textContent !== 'READ RECORD') label.textContent = 'READ RECORD';
+    if (arrow?.textContent !== '↗') arrow.textContent = '↗';
     const title = card.querySelector('h2, h3')?.textContent?.trim() || id;
-    link.setAttribute('aria-label', `Read ${title} record`);
+    const ariaLabel = `Read ${title} record`;
+    if (link.getAttribute('aria-label') !== ariaLabel) link.setAttribute('aria-label', ariaLabel);
   }
 
+  function bindProjectScale(card) {
+    if (!card || card.dataset.labProjectScaleBound === '1') return;
+    card.dataset.labProjectScaleBound = '1';
+    const enter = () => {
+      if (!document.getElementById('instrumentDialog')?.open) window.GeoScale?.apply?.('RECORD');
+    };
+    const leave = () => {
+      if (document.getElementById('instrumentDialog')?.open) window.GeoScale?.apply?.('DETAIL');
+      else window.GeoScale?.restore?.();
+    };
+    card.addEventListener('pointerenter', enter);
+    card.addEventListener('focusin', enter);
+    card.addEventListener('pointerleave', leave);
+    card.addEventListener('focusout', event => {
+      if (!card.contains(event.relatedTarget)) leave();
+    });
+  }
+
+  let normalizingCollection = false;
   function normalizeCollection() {
+    if (normalizingCollection) return;
     const list = document.getElementById('labList');
     if (!list) return;
+    normalizingCollection = true;
 
-    const observatoryCard = document.getElementById('l04');
-    const observatoryBlock = observatoryCard?.closest('.lab-group-block');
-    const observatoryGrid = observatoryBlock?.querySelector('.project-grid');
+    try {
+      const observatoryCard = document.getElementById('l04');
+      const observatoryBlock = observatoryCard?.closest('.lab-group-block');
+      const observatoryGrid = observatoryBlock?.querySelector('.project-grid');
 
-    if (observatoryBlock && observatoryGrid) {
-      ['l11', 'l12'].forEach(id => {
-        const card = document.getElementById(id);
-        if (card && card.parentElement !== observatoryGrid) observatoryGrid.appendChild(card);
+      if (observatoryBlock && observatoryGrid) {
+        ['l11', 'l12'].forEach(id => {
+          const card = document.getElementById(id);
+          if (card && card.parentElement !== observatoryGrid) observatoryGrid.appendChild(card);
+        });
+
+        if (observatoryBlock.classList.contains('lab-group-studies')) observatoryBlock.classList.remove('lab-group-studies');
+        if (!observatoryBlock.classList.contains('lab-group-observatory')) observatoryBlock.classList.add('lab-group-observatory');
+        if (observatoryBlock.dataset.groupKey !== 'observatory') observatoryBlock.dataset.groupKey = 'observatory';
+        const label = observatoryBlock.querySelector('.lab-group-label span');
+        if (label && label.textContent !== 'OBSERVATORY') label.textContent = 'OBSERVATORY';
+        const purpose = observatoryBlock.querySelector('.lab-group-purpose');
+        const purposeText = 'Observe changing systems and representations through declared sources, models, projections, time windows, and spatial extents.';
+        if (purpose && purpose.textContent !== purposeText) purpose.textContent = purposeText;
+      }
+
+      list.querySelectorAll('.lab-group-block').forEach(block => {
+        if (!block.querySelector('.project-card')) block.remove();
       });
 
-      observatoryBlock.classList.remove('lab-group-studies');
-      observatoryBlock.classList.add('lab-group-observatory');
-      observatoryBlock.dataset.groupKey = 'observatory';
-      const label = observatoryBlock.querySelector('.lab-group-label span');
-      if (label) label.textContent = 'OBSERVATORY';
-      const purpose = observatoryBlock.querySelector('.lab-group-purpose');
-      if (purpose) {
-        purpose.textContent = 'Observe changing systems and representations through declared sources, models, projections, time windows, and spatial extents.';
+      const playBlock = document.getElementById('l07')?.closest('.lab-group-block');
+      if (playBlock) {
+        if (playBlock.classList.contains('lab-group-studies')) playBlock.classList.remove('lab-group-studies');
+        if (!playBlock.classList.contains('lab-group-play')) playBlock.classList.add('lab-group-play');
+        if (playBlock.dataset.groupKey !== 'play') playBlock.dataset.groupKey = 'play';
+        const label = playBlock.querySelector('.lab-group-label span');
+        if (label && label.textContent !== 'PLAY / SPATIAL REASONING') label.textContent = 'PLAY / SPATIAL REASONING';
       }
+
+      if (observatoryBlock && playBlock && observatoryBlock.nextElementSibling !== playBlock) {
+        list.insertBefore(observatoryBlock, playBlock);
+      }
+
+      [...OBSERVATORY_IDS, ...PLAY_IDS].forEach(id => ensureRecordAction(document.getElementById(id), id));
+      bindProjectScale(document.getElementById('l13'));
+    } finally {
+      normalizingCollection = false;
     }
-
-    list.querySelectorAll('.lab-group-block').forEach(block => {
-      if (!block.querySelector('.project-card')) block.remove();
-    });
-
-    const playBlock = document.getElementById('l07')?.closest('.lab-group-block');
-    if (playBlock) {
-      playBlock.classList.remove('lab-group-studies');
-      playBlock.classList.add('lab-group-play');
-      playBlock.dataset.groupKey = 'play';
-      const label = playBlock.querySelector('.lab-group-label span');
-      if (label) label.textContent = 'PLAY / SPATIAL REASONING';
-    }
-
-    if (observatoryBlock && playBlock && observatoryBlock.nextElementSibling !== playBlock) {
-      list.insertBefore(observatoryBlock, playBlock);
-    }
-
-    [...OBSERVATORY_IDS, ...PLAY_IDS].forEach(id => ensureRecordAction(document.getElementById(id), id));
   }
+
+  // app.js, lab-page.js, and play-bootstrap.js each touch the same collection.
+  // Normalize after each mutation checkpoint so lab-optimization.js sees the final contract.
+  const labList = document.getElementById('labList');
+  const collectionObserver = labList ? new MutationObserver(normalizeCollection) : null;
+  collectionObserver?.observe(labList, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class']
+  });
 
   function syncWorkspaceGroupLabel() {
     const dialog = document.getElementById('instrumentDialog');
@@ -155,6 +193,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     normalizeCollection();
+    collectionObserver?.disconnect();
     syncWorkspaceGroupLabel();
 
     const dialog = document.getElementById('instrumentDialog');
