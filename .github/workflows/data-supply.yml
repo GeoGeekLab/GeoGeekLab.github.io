@@ -70,9 +70,12 @@ jobs:
           done
           test -s site/core/provider-stability.js
           test -s site/core/observatory-entry.js
+          grep -F "const RELEASE = '20261004b'" site/core/provider-stability.js
+          grep -F "const RELEASE = '20261004b'" site/core/observatory-entry.js
+          grep -F 'core/provider-stability.js?v=20261004b' site/core/modules.js
           grep -F 'unified-supply-v2' site/orbital/orbit-catalog-source.js
-          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261004a"#' site/lab.html
-          grep -F 'src="core/modules.js?v=20261004a"' site/lab.html
+          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261004b"#' site/lab.html
+          grep -F 'src="core/modules.js?v=20261004b"' site/lab.html
       - name: Install responsive image optimizer
         if: steps.delta.outputs.changed == 'true'
         run: |
@@ -87,7 +90,7 @@ jobs:
       - name: QA refreshed artifact
         if: steps.delta.outputs.changed == 'true'
         run: |
-          grep -F 'core/modules.js?v=20261004a' dist/lab.html
+          grep -F 'core/modules.js?v=20261004b' dist/lab.html
           test -s dist/core/provider-stability.js
           test -s dist/core/observatory-entry.js
           node scripts/qa.mjs
@@ -125,8 +128,9 @@ jobs:
         run: |
           set -euo pipefail
           base="${BASE_URL%/}"
-          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/lab.html" | grep -F 'core/modules.js?v=20261004a'
-          curl --fail --silent --show-error --location "$base/core/provider-stability.js" | grep -F '20261004a'
+          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/lab.html" | grep -F 'core/modules.js?v=20261004b'
+          curl --fail --silent --show-error --location "$base/core/provider-stability.js" | grep -F "const RELEASE = '20261004b'"
+          curl --fail --silent --show-error --location "$base/core/observatory-entry.js" | grep -F "const RELEASE = '20261004b'"
           curl --fail --silent --show-error --location "$base/orbital/data/active.meta.json" -o /tmp/orbit-meta.json
           curl --fail --silent --show-error --location "$base/data/snapshots/usgs-earthquakes-day.meta.json" -o /tmp/usgs-meta.json
           node -e "for (const p of ['/tmp/orbit-meta.json','/tmp/usgs-meta.json']) { const m=require(p); if (!m.fetchedAt || !m.sha256) process.exit(1); }"
