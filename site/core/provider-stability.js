@@ -1,6 +1,6 @@
 import DataSupply from './data-supply.js?v=20261004a';
 
-const RELEASE = '20261004a';
+const RELEASE = '20261004b';
 const LEGACY_NATURAL_EARTH = 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m/cultural/ne_110m_admin_0_countries.json';
 const PINNED_NATURAL_EARTH = 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e/110m/cultural/ne_110m_admin_0_countries.json';
 const LEGACY_AURORA_PAGE = 'https://www.swpc.noaa.gov/products/aurora-30-minute-forecast';
@@ -24,13 +24,19 @@ function rewriteFetchInput(input) {
   return input;
 }
 
-function canonicalizeProviderLinks(root = document) {
-  root.querySelectorAll?.('a[href]').forEach(anchor => {
-    if (anchor.href === LEGACY_AURORA_PAGE) anchor.href = CANONICAL_AURORA_PAGE;
-  });
+function canonicalizeAnchor(anchor) {
+  if (anchor?.href === LEGACY_AURORA_PAGE) anchor.href = CANONICAL_AURORA_PAGE;
 }
 
-if (!window.GeoProviderStability?.installed) {
+function canonicalizeProviderLinks(root = document) {
+  if (root instanceof HTMLAnchorElement) canonicalizeAnchor(root);
+  root.querySelectorAll?.('a[href]').forEach(canonicalizeAnchor);
+}
+
+if (!window.GeoProviderStability?.installed || window.GeoProviderStability.release !== RELEASE) {
+  const previous = window.GeoProviderStability;
+  previous?.disconnect?.();
+
   const dataSupplyFetch = window.fetch.bind(window);
   window.fetch = (input, init) => dataSupplyFetch(rewriteFetchInput(input), init);
 
@@ -38,7 +44,7 @@ if (!window.GeoProviderStability?.installed) {
   const observer = new MutationObserver(records => {
     for (const record of records) {
       if (record.type === 'attributes' && record.target instanceof HTMLAnchorElement) {
-        if (record.target.href === LEGACY_AURORA_PAGE) record.target.href = CANONICAL_AURORA_PAGE;
+        canonicalizeAnchor(record.target);
         continue;
       }
       for (const node of record.addedNodes) {
@@ -52,7 +58,8 @@ if (!window.GeoProviderStability?.installed) {
     attributes: true,
     attributeFilter: ['href']
   });
-  window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
+  const disconnect = () => observer.disconnect();
+  window.addEventListener('pagehide', disconnect, { once: true });
 
   window.GeoProviderStability = Object.freeze({
     installed: true,
@@ -60,7 +67,8 @@ if (!window.GeoProviderStability?.installed) {
     dataSupply: DataSupply,
     naturalEarthRevision: '0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e',
     canonicalAuroraPage: CANONICAL_AURORA_PAGE,
-    canonicalizeProviderLinks
+    canonicalizeProviderLinks,
+    disconnect
   });
 }
 
