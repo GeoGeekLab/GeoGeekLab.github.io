@@ -61,9 +61,10 @@
   stroke-width: 1;
 }
 
-/* Observatory now follows the same card geometry as Play: three records per row. */
+/* Observatory now follows the same card geometry as Play: three records per row.
+   The Lab selectors are intentionally more specific than the legacy two-column rule. */
 @media (min-width: 981px) {
-  .lab-group-observatory .project-grid {
+  .lab-page .lab-list .lab-group-observatory .project-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
