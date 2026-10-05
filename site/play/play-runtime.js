@@ -47,9 +47,9 @@
   };
   const SCRIPT = {
     locate: 'play/orient/orient.js?v=20261003f',
-    zone: 'play/bound/bound.js?v=20261005b',
-    path: 'play/connect/connect.js?v=20261005a',
-    project: 'play/project/project.js?v=20261005c'
+    zone: 'play/bound/bound.js?v=20261005c',
+    path: 'play/connect/connect.js?v=20261005b',
+    project: 'play/project/project.js?v=20261005d'
   };
   const OPTIONAL_POST_SCRIPTS = {
     locate: [
@@ -57,7 +57,7 @@
       'play/orient/orient-trace-view.js?v=20261003h',
       'play/orient/orient-trace-enhancer.js?v=20261003h',
       'play/orient/orient-ergonomics.js?v=20261003i',
-      'play/orient/orient-v2-presentation.js?v=20261005a'
+      'play/orient/orient-v2-presentation.js?v=20261005b'
     ]
   };
   const REGISTER = {
