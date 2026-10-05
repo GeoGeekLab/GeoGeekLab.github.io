@@ -31,6 +31,19 @@ for (const [instrument, kind] of CASES) {
     await expect(page.locator('#instrumentDialog')).toHaveAttribute('open', '', { timeout:20_000 });
     await expect(page.locator(`.play-shell[data-play-kind="${kind}"], .play-v2-shell[data-play-kind="${kind}"]`)).toBeVisible({ timeout:20_000 });
   });
+
+  test(`Lab card body opens ${kind} without requiring the OPEN button`, async ({ page }) => {
+    if (instrument === 'locate') await primeOrient(page);
+    await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+    const trigger = page.locator(`[data-instrument="${instrument}"]`).first();
+    await expect(trigger).toBeVisible({ timeout:10_000 });
+    const card = trigger.locator('xpath=ancestor::*[contains(concat(" ", normalize-space(@class), " "), " project-card ")]').first();
+    const visual = card.locator('.project-visual');
+    await expect(visual).toBeVisible();
+    await visual.click();
+    await expect(page.locator('#instrumentDialog')).toHaveAttribute('open', '', { timeout:20_000 });
+    await expect(page.locator(`.play-shell[data-play-kind="${kind}"], .play-v2-shell[data-play-kind="${kind}"]`)).toBeVisible({ timeout:20_000 });
+  });
 }
 
 test('BOUND accepts an actual pointer-drawn region', async ({ page }) => {
