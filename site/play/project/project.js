@@ -32,7 +32,7 @@
     const routeViewApi=window.GeoPlayProjectRouteView;
     if(!content?.AREA_EXPERIMENT || !content?.ROUTE_EXPERIMENT || !morphApi?.create || !areaViewApi?.create || !routeViewApi?.create) throw new Error('Project V2 modules incomplete.');
 
-    GeoPlay.core.ensureStyle('play/project/project-v2.css?v=20261005b','project-v2');
+    GeoPlay.core.ensureStyle('play/project/project-v2.css?v=20261005c','project-v2');
 
     let world;
     try {
