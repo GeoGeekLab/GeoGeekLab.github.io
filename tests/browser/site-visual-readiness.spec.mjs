@@ -50,8 +50,9 @@ test.describe('site-wide visual readiness', () => {
     await page.locator('a[href="field-notes.html"]').first().click({ noWaitAfter: true });
     await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'leaving');
     await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '1');
+    await expect.poll(() => Boolean(releaseRequest)).toBe(true);
 
-    releaseRequest?.();
+    releaseRequest();
     await page.waitForURL('**/field-notes.html');
     await expectReady(page);
   });
