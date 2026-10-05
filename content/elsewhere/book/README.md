@@ -1,6 +1,6 @@
 # Elsewhere / BOOK
 
-Status: production content contract. The build and renderer are wired; no BOOK record is published until a real title is supplied.
+Status: production content contract. The build and renderer are wired; BOOK records are published only after the real title, edition, and authored orientation fields are complete.
 
 ## Position
 
@@ -171,8 +171,10 @@ Source preview uses `record.html?ref=elsewhere:<id>`. Production collection and 
 }
 ```
 
-## First content dependency
+## First content selection
 
-The first book has not been selected yet.
+BOOK 001 is *The Glory and the Dream: A Narrative History of America, 1932–1972* by William Manchester, first published in 1974.
 
-Do not publish a fabricated seed record. The next content step is to supply one real title and edition, then complete the six-part record against the actual text.
+The editorial draft lives at `drafts/book-001-glory-and-the-dream.md`.
+
+Do not promote it into the production source layout until the edition read is identified and BEFORE / SHIFT / AFTER / RETURN are authored from the actual reading experience.
