@@ -83,7 +83,7 @@ test('CONNECT builds a route, changes the rule, and requires adaptation', async 
   await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('THE RELATION DID');
 });
 
-test('PROJECT lets the player scrub continuously from Mercator to Equal Earth before revealing area', async ({ page }) => {
+test('PROJECT morphs area and route representations continuously while preserving the underlying geography', async ({ page }) => {
   const shell = await openPlay(page, 'project', 'project');
   const land = shell.locator('.project-v2-land');
   const initialPath = await land.getAttribute('d');
@@ -116,4 +116,43 @@ test('PROJECT lets the player scrub continuously from Mercator to Equal Earth be
   await resultScrubber.fill('0');
   const returnedPath = await land.getAttribute('d');
   expect(returnedPath).not.toBe(equalEarthPath);
+
+  await shell.getByRole('button', { name:'NEXT: ROUTE' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'routeDrawing');
+
+  const routeHit = shell.locator('.project-v2-route-hit');
+  await expect(routeHit).toHaveAttribute('tabindex', '0');
+  await routeHit.focus();
+  await page.keyboard.press('ArrowUp');
+
+  const routeReveal = shell.getByRole('button', { name:'REVEAL GEODESIC' });
+  await expect(routeReveal).toBeEnabled();
+  const judgment = shell.locator('.project-v2-route-judgment');
+  const judgmentMercator = await judgment.getAttribute('d');
+  expect(judgmentMercator).toBeTruthy();
+
+  await routeReveal.click();
+  await expect(shell).toHaveAttribute('data-play-state', 'routeTransforming');
+
+  const geodesic = shell.locator('.project-v2-geodesic');
+  const geodesicMercator = await geodesic.getAttribute('d');
+  const routeScrubber = shell.locator('.project-v2-route-scrubber');
+  const finish = shell.getByRole('button', { name:'FINISH' });
+  await expect(finish).toBeDisabled();
+
+  await routeScrubber.fill('50');
+  const geodesicMiddle = await geodesic.getAttribute('d');
+  const judgmentMiddle = await judgment.getAttribute('d');
+  expect(geodesicMiddle).not.toBe(geodesicMercator);
+  expect(judgmentMiddle).not.toBe(judgmentMercator);
+
+  await routeScrubber.fill('100');
+  const geodesicAzimuthal = await geodesic.getAttribute('d');
+  expect(geodesicAzimuthal).not.toBe(geodesicMiddle);
+  await expect(finish).toBeEnabled();
+  await finish.click();
+
+  await expect(shell).toHaveAttribute('data-play-state', 'routeResult');
+  await expect(shell.locator('.project-v2-panel')).toContainText("THE ROUTE DIDN'T CHANGE.");
+  await expect(shell.locator('.project-v2-panel')).toContainText('THE REPRESENTATION DID.');
 });
