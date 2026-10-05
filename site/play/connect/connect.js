@@ -30,7 +30,7 @@
     if(!GeoPlay?.core || !GeoPlay?.shell?.createV2 || !GeoPlay?.trace) throw new Error('GeoPlay V2 runtime incomplete.');
     if(!content?.PUZZLES?.length || !graphApi || !gameApi || !viewApi) throw new Error('Connect V2 modules incomplete.');
 
-    GeoPlay.core.ensureStyle('play/connect/connect-v2.css?v=20261005a','connect-v2');
+    GeoPlay.core.ensureStyle('play/connect/connect-v2.css?v=20261005b','connect-v2');
 
     let world;
     try {
