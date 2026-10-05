@@ -10,7 +10,8 @@ async function openPlay(page, instrument, kind) {
   const shell = page.locator(`.play-shell[data-play-kind="${kind}"], .play-v2-shell[data-play-kind="${kind}"]`);
   await expect(shell).toBeVisible({ timeout:20_000 });
   await expect(page.locator('#instrumentDialog')).toHaveAttribute('open', '');
-  await expect(shell).toHaveAttribute('data-play-state', kind === 'connect' ? 'planning' : 'judge', { timeout:5_000 });
+  const expectedState = kind === 'connect' ? 'planning' : kind === 'project' ? 'predicting' : 'judge';
+  await expect(shell).toHaveAttribute('data-play-state', expectedState, { timeout:5_000 });
   return shell;
 }
 
@@ -82,32 +83,37 @@ test('CONNECT builds a route, changes the rule, and requires adaptation', async 
   await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('THE RELATION DID');
 });
 
-test('PROJECT traverses area, keyboard route, and viewpoint representation changes', async ({ page }) => {
+test('PROJECT lets the player scrub continuously from Mercator to Equal Earth before revealing area', async ({ page }) => {
   const shell = await openPlay(page, 'project', 'project');
+  const land = shell.locator('.project-v2-land');
+  const initialPath = await land.getAttribute('d');
 
-  await shell.getByRole('button', { name:'INDIA' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('SURFACE AREA');
-  await expect(shell.locator('.play-conditions')).toContainText('MERCATOR → EQUAL EARTH');
-  await shell.getByRole('button', { name:'NEXT REPRESENTATION →' }).click();
+  await shell.getByRole('button', { name:'GREENLAND' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'transforming');
 
-  const routeHit = shell.locator('.project-hit');
-  await expect(routeHit).toHaveAttribute('tabindex', '0');
-  await routeHit.focus();
-  await page.keyboard.press('ArrowUp');
-  const routeCommit = shell.getByRole('button', { name:'COMMIT ROUTE' });
-  await expect(routeCommit).toBeEnabled();
-  await page.keyboard.press('Enter');
-  await expect(shell.locator('.play-readout')).toContainText('GEODESIC');
-  await shell.getByRole('button', { name:'CHANGE REPRESENTATION →' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('THE ROUTE DID NOT CHANGE');
-  await shell.getByRole('button', { name:'NEXT REPRESENTATION →' }).click();
+  const scrubber = shell.locator('.project-v2-scrubber');
+  const reveal = shell.getByRole('button', { name:'REVEAL AREA' });
+  await expect(scrubber).toBeVisible();
+  await expect(reveal).toBeDisabled();
 
-  await shell.getByRole('button', { name:'COMMIT VIEW' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('VISIBLE HEMISPHERE');
-  await shell.getByRole('button', { name:'CHANGE ONE CONDITION →' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('THE WORLD STAYED');
-  await shell.getByRole('button', { name:'VIEW TRACE →' }).click();
-  await expect(shell.locator('.play-trace-title')).toContainText('PROJECT');
-  await expect(shell.locator('.play-conditions')).toContainText('SCORE');
-  await expect(shell.locator('.play-conditions')).toContainText('NONE');
+  await scrubber.fill('50');
+  const middlePath = await land.getAttribute('d');
+  expect(middlePath).not.toBe(initialPath);
+
+  await scrubber.fill('100');
+  const equalEarthPath = await land.getAttribute('d');
+  expect(equalEarthPath).not.toBe(middlePath);
+  await expect(reveal).toBeEnabled();
+  await reveal.click();
+
+  await expect(shell).toHaveAttribute('data-play-state', 'revealed');
+  await expect(shell.locator('.project-v2-panel')).toContainText('INDIA');
+  await expect(shell.locator('.project-v2-panel')).toContainText('IS LARGER');
+  await expect(shell.locator('.project-v2-panel')).toContainText('THE MAP CHANGED.');
+  await expect(shell.locator('.project-v2-panel')).toContainText("THE AREA DIDN'T.");
+
+  const resultScrubber = shell.locator('.project-v2-scrubber');
+  await resultScrubber.fill('0');
+  const returnedPath = await land.getAttribute('d');
+  expect(returnedPath).not.toBe(equalEarthPath);
 });
