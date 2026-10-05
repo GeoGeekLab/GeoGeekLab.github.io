@@ -34,7 +34,7 @@
     project: [
       'play/project/project-content.js?v=20261005c',
       'play/project/project-morph.js?v=20261005c',
-      'play/project/project-view.js?v=20261005b',
+      'play/project/project-view.js?v=20261005c',
       'play/project/project-route-view.js?v=20261005b'
     ]
   };
@@ -48,8 +48,8 @@
   const SCRIPT = {
     locate: 'play/orient/orient.js?v=20261003f',
     zone: 'play/bound/bound.js?v=20261005c',
-    path: 'play/connect/connect.js?v=20261005b',
-    project: 'play/project/project.js?v=20261005d'
+    path: 'play/connect/connect.js?v=20261005c',
+    project: 'play/project/project.js?v=20261005e'
   };
   const OPTIONAL_POST_SCRIPTS = {
     locate: [
