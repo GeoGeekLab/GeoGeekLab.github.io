@@ -44,6 +44,7 @@ for (const entry of fs.readdirSync(fieldNotesDir, { withFileTypes: true })) {
 }
 records.sort((a, b) => String(b.data.published).localeCompare(String(a.data.published)) || a.id.localeCompare(b.id));
 
+const bookShiftTypes = new Set(['frame', 'scale', 'distance', 'vocabulary', 'method']);
 const bookRecords = [];
 if (fs.existsSync(bookContentDir)) {
   for (const entry of fs.readdirSync(bookContentDir, { withFileTypes: true })) {
@@ -66,6 +67,7 @@ if (fs.existsSync(bookContentDir)) {
     if (!record.data?.firstPublished) throw new Error(`BOOK ${entry.name}: data.firstPublished is required`);
     if (!record.text?.en?.before) throw new Error(`BOOK ${entry.name}: text.en.before is required`);
     if (!record.text?.en?.shift?.type || !record.text?.en?.shift?.text) throw new Error(`BOOK ${entry.name}: text.en.shift.type and text.en.shift.text are required`);
+    if (!bookShiftTypes.has(String(record.text.en.shift.type).toLowerCase())) throw new Error(`BOOK ${entry.name}: text.en.shift.type must be frame, scale, distance, vocabulary, or method`);
     if (!record.text?.en?.after) throw new Error(`BOOK ${entry.name}: text.en.after is required`);
     if (!record.text?.en?.return) throw new Error(`BOOK ${entry.name}: text.en.return is required`);
 
@@ -88,13 +90,13 @@ if (fs.existsSync(bookContentDir)) {
   }
 }
 bookRecords.sort((a, b) => {
-  const orderA = Number.isFinite(Number(a.data.order)) ? Number(a.data.order) : Number.MAX_SAFE_INTEGER;
-  const orderB = Number.isFinite(Number(b.data.order)) ? Number(b.data.order) : Number.MAX_SAFE_INTEGER;
+  const orderA = a.data.order != null && Number.isFinite(Number(a.data.order)) ? Number(a.data.order) : Number.MAX_SAFE_INTEGER;
+  const orderB = b.data.order != null && Number.isFinite(Number(b.data.order)) ? Number(b.data.order) : Number.MAX_SAFE_INTEGER;
   return orderA - orderB || a.id.localeCompare(b.id);
 });
 
 const payload = { series, records, books: bookRecords };
-const makeArchiveBootstrap = ({ sourcePreview = false } = {}) => `(() => {\n  'use strict';\n  window.GEOGEEK_SOURCE_PREVIEW = ${sourcePreview ? 'true' : 'false'};\n  const payload = ${JSON.stringify(payload)};\n  window.GEOGEEK_WECHAT_ARCHIVE = { series: payload.series, records: payload.records };\n  window.GEOGEEK_ELSEWHERE_CONTENT = { records: payload.books };\n  const archive = window.GEOGEEK_ARCHIVE;\n  if (!archive) return;\n  const generatedElsewhereRefs = new Set(payload.books.map(record => record.ref));\n  archive.records = [\n    ...payload.records,\n    ...payload.books,\n    ...archive.records.filter(record => record.kind !== 'notes' && !generatedElsewhereRefs.has(record.ref))\n  ];\n  const ui = archive.locales?.en?.ui || {};\n  const itemFor = record => ({id:record.id,...(record.data||{}),...(record.text?.en||{}),traceLinks:[...(record.relations?.trace||[])]});\n  const byKind = kind => archive.records.filter(record=>record.kind===kind).map(itemFor);\n  const atlasLayout = archive.records.filter(record=>record.atlas).map(record=>({ref:record.ref,...Object.fromEntries(Object.entries(record.atlas||{}).filter(([key])=>key!=='text')),...(record.atlas?.text?.en||{}),traceLinks:[...(record.relations?.trace||[])]}));\n  window.GEOGEEK_DATA = {en:{ui,notes:byKind('notes'),lab:byKind('lab'),elsewhere:byKind('elsewhere'),atlasLayout}};\n})();\n`;
+const makeArchiveBootstrap = ({ sourcePreview = false } = {}) => `(() => {\n  'use strict';\n  window.GEOGEEK_SOURCE_PREVIEW = ${sourcePreview ? 'true' : 'false'};\n  const payload = ${JSON.stringify(payload)};\n  window.GEOGEEK_WECHAT_ARCHIVE = { series: payload.series, records: payload.records };\n  window.GEOGEEK_ELSEWHERE_CONTENT = { records: payload.books };\n  const archive = window.GEOGEEK_ARCHIVE;\n  if (!archive) return;\n  const generatedElsewhereRefs = new Set(payload.books.map(record => record.ref));\n  const retained = archive.records.filter(record => record.kind !== 'notes' && !generatedElsewhereRefs.has(record.ref));\n  const nonNotes = retained.flatMap(record => record.ref === 'elsewhere:e02' ? [record, ...payload.books] : [record]);\n  archive.records = [...payload.records, ...nonNotes];\n  const ui = archive.locales?.en?.ui || {};\n  const itemFor = record => ({id:record.id,...(record.data||{}),...(record.text?.en||{}),traceLinks:[...(record.relations?.trace||[])]});\n  const byKind = kind => archive.records.filter(record=>record.kind===kind).map(itemFor);\n  const atlasLayout = archive.records.filter(record=>record.atlas).map(record=>({ref:record.ref,...Object.fromEntries(Object.entries(record.atlas||{}).filter(([key])=>key!=='text')),...(record.atlas?.text?.en||{}),traceLinks:[...(record.relations?.trace||[])]}));\n  window.GEOGEEK_DATA = {en:{ui,notes:byKind('notes'),lab:byKind('lab'),elsewhere:byKind('elsewhere'),atlasLayout}};\n})();\n`;
 
 
 // Local source preview cache. It is derived from content/ and ignored by Git.
@@ -117,6 +119,7 @@ copyDir(sourceDir, dist);
 
 // Origin soundtrack: fetch the CC-BY source during deployment, then trim/transcode the
 // narrative window (00:44–06:02) so visitors do not download the full 320 kbps master.
+// The page keeps the official source URL as a runtime fallback if this optional step fails.
 try {
   const response = await fetch(originAudioUrl, {
     headers: { 'user-agent': 'GeoGeek-Pages-Build/1.0', accept: 'audio/mpeg,*/*;q=0.8' },
