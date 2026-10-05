@@ -7,10 +7,10 @@ async function openPlay(page, instrument, kind) {
     });
   }
   await page.goto(`/lab.html?instrument=${instrument}`, { waitUntil:'domcontentloaded' });
-  const shell = page.locator(`.play-shell[data-play-kind="${kind}"]`);
+  const shell = page.locator(`.play-shell[data-play-kind="${kind}"], .play-v2-shell[data-play-kind="${kind}"]`);
   await expect(shell).toBeVisible({ timeout:20_000 });
   await expect(page.locator('#instrumentDialog')).toHaveAttribute('open', '');
-  await expect(shell).toHaveAttribute('data-play-state', 'judge', { timeout:5_000 });
+  await expect(shell).toHaveAttribute('data-play-state', kind === 'connect' ? 'planning' : 'judge', { timeout:5_000 });
   return shell;
 }
 
@@ -41,9 +41,9 @@ test('BOUND holds threshold constant while one observation condition changes', a
   await expect(shell.locator('.play-conditions')).toContainText(Number(threshold).toFixed(3));
 });
 
-test('CONNECT derives border adjacency, supports keyboard nodes, then changes relation', async ({ page }) => {
+test('CONNECT builds a route, changes the rule, and requires adaptation', async ({ page }) => {
   const shell = await openPlay(page, 'path', 'connect');
-  await expect(shell.locator('.play-conditions')).toContainText('NATURAL EARTH SHARED BORDER');
+  await expect(shell.locator('.connect-v2-stat').last()).toContainText('LAND BORDERS');
 
   for (const name of ['Spain', 'France', 'Germany', 'Poland']) {
     const node = shell.getByRole('button', { name });
@@ -51,14 +51,28 @@ test('CONNECT derives border adjacency, supports keyboard nodes, then changes re
     await page.keyboard.press('Enter');
   }
 
-  const commit = shell.getByRole('button', { name:'COMMIT PATH' });
-  await expect(commit).toBeEnabled();
-  await commit.click();
-  await expect(shell.locator('.play-readout')).toContainText('4 HOPS');
-  await shell.getByRole('button', { name:'CHANGE THE RELATION →' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('4 → 3 HOPS');
-  await expect(shell.locator('.connect-dual')).toBeVisible();
-  await expect(shell.locator('.play-readout')).toContainText('THE PLACES DID NOT MOVE');
+  const lock = shell.getByRole('button', { name:'LOCK ROUTE' });
+  await expect(lock).toBeEnabled();
+  await lock.click();
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('4 HOPS');
+
+  await shell.getByRole('button', { name:'CHANGE THE RULE' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'transforming');
+  await expect(shell.locator('.connect-v2-stat').last()).toContainText('DISTANCE ≤ 1200 KM');
+  await expect(shell).toHaveAttribute('data-play-state', 'adapting', { timeout:3_000 });
+
+  for (const name of ['France', 'Germany', 'Poland']) {
+    const node = shell.getByRole('button', { name });
+    await node.focus();
+    await page.keyboard.press('Enter');
+  }
+
+  await shell.getByRole('button', { name:'LOCK ROUTE' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'result');
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('3 HOPS');
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('OPTIMAL');
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText("THE PLACES DIDN'T MOVE");
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('THE RELATION DID');
 });
 
 test('PROJECT traverses area, keyboard route, and viewpoint representation changes', async ({ page }) => {
