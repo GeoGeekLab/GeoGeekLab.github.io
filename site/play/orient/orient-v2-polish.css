@@ -28,7 +28,17 @@
   letter-spacing:-.045em;
 }
 .play-shell[data-play-kind="orient"] .play-task p{color:rgba(241,239,231,.5)}
-.play-shell[data-play-kind="orient"][data-play-state="judge"] .play-conditions{display:none}
+.play-shell[data-play-kind="orient"][data-play-state="judge"] .play-conditions{
+  display:block;
+  opacity:.42;
+  padding:0;
+  border:0;
+  background:none;
+}
+.play-shell[data-play-kind="orient"][data-play-state="judge"] .play-condition-row{
+  padding:3px 0;
+  border-bottom:0;
+}
 .play-shell[data-play-kind="orient"][data-play-state="judge"] .play-task{
   background:linear-gradient(90deg,rgba(7,11,9,.8),rgba(7,11,9,.32) 70%,rgba(7,11,9,0));
   border-left-color:rgba(209,99,57,.5);
@@ -59,9 +69,7 @@
   border-radius:0;
   background:none;
 }
-.play-shell[data-play-kind="orient"] .play-actions{
-  gap:8px;
-}
+.play-shell[data-play-kind="orient"] .play-actions{gap:8px}
 .play-shell[data-play-kind="orient"] .play-action{
   border-radius:9px;
   background:rgba(209,99,57,.07);
@@ -101,7 +109,12 @@
     background:linear-gradient(90deg,rgba(7,11,9,.9),rgba(7,11,9,.55) 84%,rgba(7,11,9,.06));
   }
   .play-shell[data-play-kind="orient"] .play-task .play-pair strong{font-size:22px}
-  .play-shell[data-play-kind="orient"][data-play-state="judge"] .play-conditions{display:none}
+  .play-shell[data-play-kind="orient"][data-play-state="judge"] .play-conditions{
+    display:flex;
+    opacity:.38;
+    padding:0;
+    background:none;
+  }
   .play-shell[data-play-kind="orient"] .play-readout{
     padding:9px 0 3px 12px;
     background:linear-gradient(90deg,rgba(7,11,9,.94),rgba(7,11,9,.72) 88%,rgba(7,11,9,.18));
