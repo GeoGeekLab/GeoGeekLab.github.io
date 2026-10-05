@@ -15,6 +15,14 @@ async function openPlay(page, instrument, kind) {
   return shell;
 }
 
+async function setRange(locator, value) {
+  await locator.evaluate((input, next) => {
+    input.value = String(next);
+    input.dispatchEvent(new Event('input', { bubbles:true }));
+    input.dispatchEvent(new Event('change', { bubbles:true }));
+  }, value);
+}
+
 test('ORIENT commits a keyboard spatial judgment with confidence and reveals separate residuals', async ({ page }) => {
   const shell = await openPlay(page, 'locate', 'orient');
   const map = shell.locator('.orient-map');
@@ -96,11 +104,11 @@ test('PROJECT morphs area and route representations continuously while preservin
   await expect(scrubber).toBeVisible();
   await expect(reveal).toBeDisabled();
 
-  await scrubber.fill('50');
+  await setRange(scrubber, 50);
   const middlePath = await land.getAttribute('d');
   expect(middlePath).not.toBe(initialPath);
 
-  await scrubber.fill('100');
+  await setRange(scrubber, 100);
   const equalEarthPath = await land.getAttribute('d');
   expect(equalEarthPath).not.toBe(middlePath);
   await expect(reveal).toBeEnabled();
@@ -113,7 +121,7 @@ test('PROJECT morphs area and route representations continuously while preservin
   await expect(shell.locator('.project-v2-panel')).toContainText("THE AREA DIDN'T.");
 
   const resultScrubber = shell.locator('.project-v2-scrubber');
-  await resultScrubber.fill('0');
+  await setRange(resultScrubber, 0);
   const returnedPath = await land.getAttribute('d');
   expect(returnedPath).not.toBe(equalEarthPath);
 
@@ -140,13 +148,13 @@ test('PROJECT morphs area and route representations continuously while preservin
   const finish = shell.getByRole('button', { name:'FINISH' });
   await expect(finish).toBeDisabled();
 
-  await routeScrubber.fill('50');
+  await setRange(routeScrubber, 50);
   const geodesicMiddle = await geodesic.getAttribute('d');
   const judgmentMiddle = await judgment.getAttribute('d');
   expect(geodesicMiddle).not.toBe(geodesicMercator);
   expect(judgmentMiddle).not.toBe(judgmentMercator);
 
-  await routeScrubber.fill('100');
+  await setRange(routeScrubber, 100);
   const geodesicAzimuthal = await geodesic.getAttribute('d');
   expect(geodesicAzimuthal).not.toBe(geodesicMiddle);
   await expect(finish).toBeEnabled();
