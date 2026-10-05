@@ -17,21 +17,6 @@
     return record?.kind === 'elsewhere' && record.item?.unit === 'book' ? record : null;
   };
 
-  const originalHrefForRecord = model.hrefForRecord.bind(model);
-  const originalDetailForRecord = model.detailForRecord.bind(model);
-
-  model.hrefForRecord = ref => {
-    if (bookRecordFor(ref)) return `record.html?ref=${encodeURIComponent(ref)}`;
-    return originalHrefForRecord(ref);
-  };
-
-  model.detailForRecord = ref => {
-    if (!bookRecordFor(ref)) return originalDetailForRecord(ref);
-    const currentRef = document.body?.dataset?.recordRef || new URLSearchParams(location.search).get('ref');
-    if (currentRef === ref) return '#detail';
-    return `${model.hrefForRecord(ref)}#detail`;
-  };
-
   const books = () => (data.elsewhere || [])
     .filter(item => item.unit === 'book')
     .sort((a, b) => {
