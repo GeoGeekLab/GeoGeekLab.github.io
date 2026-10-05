@@ -1,0 +1,70 @@
+/* Play liveness: make interactive affordance visible without changing data. */
+.lab-group-play .project-card.is-actionable{cursor:pointer}
+.lab-group-play .project-card.is-actionable .project-visual{transition:transform .34s ease,filter .34s ease}
+.lab-group-play .project-card.is-actionable:hover .project-visual,
+.lab-group-play .project-card.is-actionable:focus-within .project-visual{transform:translateY(-2px) scale(1.012);filter:brightness(1.08)}
+.lab-group-play .project-card.is-actionable:hover .preview-stamp,
+.lab-group-play .project-card.is-actionable:focus-within .preview-stamp{color:rgba(241,239,231,.86)}
+
+.play-preview-locate .pp-signal-fill{transform-box:fill-box;transform-origin:center;animation:playPreviewPulse 2.8s ease-in-out infinite}
+.play-preview-zone .pp-signal{stroke-dasharray:9 7;animation:playPreviewDash 7s linear infinite}
+.play-preview-path .pp-signal{stroke-dasharray:10 7;animation:playPreviewDash 5s linear infinite}
+.play-preview-path .pp-node-group circle:nth-child(4){transform-box:fill-box;transform-origin:center;animation:playPreviewPulse 2.4s ease-in-out infinite .25s}
+.play-preview-project .pp-signal{stroke-dasharray:12 8;animation:playPreviewDash 6s linear infinite}
+
+.play-shell[data-play-kind="orient"][data-play-state="judge"] .orient-reference{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:orientReferencePulse 2.4s ease-in-out infinite;
+}
+.play-shell[data-play-kind="orient"][data-play-state="judge"] .orient-map{cursor:crosshair}
+
+.play-v2-shell[data-play-kind="bound"][data-play-state="drawing"] .bound-v2-hit,
+.play-v2-shell[data-play-kind="bound"][data-play-state="ready"] .bound-v2-hit{
+  stroke:rgba(242,240,232,.16);
+  stroke-width:1;
+  stroke-dasharray:6 12;
+  animation:boundInvitation 8s linear infinite;
+}
+.play-v2-shell[data-play-kind="bound"][data-play-state="drawing"] .bound-v2-panel>span::after{
+  content:"  ·  DRAW ON THE FIELD";
+  color:rgba(242,240,232,.46);
+}
+
+.play-v2-shell[data-play-kind="connect"][data-play-state="planning"] .connect-v2-node.is-available .connect-v2-node-ring,
+.play-v2-shell[data-play-kind="connect"][data-play-state="adapting"] .connect-v2-node.is-available .connect-v2-node-ring{
+  animation:connectInvitation 2.2s ease-in-out infinite;
+}
+.play-v2-shell[data-play-kind="connect"][data-play-state="planning"] .connect-v2-node.is-target .connect-v2-node-ring,
+.play-v2-shell[data-play-kind="connect"][data-play-state="adapting"] .connect-v2-node.is-target .connect-v2-node-ring{
+  animation:connectTargetPulse 1.8s ease-in-out infinite;
+}
+
+.play-v2-shell[data-play-kind="project"][data-play-state="predicting"] .project-v2-highlight{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:projectPredictionPulse 3s ease-in-out infinite;
+}
+.play-v2-shell[data-play-kind="project"][data-play-state="predicting"] .project-v2-highlight.is-india{animation-delay:.45s}
+.play-v2-shell[data-play-kind="project"][data-play-state="transforming"] .project-v2-scrubber{cursor:ew-resize}
+
+@keyframes playPreviewPulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.55);opacity:1}}
+@keyframes playPreviewDash{to{stroke-dashoffset:-68}}
+@keyframes orientReferencePulse{0%,100%{opacity:.72;filter:none}50%{opacity:1;filter:drop-shadow(0 0 6px rgba(209,99,57,.42))}}
+@keyframes boundInvitation{to{stroke-dashoffset:-72}}
+@keyframes connectInvitation{0%,100%{opacity:.42;stroke-width:1.2}50%{opacity:1;stroke-width:2}}
+@keyframes connectTargetPulse{0%,100%{opacity:.72;stroke-width:2.4}50%{opacity:1;stroke-width:3.4}}
+@keyframes projectPredictionPulse{0%,100%{opacity:.72;filter:none}50%{opacity:1;filter:drop-shadow(0 0 7px rgba(224,107,63,.2))}}
+
+@media(prefers-reduced-motion:reduce){
+  .lab-group-play .project-card.is-actionable .project-visual,
+  .play-preview-locate .pp-signal-fill,
+  .play-preview-zone .pp-signal,
+  .play-preview-path .pp-signal,
+  .play-preview-path .pp-node-group circle,
+  .play-preview-project .pp-signal,
+  .play-shell[data-play-kind="orient"] .orient-reference,
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-hit,
+  .play-v2-shell[data-play-kind="connect"] .connect-v2-node-ring,
+  .play-v2-shell[data-play-kind="project"] .project-v2-highlight{animation:none!important;transition:none!important;transform:none!important}
+}
