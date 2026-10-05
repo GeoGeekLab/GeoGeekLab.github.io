@@ -32,10 +32,10 @@
       'play/connect/connect-view.js?v=20261005a'
     ],
     project: [
-      'play/project/project-content.js?v=20261005b',
-      'play/project/project-morph.js?v=20261005b',
+      'play/project/project-content.js?v=20261005c',
+      'play/project/project-morph.js?v=20261005c',
       'play/project/project-view.js?v=20261005b',
-      'play/project/project-route-view.js?v=20261005a'
+      'play/project/project-route-view.js?v=20261005b'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {
@@ -47,16 +47,17 @@
   };
   const SCRIPT = {
     locate: 'play/orient/orient.js?v=20261003f',
-    zone: 'play/bound/bound.js?v=20261002c',
+    zone: 'play/bound/bound.js?v=20261005b',
     path: 'play/connect/connect.js?v=20261005a',
-    project: 'play/project/project.js?v=20261005b'
+    project: 'play/project/project.js?v=20261005c'
   };
   const OPTIONAL_POST_SCRIPTS = {
     locate: [
       'play/orient/orient-feedback.js?v=20261003g',
       'play/orient/orient-trace-view.js?v=20261003h',
       'play/orient/orient-trace-enhancer.js?v=20261003h',
-      'play/orient/orient-ergonomics.js?v=20261003i'
+      'play/orient/orient-ergonomics.js?v=20261003i',
+      'play/orient/orient-v2-presentation.js?v=20261005a'
     ]
   };
   const REGISTER = {
