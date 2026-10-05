@@ -17,11 +17,26 @@
     return record?.kind === 'elsewhere' && record.item?.unit === 'book' ? record : null;
   };
 
+  const originalHrefForRecord = model.hrefForRecord.bind(model);
+  const originalDetailForRecord = model.detailForRecord.bind(model);
+
+  model.hrefForRecord = ref => {
+    if (window.GEOGEEK_SOURCE_PREVIEW && bookRecordFor(ref)) return `record.html?ref=${encodeURIComponent(ref)}`;
+    return originalHrefForRecord(ref);
+  };
+
+  model.detailForRecord = ref => {
+    if (!(window.GEOGEEK_SOURCE_PREVIEW && bookRecordFor(ref))) return originalDetailForRecord(ref);
+    const currentRef = document.body?.dataset?.recordRef || new URLSearchParams(location.search).get('ref');
+    if (currentRef === ref) return '#detail';
+    return `${model.hrefForRecord(ref)}#detail`;
+  };
+
   const books = () => (data.elsewhere || [])
     .filter(item => item.unit === 'book')
     .sort((a, b) => {
-      const orderA = Number.isFinite(Number(a.order)) ? Number(a.order) : Number.MAX_SAFE_INTEGER;
-      const orderB = Number.isFinite(Number(b.order)) ? Number(b.order) : Number.MAX_SAFE_INTEGER;
+      const orderA = a.order != null && Number.isFinite(Number(a.order)) ? Number(a.order) : Number.MAX_SAFE_INTEGER;
+      const orderB = b.order != null && Number.isFinite(Number(b.order)) ? Number(b.order) : Number.MAX_SAFE_INTEGER;
       return orderA - orderB || String(a.id).localeCompare(String(b.id));
     });
 
@@ -119,7 +134,11 @@
     if (excerpt) excerpt.textContent = item.subtitle || '';
     if (kicker) kicker.textContent = 'BOOK / RECORD';
     if (detailLabel) detailLabel.textContent = 'ORIENTATION TRACE';
-    if (body) body.innerHTML = item.bodyHtml || fallbackBody(item);
+    if (body) {
+      const authoredBody = String(item.bodyHtml || '').trim();
+      if (authoredBody) body.innerHTML = authoredBody;
+      else if (!body.innerHTML.trim()) body.innerHTML = fallbackBody(item);
+    }
     if (back) {
       back.href = 'elsewhere.html#e02';
       back.textContent = '← COLLECTION · ELSEWHERE / BOOK';
