@@ -41,7 +41,7 @@
     const viewApi=window.GeoPlayBoundView;
     if(!fieldApi?.sample || !viewApi?.create) throw new Error('Bound V2 modules incomplete.');
 
-    GeoPlay.core.ensureStyle('play/bound/bound-v2.css?v=20261005a','bound-v2');
+    GeoPlay.core.ensureStyle('play/bound/bound-v2.css?v=20261005b','bound-v2');
 
     const shell=GeoPlay.shell.createV2(stage,{kind:'bound',title:'BOUND'});
     const states=['drawing','ready','committed','disturbing','decision','redrawing','result'];
