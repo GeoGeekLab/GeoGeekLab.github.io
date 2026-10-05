@@ -24,13 +24,24 @@ const fail = message => { throw new Error(`Visual readiness QA: ${message}`); };
 const runtimeFile = path.join(dist, 'visual-readiness.js');
 const runtime = await fs.readFile(runtimeFile, 'utf8').catch(() => '');
 if (!runtime) fail('missing dist/visual-readiness.js');
-for (const contract of ['pagehide', 'pageshow', 'event.persisted', 'beginLeave', '__GEOGEEK_VISUAL_READY__']) {
+for (const contract of [
+  'pagehide',
+  'pageshow',
+  'event.persisted',
+  'beginLeave',
+  '__GEOGEEK_VISUAL_READY__',
+  'waitForPreinitEnhancements',
+  'document.fonts'
+]) {
   if (!runtime.includes(contract)) fail(`runtime missing ${contract} contract`);
 }
 
 const sourcePreinit = await fs.readFile(path.join(site, 'ux-preinit.js'), 'utf8');
 if (/location\.replace\(['"]\/index\.html/.test(sourcePreinit)) {
   fail('ux-preinit still redirects / to /index.html');
+}
+for (const contract of ['__GEOGEEK_PREINIT_READY__', 'geogeek:preinit-ready', 'appendTrackedScript']) {
+  if (!sourcePreinit.includes(contract)) fail(`ux-preinit missing ${contract} readiness contract`);
 }
 
 let checked = 0;
