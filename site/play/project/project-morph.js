@@ -9,11 +9,12 @@
     fromRotate = [0,0,0],
     toRotate = [0,0,0]
   } = {}) {
-    if (!d3?.geoProjectionMutator || typeof fromRaw !== 'function' || typeof toRaw !== 'function') {
+    if (!d3?.geoProjectionMutator || !d3?.geoProjection || typeof fromRaw !== 'function' || typeof toRaw !== 'function') {
       throw new Error('Project morph requires D3 projection raw functions.');
     }
 
     const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
+    const sphere={type:'Sphere'};
     const mutate=d3.geoProjectionMutator(t => (lambda,phi) => {
       const a=fromRaw(lambda,phi);
       const b=toRaw(lambda,phi);
@@ -23,9 +24,11 @@
       ];
     });
     const projection=mutate(0).precision(.25);
-    const sphere={type:'Sphere'};
+    const startProjection=d3.geoProjection(fromRaw).precision(.25);
     const path=d3.geoPath(projection);
     let value=0;
+
+    startProjection.rotate(fromRotate).fitExtent(extent,sphere);
 
     function set(next) {
       value=clamp(next);
@@ -39,12 +42,18 @@
       return value;
     }
 
+    function invertStart(point) {
+      if(typeof startProjection.invert!=='function') return null;
+      return startProjection.invert(point);
+    }
+
     set(0);
 
     return {
       projection,
       path,
       set,
+      invertStart,
       get value() { return value; }
     };
   }
