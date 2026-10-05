@@ -84,6 +84,45 @@
 .book-record-page .record-body{
   max-width:860px;
 }
+.book-record-page .book-language-switch{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin:0 0 30px;
+  padding:0 0 13px;
+  border-bottom:1px solid var(--line-soft);
+  color:var(--muted);
+  font:650 9px/1 var(--mono);
+  letter-spacing:.08em;
+}
+.book-record-page .book-language-options{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.book-record-page .book-language-options button{
+  appearance:none;
+  border:1px solid var(--line);
+  background:transparent;
+  color:var(--muted);
+  min-height:30px;
+  padding:0 10px;
+  cursor:pointer;
+  font:650 9px/1 var(--mono);
+  letter-spacing:.055em;
+}
+.book-record-page .book-language-options button[aria-pressed="true"]{
+  border-color:var(--signal);
+  color:var(--signal);
+}
+.book-record-page .book-language-options button:focus-visible{
+  outline:2px solid var(--signal);
+  outline-offset:2px;
+}
+.book-record-page .book-language-panel[hidden]{
+  display:none;
+}
 .book-record-page .book-record-section{
   display:grid;
   grid-template-columns:150px minmax(0,1fr);
@@ -91,6 +130,7 @@
   padding:28px 0;
   border-top:1px solid var(--line-soft);
 }
+.book-record-page .book-language-panel > .book-record-section:first-child,
 .book-record-page .book-record-section:first-child{
   border-top:0;
   padding-top:0;
@@ -134,6 +174,11 @@
     gap:9px;
   }
   .book-unit-shift{display:none;}
+  .book-record-page .book-language-switch{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:10px;
+  }
   .book-record-page .book-record-section{
     grid-template-columns:1fr;
     gap:10px;
