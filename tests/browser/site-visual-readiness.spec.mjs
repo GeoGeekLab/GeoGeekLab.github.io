@@ -14,6 +14,11 @@ async function expectReady(page) {
   await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'ready');
   await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '0');
   await expect.poll(() => page.evaluate(() => window.__GEOGEEK_VISUAL_READY__)).toBe(true);
+
+  const hasPreinit = await page.locator('script[src*="ux-preinit.js"]').count();
+  if (hasPreinit) {
+    await expect.poll(() => page.evaluate(() => window.__GEOGEEK_PREINIT_READY__)).toBe(true);
+  }
 }
 
 test.describe('site-wide visual readiness', () => {
