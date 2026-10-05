@@ -57,7 +57,7 @@
       'play/orient/orient-trace-view.js?v=20261003h',
       'play/orient/orient-trace-enhancer.js?v=20261003h',
       'play/orient/orient-ergonomics.js?v=20261003i',
-      'play/orient/orient-v2-presentation.js?v=20261005b'
+      'play/orient/orient-v2-presentation.js?v=20261005c'
     ]
   };
   const REGISTER = {
