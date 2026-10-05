@@ -1,0 +1,109 @@
+.play-shell[data-play-kind="orient"]{
+  background:
+    radial-gradient(circle at 50% 47%,rgba(55,78,67,.14),transparent 44%),
+    linear-gradient(180deg,#080c0a,#060907 82%);
+}
+.play-shell[data-play-kind="orient"] .play-field-surface{
+  padding:30px 54px 56px;
+  background:
+    radial-gradient(circle at 50% 50%,rgba(241,239,231,.022),transparent 38%),
+    radial-gradient(circle at 50% 50%,transparent 46%,rgba(0,0,0,.16) 100%);
+}
+.play-shell[data-play-kind="orient"] .orient-map:not(.orient-primer-map){
+  width:min(82vh,82vw,840px);
+  filter:drop-shadow(0 30px 76px rgba(0,0,0,.3));
+}
+.play-shell[data-play-kind="orient"] .play-task{
+  width:min(470px,calc(100% - 40px));
+  padding:5px 0 5px 15px;
+  border:0;
+  border-left:2px solid rgba(241,239,231,.16);
+  border-radius:0;
+  background:linear-gradient(90deg,rgba(7,11,9,.84),rgba(7,11,9,.42) 72%,rgba(7,11,9,0));
+  backdrop-filter:none;
+  box-shadow:none;
+}
+.play-shell[data-play-kind="orient"] .play-task .play-pair strong{
+  font-size:clamp(24px,2.8vw,38px);
+  letter-spacing:-.045em;
+}
+.play-shell[data-play-kind="orient"] .play-task p{color:rgba(241,239,231,.5)}
+.play-shell[data-play-kind="orient"][data-play-state="judge"] .play-conditions{display:none}
+.play-shell[data-play-kind="orient"][data-play-state="judge"] .play-task{
+  background:linear-gradient(90deg,rgba(7,11,9,.8),rgba(7,11,9,.32) 70%,rgba(7,11,9,0));
+  border-left-color:rgba(209,99,57,.5);
+}
+.play-shell[data-play-kind="orient"] .play-conditions{
+  width:min(250px,28vw);
+  padding:7px 10px;
+  border:0;
+  border-top:1px solid rgba(241,239,231,.1);
+  border-radius:0;
+  background:linear-gradient(180deg,rgba(7,11,9,.7),rgba(7,11,9,.18));
+  backdrop-filter:none;
+}
+.play-shell[data-play-kind="orient"] .play-readout{
+  width:min(470px,calc(100% - 40px));
+  padding:12px 0 4px 15px;
+  border:0;
+  border-left:2px solid rgba(135,170,165,.46);
+  border-radius:0;
+  background:linear-gradient(90deg,rgba(7,11,9,.88),rgba(7,11,9,.56) 76%,rgba(7,11,9,0));
+  backdrop-filter:none;
+  box-shadow:none;
+}
+.play-shell[data-play-kind="orient"] .play-readout .play-metric{
+  padding:7px 0;
+  border:0;
+  border-top:1px solid rgba(241,239,231,.08);
+  border-radius:0;
+  background:none;
+}
+.play-shell[data-play-kind="orient"] .play-actions{
+  gap:8px;
+}
+.play-shell[data-play-kind="orient"] .play-action{
+  border-radius:9px;
+  background:rgba(209,99,57,.07);
+  border-color:rgba(209,99,57,.4);
+}
+.play-shell[data-play-kind="orient"] .orient-confidence{
+  padding-top:10px;
+  border-top:1px solid rgba(241,239,231,.08);
+}
+.play-shell[data-play-kind="orient"] .orient-confidence-option{
+  border-radius:8px;
+  background:rgba(241,239,231,.018);
+}
+.play-shell[data-play-kind="orient"][data-play-state="reveal"] .play-task,
+.play-shell[data-play-kind="orient"][data-play-state="compare"] .play-task{opacity:.42}
+.play-shell[data-play-kind="orient"][data-play-state="reveal"] .play-readout,
+.play-shell[data-play-kind="orient"][data-play-state="compare"] .play-readout{opacity:1}
+@media(min-width:681px){
+  .play-shell[data-play-kind="orient"] .play-actions{
+    left:50%;
+    max-width:min(520px,calc(100% - 40px));
+    transform:translateX(-50%);
+    justify-content:center;
+  }
+  .play-shell[data-play-kind="orient"][data-play-state="trace"] .play-actions{
+    left:auto;
+    transform:none;
+    justify-content:stretch;
+  }
+}
+@media(max-width:680px){
+  .play-shell[data-play-kind="orient"] .play-field-surface{padding:86px 8px 170px}
+  .play-shell[data-play-kind="orient"] .orient-map:not(.orient-primer-map){width:min(92vw,560px)}
+  .play-shell[data-play-kind="orient"] .play-task{
+    padding:4px 0 4px 12px;
+    border-left-width:2px;
+    background:linear-gradient(90deg,rgba(7,11,9,.9),rgba(7,11,9,.55) 84%,rgba(7,11,9,.06));
+  }
+  .play-shell[data-play-kind="orient"] .play-task .play-pair strong{font-size:22px}
+  .play-shell[data-play-kind="orient"][data-play-state="judge"] .play-conditions{display:none}
+  .play-shell[data-play-kind="orient"] .play-readout{
+    padding:9px 0 3px 12px;
+    background:linear-gradient(90deg,rgba(7,11,9,.94),rgba(7,11,9,.72) 88%,rgba(7,11,9,.18));
+  }
+}
