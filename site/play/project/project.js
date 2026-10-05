@@ -33,6 +33,7 @@
     if(!content?.AREA_EXPERIMENT || !content?.ROUTE_EXPERIMENT || !morphApi?.create || !areaViewApi?.create || !routeViewApi?.create) throw new Error('Project V2 modules incomplete.');
 
     GeoPlay.core.ensureStyle('play/project/project-v2.css?v=20261005c','project-v2');
+    GeoPlay.core.ensureStyle('play/play-signature.css?v=20261005a','play-signature');
 
     let world;
     try {
@@ -47,6 +48,12 @@
     const shell=GeoPlay.shell.createV2(stage,{kind:'project',title:'PROJECT'});
     const states=['predicting','transforming','revealed','routeDrawing','routeTransforming','routeResult'];
     const machine=GeoPlay.core.createStateMachine({initial:'predicting',states,onChange:state=>shell.setState(state)});
+
+    const setMorphAtmosphere=value=>{
+      const v=Math.max(0,Math.min(1,Number(value)||0));
+      shell.root.style.setProperty('--project-morph',v.toFixed(3));
+      shell.root.dataset.morphPhase=v<.08?'start':v>.92?'end':'moving';
+    };
 
     const areaExperiment=content.AREA_EXPERIMENT;
     const areaMorph=morphApi.create({d3,extent:[[70,70],[930,570]]});
@@ -77,6 +84,7 @@
       areaChoice=null;
       areaValue=0;
       areaTraced=false;
+      setMorphAtmosphere(0);
       if(machine.state!=='predicting') machine.set('predicting');
       areaView.showPrediction(id=>{
         areaChoice=id;
@@ -121,6 +129,8 @@
       const experiment=content.ROUTE_EXPERIMENT;
       routeValue=0;
       routeTraced=false;
+      delete shell.root.dataset.apparentAreaRatio;
+      setMorphAtmosphere(0);
       machine.set('routeDrawing');
       const routeMorph=morphApi.create({
         d3,
@@ -134,15 +144,18 @@
       routeView.showDraw({
         onReveal:()=>{
           if(routeView.getRoute().length<3) return;
+          routeValue=0;
+          setMorphAtmosphere(0);
           machine.set('routeTransforming');
           routeView.showReveal({
-            onInput:value=>{routeValue=value;},
+            onInput:value=>{routeValue=value;setMorphAtmosphere(value);},
             onFinish:()=>{
               if(routeValue<.98) return;
+              setMorphAtmosphere(routeValue);
               machine.set('routeResult');
               writeRouteTrace();
               routeView.showResult({
-                onInput:value=>{routeValue=value;},
+                onInput:value=>{routeValue=value;setMorphAtmosphere(value);},
                 onRestart:startRoute
               });
             }
