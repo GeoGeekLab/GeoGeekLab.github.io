@@ -107,7 +107,7 @@ if (fs.existsSync(bookContentDir)) {
 }
 bookRecords.sort((a, b) => {
   const orderA = a.data.order != null && Number.isFinite(Number(a.data.order)) ? Number(a.data.order) : Number.MAX_SAFE_INTEGER;
-  const orderB = b.data.order != null && Number.isFinite(Number(b.data.order)) ? Number(a.data.order) : Number.MAX_SAFE_INTEGER;
+  const orderB = b.data.order != null && Number.isFinite(Number(b.data.order)) ? Number(b.data.order) : Number.MAX_SAFE_INTEGER;
   return orderA - orderB || a.id.localeCompare(b.id);
 });
 
