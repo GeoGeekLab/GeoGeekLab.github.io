@@ -1,13 +1,18 @@
 (() => {
   'use strict';
 
-  function create({ d3, extent = [[70,70],[930,570]] } = {}) {
-    if (!d3?.geoProjectionMutator || !d3?.geoMercatorRaw || !d3?.geoEqualEarthRaw) {
+  function create({
+    d3,
+    extent = [[70,70],[930,570]],
+    fromRaw = d3?.geoMercatorRaw,
+    toRaw = d3?.geoEqualEarthRaw,
+    fromRotate = [0,0,0],
+    toRotate = [0,0,0]
+  } = {}) {
+    if (!d3?.geoProjectionMutator || typeof fromRaw !== 'function' || typeof toRaw !== 'function') {
       throw new Error('Project morph requires D3 projection raw functions.');
     }
 
-    const fromRaw=d3.geoMercatorRaw;
-    const toRaw=d3.geoEqualEarthRaw;
     const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
     const mutate=d3.geoProjectionMutator(t => (lambda,phi) => {
       const a=fromRaw(lambda,phi);
@@ -25,6 +30,11 @@
     function set(next) {
       value=clamp(next);
       mutate(value);
+      projection.rotate([
+        fromRotate[0]+(toRotate[0]-fromRotate[0])*value,
+        fromRotate[1]+(toRotate[1]-fromRotate[1])*value,
+        fromRotate[2]+(toRotate[2]-fromRotate[2])*value
+      ]);
       projection.fitExtent(extent,sphere);
       return value;
     }
