@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const runtime = '/visual-readiness.js?v=20261005a';
+const preinitVersion = '20261005a';
 
 const exists = file => fs.access(file).then(() => true).catch(() => false);
 
@@ -28,6 +29,17 @@ function shouldGate(relative) {
 
 function darkSurface(relative) {
   return /^origin\//i.test(relative);
+}
+
+function refreshCriticalBootstrap(html) {
+  // The old preinit contained the / -> /index.html redirect. Updating its source
+  // without changing the URL is insufficient because browsers and Pages may
+  // retain the previous version. Preserve relative path prefixes but force a new
+  // cache key anywhere ux-preinit participates in an entry document.
+  return html.replace(
+    /src=(['"])([^'"]*\/)?ux-preinit\.js(?:\?v=[^'"]*)?\1/gi,
+    (_match, quote, prefix = '') => `src=${quote}${prefix}ux-preinit.js?v=${preinitVersion}${quote}`
+  );
 }
 
 function removeDuplicateHomeNavigation(html, relative) {
@@ -77,6 +89,7 @@ for (const file of await htmlFiles(dist)) {
   const relative = path.relative(dist, file).replaceAll('\\', '/');
   if (!shouldGate(relative)) continue;
   let html = await fs.readFile(file, 'utf8');
+  html = refreshCriticalBootstrap(html);
   html = removeDuplicateHomeNavigation(html, relative);
   const patched = injectBoot(html, relative);
   await fs.writeFile(file, patched);
