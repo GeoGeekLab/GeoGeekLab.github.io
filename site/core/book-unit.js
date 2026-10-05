@@ -59,7 +59,7 @@
     }
 
     const conditions = [...document.querySelectorAll('.elsewhere-condition')];
-    const reading = conditions.find(node => node.querySelector('span')?.textContent.trim() === 'READING');
+    const reading = conditions.find(node => ['READING', 'BOOK'].includes(node.querySelector('span')?.textContent.trim()));
     if (reading) {
       const label = reading.querySelector('span');
       const title = reading.querySelector('strong');
@@ -113,6 +113,31 @@
     return sections.map(([label, value]) => `<section class="book-record-section"><div class="book-record-section-label">${escapeHtml(label)}</div><p>${escapeHtml(value)}</p></section>`).join('');
   };
 
+  function bindBookLanguages(root) {
+    if (!root) return;
+    const buttons = [...root.querySelectorAll('[data-book-lang-button]')];
+    const panels = [...root.querySelectorAll('[data-book-lang-panel]')];
+    if (!buttons.length || !panels.length) return;
+
+    const activate = language => {
+      buttons.forEach(button => {
+        const active = button.dataset.bookLangButton === language;
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      panels.forEach(panel => {
+        panel.hidden = panel.dataset.bookLangPanel !== language;
+      });
+    };
+
+    buttons.forEach(button => {
+      if (button.dataset.bookLangBound === 'true') return;
+      button.dataset.bookLangBound = 'true';
+      button.addEventListener('click', () => activate(button.dataset.bookLangButton || 'en'));
+    });
+    const selected = buttons.find(button => button.getAttribute('aria-pressed') === 'true')?.dataset.bookLangButton || 'en';
+    activate(selected);
+  }
+
   function renderBookRecord() {
     const ref = document.body?.dataset?.recordRef || new URLSearchParams(location.search).get('ref');
     const record = bookRecordFor(ref);
@@ -138,6 +163,7 @@
       const authoredBody = String(item.bodyHtml || '').trim();
       if (authoredBody) body.innerHTML = authoredBody;
       else if (!body.innerHTML.trim()) body.innerHTML = fallbackBody(item);
+      bindBookLanguages(body);
     }
     if (back) {
       back.href = 'elsewhere.html#e02';
