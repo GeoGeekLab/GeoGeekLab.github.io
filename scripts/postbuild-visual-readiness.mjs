@@ -30,6 +30,15 @@ function darkSurface(relative) {
   return /^origin\//i.test(relative);
 }
 
+function removeDuplicateHomeNavigation(html, relative) {
+  if (relative !== 'index.html') return html;
+  // GitHub Pages serves dist/index.html for both `/` and `/index.html`. The
+  // historical client redirect created an unnecessary second document
+  // navigation and a visible stale-frame opportunity. Keep the canonical link,
+  // remove only the redirect script inserted by the Origin handoff pass.
+  return html.replace(/\s*<script\b[^>]*data-geogeek-home-canonical[^>]*>[\s\S]*?<\/script>\s*/i, '\n');
+}
+
 function injectBoot(html, relative) {
   if (/data-geogeek-visual-readiness=(['"])true\1/i.test(html)) return html;
   const surface = darkSurface(relative) ? 'dark' : 'paper';
@@ -67,7 +76,8 @@ let count = 0;
 for (const file of await htmlFiles(dist)) {
   const relative = path.relative(dist, file).replaceAll('\\', '/');
   if (!shouldGate(relative)) continue;
-  const html = await fs.readFile(file, 'utf8');
+  let html = await fs.readFile(file, 'utf8');
+  html = removeDuplicateHomeNavigation(html, relative);
   const patched = injectBoot(html, relative);
   await fs.writeFile(file, patched);
   count += 1;
