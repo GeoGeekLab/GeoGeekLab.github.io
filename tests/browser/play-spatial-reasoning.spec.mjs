@@ -7,11 +7,20 @@ async function openPlay(page, instrument, kind) {
     });
   }
   await page.goto(`/lab.html?instrument=${instrument}`, { waitUntil:'domcontentloaded' });
-  const shell = page.locator(`.play-shell[data-play-kind="${kind}"]`);
+  const shell = page.locator(`.play-shell[data-play-kind="${kind}"], .play-v2-shell[data-play-kind="${kind}"]`);
   await expect(shell).toBeVisible({ timeout:20_000 });
   await expect(page.locator('#instrumentDialog')).toHaveAttribute('open', '');
-  await expect(shell).toHaveAttribute('data-play-state', 'judge', { timeout:5_000 });
+  const expectedState = kind === 'connect' ? 'planning' : kind === 'project' ? 'predicting' : kind === 'bound' ? 'drawing' : 'judge';
+  await expect(shell).toHaveAttribute('data-play-state', expectedState, { timeout:5_000 });
   return shell;
+}
+
+async function setRange(locator, value) {
+  await locator.evaluate((input, next) => {
+    input.value = String(next);
+    input.dispatchEvent(new Event('input', { bubbles:true }));
+    input.dispatchEvent(new Event('change', { bubbles:true }));
+  }, value);
 }
 
 test('ORIENT commits a keyboard spatial judgment with confidence and reveals separate residuals', async ({ page }) => {
@@ -30,20 +39,34 @@ test('ORIENT commits a keyboard spatial judgment with confidence and reveals sep
   await expect(shell).not.toContainText('SCORE');
 });
 
-test('BOUND holds threshold constant while one observation condition changes', async ({ page }) => {
+test('BOUND makes a boundary decision, changes observation resolution, and asks whether to keep the line', async ({ page }) => {
   const shell = await openPlay(page, 'zone', 'bound');
-  await shell.getByRole('button', { name:'COMMIT' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('CONDITION MET');
-  const threshold = await shell.locator('.bound-slider').inputValue();
-  await shell.getByRole('button', { name:'CHANGE ONE CONDITION →' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('EFFECT');
-  await expect(shell.locator('.play-conditions')).toContainText('UNCHANGED');
-  await expect(shell.locator('.play-conditions')).toContainText(Number(threshold).toFixed(3));
+  await expect(shell.locator('.bound-v2-panel')).toContainText('DRAW THE UNSAFE REGION');
+  await expect(shell.locator('.bound-slider')).toHaveCount(0);
+
+  await shell.getByRole('button', { name:'GUIDED REGION' }).click();
+  const commit = shell.getByRole('button', { name:'COMMIT REGION' });
+  await expect(commit).toBeEnabled();
+  await expect(shell.locator('.bound-v2-panel')).toContainText('COVERAGE');
+  await expect(shell.locator('.bound-v2-panel')).toContainText('AREA CLOSED');
+
+  await commit.click();
+  await expect(shell).toHaveAttribute('data-play-state', 'committed');
+  await shell.getByRole('button', { name:'CHANGE OBSERVATION' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'disturbing');
+  await expect(shell).toHaveAttribute('data-play-state', 'decision', { timeout:3_000 });
+  await expect(shell.locator('.bound-v2-panel')).toContainText('CHANGED CLASS');
+  await expect(shell.locator('.bound-v2-change')).toHaveClass(/is-visible/);
+
+  await shell.getByRole('button', { name:'KEEP LINE' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'result');
+  await expect(shell.locator('.bound-v2-panel')).toContainText('YOU KEPT THE LINE');
+  await expect(shell.locator('.bound-v2-panel')).toContainText('UNDER A NEW OBSERVATION');
 });
 
-test('CONNECT derives border adjacency, supports keyboard nodes, then changes relation', async ({ page }) => {
+test('CONNECT builds a route, changes the rule, and requires adaptation', async ({ page }) => {
   const shell = await openPlay(page, 'path', 'connect');
-  await expect(shell.locator('.play-conditions')).toContainText('NATURAL EARTH SHARED BORDER');
+  await expect(shell.locator('.connect-v2-stat').last()).toContainText('LAND BORDERS');
 
   for (const name of ['Spain', 'France', 'Germany', 'Poland']) {
     const node = shell.getByRole('button', { name });
@@ -51,42 +74,107 @@ test('CONNECT derives border adjacency, supports keyboard nodes, then changes re
     await page.keyboard.press('Enter');
   }
 
-  const commit = shell.getByRole('button', { name:'COMMIT PATH' });
-  await expect(commit).toBeEnabled();
-  await commit.click();
-  await expect(shell.locator('.play-readout')).toContainText('4 HOPS');
-  await shell.getByRole('button', { name:'CHANGE THE RELATION →' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('4 → 3 HOPS');
-  await expect(shell.locator('.connect-dual')).toBeVisible();
-  await expect(shell.locator('.play-readout')).toContainText('THE PLACES DID NOT MOVE');
+  const france = shell.getByRole('button', { name:'France' });
+  await expect(shell).toHaveAttribute('data-play-state', 'routeReady');
+  await expect(france).toHaveAttribute('tabindex', '0');
+  await expect(france).toHaveAttribute('aria-disabled', 'false');
+
+  const lock = shell.getByRole('button', { name:'LOCK ROUTE' });
+  await expect(lock).toBeEnabled();
+  await lock.click();
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('4 HOPS');
+  await expect(france).toHaveAttribute('tabindex', '-1');
+  await expect(france).toHaveAttribute('aria-disabled', 'true');
+
+  await shell.getByRole('button', { name:'CHANGE THE RULE' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'transforming');
+  await expect(shell.locator('.connect-v2-stat').last()).toContainText('DISTANCE ≤ 1200 KM');
+  await expect(shell).toHaveAttribute('data-play-state', 'adapting', { timeout:3_000 });
+
+  for (const name of ['France', 'Germany', 'Poland']) {
+    const node = shell.getByRole('button', { name });
+    await node.focus();
+    await page.keyboard.press('Enter');
+  }
+
+  await shell.getByRole('button', { name:'LOCK ROUTE' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'result');
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('3 HOPS');
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('OPTIMAL');
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText("THE PLACES DIDN'T MOVE");
+  await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('THE RELATION DID');
 });
 
-test('PROJECT traverses area, keyboard route, and viewpoint representation changes', async ({ page }) => {
+test('PROJECT morphs area and route representations continuously while preserving the underlying geography', async ({ page }) => {
   const shell = await openPlay(page, 'project', 'project');
+  const land = shell.locator('.project-v2-land');
+  const initialPath = await land.getAttribute('d');
 
-  await shell.getByRole('button', { name:'INDIA' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('SURFACE AREA');
-  await expect(shell.locator('.play-conditions')).toContainText('MERCATOR → EQUAL EARTH');
-  await shell.getByRole('button', { name:'NEXT REPRESENTATION →' }).click();
+  await shell.getByRole('button', { name:'GREENLAND' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'transforming');
 
-  const routeHit = shell.locator('.project-hit');
+  const scrubber = shell.locator('.project-v2-scrubber');
+  const reveal = shell.getByRole('button', { name:'REVEAL AREA' });
+  await expect(scrubber).toBeVisible();
+  await expect(reveal).toBeDisabled();
+
+  await setRange(scrubber, 50);
+  const middlePath = await land.getAttribute('d');
+  expect(middlePath).not.toBe(initialPath);
+
+  await setRange(scrubber, 100);
+  const equalEarthPath = await land.getAttribute('d');
+  expect(equalEarthPath).not.toBe(middlePath);
+  await expect(reveal).toBeEnabled();
+  await reveal.click();
+
+  await expect(shell).toHaveAttribute('data-play-state', 'revealed');
+  await expect(shell.locator('.project-v2-panel')).toContainText('INDIA');
+  await expect(shell.locator('.project-v2-panel')).toContainText('IS LARGER');
+  await expect(shell.locator('.project-v2-panel')).toContainText('THE MAP CHANGED.');
+  await expect(shell.locator('.project-v2-panel')).toContainText("THE AREA DIDN'T.");
+
+  const resultScrubber = shell.locator('.project-v2-scrubber');
+  await setRange(resultScrubber, 0);
+  const returnedPath = await land.getAttribute('d');
+  expect(returnedPath).not.toBe(equalEarthPath);
+
+  await shell.getByRole('button', { name:'NEXT: ROUTE' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'routeDrawing');
+
+  const routeHit = shell.locator('.project-v2-route-hit');
   await expect(routeHit).toHaveAttribute('tabindex', '0');
   await routeHit.focus();
   await page.keyboard.press('ArrowUp');
-  const routeCommit = shell.getByRole('button', { name:'COMMIT ROUTE' });
-  await expect(routeCommit).toBeEnabled();
-  await page.keyboard.press('Enter');
-  await expect(shell.locator('.play-readout')).toContainText('GEODESIC');
-  await shell.getByRole('button', { name:'CHANGE REPRESENTATION →' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('THE ROUTE DID NOT CHANGE');
-  await shell.getByRole('button', { name:'NEXT REPRESENTATION →' }).click();
 
-  await shell.getByRole('button', { name:'COMMIT VIEW' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('VISIBLE HEMISPHERE');
-  await shell.getByRole('button', { name:'CHANGE ONE CONDITION →' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('THE WORLD STAYED');
-  await shell.getByRole('button', { name:'VIEW TRACE →' }).click();
-  await expect(shell.locator('.play-trace-title')).toContainText('PROJECT');
-  await expect(shell.locator('.play-conditions')).toContainText('SCORE');
-  await expect(shell.locator('.play-conditions')).toContainText('NONE');
+  const routeReveal = shell.getByRole('button', { name:'REVEAL GEODESIC' });
+  await expect(routeReveal).toBeEnabled();
+  const judgment = shell.locator('.project-v2-route-judgment');
+  const judgmentMercator = await judgment.getAttribute('d');
+  expect(judgmentMercator).toBeTruthy();
+
+  await routeReveal.click();
+  await expect(shell).toHaveAttribute('data-play-state', 'routeTransforming');
+
+  const geodesic = shell.locator('.project-v2-geodesic');
+  const geodesicMercator = await geodesic.getAttribute('d');
+  const routeScrubber = shell.locator('.project-v2-route-scrubber');
+  const finish = shell.getByRole('button', { name:'FINISH' });
+  await expect(finish).toBeDisabled();
+
+  await setRange(routeScrubber, 50);
+  const geodesicMiddle = await geodesic.getAttribute('d');
+  const judgmentMiddle = await judgment.getAttribute('d');
+  expect(geodesicMiddle).not.toBe(geodesicMercator);
+  expect(judgmentMiddle).not.toBe(judgmentMercator);
+
+  await setRange(routeScrubber, 100);
+  const geodesicAzimuthal = await geodesic.getAttribute('d');
+  expect(geodesicAzimuthal).not.toBe(geodesicMiddle);
+  await expect(finish).toBeEnabled();
+  await finish.click();
+
+  await expect(shell).toHaveAttribute('data-play-state', 'routeResult');
+  await expect(shell.locator('.project-v2-panel')).toContainText("THE ROUTE DIDN'T CHANGE.");
+  await expect(shell.locator('.project-v2-panel')).toContainText('THE REPRESENTATION DID.');
 });

@@ -1,26 +1,165 @@
 (() => {
   'use strict';
+
   const D3_CDN='https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js';
   const TOPOJSON_CDN='https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js';
   const WORLD_ATLAS='https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
-  const TOKYO=[139.6503,35.6762], VANCOUVER=[-123.1207,49.2827], LIMA=[-77.0428,-12.0464];
-  async function loadWorld(signal,GeoPlay){await Promise.all([GeoPlay.core.loadScript(D3_CDN,'d3'),GeoPlay.core.loadScript(TOPOJSON_CDN,'topojson')]);const r=await fetch(WORLD_ATLAS,{signal});if(!r.ok)throw new Error('world');const topo=await r.json();return {land:window.topojson.feature(topo,topo.objects.land||topo.objects.countries),countries:window.topojson.feature(topo,topo.objects.countries).features};}
-  async function mountProject({signal,stage}={}){
-    const GeoPlay=window.GeoPlay;if(!GeoPlay?.core||!GeoPlay?.shell||!GeoPlay?.trace)throw new Error('GeoPlay runtime incomplete.');GeoPlay.core.ensureStyle('play/play.css?v=20261002b','play');let world;try{world=await loadWorld(signal,GeoPlay);}catch(e){stage.innerHTML='<div class="instrument-error"><strong>FIELD UNAVAILABLE</strong><p>World geometry could not be loaded.</p></div>';return()=>{};}if(signal?.aborted)return()=>{};
-    const d3=window.d3,shell=GeoPlay.shell.create(stage,{kind:'project',triad:'SURFACE / PROJECTION / DISTORTION'}),machine=GeoPlay.core.createStateMachine({initial:'observe',onChange:s=>shell.setState(s)});let trial=0;
-    const byId=id=>world.countries.find(f=>String(f.id)===String(id));
-    const greenland=byId(304),india=byId(356);
-    function baseSvg(){shell.field.innerHTML='';return d3.select(shell.field).append('svg').attr('class','project-map').attr('viewBox','0 0 1000 560').attr('role','application');}
-    function drawWorld(svg,projection,highlight=[]){const path=d3.geoPath(projection);svg.selectAll('*').remove();svg.append('path').datum({type:'Sphere'}).attr('class','project-sphere').attr('d',path);svg.append('path').datum(world.land).attr('class','project-land').attr('d',path);highlight.filter(Boolean).forEach((f,i)=>svg.append('path').datum(f).attr('class',`project-highlight project-highlight-${i}`).attr('d',path));}
-    function start(){if(trial===0)areaTrial();else if(trial===1)routeTrial();else viewpointTrial();}
-    function areaTrial(){machine.set('judge');const svg=baseSvg(),projection=d3.geoMercator().fitExtent([[25,30],[975,530]],{type:'Sphere'});drawWorld(svg,projection,[greenland,india]);shell.setTask('<div class="play-kicker">FIELD</div><div class="play-pair"><span>WHICH OCCUPIES MORE SURFACE AREA?</span><strong>GREENLAND / INDIA</strong></div><p>Make a judgment before the projection is declared.</p>');shell.setConditions([['REPRESENTATION','UNDECLARED'],['SURFACE','SPHERE'],['MEASURE','AREA']]);shell.setReadout('');shell.setFieldNote('JUDGMENT FIRST · PROJECTION SECOND');shell.setActions([{label:'GREENLAND',onClick:()=>revealArea('greenland')},{label:'INDIA',onClick:()=>revealArea('india')}]);}
-    function revealArea(choice){machine.set('reveal');const aG=greenland?d3.geoArea(greenland):0,aI=india?d3.geoArea(india):0;const larger=aI>aG?'INDIA':'GREENLAND';const svg=d3.select(shell.field).select('svg'),equal=d3.geoEqualEarth().fitExtent([[25,30],[975,530]],{type:'Sphere'});drawWorld(svg,equal,[greenland,india]);machine.set('compare');shell.setConditions([['CHANGED','PROJECTION'],['PROJECTION','MERCATOR → EQUAL EARTH'],['SURFACE','UNCHANGED'],['PRESERVES','AREA']]);shell.setReadout(`<div class="play-kicker">REVEAL</div><div class="play-metrics"><div class="play-metric"><span>JUDGMENT</span><strong>${choice.toUpperCase()}</strong></div><div class="play-metric"><span>SURFACE AREA</span><strong>${larger}</strong><em>IS LARGER</em></div></div><p>Mercator preserves local angle; Equal Earth preserves area. Neither preserves everything.</p>`);GeoPlay.trace.append({play:'project',trialId:'area',judgment:{choice},relation:{larger},result:{revised:choice!==larger.toLowerCase()},conditions:{before:{projection:'Mercator'},after:{projection:'Equal Earth'}},effect:{representation:'area'}});shell.setActions([{label:'NEXT REPRESENTATION →',onClick:()=>{trial=1;start();}}]);}
-    function routeTrial(){machine.set('judge');const svg=baseSvg(),projection=d3.geoMercator().fitExtent([[25,30],[975,530]],{type:'Sphere'});drawWorld(svg,projection);const pA=projection(TOKYO),pB=projection(VANCOUVER);svg.append('circle').attr('class','project-point').attr('cx',pA[0]).attr('cy',pA[1]).attr('r',6);svg.append('circle').attr('class','project-point project-target').attr('cx',pB[0]).attr('cy',pB[1]).attr('r',6);svg.append('text').attr('class','project-label').attr('x',pA[0]+10).attr('y',pA[1]-10).text('TOKYO');svg.append('text').attr('class','project-label').attr('x',pB[0]+10).attr('y',pB[1]-10).text('VANCOUVER');let pts=[],drawing=false;const judgment=svg.append('path').attr('class','project-judgment');const line=d3.line().curve(d3.curveBasis);const hit=svg.append('rect').attr('class','project-hit').attr('width',1000).attr('height',560);hit.on('pointerdown',e=>{drawing=true;pts=[d3.pointer(e,svg.node())];hit.node().setPointerCapture?.(e.pointerId);}).on('pointermove',e=>{if(!drawing)return;pts.push(d3.pointer(e,svg.node()));judgment.attr('d',line(pts));}).on('pointerup pointercancel',e=>{drawing=false;hit.node().releasePointerCapture?.(e.pointerId);renderActions();});function renderActions(){shell.setActions([{label:'RESET',secondary:true,onClick:()=>{pts=[];judgment.attr('d',null);renderActions();}},{label:'COMMIT ROUTE',disabled:pts.length<3,onClick:()=>revealRoute(svg,projection,judgment)}]);}shell.setTask('<div class="play-kicker">FIELD</div><div class="play-pair"><span>FROM / TO</span><strong>TOKYO → VANCOUVER</strong></div><p>Draw the surface route you expect to be shortest.</p>');shell.setConditions([['PROJECTION','MERCATOR'],['SURFACE','SPHERE'],['RELATION','UNREVEALED']]);shell.setReadout('');shell.setFieldNote('DRAW ROUTE · COMMIT BEFORE REVEAL');renderActions();}
-    function revealRoute(svg,mercator,judgment){machine.set('compare');const samples=d3.range(0,1.001,.02).map(t=>d3.geoInterpolate(TOKYO,VANCOUVER)(t));const geoLine={type:'LineString',coordinates:samples};svg.insert('path','.project-hit').datum(geoLine).attr('class','project-geodesic').attr('d',d3.geoPath(mercator));judgment.classed('is-ghost',true);shell.setReadout('<div class="play-kicker">REVEAL</div><div class="play-metric"><span>RELATION</span><strong>GEODESIC</strong><em>SURFACE SHORTEST PATH</em></div><p>Screen-straight and surface-shortest are not the same relation.</p>');shell.setActions([{label:'CHANGE REPRESENTATION →',onClick:()=>{const ae=d3.geoAzimuthalEquidistant().rotate([-TOKYO[0],-TOKYO[1]]).translate([500,280]).scale(170);drawWorld(svg,ae);svg.append('path').datum(geoLine).attr('class','project-geodesic').attr('d',d3.geoPath(ae));const a=ae(TOKYO),b=ae(VANCOUVER);svg.append('circle').attr('class','project-point').attr('cx',a[0]).attr('cy',a[1]).attr('r',6);svg.append('circle').attr('class','project-point project-target').attr('cx',b[0]).attr('cy',b[1]).attr('r',6);machine.set('perturb');shell.setConditions([['CHANGED','PROJECTION'],['PROJECTION','AZIMUTHAL EQUIDISTANT'],['CENTER','TOKYO'],['RELATION','GEODESIC · UNCHANGED']]);shell.setReadout('<div class="play-kicker">EFFECT</div><p>THE ROUTE DID NOT CHANGE. THE REPRESENTATION DID.</p>');GeoPlay.trace.append({play:'project',trialId:'route',judgment:{drawn:true},relation:{type:'geodesic'},result:{},conditions:{before:{projection:'Mercator'},after:{projection:'Azimuthal Equidistant',center:'Tokyo'}},effect:{representation:'route'}});shell.setActions([{label:'NEXT REPRESENTATION →',onClick:()=>{trial=2;start();}}]);}}]);}
-    function viewpointTrial(){machine.set('judge');let center=[20,10],drag=false,last=null;const svg=baseSvg(),layer=svg.append('g').attr('class','project-world-layer'),hit=svg.append('rect').attr('class','project-hit').attr('width',1000).attr('height',560);function draw(){const projection=d3.geoOrthographic().rotate([-center[0],-center[1]]).translate([500,280]).scale(245).clipAngle(90),path=d3.geoPath(projection);layer.selectAll('*').remove();layer.append('path').datum({type:'Sphere'}).attr('class','project-sphere').attr('d',path);layer.append('path').datum(world.land).attr('class','project-land').attr('d',path);[[TOKYO,'TOKYO'],[LIMA,'LIMA']].forEach(([coord,label])=>{if(d3.geoDistance(center,coord)<=Math.PI/2){const p=projection(coord);layer.append('circle').attr('class','project-point').attr('cx',p[0]).attr('cy',p[1]).attr('r',6);layer.append('text').attr('class','project-label').attr('x',p[0]+10).attr('y',p[1]-10).text(label);}});}hit.on('pointerdown',e=>{drag=true;last=[e.clientX,e.clientY];hit.node().setPointerCapture?.(e.pointerId);}).on('pointermove',e=>{if(!drag)return;const dx=e.clientX-last[0],dy=e.clientY-last[1];last=[e.clientX,e.clientY];center=[((center[0]-dx*.35+540)%360)-180,Math.max(-89,Math.min(89,center[1]+dy*.25))];draw();}).on('pointerup pointercancel',e=>{drag=false;hit.node().releasePointerCapture?.(e.pointerId);});draw();shell.setTask('<div class="play-kicker">FIELD</div><div class="play-pair"><span>TASK</span><strong>KEEP TOKYO + LIMA IN VIEW</strong></div><p>Drag the viewpoint, then commit the frame.</p>');shell.setConditions([['PROJECTION','ORTHOGRAPHIC'],['VIEWPOINT','USER-DEFINED'],['VISIBLE EXTENT','ONE HEMISPHERE']]);shell.setReadout('');shell.setFieldNote('CHANGE VIEWPOINT · SURFACE POSITIONS STAY FIXED');shell.setActions([{label:'COMMIT VIEW',onClick:()=>{const visible=[TOKYO,LIMA].filter(p=>d3.geoDistance(center,p)<=Math.PI/2).length;machine.set('compare');shell.setReadout(`<div class="play-kicker">VISIBLE HEMISPHERE</div><div class="play-metric"><span>VISIBLE</span><strong>${visible} / 2</strong></div>`);shell.setActions([{label:'CHANGE ONE CONDITION →',onClick:()=>{const mid=d3.geoInterpolate(TOKYO,LIMA)(.5);center=[mid[0],mid[1]];draw();machine.set('perturb');shell.setConditions([['CHANGED','VIEWPOINT'],['PROJECTION','ORTHOGRAPHIC · UNCHANGED'],['SURFACE POSITIONS','UNCHANGED']]);shell.setReadout('<div class="play-kicker">EFFECT</div><p>THE WORLD STAYED. THE REPRESENTATION CHANGED.</p>');GeoPlay.trace.append({play:'project',trialId:'viewpoint',judgment:{visible},relation:{visibleHemisphere:true},result:{},conditions:{before:{center:'user'},after:{center:'midpoint'}},effect:{representation:'viewpoint'}});shell.setActions([{label:'VIEW TRACE →',onClick:showTrace}]);}}]);}}]);}
-    function showTrace(){machine.set('trace');const records=GeoPlay.trace.forPlay('project').slice(-3);shell.field.innerHTML='<div class="play-trace-field"><div class="play-kicker">YOUR TRACE</div><strong class="play-trace-title">PROJECT</strong><p>THE WORLD STAYED. THE REPRESENTATION CHANGED.</p></div>';shell.setTask('<div class="play-kicker">TRACE</div><div class="play-pair"><strong>SURFACE / PROJECTION / DISTORTION</strong></div>');shell.setReadout(`<div class="play-metrics">${records.map(r=>`<div class="play-metric"><span>${r.trialId.toUpperCase()}</span><strong>${r.effect.representation?.toUpperCase()||'REPRESENTATION'}</strong><em>CONDITION CHANGED</em></div>`).join('')}</div><p>Open World as Relation for unconstrained projection exploration.</p>`);shell.setConditions([['TRACE','LOCAL ONLY'],['SCORE','NONE']]);shell.setActions([{label:'OPEN WORLD AS RELATION →',onClick:async()=>{window.GeoInstruments?.close?.();setTimeout(async()=>{const inst=await window.GeoModules?.loadInstrument?.('world');await inst?.openByKind?.('world',{updateUrl:true});},0);}}]);}
-    start();return()=>{stage.innerHTML='';};
+
+  async function loadWorld(signal,GeoPlay) {
+    await Promise.all([
+      GeoPlay.core.loadScript(D3_CDN,'d3'),
+      GeoPlay.core.loadScript(TOPOJSON_CDN,'topojson')
+    ]);
+    const response=await fetch(WORLD_ATLAS,{signal});
+    if(!response.ok) throw new Error(`world-atlas ${response.status}`);
+    const topology=await response.json();
+    return {
+      land:window.topojson.feature(topology,topology.objects.land||topology.objects.countries),
+      countries:window.topojson.feature(topology,topology.objects.countries).features
+    };
   }
-  function register(){const mounts=window.GeoGeekInstrumentMounts=window.GeoGeekInstrumentMounts||{};mounts.project=mountProject;}
-  window.GeoPlayProject={register,mount:mountProject};register();
+
+  async function mountProject({signal,stage}={}) {
+    const GeoPlay=window.GeoPlay;
+    const content=window.GeoPlayProjectContent;
+    const morphApi=window.GeoPlayProjectMorph;
+    const areaViewApi=window.GeoPlayProjectView;
+    if(!stage) throw new Error('Project requires an instrument stage.');
+    if(!GeoPlay?.core || !GeoPlay?.shell?.createV2 || !GeoPlay?.trace) throw new Error('GeoPlay V2 runtime incomplete.');
+    if(!window.GeoPlayProjectRouteView?.create) {
+      await GeoPlay.core.loadScript('play/project/project-route-view.js?v=20261005a','GeoPlayProjectRouteView');
+    }
+    const routeViewApi=window.GeoPlayProjectRouteView;
+    if(!content?.AREA_EXPERIMENT || !content?.ROUTE_EXPERIMENT || !morphApi?.create || !areaViewApi?.create || !routeViewApi?.create) throw new Error('Project V2 modules incomplete.');
+
+    GeoPlay.core.ensureStyle('play/project/project-v2.css?v=20261005c','project-v2');
+
+    let world;
+    try {
+      world=await loadWorld(signal,GeoPlay);
+    } catch(error) {
+      if(!signal?.aborted) stage.innerHTML='<div class="instrument-error"><strong>FIELD UNAVAILABLE</strong><p>World geometry could not be loaded.</p></div>';
+      return()=>{};
+    }
+    if(signal?.aborted) return()=>{};
+
+    const d3=window.d3;
+    const shell=GeoPlay.shell.createV2(stage,{kind:'project',title:'PROJECT'});
+    const states=['predicting','transforming','revealed','routeDrawing','routeTransforming','routeResult'];
+    const machine=GeoPlay.core.createStateMachine({initial:'predicting',states,onChange:state=>shell.setState(state)});
+
+    const areaExperiment=content.AREA_EXPERIMENT;
+    const areaMorph=morphApi.create({d3,extent:[[70,70],[930,570]]});
+    const areaView=areaViewApi.create({shell,d3,world,experiment:areaExperiment,morph:areaMorph});
+    let areaChoice=null;
+    let areaValue=0;
+    let areaTraced=false;
+    let routeView=null;
+    let routeValue=0;
+    let routeTraced=false;
+
+    function writeAreaTrace() {
+      if(areaTraced) return;
+      areaTraced=true;
+      const larger=areaExperiment.choices.reduce((best,item)=>item.areaKm2>best.areaKm2?item:best,areaExperiment.choices[0]);
+      GeoPlay.trace.append({
+        play:'project',
+        trialId:areaExperiment.id,
+        judgment:{choice:areaChoice},
+        relation:{larger:larger.id},
+        result:{correct:areaChoice===larger.id},
+        conditions:{before:{projection:areaExperiment.from.id},after:{projection:areaExperiment.to.id}},
+        effect:{representation:'area',surface:'unchanged'}
+      });
+    }
+
+    function showAreaPrediction() {
+      areaChoice=null;
+      areaValue=0;
+      areaTraced=false;
+      if(machine.state!=='predicting') machine.set('predicting');
+      areaView.showPrediction(id=>{
+        areaChoice=id;
+        areaValue=0;
+        machine.set('transforming');
+        areaView.showTransform({
+          choice:areaChoice,
+          value:areaValue,
+          onInput:value=>{areaValue=value;},
+          onReveal:()=>{
+            if(areaValue<.98) return;
+            machine.set('revealed');
+            writeAreaTrace();
+            areaView.showResult({
+              choice:areaChoice,
+              value:areaValue,
+              onInput:value=>{areaValue=value;},
+              onRestart:showAreaPrediction,
+              onNext:startRoute
+            });
+          }
+        });
+      });
+    }
+
+    function writeRouteTrace() {
+      if(routeTraced || !routeView) return;
+      routeTraced=true;
+      const experiment=content.ROUTE_EXPERIMENT;
+      GeoPlay.trace.append({
+        play:'project',
+        trialId:experiment.id,
+        judgment:{route:routeView.getRoute()},
+        relation:{type:'geodesic'},
+        result:{revealed:true},
+        conditions:{before:{projection:experiment.from.id},after:{projection:experiment.to.id,center:'Tokyo'}},
+        effect:{representation:'route',surfaceRoute:'unchanged'}
+      });
+    }
+
+    function startRoute() {
+      const experiment=content.ROUTE_EXPERIMENT;
+      routeValue=0;
+      routeTraced=false;
+      machine.set('routeDrawing');
+      const routeMorph=morphApi.create({
+        d3,
+        extent:[[70,70],[930,570]],
+        fromRaw:d3.geoMercatorRaw,
+        toRaw:d3.geoAzimuthalEquidistantRaw,
+        fromRotate:experiment.from.rotate,
+        toRotate:experiment.to.rotate
+      });
+      routeView=routeViewApi.create({shell,d3,world,experiment,morph:routeMorph});
+      routeView.showDraw({
+        onReveal:()=>{
+          if(routeView.getRoute().length<3) return;
+          machine.set('routeTransforming');
+          routeView.showReveal({
+            onInput:value=>{routeValue=value;},
+            onFinish:()=>{
+              if(routeValue<.98) return;
+              machine.set('routeResult');
+              writeRouteTrace();
+              routeView.showResult({
+                onInput:value=>{routeValue=value;},
+                onRestart:startRoute
+              });
+            }
+          });
+        }
+      });
+    }
+
+    showAreaPrediction();
+    return()=>{stage.innerHTML='';};
+  }
+
+  function register() {
+    const mounts=window.GeoGeekInstrumentMounts=window.GeoGeekInstrumentMounts||{};
+    mounts.project=mountProject;
+  }
+
+  window.GeoPlayProject={register,mount:mountProject};
+  register();
 })();

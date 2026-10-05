@@ -13,8 +13,8 @@
     project: 'project'
   };
   const COMMON = [
-    'play/play-core.js?v=20261002c',
-    'play/play-shell.js?v=20261002c',
+    'play/play-core.js?v=20261005a',
+    'play/play-shell.js?v=20261005b',
     'play/play-trace.js?v=20261002c'
   ];
   const PRE_SCRIPTS = {
@@ -24,6 +24,18 @@
       'play/orient/orient-metrics.js?v=20261003b',
       'play/orient/orient-state.js?v=20261003f',
       'play/orient/orient-storage.js?v=20261003f'
+    ],
+    path: [
+      'play/connect/connect-content.js?v=20261005a',
+      'play/connect/connect-graph.js?v=20261005a',
+      'play/connect/connect-game.js?v=20261005a',
+      'play/connect/connect-view.js?v=20261005a'
+    ],
+    project: [
+      'play/project/project-content.js?v=20261005c',
+      'play/project/project-morph.js?v=20261005c',
+      'play/project/project-view.js?v=20261005b',
+      'play/project/project-route-view.js?v=20261005b'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {
@@ -35,16 +47,17 @@
   };
   const SCRIPT = {
     locate: 'play/orient/orient.js?v=20261003f',
-    zone: 'play/bound/bound.js?v=20261002c',
-    path: 'play/connect/connect.js?v=20261002c',
-    project: 'play/project/project.js?v=20261002c'
+    zone: 'play/bound/bound.js?v=20261005c',
+    path: 'play/connect/connect.js?v=20261005b',
+    project: 'play/project/project.js?v=20261005d'
   };
   const OPTIONAL_POST_SCRIPTS = {
     locate: [
       'play/orient/orient-feedback.js?v=20261003g',
       'play/orient/orient-trace-view.js?v=20261003h',
       'play/orient/orient-trace-enhancer.js?v=20261003h',
-      'play/orient/orient-ergonomics.js?v=20261003i'
+      'play/orient/orient-ergonomics.js?v=20261003i',
+      'play/orient/orient-v2-presentation.js?v=20261005c'
     ]
   };
   const REGISTER = {
@@ -84,11 +97,11 @@
   function isPlayMounted(kind) {
     const stage = document.getElementById('instrumentStage');
     const domKind = PLAY_DOM_KIND[kind];
-    return Boolean(stage?.querySelector(`.play-shell[data-play-kind="${domKind}"]`));
+    return Boolean(stage?.querySelector(`.play-shell[data-play-kind="${domKind}"], .play-v2-shell[data-play-kind="${domKind}"]`));
   }
 
   function enableSvgButtonKeyboard(root = document) {
-    root.querySelectorAll('.play-shell[data-play-kind="connect"] .connect-node[role="button"]:not([data-keyboard-activation])').forEach(node => {
+    root.querySelectorAll('.play-shell[data-play-kind="connect"] .connect-node[role="button"]:not([data-keyboard-activation]), .play-v2-shell[data-play-kind="connect"] .connect-v2-node[role="button"]:not([data-keyboard-activation])').forEach(node => {
       node.dataset.keyboardActivation = '1';
       node.addEventListener('keydown', event => {
         if (event.key !== 'Enter' && event.key !== ' ') return;

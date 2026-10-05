@@ -67,5 +67,41 @@
     };
   }
 
-  GeoPlay.shell = { create };
+  function createV2(stage, { kind, title = kind } = {}) {
+    if (!stage) throw new Error('GeoPlay V2 shell requires a stage.');
+    GeoPlay.core?.ensureStyle?.('play/play-v2.css?v=20261005a','play-v2');
+    stage.innerHTML = `
+      <div class="play-v2-shell" data-play-kind="${kind || ''}" data-play-state="loading">
+        <header class="play-v2-header">
+          <div class="play-v2-title">${String(title || '').toUpperCase()}</div>
+          <div class="play-v2-status" aria-live="polite"></div>
+        </header>
+        <main class="play-v2-viewport" aria-label="${kind || 'Spatial'} play field"></main>
+        <div class="play-v2-hud"></div>
+        <div class="play-v2-overlay" aria-live="polite"></div>
+      </div>`;
+
+    const root = stage.querySelector('.play-v2-shell');
+    const viewport = root.querySelector('.play-v2-viewport');
+    const hud = root.querySelector('.play-v2-hud');
+    const overlay = root.querySelector('.play-v2-overlay');
+    const status = root.querySelector('.play-v2-status');
+    const titleNode = root.querySelector('.play-v2-title');
+
+    return {
+      root,
+      viewport,
+      hud,
+      overlay,
+      status,
+      title: titleNode,
+      setState(state) { root.dataset.playState = state; },
+      setStatus(text = '') { status.textContent = text; },
+      setTitle(text = '') { titleNode.textContent = String(text).toUpperCase(); },
+      clearOverlay() { overlay.innerHTML = ''; },
+      clearHud() { hud.innerHTML = ''; }
+    };
+  }
+
+  GeoPlay.shell = { create, createV2 };
 })();

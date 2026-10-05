@@ -1,167 +1,299 @@
 (() => {
   'use strict';
 
-  const D3_CDN = 'https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js';
-  const SIZE = 512;
-  const TRIALS = [
-    {
-      id: 'three-regions', title: 'FORM THREE REGIONS', target: { type: 'components', value: 3 },
-      peaks: [[.22,.30,.78,.10,.11],[.67,.28,.72,.11,.11],[.48,.72,.66,.11,.10]], noise:.01,
-      domain:[.18,.68], start:.45, resolution:128,
-      perturb:{ type:'resolution', from:128, to:32 }
-    },
-    {
-      id: 'two-peaks', title: 'KEEP TWO PEAKS SEPARATE', target: { type: 'components', value: 2 },
-      peaks: [[.41,.50,.78,.07,.14],[.59,.50,.75,.07,.14]], noise:0,
-      domain:[.62,.76], start:.69, resolution:128,
-      perturb:{ type:'smoothing', from:0, to:3 }
-    },
-    {
-      id: 'small-island', title: 'KEEP THE SMALL ISLAND', target: { type: 'components', value: 2 },
-      peaks: [[.34,.55,.84,.16,.16],[.735,.315,.58,.025,.025]], noise:0,
-      domain:[.36,.56], start:.50, resolution:128,
-      perturb:{ type:'resolution', from:128, to:16 }
-    }
-  ];
+  const SCENARIO = {
+    id:'flood-risk',
+    title:'DRAW THE UNSAFE REGION',
+    riskThreshold:.52,
+    initialResolution:96,
+    disturbedResolution:24,
+    targetCoverage:.70,
+    maxAreaCost:.30,
+    riskPeaks:[
+      [.32,.38,.88,.16,.15],
+      [.63,.58,.72,.20,.17],
+      [.70,.27,.42,.11,.10]
+    ],
+    populationPeaks:[
+      [.37,.43,.92,.13,.12],
+      [.58,.60,.78,.14,.13],
+      [.73,.31,.48,.08,.08]
+    ],
+    riskTexture:.025
+  };
 
-  const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
-  function fieldValue(spec, x, y) {
-    let value = 0;
-    spec.peaks.forEach(([cx,cy,a,sx,sy]) => {
-      const dx=(x-cx)/sx, dy=(y-cy)/sy;
-      value += a * Math.exp(-.5 * (dx*dx + dy*dy));
-    });
-    value += spec.noise * (Math.sin((x*19.7 + y*7.3) * Math.PI) + Math.cos((y*17.1 - x*5.9) * Math.PI)) * .5;
-    return clamp(value, 0, 1);
-  }
-
-  function sample(spec, n) {
-    const values = new Float32Array(n*n);
-    for (let y=0;y<n;y++) for (let x=0;x<n;x++) values[y*n+x] = fieldValue(spec,(x+.5)/n,(y+.5)/n);
-    return values;
-  }
-
-  function smooth(values, n, radius) {
-    if (!radius) return values;
-    let src = Float32Array.from(values), dst = new Float32Array(values.length);
-    for (let pass=0; pass<2; pass++) {
-      for (let y=0;y<n;y++) for (let x=0;x<n;x++) {
-        let sum=0,count=0;
-        for (let oy=-radius;oy<=radius;oy++) for (let ox=-radius;ox<=radius;ox++) {
-          const xx=x+ox, yy=y+oy;
-          if (xx>=0&&xx<n&&yy>=0&&yy<n) { sum+=src[yy*n+xx]; count++; }
-        }
-        dst[y*n+x]=sum/count;
-      }
-      [src,dst]=[dst,src];
-    }
-    return src;
-  }
-
-  function measure(values, n, threshold, contour) {
-    let inside=0;
-    values.forEach(v => { if (v >= threshold) inside++; });
-    let perimeter=0;
-    (contour?.coordinates || []).forEach(poly => poly.forEach(ring => {
-      for (let i=1;i<ring.length;i++) perimeter += Math.hypot(ring[i][0]-ring[i-1][0], ring[i][1]-ring[i-1][1]);
-    }));
-    return { components: contour?.coordinates?.length || 0, area: inside/(n*n), perimeter: perimeter/n };
+  function pct(value) {
+    return `${Math.round((Number(value)||0)*100)}%`;
   }
 
   async function mountBound({ signal, stage } = {}) {
-    const GeoPlay = window.GeoPlay;
-    if (!GeoPlay?.core || !GeoPlay?.shell || !GeoPlay?.trace) throw new Error('GeoPlay runtime incomplete.');
-    GeoPlay.core.ensureStyle('play/play.css?v=20261002b', 'play');
-    await GeoPlay.core.loadScript(D3_CDN, 'd3');
-    if (signal?.aborted) return () => {};
+    const GeoPlay=window.GeoPlay;
+    if(!stage) throw new Error('Bound requires an instrument stage.');
+    if(!GeoPlay?.core || !GeoPlay?.shell?.createV2 || !GeoPlay?.trace) throw new Error('GeoPlay V2 runtime incomplete.');
 
-    const d3=window.d3;
-    const shell=GeoPlay.shell.create(stage,{kind:'bound',triad:'FIELD / THRESHOLD / SCALE'});
-    const machine=GeoPlay.core.createStateMachine({initial:'observe',onChange:s=>shell.setState(s)});
-    let trialIndex=0, threshold=0, resolution=128, smoothing=0, values=null, contour=null, result=null, before=null;
+    await Promise.all([
+      GeoPlay.core.loadScript('play/bound/bound-field.js?v=20261005a','GeoPlayBoundField'),
+      GeoPlay.core.loadScript('play/bound/bound-view.js?v=20261005a','GeoPlayBoundView')
+    ]);
+    if(signal?.aborted) return()=>{};
 
-    const wrap=document.createElement('div'); wrap.className='bound-stage';
-    const canvas=document.createElement('canvas'); canvas.width=SIZE; canvas.height=SIZE; canvas.className='bound-canvas';
-    const svg=d3.select(wrap).append('svg').attr('class','bound-contours').attr('viewBox',`0 0 ${SIZE} ${SIZE}`);
-    wrap.prepend(canvas); shell.field.appendChild(wrap);
-    const ctx=canvas.getContext('2d');
+    const fieldApi=window.GeoPlayBoundField;
+    const viewApi=window.GeoPlayBoundView;
+    if(!fieldApi?.sample || !viewApi?.create) throw new Error('Bound V2 modules incomplete.');
 
-    function renderField() {
-      const image=ctx.createImageData(resolution,resolution);
-      for(let i=0;i<values.length;i++) {
-        const v=values[i], c=Math.round(18 + v*118);
-        image.data[i*4]=c*.74; image.data[i*4+1]=c*.86; image.data[i*4+2]=c*.79; image.data[i*4+3]=255;
+    GeoPlay.core.ensureStyle('play/bound/bound-v2.css?v=20261005b','bound-v2');
+
+    const shell=GeoPlay.shell.createV2(stage,{kind:'bound',title:'BOUND'});
+    const states=['drawing','ready','committed','disturbing','decision','redrawing','result'];
+    const machine=GeoPlay.core.createStateMachine({initial:'drawing',states,onChange:state=>shell.setState(state)});
+    shell.setState(machine.state);
+
+    const beforeGrid=fieldApi.sample(SCENARIO,SCENARIO.initialResolution);
+    const afterGrid=fieldApi.sample(SCENARIO,SCENARIO.disturbedResolution);
+    const change=fieldApi.classificationChange(beforeGrid,afterGrid,{riskThreshold:SCENARIO.riskThreshold});
+
+    let view=null;
+    let boundary=[];
+    let originalBoundary=[];
+    let beforeMetrics=null;
+    let disturbedMetrics=null;
+    let finalMetrics=null;
+    let decision=null;
+    let traceWritten=false;
+    let disturbanceTimer=null;
+
+    function button(label,onClick,{secondary=false,disabled=false}={}) {
+      const node=document.createElement('button');
+      node.type='button';
+      node.className=`bound-v2-action${secondary?' is-secondary':''}`;
+      node.textContent=label;
+      node.disabled=disabled;
+      node.addEventListener('click',onClick);
+      return node;
+    }
+
+    function metricMarkup(metrics) {
+      const coverage=metrics?.coverage ?? 0;
+      const area=metrics?.areaCost ?? 0;
+      return `<div class="bound-v2-metrics"><div class="bound-v2-metric"><span>COVERAGE</span><strong>${pct(coverage)}</strong><em>TARGET ≥ ${pct(SCENARIO.targetCoverage)}</em></div><div class="bound-v2-metric"><span>AREA CLOSED</span><strong>${pct(area)}</strong><em>TARGET ≤ ${pct(SCENARIO.maxAreaCost)}</em></div></div>`;
+    }
+
+    function setHud(resolution=SCENARIO.initialResolution) {
+      shell.hud.innerHTML=`<div class="bound-v2-hud-item"><span>SCENARIO</span><strong>FLOOD RISK</strong></div><div class="bound-v2-hud-item"><span>OBSERVATION</span><strong>${resolution} × ${resolution}</strong></div><div class="bound-v2-hud-item"><span>RULE</span><strong>RISK ≥ ${(SCENARIO.riskThreshold).toFixed(2)}</strong></div>`;
+    }
+
+    function evaluateCurrent(grid=beforeGrid) {
+      if(boundary.length<3) return null;
+      return fieldApi.evaluate(grid,boundary,{riskThreshold:SCENARIO.riskThreshold});
+    }
+
+    function setBoundary(points) {
+      boundary=(points||[]).map(point=>[...point]);
+      if(machine.state==='drawing' && boundary.length>=3) machine.set('ready');
+      view?.setBoundary(boundary,{emit:false});
+      const metrics=evaluateCurrent(machine.state==='redrawing'?afterGrid:beforeGrid);
+      renderDrawingPanel(metrics);
+    }
+
+    function guided() {
+      setBoundary(fieldApi.guidedBoundary());
+    }
+
+    function nudge(transform) {
+      const source=boundary.length>=3?boundary:fieldApi.guidedBoundary();
+      setBoundary(fieldApi.transformBoundary(source,transform));
+    }
+
+    function renderDrawingPanel(metrics=null) {
+      const isRedraw=machine.state==='redrawing';
+      const panel=document.createElement('div');
+      panel.className='bound-v2-panel';
+      panel.innerHTML=`<span>${isRedraw?'REDRAW':'DECISION'}</span><h2>${isRedraw?'MOVE THE LINE':'DRAW THE UNSAFE REGION'}</h2><p>${isRedraw?'The old line stays visible. Draw a new region under the lower-resolution observation.':'Protect at least 70% of at-risk residents while closing no more than 30% of the field.'}</p>${metrics?metricMarkup(metrics):'<div class="bound-v2-metrics"><div class="bound-v2-metric"><span>COVERAGE</span><strong>—</strong><em>DRAW A CLOSED REGION</em></div><div class="bound-v2-metric"><span>AREA CLOSED</span><strong>—</strong><em>DRAW A CLOSED REGION</em></div></div>'}`;
+      const actions=document.createElement('div');
+      actions.className='bound-v2-actions';
+      actions.appendChild(button('RESET',()=>{
+        boundary=[];
+        if(machine.state==='ready') machine.set('drawing');
+        view.clearBoundary({keepOld:isRedraw});
+        renderDrawingPanel(null);
+        view.focus();
+      },{secondary:true}));
+      actions.appendChild(button('GUIDED REGION',guided,{secondary:true}));
+      actions.appendChild(button(isRedraw?'COMMIT NEW LINE':'COMMIT REGION',isRedraw?commitRedraw:commitInitial,{disabled:!metrics}));
+      panel.appendChild(actions);
+      shell.overlay.innerHTML='';
+      shell.overlay.appendChild(panel);
+    }
+
+    function onBoundary(points) {
+      boundary=(points||[]).map(point=>[...point]);
+      if(boundary.length<3) {
+        if(machine.state==='ready') machine.set('drawing');
+        renderDrawingPanel(null);
+        return;
       }
-      const off=document.createElement('canvas'); off.width=resolution; off.height=resolution;
-      off.getContext('2d').putImageData(image,0,0);
-      ctx.imageSmoothingEnabled=true; ctx.clearRect(0,0,SIZE,SIZE); ctx.drawImage(off,0,0,SIZE,SIZE);
+      if(machine.state==='drawing') machine.set('ready');
+      const grid=machine.state==='redrawing'?afterGrid:beforeGrid;
+      renderDrawingPanel(fieldApi.evaluate(grid,boundary,{riskThreshold:SCENARIO.riskThreshold}));
     }
 
-    function compute() {
-      const spec=TRIALS[trialIndex];
-      const raw=sample(spec,resolution); values=smooth(raw,resolution,smoothing);
-      contour=d3.contours().size([resolution,resolution]).thresholds([threshold])(Array.from(values))[0] || {type:'MultiPolygon',coordinates:[]};
-      result=measure(values,resolution,threshold,contour);
-      renderField();
-      const path=d3.geoPath(d3.geoIdentity().scale(SIZE/resolution));
-      svg.selectAll('*').remove();
-      svg.append('path').datum(contour).attr('class','bound-region').attr('d',path);
-      svg.append('path').datum(contour).attr('class','bound-line').attr('d',path);
+    function commitInitial() {
+      if(boundary.length<3 || !['drawing','ready'].includes(machine.state)) return;
+      originalBoundary=boundary.map(point=>[...point]);
+      beforeMetrics=fieldApi.evaluate(beforeGrid,originalBoundary,{riskThreshold:SCENARIO.riskThreshold});
+      machine.set('committed');
+      view.setDrawing(false);
+      const panel=document.createElement('div');
+      panel.className='bound-v2-panel';
+      panel.innerHTML=`<span>YOUR LINE</span><h2>COMMITTED</h2>${metricMarkup(beforeMetrics)}<p>The line is fixed. Now change only the observation resolution.</p>`;
+      const actions=document.createElement('div');
+      actions.className='bound-v2-actions';
+      actions.appendChild(button('CHANGE OBSERVATION',disturb));
+      panel.appendChild(actions);
+      shell.overlay.innerHTML='';
+      shell.overlay.appendChild(panel);
     }
 
-    function sliderMarkup(spec) {
-      return `<label class="bound-slider-label"><span>THRESHOLD</span><input class="bound-slider" type="range" min="${spec.domain[0]}" max="${spec.domain[1]}" step="0.005" value="${threshold}"></label>`;
+    function disturb() {
+      if(machine.state!=='committed') return;
+      machine.set('disturbing');
+      view.setDisturbing(true);
+      view.setDrawing(false);
+      setHud(SCENARIO.disturbedResolution);
+      shell.setStatus('OBSERVATION CHANGE');
+      const panel=document.createElement('div');
+      panel.className='bound-v2-panel';
+      panel.innerHTML=`<span>OBSERVATION CHANGE</span><h2>${SCENARIO.initialResolution} → ${SCENARIO.disturbedResolution}</h2><p>The field source stays the same. Only sampling resolution changes.</p>`;
+      shell.overlay.innerHTML='';
+      shell.overlay.appendChild(panel);
+      const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+      window.clearTimeout(disturbanceTimer);
+      disturbanceTimer=window.setTimeout(()=>{
+        view.renderGrid(afterGrid);
+        view.showChangeMask(change);
+        view.setDisturbing(false);
+        disturbedMetrics=fieldApi.evaluate(afterGrid,originalBoundary,{riskThreshold:SCENARIO.riskThreshold});
+        machine.set('decision');
+        renderDecision();
+      },reduced?80:850);
     }
 
-    function drawTrial() {
-      const spec=TRIALS[trialIndex]; machine.set('observe'); threshold=spec.start; resolution=spec.resolution; smoothing=0; before=null;
-      compute();
-      shell.setTask(`<div class="play-kicker">FIELD</div><div class="play-pair"><span>TASK</span><strong>${spec.title}</strong></div>${sliderMarkup(spec)}<p>Move the rule. Read the geometry before the metrics.</p>`);
-      const slider=shell.task.querySelector('.bound-slider');
-      slider.addEventListener('input',()=>{ threshold=Number(slider.value); compute(); });
-      shell.setReadout('');
-      shell.setConditions([['FIELD','SYNTHETIC SCALAR'],['RESOLUTION',`${resolution} × ${resolution}`],['SMOOTHING','NONE'],['RULE','F(x,y) ≥ τ']]);
-      shell.setFieldNote(`FIELD ${trialIndex+1} / ${TRIALS.length} · GEOMETRY FIRST, NUMBER SECOND`);
-      shell.setActions([{label:'COMMIT',onClick:commit}]); requestAnimationFrame(()=>machine.set('judge'));
+    function renderDecision() {
+      shell.setStatus('LOWER RESOLUTION');
+      const panel=document.createElement('div');
+      panel.className='bound-v2-panel';
+      panel.innerHTML=`<span>CONSEQUENCE</span><h2>THE FIELD WAS RESAMPLED.</h2><div class="bound-v2-metrics"><div class="bound-v2-metric"><span>COVERAGE</span><strong>${pct(beforeMetrics.coverage)} → ${pct(disturbedMetrics.coverage)}</strong><em>SAME LINE</em></div><div class="bound-v2-metric"><span>CHANGED CLASS</span><strong>${pct(change.fraction)}</strong><em>WORLD SOURCE UNCHANGED</em></div></div><p>Your boundary did not move. The observation did.</p>`;
+      const actions=document.createElement('div');
+      actions.className='bound-v2-actions';
+      actions.appendChild(button('KEEP LINE',keepLine,{secondary:true}));
+      actions.appendChild(button('REDRAW',beginRedraw));
+      panel.appendChild(actions);
+      shell.overlay.innerHTML='';
+      shell.overlay.appendChild(panel);
     }
 
-    function commit() {
-      if(machine.state!=='judge') return;
-      machine.set('commit'); before={...result,resolution,smoothing,threshold};
-      const target=TRIALS[trialIndex].target;
-      const met=result.components===target.value;
-      machine.set('compare');
-      shell.setReadout(`<div class="play-kicker">${met?'CONDITION MET':'OBSERVED'}</div><div class="play-metrics"><div class="play-metric"><span>THRESHOLD</span><strong>${threshold.toFixed(3)}</strong></div><div class="play-metric"><span>COMPONENTS</span><strong>${result.components}</strong></div><div class="play-metric"><span>AREA</span><strong>${(result.area*100).toFixed(1)}%</strong></div></div>`);
-      if(!met) { shell.setActions([{label:'REVISE',onClick:()=>{machine.set('judge');shell.setReadout('');shell.setActions([{label:'COMMIT',onClick:commit}]);}}]); return; }
-      shell.setActions([{label:'CHANGE ONE CONDITION →',onClick:perturb}]);
+    function keepLine() {
+      if(machine.state!=='decision') return;
+      decision='keep';
+      finalMetrics=disturbedMetrics;
+      showResult();
     }
 
-    function perturb() {
-      machine.set('perturb'); const spec=TRIALS[trialIndex], p=spec.perturb;
-      if(p.type==='resolution') resolution=p.to; else smoothing=p.to;
-      compute();
-      const perimeterChange=before.perimeter ? (result.perimeter-before.perimeter)/before.perimeter*100 : 0;
-      const areaChange=before.area ? (result.area-before.area)/before.area*100 : 0;
-      shell.setConditions([['THRESHOLD',`${threshold.toFixed(3)} · UNCHANGED`],[p.type==='resolution'?'RESOLUTION':'SMOOTHING',`${p.from} → ${p.to}`],['FIELD SOURCE','UNCHANGED']]);
-      shell.setReadout(`<div class="play-kicker">EFFECT</div><div class="play-metrics"><div class="play-metric"><span>COMPONENTS</span><strong>${before.components} → ${result.components}</strong></div><div class="play-metric"><span>AREA</span><strong>${areaChange>=0?'+':''}${areaChange.toFixed(1)}%</strong></div><div class="play-metric"><span>PERIMETER</span><strong>${perimeterChange>=0?'+':''}${perimeterChange.toFixed(1)}%</strong></div></div>`);
-      GeoPlay.trace.append({play:'bound',trialId:spec.id,judgment:{threshold:before.threshold},relation:{target:spec.target},result:{components:before.components,area:before.area},conditions:{before:{resolution:before.resolution,smoothing:before.smoothing},after:{resolution,smoothing}},effect:{components:[before.components,result.components],areaChange,perimeterChange}});
-      shell.setFieldNote('SAME FIELD SOURCE · SAME THRESHOLD · ONE CONDITION CHANGED');
-      shell.setActions([{label:trialIndex<TRIALS.length-1?'NEXT FIELD →':'VIEW TRACE →',onClick:()=>{ if(trialIndex<TRIALS.length-1){trialIndex++;drawTrial();}else showTrace(); }}]);
+    function beginRedraw() {
+      if(machine.state!=='decision') return;
+      decision='redraw';
+      machine.set('redrawing');
+      view.clearChangeMask();
+      view.setBoundary(originalBoundary,{old:true,emit:false});
+      boundary=[];
+      view.setBoundary([],{emit:false});
+      view.setDrawing(true);
+      renderDrawingPanel(null);
+      view.focus();
     }
 
-    function showTrace() {
-      machine.set('trace');
-      const records=GeoPlay.trace.forPlay('bound').slice(-TRIALS.length);
-      shell.field.innerHTML=`<div class="play-trace-field"><div class="play-kicker">YOUR TRACE</div><strong class="play-trace-title">BOUND</strong><p>Boundary is a result of a field, a rule, and an observation condition.</p></div>`;
-      shell.setTask('<div class="play-kicker">TRACE</div><div class="play-pair"><strong>FIELD / THRESHOLD / SCALE</strong></div>');
-      shell.setReadout(`<div class="play-metrics">${records.map(r=>`<div class="play-metric"><span>${r.trialId.toUpperCase().replaceAll('-',' ')}</span><strong>${r.effect.components?.join(' → ') || '—'} COMPONENTS</strong><em>${r.conditions.before.resolution!==r.conditions.after.resolution?'RESOLUTION CHANGED':'SMOOTHING CHANGED'}</em></div>`).join('')}</div>`);
-      shell.setConditions([['TRACE','LOCAL ONLY'],['SCORE','NONE']]); shell.setActions([]);
+    function commitRedraw() {
+      if(machine.state!=='redrawing' || boundary.length<3) return;
+      finalMetrics=fieldApi.evaluate(afterGrid,boundary,{riskThreshold:SCENARIO.riskThreshold});
+      showResult();
     }
 
-    drawTrial();
-    return ()=>{ stage.innerHTML=''; };
+    function writeTrace(shift) {
+      if(traceWritten) return;
+      traceWritten=true;
+      GeoPlay.trace.append({
+        play:'bound',
+        trialId:SCENARIO.id,
+        judgment:{decision,beforeBoundary:originalBoundary,afterBoundary:decision==='redraw'?boundary:originalBoundary},
+        relation:{riskThreshold:SCENARIO.riskThreshold},
+        result:{before:beforeMetrics,afterObservation:disturbedMetrics,final:finalMetrics},
+        conditions:{before:{resolution:SCENARIO.initialResolution},after:{resolution:SCENARIO.disturbedResolution}},
+        effect:{classificationChanged:change.fraction,boundaryShift:shift}
+      });
+    }
+
+    function showResult() {
+      machine.set('result');
+      view.setDrawing(false);
+      view.clearChangeMask();
+      const finalBoundary=decision==='redraw'?boundary:originalBoundary;
+      if(decision==='redraw') view.setBoundary(finalBoundary,{emit:false});
+      const shift=decision==='redraw'?fieldApi.boundaryShift(originalBoundary,finalBoundary):0;
+      writeTrace(shift);
+      const panel=document.createElement('div');
+      panel.className='bound-v2-panel';
+      panel.innerHTML=`<span>RESULT</span><div class="bound-v2-result">${decision==='redraw'?'YOU MOVED THE LINE':'YOU KEPT THE LINE'}<small>${decision==='redraw'?`${pct(shift)} OF THE FIELD CHANGED SIDE`:'UNDER A NEW OBSERVATION'}</small></div>${metricMarkup(finalMetrics)}<p>${pct(change.fraction)} of sampled cells changed risk class without the field source changing.</p>`;
+      const actions=document.createElement('div');
+      actions.className='bound-v2-actions';
+      actions.appendChild(button('PLAY AGAIN',restart,{secondary:true}));
+      panel.appendChild(actions);
+      shell.overlay.innerHTML='';
+      shell.overlay.appendChild(panel);
+    }
+
+    function restart() {
+      window.clearTimeout(disturbanceTimer);
+      boundary=[];
+      originalBoundary=[];
+      beforeMetrics=null;
+      disturbedMetrics=null;
+      finalMetrics=null;
+      decision=null;
+      traceWritten=false;
+      if(machine.state!=='drawing') machine.set('drawing');
+      shell.setStatus('');
+      setHud(SCENARIO.initialResolution);
+      view.clearChangeMask();
+      view.setDisturbing(false);
+      view.clearBoundary();
+      view.renderGrid(beforeGrid);
+      view.setDrawing(true);
+      renderDrawingPanel(null);
+      view.focus();
+    }
+
+    view=viewApi.create({
+      shell,
+      fieldApi,
+      callbacks:{onBoundary,onGuided:guided,onNudge:nudge}
+    });
+    setHud(SCENARIO.initialResolution);
+    view.renderGrid(beforeGrid);
+    view.setDrawing(true);
+    renderDrawingPanel(null);
+    queueMicrotask(()=>view.focus());
+
+    return()=>{
+      window.clearTimeout(disturbanceTimer);
+      stage.innerHTML='';
+    };
   }
 
-  function register() { const mounts=window.GeoGeekInstrumentMounts=window.GeoGeekInstrumentMounts||{}; mounts.zone=mountBound; }
-  window.GeoPlayBound={register,mount:mountBound}; register();
+  function register() {
+    const mounts=window.GeoGeekInstrumentMounts=window.GeoGeekInstrumentMounts||{};
+    mounts.zone=mountBound;
+  }
+
+  window.GeoPlayBound={register,mount:mountBound};
+  register();
 })();

@@ -40,19 +40,26 @@
   stroke: rgba(241,239,231,.58);
   stroke-width: 1.4;
 }
-.play-preview-svg .pp-edge line {
+.play-preview-svg .pp-edge line,
+.play-preview-svg path.pp-edge {
+  fill: none;
   stroke: rgba(241,239,231,.22);
   stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-dasharray: 5 5;
 }
 .play-preview-svg .pp-judgment {
+  fill: none;
   stroke: rgba(241,239,231,.75);
   stroke-width: 1.6;
+  stroke-linecap: round;
 }
 .play-preview-svg .pp-signal {
-  fill: none;
+  fill: rgba(209,99,57,.035);
   stroke: #d16339;
   stroke-width: 2;
   stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .play-preview-svg .pp-signal-fill { fill: #d16339; }
 .play-preview-svg .pp-tissot {
@@ -60,6 +67,10 @@
   stroke: rgba(209,99,57,.62);
   stroke-width: 1;
 }
+.play-preview-zone .pp-field { stroke-width: 22; opacity: .3; }
+.play-preview-zone .pp-signal { fill: rgba(209,99,57,.05); }
+.play-preview-path .pp-signal { fill: none; stroke-width: 2.4; }
+.play-preview-project .pp-field { stroke-width: 1.2; opacity: .75; }
 
 /* Observatory now follows the same card geometry as Play: three records per row.
    The Lab selectors are intentionally more specific than the legacy two-column rule. */
