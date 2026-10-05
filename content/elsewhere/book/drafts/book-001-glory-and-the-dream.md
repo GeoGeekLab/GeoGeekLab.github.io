@@ -2,7 +2,7 @@
 
 Status: editorial draft only. This file is intentionally outside the publishable `content/elsewhere/book/<id>/record.json + body.en.html` shape.
 
-Do not publish until the edition read and the authored orientation sections are confirmed.
+Do not publish until the authored orientation sections are confirmed.
 
 ## 01 / BIBLIOGRAPHY
 
@@ -11,18 +11,16 @@ Do not publish until the edition read and the authored orientation sections are 
 - CHINESE TITLE — 《光荣与梦想》
 - AUTHOR — William Manchester
 - FIRST PUBLISHED — 1974
-- FIRST-EDITION PUBLISHER — Little, Brown, Boston
-- EDITION READ — unresolved
-- LANGUAGE READ — unresolved
-- TRANSLATOR — unresolved; depends on edition read
+- EDITION READ — first edition, Little, Brown, Boston, 1974
+- LANGUAGE READ — English
+- TRANSLATOR — N/A
+- ISBN-10 — `0-316-54496-5`
+- PAGINATION — x, 1397 p.
+- COVER REFERENCE — https://upload.wikimedia.org/wikipedia/en/7/7e/TheGloryAndTheDream.jpg
 
-### Verified edition candidates
+### Edition verification
 
-Do not infer which one was read.
-
-- 1978/1979, 商务印书馆, 广州外国语学院美英问题研究室翻译组译, four volumes.
-- 2004, 海南出版社, 朱协译.
-- 2015, 中信出版社, 四川外国语大学翻译学院翻译组译; 李龙泉、祝朝伟校译, four volumes.
+The supplied cover is identified as the first-edition Little, Brown cover. Bibliographic records for the 1974 first edition agree on Little, Brown, Boston, 1974 and ISBN `0-316-54496-5`.
 
 ## Editorial position
 
@@ -128,14 +126,12 @@ Draft field:
 
 Before converting this draft into `content/elsewhere/book/book-001/`:
 
-1. Confirm the edition read.
-2. Confirm the language read and translator when applicable.
-3. Complete BEFORE.
-4. Select one primary SHIFT and complete its text.
-5. Complete AFTER.
-6. Complete RETURN.
-7. Add page references only against the confirmed edition.
-8. Keep TRACE empty unless a real later relation already exists.
+1. Complete BEFORE.
+2. Select one primary SHIFT and complete its text.
+3. Complete AFTER.
+4. Complete RETURN.
+5. Add page references only against this confirmed 1974 first edition.
+6. Keep TRACE empty unless a real later relation already exists.
 
 ## Proposed production identity
 
@@ -150,4 +146,6 @@ atlas.type: book
 atlas.topic: Reading
 atlas.place: Non-spatial
 firstPublished: 1974
+editionRead: first edition, Little, Brown, Boston, 1974
+languageRead: English
 ```
