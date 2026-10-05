@@ -75,5 +75,8 @@ const origin = await fs.readFile(path.join(dist, 'origin', 'index.html'), 'utf8'
 if (!/dataset\.geogeekBootSurface\s*=\s*['"]dark['"]/.test(origin)) {
   fail('Origin does not initialize the dark readiness surface');
 }
+if (!origin.includes("GeoGeekVisualReadiness?.beginLeave?.('Returning to GeoGeek…')")) {
+  fail('Origin scripted return does not begin the shared visual handoff before navigation');
+}
 
 console.log(`Visual readiness QA passed for ${checked} site documents.`);
