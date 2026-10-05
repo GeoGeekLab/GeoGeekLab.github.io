@@ -7,6 +7,33 @@
   // navigation and can expose a stale first frame on entry/return.
   document.documentElement.lang = 'en';
 
+  // The site-wide visual-readiness gate waits for this bootstrap to finish its
+  // DOM-critical enhancement scripts before revealing the document. This keeps
+  // Home scale, Geo interactions, and Lab previews from causing a second visible
+  // layout immediately after the boot cover disappears.
+  window.__GEOGEEK_PREINIT_READY__ = false;
+  const signalPreinitReady = () => {
+    if (window.__GEOGEEK_PREINIT_READY__) return;
+    window.__GEOGEEK_PREINIT_READY__ = true;
+    dispatchEvent(new CustomEvent('geogeek:preinit-ready'));
+  };
+  const appendTrackedScript = ({ selector, src, datasetKey }) => {
+    if (document.querySelector(selector)) return Promise.resolve();
+    return new Promise(resolve => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.dataset[datasetKey] = 'script';
+      script.async = false;
+      const done = () => {
+        script.dataset.geogeekReady = 'true';
+        resolve();
+      };
+      script.addEventListener('load', done, { once: true });
+      script.addEventListener('error', done, { once: true });
+      document.head.appendChild(script);
+    });
+  };
+
   // Shared primary navigation sizing. Keep the 72px bar geometry unchanged,
   // but make the brand mark, brand name, and primary destinations more legible.
   const navScaleStyle = document.createElement('style');
@@ -126,33 +153,34 @@
 
   const loadInteractions = () => {
     normalizeHomeConceptHeaders();
+    const pending = [];
 
-    if (!document.querySelector('script[data-geo-interaction="script"]')) {
-      const script = document.createElement('script');
-      script.src = '/geo-interactions.js?v=20260930g';
-      script.dataset.geoInteraction = 'script';
-      script.async = false;
-      document.head.appendChild(script);
-    }
+    pending.push(appendTrackedScript({
+      selector: 'script[data-geo-interaction="script"]',
+      src: '/geo-interactions.js?v=20260930g',
+      datasetKey: 'geoInteraction',
+    }));
 
     // The homepage uses section ownership for its semantic scale. Load this
     // after the DOM and synchronous page scripts are complete so GeoScale and
     // all three homepage sections already exist.
-    if (isHome && !document.querySelector('script[data-home-scale="script"]')) {
-      const homeScaleScript = document.createElement('script');
-      homeScaleScript.src = '/home-scale.js?v=20261004a';
-      homeScaleScript.dataset.homeScale = 'script';
-      homeScaleScript.async = false;
-      document.head.appendChild(homeScaleScript);
+    if (isHome) {
+      pending.push(appendTrackedScript({
+        selector: 'script[data-home-scale="script"]',
+        src: '/home-scale.js?v=20261004a',
+        datasetKey: 'homeScale',
+      }));
     }
 
-    if (isLab && !document.querySelector('script[data-lab-real-previews="script"]')) {
-      const previewScript = document.createElement('script');
-      previewScript.src = '/lab-real-previews.js?v=20260930i';
-      previewScript.dataset.labRealPreviews = 'script';
-      previewScript.async = false;
-      document.head.appendChild(previewScript);
+    if (isLab) {
+      pending.push(appendTrackedScript({
+        selector: 'script[data-lab-real-previews="script"]',
+        src: '/lab-real-previews.js?v=20260930i',
+        datasetKey: 'labRealPreviews',
+      }));
     }
+
+    Promise.allSettled(pending).then(signalPreinitReady);
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadInteractions, { once: true });
   else loadInteractions();
