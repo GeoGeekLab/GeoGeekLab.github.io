@@ -102,16 +102,20 @@
       slider?.focus();
     }
 
-    function showResult({choice,value=1,onInput,onRestart}={}) {
+    function showResult({choice,value=1,onInput,onRestart,onNext}={}) {
       shell.setState('revealed');
       shell.overlay.innerHTML='';
       const selected=choices[choice];
       const larger=experiment.choices.reduce((best,item)=>item.areaKm2>best.areaKm2?item:best,experiment.choices[0]);
       const panel=document.createElement('div');
       panel.className='project-v2-panel is-result';
-      panel.innerHTML=`<span>REVEAL</span><div class="project-v2-result">${larger.label}<small>IS LARGER</small></div><div class="project-v2-area-pair"><div><span>INDIA</span><strong>≈ ${(choices.india.areaKm2/1e6).toFixed(2)}M km²</strong></div><div><span>GREENLAND</span><strong>≈ ${(choices.greenland.areaKm2/1e6).toFixed(2)}M km²</strong></div></div><p>${selected?.id===larger.id?'YOUR PREDICTION HELD.':'YOUR PREDICTION CHANGED.'}<br>${experiment.insight[0]} ${experiment.insight[1]}</p>`;
+      panel.innerHTML=`<span>REVEAL</span><div class="project-v2-result">${larger.label}<small>IS LARGER</small></div><div class="project-v2-area-pair"><div><span>INDIA</span><strong>≈ ${(choices.india.areaKm2/1e6).toFixed(2)}M km²</strong></div><div><span>GREENLAND</span><strong>≈ ${(choices.greenland.areaKm2/1e6).toFixed(2)}M km²</strong></div></div><p>${selected?.id===larger.id?'YOUR PREDICTION HELD.':'YOUR PREDICTION DIDN\'T HOLD.'}<br>${experiment.insight[0]} ${experiment.insight[1]}</p>`;
       addScrubber(panel,{value,onInput,showReveal:false});
-      panel.appendChild(button('TRY AGAIN',onRestart,{secondary:true}));
+      const actions=document.createElement('div');
+      actions.className='project-v2-actions';
+      actions.appendChild(button('TRY AGAIN',onRestart,{secondary:true}));
+      if(onNext) actions.appendChild(button('NEXT: ROUTE',onNext));
+      panel.appendChild(actions);
       shell.overlay.appendChild(panel);
       renderProjection(value);
     }
