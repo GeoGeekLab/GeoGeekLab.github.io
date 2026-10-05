@@ -14,7 +14,7 @@
   };
   const COMMON = [
     'play/play-core.js?v=20261005a',
-    'play/play-shell.js?v=20261005a',
+    'play/play-shell.js?v=20261005b',
     'play/play-trace.js?v=20261002c'
   ];
   const PRE_SCRIPTS = {
@@ -30,6 +30,11 @@
       'play/connect/connect-graph.js?v=20261005a',
       'play/connect/connect-game.js?v=20261005a',
       'play/connect/connect-view.js?v=20261005a'
+    ],
+    project: [
+      'play/project/project-content.js?v=20261005a',
+      'play/project/project-morph.js?v=20261005a',
+      'play/project/project-view.js?v=20261005a'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {
@@ -43,7 +48,7 @@
     locate: 'play/orient/orient.js?v=20261003f',
     zone: 'play/bound/bound.js?v=20261002c',
     path: 'play/connect/connect.js?v=20261005a',
-    project: 'play/project/project.js?v=20261002c'
+    project: 'play/project/project.js?v=20261005a'
   };
   const OPTIONAL_POST_SCRIPTS = {
     locate: [
