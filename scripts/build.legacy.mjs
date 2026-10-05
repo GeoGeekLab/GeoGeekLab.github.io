@@ -177,7 +177,9 @@ for (const record of bookRecords) {
   const page = bookTemplate
     .replaceAll('{{TITLE}}', escapeAttr(title))
     .replaceAll('{{DESCRIPTION}}', escapeAttr(description))
-    .replaceAll('{{REF}}', escapeAttr(record.ref));
+    .replaceAll('{{REF}}', escapeAttr(record.ref))
+    .replace('<p class="record-deck" id="recordExcerpt"></p>', `<p class="record-deck" id="recordExcerpt">${escapeAttr(description)}</p>`)
+    .replace('<div class="record-body" id="recordBody"></div>', `<div class="record-body" id="recordBody">${record.text.en.bodyHtml}</div>`);
   const pagePath = path.join(dist, 'records', `${record.ref.replace(':', '-')}.html`);
   fs.mkdirSync(path.dirname(pagePath), { recursive: true });
   fs.writeFileSync(pagePath, page);
