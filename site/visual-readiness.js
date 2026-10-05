@@ -1,0 +1,135 @@
+/* GeoGeek site-wide visual readiness and navigation handoff. */
+(() => {
+  'use strict';
+
+  const root = document.documentElement;
+  const cover = document.getElementById('geogeek-boot-cover');
+  const status = document.getElementById('geogeek-boot-status');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let revealTimer = 0;
+  let revealed = false;
+
+  const setState = state => {
+    root.dataset.geogeekBoot = state;
+  };
+
+  const nextFrames = (count = 2) => new Promise(resolve => {
+    const step = () => {
+      if (--count <= 0) resolve();
+      else requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+
+  const waitForLocalStyles = () => {
+    const pending = [...document.querySelectorAll('link[rel="stylesheet"]')]
+      .filter(link => {
+        if (link.media === 'print') return false;
+        try {
+          const url = new URL(link.href, location.href);
+          return url.origin === location.origin && !link.sheet;
+        } catch {
+          return false;
+        }
+      });
+    if (!pending.length) return Promise.resolve();
+    return Promise.race([
+      Promise.all(pending.map(link => new Promise(resolve => {
+        const done = () => resolve();
+        link.addEventListener('load', done, { once: true });
+        link.addEventListener('error', done, { once: true });
+      }))),
+      new Promise(resolve => setTimeout(resolve, 1800))
+    ]);
+  };
+
+  const settle = async () => {
+    await waitForLocalStyles();
+    await nextFrames(2);
+  };
+
+  const reveal = async ({ restored = false } = {}) => {
+    clearTimeout(revealTimer);
+    await settle();
+    revealed = true;
+    setState('ready');
+    root.dataset.geogeekBootRestored = restored ? 'true' : 'false';
+    window.__GEOGEEK_VISUAL_READY__ = true;
+    window.__GEOGEEK_VISUAL_READY_AT__ = performance.now();
+    dispatchEvent(new CustomEvent('geogeek:visual-ready', { detail: { restored } }));
+  };
+
+  const beginLeave = (label = '') => {
+    clearTimeout(revealTimer);
+    if (status) status.textContent = label || 'Changing scale…';
+    setState('leaving');
+    window.__GEOGEEK_VISUAL_READY__ = false;
+  };
+
+  const sameDocumentTarget = url =>
+    url.pathname === location.pathname && url.search === location.search && url.hash;
+
+  const eligibleInternalLink = event => {
+    if (event.defaultPrevented || event.button !== 0) return null;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return null;
+    const anchor = event.target?.closest?.('a[href]');
+    if (!anchor || anchor.hasAttribute('download')) return null;
+    const target = (anchor.getAttribute('target') || '').toLowerCase();
+    if (target && target !== '_self') return null;
+    const raw = anchor.getAttribute('href');
+    if (!raw || raw.startsWith('#') || /^(?:mailto:|tel:|javascript:)/i.test(raw)) return null;
+    let url;
+    try { url = new URL(anchor.href, location.href); }
+    catch { return null; }
+    if (url.origin !== location.origin) return null;
+    if (sameDocumentTarget(url)) return null;
+    return { anchor, url };
+  };
+
+  document.addEventListener('click', event => {
+    const nav = eligibleInternalLink(event);
+    if (!nav) return;
+    beginLeave();
+  }, true);
+
+  // Leave the neutral cover in the BFCache snapshot. Returning with the browser
+  // Back/Forward controls therefore restores a stable cover, never a stale
+  // pre-enhancement frame.
+  addEventListener('pagehide', event => {
+    if (event.persisted) {
+      if (status) status.textContent = 'Restoring view…';
+      setState('frozen');
+      window.__GEOGEEK_VISUAL_READY__ = false;
+    }
+  });
+
+  addEventListener('pageshow', event => {
+    if (!event.persisted) return;
+    setState('restoring');
+    reveal({ restored: true });
+  });
+
+  // Initial cold navigation. DOMContentLoaded is enough for markup; local
+  // styles and two layout frames are awaited separately above.
+  const start = () => reveal({ restored: false });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+
+  // A broken enhancement must not create a permanent blank page. The timeout
+  // reveals the authoritative static HTML while preserving the no-old-frame
+  // contract during the normal path.
+  revealTimer = setTimeout(() => {
+    if (revealed) return;
+    if (status) status.textContent = 'Opening GeoGeek…';
+    reveal({ restored: false });
+  }, 2600);
+
+  window.GeoGeekVisualReadiness = Object.freeze({
+    beginLeave,
+    reveal,
+    state: () => root.dataset.geogeekBoot || 'unknown'
+  });
+})();
