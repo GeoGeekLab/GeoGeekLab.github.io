@@ -94,7 +94,7 @@
       for(let i=0;i<=24;i++) {
         const t=i/24, u=1-t;
         const p=[u*u*a[0]+2*u*t*c[0]+t*t*b[0],u*u*a[1]+2*u*t*c[1]+t*t*b[1]];
-        const geo=morph.projection.invert(p);
+        const geo=morph.invertStart?.(p);
         if(geo) coords.push(geo);
       }
       if(coords.length>=3) {
@@ -114,7 +114,7 @@
     }).on('pointermove',event=>{
       if(!drawing || mode!=='drawing') return;
       const p=d3.pointer(event,svg.node());
-      const geo=morph.projection.invert(p);
+      const geo=morph.invertStart?.(p);
       if(geo) routeCoords.push(geo);
       renderProjection(0);
       updateRevealState();
