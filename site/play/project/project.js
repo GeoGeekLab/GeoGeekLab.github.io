@@ -23,12 +23,13 @@
     const GeoPlay=window.GeoPlay;
     const content=window.GeoPlayProjectContent;
     const morphApi=window.GeoPlayProjectMorph;
-    const viewApi=window.GeoPlayProjectView;
+    const areaViewApi=window.GeoPlayProjectView;
+    const routeViewApi=window.GeoPlayProjectRouteView;
     if(!stage) throw new Error('Project requires an instrument stage.');
     if(!GeoPlay?.core || !GeoPlay?.shell?.createV2 || !GeoPlay?.trace) throw new Error('GeoPlay V2 runtime incomplete.');
-    if(!content?.AREA_EXPERIMENT || !morphApi?.create || !viewApi?.create) throw new Error('Project V2 modules incomplete.');
+    if(!content?.AREA_EXPERIMENT || !content?.ROUTE_EXPERIMENT || !morphApi?.create || !areaViewApi?.create || !routeViewApi?.create) throw new Error('Project V2 modules incomplete.');
 
-    GeoPlay.core.ensureStyle('play/project/project-v2.css?v=20261005a','project-v2');
+    GeoPlay.core.ensureStyle('play/project/project-v2.css?v=20261005b','project-v2');
 
     let world;
     try {
@@ -39,74 +40,115 @@
     }
     if(signal?.aborted) return()=>{};
 
-    const experiment=content.AREA_EXPERIMENT;
+    const d3=window.d3;
     const shell=GeoPlay.shell.createV2(stage,{kind:'project',title:'PROJECT'});
-    const morph=morphApi.create({d3:window.d3,extent:[[70,70],[930,570]]});
-    const view=viewApi.create({shell,d3:window.d3,world,experiment,morph});
-    const states=['predicting','transforming','revealed'];
-    let choice=null;
-    let value=0;
-    let traced=false;
-    const machine=GeoPlay.core.createStateMachine({
-      initial:'predicting',
-      states,
-      onChange:state=>shell.setState(state)
-    });
+    const states=['predicting','transforming','revealed','routeDrawing','routeTransforming','routeResult'];
+    const machine=GeoPlay.core.createStateMachine({initial:'predicting',states,onChange:state=>shell.setState(state)});
 
-    const onInput=next=>{value=Math.max(0,Math.min(1,Number(next)||0));};
+    const areaExperiment=content.AREA_EXPERIMENT;
+    const areaMorph=morphApi.create({d3,extent:[[70,70],[930,570]]});
+    const areaView=areaViewApi.create({shell,d3,world,experiment:areaExperiment,morph:areaMorph});
+    let areaChoice=null;
+    let areaValue=0;
+    let areaTraced=false;
+    let routeView=null;
+    let routeValue=0;
+    let routeTraced=false;
 
-    function showPrediction() {
-      choice=null;
-      value=0;
-      traced=false;
-      if(machine.state!=='predicting') machine.set('predicting');
-      view.showPrediction(id=>{
-        choice=id;
-        value=0;
-        machine.set('transforming');
-        showTransform();
-      });
-    }
-
-    function showTransform() {
-      view.showTransform({
-        choice,
-        value,
-        onInput,
-        onReveal:()=>{
-          if(value<.98) return;
-          machine.set('revealed');
-          showResult();
-        }
-      });
-    }
-
-    function writeTrace() {
-      if(traced) return;
-      traced=true;
-      const larger=experiment.choices.reduce((best,item)=>item.areaKm2>best.areaKm2?item:best,experiment.choices[0]);
+    function writeAreaTrace() {
+      if(areaTraced) return;
+      areaTraced=true;
+      const larger=areaExperiment.choices.reduce((best,item)=>item.areaKm2>best.areaKm2?item:best,areaExperiment.choices[0]);
       GeoPlay.trace.append({
         play:'project',
-        trialId:experiment.id,
-        judgment:{choice},
+        trialId:areaExperiment.id,
+        judgment:{choice:areaChoice},
         relation:{larger:larger.id},
-        result:{correct:choice===larger.id},
-        conditions:{before:{projection:experiment.from.id},after:{projection:experiment.to.id}},
+        result:{correct:areaChoice===larger.id},
+        conditions:{before:{projection:areaExperiment.from.id},after:{projection:areaExperiment.to.id}},
         effect:{representation:'area',surface:'unchanged'}
       });
     }
 
-    function showResult() {
-      writeTrace();
-      view.showResult({
-        choice,
-        value,
-        onInput,
-        onRestart:showPrediction
+    function showAreaPrediction() {
+      areaChoice=null;
+      areaValue=0;
+      areaTraced=false;
+      if(machine.state!=='predicting') machine.set('predicting');
+      areaView.showPrediction(id=>{
+        areaChoice=id;
+        areaValue=0;
+        machine.set('transforming');
+        areaView.showTransform({
+          choice:areaChoice,
+          value:areaValue,
+          onInput:value=>{areaValue=value;},
+          onReveal:()=>{
+            if(areaValue<.98) return;
+            machine.set('revealed');
+            writeAreaTrace();
+            areaView.showResult({
+              choice:areaChoice,
+              value:areaValue,
+              onInput:value=>{areaValue=value;},
+              onRestart:showAreaPrediction,
+              onNext:startRoute
+            });
+          }
+        });
       });
     }
 
-    showPrediction();
+    function writeRouteTrace() {
+      if(routeTraced || !routeView) return;
+      routeTraced=true;
+      const experiment=content.ROUTE_EXPERIMENT;
+      GeoPlay.trace.append({
+        play:'project',
+        trialId:experiment.id,
+        judgment:{route:routeView.getRoute()},
+        relation:{type:'geodesic'},
+        result:{revealed:true},
+        conditions:{before:{projection:experiment.from.id},after:{projection:experiment.to.id,center:'Tokyo'}},
+        effect:{representation:'route',surfaceRoute:'unchanged'}
+      });
+    }
+
+    function startRoute() {
+      const experiment=content.ROUTE_EXPERIMENT;
+      routeValue=0;
+      routeTraced=false;
+      machine.set('routeDrawing');
+      const routeMorph=morphApi.create({
+        d3,
+        extent:[[70,70],[930,570]],
+        fromRaw:d3.geoMercatorRaw,
+        toRaw:d3.geoAzimuthalEquidistantRaw,
+        fromRotate:experiment.from.rotate,
+        toRotate:experiment.to.rotate
+      });
+      routeView=routeViewApi.create({shell,d3,world,experiment,morph:routeMorph});
+      routeView.showDraw({
+        onReveal:()=>{
+          if(routeView.getRoute().length<3) return;
+          machine.set('routeTransforming');
+          routeView.showReveal({
+            onInput:value=>{routeValue=value;},
+            onFinish:()=>{
+              if(routeValue<.98) return;
+              machine.set('routeResult');
+              writeRouteTrace();
+              routeView.showResult({
+                onInput:value=>{routeValue=value;},
+                onRestart:startRoute
+              });
+            }
+          });
+        }
+      });
+    }
+
+    showAreaPrediction();
     return()=>{stage.innerHTML='';};
   }
 
