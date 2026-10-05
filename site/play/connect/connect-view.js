@@ -74,9 +74,9 @@
     }
 
     function renderNodes(snapshot) {
-      const interactive=['planning','adapting'].includes(snapshot.state);
+      const editable=['planning','routeReady','adapting','routeReady2'].includes(snapshot.state);
       const current=snapshot.route[snapshot.route.length-1];
-      const available=interactive ? (snapshot.graph?.adjacency?.get(current) || new Set()) : new Set();
+      const available=editable ? (snapshot.graph?.adjacency?.get(current) || new Set()) : new Set();
       const routeSet=new Set(snapshot.route);
       const data=puzzle.nodes.map(id => ({ id, ...nodes[id], xy:point(id) }));
       const joined=nodeLayer.selectAll('g.connect-v2-node').data(data,d=>d.id).join(enter => {
@@ -84,9 +84,13 @@
           .attr('class','connect-v2-node')
           .attr('role','button')
           .attr('data-keyboard-activation','1')
-          .on('click',(_,d)=>callbacks.onNode?.(d.id))
+          .on('click',(event,d)=>{
+            if(event.currentTarget.getAttribute('aria-disabled')==='true') return;
+            callbacks.onNode?.(d.id);
+          })
           .on('keydown',(event,d)=>{
             if(event.key!=='Enter' && event.key!==' ') return;
+            if(event.currentTarget.getAttribute('aria-disabled')==='true') return;
             event.preventDefault();
             callbacks.onNode?.(d.id);
           });
@@ -98,12 +102,12 @@
 
       joined
         .attr('transform',d=>`translate(${d.xy[0]},${d.xy[1]})`)
-        .attr('tabindex',interactive?0:-1)
-        .attr('aria-disabled',interactive?'false':'true')
+        .attr('tabindex',editable?0:-1)
+        .attr('aria-disabled',editable?'false':'true')
         .attr('aria-label',d=>`${d.label}${d.id===puzzle.target?', destination':''}`)
         .attr('class',d=>{
           let cls='connect-v2-node';
-          if(!interactive) cls+=' is-disabled';
+          if(!editable) cls+=' is-disabled';
           if(d.id===puzzle.source) cls+=' is-source';
           if(d.id===puzzle.target) cls+=' is-target';
           if(d.id===current) cls+=' is-current';
