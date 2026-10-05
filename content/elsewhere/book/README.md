@@ -121,8 +121,11 @@ Each published BOOK record lives at:
 ```text
 content/elsewhere/book/<id>/
 ├── record.json
-└── body.en.html
+├── body.en.html
+└── body.zh.html    # optional authored Chinese version
 ```
+
+`body.en.html` is required. When `body.zh.html` exists, the build combines both authored bodies into one record page with an ENGLISH / 中文 switcher.
 
 The build validates the record, adds it under `elsewhere:e02`, and emits:
 
@@ -131,7 +134,7 @@ dist/records/elsewhere-<id>.html
 dist/data/elsewhere-books.json
 ```
 
-The static record page prerenders `body.en.html`. Runtime archive body stripping therefore does not remove published BOOK prose.
+The static record page prerenders the authored body content. Runtime archive body stripping therefore does not remove published BOOK prose in either language.
 
 Source preview uses `record.html?ref=elsewhere:<id>`. Production collection and Atlas links use the emitted static record page.
 
@@ -180,7 +183,10 @@ Published source:
 ```text
 content/elsewhere/book/book-001/
 ├── record.json
-└── body.en.html
+├── body.en.html
+└── body.zh.html
 ```
 
 The record uses the 1974 first-edition Little, Brown text, read in English. Its primary SHIFT is FRAME: from asking why the United States became powerful to asking how a society repeatedly experiencing crisis, conflict, error, and distrust can still keep operating, repairing, and recovering order.
+
+The production record is bilingual. English is the default rendered reading language; 中文 preserves the authored Chinese version of the same reflection.
