@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const site = path.join(root, 'site');
+const preinitVersion = '20261005a';
 
 async function htmlFiles(dir) {
   const out = [];
@@ -47,6 +48,13 @@ for (const file of await htmlFiles(dist)) {
   for (const marker of required) {
     if (!html.includes(marker)) fail(`${relative} missing ${marker}`);
   }
+
+  const preinitRefs = [...html.matchAll(/src=(['"])([^'"]*\/)?ux-preinit\.js(?:\?v=([^'"]+))?\1/gi)];
+  for (const match of preinitRefs) {
+    if (match[3] !== preinitVersion) {
+      fail(`${relative} references stale ux-preinit cache key ${match[3] || '(none)'}`);
+    }
+  }
   checked += 1;
 }
 
@@ -58,6 +66,9 @@ if (/location\.replace\(['"]\/index\.html/.test(home)) {
 }
 if (!/rel="canonical" href="https:\/\/geogeeklab\.github\.io\/index\.html"/.test(home)) {
   fail('home canonical link was lost while removing the client redirect');
+}
+if (!home.includes(`/ux-preinit.js?v=${preinitVersion}`)) {
+  fail('home does not use the refreshed ux-preinit cache key');
 }
 
 const origin = await fs.readFile(path.join(dist, 'origin', 'index.html'), 'utf8');
