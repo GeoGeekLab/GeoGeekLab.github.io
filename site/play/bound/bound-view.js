@@ -4,7 +4,7 @@
   function create({ shell, fieldApi, callbacks = {}, size = 640 } = {}) {
     if(!shell?.viewport || !fieldApi) throw new Error('Bound view requires shell and field API.');
 
-    shell.viewport.innerHTML=`<div class="bound-v2-stage"><canvas class="bound-v2-field" width="${size}" height="${size}"></canvas><canvas class="bound-v2-change" width="${size}" height="${size}" aria-hidden="true"></canvas><svg class="bound-v2-overlay" viewBox="0 0 ${size} ${size}" aria-hidden="true"><path class="bound-v2-old-line"></path><path class="bound-v2-line"></path><rect class="bound-v2-hit" width="${size}" height="${size}" tabindex="0" role="application" aria-label="Boundary drawing field. Draw with pointer. Press G for a guided region, arrow keys to move it, plus or minus to resize it."></rect></svg></div>`;
+    shell.viewport.innerHTML=`<div class="bound-v2-stage"><canvas class="bound-v2-field" width="${size}" height="${size}"></canvas><canvas class="bound-v2-change" width="${size}" height="${size}" aria-hidden="true"></canvas><svg class="bound-v2-overlay" viewBox="0 0 ${size} ${size}" role="group" aria-label="Boundary decision field"><path class="bound-v2-old-line"></path><path class="bound-v2-line"></path><rect class="bound-v2-hit" width="${size}" height="${size}" tabindex="0" role="application" aria-label="Boundary drawing field. Draw with pointer. Press G for a guided region, arrow keys to move it, plus or minus to resize it."></rect></svg></div>`;
     const stage=shell.viewport.querySelector('.bound-v2-stage');
     const canvas=shell.viewport.querySelector('.bound-v2-field');
     const changeCanvas=shell.viewport.querySelector('.bound-v2-change');
