@@ -10,7 +10,7 @@ async function openPlay(page, instrument, kind) {
   const shell = page.locator(`.play-shell[data-play-kind="${kind}"], .play-v2-shell[data-play-kind="${kind}"]`);
   await expect(shell).toBeVisible({ timeout:20_000 });
   await expect(page.locator('#instrumentDialog')).toHaveAttribute('open', '');
-  const expectedState = kind === 'connect' ? 'planning' : kind === 'project' ? 'predicting' : 'judge';
+  const expectedState = kind === 'connect' ? 'planning' : kind === 'project' ? 'predicting' : kind === 'bound' ? 'drawing' : 'judge';
   await expect(shell).toHaveAttribute('data-play-state', expectedState, { timeout:5_000 });
   return shell;
 }
@@ -39,15 +39,29 @@ test('ORIENT commits a keyboard spatial judgment with confidence and reveals sep
   await expect(shell).not.toContainText('SCORE');
 });
 
-test('BOUND holds threshold constant while one observation condition changes', async ({ page }) => {
+test('BOUND makes a boundary decision, changes observation resolution, and asks whether to keep the line', async ({ page }) => {
   const shell = await openPlay(page, 'zone', 'bound');
-  await shell.getByRole('button', { name:'COMMIT' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('CONDITION MET');
-  const threshold = await shell.locator('.bound-slider').inputValue();
-  await shell.getByRole('button', { name:'CHANGE ONE CONDITION →' }).click();
-  await expect(shell.locator('.play-readout')).toContainText('EFFECT');
-  await expect(shell.locator('.play-conditions')).toContainText('UNCHANGED');
-  await expect(shell.locator('.play-conditions')).toContainText(Number(threshold).toFixed(3));
+  await expect(shell.locator('.bound-v2-panel')).toContainText('DRAW THE UNSAFE REGION');
+  await expect(shell.locator('.bound-slider')).toHaveCount(0);
+
+  await shell.getByRole('button', { name:'GUIDED REGION' }).click();
+  const commit = shell.getByRole('button', { name:'COMMIT REGION' });
+  await expect(commit).toBeEnabled();
+  await expect(shell.locator('.bound-v2-panel')).toContainText('COVERAGE');
+  await expect(shell.locator('.bound-v2-panel')).toContainText('AREA CLOSED');
+
+  await commit.click();
+  await expect(shell).toHaveAttribute('data-play-state', 'committed');
+  await shell.getByRole('button', { name:'CHANGE OBSERVATION' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'disturbing');
+  await expect(shell).toHaveAttribute('data-play-state', 'decision', { timeout:3_000 });
+  await expect(shell.locator('.bound-v2-panel')).toContainText('CHANGED CLASS');
+  await expect(shell.locator('.bound-v2-change')).toHaveClass(/is-visible/);
+
+  await shell.getByRole('button', { name:'KEEP LINE' }).click();
+  await expect(shell).toHaveAttribute('data-play-state', 'result');
+  await expect(shell.locator('.bound-v2-panel')).toContainText('YOU KEPT THE LINE');
+  await expect(shell.locator('.bound-v2-panel')).toContainText('UNDER A NEW OBSERVATION');
 });
 
 test('CONNECT builds a route, changes the rule, and requires adaptation', async ({ page }) => {
