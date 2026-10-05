@@ -17,6 +17,31 @@
     let slider=null;
     let revealButton=null;
     let progress=null;
+    let apparentValue=null;
+
+    function apparentAreaRatio() {
+      const g=Math.abs(Number(morph.path.area(choices.greenland.feature)) || 0);
+      const i=Math.abs(Number(morph.path.area(choices.india.feature)) || 0);
+      return i>0 ? g/i : null;
+    }
+
+    function formatApparentRatio(ratio) {
+      if(!Number.isFinite(ratio) || ratio<=0) return '—';
+      if(ratio>=1) return `GREENLAND ${ratio.toFixed(2)}× INDIA`;
+      return `INDIA ${(1/ratio).toFixed(2)}× GREENLAND`;
+    }
+
+    function updateApparentMetric() {
+      const ratio=apparentAreaRatio();
+      if(Number.isFinite(ratio)) shell.root.dataset.apparentAreaRatio=ratio.toFixed(4);
+      else delete shell.root.dataset.apparentAreaRatio;
+      if(apparentValue) apparentValue.textContent=formatApparentRatio(ratio);
+    }
+
+    function setMorphAtmosphere(value) {
+      shell.root.style.setProperty('--project-morph',value.toFixed(3));
+      shell.root.dataset.morphPhase=value<.08?'start':value>.92?'end':'moving';
+    }
 
     function renderProjection(t) {
       const value=morph.set(t);
@@ -26,6 +51,8 @@
       land.attr('d',path);
       greenland.attr('d',path);
       india.attr('d',path);
+      setMorphAtmosphere(value);
+      updateApparentMetric();
       shell.setStatus(value < .5 ? experiment.from.label : experiment.to.label);
       if(progress) progress.textContent=`${Math.round(value*100)}%`;
       if(revealButton) revealButton.disabled=value<.98;
@@ -47,7 +74,7 @@
     }
 
     function showPrediction(onChoice) {
-      slider=null; revealButton=null; progress=null;
+      slider=null; revealButton=null; progress=null; apparentValue=null;
       shell.setState('predicting');
       shell.setStatus(experiment.from.label);
       setHud();
@@ -66,7 +93,7 @@
     function addScrubber(panel,{value=0,onInput,onReveal,showReveal=true}={}) {
       const control=document.createElement('div');
       control.className='project-v2-scrub-control';
-      control.innerHTML=`<div class="project-v2-scrub-labels"><span>${experiment.from.label}</span><strong class="project-v2-progress">${Math.round(value*100)}%</strong><span>${experiment.to.label}</span></div>`;
+      control.innerHTML=`<div class="project-v2-scrub-labels"><span>${experiment.from.label}</span><strong class="project-v2-progress">${Math.round(value*100)}%</strong><span>${experiment.to.label}</span></div><div class="project-v2-apparent"><span>APPARENT AREA ON MAP</span><strong class="project-v2-apparent-value">—</strong><small>SCREEN SPACE · REPRESENTATION ONLY</small></div>`;
       slider=document.createElement('input');
       slider.type='range';
       slider.min='0';
@@ -82,7 +109,9 @@
       });
       control.appendChild(slider);
       progress=control.querySelector('.project-v2-progress');
+      apparentValue=control.querySelector('.project-v2-apparent-value');
       panel.appendChild(control);
+      renderProjection(value);
       if(showReveal) {
         revealButton=button('REVEAL AREA',()=>onReveal?.(),{disabled:value<.98});
         panel.appendChild(revealButton);
