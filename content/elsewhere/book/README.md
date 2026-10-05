@@ -171,10 +171,16 @@ Source preview uses `record.html?ref=elsewhere:<id>`. Production collection and 
 }
 ```
 
-## First content selection
+## First published record
 
 BOOK 001 is *The Glory and the Dream: A Narrative History of America, 1932–1972* by William Manchester, first published in 1974.
 
-The editorial draft lives at `drafts/book-001-glory-and-the-dream.md`.
+Published source:
 
-Do not promote it into the production source layout until the edition read is identified and BEFORE / SHIFT / AFTER / RETURN are authored from the actual reading experience.
+```text
+content/elsewhere/book/book-001/
+├── record.json
+└── body.en.html
+```
+
+The record uses the 1974 first-edition Little, Brown text, read in English. Its primary SHIFT is FRAME: from asking why the United States became powerful to asking how a society repeatedly experiencing crisis, conflict, error, and distrust can still keep operating, repairing, and recovering order.
