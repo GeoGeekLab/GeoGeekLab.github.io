@@ -72,8 +72,8 @@ if (!home.includes(`/ux-preinit.js?v=${preinitVersion}`)) {
 }
 
 const origin = await fs.readFile(path.join(dist, 'origin', 'index.html'), 'utf8');
-if (!/data-geogeek-boot-surface='dark'/.test(origin)) {
-  fail('Origin does not use the dark readiness surface');
+if (!/dataset\.geogeekBootSurface\s*=\s*['"]dark['"]/.test(origin)) {
+  fail('Origin does not initialize the dark readiness surface');
 }
 
 console.log(`Visual readiness QA passed for ${checked} site documents.`);
