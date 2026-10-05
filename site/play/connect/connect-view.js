@@ -184,7 +184,9 @@
 
     function showInvalid({ from, to, reason }) {
       if (!from || !to) return;
+      const message=reason==='MOVE_LIMIT'?'MOVE LIMIT':'NO VALID CONNECTION';
       const a=point(from), b=point(to);
+      shell.setStatus(message);
       invalidLayer.selectAll('*').remove();
       invalidLayer.append('line')
         .attr('class','connect-v2-invalid-edge')
@@ -193,10 +195,11 @@
         .attr('class','connect-v2-invalid-label')
         .attr('x',(a[0]+b[0])/2).attr('y',(a[1]+b[1])/2-10)
         .attr('text-anchor','middle')
-        .text(reason==='MOVE_LIMIT'?'MOVE LIMIT':'NO CONNECTION');
+        .text(message);
       requestAnimationFrame(()=>invalidLayer.classed('is-visible',true));
       window.setTimeout(()=>{
         invalidLayer.classed('is-visible',false);
+        shell.setStatus('');
         window.setTimeout(()=>invalidLayer.selectAll('*').remove(),220);
       },650);
       return label;
