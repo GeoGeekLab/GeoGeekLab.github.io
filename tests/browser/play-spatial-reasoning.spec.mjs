@@ -51,10 +51,17 @@ test('CONNECT builds a route, changes the rule, and requires adaptation', async 
     await page.keyboard.press('Enter');
   }
 
+  const france = shell.getByRole('button', { name:'France' });
+  await expect(shell).toHaveAttribute('data-play-state', 'routeReady');
+  await expect(france).toHaveAttribute('tabindex', '0');
+  await expect(france).toHaveAttribute('aria-disabled', 'false');
+
   const lock = shell.getByRole('button', { name:'LOCK ROUTE' });
   await expect(lock).toBeEnabled();
   await lock.click();
   await expect(shell.locator('.connect-v2-overlay-panel')).toContainText('4 HOPS');
+  await expect(france).toHaveAttribute('tabindex', '-1');
+  await expect(france).toHaveAttribute('aria-disabled', 'true');
 
   await shell.getByRole('button', { name:'CHANGE THE RULE' }).click();
   await expect(shell).toHaveAttribute('data-play-state', 'transforming');
