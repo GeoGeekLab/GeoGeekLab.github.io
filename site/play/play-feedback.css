@@ -1,0 +1,307 @@
+/* Interaction feedback layer for Play V2. Keeps gameplay unchanged; increases tactile response, transition hierarchy, and reward clarity. */
+
+/* Shared press / commit feedback */
+.connect-v2-action:active:not(:disabled),
+.bound-v2-action:active:not(:disabled),
+.project-v2-action:active:not(:disabled),
+.play-shell[data-play-kind="orient"] .play-action:active:not(:disabled),
+.play-shell[data-play-kind="orient"] .orient-confidence-option:active:not(:disabled){
+  transform:translateY(1px) scale(.975);
+  filter:brightness(1.14);
+}
+
+/* CONNECT — route construction, rule disruption, result reward */
+.connect-v2-route-line:not(.is-ghost){
+  stroke-dasharray:1200;
+  stroke-dashoffset:1200;
+  animation:connectRouteDraw .28s cubic-bezier(.2,.8,.2,1) forwards;
+}
+.play-v2-shell[data-play-kind="connect"][data-play-state="routeReady"] .connect-v2-route-line:not(.is-ghost),
+.play-v2-shell[data-play-kind="connect"][data-play-state="routeReady2"] .connect-v2-route-line:not(.is-ghost){
+  filter:drop-shadow(0 0 8px rgba(224,107,63,.44));
+}
+.play-v2-shell[data-play-kind="connect"][data-play-state="locked"] .connect-v2-route-line:not(.is-ghost){
+  animation:connectRouteLock .46s ease-out both;
+}
+.play-v2-shell[data-play-kind="connect"][data-play-state="transforming"] .connect-v2-edge.is-removed{
+  animation:connectEdgeRemoved .8s ease both;
+}
+.play-v2-shell[data-play-kind="connect"][data-play-state="transforming"] .connect-v2-edge.is-added{
+  filter:drop-shadow(0 0 9px rgba(135,170,165,.38));
+}
+.connect-v2-invalid-layer.is-visible .connect-v2-invalid-edge{
+  animation:connectInvalidPulse .46s ease-out both;
+}
+.connect-v2-invalid-layer.is-visible .connect-v2-invalid-label{
+  animation:feedbackLabelIn .2s ease-out both;
+}
+.play-v2-shell[data-play-kind="connect"][data-play-state="result"] .connect-v2-overlay-panel.is-result{
+  animation:feedbackResultIn .46s cubic-bezier(.2,.8,.2,1) both;
+}
+.play-v2-shell[data-play-kind="connect"][data-play-state="result"] .connect-v2-result-number{
+  animation:connectResultNumber .58s cubic-bezier(.2,.9,.2,1) both;
+}
+.connect-v2-node.is-available:active circle:first-of-type{
+  fill:rgba(242,240,232,.16);
+  stroke:#fffdf4;
+  filter:drop-shadow(0 0 10px rgba(242,240,232,.2));
+}
+
+/* BOUND — drawing commitment, disturbance, decision consequence */
+.play-v2-shell[data-play-kind="bound"][data-play-state="drawing"] .bound-v2-line{
+  filter:drop-shadow(0 0 8px rgba(224,107,63,.28));
+  transition:stroke-width .14s ease,filter .14s ease,opacity .14s ease;
+}
+.play-v2-shell[data-play-kind="bound"][data-play-state="ready"] .bound-v2-line{
+  animation:boundBoundarySet .44s cubic-bezier(.2,.8,.2,1) both;
+}
+.play-v2-shell[data-play-kind="bound"][data-play-state="committed"] .bound-v2-line{
+  stroke-width:4;
+  filter:drop-shadow(0 0 10px rgba(224,107,63,.42));
+}
+.play-v2-shell[data-play-kind="bound"][data-play-state="disturbing"] .bound-v2-field{
+  animation:boundFieldDisturb .9s cubic-bezier(.2,.7,.2,1) both;
+}
+.bound-v2-change.is-visible{
+  animation:boundMaskReveal .72s ease-out both;
+}
+.play-v2-shell[data-play-kind="bound"][data-play-state="decision"] .bound-v2-panel{
+  animation:feedbackPanelIn .34s ease-out both;
+}
+.play-v2-shell[data-play-kind="bound"][data-play-state="decision"] .bound-v2-change.is-visible{
+  filter:brightness(1.2) saturate(1.15);
+}
+.play-v2-shell[data-play-kind="bound"][data-play-state="result"] .bound-v2-result{
+  animation:boundResultSet .56s cubic-bezier(.2,.85,.2,1) both;
+}
+.play-v2-shell[data-play-kind="bound"][data-play-state="result"] .bound-v2-metric strong{
+  animation:feedbackMetricIn .42s ease-out both;
+}
+.play-v2-shell[data-play-kind="bound"][data-play-state="result"] .bound-v2-metric:nth-child(2) strong{animation-delay:.08s}
+.bound-v2-hit:active{cursor:grabbing}
+
+/* PROJECT — scrub tension, reveal spectacle, route/geodesic payoff */
+.project-v2-panel{
+  animation:feedbackPanelIn .28s ease-out both;
+}
+.project-v2-action:focus-visible,
+.connect-v2-action:focus-visible,
+.bound-v2-action:focus-visible{
+  outline:2px solid rgba(242,240,232,.76);
+  outline-offset:3px;
+}
+.project-v2-scrubber{
+  transition:filter .16s ease,opacity .16s ease;
+}
+.project-v2-scrubber:focus-visible{
+  outline:2px solid rgba(242,240,232,.62);
+  outline-offset:4px;
+}
+.project-v2-scrubber:active{
+  filter:brightness(1.28) drop-shadow(0 0 7px rgba(224,107,63,.28));
+}
+.project-v2-scrubber::-webkit-slider-thumb{
+  transition:transform .14s ease,box-shadow .14s ease;
+}
+.project-v2-scrubber:active::-webkit-slider-thumb{
+  transform:scale(1.18);
+  box-shadow:0 0 0 6px rgba(224,107,63,.12);
+}
+.project-v2-scrubber::-moz-range-thumb{
+  transition:transform .14s ease,box-shadow .14s ease;
+}
+.project-v2-scrubber:active::-moz-range-thumb{
+  transform:scale(1.18);
+  box-shadow:0 0 0 6px rgba(224,107,63,.12);
+}
+.play-v2-shell[data-play-kind="project"][data-play-state="revealed"] .project-v2-highlight{
+  animation:projectAreaReveal .66s cubic-bezier(.2,.85,.2,1) both;
+}
+.play-v2-shell[data-play-kind="project"][data-play-state="revealed"] .project-v2-area-pair strong{
+  animation:feedbackMetricIn .4s ease-out both;
+}
+.play-v2-shell[data-play-kind="project"][data-play-state="revealed"] .project-v2-area-pair>div:nth-child(2) strong{animation-delay:.1s}
+.play-v2-shell[data-play-kind="project"][data-play-state="routeDrawing"] .project-v2-route-judgment{
+  filter:drop-shadow(0 0 5px rgba(242,240,232,.18));
+}
+.play-v2-shell[data-play-kind="project"][data-play-state="routeTransforming"] .project-v2-geodesic{
+  stroke-dasharray:1600;
+  stroke-dashoffset:1600;
+  animation:projectGeodesicReveal .72s cubic-bezier(.2,.8,.2,1) forwards;
+  filter:drop-shadow(0 0 9px rgba(224,107,63,.42));
+}
+.play-v2-shell[data-play-kind="project"][data-play-state="routeTransforming"] .project-v2-route-judgment.is-ghost{
+  animation:projectJudgmentFade .5s ease-out both;
+}
+.play-v2-shell[data-play-kind="project"][data-play-state="routeResult"] .project-v2-geodesic{
+  animation:projectRouteSettle .58s ease-out both;
+}
+.play-v2-shell[data-play-kind="project"][data-play-state="routeResult"] .project-v2-route-result{
+  animation:feedbackResultIn .5s cubic-bezier(.2,.85,.2,1) both;
+}
+
+/* ORIENT — commitment, residual reveal, confidence/result hierarchy */
+.play-shell[data-play-kind="orient"] .orient-confidence-option.is-selected{
+  box-shadow:0 0 0 1px rgba(209,99,57,.24),0 0 18px rgba(209,99,57,.08);
+}
+.play-shell[data-play-kind="orient"][data-play-state="judge"] .orient-map:active{
+  filter:drop-shadow(0 30px 76px rgba(0,0,0,.3)) brightness(1.05);
+}
+.play-shell[data-play-kind="orient"][data-play-state="reveal"] .orient-truth,
+.play-shell[data-play-kind="orient"][data-play-state="compare"] .orient-truth{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:orientTruthReveal .5s cubic-bezier(.2,.9,.2,1) both;
+}
+.play-shell[data-play-kind="orient"] .orient-feedback-layer .orient-angle{
+  stroke-dasharray:360;
+  stroke-dashoffset:360;
+  animation:orientResidualDraw .62s ease-out forwards;
+}
+.play-shell[data-play-kind="orient"] .orient-feedback-layer .orient-distance-residual{
+  stroke-dasharray:480;
+  stroke-dashoffset:480;
+  animation:orientResidualDraw .7s ease-out .08s forwards;
+}
+.play-shell[data-play-kind="orient"] .orient-feedback-layer .orient-distance-residual-cap{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:orientCapIn .34s ease-out .22s both;
+}
+.play-shell[data-play-kind="orient"] .orient-feedback-layer .orient-feedback-label{
+  opacity:0;
+  animation:feedbackLabelIn .28s ease-out .34s forwards;
+}
+.play-shell[data-play-kind="orient"][data-play-state="reveal"] .play-readout .play-metric,
+.play-shell[data-play-kind="orient"][data-play-state="compare"] .play-readout .play-metric{
+  animation:feedbackMetricIn .34s ease-out both;
+}
+.play-shell[data-play-kind="orient"][data-play-state="reveal"] .play-readout .play-metric:nth-child(2),
+.play-shell[data-play-kind="orient"][data-play-state="compare"] .play-readout .play-metric:nth-child(2){animation-delay:.06s}
+.play-shell[data-play-kind="orient"][data-play-state="reveal"] .play-readout .play-metric:nth-child(3),
+.play-shell[data-play-kind="orient"][data-play-state="compare"] .play-readout .play-metric:nth-child(3){animation-delay:.12s}
+.play-shell[data-play-kind="orient"][data-play-state="reveal"] .play-readout .play-metric:nth-child(4),
+.play-shell[data-play-kind="orient"][data-play-state="compare"] .play-readout .play-metric:nth-child(4){animation-delay:.18s}
+
+@keyframes connectRouteDraw{
+  from{stroke-dashoffset:1200;opacity:.25}
+  to{stroke-dashoffset:0;opacity:1}
+}
+@keyframes connectRouteLock{
+  0%{stroke-width:4.2;filter:drop-shadow(0 2px 5px rgba(224,107,63,.24))}
+  48%{stroke-width:6;filter:drop-shadow(0 0 12px rgba(224,107,63,.56))}
+  100%{stroke-width:4.2;filter:drop-shadow(0 2px 5px rgba(224,107,63,.3))}
+}
+@keyframes connectEdgeRemoved{
+  0%{opacity:.7;stroke-dashoffset:0}
+  100%{opacity:.18;stroke-dashoffset:-42}
+}
+@keyframes connectInvalidPulse{
+  0%{opacity:.1;stroke-width:1}
+  45%{opacity:1;stroke-width:3.4}
+  100%{opacity:1;stroke-width:2.2}
+}
+@keyframes connectResultNumber{
+  0%{opacity:0;transform:translateY(8px) scale(.94)}
+  65%{opacity:1;transform:translateY(0) scale(1.04)}
+  100%{opacity:1;transform:none}
+}
+@keyframes boundBoundarySet{
+  0%{stroke-width:3.4;filter:drop-shadow(0 0 4px rgba(224,107,63,.15))}
+  50%{stroke-width:5.2;filter:drop-shadow(0 0 13px rgba(224,107,63,.5))}
+  100%{stroke-width:3.4;filter:drop-shadow(0 0 7px rgba(224,107,63,.28))}
+}
+@keyframes boundFieldDisturb{
+  0%{filter:saturate(.88) contrast(1.07) brightness(.94);transform:scale(1.015)}
+  45%{filter:saturate(.38) blur(1.5px) contrast(.88) brightness(.86);transform:scale(1.033)}
+  100%{filter:saturate(.46) blur(1px) contrast(.92) brightness(.9);transform:scale(1.025)}
+}
+@keyframes boundMaskReveal{
+  0%{opacity:0;filter:brightness(.8)}
+  45%{opacity:1;filter:brightness(1.35)}
+  100%{opacity:.9;filter:brightness(1)}
+}
+@keyframes boundResultSet{
+  0%{opacity:0;transform:translateY(9px)}
+  60%{opacity:1;transform:translateY(0) scale(1.025)}
+  100%{opacity:1;transform:none}
+}
+@keyframes projectAreaReveal{
+  0%{opacity:.5;filter:drop-shadow(0 0 0 rgba(224,107,63,0))}
+  55%{opacity:1;filter:drop-shadow(0 0 13px rgba(224,107,63,.32))}
+  100%{opacity:1;filter:drop-shadow(0 5px 12px rgba(0,0,0,.16))}
+}
+@keyframes projectGeodesicReveal{
+  from{stroke-dashoffset:1600;opacity:.22}
+  to{stroke-dashoffset:0;opacity:1}
+}
+@keyframes projectJudgmentFade{
+  from{opacity:.9}
+  to{opacity:.34}
+}
+@keyframes projectRouteSettle{
+  0%{stroke-width:3.4;filter:drop-shadow(0 0 5px rgba(224,107,63,.2))}
+  50%{stroke-width:4.8;filter:drop-shadow(0 0 13px rgba(224,107,63,.5))}
+  100%{stroke-width:3.4;filter:drop-shadow(0 2px 6px rgba(224,107,63,.28))}
+}
+@keyframes orientTruthReveal{
+  0%{opacity:0;transform:scale(.5)}
+  65%{opacity:1;transform:scale(1.18)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes orientResidualDraw{
+  from{stroke-dashoffset:480;opacity:.15}
+  to{stroke-dashoffset:0;opacity:1}
+}
+@keyframes orientCapIn{
+  from{opacity:0;transform:scale(.4)}
+  to{opacity:1;transform:scale(1)}
+}
+@keyframes feedbackPanelIn{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:none}
+}
+@keyframes feedbackResultIn{
+  0%{opacity:0;transform:translateY(9px) scale(.98)}
+  70%{opacity:1;transform:translateY(0) scale(1.012)}
+  100%{opacity:1;transform:none}
+}
+@keyframes feedbackMetricIn{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:none}
+}
+@keyframes feedbackLabelIn{
+  from{opacity:0;transform:translateY(3px)}
+  to{opacity:1;transform:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .connect-v2-route-line,
+  .connect-v2-edge,
+  .connect-v2-invalid-edge,
+  .connect-v2-invalid-label,
+  .connect-v2-overlay-panel,
+  .connect-v2-result-number,
+  .bound-v2-line,
+  .bound-v2-field,
+  .bound-v2-change,
+  .bound-v2-panel,
+  .bound-v2-result,
+  .bound-v2-metric strong,
+  .project-v2-panel,
+  .project-v2-highlight,
+  .project-v2-geodesic,
+  .project-v2-route-judgment,
+  .project-v2-route-result,
+  .project-v2-area-pair strong,
+  .orient-truth,
+  .orient-angle,
+  .orient-distance-residual,
+  .orient-distance-residual-cap,
+  .orient-feedback-label,
+  .play-shell[data-play-kind="orient"] .play-metric{
+    animation:none!important;
+    transition:none!important;
+    transform:none!important;
+  }
+}
