@@ -31,6 +31,19 @@ const escapeAttr = value => String(value ?? '')
   .replace(/</g, '&lt;')
   .replace(/>/g, '&gt;');
 
+const renderBookBody = (bodyEn, bodyZh = '') => {
+  if (!bodyZh) return bodyEn;
+  return `<div class="book-language-switch" aria-label="Reading language">
+  <span>READING LANGUAGE</span>
+  <div class="book-language-options" role="group" aria-label="Choose reading language">
+    <button type="button" data-book-lang-button="en" aria-pressed="true">ENGLISH</button>
+    <button type="button" data-book-lang-button="zh" aria-pressed="false">中文</button>
+  </div>
+</div>
+<div class="book-language-panel" data-book-lang-panel="en" lang="en">${bodyEn}</div>
+<div class="book-language-panel" data-book-lang-panel="zh" lang="zh-Hans" hidden>${bodyZh}</div>`;
+};
+
 const series = JSON.parse(fs.readFileSync(path.join(fieldNotesDir, 'series.json'), 'utf8'));
 const records = [];
 for (const entry of fs.readdirSync(fieldNotesDir, { withFileTypes: true })) {
@@ -54,6 +67,7 @@ if (fs.existsSync(bookContentDir)) {
     if (!fs.existsSync(metaPath)) continue;
 
     const bodyPath = path.join(unit, 'body.en.html');
+    const bodyZhPath = path.join(unit, 'body.zh.html');
     if (!fs.existsSync(bodyPath)) throw new Error(`BOOK ${entry.name}: missing body.en.html`);
 
     const record = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
@@ -85,13 +99,15 @@ if (fs.existsSync(bookContentDir)) {
       spatialField: 'reading field',
       ...(record.atlas.text.en || {})
     };
-    record.text.en.bodyHtml = fs.readFileSync(bodyPath, 'utf8').trim();
+    const bodyEn = fs.readFileSync(bodyPath, 'utf8').trim();
+    const bodyZh = fs.existsSync(bodyZhPath) ? fs.readFileSync(bodyZhPath, 'utf8').trim() : '';
+    record.text.en.bodyHtml = renderBookBody(bodyEn, bodyZh);
     bookRecords.push(record);
   }
 }
 bookRecords.sort((a, b) => {
   const orderA = a.data.order != null && Number.isFinite(Number(a.data.order)) ? Number(a.data.order) : Number.MAX_SAFE_INTEGER;
-  const orderB = b.data.order != null && Number.isFinite(Number(b.data.order)) ? Number(b.data.order) : Number.MAX_SAFE_INTEGER;
+  const orderB = b.data.order != null && Number.isFinite(Number(b.data.order)) ? Number(a.data.order) : Number.MAX_SAFE_INTEGER;
   return orderA - orderB || a.id.localeCompare(b.id);
 });
 
@@ -195,6 +211,7 @@ const bookManifest = bookRecords.map(record => ({
   firstPublished: record.data.firstPublished || '',
   editionRead: record.data.editionRead || '',
   languageRead: record.data.languageRead || '',
+  availableLanguages: record.text.en.bodyHtml.includes('data-book-lang-panel="zh"') ? ['en', 'zh'] : ['en'],
   shift: record.text.en.shift?.type || ''
 }));
 
