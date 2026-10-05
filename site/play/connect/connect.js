@@ -31,6 +31,7 @@
     if(!content?.PUZZLES?.length || !graphApi || !gameApi || !viewApi) throw new Error('Connect V2 modules incomplete.');
 
     GeoPlay.core.ensureStyle('play/connect/connect-v2.css?v=20261005b','connect-v2');
+    GeoPlay.core.ensureStyle('play/play-signature.css?v=20261005a','play-signature');
 
     let world;
     try {
@@ -75,7 +76,7 @@
       if(snapshot.state==='transforming') {
         window.clearTimeout(adaptTimer);
         const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-        adaptTimer=window.setTimeout(()=>game?.beginAdapt(),reduced?80:950);
+        adaptTimer=window.setTimeout(()=>game?.beginAdapt(),reduced?80:1450);
       }
     };
 
