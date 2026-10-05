@@ -1,8 +1,6 @@
 # Elsewhere / BOOK
 
-Status: build and renderer integrated.
-
-BOOK records in this directory feed the production Elsewhere collection.
+Status: production content contract. The build and renderer are wired; no BOOK record is published until a real title is supplied.
 
 ## Position
 
@@ -37,44 +35,6 @@ Some books do not add facts; they change the distance from which facts are seen.
 The frame changes, not only the facts.
 
 Keep a book when it alters scale, distance, vocabulary, or the questions that survive it.
-
-## Source layout
-
-Each published book is one directory.
-
-```text
-content/elsewhere/book/
-  README.md
-  book-001/
-    record.json
-    body.en.html
-  book-002/
-    record.json
-    body.en.html
-```
-
-The directory name must match `record.id`.
-
-The record reference must be `elsewhere:<record.id>`.
-
-The build assigns `elsewhere:e02` as the parent entry when `data.parentRef` is omitted.
-
-`data.order` is optional. Lower values appear first. Records without an order sort by ID after ordered records.
-
-## Build behavior
-
-`scripts/build.legacy.mjs` reads all BOOK directories during the normal site build.
-
-The build performs these actions:
-
-1. It validates required BOOK metadata and orientation fields.
-2. It loads `body.en.html` into the runtime archive payload.
-3. It adds BOOK records to `GEOGEEK_DATA.en.elsewhere`.
-4. It emits one static page at `records/elsewhere-<id>.html`.
-5. It emits `data/elsewhere-books.json` for inspection and downstream use.
-6. It registers BOOK as a non-spatial `book / Reading` object in Atlas.
-
-A validation failure stops the build.
 
 ## Book record
 
@@ -128,26 +88,6 @@ State why the book remains worth returning to.
 
 Prefer an unresolved tension, durable question, or productive limit over a recommendation.
 
-## Required build fields
-
-The build requires these values before a BOOK can ship:
-
-- `kind = elsewhere`
-- `data.unit = book`
-- `data.firstPublished`
-- `text.en.title`
-- `text.en.author`
-- `text.en.before`
-- `text.en.shift.type`
-- `text.en.shift.text`
-- `text.en.after`
-- `text.en.return`
-- `body.en.html`
-
-`data.firstPublished` must contain a four-digit year. Atlas uses that year for the BOOK record's time position.
-
-`editionRead` and `languageRead` remain optional because they are only necessary when edition or translation affects interpretation.
-
 ## Record header vocabulary
 
 - KIND — BOOK
@@ -156,48 +96,6 @@ The build requires these values before a BOOK can ship:
 - METHOD — CLOSE READING / MARGINS / RETURN
 - SCALE — RECORD
 - STATUS — OPEN RECORD
-
-## Recommended body markup
-
-Use the existing BOOK section classes so the renderer preserves one visual grammar.
-
-```html
-<section class="book-record-section" data-book-section="bibliography">
-  <div class="book-record-section-label">01 / BIBLIOGRAPHY</div>
-  <dl class="book-record-bibliography">
-    <div><dt>TITLE</dt><dd>...</dd></div>
-    <div><dt>AUTHOR</dt><dd>...</dd></div>
-    <div><dt>FIRST PUBLISHED</dt><dd>...</dd></div>
-  </dl>
-</section>
-
-<section class="book-record-section" data-book-section="before">
-  <div class="book-record-section-label">02 / BEFORE</div>
-  <div>...</div>
-</section>
-
-<section class="book-record-section" data-book-section="shift">
-  <div class="book-record-section-label">03 / SHIFT · FRAME</div>
-  <div>...</div>
-</section>
-
-<section class="book-record-section" data-book-section="after">
-  <div class="book-record-section-label">04 / AFTER</div>
-  <div>...</div>
-</section>
-
-<section class="book-record-section" data-book-section="trace">
-  <div class="book-record-section-label">05 / TRACE</div>
-  <div>...</div>
-</section>
-
-<section class="book-record-section" data-book-section="return">
-  <div class="book-record-section-label">06 / RETURN</div>
-  <div>...</div>
-</section>
-```
-
-TRACE may be empty until a later relation actually exists.
 
 ## Writing rules
 
@@ -216,6 +114,27 @@ A BOOK record is publishable only when BIBLIOGRAPHY, BEFORE, SHIFT, AFTER, and R
 
 TRACE can remain empty until a later relation actually exists.
 
+## Source layout
+
+Each published BOOK record lives at:
+
+```text
+content/elsewhere/book/<id>/
+├── record.json
+└── body.en.html
+```
+
+The build validates the record, adds it under `elsewhere:e02`, and emits:
+
+```text
+dist/records/elsewhere-<id>.html
+dist/data/elsewhere-books.json
+```
+
+The static record page prerenders `body.en.html`. Runtime archive body stripping therefore does not remove published BOOK prose.
+
+Source preview uses `record.html?ref=elsewhere:<id>`. Production collection and Atlas links use the emitted static record page.
+
 ## Data shape
 
 ```json
@@ -225,8 +144,6 @@ TRACE can remain empty until a later relation actually exists.
   "id": "book-001",
   "data": {
     "unit": "book",
-    "parentRef": "elsewhere:e02",
-    "order": 1,
     "status": "open",
     "firstPublished": "",
     "editionRead": "",
