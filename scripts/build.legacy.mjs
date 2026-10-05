@@ -8,6 +8,7 @@ const sourceDir = path.join(root, 'site');
 const fieldNotesDir = path.join(root, 'content', 'field-notes');
 const bookContentDir = path.join(root, 'content', 'elsewhere', 'book');
 const templatePath = path.join(root, 'templates', 'field-note.html');
+const bookTemplatePath = path.join(root, 'templates', 'elsewhere-book.html');
 const dist = path.join(root, 'dist');
 const originAudioUrl = 'https://www.scottbuckley.com.au/library/wp-content/uploads/2022/02/AdriftAmongInfiniteStars.mp3';
 const originAudioPath = path.join(dist, 'assets', 'audio', 'origin-adrift.mp3');
@@ -62,8 +63,26 @@ if (fs.existsSync(bookContentDir)) {
     if (record.ref !== expectedRef) throw new Error(`BOOK ${entry.name}: ref must be "${expectedRef}"`);
     if (!record.text?.en?.title) throw new Error(`BOOK ${entry.name}: text.en.title is required`);
     if (!record.text?.en?.author) throw new Error(`BOOK ${entry.name}: text.en.author is required`);
+    if (!record.data?.firstPublished) throw new Error(`BOOK ${entry.name}: data.firstPublished is required`);
+    if (!record.text?.en?.before) throw new Error(`BOOK ${entry.name}: text.en.before is required`);
+    if (!record.text?.en?.shift?.type || !record.text?.en?.shift?.text) throw new Error(`BOOK ${entry.name}: text.en.shift.type and text.en.shift.text are required`);
+    if (!record.text?.en?.after) throw new Error(`BOOK ${entry.name}: text.en.after is required`);
+    if (!record.text?.en?.return) throw new Error(`BOOK ${entry.name}: text.en.return is required`);
+
+    const publicationYear = Number(String(record.data.firstPublished).match(/\d{4}/)?.[0]);
+    if (!Number.isFinite(publicationYear)) throw new Error(`BOOK ${entry.name}: data.firstPublished must contain a four-digit year`);
 
     record.data.parentRef ||= 'elsewhere:e02';
+    record.atlas ||= {};
+    record.atlas.type ||= 'book';
+    record.atlas.year ||= publicationYear;
+    record.atlas.text ||= {};
+    record.atlas.text.en = {
+      topic: 'Reading',
+      place: 'Non-spatial',
+      spatialField: 'reading field',
+      ...(record.atlas.text.en || {})
+    };
     record.text.en.bodyHtml = fs.readFileSync(bodyPath, 'utf8').trim();
     bookRecords.push(record);
   }
@@ -146,6 +165,19 @@ for (const record of records) {
     series: record.data.seriesKey,
     figures: record.data.figures || 0
   });
+}
+
+const bookTemplate = fs.readFileSync(bookTemplatePath, 'utf8');
+for (const record of bookRecords) {
+  const title = record.text.en.title;
+  const description = record.text.en.subtitle || '';
+  const page = bookTemplate
+    .replaceAll('{{TITLE}}', escapeAttr(title))
+    .replaceAll('{{DESCRIPTION}}', escapeAttr(description))
+    .replaceAll('{{REF}}', escapeAttr(record.ref));
+  const pagePath = path.join(dist, 'records', `${record.ref.replace(':', '-')}.html`);
+  fs.mkdirSync(path.dirname(pagePath), { recursive: true });
+  fs.writeFileSync(pagePath, page);
 }
 
 const bookManifest = bookRecords.map(record => ({
