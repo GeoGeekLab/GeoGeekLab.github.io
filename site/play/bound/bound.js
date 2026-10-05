@@ -46,6 +46,7 @@
     const shell=GeoPlay.shell.createV2(stage,{kind:'bound',title:'BOUND'});
     const states=['drawing','ready','committed','disturbing','decision','redrawing','result'];
     const machine=GeoPlay.core.createStateMachine({initial:'drawing',states,onChange:state=>shell.setState(state)});
+    shell.setState(machine.state);
 
     const beforeGrid=fieldApi.sample(SCENARIO,SCENARIO.initialResolution);
     const afterGrid=fieldApi.sample(SCENARIO,SCENARIO.disturbedResolution);
@@ -86,11 +87,12 @@
       return fieldApi.evaluate(grid,boundary,{riskThreshold:SCENARIO.riskThreshold});
     }
 
-    function setBoundary(points,{emit=true}={}) {
+    function setBoundary(points) {
       boundary=(points||[]).map(point=>[...point]);
+      if(machine.state==='drawing' && boundary.length>=3) machine.set('ready');
       view?.setBoundary(boundary,{emit:false});
       const metrics=evaluateCurrent(machine.state==='redrawing'?afterGrid:beforeGrid);
-      renderDrawingPanel(metrics,emit);
+      renderDrawingPanel(metrics);
     }
 
     function guided() {
@@ -111,6 +113,7 @@
       actions.className='bound-v2-actions';
       actions.appendChild(button('RESET',()=>{
         boundary=[];
+        if(machine.state==='ready') machine.set('drawing');
         view.clearBoundary({keepOld:isRedraw});
         renderDrawingPanel(null);
         view.focus();
@@ -257,7 +260,7 @@
       finalMetrics=null;
       decision=null;
       traceWritten=false;
-      machine.set('drawing');
+      if(machine.state!=='drawing') machine.set('drawing');
       shell.setStatus('');
       setHud(SCENARIO.initialResolution);
       view.clearChangeMask();
