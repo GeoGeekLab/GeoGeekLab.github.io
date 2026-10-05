@@ -14,17 +14,23 @@
     document.head.appendChild(link);
   }
 
-  function createStateMachine({ initial = 'observe', onChange } = {}) {
-    let state = STATES.includes(initial) ? initial : 'observe';
+  function createStateMachine({ initial = 'observe', states = STATES, onChange } = {}) {
+    const allowedStates = Array.isArray(states) && states.length ? [...new Set(states)] : [...STATES];
+    const allowed = new Set(allowedStates);
+    let state = allowed.has(initial) ? initial : allowedStates[0];
     const listeners = new Set();
+
     const notify = (previous, meta) => {
       onChange?.(state, previous, meta);
       listeners.forEach(listener => listener(state, previous, meta));
     };
+
     return {
       get state() { return state; },
+      get states() { return [...allowedStates]; },
+      has(next) { return allowed.has(next); },
       set(next, meta = null) {
-        if (!STATES.includes(next)) throw new Error(`Unknown GeoPlay state: ${next}`);
+        if (!allowed.has(next)) throw new Error(`Unknown GeoPlay state: ${next}`);
         if (next === state) return state;
         const previous = state;
         state = next;
