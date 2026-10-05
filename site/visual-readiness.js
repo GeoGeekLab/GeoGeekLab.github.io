@@ -3,9 +3,7 @@
   'use strict';
 
   const root = document.documentElement;
-  const cover = document.getElementById('geogeek-boot-cover');
   const status = document.getElementById('geogeek-boot-status');
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let revealTimer = 0;
   let revealed = false;
 
@@ -86,21 +84,26 @@
     return { anchor, url };
   };
 
+  // Bubble phase is intentional: page-specific handlers get the first chance to
+  // cancel a click. Only a navigation that remains eligible receives the cover.
   document.addEventListener('click', event => {
     const nav = eligibleInternalLink(event);
     if (!nav) return;
     beginLeave();
-  }, true);
+  });
 
-  // Leave the neutral cover in the BFCache snapshot. Returning with the browser
-  // Back/Forward controls therefore restores a stable cover, never a stale
-  // pre-enhancement frame.
+  // Freeze every outgoing document behind the neutral cover. If the page enters
+  // BFCache, that covered state is the snapshot restored by Back/Forward. If it
+  // does not enter BFCache, the same cover bridges programmatic navigation such
+  // as the Origin wheel/keyboard handoff.
   addEventListener('pagehide', event => {
     if (event.persisted) {
       if (status) status.textContent = 'Restoring view…';
       setState('frozen');
-      window.__GEOGEEK_VISUAL_READY__ = false;
+    } else if (root.dataset.geogeekBoot !== 'leaving') {
+      beginLeave();
     }
+    window.__GEOGEEK_VISUAL_READY__ = false;
   });
 
   addEventListener('pageshow', event => {
