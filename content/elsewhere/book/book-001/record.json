@@ -1,0 +1,44 @@
+{
+  "ref": "elsewhere:book-001",
+  "kind": "elsewhere",
+  "id": "book-001",
+  "data": {
+    "unit": "book",
+    "status": "open",
+    "order": 1,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1974",
+    "editionRead": "First edition, Little, Brown, Boston, 1974",
+    "languageRead": "English"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "The Glory and the Dream",
+      "author": "William Manchester",
+      "subtitle": "A Narrative History of America, 1932–1972 · 《光荣与梦想》",
+      "meta": "close reading / margins / return",
+      "before": "Before reading, twentieth-century U.S. history felt like a sequence of already named eras and events, each with a clear beginning and end. Looking backward made crisis, repair, and progress appear almost inevitable, and made growth itself feel like the normal condition of society.",
+      "shift": {
+        "type": "frame",
+        "text": "Manchester's continuous 1932–1972 narrative replaced a retrospective success story with the uncertainty of lived history. The central question shifted from why America became strong to how a society repeatedly facing crisis, conflict, error, and distrust could still keep operating and repairing itself."
+      },
+      "after": "The book made high-speed growth feel less like a permanent baseline and more like the climate of a particular era. It also changed the criterion for judging a society: not whether it avoids crisis, but whether conflict still leaves room for argument, correction, repair, and continued collective life.",
+      "return": "Return to the book to keep asking what allows a society, after repeated episodes of disorder, to recover enough order to continue. The durable question is not why a country becomes powerful, but what remains unbroken when stability has to be rebuilt again and again."
+    }
+  },
+  "relations": {
+    "trace": []
+  },
+  "atlas": {
+    "type": "book",
+    "year": 1974,
+    "text": {
+      "en": {
+        "topic": "Reading",
+        "place": "Non-spatial",
+        "spatialField": "reading field"
+      }
+    }
+  }
+}

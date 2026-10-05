@@ -5,8 +5,10 @@ import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceDir = path.join(root, 'site');
-const contentDir = path.join(root, 'content', 'field-notes');
+const fieldNotesDir = path.join(root, 'content', 'field-notes');
+const bookContentDir = path.join(root, 'content', 'elsewhere', 'book');
 const templatePath = path.join(root, 'templates', 'field-note.html');
+const bookTemplatePath = path.join(root, 'templates', 'elsewhere-book.html');
 const dist = path.join(root, 'dist');
 const originAudioUrl = 'https://www.scottbuckley.com.au/library/wp-content/uploads/2022/02/AdriftAmongInfiniteStars.mp3';
 const originAudioPath = path.join(dist, 'assets', 'audio', 'origin-adrift.mp3');
@@ -29,11 +31,24 @@ const escapeAttr = value => String(value ?? '')
   .replace(/</g, '&lt;')
   .replace(/>/g, '&gt;');
 
-const series = JSON.parse(fs.readFileSync(path.join(contentDir, 'series.json'), 'utf8'));
+const renderBookBody = (bodyEn, bodyZh = '') => {
+  if (!bodyZh) return bodyEn;
+  return `<div class="book-language-switch" aria-label="Reading language">
+  <span>READING LANGUAGE</span>
+  <div class="book-language-options" role="group" aria-label="Choose reading language">
+    <button type="button" data-book-lang-button="en" aria-pressed="true">ENGLISH</button>
+    <button type="button" data-book-lang-button="zh" aria-pressed="false">中文</button>
+  </div>
+</div>
+<div class="book-language-panel" data-book-lang-panel="en" lang="en">${bodyEn}</div>
+<div class="book-language-panel" data-book-lang-panel="zh" lang="zh-Hans" hidden>${bodyZh}</div>`;
+};
+
+const series = JSON.parse(fs.readFileSync(path.join(fieldNotesDir, 'series.json'), 'utf8'));
 const records = [];
-for (const entry of fs.readdirSync(contentDir, { withFileTypes: true })) {
+for (const entry of fs.readdirSync(fieldNotesDir, { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
-  const unit = path.join(contentDir, entry.name);
+  const unit = path.join(fieldNotesDir, entry.name);
   const metaPath = path.join(unit, 'record.json');
   if (!fs.existsSync(metaPath)) continue;
   const record = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
@@ -42,15 +57,69 @@ for (const entry of fs.readdirSync(contentDir, { withFileTypes: true })) {
 }
 records.sort((a, b) => String(b.data.published).localeCompare(String(a.data.published)) || a.id.localeCompare(b.id));
 
-const payload = { series, records };
-const makeArchiveBootstrap = ({ sourcePreview = false } = {}) => `(() => {\n  'use strict';\n  window.GEOGEEK_SOURCE_PREVIEW = ${sourcePreview ? 'true' : 'false'};\n  const payload = ${JSON.stringify(payload)};\n  window.GEOGEEK_WECHAT_ARCHIVE = payload;\n  const archive = window.GEOGEEK_ARCHIVE;\n  if (!archive) return;\n  archive.records = [...payload.records, ...archive.records.filter(record => record.kind !== 'notes')];\n  const ui = archive.locales?.en?.ui || {};\n  const itemFor = record => ({id:record.id,...(record.data||{}),...(record.text?.en||{})});\n  const byKind = kind => archive.records.filter(record=>record.kind===kind).map(itemFor);\n  const atlasLayout = archive.records.filter(record=>record.atlas).map(record=>({ref:record.ref,...Object.fromEntries(Object.entries(record.atlas||{}).filter(([key])=>key!=='text')),...(record.atlas?.text?.en||{}),traceLinks:[...(record.relations?.trace||[])]}));\n  window.GEOGEEK_DATA = {en:{ui,notes:byKind('notes'),lab:byKind('lab'),elsewhere:byKind('elsewhere'),atlasLayout}};\n})();\n`;
+const bookShiftTypes = new Set(['frame', 'scale', 'distance', 'vocabulary', 'method']);
+const bookRecords = [];
+if (fs.existsSync(bookContentDir)) {
+  for (const entry of fs.readdirSync(bookContentDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const unit = path.join(bookContentDir, entry.name);
+    const metaPath = path.join(unit, 'record.json');
+    if (!fs.existsSync(metaPath)) continue;
+
+    const bodyPath = path.join(unit, 'body.en.html');
+    const bodyZhPath = path.join(unit, 'body.zh.html');
+    if (!fs.existsSync(bodyPath)) throw new Error(`BOOK ${entry.name}: missing body.en.html`);
+
+    const record = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+    const expectedRef = `elsewhere:${record.id}`;
+    if (record.kind !== 'elsewhere') throw new Error(`BOOK ${entry.name}: kind must be "elsewhere"`);
+    if (record.data?.unit !== 'book') throw new Error(`BOOK ${entry.name}: data.unit must be "book"`);
+    if (record.id !== entry.name) throw new Error(`BOOK ${entry.name}: record id must match directory name`);
+    if (record.ref !== expectedRef) throw new Error(`BOOK ${entry.name}: ref must be "${expectedRef}"`);
+    if (!record.text?.en?.title) throw new Error(`BOOK ${entry.name}: text.en.title is required`);
+    if (!record.text?.en?.author) throw new Error(`BOOK ${entry.name}: text.en.author is required`);
+    if (!record.data?.firstPublished) throw new Error(`BOOK ${entry.name}: data.firstPublished is required`);
+    if (!record.text?.en?.before) throw new Error(`BOOK ${entry.name}: text.en.before is required`);
+    if (!record.text?.en?.shift?.type || !record.text?.en?.shift?.text) throw new Error(`BOOK ${entry.name}: text.en.shift.type and text.en.shift.text are required`);
+    if (!bookShiftTypes.has(String(record.text.en.shift.type).toLowerCase())) throw new Error(`BOOK ${entry.name}: text.en.shift.type must be frame, scale, distance, vocabulary, or method`);
+    if (!record.text?.en?.after) throw new Error(`BOOK ${entry.name}: text.en.after is required`);
+    if (!record.text?.en?.return) throw new Error(`BOOK ${entry.name}: text.en.return is required`);
+
+    const publicationYear = Number(String(record.data.firstPublished).match(/\d{4}/)?.[0]);
+    if (!Number.isFinite(publicationYear)) throw new Error(`BOOK ${entry.name}: data.firstPublished must contain a four-digit year`);
+
+    record.data.parentRef ||= 'elsewhere:e02';
+    record.atlas ||= {};
+    record.atlas.type ||= 'book';
+    record.atlas.year ||= publicationYear;
+    record.atlas.text ||= {};
+    record.atlas.text.en = {
+      topic: 'Reading',
+      place: 'Non-spatial',
+      spatialField: 'reading field',
+      ...(record.atlas.text.en || {})
+    };
+    const bodyEn = fs.readFileSync(bodyPath, 'utf8').trim();
+    const bodyZh = fs.existsSync(bodyZhPath) ? fs.readFileSync(bodyZhPath, 'utf8').trim() : '';
+    record.text.en.bodyHtml = renderBookBody(bodyEn, bodyZh);
+    bookRecords.push(record);
+  }
+}
+bookRecords.sort((a, b) => {
+  const orderA = a.data.order != null && Number.isFinite(Number(a.data.order)) ? Number(a.data.order) : Number.MAX_SAFE_INTEGER;
+  const orderB = b.data.order != null && Number.isFinite(Number(b.data.order)) ? Number(b.data.order) : Number.MAX_SAFE_INTEGER;
+  return orderA - orderB || a.id.localeCompare(b.id);
+});
+
+const payload = { series, records, books: bookRecords };
+const makeArchiveBootstrap = ({ sourcePreview = false } = {}) => `(() => {\n  'use strict';\n  window.GEOGEEK_SOURCE_PREVIEW = ${sourcePreview ? 'true' : 'false'};\n  const payload = ${JSON.stringify(payload)};\n  window.GEOGEEK_WECHAT_ARCHIVE = { series: payload.series, records: payload.records };\n  window.GEOGEEK_ELSEWHERE_CONTENT = { records: payload.books };\n  const archive = window.GEOGEEK_ARCHIVE;\n  if (!archive) return;\n  const generatedElsewhereRefs = new Set(payload.books.map(record => record.ref));\n  const retained = archive.records.filter(record => record.kind !== 'notes' && !generatedElsewhereRefs.has(record.ref));\n  const nonNotes = retained.flatMap(record => record.ref === 'elsewhere:e02' ? [record, ...payload.books] : [record]);\n  archive.records = [...payload.records, ...nonNotes];\n  const ui = archive.locales?.en?.ui || {};\n  const itemFor = record => ({id:record.id,...(record.data||{}),...(record.text?.en||{}),traceLinks:[...(record.relations?.trace||[])]});\n  const byKind = kind => archive.records.filter(record=>record.kind===kind).map(itemFor);\n  const atlasLayout = archive.records.filter(record=>record.atlas).map(record=>({ref:record.ref,...Object.fromEntries(Object.entries(record.atlas||{}).filter(([key])=>key!=='text')),...(record.atlas?.text?.en||{}),traceLinks:[...(record.relations?.trace||[])]}));\n  window.GEOGEEK_DATA = {en:{ui,notes:byKind('notes'),lab:byKind('lab'),elsewhere:byKind('elsewhere'),atlasLayout}};\n})();\n`;
 
 
 // Local source preview cache. It is derived from content/ and ignored by Git.
 fs.writeFileSync(previewArchivePath, makeArchiveBootstrap({ sourcePreview: true }));
 fs.rmSync(previewFigureRoot, { recursive: true, force: true });
 for (const record of records) {
-  const figures = path.join(contentDir, record.id, 'figures');
+  const figures = path.join(fieldNotesDir, record.id, 'figures');
   if (fs.existsSync(figures)) copyDir(figures, path.join(previewFigureRoot, record.id));
 }
 
@@ -117,7 +186,37 @@ for (const record of records) {
   });
 }
 
+const bookTemplate = fs.readFileSync(bookTemplatePath, 'utf8');
+for (const record of bookRecords) {
+  const title = record.text.en.title;
+  const description = record.text.en.subtitle || '';
+  const page = bookTemplate
+    .replaceAll('{{TITLE}}', escapeAttr(title))
+    .replaceAll('{{DESCRIPTION}}', escapeAttr(description))
+    .replaceAll('{{REF}}', escapeAttr(record.ref))
+    .replace('<p class="record-deck" id="recordExcerpt"></p>', `<p class="record-deck" id="recordExcerpt">${escapeAttr(description)}</p>`)
+    .replace('<div class="record-body" id="recordBody"></div>', `<div class="record-body" id="recordBody">${record.text.en.bodyHtml}</div>`);
+  const pagePath = path.join(dist, 'records', `${record.ref.replace(':', '-')}.html`);
+  fs.mkdirSync(path.dirname(pagePath), { recursive: true });
+  fs.writeFileSync(pagePath, page);
+}
+
+const bookManifest = bookRecords.map(record => ({
+  id: record.id,
+  ref: record.ref,
+  parentRef: record.data.parentRef,
+  order: record.data.order ?? null,
+  title: record.text.en.title,
+  author: record.text.en.author,
+  firstPublished: record.data.firstPublished || '',
+  editionRead: record.data.editionRead || '',
+  languageRead: record.data.languageRead || '',
+  availableLanguages: record.text.en.bodyHtml.includes('data-book-lang-panel="zh"') ? ['en', 'zh'] : ['en'],
+  shift: record.text.en.shift?.type || ''
+}));
+
 fs.mkdirSync(path.join(dist, 'data'), { recursive: true });
 fs.writeFileSync(path.join(dist, 'data', 'field-notes.json'), JSON.stringify(manifest, null, 2) + '\n');
+fs.writeFileSync(path.join(dist, 'data', 'elsewhere-books.json'), JSON.stringify(bookManifest, null, 2) + '\n');
 fs.writeFileSync(path.join(dist, '.nojekyll'), '');
-console.log(`Built GeoGeek: ${records.length} field notes → ${dist}`);
+console.log(`Built GeoGeek: ${records.length} field notes + ${bookRecords.length} books → ${dist}`);
