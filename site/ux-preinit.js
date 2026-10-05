@@ -2,14 +2,9 @@
 (() => {
   'use strict';
 
-  // /index.html is the canonical home artifact. GitHub Pages can cache `/` and
-  // `/index.html` under separate CDN keys, so normalize the root path before
-  // any page-state bootstrap runs and preserve deep-link query/hash state.
-  if (location.pathname === '/') {
-    location.replace('/index.html' + location.search + location.hash);
-    return;
-  }
-
+  // GitHub Pages already serves the same index artifact for `/` and
+  // `/index.html`. Do not perform a client-side redirect: it creates a second
+  // navigation and can expose a stale first frame on entry/return.
   document.documentElement.lang = 'en';
 
   // Shared primary navigation sizing. Keep the 72px bar geometry unchanged,
@@ -93,7 +88,7 @@
   // Homepage-only viewport fit. Load this after shared layout/interaction styles
   // so Coordinates and Commons can consume one desktop viewport without
   // changing the design system or any inner page.
-  const isHome = /(?:^|\/)index\.html$/.test(location.pathname);
+  const isHome = location.pathname === '/' || /(?:^|\/)index\.html$/.test(location.pathname);
   if (isHome) {
     const homeViewportStyle = document.createElement('link');
     homeViewportStyle.rel = 'stylesheet';
