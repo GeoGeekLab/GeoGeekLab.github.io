@@ -51,6 +51,19 @@ function removeDuplicateHomeNavigation(html, relative) {
   return html.replace(/\s*<script\b[^>]*data-geogeek-home-canonical[^>]*>[\s\S]*?<\/script>\s*/i, '\n');
 }
 
+function bridgeProgrammaticNavigation(html, relative) {
+  if (!/^origin\//i.test(relative)) return html;
+  // Origin can return to Home by wheel, keyboard or touch without clicking an
+  // anchor. Start the same visual handoff before its delayed location.assign so
+  // the outgoing instrument never remains visible during that scripted return.
+  const needle = "    document.body.classList.add('origin-home-leaving');\n    setTimeout(()=>location.assign('/index.html'),reduced?0:220);";
+  if (!html.includes(needle)) return html;
+  return html.replace(
+    needle,
+    "    document.body.classList.add('origin-home-leaving');\n    window.GeoGeekVisualReadiness?.beginLeave?.('Returning to GeoGeek…');\n    setTimeout(()=>location.assign('/index.html'),reduced?0:220);"
+  );
+}
+
 function injectBoot(html, relative) {
   if (/data-geogeek-visual-readiness=(['"])true\1/i.test(html)) return html;
   const surface = darkSurface(relative) ? 'dark' : 'paper';
@@ -91,6 +104,7 @@ for (const file of await htmlFiles(dist)) {
   let html = await fs.readFile(file, 'utf8');
   html = refreshCriticalBootstrap(html);
   html = removeDuplicateHomeNavigation(html, relative);
+  html = bridgeProgrammaticNavigation(html, relative);
   const patched = injectBoot(html, relative);
   await fs.writeFile(file, patched);
   count += 1;
