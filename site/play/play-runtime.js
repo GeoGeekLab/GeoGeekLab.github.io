@@ -32,9 +32,10 @@
       'play/connect/connect-view.js?v=20261005a'
     ],
     project: [
-      'play/project/project-content.js?v=20261005a',
-      'play/project/project-morph.js?v=20261005a',
-      'play/project/project-view.js?v=20261005a'
+      'play/project/project-content.js?v=20261005b',
+      'play/project/project-morph.js?v=20261005b',
+      'play/project/project-view.js?v=20261005b',
+      'play/project/project-route-view.js?v=20261005a'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {
@@ -48,7 +49,7 @@
     locate: 'play/orient/orient.js?v=20261003f',
     zone: 'play/bound/bound.js?v=20261002c',
     path: 'play/connect/connect.js?v=20261005a',
-    project: 'play/project/project.js?v=20261005a'
+    project: 'play/project/project.js?v=20261005b'
   };
   const OPTIONAL_POST_SCRIPTS = {
     locate: [
