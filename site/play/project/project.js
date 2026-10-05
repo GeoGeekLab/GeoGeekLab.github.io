@@ -24,9 +24,12 @@
     const content=window.GeoPlayProjectContent;
     const morphApi=window.GeoPlayProjectMorph;
     const areaViewApi=window.GeoPlayProjectView;
-    const routeViewApi=window.GeoPlayProjectRouteView;
     if(!stage) throw new Error('Project requires an instrument stage.');
     if(!GeoPlay?.core || !GeoPlay?.shell?.createV2 || !GeoPlay?.trace) throw new Error('GeoPlay V2 runtime incomplete.');
+    if(!window.GeoPlayProjectRouteView?.create) {
+      await GeoPlay.core.loadScript('play/project/project-route-view.js?v=20261005a','GeoPlayProjectRouteView');
+    }
+    const routeViewApi=window.GeoPlayProjectRouteView;
     if(!content?.AREA_EXPERIMENT || !content?.ROUTE_EXPERIMENT || !morphApi?.create || !areaViewApi?.create || !routeViewApi?.create) throw new Error('Project V2 modules incomplete.');
 
     GeoPlay.core.ensureStyle('play/project/project-v2.css?v=20261005b','project-v2');
