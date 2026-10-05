@@ -19,6 +19,11 @@
     requestAnimationFrame(step);
   });
 
+  const withTimeout = (promise, ms) => Promise.race([
+    promise,
+    new Promise(resolve => setTimeout(resolve, ms))
+  ]);
+
   const waitForLocalStyles = () => {
     const pending = [...document.querySelectorAll('link[rel="stylesheet"]')]
       .filter(link => {
@@ -31,18 +36,38 @@
         }
       });
     if (!pending.length) return Promise.resolve();
-    return Promise.race([
+    return withTimeout(
       Promise.all(pending.map(link => new Promise(resolve => {
         const done = () => resolve();
         link.addEventListener('load', done, { once: true });
         link.addEventListener('error', done, { once: true });
       }))),
-      new Promise(resolve => setTimeout(resolve, 1800))
-    ]);
+      1800
+    );
+  };
+
+  const waitForPreinitEnhancements = () => {
+    const hasPreinit = [...document.scripts].some(script => /(?:^|\/)ux-preinit\.js(?:\?|$)/.test(script.src || ''));
+    if (!hasPreinit || window.__GEOGEEK_PREINIT_READY__ === true) return Promise.resolve();
+    return withTimeout(new Promise(resolve => {
+      addEventListener('geogeek:preinit-ready', resolve, { once: true });
+    }), 1800);
+  };
+
+  const waitForFonts = () => {
+    if (!document.fonts?.ready) return Promise.resolve();
+    return withTimeout(document.fonts.ready.catch(() => {}), 800);
   };
 
   const settle = async () => {
-    await waitForLocalStyles();
+    // CSS, DOM-critical enhancement scripts, and primary fonts can all alter the
+    // first rendered geometry. Wait for them together, then give the browser two
+    // complete layout frames before removing the cover.
+    await Promise.all([
+      waitForLocalStyles(),
+      waitForPreinitEnhancements(),
+      waitForFonts(),
+    ]);
     await nextFrames(2);
   };
 
@@ -112,8 +137,8 @@
     reveal({ restored: true });
   });
 
-  // Initial cold navigation. DOMContentLoaded is enough for markup; local
-  // styles and two layout frames are awaited separately above.
+  // Initial cold navigation. DOMContentLoaded is enough for markup; styles,
+  // critical enhancements, fonts, and two layout frames are awaited separately.
   const start = () => reveal({ restored: false });
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start, { once: true });
@@ -128,7 +153,7 @@
     if (revealed) return;
     if (status) status.textContent = 'Opening GeoGeek…';
     reveal({ restored: false });
-  }, 2600);
+  }, 3000);
 
   window.GeoGeekVisualReadiness = Object.freeze({
     beginLeave,
