@@ -32,12 +32,32 @@ function accidentalBlockingLocalScripts(html) {
   );
 }
 
-function stableFontStylesheetLinks(html) {
+function googleFontLinks(html) {
   return [...html.matchAll(/<link\b[^>]*>/gi)]
     .map(match => match[0])
+    .filter(tag => /fonts\.googleapis\.com\/css2/i.test(tag));
+}
+
+function stableFontStylesheetLinks(html) {
+  return googleFontLinks(html)
     .filter(tag => /\brel=(['"])stylesheet\1/i.test(tag))
-    .filter(tag => /fonts\.googleapis\.com\/css2/i.test(tag))
     .filter(tag => /data-geogeek-fonts=(['"])stable\1/i.test(tag));
+}
+
+function hasLegacyFontBehavior(tag) {
+  return /display=optional/i.test(tag) ||
+    /data-geogeek-fonts=(['"])async\1/i.test(tag) ||
+    /\bmedia=(['"])print\1/i.test(tag) ||
+    /\bonload\s*=/i.test(tag);
+}
+
+function hasStableFontContract(html) {
+  const delivery = googleFontLinks(html);
+  const stable = stableFontStylesheetLinks(html);
+  return delivery.length === 1 &&
+    stable.length === 1 &&
+    /display=swap/i.test(stable[0]) &&
+    !hasLegacyFontBehavior(delivery[0]);
 }
 
 const home = await read('index.html');
@@ -61,13 +81,7 @@ check(!/earth-lab-preview|earth-observatory-heading|earth-observatory\.jpg/i.tes
 check(/\/commons\/loader\.js\?v=20261001a/.test(home), 'PERF-05 Home uses the viewport-driven Commons loader');
 check(!/<script[^>]+src=(['"])(?:\.?\/)?commons\/(?:config|geo|demo-data|commons-data|commons)\.js[^'"]*\1/i.test(home), 'PERF-05 heavy Commons runtime is absent from the initial Home script graph');
 
-const homeFontLinks = stableFontStylesheetLinks(home);
-check(
-  homeFontLinks.length === 1 &&
-  /display=swap/i.test(homeFontLinks[0]) &&
-  !/display=optional|data-geogeek-fonts=(['"])async\1|media=(['"])print\2|onload=/i.test(home),
-  'PERF-06 webfont delivery is single-source and stable in first-response HTML'
-);
+check(hasStableFontContract(home), 'PERF-06 webfont delivery is single-source and stable in first-response HTML');
 check(!/fonts\.googleapis\.com/i.test(styles), 'PERF-06 site CSS contains no render-blocking Google Fonts imports');
 check(!/display=optional/i.test(styles), 'PERF-06 site CSS does not restore optional font-display behavior');
 
@@ -85,21 +99,16 @@ const htmlFiles = allFiles.filter(file => file.endsWith('.html'));
 let blockingCount = 0;
 let malformedIdleCount = 0;
 let articleSrcsetCount = 0;
-let unstableFontPageCount = 0;
+const unstableFontPages = [];
 for (const file of htmlFiles) {
   const html = await fs.readFile(file, 'utf8');
   blockingCount += accidentalBlockingLocalScripts(html).length;
   malformedIdleCount += (html.match(/data-idle-\s+src\s*=/gi) || []).length;
   if (/[/\\]field-notes[/\\][^/\\]+[/\\]index\.html$/.test(file)) articleSrcsetCount += (html.match(/\bsrcset=(['"])/gi) || []).length;
-
-  const fontLinks = stableFontStylesheetLinks(html);
-  if (
-    fontLinks.length !== 1 ||
-    !/display=swap/i.test(fontLinks[0] || '') ||
-    /display=optional|data-geogeek-fonts=(['"])async\1|media=(['"])print\2|onload=/i.test(html)
-  ) unstableFontPageCount += 1;
+  if (!hasStableFontContract(html)) unstableFontPages.push(path.relative(dist, file).replaceAll('\\', '/'));
 }
-check(unstableFontPageCount === 0, 'PERF-06 every generated HTML page uses the stable webfont contract');
+if (unstableFontPages.length) console.error(`Unstable font pages: ${unstableFontPages.join(', ')}`);
+check(unstableFontPages.length === 0, 'PERF-06 every generated HTML page uses the stable webfont contract');
 check(blockingCount === 0, 'PERF-07 generated HTML has no accidental blocking local classic scripts');
 check(malformedIdleCount === 0, 'PERF-07 generated HTML preserves data-idle-src attributes');
 
