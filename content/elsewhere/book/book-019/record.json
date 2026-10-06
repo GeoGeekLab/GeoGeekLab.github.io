@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-019",
+  "kind": "elsewhere",
+  "id": "book-019",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 19,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1931"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "自卑与超越",
+      "author": "Alfred Adler",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

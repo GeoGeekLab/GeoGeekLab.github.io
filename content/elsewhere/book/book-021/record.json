@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-021",
+  "kind": "elsewhere",
+  "id": "book-021",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 21,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1895"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "乌合之众",
+      "author": "Gustave Le Bon",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
