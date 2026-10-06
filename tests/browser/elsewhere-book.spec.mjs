@@ -29,8 +29,8 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
 
   const chinesePanel = body.locator('[data-book-lang-panel="zh"]');
   await expect(chinesePanel).toContainText('读《光荣与梦想》之前');
-  await expect(chinesePanel).toContainText('繁荣从来不是一个所有人同时抵达的季节');
-  await expect(chinesePanel).toContainText('昨日的结局也不会循着旧路，再来一遍');
+  await expect(chinesePanel).toContainText('繁盛从来不是一个所有人同时抵达的季节');
+  await expect(chinesePanel).toContainText('昨日的结局也不会照着旧稿再写一次');
 
   const shiftSection = chinesePanel.locator('.book-record-section').nth(2);
   const labelBox = await shiftSection.locator('.book-record-section-label').boundingBox();
