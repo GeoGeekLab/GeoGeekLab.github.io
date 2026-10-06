@@ -50,6 +50,12 @@ Record only stable bibliographic facts.
 - EDITION READ, when edition matters
 - LANGUAGE READ, when translation matters
 
+### Title language policy
+
+The BOOK index uses the work's original or first-release title language. Do not replace that canonical title with a translated title merely because a translated edition was read. Translation and edition information belongs in `EDITION READ` and `LANGUAGE READ` when relevant.
+
+For a work first published in Japanese, French, Italian, English, or another language, preserve that published title in the index. Chinese-language works remain in Chinese. Verify uncertain titles against a publisher, library catalogue, or first-edition bibliographic source before publication.
+
 ### 02 / BEFORE
 
 State the question or assumption carried into the book.
@@ -101,7 +107,7 @@ Prefer an unresolved tension, durable question, or productive limit over a recom
 
 1. Do not write a conventional plot or chapter summary.
 2. Separate the author's claim from GeoGeek's later use of that claim.
-3. Verify author, publication year, edition, and translator before publication.
+3. Verify title language, author, publication year, edition, and translator before publication.
 4. Attach page numbers to specific textual claims when an edition is known.
 5. Keep quotations short and necessary. Prefer paraphrase plus a precise citation.
 6. Do not turn personal influence into a claim about the author's intent.
