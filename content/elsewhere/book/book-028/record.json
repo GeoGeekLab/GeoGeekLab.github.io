@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-028",
+  "kind": "elsewhere",
+  "id": "book-028",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 28,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1988"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "平凡的世界",
+      "author": "路遥",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

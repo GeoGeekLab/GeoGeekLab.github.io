@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-030",
+  "kind": "elsewhere",
+  "id": "book-030",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 30,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2025"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "世界的逻辑",
+      "author": "马兆远",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

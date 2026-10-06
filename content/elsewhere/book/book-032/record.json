@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-032",
+  "kind": "elsewhere",
+  "id": "book-032",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 32,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2013"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "八次危机：中国的真实经验1949-2009",
+      "author": "温铁军等",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

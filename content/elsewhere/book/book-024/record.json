@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-024",
+  "kind": "elsewhere",
+  "id": "book-024",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 24,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1987"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "随想录",
+      "author": "巴金",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

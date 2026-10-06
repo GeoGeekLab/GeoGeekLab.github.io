@@ -56,7 +56,7 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
 });
 
-test('Elsewhere exposes BOOK as a twenty-three-record collection index', async ({ page }) => {
+test('Elsewhere exposes BOOK as a thirty-four-record collection index', async ({ page }) => {
   await page.goto('/elsewhere.html#e02');
 
   const bookCollection = page.locator('#e02[data-collection-entry="true"]');
@@ -64,7 +64,7 @@ test('Elsewhere exposes BOOK as a twenty-three-record collection index', async (
   await expect(bookCollection.locator('.book-unit-head')).toContainText('BOOK INDEX');
 
   const records = bookCollection.locator('.book-unit-row');
-  await expect(records).toHaveCount(23);
+  await expect(records).toHaveCount(34);
   await expect(records.first()).toContainText('The Glory and the Dream');
   await expect(records.first()).toContainText('William Manchester');
   await expect(records.first()).toContainText('1974');
@@ -90,6 +90,17 @@ test('Elsewhere exposes BOOK as a twenty-three-record collection index', async (
   await expect(records.nth(20)).toContainText('乌合之众');
   await expect(records.nth(21)).toContainText('被讨厌的勇气');
   await expect(records.nth(22)).toContainText('君主论');
+  await expect(records.nth(23)).toContainText('随想录');
+  await expect(records.nth(24)).toContainText('牛棚杂忆');
+  await expect(records.nth(25)).toContainText('目送');
+  await expect(records.nth(26)).toContainText('水问');
+  await expect(records.nth(27)).toContainText('平凡的世界');
+  await expect(records.nth(28)).toContainText('人工智能之不能');
+  await expect(records.nth(29)).toContainText('世界的逻辑');
+  await expect(records.nth(30)).toContainText('代谢增长论：技术小波和文明兴衰');
+  await expect(records.nth(31)).toContainText('八次危机：中国的真实经验1949-2009');
+  await expect(records.nth(32)).toContainText('苦难辉煌');
+  await expect(records.nth(33)).toContainText('万历十五年');
 });
 
 test('BOOK scaffold pages keep metadata while leaving the reading response empty', async ({ page }) => {
