@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-022",
+  "kind": "elsewhere",
+  "id": "book-022",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 22,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2013"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "被讨厌的勇气",
+      "author": "岸见一郎、古贺史健",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
