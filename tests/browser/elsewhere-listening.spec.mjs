@@ -29,14 +29,12 @@ test('Elsewhere exposes LISTENING as a nineteen-record Sound as landscape collec
   await expect(rows.nth(10)).toContainText('稍息立正站好 + おどるポンポコリン');
   await expect(rows.nth(11)).toContainText('倔強');
   await expect(rows.nth(12)).toContainText('Go West');
-  await expect(rows.nth(13)).toContainText('Y_COEkYVwn4');
-  await expect(rows.nth(13)).toContainText('SOURCE TITLE PENDING');
+  await expect(rows.nth(13)).toContainText('歌唱祖国');
   await expect(rows.nth(14)).toContainText('Love Story');
   await expect(rows.nth(15)).toContainText('Tadow');
   await expect(rows.nth(16)).toContainText('España Cañí');
   await expect(rows.nth(17)).toContainText('Victory');
-  await expect(rows.nth(18)).toContainText('4cqhC_paryE');
-  await expect(rows.nth(18)).toContainText('SOURCE TITLE PENDING');
+  await expect(rows.nth(18)).toContainText("L'inverno, RV 297: II. Largo");
 
   await expect(rows.nth(0)).toHaveAttribute('href', 'records/elsewhere-listening-001.html');
   await expect(rows.nth(18)).toHaveAttribute('href', 'records/elsewhere-listening-019.html');
@@ -70,8 +68,10 @@ test('LISTENING preserves original or first-release title language and supplied 
   await expect(page.locator('#recordTitle')).toHaveAttribute('lang', 'mul');
 
   await page.goto('/records/elsewhere-listening-014.html');
-  await expect(page.locator('#recordTitle')).toHaveText('Y_COEkYVwn4');
-  await expect(page.locator('#recordMeta')).toContainText('SOURCE TITLE PENDING');
+  await expect(page.locator('#recordTitle')).toHaveText('歌唱祖国');
+  await expect(page.locator('#recordTitle')).toHaveAttribute('lang', 'zh-Hans');
+  await expect(page.locator('#recordExcerpt')).toContainText('王莘');
+  await expect(page.locator('#recordMeta')).not.toContainText('SOURCE TITLE PENDING');
 
   await page.goto('/records/elsewhere-listening-015.html');
   await expect(page.locator('#recordTitle')).toHaveText('Love Story');
@@ -90,6 +90,8 @@ test('LISTENING preserves original or first-release title language and supplied 
   await expect(page.locator('#recordExcerpt')).toContainText('Two Steps from Hell');
 
   await page.goto('/records/elsewhere-listening-019.html');
-  await expect(page.locator('#recordTitle')).toHaveText('4cqhC_paryE');
-  await expect(page.locator('#recordMeta')).toContainText('SOURCE TITLE PENDING');
+  await expect(page.locator('#recordTitle')).toHaveText("L'inverno, RV 297: II. Largo");
+  await expect(page.locator('#recordTitle')).toHaveAttribute('lang', 'it');
+  await expect(page.locator('#recordExcerpt')).toContainText('Antonio Vivaldi');
+  await expect(page.locator('#recordMeta')).not.toContainText('SOURCE TITLE PENDING');
 });
