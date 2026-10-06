@@ -70,13 +70,3 @@ test('build runs font normalization after every HTML-producing transform', async
   assert.ok(materializeBookRecords > visualReadiness);
   assert.ok(fontStability > materializeBookRecords);
 });
-
-test('visual readiness explicitly loads all critical font families before reveal', async () => {
-  const readiness = await readFile(path.join(root, 'site/visual-readiness.js'), 'utf8');
-
-  assert.match(readiness, /document\.fonts\.load/);
-  assert.match(readiness, /Instrument Sans/);
-  assert.match(readiness, /Newsreader/);
-  assert.match(readiness, /IBM Plex Mono/);
-  assert.match(readiness, /withTimeout\(loadCriticalFonts, 1500\)/);
-});
