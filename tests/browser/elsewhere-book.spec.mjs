@@ -56,7 +56,7 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
 });
 
-test('Elsewhere exposes BOOK as an eleven-record collection index', async ({ page }) => {
+test('Elsewhere exposes BOOK as a sixteen-record collection index', async ({ page }) => {
   await page.goto('/elsewhere.html#e02');
 
   const bookCollection = page.locator('#e02[data-collection-entry="true"]');
@@ -64,7 +64,7 @@ test('Elsewhere exposes BOOK as an eleven-record collection index', async ({ pag
   await expect(bookCollection.locator('.book-unit-head')).toContainText('BOOK INDEX');
 
   const records = bookCollection.locator('.book-unit-row');
-  await expect(records).toHaveCount(11);
+  await expect(records).toHaveCount(16);
   await expect(records.first()).toContainText('The Glory and the Dream');
   await expect(records.first()).toContainText('William Manchester');
   await expect(records.first()).toContainText('1974');
@@ -78,6 +78,11 @@ test('Elsewhere exposes BOOK as an eleven-record collection index', async ({ pag
   await expect(records.nth(8)).toContainText('挪威的森林');
   await expect(records.nth(9)).toContainText('南渡北归');
   await expect(records.nth(10)).toContainText('民国三大校长');
+  await expect(records.nth(11)).toContainText('Guns, Germs, and Steel');
+  await expect(records.nth(12)).toContainText('The Almanack of Naval Ravikant');
+  await expect(records.nth(13)).toContainText('解忧杂货店');
+  await expect(records.nth(14)).toContainText('The Evolution of Physics');
+  await expect(records.nth(15)).toContainText("Fermat's Enigma");
 });
 
 test('BOOK scaffold pages keep metadata while leaving the reading response empty', async ({ page }) => {
