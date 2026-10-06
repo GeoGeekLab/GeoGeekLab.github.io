@@ -56,16 +56,8 @@
   };
 
   const waitForFonts = () => {
-    if (!document.fonts?.ready || typeof document.fonts.load !== 'function') return Promise.resolve();
-    const criticalFonts = [
-      '600 64px "Instrument Sans"',
-      '400 italic 40px "Newsreader"',
-      '600 12px "IBM Plex Mono"',
-    ];
-    const loadCriticalFonts = Promise.all(
-      criticalFonts.map(font => document.fonts.load(font).catch(() => []))
-    ).then(() => document.fonts.ready).catch(() => {});
-    return withTimeout(loadCriticalFonts, 1500);
+    if (!document.fonts?.ready) return Promise.resolve();
+    return withTimeout(document.fonts.ready.catch(() => {}), 800);
   };
 
   const settle = async () => {
