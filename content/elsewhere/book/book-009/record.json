@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-009",
+  "kind": "elsewhere",
+  "id": "book-009",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 9,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1987"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "挪威的森林",
+      "author": "村上春树",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-006",
+  "kind": "elsewhere",
+  "id": "book-006",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 6,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1859"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "A Tale of Two Cities",
+      "author": "Charles Dickens",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-008",
+  "kind": "elsewhere",
+  "id": "book-008",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 8,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1992"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "黄金时代",
+      "author": "王小波",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

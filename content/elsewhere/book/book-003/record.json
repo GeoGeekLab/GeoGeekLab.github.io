@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-003",
+  "kind": "elsewhere",
+  "id": "book-003",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 3,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1960"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
