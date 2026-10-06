@@ -15,10 +15,9 @@
     .replace(/'/g, '&#39;');
 
   const escapeAttr = escapeHtml;
-  const signalMarkup = '<span class="listening-unit-signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>';
   const titleForms = new Set(['original', 'first-release']);
 
-  const sourceIdentifier = item => String(item?.source?.bvid || item?.source?.aid || item?.id || '').trim();
+  const sourceIdentifier = item => String(item?.source?.bvid || item?.source?.videoId || item?.source?.aid || item?.id || '').trim();
   const verifiedTitle = item => String(item?.title || '').trim();
   const displayHeading = item => verifiedTitle(item) || sourceIdentifier(item) || 'LISTENING SOURCE';
   const refFor = item => String(item?.ref || `elsewhere:${item?.id || ''}`);
@@ -111,7 +110,6 @@
         const language = title && item.titleLanguage ? ` lang="${escapeAttr(item.titleLanguage)}"` : '';
         return `<a class="listening-unit-row contour-target${title ? '' : ' is-source-pending'}" data-record-ref="${escapeAttr(refFor(item))}" data-transition-source data-local-scale="1 : 2,500" data-local-level="RECORD" href="${escapeAttr(recordHref(item))}">
           <span class="listening-unit-index">${String(index + 1).padStart(2, '0')}</span>
-          ${signalMarkup}
           <span class="listening-unit-main"><strong${language}>${escapeHtml(title || sourceId)}</strong>${secondary ? `<small>${escapeHtml(secondary)}</small>` : ''}</span>
           <span class="listening-unit-change">${escapeHtml(change)}</span>
           <span class="listening-unit-arrow" aria-hidden="true">↗</span>
