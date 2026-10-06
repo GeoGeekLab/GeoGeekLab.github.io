@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-test('BOOK 001 keeps BOOK metadata and authored reading response in production', async ({ page }) => {
+test('BOOK 001 keeps BOOK metadata and authored reading response visibly readable in production', async ({ page }) => {
   await page.goto('/records/elsewhere-book-001.html');
 
+  await expect(page.locator('body')).toHaveAttribute('data-static-record', 'true');
   await expect(page.locator('#recordKicker')).toHaveText('BOOK / RECORD');
   await expect(page.locator('#recordDetailLabel')).toHaveText('READING RESPONSE');
 
@@ -11,6 +12,10 @@ test('BOOK 001 keeps BOOK metadata and authored reading response in production',
   await expect(meta).toContainText('READING');
   await expect(meta).toContainText('William Manchester');
   await expect(meta).toContainText('FRAME');
+
+  const detail = page.locator('#detail');
+  await expect(detail).toHaveClass(/geo-reveal/);
+  await expect.poll(() => detail.evaluate((node) => getComputedStyle(node).opacity)).toBe('1');
 
   const body = page.locator('#recordBody');
   await expect(body).toContainText('Before reading The Glory and the Dream');
