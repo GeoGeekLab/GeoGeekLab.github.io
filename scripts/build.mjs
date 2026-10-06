@@ -2,7 +2,7 @@
 // GeoGeek static-delivery wrapper.
 // Normal mode:
 //   1) run legacy QA; its internal build call is redirected to build.legacy.mjs,
-//   2) materialize the data-driven Elsewhere BOOK index from the generated manifest,
+//   2) materialize the data-driven Elsewhere BOOK index and LISTENING records,
 //   3) run shared static-delivery, stability, performance, accessibility, Origin and visual-readiness transforms,
 //   4) re-materialize authored BOOK bodies so generic transforms cannot replace them,
 //   5) normalize font delivery last across the final HTML/CSS output.
@@ -24,6 +24,7 @@ if (process.env.GEOGEEK_LEGACY_BUILD_ONLY === '1') {
   if (qa.error) throw qa.error;
   if (qa.status !== 0) process.exit(qa.status ?? 1);
   await import('./materialize-elsewhere-book-index.mjs');
+  await import('./materialize-elsewhere-listening-records.mjs');
   await import('./postbuild-static-delivery.mjs');
   await import('./postbuild-runtime-stability.mjs');
   await import('./postbuild-performance.mjs');
