@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-020",
+  "kind": "elsewhere",
+  "id": "book-020",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 20,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1983"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "社会心理学",
+      "author": "David G. Myers",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
