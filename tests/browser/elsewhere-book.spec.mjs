@@ -42,7 +42,8 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   );
   const leftEdges = paragraphBoxes.map((box) => box.left);
   expect(labelBox).not.toBeNull();
-  expect(Math.min(...leftEdges)).toBeGreaterThan(labelBox.right + 10);
+  const labelRight = labelBox.x + labelBox.width;
+  expect(Math.min(...leftEdges)).toBeGreaterThan(labelRight + 10);
   expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
 });
 
