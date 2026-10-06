@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-010",
+  "kind": "elsewhere",
+  "id": "book-010",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 10,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2011"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "南渡北归",
+      "author": "岳南",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

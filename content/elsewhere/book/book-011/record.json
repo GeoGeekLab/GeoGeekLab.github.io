@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-011",
+  "kind": "elsewhere",
+  "id": "book-011",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 11,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2015"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "民国三大校长",
+      "author": "王云五、罗家伦等",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
