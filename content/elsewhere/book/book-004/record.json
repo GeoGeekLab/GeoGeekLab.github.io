@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-004",
+  "kind": "elsewhere",
+  "id": "book-004",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 4,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2007"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "大明王朝1566",
+      "author": "刘和平",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

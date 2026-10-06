@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-007",
+  "kind": "elsewhere",
+  "id": "book-007",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 7,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2001"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "沧浪之水",
+      "author": "阎真",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

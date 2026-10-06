@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-005",
+  "kind": "elsewhere",
+  "id": "book-005",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 5,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1992"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "活着",
+      "author": "余华",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

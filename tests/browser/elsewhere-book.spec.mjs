@@ -30,7 +30,7 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   const chinesePanel = body.locator('[data-book-lang-panel="zh"]');
   await expect(chinesePanel).toContainText('读《光荣与梦想》之前');
   await expect(chinesePanel).toContainText('繁荣从来不是一个所有人同时抵达的季节');
-  await expect(chinesePanel).toContainText('昨日的结局也不会循着旧路，再来一遍');
+  await expect(chinesePanel).toContainText('昨日的结局也不会照着旧稿再写一次');
 
   const shiftSection = chinesePanel.locator('.book-record-section').nth(2);
   const labelBox = await shiftSection.locator('.book-record-section-label').boundingBox();
@@ -46,7 +46,7 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
 });
 
-test('Elsewhere exposes BOOK as an expandable collection index', async ({ page }) => {
+test('Elsewhere exposes BOOK as a nine-record collection index', async ({ page }) => {
   await page.goto('/elsewhere.html#e02');
 
   const bookCollection = page.locator('#e02[data-collection-entry="true"]');
@@ -54,8 +54,25 @@ test('Elsewhere exposes BOOK as an expandable collection index', async ({ page }
   await expect(bookCollection.locator('.book-unit-head')).toContainText('BOOK INDEX');
 
   const records = bookCollection.locator('.book-unit-row');
-  await expect(records).toHaveCount(1);
+  await expect(records).toHaveCount(9);
   await expect(records.first()).toContainText('The Glory and the Dream');
   await expect(records.first()).toContainText('William Manchester');
   await expect(records.first()).toContainText('1974');
+  await expect(records.nth(1)).toContainText('How to Win Friends and Influence People');
+  await expect(records.nth(2)).toContainText('To Kill a Mockingbird');
+  await expect(records.nth(3)).toContainText('大明王朝1566');
+  await expect(records.nth(4)).toContainText('活着');
+  await expect(records.nth(5)).toContainText('A Tale of Two Cities');
+  await expect(records.nth(6)).toContainText('沧浪之水');
+  await expect(records.nth(7)).toContainText('黄金时代');
+  await expect(records.nth(8)).toContainText('挪威的森林');
+});
+
+test('BOOK scaffold pages keep metadata while leaving the reading response empty', async ({ page }) => {
+  await page.goto('/records/elsewhere-book-002.html');
+
+  await expect(page.locator('#recordTitle')).toHaveText('How to Win Friends and Influence People');
+  await expect(page.locator('#recordMeta')).toContainText('Dale Carnegie');
+  await expect(page.locator('#recordMeta')).toContainText('1936');
+  await expect(page.locator('#recordBody')).toBeEmpty();
 });
