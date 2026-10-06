@@ -42,7 +42,13 @@ ok(has(lab, 'lab-static-fallback'), 'GG-06 Lab has a first-response fallback');
 ok(!has(lab, 'Open Earth Observatory'), 'GG-06 Lab fallback does not resurrect the removed standalone Earth route');
 ok(has(atlas, 'atlas-static-fallback'), 'GG-06 Atlas has a first-response fallback');
 const elsewhereEntries = (elsewhere.match(/\belsewhere-entry\b/g) || []).length;
-ok(elsewhereEntries >= 3 && has(elsewhere, 'CURRENT ENTRIES'), 'GG-06 Elsewhere has first-response static content');
+const elsewhereHasStaticBookIndex = has(elsewhere, 'BOOK INDEX')
+  && has(elsewhere, 'data-record-ref="elsewhere:book-001"')
+  && has(elsewhere, 'records/elsewhere-book-001.html');
+ok(
+  elsewhereEntries >= 3 && has(elsewhere, 'COLLECTIONS') && elsewhereHasStaticBookIndex,
+  'GG-06 Elsewhere has first-response static collections and BOOK index'
+);
 
 ok(has(runtime, "closest?.('#commonsHour')"), 'GG-07 Commons hour input is coalesced');
 ok(has(runtime, 'latestRaw = raw'), 'GG-07 Commons stale snapshot callers converge on latest result');
