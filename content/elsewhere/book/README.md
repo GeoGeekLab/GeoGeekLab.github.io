@@ -1,6 +1,6 @@
 # Elsewhere / BOOK
 
-Status: production content contract. The build and renderer are wired; BOOK records are published only after the real title, edition, and authored orientation fields are complete.
+Status: production content contract. Completed BOOK records require real bibliographic and authored orientation fields. Draft scaffolds may reserve a collection entry and static record page while the reading response remains intentionally empty.
 
 ## Position
 
@@ -38,7 +38,7 @@ Keep a book when it alters scale, distance, vocabulary, or the questions that su
 
 ## Book record
 
-Each book record uses the same six-part structure.
+Each completed book record uses the same six-part structure.
 
 ### 01 / BIBLIOGRAPHY
 
@@ -95,7 +95,7 @@ Prefer an unresolved tension, durable question, or productive limit over a recom
 - OBJECT — the book title
 - METHOD — CLOSE READING / MARGINS / RETURN
 - SCALE — RECORD
-- STATUS — OPEN RECORD
+- STATUS — OPEN RECORD or DRAFT
 
 ## Writing rules
 
@@ -108,15 +108,19 @@ Prefer an unresolved tension, durable question, or productive limit over a recom
 7. Do not assign ratings, scores, or generic recommendation labels.
 8. Keep one record centered on one durable change of orientation.
 
-## Minimum publishable record
+## Completed and scaffold records
 
-A BOOK record is publishable only when BIBLIOGRAPHY, BEFORE, SHIFT, AFTER, and RETURN are complete.
+A completed BOOK record is publishable only when BIBLIOGRAPHY, BEFORE, SHIFT, AFTER, and RETURN are complete.
 
 TRACE can remain empty until a later relation actually exists.
 
+A scaffold is a visible draft slot for a known book. Set `data.scaffold` to `true`, keep `status` as `draft`, and keep `body.en.html` empty. A scaffold requires only the stable index metadata needed to identify the book. BEFORE, SHIFT, AFTER, RETURN, edition-read metadata, and translation metadata must not be invented just to satisfy the build.
+
+When the reading response is ready, remove scaffold mode, fill the authored orientation fields, and write the real body before treating the record as complete.
+
 ## Source layout
 
-Each published BOOK record lives at:
+Each BOOK record lives at:
 
 ```text
 content/elsewhere/book/<id>/
@@ -125,7 +129,7 @@ content/elsewhere/book/<id>/
 └── body.zh.html    # optional authored Chinese version
 ```
 
-`body.en.html` is required. When `body.zh.html` exists, the build combines both authored bodies into one record page with an ENGLISH / 中文 switcher.
+`body.en.html` is required as a file. It must contain authored prose for a completed record and must remain empty for a scaffold. When `body.zh.html` exists on a completed record, the build combines both authored bodies into one record page with an ENGLISH / 中文 switcher.
 
 The build validates the record, adds it under `elsewhere:e02`, and emits:
 
@@ -134,7 +138,7 @@ dist/records/elsewhere-<id>.html
 dist/data/elsewhere-books.json
 ```
 
-The static record page prerenders the authored body content. Runtime archive body stripping therefore does not remove published BOOK prose in either language.
+The static record page prerenders the authored body content. Runtime archive body stripping therefore does not remove published BOOK prose in either language. Scaffold pages deliberately render an empty `READING RESPONSE` body.
 
 Source preview uses `record.html?ref=elsewhere:<id>`. Production collection and Atlas links use the emitted static record page.
 
@@ -148,6 +152,7 @@ Source preview uses `record.html?ref=elsewhere:<id>`. Production collection and 
   "data": {
     "unit": "book",
     "status": "open",
+    "scaffold": false,
     "firstPublished": "",
     "editionRead": "",
     "languageRead": ""
