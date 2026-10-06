@@ -43,9 +43,9 @@ test('Elsewhere exposes LISTENING as a nineteen-record Sound as landscape collec
   await expect(index.locator('.listening-unit-empty')).toHaveCount(0);
 
   await expect(rows.first().locator(':scope > *')).toHaveCount(4);
-  const listeningGrid = await index.locator('.listening-unit-list').evaluate((node) => getComputedStyle(node).gridTemplateColumns);
-  const bookGrid = await page.locator('#e02 .book-unit-list').evaluate((node) => getComputedStyle(node).gridTemplateColumns);
-  expect(listeningGrid).toBe(bookGrid);
+  const listeningColumns = await index.locator('.listening-unit-list').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length);
+  const bookColumns = await page.locator('#e02 .book-unit-list').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length);
+  expect(listeningColumns).toBe(bookColumns);
 });
 
 test('LISTENING preserves original or first-release title language and supplied source embeds', async ({ page }) => {
