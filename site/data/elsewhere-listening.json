@@ -1,0 +1,27 @@
+{
+  "titlePolicy": "original-or-first-release-language",
+  "records": [
+    {
+      "id": "listening-001",
+      "ref": "elsewhere:listening-001",
+      "order": 1,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "Bilibili",
+        "aid": "792267262",
+        "bvid": "BV1wC4y1Q7aT",
+        "cid": "1367471689",
+        "page": 1,
+        "embedUrl": "https://player.bilibili.com/player.html?isOutside=true&aid=792267262&bvid=BV1wC4y1Q7aT&cid=1367471689&p=1",
+        "watchUrl": "https://www.bilibili.com/video/BV1wC4y1Q7aT/"
+      }
+    }
+  ]
+}
