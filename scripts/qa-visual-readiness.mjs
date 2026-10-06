@@ -31,7 +31,9 @@ for (const contract of [
   'beginLeave',
   '__GEOGEEK_VISUAL_READY__',
   'waitForPreinitEnhancements',
-  'document.fonts'
+  'document.fonts',
+  'event.preventDefault()',
+  'commitNavigationAfterPaint'
 ]) {
   if (!runtime.includes(contract)) fail(`runtime missing ${contract} contract`);
 }
@@ -54,7 +56,9 @@ for (const file of await htmlFiles(dist)) {
     'data-geogeek-boot-critical',
     'id="geogeek-boot-cover"',
     'data-geogeek-boot-preload',
-    'data-geogeek-visual-readiness="true"'
+    'data-geogeek-visual-readiness="true"',
+    'html[data-geogeek-boot="leaving"] #geogeek-boot-cover',
+    'transition:none!important'
   ];
   for (const marker of required) {
     if (!html.includes(marker)) fail(`${relative} missing ${marker}`);
