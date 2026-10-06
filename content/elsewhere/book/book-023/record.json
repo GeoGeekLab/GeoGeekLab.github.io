@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-023",
+  "kind": "elsewhere",
+  "id": "book-023",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 23,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1532"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "君主论",
+      "author": "尼科洛·马基雅维利",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
