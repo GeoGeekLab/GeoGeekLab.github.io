@@ -26,7 +26,24 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   await expect(english).toHaveAttribute('aria-pressed', 'true');
   await chinese.click();
   await expect(chinese).toHaveAttribute('aria-pressed', 'true');
-  await expect(body.locator('[data-book-lang-panel="zh"]')).toContainText('读《光荣与梦想》之前');
+
+  const chinesePanel = body.locator('[data-book-lang-panel="zh"]');
+  await expect(chinesePanel).toContainText('读《光荣与梦想》之前');
+  await expect(chinesePanel).toContainText('繁荣从来不是一个所有人同时抵达的季节');
+  await expect(chinesePanel).toContainText('昨日的结局也不会循着旧路，再来一遍');
+
+  const shiftSection = chinesePanel.locator('.book-record-section').nth(2);
+  const labelBox = await shiftSection.locator('.book-record-section-label').boundingBox();
+  const paragraphBoxes = await shiftSection.locator(':scope > p').evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const box = node.getBoundingClientRect();
+      return { left: box.left, right: box.right };
+    }),
+  );
+  const leftEdges = paragraphBoxes.map((box) => box.left);
+  expect(labelBox).not.toBeNull();
+  expect(Math.min(...leftEdges)).toBeGreaterThan(labelBox.right + 10);
+  expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
 });
 
 test('Elsewhere exposes BOOK as an expandable collection index', async ({ page }) => {
