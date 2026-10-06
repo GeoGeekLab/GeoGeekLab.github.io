@@ -65,6 +65,7 @@ if (await exists(contentRoot)) {
 
     const record = JSON.parse(await read(recordPath));
     if (record?.data?.unit !== 'book') continue;
+    const scaffold = record.data?.scaffold === true;
 
     const bodyEnPath = path.join(unit, 'body.en.html');
     const bodyZhPath = path.join(unit, 'body.zh.html');
@@ -72,6 +73,7 @@ if (await exists(contentRoot)) {
 
     const bodyEn = (await read(bodyEnPath)).trim();
     const bodyZh = (await exists(bodyZhPath)) ? (await read(bodyZhPath)).trim() : '';
+    if (scaffold && (bodyEn || bodyZh)) throw new Error(`BOOK ${entry.name}: scaffold body files must stay empty`);
     const body = renderBookBody(bodyEn, bodyZh);
     const ref = String(record.ref || `elsewhere:${record.id || entry.name}`);
     const pagePath = path.join(distRoot, 'records', `${ref.replace(':', '-')}.html`);
@@ -83,10 +85,16 @@ if (await exists(contentRoot)) {
 
     const finalHtml = await read(pagePath);
     const firstEnglishParagraph = bodyEn.match(/<p>([\s\S]*?)<\/p>/i)?.[1]?.replace(/<[^>]+>/g, '')?.trim();
-    if (!finalHtml.includes('data-book-lang-panel="en"')) throw new Error(`BOOK ${entry.name}: English authored panel was not materialized`);
+    if (bodyZh && !finalHtml.includes('data-book-lang-panel="en"')) throw new Error(`BOOK ${entry.name}: English authored panel was not materialized`);
     if (bodyZh && !finalHtml.includes('data-book-lang-panel="zh"')) throw new Error(`BOOK ${entry.name}: Chinese authored panel was not materialized`);
     if (firstEnglishParagraph && !finalHtml.replace(/<[^>]+>/g, '').includes(firstEnglishParagraph)) {
       throw new Error(`BOOK ${entry.name}: authored English prose missing after final materialization`);
+    }
+    if (scaffold) {
+      const loc = findElement(finalHtml, 'recordBody');
+      if (!loc || finalHtml.slice(loc.openEnd, loc.closeStart).trim()) {
+        throw new Error(`BOOK ${entry.name}: scaffold reading response must stay empty`);
+      }
     }
     count += 1;
   }
