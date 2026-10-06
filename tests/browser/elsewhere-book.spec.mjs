@@ -56,7 +56,7 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
 });
 
-test('Elsewhere exposes BOOK as a twenty-one-record collection index', async ({ page }) => {
+test('Elsewhere exposes BOOK as a twenty-three-record collection index', async ({ page }) => {
   await page.goto('/elsewhere.html#e02');
 
   const bookCollection = page.locator('#e02[data-collection-entry="true"]');
@@ -64,7 +64,7 @@ test('Elsewhere exposes BOOK as a twenty-one-record collection index', async ({ 
   await expect(bookCollection.locator('.book-unit-head')).toContainText('BOOK INDEX');
 
   const records = bookCollection.locator('.book-unit-row');
-  await expect(records).toHaveCount(21);
+  await expect(records).toHaveCount(23);
   await expect(records.first()).toContainText('The Glory and the Dream');
   await expect(records.first()).toContainText('William Manchester');
   await expect(records.first()).toContainText('1974');
@@ -88,6 +88,8 @@ test('Elsewhere exposes BOOK as a twenty-one-record collection index', async ({ 
   await expect(records.nth(18)).toContainText('自卑与超越');
   await expect(records.nth(19)).toContainText('社会心理学');
   await expect(records.nth(20)).toContainText('乌合之众');
+  await expect(records.nth(21)).toContainText('被讨厌的勇气');
+  await expect(records.nth(22)).toContainText('君主论');
 });
 
 test('BOOK scaffold pages keep metadata while leaving the reading response empty', async ({ page }) => {
