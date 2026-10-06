@@ -58,10 +58,22 @@ for (const file of await htmlFiles(dist)) {
     'data-geogeek-boot-preload',
     'data-geogeek-visual-readiness="true"',
     'html[data-geogeek-boot="leaving"] #geogeek-boot-cover',
-    'transition:none!important'
+    'transition:none!important',
+    'class="geogeek-boot-brand"',
+    'class="geogeek-boot-brand-mark"',
+    'class="geogeek-boot-scale"',
+    'border-radius:50%',
+    '--geogeek-boot-fg:#152019',
+    '--geogeek-boot-signal:#a64624',
+    '--geogeek-boot-sans:"Instrument Sans"',
+    'INFORMATION SCALE',
+    'VIEW / READYING'
   ];
   for (const marker of required) {
     if (!html.includes(marker)) fail(`${relative} missing ${marker}`);
+  }
+  if (html.includes('class="geogeek-boot-inner"')) {
+    fail(`${relative} still contains the obsolete centered readiness card`);
   }
 
   const preinitRefs = [...html.matchAll(/src=(['"])([^'"]*\/)?ux-preinit\.js(?:\?v=([^'"]+))?\1/gi)];
