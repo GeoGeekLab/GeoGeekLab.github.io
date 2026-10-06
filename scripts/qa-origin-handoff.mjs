@@ -8,9 +8,8 @@ const dist = path.join(root, 'dist');
 const assert = (condition, message) => { if (!condition) throw new Error(`Origin handoff QA: ${message}`); };
 
 const home = await fs.readFile(path.join(dist, 'index.html'), 'utf8');
-assert(home.includes('data-geogeek-home-canonical'), 'home canonical redirect marker is missing');
-assert(home.includes('https://geogeeklab.github.io/index.html'), 'home canonical URL is not /index.html');
-assert(home.includes("location.pathname === '/'"), 'root-path normalization is missing');
+assert(home.includes('rel="canonical" href="https://geogeeklab.github.io/index.html"'), 'home canonical URL is not /index.html');
+assert(!home.includes("location.replace('/index.html'"), 'home must not perform a second client-side / -> /index.html navigation');
 
 for (const relative of ['origin/index.html', 'origin/cn/index.html']) {
   const html = await fs.readFile(path.join(dist, relative), 'utf8');
