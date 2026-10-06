@@ -6,6 +6,7 @@
   const status = document.getElementById('geogeek-boot-status');
   let revealTimer = 0;
   let revealed = false;
+  let navigationCommitted = false;
 
   const setState = state => {
     root.dataset.geogeekBoot = state;
@@ -74,6 +75,7 @@
   const reveal = async ({ restored = false } = {}) => {
     clearTimeout(revealTimer);
     await settle();
+    navigationCommitted = false;
     revealed = true;
     setState('ready');
     root.dataset.geogeekBootRestored = restored ? 'true' : 'false';
@@ -109,12 +111,29 @@
     return { anchor, url };
   };
 
+  const commitNavigationAfterPaint = url => {
+    if (navigationCommitted) return;
+    navigationCommitted = true;
+    // One full paint must happen with the outgoing document covered before the
+    // browser starts fetching/replacing it. A double rAF guarantees the first
+    // leaving frame is actually presented instead of being skipped by an
+    // immediate default navigation.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        location.assign(url.href);
+      });
+    });
+  };
+
   // Bubble phase is intentional: page-specific handlers get the first chance to
-  // cancel a click. Only a navigation that remains eligible receives the cover.
+  // cancel a click. For an eligible same-origin navigation we then own the
+  // default transaction so the cover is painted before the document changes.
   document.addEventListener('click', event => {
     const nav = eligibleInternalLink(event);
     if (!nav) return;
+    event.preventDefault();
     beginLeave();
+    commitNavigationAfterPaint(nav.url);
   });
 
   // Freeze every outgoing document behind the neutral cover. If the page enters
