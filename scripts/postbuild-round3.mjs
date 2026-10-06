@@ -55,12 +55,20 @@ function removeScript(html, basename) {
   return html.replace(new RegExp(`\\s*<script\\b[^>]*src=(['"])[^'"]*${escaped}(?:\\?[^'"]*)?\\1[^>]*><\\/script>\\s*`, 'ig'), '\n');
 }
 
+function removeLegacyPreviewArtifacts(html) {
+  html = removeScript(html, 'previews.js');
+  html = html.replace(/\s*<link\b[^>]*href=(['"])[^'"]*earth-observatory\.jpg(?:\?[^'"]*)?\1[^>]*>\s*/ig, '\n');
+  html = html.replace(/\/assets\/lab\/previews\/earth-observatory\.jpg(?:\?[^'"<\s]*)?/ig, '/assets/lab/previews/earth.jpg');
+  return html;
+}
+
 async function labPreviewVersion() {
   const file = path.join(dist, 'lab-real-previews.js');
   if (!(await exists(file))) throw new Error('Round 3 missing lab-real-previews.js runtime.');
   const source = await read(file);
   const match = source.match(/const VERSION = ['"]([^'"]+)['"];/);
   if (!match) throw new Error('Round 3 could not resolve the Lab preview cache version.');
+  if (!/^capture-[a-f0-9]{12}$/i.test(match[1])) throw new Error(`Round 3 received a non-capture Lab preview version: ${match[1]}`);
   return match[1];
 }
 
@@ -94,16 +102,21 @@ async function patchLab(html) {
     html = removeStylesheet(html, name);
   }
 
-  // Critical Lab styles are build-known, so the synchronous discovery bootstrap
-  // can leave the first-view path. Noncritical interaction runtimes are loaded
-  // only after window.load and an idle slot so they cannot contend with the LCP
-  // preview under a throttled network/CPU model.
+  // Capture images are the Lab collection's authoritative first-view visual state.
+  // Register their MutationObserver before app.js creates cards. Keep unrelated
+  // interaction enhancements off the critical path.
   html = removeScript(html, 'ux-preinit.js');
   html = removeScript(html, 'geo-interactions.js');
   html = removeScript(html, 'lab-real-previews.js');
+  html = removeLegacyPreviewArtifacts(html);
 
   const criticalTag = `<style data-round3-lab-critical>\n${critical.join('\n')}\n</style>`;
   if (!/data-round3-lab-critical/i.test(html)) html = html.replace(/<\/head>/i, `${criticalTag}\n</head>`);
+
+  const previewRuntime = `<script src="/lab-real-previews.js?v=${previewVersion}" defer data-round3-lab-previews="authoritative"></script>`;
+  if (!/data-round3-lab-previews=(['"])authoritative\1/i.test(html)) {
+    html = html.replace(/<\/head>/i, `${previewRuntime}\n</head>`);
+  }
 
   if (!/geo-interactions\.css/i.test(html)) {
     const asyncStyle = [
@@ -117,15 +130,11 @@ async function patchLab(html) {
     const postload = `<script data-round3-lab-postload>
 (() => {
   const start = () => {
-    const inject = (src, marker) => {
-      if (document.querySelector(\`script[data-round3-postload="\${marker}"]\`)) return;
-      const script = document.createElement('script');
-      script.src = src;
-      script.dataset.round3Postload = marker;
-      document.head.appendChild(script);
-    };
-    inject('/geo-interactions.js?v=20260930g', 'geo-interactions');
-    inject('/lab-real-previews.js?v=${previewVersion}', 'lab-previews');
+    if (document.querySelector('script[data-round3-postload="geo-interactions"]')) return;
+    const script = document.createElement('script');
+    script.src = '/geo-interactions.js?v=20260930g';
+    script.dataset.round3Postload = 'geo-interactions';
+    document.head.appendChild(script);
   };
   const idle = () => 'requestIdleCallback' in window
     ? requestIdleCallback(start, { timeout: 1600 })

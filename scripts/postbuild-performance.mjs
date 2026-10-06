@@ -88,24 +88,6 @@ function primeMobilePageState(html, pageKind) {
   });
 }
 
-function replaceDivByClass(html, className, replacement) {
-  const escaped = className.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const open = new RegExp(`<div\\b[^>]*class=(['"])[^'"]*\\b${escaped}\\b[^'"]*\\1[^>]*>`, 'i');
-  const match = open.exec(html);
-  if (!match) return html;
-
-  let depth = 1;
-  const tags = /<\/?div\b[^>]*>/gi;
-  tags.lastIndex = match.index + match[0].length;
-  let tag;
-  while ((tag = tags.exec(html))) {
-    if (/^<\/div/i.test(tag[0])) depth -= 1;
-    else depth += 1;
-    if (depth === 0) return `${html.slice(0, match.index)}${replacement}${html.slice(tags.lastIndex)}`;
-  }
-  return html;
-}
-
 function stabilizeFieldNotes(html, seriesKeys) {
   if (!/data-static-note-list/i.test(html)) return html;
   const links = [
@@ -126,17 +108,6 @@ function stabilizeFieldNotes(html, seriesKeys) {
 function stabilizeAtlas(html) {
   if (!/class=(['"])[^'"]*atlas-page[^'"]*\1/i.test(html)) return html;
   return primeMobilePageState(html, 'atlas');
-}
-
-function prioritizeLabPreview(html) {
-  if (!/class=(['"])[^'"]*earth-lab-preview/.test(html)) return html;
-  const href = '/assets/lab/previews/earth-observatory.jpg?v=20260930i';
-  if (!html.includes(`rel="preload" as="image" href="${href}"`)) {
-    html = html.replace(/<\/head>/i, `<link rel="preload" as="image" href="${href}" fetchpriority="high">\n</head>`);
-  }
-
-  const staticPreview = `<div class="earth-preview-screen is-real-output" data-real-preview="true" aria-hidden="true"><img src="${href}" alt="Real Earth Observatory interface preview" loading="eager" decoding="async" fetchpriority="high"></div>`;
-  return replaceDivByClass(html, 'earth-preview-screen', staticPreview);
 }
 
 function lazyHomeCommons(html) {
@@ -177,7 +148,6 @@ async function patchHtml(file, seriesKeys) {
   html = addAsyncFonts(html);
   const relative = path.relative(dist, file).replaceAll('\\', '/');
   if (relative === 'field-notes.html') html = stabilizeFieldNotes(html, seriesKeys);
-  if (relative === 'lab.html') html = prioritizeLabPreview(html);
   if (relative === 'atlas.html') html = stabilizeAtlas(html);
   if (relative === 'index.html') html = lazyHomeCommons(html);
   if (relative === 'earth/index.html') html = progressiveEarth(html);
