@@ -162,8 +162,9 @@ test('unknown routes return a real HTTP 404 in the test server', async ({ page }
   expect(response.status()).toBe(404);
 });
 
-test('home exposes a keyboard-reachable skip link', async ({ page }) => {
+test('home exposes a keyboard-reachable skip link after visual readiness', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => window.__GEOGEEK_VISUAL_READY__ === true)).toBe(true);
   await page.keyboard.press('Tab');
   const skip = page.locator('a.skip');
   await expect(skip).toBeFocused();
