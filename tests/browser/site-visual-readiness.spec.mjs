@@ -84,6 +84,30 @@ test.describe('site-wide visual readiness', () => {
     }
   });
 
+  test('explicit return-to-home links use the same painted handoff', async ({ page }) => {
+    for (const route of ['/field-notes.html', '/lab.html', '/atlas.html', '/elsewhere.html']) {
+      await page.goto(route, { waitUntil: 'domcontentloaded' });
+      await expectReady(page);
+
+      let releaseRequest;
+      const handler = async requestRoute => {
+        await new Promise(resolve => { releaseRequest = resolve; });
+        await requestRoute.continue();
+      };
+      await page.route('**/index.html', handler);
+
+      await page.getByRole('link', { name: 'GeoGeek home', exact: true }).click({ noWaitAfter: true });
+      await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'leaving');
+      await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '1');
+      await expect.poll(() => Boolean(releaseRequest)).toBe(true);
+
+      releaseRequest();
+      await page.waitForURL('**/index.html');
+      await expectReady(page);
+      await page.unroute('**/index.html', handler);
+    }
+  });
+
   test('record pages inherit the same gate automatically', async ({ page }) => {
     await page.goto('/records/lab-l01.html', { waitUntil: 'domcontentloaded' });
     await expectReady(page);
