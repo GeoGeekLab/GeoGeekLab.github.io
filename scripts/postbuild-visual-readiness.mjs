@@ -69,22 +69,30 @@ function injectBoot(html, relative) {
   const surface = darkSurface(relative) ? 'dark' : 'paper';
   const preinit = `<script data-geogeek-boot-preinit>document.documentElement.dataset.geogeekBoot='loading';document.documentElement.dataset.geogeekBootSurface='${surface}';</script>`;
   const critical = `<style data-geogeek-boot-critical>
-:root{--geogeek-boot-bg:#f6f4ee;--geogeek-boot-fg:#121212;--geogeek-boot-muted:#6e6c66;--geogeek-boot-line:rgba(18,18,18,.16);--geogeek-boot-signal:#e94f37}
-html[data-geogeek-boot-surface="dark"]{--geogeek-boot-bg:#090b0d;--geogeek-boot-fg:#f2f0e9;--geogeek-boot-muted:#aaa9a4;--geogeek-boot-line:rgba(242,240,233,.18);--geogeek-boot-signal:#e86a48}
+:root{--geogeek-boot-bg:#f6f4ee;--geogeek-boot-fg:#152019;--geogeek-boot-soft:#435048;--geogeek-boot-muted:#657068;--geogeek-boot-line:rgba(21,32,25,.08);--geogeek-boot-signal:#a64624;--geogeek-boot-pad:clamp(22px,4.2vw,68px);--geogeek-boot-sans:"Instrument Sans",Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;--geogeek-boot-mono:"IBM Plex Mono","SFMono-Regular","Roboto Mono","Liberation Mono",Menlo,Consolas,monospace}
+html[data-geogeek-boot-surface="dark"]{--geogeek-boot-bg:#090b0d;--geogeek-boot-fg:#f1efe7;--geogeek-boot-soft:#aeb7af;--geogeek-boot-muted:#aeb7af;--geogeek-boot-line:rgba(242,240,233,.10);--geogeek-boot-signal:#e86a48}
 html[data-geogeek-boot="loading"],html[data-geogeek-boot="leaving"],html[data-geogeek-boot="frozen"],html[data-geogeek-boot="restoring"]{background:var(--geogeek-boot-bg)!important}
 html[data-geogeek-boot="loading"] body,html[data-geogeek-boot="leaving"] body,html[data-geogeek-boot="frozen"] body,html[data-geogeek-boot="restoring"] body{overflow:hidden!important;background:var(--geogeek-boot-bg)!important}
 html[data-geogeek-boot="loading"] body>*:not(#geogeek-boot-cover),html[data-geogeek-boot="leaving"] body>*:not(#geogeek-boot-cover),html[data-geogeek-boot="frozen"] body>*:not(#geogeek-boot-cover),html[data-geogeek-boot="restoring"] body>*:not(#geogeek-boot-cover){visibility:hidden!important}
-#geogeek-boot-cover{position:fixed!important;inset:0!important;z-index:2147483647!important;display:grid!important;place-items:center!important;box-sizing:border-box!important;padding:32px!important;background:var(--geogeek-boot-bg)!important;color:var(--geogeek-boot-fg)!important;visibility:visible!important;opacity:1;pointer-events:auto;font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;transition:opacity 140ms ease}
+#geogeek-boot-cover{position:fixed!important;inset:0!important;z-index:2147483647!important;display:block!important;box-sizing:border-box!important;background:radial-gradient(circle at 78% 18%,rgba(46,83,63,.045),transparent 29%),radial-gradient(circle at 16% 84%,rgba(166,70,36,.025),transparent 25%),var(--geogeek-boot-bg)!important;color:var(--geogeek-boot-fg)!important;visibility:visible!important;opacity:1;pointer-events:auto;transition:opacity 140ms ease}
+html[data-geogeek-boot-surface="dark"] #geogeek-boot-cover{background:var(--geogeek-boot-bg)!important}
+#geogeek-boot-cover::after{content:"";position:absolute;left:0;right:0;top:71px;height:1px;background:var(--geogeek-boot-line)}
+#geogeek-boot-cover .geogeek-boot-brand{position:absolute;left:var(--geogeek-boot-pad);top:0;height:72px;display:flex;align-items:center;gap:10px;font-family:var(--geogeek-boot-sans);font-size:16px;line-height:1;font-weight:680;letter-spacing:-.03em;color:var(--geogeek-boot-fg)}
+#geogeek-boot-cover .geogeek-boot-brand-mark{position:relative;width:14px;height:14px;flex:0 0 14px;border:1px solid var(--geogeek-boot-soft);border-radius:50%;background:radial-gradient(circle at center,var(--geogeek-boot-signal) 0 2px,transparent 2.4px)}
+#geogeek-boot-cover .geogeek-boot-brand-mark::before,#geogeek-boot-cover .geogeek-boot-brand-mark::after{content:"";position:absolute;background:var(--geogeek-boot-soft)}
+#geogeek-boot-cover .geogeek-boot-brand-mark::before{left:6px;top:0;width:1px;height:14px}
+#geogeek-boot-cover .geogeek-boot-brand-mark::after{left:0;top:6px;width:14px;height:1px}
+#geogeek-boot-cover .geogeek-boot-scale{position:absolute;right:var(--geogeek-boot-pad);top:96px;min-width:148px;display:grid;gap:6px;text-align:right;font-family:var(--geogeek-boot-mono)}
+#geogeek-boot-cover .geogeek-boot-scale>span{color:var(--geogeek-boot-muted);font-size:11px;line-height:1;font-weight:700;letter-spacing:.085em}
+#geogeek-boot-cover .geogeek-boot-scale>strong{color:var(--geogeek-boot-fg);font-size:13px;line-height:1.25;font-weight:650;letter-spacing:.015em;text-transform:uppercase}
+#geogeek-boot-cover .geogeek-boot-scale>em{color:var(--geogeek-boot-signal);font-size:11px;line-height:1;font-weight:700;letter-spacing:.07em;font-style:normal}
 html[data-geogeek-boot="loading"] #geogeek-boot-cover,html[data-geogeek-boot="leaving"] #geogeek-boot-cover,html[data-geogeek-boot="frozen"] #geogeek-boot-cover,html[data-geogeek-boot="restoring"] #geogeek-boot-cover{opacity:1!important;pointer-events:auto!important;transition:none!important}
-#geogeek-boot-cover .geogeek-boot-inner{width:min(440px,100%)}
-#geogeek-boot-cover .geogeek-boot-mark{display:flex;align-items:center;gap:11px;font-size:12px;font-weight:650;letter-spacing:.13em;text-transform:uppercase}
-#geogeek-boot-cover .geogeek-boot-mark::before{content:"";width:14px;height:14px;border:1px solid currentColor;background:radial-gradient(circle at center,var(--geogeek-boot-signal) 0 2px,transparent 2.5px)}
-#geogeek-boot-cover .geogeek-boot-status{margin:22px 0 0;padding-top:14px;border-top:1px solid var(--geogeek-boot-line);color:var(--geogeek-boot-muted);font-size:10px;line-height:1.5;letter-spacing:.12em;text-transform:uppercase}
 html[data-geogeek-boot="ready"] #geogeek-boot-cover{opacity:0;pointer-events:none;visibility:visible!important}
+@media(max-width:640px){:root{--geogeek-boot-pad:18px}#geogeek-boot-cover::after{top:63px}#geogeek-boot-cover .geogeek-boot-brand{height:64px}#geogeek-boot-cover .geogeek-boot-scale{top:86px;right:18px}}
 @media(prefers-reduced-motion:reduce){#geogeek-boot-cover{transition:none}}
 </style>`;
   const preload = `<link rel="preload" href="${runtime}" as="script" data-geogeek-boot-preload>`;
-  const cover = `<div id="geogeek-boot-cover" role="status" aria-live="polite" aria-label="Loading GeoGeek"><div class="geogeek-boot-inner"><div class="geogeek-boot-mark">GeoGeek</div><div class="geogeek-boot-status" id="geogeek-boot-status">Resolving the field…</div></div></div>`;
+  const cover = `<div id="geogeek-boot-cover" role="status" aria-live="polite" aria-label="Loading GeoGeek"><div class="geogeek-boot-brand" aria-hidden="true"><span class="geogeek-boot-brand-mark"></span><span>GeoGeek</span></div><div class="geogeek-boot-scale"><span>INFORMATION SCALE</span><strong id="geogeek-boot-status">CHANGING SCALE…</strong><em>VIEW / READYING</em></div></div>`;
   const script = `<script src="${runtime}" defer data-geogeek-visual-readiness="true"></script>`;
 
   html = html.replace(/<head([^>]*)>/i, match => `${match}\n${preinit}\n${critical}\n${preload}`);
