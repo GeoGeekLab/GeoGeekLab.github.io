@@ -58,13 +58,25 @@ test('production font pass replaces optional async delivery with one stable swap
   }
 });
 
-test('build runs font normalization after performance and visual-readiness transforms', async () => {
+test('build runs font normalization after every HTML-producing transform', async () => {
   const build = await readFile(path.join(root, 'scripts/build.mjs'), 'utf8');
   const performance = build.indexOf("./postbuild-performance.mjs");
   const visualReadiness = build.indexOf("./postbuild-visual-readiness.mjs");
+  const materializeBookRecords = build.indexOf("./materialize-elsewhere-book-records.mjs");
   const fontStability = build.indexOf("./postbuild-font-stability.mjs");
 
   assert.ok(performance >= 0);
   assert.ok(visualReadiness > performance);
-  assert.ok(fontStability > visualReadiness);
+  assert.ok(materializeBookRecords > visualReadiness);
+  assert.ok(fontStability > materializeBookRecords);
+});
+
+test('visual readiness explicitly loads all critical font families before reveal', async () => {
+  const readiness = await readFile(path.join(root, 'site/visual-readiness.js'), 'utf8');
+
+  assert.match(readiness, /document\.fonts\.load/);
+  assert.match(readiness, /Instrument Sans/);
+  assert.match(readiness, /Newsreader/);
+  assert.match(readiness, /IBM Plex Mono/);
+  assert.match(readiness, /withTimeout\(loadCriticalFonts, 1500\)/);
 });
