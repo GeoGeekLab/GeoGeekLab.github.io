@@ -85,8 +85,8 @@ test('Elsewhere exposes BOOK as a thirty-four-record collection index', async ({
   await expect(records.nth(15)).toContainText("Fermat's Enigma");
   await expect(records.nth(16)).toContainText('围城');
   await expect(records.nth(17)).toContainText('乡土中国');
-  await expect(records.nth(18)).toContainText('自卑与超越');
-  await expect(records.nth(19)).toContainText('社会心理学');
+  await expect(records.nth(18)).toContainText('What Life Should Mean to You');
+  await expect(records.nth(19)).toContainText('Social Psychology');
   await expect(records.nth(20)).toContainText('乌合之众');
   await expect(records.nth(21)).toContainText('被讨厌的勇气');
   await expect(records.nth(22)).toContainText('君主论');
