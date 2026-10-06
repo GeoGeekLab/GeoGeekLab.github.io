@@ -37,12 +37,22 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   const paragraphBoxes = await shiftSection.locator(':scope > p').evaluateAll((nodes) =>
     nodes.map((node) => {
       const box = node.getBoundingClientRect();
-      return { left: box.left, right: box.right };
+      return { left: box.left, right: box.right, top: box.top };
     }),
   );
   const leftEdges = paragraphBoxes.map((box) => box.left);
+  const topEdges = paragraphBoxes.map((box) => box.top);
   expect(labelBox).not.toBeNull();
-  expect(Math.min(...leftEdges)).toBeGreaterThan(labelBox.right + 10);
+
+  const viewportWidth = page.viewportSize()?.width ?? 1280;
+  if (viewportWidth <= 600) {
+    const labelBottom = labelBox.y + labelBox.height;
+    expect(Math.min(...topEdges)).toBeGreaterThanOrEqual(labelBottom);
+    expect(Math.abs(Math.min(...leftEdges) - labelBox.x)).toBeLessThan(2);
+  } else {
+    const labelRight = labelBox.x + labelBox.width;
+    expect(Math.min(...leftEdges)).toBeGreaterThan(labelRight + 10);
+  }
   expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
 });
 

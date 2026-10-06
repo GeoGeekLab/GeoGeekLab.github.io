@@ -4,7 +4,8 @@
 //   1) run legacy QA; its internal build call is redirected to build.legacy.mjs,
 //   2) materialize the data-driven Elsewhere BOOK index from the generated manifest,
 //   3) run shared static-delivery, stability, performance, accessibility, Origin and visual-readiness transforms,
-//   4) re-materialize authored BOOK bodies last so no generic postbuild transform can replace them.
+//   4) re-materialize authored BOOK bodies so generic transforms cannot replace them,
+//   5) normalize font delivery last across the final HTML/CSS output.
 // Legacy-build-only mode is used only by qa.legacy.mjs to avoid recursion.
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -31,4 +32,5 @@ if (process.env.GEOGEEK_LEGACY_BUILD_ONLY === '1') {
   await import('./postbuild-origin-handoff.mjs');
   await import('./postbuild-visual-readiness.mjs');
   await import('./materialize-elsewhere-book-records.mjs');
+  await import('./postbuild-font-stability.mjs');
 }
