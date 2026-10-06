@@ -2,13 +2,9 @@
 // GeoGeek static-delivery wrapper.
 // Normal mode:
 //   1) run legacy QA; its internal build call is redirected to build.legacy.mjs,
-//   2) post-process the legacy artifact into the static-delivery form,
-//   3) inject runtime stability guards and static fallbacks,
-//   4) apply browser-performance delivery transforms to the final artifact,
-//   5) prime first-response mobile layout state for measured entry pages,
-//   6) apply Round 3 accessibility and Lab critical-render transforms,
-//   7) apply Origin handoff behavior,
-//   8) inject the final site-wide visual-readiness/navigation gate.
+//   2) materialize the data-driven Elsewhere BOOK index from the generated manifest,
+//   3) run shared static-delivery, stability, performance, accessibility, Origin and visual-readiness transforms,
+//   4) re-materialize authored BOOK bodies last so no generic postbuild transform can replace them.
 // Legacy-build-only mode is used only by qa.legacy.mjs to avoid recursion.
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -26,6 +22,7 @@ if (process.env.GEOGEEK_LEGACY_BUILD_ONLY === '1') {
   });
   if (qa.error) throw qa.error;
   if (qa.status !== 0) process.exit(qa.status ?? 1);
+  await import('./materialize-elsewhere-book-index.mjs');
   await import('./postbuild-static-delivery.mjs');
   await import('./postbuild-runtime-stability.mjs');
   await import('./postbuild-performance.mjs');
@@ -33,4 +30,5 @@ if (process.env.GEOGEEK_LEGACY_BUILD_ONLY === '1') {
   await import('./postbuild-round3.mjs');
   await import('./postbuild-origin-handoff.mjs');
   await import('./postbuild-visual-readiness.mjs');
+  await import('./materialize-elsewhere-book-records.mjs');
 }

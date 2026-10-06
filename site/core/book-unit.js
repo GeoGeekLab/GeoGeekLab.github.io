@@ -12,6 +12,14 @@
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
+  // Static BOOK pages synchronously snapshot their authored body beside #recordBody
+  // before deferred generic runtimes can replace it. Keep DOM capture as a preview fallback.
+  const capturedBookBody = String(window.GEOGEEK_PRERENDERED_BOOK_BODY || '').trim();
+  const prerenderedBodyNode = document.querySelector('#recordBody');
+  const prerenderedBookBody = capturedBookBody || (prerenderedBodyNode?.querySelector('[data-book-lang-panel], .book-record-section')
+    ? prerenderedBodyNode.innerHTML.trim()
+    : '');
+
   const bookRecordFor = ref => {
     const record = model.recordIndex?.get(ref);
     return record?.kind === 'elsewhere' && record.item?.unit === 'book' ? record : null;
@@ -84,17 +92,19 @@
     }
 
     const items = books();
+    unit.dataset.bookCount = String(items.length);
     unit.innerHTML = `
       <div class="book-unit-head">
-        <span>BOOK RECORDS</span>
-        <strong>${String(items.length).padStart(2, '0')}</strong>
+        <span>BOOK INDEX</span>
+        <strong>${String(items.length).padStart(2, '0')} ${items.length === 1 ? 'RECORD' : 'RECORDS'}</strong>
       </div>
       ${items.length ? `<div class="book-unit-list">${items.map((item, index) => {
         const ref = `elsewhere:${item.id}`;
         const shift = String(item.shift?.type || '').toUpperCase();
+        const secondary = [item.author, item.firstPublished].filter(Boolean).join(' · ');
         return `<a class="book-unit-row contour-target" data-record-ref="${escapeHtml(ref)}" data-transition-source data-local-scale="1 : 2,500" data-local-level="RECORD" href="${escapeHtml(model.hrefForRecord(ref))}">
           <span class="book-unit-index">${String(index + 1).padStart(2, '0')}</span>
-          <span class="book-unit-main"><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.author || '')}</small></span>
+          <span class="book-unit-main"><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(secondary)}</small></span>
           <span class="book-unit-shift">${escapeHtml(shift)}</span>
           <span class="book-unit-arrow" aria-hidden="true">↗</span>
         </a>`;
@@ -158,11 +168,12 @@
     if (title) title.textContent = item.title || 'Book';
     if (excerpt) excerpt.textContent = item.subtitle || '';
     if (kicker) kicker.textContent = 'BOOK / RECORD';
-    if (detailLabel) detailLabel.textContent = 'ORIENTATION TRACE';
+    if (detailLabel) detailLabel.textContent = 'READING RESPONSE';
     if (body) {
       const authoredBody = String(item.bodyHtml || '').trim();
       if (authoredBody) body.innerHTML = authoredBody;
-      else if (!body.innerHTML.trim()) body.innerHTML = fallbackBody(item);
+      else if (prerenderedBookBody) body.innerHTML = prerenderedBookBody;
+      else body.innerHTML = fallbackBody(item);
       bindBookLanguages(body);
     }
     if (back) {
@@ -196,6 +207,13 @@
     renderBookRecord();
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
-  else boot();
+  const bootAfterGenericRenderer = () => {
+    boot();
+    // app.js owns generic records and runs on the same DOMContentLoaded turn.
+    // Re-apply BOOK ownership once all synchronous listeners have completed.
+    setTimeout(boot, 0);
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootAfterGenericRenderer, { once: true });
+  else bootAfterGenericRenderer();
 })();

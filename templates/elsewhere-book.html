@@ -16,7 +16,7 @@
 <meta property="og:description" content="{{DESCRIPTION}}"/>
 <link href="styles.css" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
-<link href="/book-unit.css?v=20261005b" rel="stylesheet"/>
+<link href="/book-unit.css?v=20261006a" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20260930g"></script>
 </head>
 <body class="record-page" data-page-key="record" data-record-ref="{{REF}}">
@@ -65,8 +65,14 @@
 <dl id="recordMeta"></dl>
 </section>
 <section class="record-detail" data-scale="1 : 500" data-scale-level="DETAIL" id="detail">
-<div class="record-section-label" id="recordDetailLabel">ORIENTATION TRACE</div>
+<div class="record-section-label" id="recordDetailLabel">READING RESPONSE</div>
 <div class="record-body" id="recordBody"></div>
+<script data-book-prerender-capture>
+(() => {
+  const body = document.getElementById('recordBody');
+  if (body?.innerHTML.trim()) window.GEOGEEK_PRERENDERED_BOOK_BODY = body.innerHTML;
+})();
+</script>
 <div class="record-actions" id="recordActions"></div>
 </section>
 </main>
@@ -77,8 +83,8 @@
 <script src="content.js"></script>
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
-<script src="core/book-unit.js?v=20261005b"></script>
 <script src="app.js?v=20260930g"></script>
+<script src="core/book-unit.js?v=20261006a"></script>
 <script src="core/modules.js"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="commons/config.js"></script>

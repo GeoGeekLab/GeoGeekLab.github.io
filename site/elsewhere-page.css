@@ -40,6 +40,23 @@
 .elsewhere-field .elsewhere-entry:first-child{
   border-top:0;
 }
+.elsewhere-field .elsewhere-card.elsewhere-entry[data-collection-entry="true"]{
+  grid-template-columns:56px minmax(0,1fr);
+  min-height:0;
+}
+.elsewhere-entry[data-collection-entry="true"] .elsewhere-entry-copy{
+  grid-column:2;
+  padding-bottom:clamp(42px,4vw,60px);
+}
+.elsewhere-entry[data-collection-entry="true"] .elsewhere-entry-lede{
+  max-width:780px;
+}
+.elsewhere-entry[data-collection-entry="true"] .elsewhere-entry-register{
+  max-width:960px;
+}
+.elsewhere-entry[data-collection-entry="true"] .elsewhere-trace{
+  display:none;
+}
 
 .elsewhere-entry-index{
   padding-top:26px;
@@ -271,15 +288,18 @@
 }
 
 @media(max-width:980px){
-  .elsewhere-field .elsewhere-card.elsewhere-entry{
+  .elsewhere-field .elsewhere-card.elsewhere-entry,
+  .elsewhere-field .elsewhere-card.elsewhere-entry[data-collection-entry="true"]{
     grid-template-columns:42px minmax(0,1fr);
     gap:16px 24px;
     min-height:0;
   }
   .elsewhere-entry-index{grid-column:1;grid-row:1;padding-top:32px;}
-  .elsewhere-entry-copy{grid-column:2;grid-row:1;padding:34px 0 14px;}
+  .elsewhere-entry-copy,
+  .elsewhere-entry[data-collection-entry="true"] .elsewhere-entry-copy{grid-column:2;grid-row:1;padding:34px 0 24px;}
   .elsewhere-entry h2{font-size:clamp(38px,7.5vw,56px);}
   .elsewhere-trace{grid-column:1/-1;grid-row:2;min-height:230px;border-left:0;border-top:1px solid var(--line-soft);}
+  .elsewhere-entry[data-collection-entry="true"] .elsewhere-trace{display:none;}
   .elsewhere-boundary{grid-template-columns:1fr;gap:18px;padding-top:38px;}
   .elsewhere-atlas-link{grid-column:1;}
 }
@@ -288,8 +308,10 @@
   .elsewhere-shell{padding-bottom:56px;}
   .elsewhere-register{align-items:flex-start;flex-direction:column;justify-content:center;gap:7px;padding:11px 0;}
   .elsewhere-register span:last-child{text-align:left;}
-  .elsewhere-field .elsewhere-card.elsewhere-entry{grid-template-columns:30px minmax(0,1fr);gap:10px 16px;}
-  .elsewhere-entry-copy{padding:30px 0 12px;}
+  .elsewhere-field .elsewhere-card.elsewhere-entry,
+  .elsewhere-field .elsewhere-card.elsewhere-entry[data-collection-entry="true"]{grid-template-columns:30px minmax(0,1fr);gap:10px 16px;}
+  .elsewhere-entry-copy,
+  .elsewhere-entry[data-collection-entry="true"] .elsewhere-entry-copy{padding:30px 0 24px;}
   .elsewhere-entry h2{font-size:clamp(36px,11vw,50px);}
   .elsewhere-entry-lede{font-size:18px;margin-top:14px;}
   .elsewhere-entry-register{grid-template-columns:74px minmax(0,1fr);gap:6px 12px;margin-top:20px;padding-top:12px;}
