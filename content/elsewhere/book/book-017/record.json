@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-017",
+  "kind": "elsewhere",
+  "id": "book-017",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 17,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1947"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "围城",
+      "author": "钱锺书",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
