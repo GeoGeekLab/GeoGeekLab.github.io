@@ -75,21 +75,21 @@ test('Elsewhere exposes BOOK as a thirty-four-record collection index', async ({
   await expect(records.nth(5)).toContainText('A Tale of Two Cities');
   await expect(records.nth(6)).toContainText('沧浪之水');
   await expect(records.nth(7)).toContainText('黄金时代');
-  await expect(records.nth(8)).toContainText('挪威的森林');
+  await expect(records.nth(8)).toContainText('ノルウェイの森');
   await expect(records.nth(9)).toContainText('南渡北归');
   await expect(records.nth(10)).toContainText('民国三大校长');
   await expect(records.nth(11)).toContainText('Guns, Germs, and Steel');
   await expect(records.nth(12)).toContainText('The Almanack of Naval Ravikant');
-  await expect(records.nth(13)).toContainText('解忧杂货店');
+  await expect(records.nth(13)).toContainText('ナミヤ雑貨店の奇蹟');
   await expect(records.nth(14)).toContainText('The Evolution of Physics');
   await expect(records.nth(15)).toContainText("Fermat's Enigma");
   await expect(records.nth(16)).toContainText('围城');
   await expect(records.nth(17)).toContainText('乡土中国');
   await expect(records.nth(18)).toContainText('What Life Should Mean to You');
   await expect(records.nth(19)).toContainText('Social Psychology');
-  await expect(records.nth(20)).toContainText('乌合之众');
-  await expect(records.nth(21)).toContainText('被讨厌的勇气');
-  await expect(records.nth(22)).toContainText('君主论');
+  await expect(records.nth(20)).toContainText('Psychologie des foules');
+  await expect(records.nth(21)).toContainText('嫌われる勇気');
+  await expect(records.nth(22)).toContainText('Il Principe');
   await expect(records.nth(23)).toContainText('随想录');
   await expect(records.nth(24)).toContainText('牛棚杂忆');
   await expect(records.nth(25)).toContainText('目送');
@@ -100,7 +100,7 @@ test('Elsewhere exposes BOOK as a thirty-four-record collection index', async ({
   await expect(records.nth(30)).toContainText('代谢增长论：技术小波和文明兴衰');
   await expect(records.nth(31)).toContainText('八次危机：中国的真实经验1949-2009');
   await expect(records.nth(32)).toContainText('苦难辉煌');
-  await expect(records.nth(33)).toContainText('万历十五年');
+  await expect(records.nth(33)).toContainText('1587, A Year of No Significance');
 });
 
 test('BOOK scaffold pages keep metadata while leaving the reading response empty', async ({ page }) => {
