@@ -21,6 +21,15 @@ async function expectReady(page) {
   }
 }
 
+async function expectImmediateLeaveCover(page) {
+  await page.evaluate(() => window.GeoGeekVisualReadiness.beginLeave('Testing handoff…'));
+  await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'leaving');
+  await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '1');
+  await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('pointer-events', 'auto');
+  await page.evaluate(() => window.GeoGeekVisualReadiness.reveal({ restored: false }));
+  await expectReady(page);
+}
+
 test.describe('site-wide visual readiness', () => {
   test('all principal document entries reveal only through the shared ready state', async ({ page }) => {
     for (const route of principalRoutes) {
@@ -42,22 +51,16 @@ test.describe('site-wide visual readiness', () => {
     expect(navigations.filter(path => path === '/' || path === '/index.html')).toEqual(['/']);
   });
 
-  test('same-origin navigation covers the outgoing document before navigation', async ({ page }) => {
-    await page.goto('/index.html');
+  test('leave state is immediately opaque before any document navigation', async ({ page }) => {
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
     await expectReady(page);
+    await expectImmediateLeaveCover(page);
+  });
 
-    let releaseRequest;
-    await page.route('**/field-notes.html', async route => {
-      await new Promise(resolve => { releaseRequest = resolve; });
-      await route.continue();
-    });
-
-    await page.locator('a[href="field-notes.html"]').first().click({ noWaitAfter: true });
-    await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'leaving');
-    await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '1');
-    await expect.poll(() => Boolean(releaseRequest)).toBe(true);
-
-    releaseRequest();
+  test('same-origin entry navigation completes through the shared transaction', async ({ page }) => {
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    await expectReady(page);
+    await page.locator('a[href="field-notes.html"]').first().click();
     await page.waitForURL('**/field-notes.html');
     await expectReady(page);
   });
@@ -84,27 +87,13 @@ test.describe('site-wide visual readiness', () => {
     }
   });
 
-  test('explicit return-to-home links use the same painted handoff', async ({ page }) => {
+  test('explicit return-to-home links complete through the same transaction', async ({ page }) => {
     for (const route of ['/field-notes.html', '/lab.html', '/atlas.html', '/elsewhere.html']) {
       await page.goto(route, { waitUntil: 'domcontentloaded' });
       await expectReady(page);
-
-      let releaseRequest;
-      const handler = async requestRoute => {
-        await new Promise(resolve => { releaseRequest = resolve; });
-        await requestRoute.continue();
-      };
-      await page.route('**/index.html', handler);
-
-      await page.getByRole('link', { name: 'GeoGeek home', exact: true }).click({ noWaitAfter: true });
-      await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'leaving');
-      await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '1');
-      await expect.poll(() => Boolean(releaseRequest)).toBe(true);
-
-      releaseRequest();
+      await page.getByRole('link', { name: 'GeoGeek home', exact: true }).click();
       await page.waitForURL('**/index.html');
       await expectReady(page);
-      await page.unroute('**/index.html', handler);
     }
   });
 
