@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-018",
+  "kind": "elsewhere",
+  "id": "book-018",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 18,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1948"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "乡土中国",
+      "author": "费孝通",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
