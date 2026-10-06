@@ -99,13 +99,10 @@
       "firstReleased": "2011",
       "change": "DISTANCE",
       "source": {
-        "provider": "Bilibili",
-        "aid": "27162207",
-        "bvid": "BV1xs411E7zn",
-        "cid": "46810098",
-        "page": 1,
-        "embedUrl": "https://player.bilibili.com/player.html?isOutside=true&aid=27162207&bvid=BV1xs411E7zn&cid=46810098&p=1",
-        "watchUrl": "https://www.bilibili.com/video/BV1xs411E7zn/"
+        "provider": "YouTube",
+        "videoId": "TfqJ4eL1Xio",
+        "embedUrl": "https://www.youtube.com/embed/TfqJ4eL1Xio?si=dazhpJKc5SGH7I5C",
+        "watchUrl": "https://www.youtube.com/watch?v=TfqJ4eL1Xio"
       }
     },
     {
@@ -277,6 +274,123 @@
         "page": 1,
         "embedUrl": "https://player.bilibili.com/player.html?isOutside=true&aid=115672847747823&bvid=BV1c82XBiERz&cid=34551304097&p=1",
         "watchUrl": "https://www.bilibili.com/video/BV1c82XBiERz/"
+      }
+    },
+    {
+      "id": "listening-014",
+      "ref": "elsewhere:listening-014",
+      "order": 14,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "Y_COEkYVwn4",
+        "embedUrl": "https://www.youtube.com/embed/Y_COEkYVwn4?si=0j1mOvjQseVYLnWL",
+        "watchUrl": "https://www.youtube.com/watch?v=Y_COEkYVwn4"
+      }
+    },
+    {
+      "id": "listening-015",
+      "ref": "elsewhere:listening-015",
+      "order": 15,
+      "parentRef": "elsewhere:e03",
+      "title": "Love Story",
+      "titleStatus": "verified",
+      "titleLanguage": "en",
+      "titleForm": "original",
+      "creator": "Taylor Swift",
+      "firstReleased": "2008",
+      "change": "MEMORY",
+      "context": "Live on Letterman",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "mNLVMDF9mUo",
+        "embedUrl": "https://www.youtube.com/embed/mNLVMDF9mUo?si=90iTgbWnnaB__I4j",
+        "watchUrl": "https://www.youtube.com/watch?v=mNLVMDF9mUo"
+      }
+    },
+    {
+      "id": "listening-016",
+      "ref": "elsewhere:listening-016",
+      "order": 16,
+      "parentRef": "elsewhere:e03",
+      "title": "Tadow",
+      "titleStatus": "verified",
+      "titleLanguage": "en",
+      "titleForm": "original",
+      "creator": "FKJ · Masego",
+      "firstReleased": "2017",
+      "change": "FLOW",
+      "context": "FKJ & Masego performance",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "hC8CH0Z3L54",
+        "embedUrl": "https://www.youtube.com/embed/hC8CH0Z3L54?si=cZOQ4DUDKs7g0bOi",
+        "watchUrl": "https://www.youtube.com/watch?v=hC8CH0Z3L54"
+      }
+    },
+    {
+      "id": "listening-017",
+      "ref": "elsewhere:listening-017",
+      "order": 17,
+      "parentRef": "elsewhere:e03",
+      "title": "España Cañí",
+      "titleStatus": "verified",
+      "titleLanguage": "es",
+      "titleForm": "original",
+      "creator": "Pascual Marquina · André Rieu",
+      "firstReleased": "1923",
+      "change": "MOVEMENT",
+      "context": "André Rieu performance",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "bP67TwGWUh4",
+        "embedUrl": "https://www.youtube.com/embed/bP67TwGWUh4?si=Z-e3dvnFowpdY89J",
+        "watchUrl": "https://www.youtube.com/watch?v=bP67TwGWUh4"
+      }
+    },
+    {
+      "id": "listening-018",
+      "ref": "elsewhere:listening-018",
+      "order": 18,
+      "parentRef": "elsewhere:e03",
+      "title": "Victory",
+      "titleStatus": "verified",
+      "titleLanguage": "en",
+      "titleForm": "original",
+      "creator": "Two Steps from Hell",
+      "firstReleased": "2015",
+      "change": "SCALE",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "qB_vOmL4v5c",
+        "embedUrl": "https://www.youtube.com/embed/qB_vOmL4v5c?si=bzYJ-5wnJ0Z5tNIi",
+        "watchUrl": "https://www.youtube.com/watch?v=qB_vOmL4v5c"
+      }
+    },
+    {
+      "id": "listening-019",
+      "ref": "elsewhere:listening-019",
+      "order": 19,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "4cqhC_paryE",
+        "embedUrl": "https://www.youtube.com/embed/4cqhC_paryE?si=XtC8gKEDhWpUbfAa",
+        "watchUrl": "https://www.youtube.com/watch?v=4cqhC_paryE"
       }
     }
   ]
