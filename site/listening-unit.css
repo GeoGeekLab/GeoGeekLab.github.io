@@ -92,6 +92,12 @@
   letter-spacing:.025em;
   overflow-wrap:anywhere;
 }
+.listening-unit-row.is-source-pending .listening-unit-main strong{
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:650;
+  letter-spacing:.035em;
+}
 .listening-unit-change{
   color:var(--signal);
 }
@@ -103,6 +109,83 @@
   letter-spacing:.025em;
 }
 
+.listening-record-page .record-heading{
+  padding-top:3.5vh;
+  padding-bottom:46px;
+}
+.listening-record-page .record-back{
+  margin-bottom:clamp(34px,5vh,58px);
+}
+.listening-record-page .record-heading h1{
+  margin-bottom:24px;
+  font-size:clamp(56px,7.25vw,112px);
+  line-height:.91;
+}
+.listening-record-page .record-heading h1.is-source-identifier{
+  font-family:var(--mono);
+  font-size:clamp(34px,5vw,72px);
+  font-weight:650;
+  letter-spacing:-.025em;
+}
+.listening-record-page .record-deck{
+  max-width:none;
+  font-size:clamp(21px,2vw,32px);
+  line-height:1.36;
+}
+.listening-record-page .record-conditions{
+  padding:30px 0;
+}
+.listening-record-page .record-detail{
+  padding-top:46px;
+}
+.listening-record-page .record-detail.geo-reveal{
+  opacity:1 !important;
+  transform:none !important;
+  filter:none !important;
+  transition:none !important;
+}
+.listening-record-page .record-detail > .geo-field-mark{
+  display:none !important;
+}
+.listening-record-page .record-body{
+  max-width:1080px;
+}
+.listening-record-source{
+  display:grid;
+  gap:14px;
+}
+.listening-record-source-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--line-soft);
+  color:var(--muted);
+  font:650 9px/1.2 var(--mono);
+  letter-spacing:.08em;
+}
+.listening-record-source-head strong{
+  color:var(--fg);
+  font:650 10px/1.2 var(--mono);
+  letter-spacing:.04em;
+}
+.listening-record-embed{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  border:1px solid var(--line-soft);
+  background:#111;
+}
+.listening-record-embed iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+}
+
 @media(max-width:680px){
   .listening-unit-row{
     grid-template-columns:26px 48px minmax(0,1fr) 16px;
@@ -112,6 +195,24 @@
   }
   .listening-unit-change{display:none;}
   .listening-unit-signal{gap:4px;}
+  .listening-record-page .record-heading{
+    padding-top:2.5vh;
+    padding-bottom:36px;
+  }
+  .listening-record-page .record-back{
+    margin-bottom:34px;
+  }
+  .listening-record-page .record-conditions{
+    padding:24px 0;
+  }
+  .listening-record-page .record-detail{
+    padding-top:36px;
+  }
+  .listening-record-source-head{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:6px;
+  }
 }
 
 @media(prefers-reduced-motion:reduce){
