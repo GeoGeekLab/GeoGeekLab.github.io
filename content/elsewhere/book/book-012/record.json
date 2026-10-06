@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-012",
+  "kind": "elsewhere",
+  "id": "book-012",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 12,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1997"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "Guns, Germs, and Steel",
+      "author": "Jared Diamond",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

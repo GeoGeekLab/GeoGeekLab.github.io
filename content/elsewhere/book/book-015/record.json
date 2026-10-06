@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-015",
+  "kind": "elsewhere",
+  "id": "book-015",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 15,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1938"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "The Evolution of Physics",
+      "author": "Albert Einstein · Leopold Infeld",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-013",
+  "kind": "elsewhere",
+  "id": "book-013",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 13,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2020"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "The Almanack of Naval Ravikant",
+      "author": "Eric Jorgenson",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

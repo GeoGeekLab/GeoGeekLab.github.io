@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-016",
+  "kind": "elsewhere",
+  "id": "book-016",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 16,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1997"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "Fermat's Enigma",
+      "author": "Simon Singh",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

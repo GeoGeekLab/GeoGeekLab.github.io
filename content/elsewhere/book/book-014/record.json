@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-014",
+  "kind": "elsewhere",
+  "id": "book-014",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 14,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2012"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "解忧杂货店",
+      "author": "东野圭吾",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
