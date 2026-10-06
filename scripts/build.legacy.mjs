@@ -71,6 +71,7 @@ if (fs.existsSync(bookContentDir)) {
     if (!fs.existsSync(bodyPath)) throw new Error(`BOOK ${entry.name}: missing body.en.html`);
 
     const record = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+    const scaffold = record.data?.scaffold === true;
     const expectedRef = `elsewhere:${record.id}`;
     if (record.kind !== 'elsewhere') throw new Error(`BOOK ${entry.name}: kind must be "elsewhere"`);
     if (record.data?.unit !== 'book') throw new Error(`BOOK ${entry.name}: data.unit must be "book"`);
@@ -79,11 +80,11 @@ if (fs.existsSync(bookContentDir)) {
     if (!record.text?.en?.title) throw new Error(`BOOK ${entry.name}: text.en.title is required`);
     if (!record.text?.en?.author) throw new Error(`BOOK ${entry.name}: text.en.author is required`);
     if (!record.data?.firstPublished) throw new Error(`BOOK ${entry.name}: data.firstPublished is required`);
-    if (!record.text?.en?.before) throw new Error(`BOOK ${entry.name}: text.en.before is required`);
-    if (!record.text?.en?.shift?.type || !record.text?.en?.shift?.text) throw new Error(`BOOK ${entry.name}: text.en.shift.type and text.en.shift.text are required`);
-    if (!bookShiftTypes.has(String(record.text.en.shift.type).toLowerCase())) throw new Error(`BOOK ${entry.name}: text.en.shift.type must be frame, scale, distance, vocabulary, or method`);
-    if (!record.text?.en?.after) throw new Error(`BOOK ${entry.name}: text.en.after is required`);
-    if (!record.text?.en?.return) throw new Error(`BOOK ${entry.name}: text.en.return is required`);
+    if (!scaffold && !record.text?.en?.before) throw new Error(`BOOK ${entry.name}: text.en.before is required`);
+    if (!scaffold && (!record.text?.en?.shift?.type || !record.text?.en?.shift?.text)) throw new Error(`BOOK ${entry.name}: text.en.shift.type and text.en.shift.text are required`);
+    if (record.text?.en?.shift?.type && !bookShiftTypes.has(String(record.text.en.shift.type).toLowerCase())) throw new Error(`BOOK ${entry.name}: text.en.shift.type must be frame, scale, distance, vocabulary, or method`);
+    if (!scaffold && !record.text?.en?.after) throw new Error(`BOOK ${entry.name}: text.en.after is required`);
+    if (!scaffold && !record.text?.en?.return) throw new Error(`BOOK ${entry.name}: text.en.return is required`);
 
     const publicationYear = Number(String(record.data.firstPublished).match(/\d{4}/)?.[0]);
     if (!Number.isFinite(publicationYear)) throw new Error(`BOOK ${entry.name}: data.firstPublished must contain a four-digit year`);
@@ -101,6 +102,8 @@ if (fs.existsSync(bookContentDir)) {
     };
     const bodyEn = fs.readFileSync(bodyPath, 'utf8').trim();
     const bodyZh = fs.existsSync(bodyZhPath) ? fs.readFileSync(bodyZhPath, 'utf8').trim() : '';
+    if (scaffold && (bodyEn || bodyZh)) throw new Error(`BOOK ${entry.name}: scaffold body files must stay empty`);
+    if (!scaffold && !bodyEn) throw new Error(`BOOK ${entry.name}: authored body.en.html must not be empty`);
     record.text.en.bodyHtml = renderBookBody(bodyEn, bodyZh);
     bookRecords.push(record);
   }
