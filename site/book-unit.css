@@ -100,6 +100,18 @@
 .book-record-page .record-detail{
   padding-top:46px;
 }
+/* Long authored BOOK responses are primary content, not reveal decoration.
+   A tall detail block can never reliably satisfy a percentage-based
+   IntersectionObserver threshold inside one viewport. Keep it readable. */
+.book-record-page .record-detail.geo-reveal{
+  opacity:1 !important;
+  transform:none !important;
+  filter:none !important;
+  transition:none !important;
+}
+.book-record-page .record-detail > .geo-field-mark{
+  display:none !important;
+}
 .book-record-page .record-body{
   max-width:940px;
 }
