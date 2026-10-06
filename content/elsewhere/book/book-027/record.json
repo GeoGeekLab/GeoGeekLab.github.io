@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-027",
+  "kind": "elsewhere",
+  "id": "book-027",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 27,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1985"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "水问",
+      "author": "简媜",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-034",
+  "kind": "elsewhere",
+  "id": "book-034",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 34,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1981"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "万历十五年",
+      "author": "黄仁宇",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

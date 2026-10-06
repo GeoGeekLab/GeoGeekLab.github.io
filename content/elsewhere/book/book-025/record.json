@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-025",
+  "kind": "elsewhere",
+  "id": "book-025",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 25,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1998"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "牛棚杂忆",
+      "author": "季羡林",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

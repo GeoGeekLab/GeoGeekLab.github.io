@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-026",
+  "kind": "elsewhere",
+  "id": "book-026",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 26,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2008"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "目送",
+      "author": "龙应台",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

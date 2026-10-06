@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-033",
+  "kind": "elsewhere",
+  "id": "book-033",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 33,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2009"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "苦难辉煌",
+      "author": "金一南",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}

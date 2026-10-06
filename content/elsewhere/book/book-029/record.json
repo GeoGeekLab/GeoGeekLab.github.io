@@ -1,0 +1,24 @@
+{
+  "ref": "elsewhere:book-029",
+  "kind": "elsewhere",
+  "id": "book-029",
+  "data": {
+    "unit": "book",
+    "status": "draft",
+    "scaffold": true,
+    "order": 29,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "2020"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "人工智能之不能",
+      "author": "马兆远",
+      "subtitle": ""
+    }
+  },
+  "relations": {
+    "trace": []
+  }
+}
