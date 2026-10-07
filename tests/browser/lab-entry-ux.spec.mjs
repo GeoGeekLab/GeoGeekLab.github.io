@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Lab entry hierarchy', () => {
-  test('presents a six-record Observatory and four-record Play collection', async ({ page }) => {
+  test('presents a seven-record Observatory and five-record Play collection', async ({ page }) => {
     await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => document.querySelectorAll('#labList .project-card').length === 10);
+    await page.waitForFunction(() => document.querySelectorAll('#labList .project-card').length === 12);
     await page.waitForFunction(() => document.querySelectorAll('.lab-group-purpose').length === 2);
 
     const intro = page.locator('.page-title .page-intro');
@@ -25,8 +25,8 @@ test.describe('Lab entry hierarchy', () => {
 
     const observatory = page.locator('#labList > .lab-group-observatory');
     const play = page.locator('#labList > .lab-group-play');
-    await expect(observatory.locator('.project-card')).toHaveCount(6);
-    await expect(play.locator('.project-card')).toHaveCount(4);
+    await expect(observatory.locator('.project-card')).toHaveCount(7);
+    await expect(play.locator('.project-card')).toHaveCount(5);
     await expect(observatory.locator('#l11')).toHaveCount(1);
     await expect(observatory.locator('#l12')).toHaveCount(1);
 
@@ -34,9 +34,11 @@ test.describe('Lab entry hierarchy', () => {
     if ((page.viewportSize()?.width || 0) > 980) expect(observatoryColumns).toBe(3);
 
     const recordLinks = page.locator('#labList .project-link');
-    await expect(recordLinks).toHaveCount(10);
-    await expect(recordLinks.locator('span')).toHaveText(Array(10).fill('READ RECORD'));
+    await expect(recordLinks).toHaveCount(12);
+    await expect(recordLinks.locator('span')).toHaveText(Array(12).fill('READ RECORD'));
     await expect(page.locator('#l13 .project-link')).toHaveAttribute('href', 'records/lab-l13.html');
+    await expect(page.locator('#l14 .project-link')).toHaveAttribute('href', 'records/lab-l14.html');
+    await expect(page.locator('#l15 .project-link')).toHaveAttribute('href', 'records/lab-l15.html');
 
     await expect(page.locator('#l10 .lab-enter span')).toHaveText('OPEN INSTRUMENT');
     await expect(page.locator('#l10 .lab-card-conditions > div')).toHaveCount(2);
@@ -49,11 +51,11 @@ test.describe('Lab entry hierarchy', () => {
   });
 
   test('exposes a working record for Project', async ({ page }) => {
-    await page.goto('/records/lab-l13.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/records/lab-l14.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#recordTitle')).toHaveText('Project');
     await expect(page.locator('#recordKicker')).toContainText('Play');
     await expect(page.locator('#recordMeta')).toContainText('Natural Earth 1:110m');
-    await expect(page.locator('#recordActions .primary')).toHaveAttribute('href', 'lab.html?instrument=project#l13');
+    await expect(page.locator('#recordActions .primary')).toHaveAttribute('href', 'lab.html?instrument=project#l14');
   });
 
   test('explains semantic scale and reveals hash targets', async ({ page }) => {

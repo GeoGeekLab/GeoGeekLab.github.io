@@ -648,3 +648,10 @@
     grid-template-rows: auto minmax(0, 1fr) 36px;
   }
 }
+
+
+/* WATER — shared workspace mode contract. The Water domain CSS refines layout,
+   but the shell itself owns Focus visibility for real and synthetic mounts. */
+.instrument-dialog[data-instrument-kind="water"][data-workspace-mode="focus"] .water-control-rail {
+  display: none !important;
+}

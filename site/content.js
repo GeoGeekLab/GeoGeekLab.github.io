@@ -778,17 +778,17 @@ window.GEOGEEK_ARCHIVE = {
       },
       "text": {
         "en": {
-          "status": "Live",
-          "title": "Wind Field",
+          "status": "Instrument",
+          "title": "Geographic Flow Laboratory",
           "tags": [
-            "Atmosphere",
-            "Wind",
-            "Circulation"
+            "Movement",
+            "Flow",
+            "Trajectory"
           ],
-          "description": "A live wind field makes circulation visible. What appears as a stable surface becomes legible as process, direction, and change.",
-          "coord": "u / v",
-          "instrumentKicker": "WIND / FLOW / RHYTHM",
-          "source": "Windy · ECMWF"
+          "description": "One workbench compares continuous vector fields, aggregate origin–destination networks, timestamped trajectories, and Lagrangian releases without pretending they are the same geometry.",
+          "coord": "field / OD / x(t)",
+          "instrumentKicker": "FLOW / FIELD / NETWORK / TRAJECTORY",
+          "source": "Open-Meteo · NOAA GFS · Natural Earth · reproducible demo data"
         }
       }
     },
@@ -933,6 +933,64 @@ window.GEOGEEK_ARCHIVE = {
           "coord": "λ / a / bb / Rrs / ρTOA* / Rrs_est",
           "instrumentKicker": "WATER / LIGHT / SPECTRUM",
           "source": "WOPP · Bricaud 1998 · Babin 2003 · NASA Ocean Color · mission spectral specifications"
+        }
+      },
+      "relations": {
+        "trace": []
+      }
+    },
+    {
+      "ref": "lab:l14",
+      "kind": "lab",
+      "id": "l14",
+      "data": {
+        "group": "play",
+        "visual": "project",
+        "featured": false,
+        "instrument": "project"
+      },
+      "text": {
+        "en": {
+          "status": "Play",
+          "title": "Project",
+          "tags": [
+            "Predict",
+            "Transform",
+            "Invariant"
+          ],
+          "description": "Predict first, then drag the representation and watch the same geography change appearance.",
+          "coord": "predict / transform / reveal",
+          "instrumentKicker": "PLAY / TRANSFORM / INVARIANT",
+          "source": "Natural Earth · D3 geographic projections"
+        }
+      },
+      "relations": {
+        "trace": []
+      }
+    },
+    {
+      "ref": "lab:l15",
+      "kind": "lab",
+      "id": "l15",
+      "data": {
+        "group": "play",
+        "visual": "light",
+        "featured": false,
+        "instrument": "light"
+      },
+      "text": {
+        "en": {
+          "status": "Play",
+          "title": "Light",
+          "tags": [
+            "Light",
+            "Ocean Color",
+            "Mechanism"
+          ],
+          "description": "Break the light path. Remove scattering, backscatter, or reflection and observe what remains.",
+          "coord": "source / path / observer",
+          "instrumentKicker": "PLAY / SOURCE / PATH / OBSERVER",
+          "source": "GeoGeek Water as Spectrum · conceptual Rayleigh + Fresnel teaching paths"
         }
       },
       "relations": {
