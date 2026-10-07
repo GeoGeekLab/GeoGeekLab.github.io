@@ -426,7 +426,7 @@ export async function mountWaterInstrument({stage,signal}={}){
   qa('[data-water-mode]').forEach(b=>on(b,'click',()=>setMode(b.dataset.waterMode)));
   qa('[data-path-step]').forEach(b=>on(b,'click',()=>setPath(b.dataset.pathStep)));
   qa('[data-preset]').forEach(b=>on(b,'click',()=>setState(WATER_REFERENCE_STATES[b.dataset.preset],'PRESET → component IOPs → a(λ), bb(λ) → u(λ) → Rrs(λ)',b.dataset.preset)));
-  qa('[data-sensor]').forEach(b=>on(b,'click',()=>{sensorId=b.dataset.sensor;causal='SENSOR CHANGE → continuous Rrs unchanged → band sampling changed';render();}));
+  qa('[data-sensor]').forEach(b=>on(b,'click',()=>{sensorId=b.dataset.sensor;causal='SENSOR CHANGE → water + atmosphere unchanged → band sampling changed';render();}));
   on(root,'click',event=>{
     const target=event.target.closest?.('[data-sensor-band]');
     if(!target)return;
@@ -434,10 +434,17 @@ export async function mountWaterInstrument({stage,signal}={}){
     if(band)setProbe(band.centerNm);
   });
 
-  on(controls.chl,'input',()=>setState({chl:sliderToLog(controls.chl.value,.02,25)},'Chl → aph(λ) → a(λ) → u(λ) → Rrs(λ)'));
-  on(controls.ag440,'input',()=>setState({ag440:Number(controls.ag440.value)},'ag(440) → ag(λ) → a(λ) → u(λ) → Rrs(λ)'));
-  on(controls.aNap443,'input',()=>setState({aNap443:Number(controls.aNap443.value)},'aNAP(443) → aNAP(λ) → a(λ) → u(λ) → Rrs(λ)'));
-  on(controls.bbp443,'input',()=>setState({bbp443:sliderToLog(controls.bbp443.value,.0001,.03)},'bbp(443) → bbp(λ) → bb(λ) → u(λ) → Rrs(λ)'));
+  on(atmControls.aot,'input',()=>setAtmosphereState({aerosolOpticalDepth550:Number(atmControls.aot.value)}));
+  on(atmControls.alpha,'input',()=>setAtmosphereState({angstromExponent:Number(atmControls.alpha.value)}));
+  on(atmControls.pressure,'input',()=>setAtmosphereState({pressureHpa:Number(atmControls.pressure.value)}));
+  on(atmControls.sza,'input',()=>setAtmosphereState({solarZenithDeg:Number(atmControls.sza.value)}));
+  on(atmControls.vza,'input',()=>setAtmosphereState({viewZenithDeg:Number(atmControls.vza.value)}));
+  on(atmControls.raz,'input',()=>setAtmosphereState({relativeAzimuthDeg:Number(atmControls.raz.value)}));
+
+  on(controls.chl,'input',()=>setState({chl:sliderToLog(controls.chl.value,.02,25)},'Chl → aph(λ) → a(λ) → u(λ) → Rrs(λ) → ρTOA*'));
+  on(controls.ag440,'input',()=>setState({ag440:Number(controls.ag440.value)},'ag(440) → ag(λ) → a(λ) → u(λ) → Rrs(λ) → ρTOA*'));
+  on(controls.aNap443,'input',()=>setState({aNap443:Number(controls.aNap443.value)},'aNAP(443) → aNAP(λ) → a(λ) → u(λ) → Rrs(λ) → ρTOA*'));
+  on(controls.bbp443,'input',()=>setState({bbp443:sliderToLog(controls.bbp443.value,.0001,.03)},'bbp(443) → bbp(λ) → bb(λ) → u(λ) → Rrs(λ) → ρTOA*'));
   on(q('[data-role="probe-control"]'),'input',e=>setProbe(e.target.value));
 
   qa('.water-chart svg').forEach(svg=>{
@@ -460,4 +467,4 @@ export async function mountWaterInstrument({stage,signal}={}){
 
 window.GeoGeekInstrumentMounts=window.GeoGeekInstrumentMounts||{};
 window.GeoGeekInstrumentMounts.water=mountWaterInstrument;
-window.GeoWaterSpectrum={mount:mountWaterInstrument,modelMeta:WATER_MODEL_META};
+window.GeoWaterSpectrum={mount:mountWaterInstrument,modelMeta:WATER_MODEL_META,atmosphereMeta:ATMOSPHERE_MODEL_META};
