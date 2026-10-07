@@ -566,6 +566,37 @@ Automatic scaling is allowed only when the current y-axis range is explicitly vi
 
 The UI must label this behavior as `AUTO Y` or equivalent. Exact wavelength-probe values remain the preferred magnitude comparison across different states.
 
+## 15.2 Sensor Observation Layer
+
+V1.5 adds a pedagogical sensor-sampling layer after the continuous above-water `Rrs(λ)` calculation.
+
+The causal boundary is:
+
+```text
+water state
+  ↓
+continuous Rrs(λ)
+  ↓
+sensor bandpass integration
+  ↓
+band-averaged Rrs
+```
+
+Changing the selected sensor must not change the water state, IOPs, `u`, `rrs`, or continuous `Rrs`.
+
+V1.5 uses simplified rectangular bandpasses derived from official nominal centre wavelengths and bandwidths or published wavelength ranges. It does not claim to reproduce measured detector-specific relative spectral response functions.
+
+A band is not numerically sampled when its full simplified support extends outside the quantitative 400–700 nm water-model domain.
+
+Supported teaching definitions:
+
+- Sentinel-3 OLCI nominal visible bands through Oa10.
+- PACE OCI simplified nominal 5 nm teaching mode inside 400–700 nm.
+- Sentinel-2A MSI B01–B04.
+- Landsat 8/9 OLI B1–B4.
+
+The output remains idealized above-water `Rrs`. It is not top-of-atmosphere radiance, calibrated sensor DN, or an atmospherically corrected satellite product.
+
 ## 16. V1 exclusions
 
 V1 intentionally excludes:
@@ -588,8 +619,8 @@ V1 intentionally excludes:
 - multiple phytoplankton functional types;
 - explicit particle-size distribution;
 - full scattering phase functions;
-- sensor spectral response functions;
-- band convolution;
+- full measured detector-specific or time-dependent sensor SRF/RSR convolution;
+- sensor bands outside the validated 400–700 nm water-model domain;
 - OCx / OCI retrieval;
 - QAA inversion;
 - OWT classification.
