@@ -5,7 +5,8 @@ const CASES = [
   ['zone', 'bound'],
   ['path', 'connect'],
   ['project', 'project'],
-  ['light', 'light']
+  ['light', 'light'],
+  ['swath', 'swath']
 ];
 
 async function primeOrient(page) {
@@ -36,7 +37,9 @@ for (const [instrument, kind] of CASES) {
     await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
     const trigger = page.locator(`[data-instrument="${instrument}"]`).first();
     await expect(trigger).toBeVisible({ timeout:10_000 });
+    await page.evaluate(() => { window.__geoPlayColdEntryDocument = 'before-navigation'; });
     await trigger.click();
+    await expect.poll(() => page.evaluate(() => window.__geoPlayColdEntryDocument)).toBeUndefined();
     await expect(page.locator('#instrumentDialog')).toHaveAttribute('open', '', { timeout:20_000 });
     await expect(page.locator(`.play-shell[data-play-kind="${kind}"], .play-v2-shell[data-play-kind="${kind}"]`)).toBeVisible({ timeout:20_000 });
   });
@@ -103,4 +106,20 @@ test('ORIENT accepts a real pointer judgment before confidence', async ({ page }
   const confidence = shell.locator('.orient-confidence-option').nth(1);
   await confidence.click();
   await expect(shell.getByRole('button', { name:'COMMIT' })).toBeEnabled();
+});
+
+
+test('Play entry still navigates when Play enhancement scripts fail to load', async ({ page }) => {
+  await page.route('**/play/play-bootstrap.js*', route => route.abort());
+  await page.route('**/play/play-runtime.js*', route => route.abort());
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+
+  const trigger = page.locator('[data-instrument="light"]').first();
+  await expect(trigger).toBeVisible({ timeout:10_000 });
+  await expect(trigger).toHaveAttribute('href', /instrument=light/);
+  await page.evaluate(() => { window.__geoPlayFallbackDocument = 'before-navigation'; });
+
+  await trigger.click({ noWaitAfter:true });
+  await expect(page).toHaveURL(/instrument=light/);
+  await expect.poll(() => page.evaluate(() => window.__geoPlayFallbackDocument)).toBeUndefined();
 });
