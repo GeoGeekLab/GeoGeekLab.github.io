@@ -94,7 +94,7 @@
   }
 
   if (list) {
-    const instrumentIds = new Set(['l04','l05','l06','l07','l08','l09','l10','l11','l12','l13','l14','l15']);
+    const instrumentIds = new Set(['l04','l05','l06','l07','l08','l09','l10','l11','l12','l13','l14','l15','l16']);
 
     // The Lab collection should only show records that actually expose an instrument.
     list.querySelectorAll('.project-card').forEach(card => {
@@ -116,7 +116,7 @@
 
       const ids = new Set(cards.map(card => card.id));
       if (ids.has('l11') || ids.has('l12')) block.classList.add('lab-group-studies');
-      else if (ids.has('l04') || ids.has('l05') || ids.has('l06') || ids.has('l10') || ids.has('l13')) block.classList.add('lab-group-observatory');
+      else if (ids.has('l04') || ids.has('l05') || ids.has('l06') || ids.has('l10') || ids.has('l13') || ids.has('l16')) block.classList.add('lab-group-observatory');
       else if (ids.has('l07') || ids.has('l08') || ids.has('l09')) block.classList.add('lab-group-play');
     });
   }
@@ -141,6 +141,7 @@
     figure: 'transform',
     water: 'spectral',
     light: 'field',
+    swath: 'field',
     project: 'field'
   };
 

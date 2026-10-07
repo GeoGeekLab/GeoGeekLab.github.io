@@ -496,6 +496,7 @@
     const kind = labPreviewKind(item);
     const tagLine = item.title || (item.tags || []).slice(0, 3).join(' · ');
     if (kind === 'orbit') return `<div class="preview-art preview-orbit"><span class="orbit-globe"></span><i class="orbit-arc orbit-arc-a"></i><i class="orbit-arc orbit-arc-b"></i><i class="orbit-arc orbit-arc-c"></i><b class="preview-stamp">${tagLine}</b></div>`;
+    if (kind === 'swath') return `<div class="preview-art preview-swath"><i class="swath-mini-sat"></i><i class="swath-mini-beam"></i><i class="swath-mini-ground"></i><i class="swath-mini-footprint"></i><i class="swath-mini-pixels"></i><b class="preview-stamp">${tagLine}</b></div>`;
     if (kind === 'earth') return `<div class="preview-art preview-earth"><span class="map mass a"></span><span class="map mass b"></span><span class="map mass c"></span><i class="marker m1"></i><i class="marker m2"></i><i class="marker m3"></i><b class="preview-stamp">${tagLine}</b></div>`;
     if (kind === 'flow') return `<div class="preview-art preview-flow"><i class="stream s1"></i><i class="stream s2"></i><i class="stream s3"></i><i class="stream s4"></i><b class="preview-stamp">${tagLine}</b></div>`;
     if (kind === 'pulse') return `<div class="preview-art preview-pulse"><span class="map mass a"></span><span class="map mass b"></span><span class="map mass c"></span><i class="quake q1"></i><i class="quake q2"></i><i class="quake q3"></i><i class="quake q4"></i><b class="preview-stamp">${tagLine}</b></div>`;

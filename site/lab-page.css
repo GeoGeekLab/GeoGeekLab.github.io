@@ -691,3 +691,36 @@
 .preview-water .band-blue{left:18%;background:#7599c4}
 .preview-water .band-green{left:45%;background:#8fb58c}
 .preview-water .band-red{left:70%;background:#c9795d}
+
+/* SWATH Observatory collection preview */
+.project-visual-swath .preview-swath{
+  background:
+    radial-gradient(circle at 50% 78%,rgba(80,111,101,.18),transparent 34%),
+    linear-gradient(180deg,rgba(5,8,7,.98),rgba(8,16,13,.98));
+}
+.preview-swath .swath-mini-sat{
+  position:absolute;left:50%;top:17%;width:28px;height:10px;
+  transform:translateX(-50%);border:1px solid rgba(241,239,231,.66);border-radius:3px;
+}
+.preview-swath .swath-mini-sat::before,
+.preview-swath .swath-mini-sat::after{
+  content:"";position:absolute;top:2px;width:20px;height:5px;border-top:1px solid rgba(241,239,231,.38);border-bottom:1px solid rgba(241,239,231,.22);
+}
+.preview-swath .swath-mini-sat::before{right:32px}.preview-swath .swath-mini-sat::after{left:32px}
+.preview-swath .swath-mini-beam{
+  position:absolute;left:50%;top:27%;width:42%;height:48%;transform:translateX(-50%);
+  clip-path:polygon(48% 0,52% 0,100% 100%,0 100%);
+  background:linear-gradient(180deg,rgba(209,99,57,.03),rgba(209,99,57,.22));
+}
+.preview-swath .swath-mini-ground{
+  position:absolute;left:-8%;right:-8%;bottom:18%;height:32%;
+  border-top:1px solid rgba(241,239,231,.28);border-radius:50% 50% 0 0/100% 100% 0 0;
+  background:rgba(25,44,36,.34);
+}
+.preview-swath .swath-mini-footprint{
+  position:absolute;left:29%;right:29%;bottom:31%;height:3px;background:rgba(209,99,57,.9);
+}
+.preview-swath .swath-mini-pixels{
+  position:absolute;left:29%;right:29%;bottom:27%;height:9px;
+  background:repeating-linear-gradient(90deg,rgba(241,239,231,.28) 0 1px,transparent 1px 8px);
+}

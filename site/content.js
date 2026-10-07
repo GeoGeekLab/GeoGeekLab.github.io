@@ -292,6 +292,24 @@ window.GEOGEEK_ARCHIVE = {
                 "First-order teaching atmosphere + inverse"
               ]
             ],
+            "swath": [
+              [
+                "INPUT",
+                "Altitude · FOV · detector samples"
+              ],
+              [
+                "GEOMETRY",
+                "Spherical Earth · nadir-pointing"
+              ],
+              [
+                "OUTPUT",
+                "Swath · nadir / edge GSD · orbit period"
+              ],
+              [
+                "LIMIT",
+                "Revisit · MTF · SNR not modeled"
+              ]
+            ],
             "locate": [
               [
                 "GEOMETRY",
@@ -991,6 +1009,35 @@ window.GEOGEEK_ARCHIVE = {
           "coord": "source / path / observer",
           "instrumentKicker": "PLAY / SOURCE / PATH / OBSERVER",
           "source": "GeoGeek Water as Spectrum · conceptual Rayleigh + Fresnel teaching paths"
+        }
+      },
+      "relations": {
+        "trace": []
+      }
+    },
+    {
+      "ref": "lab:l16",
+      "kind": "lab",
+      "id": "l16",
+      "data": {
+        "group": "observatory",
+        "visual": "swath",
+        "featured": false,
+        "instrument": "swath"
+      },
+      "text": {
+        "en": {
+          "status": "Instrument",
+          "title": "Swath",
+          "tags": [
+            "Remote Sensing",
+            "Sensor Geometry",
+            "Resolution"
+          ],
+          "description": "Change altitude, field of view, and detector sampling. See why wider coverage does not come free.",
+          "coord": "altitude / FOV / GSD",
+          "instrumentKicker": "SWATH / COVERAGE / SAMPLING / LIMIT",
+          "source": "Spherical Earth ray geometry · circular orbit approximation"
         }
       },
       "relations": {
