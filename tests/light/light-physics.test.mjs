@@ -61,7 +61,7 @@ test('Scene keeps the three mechanism paths independent', async () => {
   });
   assert.ok(noSky.skySpectrum.every(value=>value===0));
   assert.ok(noSky.waterSignal.some(value=>value>0));
-  assert.ok(noSky.surfaceSpectrum.some(value=>value>0));
+  assert.ok(noSky.surfaceSpectrum.every(value=>value===0));
 
   const noWater=physics.buildScene({
     waterOutput:water,
