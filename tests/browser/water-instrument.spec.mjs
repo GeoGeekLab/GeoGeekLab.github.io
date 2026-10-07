@@ -8,6 +8,7 @@ test('Water as Spectrum opens as a production Lab observatory instrument', async
   await expect(dialog).toHaveAttribute('data-instrument-kind','water');
   await expect(dialog).toHaveAttribute('data-lab-workspace','true');
   await expect(page.locator('#instrumentTitle')).toHaveText('Water as Spectrum');
+  await expect(page.locator('#instrumentGroupLabel')).toHaveText('OBSERVATORY');
 
   await expect(page.locator('.water-lab')).toBeVisible();
   await expect(page.locator('.water-chart')).toHaveCount(3);
@@ -368,4 +369,47 @@ test('ATM work panel uses compact budget rows and readable diagnostics', async (
 
   await page.locator('[data-workspace-mode="inspect"]').click();
   await expect(page.locator('.water-atmosphere-contract')).toBeVisible();
+});
+
+
+test('Water WORK sensor and correction intros stay contained at the reported 1840x830 viewport', async ({ page }) => {
+  await page.setViewportSize({ width:1840, height:830 });
+  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+  await page.locator('[data-workspace-mode="work"]').click();
+
+  for (const [mode,selector] of [
+    ['sensor','.water-sensor-intro'],
+    ['correction','.water-correction-intro']
+  ]) {
+    await page.locator(`[data-water-mode="${mode}"]`).click();
+    const intro=page.locator(selector);
+    const title=intro.locator('strong');
+    const copy=intro.locator('p');
+
+    await expect(intro).toBeVisible();
+
+    const [introBox,titleBox,copyBox,overflow]=await Promise.all([
+      intro.boundingBox(),
+      title.boundingBox(),
+      copy.boundingBox(),
+      intro.evaluate(node=>({
+        clientWidth:node.clientWidth,
+        scrollWidth:node.scrollWidth,
+        clientHeight:node.clientHeight,
+        scrollHeight:node.scrollHeight
+      }))
+    ]);
+
+    expect(introBox).not.toBeNull();
+    expect(titleBox).not.toBeNull();
+    expect(copyBox).not.toBeNull();
+
+    expect(titleBox.x).toBeGreaterThanOrEqual(introBox.x-1);
+    expect(titleBox.x+titleBox.width).toBeLessThanOrEqual(introBox.x+introBox.width+1);
+    expect(copyBox.x).toBeGreaterThanOrEqual(introBox.x-1);
+    expect(copyBox.x+copyBox.width).toBeLessThanOrEqual(introBox.x+introBox.width+1);
+    expect(titleBox.y+titleBox.height).toBeLessThanOrEqual(copyBox.y+1);
+    expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth+1);
+    expect(overflow.scrollHeight).toBeLessThanOrEqual(overflow.clientHeight+1);
+  }
 });

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Lab entry hierarchy', () => {
-  test('presents an eight-record Observatory and five-record Play collection', async ({ page }) => {
+  test('presents a seven-record Observatory and six-record Play collection', async ({ page }) => {
     await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.querySelectorAll('#labList .project-card').length === 13);
     await page.waitForFunction(() => document.querySelectorAll('.lab-group-purpose').length === 2);
@@ -25,10 +25,12 @@ test.describe('Lab entry hierarchy', () => {
 
     const observatory = page.locator('#labList > .lab-group-observatory');
     const play = page.locator('#labList > .lab-group-play');
-    await expect(observatory.locator('.project-card')).toHaveCount(8);
-    await expect(play.locator('.project-card')).toHaveCount(5);
+    await expect(observatory.locator('.project-card')).toHaveCount(7);
+    await expect(play.locator('.project-card')).toHaveCount(6);
     await expect(observatory.locator('#l11')).toHaveCount(1);
     await expect(observatory.locator('#l12')).toHaveCount(1);
+    await expect(observatory.locator('#l13')).toHaveCount(1);
+    await expect(play.locator('#l16')).toHaveCount(1);
 
     const observatoryColumns = await observatory.locator('.project-grid').evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length);
     if ((page.viewportSize()?.width || 0) > 980) expect(observatoryColumns).toBe(3);
