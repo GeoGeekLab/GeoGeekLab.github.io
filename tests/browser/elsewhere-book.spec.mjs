@@ -27,11 +27,13 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
 
   const english = body.locator('[data-book-lang-button="en"]');
   const chinese = body.locator('[data-book-lang-button="zh"]');
-  await expect(english).toHaveAttribute('aria-pressed', 'true');
-  await chinese.click();
   await expect(chinese).toHaveAttribute('aria-pressed', 'true');
+  await expect(english).toHaveAttribute('aria-pressed', 'false');
 
   const chinesePanel = body.locator('[data-book-lang-panel="zh"]');
+  const englishPanel = body.locator('[data-book-lang-panel="en"]');
+  await expect(chinesePanel).toBeVisible();
+  await expect(englishPanel).toBeHidden();
   await expect(chinesePanel.locator(':scope > article.book-reading-essay')).toHaveCount(1);
   await expect(chinesePanel.locator('.book-record-section')).toHaveCount(0);
   await expect(chinesePanel.locator('.book-reading-essay > p')).toHaveCount(13);
