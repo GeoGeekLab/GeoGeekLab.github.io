@@ -174,7 +174,7 @@ function markup(){
       <section class="water-rail-section">
         <div class="water-rail-heading"><span>WAVELENGTH PROBE</span><strong data-role="probe-nm">443 nm</strong></div>
         <input class="water-probe-input" data-role="probe-control" type="range" min="400" max="700" step="1" value="443">
-        <div class="water-probe-summary"><span><small>a</small><b data-role="probe-a">—</b></span><span><small>bb</small><b data-role="probe-bb">—</b></span><span><small>Rrs</small><b data-role="probe-Rrs">—</b></span></div>
+        <div class="water-probe-summary"><span><small>a</small><b data-role="probe-a">—</b></span><span><small>bb</small><b data-role="probe-bb">—</b></span><span><small>Rrs</small><b data-role="probe-Rrs">—</b></span><span><small>ρTOA*</small><b data-role="probe-toa">—</b></span></div>
       </section>
       <section class="water-rail-section water-budget-controls">
         <div class="water-rail-heading"><span>COMPONENT BUDGET</span><small data-role="budget-nm">443 nm</small></div>
@@ -215,13 +215,23 @@ export async function mountWaterInstrument({stage,signal}={}){
 
   let state={...WATER_DEFAULT_STATE};
   let model=computeWaterOptics(state);
+  let atmosphereState={...ATMOSPHERE_DEFAULT_STATE};
+  let atmosphere=computeAtmosphereObservation(WATER_WAVELENGTHS_NM,model.Rrs,atmosphereState);
   let probeNm=443;
   let preset='';
   let sensorId='olci';
-  let sensorObservation=sampleSensorRrs(WATER_WAVELENGTHS_NM,model.Rrs,sensorId);
+  let sensorObservation=sampleSensorSpectrum(WATER_WAVELENGTHS_NM,atmosphere.reflectance.toaApprox,sensorId,'rhoTOA*');
   let causal='REFERENCE STATE → IOPs → u(λ) → rrs(λ) → Rrs(λ)';
 
   const controls={chl:q('[data-control="chl"]'),ag440:q('[data-control="ag440"]'),aNap443:q('[data-control="aNap443"]'),bbp443:q('[data-control="bbp443"]')};
+  const atmControls={
+    aot:q('[data-atm-control="aot"]'),
+    alpha:q('[data-atm-control="alpha"]'),
+    pressure:q('[data-atm-control="pressure"]'),
+    sza:q('[data-atm-control="sza"]'),
+    vza:q('[data-atm-control="vza"]'),
+    raz:q('[data-atm-control="raz"]')
+  };
 
   function syncControls(){
     controls.chl.value=String(logToSlider(state.chl,.02,25));
@@ -232,6 +242,19 @@ export async function mountWaterInstrument({stage,signal}={}){
     q('[data-output="ag440"]').textContent=state.ag440.toFixed(3)+' m⁻¹';
     q('[data-output="aNap443"]').textContent=state.aNap443.toFixed(3)+' m⁻¹';
     q('[data-output="bbp443"]').textContent=state.bbp443.toFixed(4)+' m⁻¹';
+
+    atmControls.aot.value=String(atmosphereState.aerosolOpticalDepth550);
+    atmControls.alpha.value=String(atmosphereState.angstromExponent);
+    atmControls.pressure.value=String(atmosphereState.pressureHpa);
+    atmControls.sza.value=String(atmosphereState.solarZenithDeg);
+    atmControls.vza.value=String(atmosphereState.viewZenithDeg);
+    atmControls.raz.value=String(atmosphereState.relativeAzimuthDeg);
+    q('[data-atm-output="aot"]').textContent=atmosphereState.aerosolOpticalDepth550.toFixed(3);
+    q('[data-atm-output="alpha"]').textContent=atmosphereState.angstromExponent.toFixed(2);
+    q('[data-atm-output="pressure"]').textContent=Math.round(atmosphereState.pressureHpa)+' hPa';
+    q('[data-atm-output="sza"]').textContent=Math.round(atmosphereState.solarZenithDeg)+'°';
+    q('[data-atm-output="vza"]').textContent=Math.round(atmosphereState.viewZenithDeg)+'°';
+    q('[data-atm-output="raz"]').textContent=Math.round(atmosphereState.relativeAzimuthDeg)+'°';
   }
   function syncScene(){
     const scene=q('[data-role="scene"]');
