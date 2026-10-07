@@ -1,82 +1,96 @@
-import { chromium, firefox, webkit } from 'playwright';
+import { webkit } from 'playwright';
 
 const LIVE='https://geogeeklab.github.io/lab.html';
-const plays=[
-  ['locate','orient'],
-  ['zone','bound'],
-  ['path','connect'],
-  ['project','project'],
-  ['light','light'],
-  ['swath','swath']
+const cases=[
+  ['fresh-1',false],
+  ['fresh-2',false],
+  ['fresh-3',false],
+  ['primed-1',true],
+  ['primed-2',true]
 ];
+let failed=0;
 
-let failed=false;
-for (const [engineName,engine] of Object.entries({chromium,firefox,webkit})) {
-  const browser=await engine.launch({headless:true});
-  try {
-    for (const [kind,domKind] of plays) {
-      const context=await browser.newContext({
-        viewport: engineName==='webkit'?{width:390,height:844}:{width:1440,height:1000}
+const browser=await webkit.launch({headless:true});
+try {
+  for (const [label,primed] of cases) {
+    const context=await browser.newContext({viewport:{width:390,height:844}});
+    if (primed) {
+      await context.addInitScript(() => {
+        localStorage.setItem('geogeek.orient.primer.v1', JSON.stringify({
+          version:'orient-primer-1', seen:true, updatedAt:new Date().toISOString()
+        }));
       });
-      const page=await context.newPage();
-      const pageErrors=[];
-      const requestFailures=[];
-      page.on('pageerror',e=>pageErrors.push(String(e?.stack||e).slice(0,800)));
-      page.on('requestfailed',r=>requestFailures.push(`${r.method()} ${r.url()} :: ${r.failure()?.errorText||'failed'}`));
-
-      await page.goto(`${LIVE}?release=20261007p&probe=${Date.now()}-${engineName}-${kind}`,{
-        waitUntil:'domcontentloaded',
-        timeout:30000
-      });
-      await page.waitForFunction(()=>Boolean(window.GeoModules?.__geoSpatialPlayRuntime),null,{timeout:12000});
-
-      const trigger=page.locator(`[data-instrument="${kind}"]`).first();
-      await trigger.scrollIntoViewIfNeeded();
-      const started=Date.now();
-      await trigger.click({timeout:10000,noWaitAfter:true});
-
-      let state;
-      try {
-        await page.waitForFunction(({kind,domKind})=>{
-          const dialog=document.getElementById('instrumentDialog');
-          const shell=document.querySelector(`.play-shell[data-play-kind="${domKind}"],.play-v2-shell[data-play-kind="${domKind}"]`);
-          return Boolean(dialog?.open && window.GeoInstruments?.getActive?.()===kind && shell);
-        },{kind,domKind},{timeout:12000});
-        state=await page.evaluate(({kind,domKind})=>({
-          ok:true,
-          url:location.href,
-          active:window.GeoInstruments?.getActive?.()||null,
-          dialogOpen:Boolean(document.getElementById('instrumentDialog')?.open),
-          shell:Boolean(document.querySelector(`.play-shell[data-play-kind="${domKind}"],.play-v2-shell[data-play-kind="${domKind}"]`)),
-          entryState:document.querySelector(`[data-instrument="${kind}"]`)?.dataset.playEntryState||null,
-          entryText:document.querySelector(`[data-instrument="${kind}"]`)?.textContent?.trim()||''
-        }),{kind,domKind});
-      } catch(e) {
-        state=await page.evaluate(({kind,domKind})=>({
-          ok:false,
-          url:location.href,
-          active:window.GeoInstruments?.getActive?.()||null,
-          dialogOpen:Boolean(document.getElementById('instrumentDialog')?.open),
-          shell:Boolean(document.querySelector(`.play-shell[data-play-kind="${domKind}"],.play-v2-shell[data-play-kind="${domKind}"]`)),
-          entryState:document.querySelector(`[data-instrument="${kind}"]`)?.dataset.playEntryState||null,
-          entryText:document.querySelector(`[data-instrument="${kind}"]`)?.textContent?.trim()||'',
-          stageText:document.getElementById('instrumentStage')?.textContent?.trim().slice(0,200)||''
-        }),{kind,domKind});
-        failed=true;
-      }
-
-      console.log('RESULT',JSON.stringify({
-        engine:engineName,
-        kind,
-        elapsedMs:Date.now()-started,
-        state,
-        pageErrors,
-        requestFailures
-      }));
-      await context.close();
     }
-  } finally {
-    await browser.close();
+    const page=await context.newPage();
+    const errors=[];
+    const failures=[];
+    page.on('pageerror',e=>errors.push(String(e?.stack||e).slice(0,1000)));
+    page.on('requestfailed',r=>failures.push(`${r.method()} ${r.url()} :: ${r.failure()?.errorText||'failed'}`));
+
+    await page.addInitScript(() => {
+      window.__PLAY_EVENT_LOG__=[];
+      const push=(type,event)=>{
+        const el=event.target?.closest?.('[data-instrument]');
+        if (!el) return;
+        window.__PLAY_EVENT_LOG__.push({
+          type,
+          kind:el.dataset.instrument||null,
+          tag:el.tagName,
+          state:el.dataset.playEntryState||null,
+          href:el.getAttribute('href')||null,
+          t:performance.now()
+        });
+      };
+      window.addEventListener('pointerdown',e=>push('pointerdown',e),true);
+      window.addEventListener('click',e=>push('click',e),true);
+    });
+
+    await page.goto(`${LIVE}?release=20261007p&webkitLocateProbe=${Date.now()}-${label}`,{
+      waitUntil:'domcontentloaded',timeout:30000
+    });
+    await page.waitForFunction(()=>Boolean(window.GeoModules?.__geoSpatialPlayRuntime),null,{timeout:12000});
+    const trigger=page.locator('[data-instrument="locate"]').first();
+    await trigger.scrollIntoViewIfNeeded();
+
+    const before=await page.evaluate(()=>({
+      href:document.querySelector('[data-instrument="locate"]')?.getAttribute('href')||null,
+      tag:document.querySelector('[data-instrument="locate"]')?.tagName||null,
+      state:document.querySelector('[data-instrument="locate"]')?.dataset.playEntryState||null,
+      primer:localStorage.getItem('geogeek.orient.primer.v1'),
+      runtime:Boolean(window.GeoModules?.__geoSpatialPlayRuntime)
+    }));
+
+    const started=Date.now();
+    await trigger.click({timeout:10000,noWaitAfter:true});
+    let ok=true;
+    try {
+      await page.waitForFunction(()=>Boolean(
+        document.getElementById('instrumentDialog')?.open &&
+        window.GeoInstruments?.getActive?.()==='locate' &&
+        document.querySelector('.play-shell[data-play-kind="orient"],.play-v2-shell[data-play-kind="orient"]')
+      ),null,{timeout:12000});
+    } catch {
+      ok=false;
+      failed++;
+    }
+
+    const after=await page.evaluate(()=>({
+      url:location.href,
+      dialogOpen:Boolean(document.getElementById('instrumentDialog')?.open),
+      active:window.GeoInstruments?.getActive?.()||null,
+      shell:Boolean(document.querySelector('.play-shell[data-play-kind="orient"],.play-v2-shell[data-play-kind="orient"]')),
+      state:document.querySelector('[data-instrument="locate"]')?.dataset.playEntryState||null,
+      text:document.querySelector('[data-instrument="locate"]')?.textContent?.trim()||'',
+      primer:localStorage.getItem('geogeek.orient.primer.v1'),
+      eventLog:window.__PLAY_EVENT_LOG__||[],
+      stageText:document.getElementById('instrumentStage')?.textContent?.trim().slice(0,240)||''
+    }));
+    console.log('LOCATE_RESULT',JSON.stringify({
+      label,primed,ok,elapsedMs:Date.now()-started,before,after,errors,failures
+    }));
+    await context.close();
   }
+} finally {
+  await browser.close();
 }
 if(failed) process.exit(1);
