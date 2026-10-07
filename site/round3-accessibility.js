@@ -118,9 +118,9 @@
         return { node, index, x, y, dx: 0, dy: 0 };
       });
 
-      const minDistance = 30;
+      const minDistance = 34;
       const radius = 12.5;
-      for (let pass = 0; pass < 24; pass += 1) {
+      for (let pass = 0; pass < 80; pass += 1) {
         let changed = false;
         for (let i = 0; i < points.length; i += 1) {
           for (let j = i + 1; j < points.length; j += 1) {
