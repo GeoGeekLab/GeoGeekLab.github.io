@@ -33,6 +33,7 @@ for (const [kind, fixture, railSelector] of instruments) {
 
     await expect(dialog).toHaveAttribute('data-workspace-mode', 'work');
     await expect(page.locator('.instrument-workspace-modes')).toBeVisible();
+    await expect(page.locator('.instrument-meta')).toBeHidden();
 
     const close = page.locator('#instrumentClose');
     await expect(close).toBeVisible();
@@ -71,6 +72,7 @@ for (const [kind, fixture, railSelector] of instruments) {
 
     await page.locator('[data-workspace-mode="inspect"]').click();
     await expect(dialog).toHaveAttribute('data-workspace-mode', 'inspect');
+    await expect(page.locator('.instrument-meta')).toBeHidden();
     await expect(rail).toBeVisible();
 
     const titleSize = await page.locator('#instrumentTitle').evaluate(node => parseFloat(getComputedStyle(node).fontSize));
