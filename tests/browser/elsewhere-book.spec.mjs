@@ -147,6 +147,7 @@ test('BOOK 026 Chinese essay uses readable paragraph and quote typography', asyn
     };
   });
 
+  expect(paragraphStyle.fontSize).toBeCloseTo(10,1);
   expect(paragraphStyle.textIndent).toBeGreaterThanOrEqual(paragraphStyle.fontSize*1.9);
   expect(paragraphStyle.marginBottom).toBeGreaterThan(paragraphStyle.fontSize);
   expect(paragraphStyle.lineHeight).toBeGreaterThan(paragraphStyle.fontSize*1.75);
