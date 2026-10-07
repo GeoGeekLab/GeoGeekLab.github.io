@@ -13,8 +13,8 @@ async function loadPhysics() {
 function fakeWater() {
   const wavelengthNm=Array.from({length:301},(_,i)=>400+i);
   const Rrs=wavelengthNm.map(lambda=>{
-    const blue=Math.exp(-((lambda-455)/70)**2)*0.004;
-    const green=Math.exp(-((lambda-550)/95)**2)*0.0014;
+    const blue=Math.exp(-(((lambda-455)/70)**2))*0.004;
+    const green=Math.exp(-(((lambda-550)/95)**2))*0.0014;
     return blue+green+0.00005;
   });
   return {wavelengthNm,Rrs};
