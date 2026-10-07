@@ -255,3 +255,63 @@
 @media(prefers-reduced-motion:reduce){
   .book-unit-row{transition:none;}
 }
+
+
+/* Continuous Chinese BOOK essay */
+.book-record-page .book-reading-essay{
+  max-width:860px;
+  font-size:clamp(17px,1.15vw,19px);
+  line-height:1.9;
+  letter-spacing:.015em;
+  color:var(--fg);
+}
+
+.book-record-page .book-reading-essay > p{
+  margin:0 0 1.25em;
+  text-indent:2em;
+}
+
+.book-record-page .book-reading-essay > p:last-child{
+  margin-bottom:0;
+}
+
+.book-record-page .book-reading-essay blockquote{
+  position:relative;
+  margin:1.8em 0 2em;
+  padding:1.05em 1.25em 1.05em 1.4em;
+  border-left:2px solid var(--signal);
+  background:rgba(172,94,52,.045);
+}
+
+.book-record-page .book-reading-essay blockquote::before{
+  content:"QUOTE";
+  display:block;
+  margin-bottom:.7em;
+  color:var(--signal);
+  font:650 8px/1 var(--mono);
+  letter-spacing:.1em;
+}
+
+.book-record-page .book-reading-essay blockquote p{
+  margin:0;
+  text-indent:0;
+  color:var(--fg);
+  font-size:1.02em;
+  line-height:1.85;
+}
+
+@media(max-width:680px){
+  .book-record-page .book-reading-essay{
+    font-size:16.5px;
+    line-height:1.85;
+  }
+
+  .book-record-page .book-reading-essay > p{
+    margin-bottom:1.15em;
+  }
+
+  .book-record-page .book-reading-essay blockquote{
+    margin:1.55em 0 1.7em;
+    padding:1em 1em 1em 1.15em;
+  }
+}
