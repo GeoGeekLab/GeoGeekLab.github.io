@@ -53,3 +53,34 @@ test('Water as Spectrum is listed in Observatory and links to its record', async
   await expect(card.locator('[data-instrument="water"]')).toBeVisible();
   await expect(card.locator('a[data-record-ref="lab:l13"]')).toHaveAttribute('href',/lab-l13\.html/);
 });
+
+
+test('Sensor Observation Layer samples Rrs without changing the continuous model', async ({ page }) => {
+  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+
+  const scene=page.locator('.water-scene');
+  const note=page.locator('.water-path-note');
+  const sceneBox=await scene.boundingBox();
+  const noteBox=await note.boundingBox();
+  expect(sceneBox).not.toBeNull();
+  expect(noteBox).not.toBeNull();
+  expect(noteBox.x).toBeLessThan(sceneBox.x + sceneBox.width * 0.5);
+
+  const continuousBefore=await page.locator('[data-role="probe-Rrs"]').textContent();
+  await page.locator('[data-water-mode="sensor"]').click();
+  await expect(page.locator('.water-lab')).toHaveAttribute('data-mode','sensor');
+  await expect(page.locator('.water-sensor-controls')).toBeVisible();
+  await expect(page.locator('[data-role="sensor-name"]')).toHaveText('Sentinel-3 OLCI');
+  await expect(page.locator('[data-role="sensor-count"]')).toContainText('SAMPLED');
+  expect(await page.locator('[data-chart="Rrs"] .water-sensor-sample-dot').count()).toBeGreaterThan(0);
+
+  await page.locator('[data-sensor="s2-msi"]').click();
+  await expect(page.locator('[data-role="sensor-name"]')).toHaveText('Sentinel-2A MSI');
+  await expect(page.locator('[data-role="sensor-band-list"] button')).toHaveCount(4);
+  await expect(page.locator('[data-role="probe-Rrs"]')).toHaveText(continuousBefore);
+
+  await page.locator('[data-sensor="pace-oci"]').click();
+  await expect(page.locator('[data-role="sensor-count"]')).toContainText('60 SAMPLED / 60 SHOWN');
+  await expect(page.locator('[data-role="sensor-band-list"] button')).toHaveCount(60);
+  await expect(page.locator('[data-role="spectra-hint"]')).toContainText('ATMOSPHERE NOT APPLIED');
+});
