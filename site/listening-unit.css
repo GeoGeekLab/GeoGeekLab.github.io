@@ -146,7 +146,8 @@
 }
 .listening-record-embed{
   position:relative;
-  width:100%;
+  width:80%;
+  margin-inline:auto;
   aspect-ratio:16/9;
   overflow:hidden;
   border:1px solid var(--line-soft);
