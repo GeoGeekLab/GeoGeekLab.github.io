@@ -35,9 +35,19 @@ test('Elsewhere exposes LISTENING as a thirty-two-record Sound as landscape coll
   await expect(rows.nth(16)).toContainText('España Cañí');
   await expect(rows.nth(17)).toContainText('Victory');
   await expect(rows.nth(18)).toContainText("L'inverno, RV 297: II. Largo");
-  await expect(rows.nth(19)).toContainText('7eul_Vt6SZY');
-  await expect(rows.nth(20)).toContainText('q3-tOnJrZZM');
-  await expect(rows.nth(31)).toContainText('iP6XpLQM2Cs');
+  await expect(rows.nth(19)).toContainText('No Matter What');
+  await expect(rows.nth(20)).toContainText('いのちの名前');
+  await expect(rows.nth(21)).toContainText('大鱼');
+  await expect(rows.nth(22)).toContainText('となりのトトロ');
+  await expect(rows.nth(23)).toContainText('toneoiqviCI');
+  await expect(rows.nth(24)).toContainText("L'Internationale");
+  await expect(rows.nth(25)).toContainText('HBO5N5KGJzM');
+  await expect(rows.nth(26)).toContainText('纸短情长');
+  await expect(rows.nth(27)).toContainText('不再猶豫');
+  await expect(rows.nth(28)).toContainText('今天妳要嫁給我');
+  await expect(rows.nth(29)).toContainText('牛仔很忙');
+  await expect(rows.nth(30)).toContainText('Nevada');
+  await expect(rows.nth(31)).toContainText('TiK ToK');
 
   await expect(rows.nth(0)).toHaveAttribute('href', 'records/elsewhere-listening-001.html');
   await expect(rows.nth(18)).toHaveAttribute('href', 'records/elsewhere-listening-019.html');
@@ -102,17 +112,30 @@ test('LISTENING preserves original or first-release title language and supplied 
 });
 
 
-test('LISTENING user-supplied YouTube sources materialize as pending-title records', async ({ page }) => {
+test('LISTENING resolves supplied YouTube IDs to verified metadata where source evidence supports it', async ({ page }) => {
   await page.goto('/records/elsewhere-listening-020.html');
-  await expect(page.locator('#recordTitle')).toHaveText('7eul_Vt6SZY');
-  await expect(page.locator('#recordMeta')).toContainText('SOURCE TITLE PENDING');
+  await expect(page.locator('#recordTitle')).toHaveText('No Matter What');
+  await expect(page.locator('#recordExcerpt')).toContainText('Boyzone');
+  await expect(page.locator('#recordExcerpt')).toContainText('1998');
+  await expect(page.locator('#recordMeta')).not.toContainText('SOURCE TITLE PENDING');
   await expect(page.locator('.listening-record-embed iframe')).toHaveAttribute(
     'src',
     'https://www.youtube.com/embed/7eul_Vt6SZY?si=RU9IAcOwLxl9KU35'
   );
 
+  await page.goto('/records/elsewhere-listening-024.html');
+  await expect(page.locator('#recordTitle')).toHaveText('toneoiqviCI');
+  await expect(page.locator('#recordMeta')).toContainText('SOURCE TITLE PENDING');
+
+  await page.goto('/records/elsewhere-listening-026.html');
+  await expect(page.locator('#recordTitle')).toHaveText('HBO5N5KGJzM');
+  await expect(page.locator('#recordMeta')).toContainText('SOURCE TITLE PENDING');
+
   await page.goto('/records/elsewhere-listening-032.html');
-  await expect(page.locator('#recordTitle')).toHaveText('iP6XpLQM2Cs');
+  await expect(page.locator('#recordTitle')).toHaveText('TiK ToK');
+  await expect(page.locator('#recordExcerpt')).toContainText('Kesha');
+  await expect(page.locator('#recordExcerpt')).toContainText('2009');
+  await expect(page.locator('#recordMeta')).not.toContainText('SOURCE TITLE PENDING');
   await expect(page.locator('.listening-record-embed iframe')).toHaveAttribute(
     'src',
     'https://www.youtube.com/embed/iP6XpLQM2Cs?si=esoQjr4C64k0ioEf'
