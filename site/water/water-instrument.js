@@ -631,6 +631,11 @@ export async function mountWaterInstrument({stage,signal}={}){
   on(atmControls.vza,'input',()=>setAtmosphereState({viewZenithDeg:Number(atmControls.vza.value)}));
   on(atmControls.raz,'input',()=>setAtmosphereState({relativeAzimuthDeg:Number(atmControls.raz.value)}));
 
+  on(corrControls.aot,'input',()=>setCorrectionAssumption({aerosolOpticalDepth550:Number(corrControls.aot.value)}));
+  on(corrControls.alpha,'input',()=>setCorrectionAssumption({angstromExponent:Number(corrControls.alpha.value)}));
+  on(q('[data-correction-match]'),'click',matchCorrectionAssumption);
+  qa('[data-corr-preset]').forEach(button=>on(button,'click',()=>applyCorrectionPreset(button.dataset.corrPreset)));
+
   on(controls.chl,'input',()=>setState({chl:sliderToLog(controls.chl.value,.02,25)},'Chl → aph(λ) → a(λ) → u(λ) → Rrs(λ) → ρTOA*'));
   on(controls.ag440,'input',()=>setState({ag440:Number(controls.ag440.value)},'ag(440) → ag(λ) → a(λ) → u(λ) → Rrs(λ) → ρTOA*'));
   on(controls.aNap443,'input',()=>setState({aNap443:Number(controls.aNap443.value)},'aNAP(443) → aNAP(λ) → a(λ) → u(λ) → Rrs(λ) → ρTOA*'));
