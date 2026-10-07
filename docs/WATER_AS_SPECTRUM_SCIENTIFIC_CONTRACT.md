@@ -263,10 +263,11 @@ V1 stores the generated `bbw` table rather than recomputing the seawater thermod
 For 400–700 nm use the Bricaud et al. (1998) chlorophyll-dependent parameterization:
 
 ```text
-aph(λ) = A(λ) · Chl ^ B(λ)
+aph*(λ) = A(λ) · Chl ^ [-B(λ)]
+aph(λ)  = A(λ) · Chl ^ [1 - B(λ)]
 ```
 
-where `A(λ)` and `B(λ)` are the published spectral coefficient tables.
+where `aph*(λ)` is chlorophyll-specific absorption and `A(λ)` and `B(λ)` are the published spectral coefficient tables. The second equation follows from `aph = aph* · Chl`.
 
 The Round 2 implementation must vendor one verified coefficient table with provenance. The preferred verification path is:
 
