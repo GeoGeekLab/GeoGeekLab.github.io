@@ -4,7 +4,8 @@ const CASES = [
   ['locate', 'orient'],
   ['zone', 'bound'],
   ['path', 'connect'],
-  ['project', 'project']
+  ['project', 'project'],
+  ['light', 'light']
 ];
 
 async function primeOrient(page) {
@@ -22,6 +23,14 @@ async function openDirect(page, instrument, kind) {
 }
 
 for (const [instrument, kind] of CASES) {
+  test(`Lab card exposes a native fallback for ${kind}`, async ({ page }) => {
+    if (instrument === 'locate') await primeOrient(page);
+    await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+    const trigger = page.locator(`[data-instrument="${instrument}"]`).first();
+    await expect(trigger).toBeVisible({ timeout:10_000 });
+    await expect(trigger).toHaveAttribute('href', new RegExp(`instrument=${instrument}`));
+  });
+
   test(`Lab card opens ${kind} through the real entry button`, async ({ page }) => {
     if (instrument === 'locate') await primeOrient(page);
     await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
