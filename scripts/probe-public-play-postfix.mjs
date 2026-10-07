@@ -2,42 +2,32 @@ import { webkit } from 'playwright';
 
 const LIVE='https://geogeeklab.github.io/lab.html';
 const cases=[
-  ['fresh-1',false],
-  ['fresh-2',false],
-  ['fresh-3',false],
-  ['primed-1',true],
-  ['primed-2',true]
+  ['cold-runtime-1',false],
+  ['cold-runtime-2',false],
+  ['cold-visual-ready-1',true],
+  ['cold-visual-ready-2',true]
 ];
 let failed=0;
 
-const browser=await webkit.launch({headless:true});
-try {
-  for (const [label,primed] of cases) {
+for (const [label,waitVisual] of cases) {
+  const browser=await webkit.launch({headless:true});
+  try {
     const context=await browser.newContext({viewport:{width:390,height:844}});
-    if (primed) {
-      await context.addInitScript(() => {
-        localStorage.setItem('geogeek.orient.primer.v1', JSON.stringify({
-          version:'orient-primer-1', seen:true, updatedAt:new Date().toISOString()
-        }));
-      });
-    }
     const page=await context.newPage();
+    const navs=[];
     const errors=[];
     const failures=[];
+    page.on('framenavigated',frame=>{ if(frame===page.mainFrame()) navs.push(frame.url()); });
     page.on('pageerror',e=>errors.push(String(e?.stack||e).slice(0,1000)));
     page.on('requestfailed',r=>failures.push(`${r.method()} ${r.url()} :: ${r.failure()?.errorText||'failed'}`));
-
     await page.addInitScript(() => {
       window.__PLAY_EVENT_LOG__=[];
       const push=(type,event)=>{
         const el=event.target?.closest?.('[data-instrument]');
-        if (!el) return;
         window.__PLAY_EVENT_LOG__.push({
           type,
-          kind:el.dataset.instrument||null,
-          tag:el.tagName,
-          state:el.dataset.playEntryState||null,
-          href:el.getAttribute('href')||null,
+          target:event.target?.id||event.target?.className?.baseVal||event.target?.className||event.target?.tagName||null,
+          kind:el?.dataset?.instrument||null,
           t:performance.now()
         });
       };
@@ -45,23 +35,28 @@ try {
       window.addEventListener('click',e=>push('click',e),true);
     });
 
-    await page.goto(`${LIVE}?release=20261007p&webkitLocateProbe=${Date.now()}-${label}`,{
+    await page.goto(`${LIVE}?release=20261007p&coldProbe=${Date.now()}-${label}`,{
       waitUntil:'domcontentloaded',timeout:30000
     });
     await page.waitForFunction(()=>Boolean(window.GeoModules?.__geoSpatialPlayRuntime),null,{timeout:12000});
-    const trigger=page.locator('[data-instrument="locate"]').first();
-    await trigger.scrollIntoViewIfNeeded();
+    if (waitVisual) {
+      await page.waitForFunction(()=>window.__GEOGEEK_VISUAL_READY__===true,null,{timeout:12000});
+    }
 
     const before=await page.evaluate(()=>({
-      href:document.querySelector('[data-instrument="locate"]')?.getAttribute('href')||null,
-      tag:document.querySelector('[data-instrument="locate"]')?.tagName||null,
-      state:document.querySelector('[data-instrument="locate"]')?.dataset.playEntryState||null,
-      primer:localStorage.getItem('geogeek.orient.primer.v1'),
-      runtime:Boolean(window.GeoModules?.__geoSpatialPlayRuntime)
+      readyState:document.readyState,
+      visualReady:window.__GEOGEEK_VISUAL_READY__===true,
+      boot:document.documentElement.dataset.geogeekBoot||null,
+      coverOpacity:getComputedStyle(document.getElementById('geogeek-boot-cover')).opacity,
+      coverPointer:getComputedStyle(document.getElementById('geogeek-boot-cover')).pointerEvents,
+      runtime:Boolean(window.GeoModules?.__geoSpatialPlayRuntime),
+      href:document.querySelector('[data-instrument="locate"]')?.getAttribute('href')||null
     }));
 
+    const trigger=page.locator('[data-instrument="locate"]').first();
+    await trigger.scrollIntoViewIfNeeded();
     const started=Date.now();
-    await trigger.click({timeout:10000,noWaitAfter:true});
+    await trigger.click({timeout:12000,noWaitAfter:true});
     let ok=true;
     try {
       await page.waitForFunction(()=>Boolean(
@@ -69,28 +64,27 @@ try {
         window.GeoInstruments?.getActive?.()==='locate' &&
         document.querySelector('.play-shell[data-play-kind="orient"],.play-v2-shell[data-play-kind="orient"]')
       ),null,{timeout:12000});
-    } catch {
-      ok=false;
-      failed++;
-    }
+    } catch { ok=false; failed++; }
 
     const after=await page.evaluate(()=>({
+      readyState:document.readyState,
+      visualReady:window.__GEOGEEK_VISUAL_READY__===true,
+      boot:document.documentElement.dataset.geogeekBoot||null,
+      coverOpacity:getComputedStyle(document.getElementById('geogeek-boot-cover')).opacity,
+      coverPointer:getComputedStyle(document.getElementById('geogeek-boot-cover')).pointerEvents,
       url:location.href,
       dialogOpen:Boolean(document.getElementById('instrumentDialog')?.open),
       active:window.GeoInstruments?.getActive?.()||null,
       shell:Boolean(document.querySelector('.play-shell[data-play-kind="orient"],.play-v2-shell[data-play-kind="orient"]')),
-      state:document.querySelector('[data-instrument="locate"]')?.dataset.playEntryState||null,
-      text:document.querySelector('[data-instrument="locate"]')?.textContent?.trim()||'',
-      primer:localStorage.getItem('geogeek.orient.primer.v1'),
-      eventLog:window.__PLAY_EVENT_LOG__||[],
-      stageText:document.getElementById('instrumentStage')?.textContent?.trim().slice(0,240)||''
+      eventLog:window.__PLAY_EVENT_LOG__||[]
     }));
-    console.log('LOCATE_RESULT',JSON.stringify({
-      label,primed,ok,elapsedMs:Date.now()-started,before,after,errors,failures
+
+    console.log('COLD_RESULT',JSON.stringify({
+      label,waitVisual,ok,elapsedMs:Date.now()-started,before,after,navs,errors,failures
     }));
     await context.close();
+  } finally {
+    await browser.close();
   }
-} finally {
-  await browser.close();
 }
 if(failed) process.exit(1);
