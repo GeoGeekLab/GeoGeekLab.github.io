@@ -271,7 +271,7 @@
         ['domain', '400–700 nm · 1 nm'],
         ['water state', 'Optically deep · 20 °C · 35 PSU baseline'],
         ['forward model', 'a / bb → u → rrs → Rrs'],
-        ['status', 'Browser-native deterministic model']
+        ['runtime', 'Browser-native deterministic model']
       ],
       bodyHtml: `
         <article class="lab-record-detail" aria-label="Water as Spectrum instrument notes">
