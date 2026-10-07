@@ -18,7 +18,7 @@ import {
   buildCorrectionExperiment
 } from './atmosphere-correction.js';
 
-const STYLE_URL = new URL('./water-instrument.css?v=20261007h', import.meta.url).href;
+const STYLE_URL = new URL('./water-instrument.css?v=20261007i', import.meta.url).href;
 
 function ensureStyle(){
   if(document.querySelector('link[data-water-instrument-style]')) return;
@@ -143,9 +143,21 @@ function markup(){
       <section class="water-spectra-panel" data-role="spectrum-panel" tabindex="0" aria-label="Linked water optical spectra">
         <div class="water-spectra-head"><span data-role="spectra-label">SYNC / ONE STATE · ONE PROBE</span><strong data-role="spectra-hint">← → 1 nm · SHIFT 10 nm</strong></div>
         <div class="water-chart-stack">
-          <figure class="water-chart"><figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em data-role="a-probe">—</em><small data-role="a-scale">AUTO Y</small></figcaption><svg data-chart="a" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
-          <figure class="water-chart"><figcaption><strong>bb(λ)</strong><span>BACKSCATTER · m⁻¹</span><em data-role="bb-probe">—</em><small data-role="bb-scale">AUTO Y</small></figcaption><svg data-chart="bb" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
-          <figure class="water-chart water-chart-primary"><figcaption><strong data-role="third-title">Rrs(λ)</strong><span data-role="third-subtitle">IDEALIZED ABOVE-WATER · sr⁻¹</span><em data-role="rrs-probe">—</em><small data-role="Rrs-scale">AUTO Y</small><div class="water-ac-legend" aria-label="Atmospheric correction plot legend"><span><i class="is-est"></i>Rrs_est</span><span><i class="is-true"></i>true Rrs</span><span><i class="is-probe"></i>probe</span></div></figcaption><svg data-chart="Rrs" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
+          <figure class="water-chart" data-spectrum="absorption">
+            <figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em data-role="a-probe">—</em><small data-role="a-scale">AUTO Y</small></figcaption>
+            <div class="water-chart-plot"><svg data-chart="a" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></div>
+            <aside class="water-chart-sidecar" data-sidecar="a" aria-label="Absorption spectrum diagnostics"></aside>
+          </figure>
+          <figure class="water-chart" data-spectrum="backscatter">
+            <figcaption><strong>bb(λ)</strong><span>BACKSCATTER · m⁻¹</span><em data-role="bb-probe">—</em><small data-role="bb-scale">AUTO Y</small></figcaption>
+            <div class="water-chart-plot"><svg data-chart="bb" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></div>
+            <aside class="water-chart-sidecar" data-sidecar="bb" aria-label="Backscatter spectrum diagnostics"></aside>
+          </figure>
+          <figure class="water-chart water-chart-primary" data-spectrum="output">
+            <figcaption><strong data-role="third-title">Rrs(λ)</strong><span data-role="third-subtitle">IDEALIZED ABOVE-WATER · sr⁻¹</span><em data-role="rrs-probe">—</em><small data-role="Rrs-scale">AUTO Y</small></figcaption>
+            <div class="water-chart-plot"><svg data-chart="Rrs" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></div>
+            <aside class="water-chart-sidecar water-output-sidecar" data-sidecar="output" aria-label="Output spectrum diagnostics"></aside>
+          </figure>
         </div>
       </section>
     </section>
