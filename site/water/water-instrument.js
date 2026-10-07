@@ -337,15 +337,29 @@ export async function mountWaterInstrument({stage,signal}={}){
     scene.style.setProperty('--cdom-opacity',String(.16+.76*clamp(cdomNorm,0,1)));
     scene.style.setProperty('--particle-opacity',String(.18+.72*clamp(particleNorm,0,1)));
   }
-  function renderChart(svg,values,formatter,scaleNode,{sensorOverlay=false}={}){
+  function renderChart(svg,values,formatter,scaleNode,{sensorOverlay=false,referenceValues=null,allowNegative=false}={}){
     const left=52,right=984,top=14,bottom=151;
-    const max=Math.max(...values), yMax=max>0?max*1.08:1;
-    if(scaleNode) scaleNode.textContent='AUTO Y · 0–'+formatter(yMax);
+    const domainValues=referenceValues?[...values,...referenceValues]:values;
+    const rawMin=Math.min(...domainValues);
+    const rawMax=Math.max(...domainValues);
+    const yMin=allowNegative&&rawMin<0?rawMin*1.08:0;
+    const yMax=rawMax>0?rawMax*1.08:(allowNegative?1e-6:1);
+    const span=Math.max(1e-12,yMax-yMin);
+
+    if(scaleNode){
+      scaleNode.textContent='AUTO Y · '+formatter(yMin)+'–'+formatter(yMax);
+    }
+
     const x=wl=>left+(wl-400)/300*(right-left);
-    const y=v=>bottom-v/yMax*(bottom-top);
+    const y=v=>bottom-(v-yMin)/span*(bottom-top);
     const path=values.map((v,i)=>(i?'L':'M')+x(400+i).toFixed(2)+' '+y(v).toFixed(2)).join(' ');
-    const area=path+' L '+right+' '+bottom+' L '+left+' '+bottom+' Z';
+    const zeroY=y(0);
+    const area=path+' L '+right+' '+zeroY+' L '+left+' '+zeroY+' Z';
+    const referencePath=referenceValues
+      ? referenceValues.map((v,i)=>(i?'L':'M')+x(400+i).toFixed(2)+' '+y(v).toFixed(2)).join(' ')
+      : '';
     const i=wavelengthIndex(probeNm), px=x(probeNm), py=y(values[i]);
+
     const sensorMarks=sensorOverlay && root.dataset.mode==='sensor'
       ? sensorObservation.bands.map(band=>{
           const lo=Math.max(400,band.supportNm[0]),hi=Math.min(700,band.supportNm[1]);
@@ -355,10 +369,24 @@ export async function mountWaterInstrument({stage,signal}={}){
           return rect+dot;
         }).join('')
       : '';
-    svg.innerHTML=[0,.5,1].map(t=>{const yy=bottom-t*(bottom-top);return `<line class="water-grid-line" x1="${left}" y1="${yy}" x2="${right}" y2="${yy}"></line><text class="water-axis-label" x="6" y="${yy+3}">${formatter(t*yMax)}</text>`;}).join('')+
+
+    const grid=[0,.5,1].map(t=>{
+      const value=yMin+t*span;
+      const yy=y(value);
+      return `<line class="water-grid-line" x1="${left}" y1="${yy}" x2="${right}" y2="${yy}"></line><text class="water-axis-label" x="6" y="${yy+3}">${formatter(value)}</text>`;
+    }).join('');
+
+    const zeroLine=allowNegative&&yMin<0&&yMax>0
+      ? `<line class="water-zero-line" x1="${left}" y1="${zeroY}" x2="${right}" y2="${zeroY}"></line>`
+      : '';
+
+    svg.innerHTML=grid+
       [400,450,500,550,600,650,700].map(wl=>{const xx=x(wl);return `<line class="water-grid-line" x1="${xx}" y1="${top}" x2="${xx}" y2="${bottom}"></line><text class="water-axis-label" text-anchor="middle" x="${xx}" y="174">${wl}</text>`;}).join('')+
       sensorMarks+
-      `<path class="water-spectrum-area" d="${area}"></path><path class="water-spectrum-line" d="${path}"></path><line class="water-probe-line" x1="${px}" y1="${top}" x2="${px}" y2="${bottom}"></line><circle class="water-probe-dot" cx="${px}" cy="${py}" r="4"></circle><rect class="water-hit" x="${left}" y="${top}" width="${right-left}" height="${bottom-top}"></rect>`;
+      `<path class="water-spectrum-area" d="${area}"></path>`+
+      zeroLine+
+      (referencePath?`<path class="water-spectrum-reference" d="${referencePath}"></path>`:'')+
+      `<path class="water-spectrum-line" d="${path}"></path><line class="water-probe-line" x1="${px}" y1="${top}" x2="${px}" y2="${bottom}"></line><circle class="water-probe-dot" cx="${px}" cy="${py}" r="4"></circle><rect class="water-hit" x="${left}" y="${top}" width="${right-left}" height="${bottom-top}"></rect>`;
   }
   function renderProbe(){
     const i=wavelengthIndex(probeNm),a=model.absorption,bb=model.backscattering;
