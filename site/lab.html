@@ -6,6 +6,10 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#f4f2ea" name="theme-color"/>
 <meta content="GeoGeek" name="application-name"/>
+<meta content="20261007p" name="geogeek-lab-release"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <meta name="description" content="Interactive geographic instruments for observing change, comparing representations, and reasoning through space."/>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
@@ -20,6 +24,26 @@
 <link href="play/play-feedback.css?v=20261005a" rel="stylesheet"/>
 <link href="lab-optimization.css?v=20261004b" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20260930g"></script>
+<script>
+(() => {
+  const current = document.querySelector('meta[name="geogeek-lab-release"]')?.content || '';
+  if (!current) return;
+  const probe = new URL('lab.html', location.href);
+  probe.searchParams.set('__release_probe', String(Date.now()));
+  fetch(probe, { cache: 'no-store' })
+    .then(response => response.ok ? response.text() : '')
+    .then(html => {
+      if (!html) return;
+      const parsed = new DOMParser().parseFromString(html, 'text/html');
+      const latest = parsed.querySelector('meta[name="geogeek-lab-release"]')?.content || '';
+      if (!latest || latest === current) return;
+      const next = new URL(location.href);
+      next.searchParams.set('release', latest);
+      location.replace(next.href);
+    })
+    .catch(() => {});
+})();
+</script>
 </head>
 <body class="lab-page">
 <a class="skip" href="#main">Skip to content</a>
@@ -27,7 +51,7 @@
 <a aria-label="GeoGeek home" class="brand" href="index.html"><span aria-hidden="true" class="brand-mark"></span><span>GeoGeek</span></a>
 <nav aria-label="Primary" class="nav-links" id="primaryNav">
 <a href="field-notes.html">Field Notes</a>
-<a aria-current="page" href="lab.html">Lab</a>
+<a aria-current="page" href="/lab.html?release=20261007p">Lab</a>
 <a href="atlas.html">Atlas</a>
 <a href="elsewhere.html">Elsewhere</a>
 </nav>
@@ -140,10 +164,10 @@
 <script src="app.js?v=20261007c"></script>
 <script src="lab-page.js?v=20261007f"></script>
 <script src="lab-fullpage.js?v=20261007b" defer></script>
-<script src="play/play-bootstrap.js?v=20261007e"></script>
+<script src="play/play-bootstrap.js?v=20261007f"></script>
 <script src="play/play-liveness.js?v=20261005a"></script>
 <script src="core/modules.js?v=20261007o"></script>
-<script src="play/play-runtime.js?v=20261007g"></script>
+<script src="play/play-runtime.js?v=20261007h"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="previews.js"></script>
 <script src="commons/config.js"></script>
