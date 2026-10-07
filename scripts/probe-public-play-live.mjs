@@ -1,11 +1,19 @@
 import { chromium, firefox, webkit } from 'playwright';
 
-const LIVE='https://geogeeklab.github.io/lab.html';
+const LIVE='https://geogeeklab.github.io/lab.html?release=20261007p';
 const engines={chromium,firefox,webkit};
 let failed=false;
 
 async function open(page,kind,domKind){
-  await page.goto(`${LIVE}?instrument=${kind}&probe=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:30000});
+  const url=new URL(LIVE);
+  url.searchParams.set('probe',String(Date.now()));
+  await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:30000});
+  await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime), null, {timeout:10000});
+  const release=await page.locator('meta[name="geogeek-lab-release"]').getAttribute('content');
+  if(release!=='20261007p') throw new Error(`unexpected Lab release ${release}`);
+  const trigger=page.locator(`[data-instrument="${kind}"]`).first();
+  await trigger.waitFor({state:'visible',timeout:10000});
+  await trigger.click({timeout:10000,noWaitAfter:true});
   const shell=page.locator(`.play-shell[data-play-kind="${domKind}"],.play-v2-shell[data-play-kind="${domKind}"]`);
   await shell.waitFor({state:'visible',timeout:20000});
   return shell;
@@ -54,6 +62,13 @@ for(const [engineName,engine] of Object.entries(engines)){
         await shell.getByRole('button',{name:'REMOVE SCATTERING'}).click();
         const attr=await shell.getAttribute('data-atmospheric-scattering');
         if(attr!=='off')throw new Error(`light scattering attr is ${attr}`);
+      }],
+      ['swath','swath',async(page,shell)=>{
+        await shell.getByRole('button',{name:'MORE GROUND · COARSER PIXELS'}).click();
+        await shell.getByRole('button',{name:'COMMIT PREDICTION'}).click();
+        await shell.getByRole('button',{name:'WIDEN FOV'}).click();
+        const attr=await shell.getAttribute('data-fov');
+        if(attr!=='30')throw new Error(`swath FOV attr is ${attr}`);
       }]
     ];
 
