@@ -8,6 +8,7 @@ test('Water as Spectrum opens as a production Lab observatory instrument', async
   await expect(dialog).toHaveAttribute('data-instrument-kind','water');
   await expect(dialog).toHaveAttribute('data-lab-workspace','true');
   await expect(page.locator('#instrumentTitle')).toHaveText('Water as Spectrum');
+  await expect(page.locator('#instrumentGroupLabel')).toHaveText('OBSERVATORY');
 
   await expect(page.locator('.water-lab')).toBeVisible();
   await expect(page.locator('.water-chart')).toHaveCount(3);
