@@ -7,10 +7,10 @@
   const ui = root?.ui;
   if (!root || !ui) return;
 
-  const OBSERVATORY_IDS = ['l04', 'l05', 'l06', 'l10', 'l11', 'l12'];
-  const PLAY_IDS = ['l07', 'l08', 'l09', 'l13'];
-  const OBSERVATORY_KINDS = new Set(['orbit', 'earth', 'flow', 'pulse', 'figure', 'world']);
-  const PLAY_KINDS = new Set(['locate', 'zone', 'path', 'project']);
+  const OBSERVATORY_IDS = ['l04', 'l05', 'l06', 'l10', 'l11', 'l12', 'l13'];
+  const PLAY_IDS = ['l07', 'l08', 'l09', 'l14', 'l15', 'l16'];
+  const OBSERVATORY_KINDS = new Set(['orbit', 'earth', 'flow', 'pulse', 'figure', 'world', 'water']);
+  const PLAY_KINDS = new Set(['locate', 'zone', 'path', 'project', 'light', 'swath']);
 
   if (ui.pages?.lab) {
     ui.pages.lab.intro = 'Observe, compare, and reason through space.';
@@ -23,9 +23,9 @@
 
   // Project is a first-class Play record. The interactive runtime still owns its
   // instrument behavior, but the record must exist before the site model is built.
-  if (Array.isArray(root.lab) && !root.lab.some(item => item.id === 'l13')) {
+  if (Array.isArray(root.lab) && !root.lab.some(item => item.id === 'l14')) {
     root.lab.push({
-      id: 'l13',
+      id: 'l14',
       group: 'play',
       visual: 'project',
       featured: false,
@@ -131,7 +131,7 @@
       }
 
       [...OBSERVATORY_IDS, ...PLAY_IDS].forEach(id => ensureRecordAction(document.getElementById(id), id));
-      bindProjectScale(document.getElementById('l13'));
+      bindProjectScale(document.getElementById('l14'));
     } finally {
       normalizingCollection = false;
     }
