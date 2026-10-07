@@ -444,17 +444,17 @@ export async function mountWaterInstrument({stage,signal}={}){
     q('[data-sidecar="a"]').innerHTML=
       `<div class="water-sidecar-head"><b>${probeNm} nm</b><span>COMPONENTS</span></div>`+
       sidecarRow('TOTAL',format(a.total[i],4),{tone:'is-total'})+
-      sidecarRow('water',format(a.water[i],4),{share:share(a.water[i],a.total[i])})+
-      sidecarRow('phyto',format(a.phytoplankton[i],4),{share:share(a.phytoplankton[i],a.total[i])})+
-      sidecarRow('CDOM',format(a.cdom[i],4),{share:share(a.cdom[i],a.total[i])})+
-      sidecarRow('NAP',format(a.nap[i],4),{share:share(a.nap[i],a.total[i])})+
+      sidecarRow('water',format(a.water[i],4),{tone:'is-water',share:share(a.water[i],a.total[i])})+
+      sidecarRow('phyto',format(a.phytoplankton[i],4),{tone:'is-phyto',share:share(a.phytoplankton[i],a.total[i])})+
+      sidecarRow('CDOM',format(a.cdom[i],4),{tone:'is-cdom',share:share(a.cdom[i],a.total[i])})+
+      sidecarRow('NAP',format(a.nap[i],4),{tone:'is-nap',share:share(a.nap[i],a.total[i])})+
       `<div class="water-sidecar-unit">m⁻¹</div>`;
 
     q('[data-sidecar="bb"]').innerHTML=
       `<div class="water-sidecar-head"><b>${probeNm} nm</b><span>COMPONENTS</span></div>`+
       sidecarRow('TOTAL',format(bb.total[i],5),{tone:'is-total'})+
-      sidecarRow('water',format(bb.water[i],5),{share:share(bb.water[i],bb.total[i])})+
-      sidecarRow('particles',format(bb.particles[i],5),{share:share(bb.particles[i],bb.total[i])})+
+      sidecarRow('water',format(bb.water[i],5),{tone:'is-water',share:share(bb.water[i],bb.total[i])})+
+      sidecarRow('particles',format(bb.particles[i],5),{tone:'is-particles',share:share(bb.particles[i],bb.total[i])})+
       sidecarRow('bbp slope η','1.00',{tone:'is-meta'})+
       `<div class="water-sidecar-unit">m⁻¹</div>`;
 
@@ -467,9 +467,9 @@ export async function mountWaterInstrument({stage,signal}={}){
       output.innerHTML=
         `<div class="water-sidecar-head"><b>${probeNm} nm</b><span>TOA DECOMPOSITION</span></div>`+
         sidecarRow('ρTOA*',format(total,5),{tone:'is-total'})+
-        sidecarRow('Rayleigh',format(r.rayleighPath[i],5),{share:share(r.rayleighPath[i],total)})+
-        sidecarRow('aerosol',format(r.aerosolPath[i],5),{share:share(r.aerosolPath[i],total)})+
-        sidecarRow('water',format(r.waterTransmitted[i],5),{share:share(r.waterTransmitted[i],total)})+
+        sidecarRow('Rayleigh',format(r.rayleighPath[i],5),{tone:'is-rayleigh',share:share(r.rayleighPath[i],total)})+
+        sidecarRow('aerosol',format(r.aerosolPath[i],5),{tone:'is-aerosol',share:share(r.aerosolPath[i],total)})+
+        sidecarRow('water',format(r.waterTransmitted[i],5),{tone:'is-water',share:share(r.waterTransmitted[i],total)})+
         sidecarRow('atm path',(atmosphere.atmosphereFraction[i]*100).toFixed(1)+'%',{tone:'is-meta'});
       return;
     }
