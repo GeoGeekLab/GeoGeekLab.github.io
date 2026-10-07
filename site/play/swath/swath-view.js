@@ -109,6 +109,16 @@
     earth.setAttribute('d',`${earthCurve} L1080,700 L-80,700 Z`);
 
     const baseline=physics.compute(content.FREE_DEFAULT);
+    const displayMinSwath=physics.compute({
+      altitudeKm:physics.RANGES.altitudeKm[0],
+      fovDeg:physics.RANGES.fovDeg[0],
+      detectorPixels:content.FREE_DEFAULT.detectorPixels
+    }).swathKm;
+    const displayMaxSwath=physics.compute({
+      altitudeKm:physics.RANGES.altitudeKm[1],
+      fovDeg:physics.RANGES.fovDeg[1],
+      detectorPixels:content.FREE_DEFAULT.detectorPixels
+    }).swathKm;
 
     function button(label,onClick,{secondary=false,disabled=false,className=''}={}){
       const node=document.createElement('button');
@@ -123,7 +133,8 @@
     function sceneGeometry(result){
       const altNorm=(result.config.altitudeKm-physics.RANGES.altitudeKm[0])/(physics.RANGES.altitudeKm[1]-physics.RANGES.altitudeKm[0]);
       const satY=168-altNorm*82;
-      const width=Math.max(115,Math.min(790,95+result.swathKm*1.48));
+      const swathT=Math.max(0,Math.min(1,(result.swathKm-displayMinSwath)/(displayMaxSwath-displayMinSwath)));
+      const width=115+675*Math.sqrt(swathT);
       const centerX=SURFACE.centerX;
       const leftX=centerX-width/2;
       const rightX=centerX+width/2;
