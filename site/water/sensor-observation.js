@@ -59,22 +59,27 @@ export function rectangularBandAverage(wavelengths, values, centerNm, widthNm){
   });
 }
 
-export function sampleSensorRrs(wavelengths,Rrs,sensorId='olci'){
-  assertSpectrum(wavelengths,Rrs);
+export function sampleSensorSpectrum(wavelengths,values,sensorId='olci',quantity='spectrum'){
+  assertSpectrum(wavelengths,values);
   const sensor=WATER_SENSOR_DEFINITIONS[sensorId];
   if(!sensor) throw new RangeError(`Unknown sensor: ${sensorId}`);
 
   const bands=sensor.bands.map(band=>{
-    const sample=rectangularBandAverage(wavelengths,Rrs,band.centerNm,band.widthNm);
+    const sample=rectangularBandAverage(wavelengths,values,band.centerNm,band.widthNm);
     return Object.freeze({...band,...sample});
   });
 
   return Object.freeze({
     sensor,
+    quantity,
     domainNm:Object.freeze([wavelengths[0],wavelengths.at(-1)]),
     responseModel:'simplified-top-hat',
     sampledCount:bands.filter(b=>b.status==='full').length,
     totalVisibleBands:bands.length,
     bands:Object.freeze(bands)
   });
+}
+
+export function sampleSensorRrs(wavelengths,Rrs,sensorId='olci'){
+  return sampleSensorSpectrum(wavelengths,Rrs,sensorId,'Rrs');
 }
