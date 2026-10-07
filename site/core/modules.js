@@ -8,7 +8,7 @@
   const PROVIDER_STABILITY_RUNTIME = 'core/provider-stability.js?v=20261004b';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002e';
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261002e';
-  const WATER_INSTRUMENT = 'water/water-instrument.js?v=20261007h';
+  const WATER_INSTRUMENT = 'water/water-instrument.js?v=20261007i';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
