@@ -1,6 +1,6 @@
-# SWATH Observatory
+# SWATH Play
 
-SWATH is a browser-native sensor-geometry Observatory instrument with a guided prediction sequence.
+SWATH is a browser-native sensor-geometry Play with a guided prediction sequence.
 
 The instrument separates three quantities that are often collapsed into the word “resolution”:
 
@@ -18,7 +18,7 @@ The guided sequence asks the user to predict before changing a sensor:
 
 Each reveal preserves the previous footprint as a dashed reference and renders the new footprint as the active measurement.
 
-After the three experiments, **Sensor Design** keeps the same observatory field and exposes continuous controls for altitude, FOV, and cross-track samples.
+After the three experiments, **Sensor Design** keeps the same interactive field and exposes continuous controls for altitude, FOV, and cross-track samples.
 
 ## Runtime model
 
@@ -63,7 +63,7 @@ The UI therefore labels GSD as a geometric sample footprint, not optical resolvi
 swath-content.js       experiment copy + declared model limits
 swath-physics.js       deterministic geometry
 swath-experiments.js   guided/free state machine
-swath-view.js          observatory visualization + controls
+swath-view.js          Play visualization + controls
 swath.js               GeoPlay mount + trace integration
 swath.css              responsive visual system
 ```
@@ -76,4 +76,4 @@ Run the deterministic physics tests:
 npm run qa:swath
 ```
 
-Browser coverage lives in `tests/browser/swath-play.spec.mjs` and verifies the guided sequence, before/after footprint, sensor-design focus continuity, reset behavior, and Observatory collection placement.
+Browser coverage lives in `tests/browser/swath-play.spec.mjs` and verifies the guided sequence, before/after footprint, sensor-design focus continuity, reset behavior, and Play collection placement.

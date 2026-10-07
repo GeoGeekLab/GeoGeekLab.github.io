@@ -49,7 +49,7 @@
       'play/swath/swath-content.js?v=20261007a',
       'play/swath/swath-physics.js?v=20261007a',
       'play/swath/swath-experiments.js?v=20261007a',
-      'play/swath/swath-view.js?v=20261007a'
+      'play/swath/swath-view.js?v=20261007b'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {

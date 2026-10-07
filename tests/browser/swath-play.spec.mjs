@@ -47,12 +47,12 @@ test('SWATH walks through three sensor-geometry tradeoffs',async({page})=>{
   await expect(shell).toHaveAttribute('data-detector-pixels','6000');
 });
 
-test('SWATH appears in the Observatory collection',async({page})=>{
+test('SWATH appears in the Play collection',async({page})=>{
   await page.goto('/lab.html',{waitUntil:'domcontentloaded'});
   const card=page.locator('#l16');
   await expect(card).toBeVisible();
   await expect(card).toContainText('Swath');
-  await expect(card).toContainText('Instrument');
+  await expect(card).toContainText('Play');
   await expect(card.locator('[data-instrument="swath"]')).toBeVisible();
   await expect(card.locator('.lab-coord')).toHaveText('altitude / FOV / GSD');
   await expect(card.locator('.project-visual')).toHaveAttribute('data-real-preview','swath',{timeout:10_000});

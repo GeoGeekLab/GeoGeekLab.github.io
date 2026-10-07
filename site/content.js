@@ -1020,14 +1020,14 @@ window.GEOGEEK_ARCHIVE = {
       "kind": "lab",
       "id": "l16",
       "data": {
-        "group": "observatory",
+        "group": "play",
         "visual": "swath",
         "featured": false,
         "instrument": "swath"
       },
       "text": {
         "en": {
-          "status": "Instrument",
+          "status": "Play",
           "title": "Swath",
           "tags": [
             "Remote Sensing",
@@ -1036,7 +1036,7 @@ window.GEOGEEK_ARCHIVE = {
           ],
           "description": "Change altitude, field of view, and detector sampling. See why wider coverage does not come free.",
           "coord": "altitude / FOV / GSD",
-          "instrumentKicker": "SWATH / COVERAGE / SAMPLING / LIMIT",
+          "instrumentKicker": "PLAY / COVERAGE / SAMPLING / LIMIT",
           "source": "Spherical Earth ray geometry · circular orbit approximation"
         }
       },
