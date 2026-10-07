@@ -273,9 +273,24 @@ export async function mountWaterInstrument({stage,signal}={}){
   function setMode(mode){
     root.dataset.mode=mode;
     qa('[data-water-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.waterMode===mode)));
-    q('[data-role="scene-label"]').textContent=mode==='path'?'RADIATIVE PATH':'INHERENT → APPARENT';
-    q('[data-role="scene-title"]').textContent=mode==='path'?'From illumination to water-leaving reflectance.':'Water constituents alter the spectrum through IOPs.';
-    if(mode==='iop') setPath('water');
+    if(mode==='path'){
+      q('[data-role="scene-label"]').textContent='RADIATIVE PATH';
+      q('[data-role="scene-title"]').textContent='From illumination to idealized water-leaving reflectance.';
+      q('[data-role="spectra-label"]').textContent='SYNC / ONE STATE · ONE PROBE';
+      q('[data-role="spectra-hint"]').textContent='← → 1 nm · SHIFT 10 nm';
+    }else if(mode==='iop'){
+      q('[data-role="scene-label"]').textContent='INHERENT → APPARENT';
+      q('[data-role="scene-title"]').textContent='Water constituents alter the spectrum through IOPs.';
+      q('[data-role="spectra-label"]').textContent='SYNC / ONE STATE · ONE PROBE';
+      q('[data-role="spectra-hint"]').textContent='← → 1 nm · SHIFT 10 nm';
+      setPath('water');
+    }else{
+      q('[data-role="scene-label"]').textContent='SENSOR OBSERVATION';
+      q('[data-role="scene-title"]').textContent='Continuous Rrs becomes a band-limited observation.';
+      q('[data-role="spectra-label"]').textContent='CONTINUOUS Rrs / BAND-AVERAGED OBSERVATIONS';
+      q('[data-role="spectra-hint"]').textContent='SIMPLIFIED BANDPASS · ATMOSPHERE NOT APPLIED';
+    }
+    render();
   }
   function setPath(step){
     q('[data-role="scene"]').dataset.pathFocus=step;
@@ -291,6 +306,13 @@ export async function mountWaterInstrument({stage,signal}={}){
   qa('[data-water-mode]').forEach(b=>on(b,'click',()=>setMode(b.dataset.waterMode)));
   qa('[data-path-step]').forEach(b=>on(b,'click',()=>setPath(b.dataset.pathStep)));
   qa('[data-preset]').forEach(b=>on(b,'click',()=>setState(WATER_REFERENCE_STATES[b.dataset.preset],'PRESET → component IOPs → a(λ), bb(λ) → u(λ) → Rrs(λ)',b.dataset.preset)));
+  qa('[data-sensor]').forEach(b=>on(b,'click',()=>{sensorId=b.dataset.sensor;causal='SENSOR CHANGE → continuous Rrs unchanged → band sampling changed';render();}));
+  on(root,'click',event=>{
+    const target=event.target.closest?.('[data-sensor-band]');
+    if(!target)return;
+    const band=sensorObservation.bands.find(item=>item.id===target.dataset.sensorBand);
+    if(band)setProbe(band.centerNm);
+  });
 
   on(controls.chl,'input',()=>setState({chl:sliderToLog(controls.chl.value,.02,25)},'Chl → aph(λ) → a(λ) → u(λ) → Rrs(λ)'));
   on(controls.ag440,'input',()=>setState({ag440:Number(controls.ag440.value)},'ag(440) → ag(λ) → a(λ) → u(λ) → Rrs(λ)'));
@@ -311,7 +333,7 @@ export async function mountWaterInstrument({stage,signal}={}){
   });
 
   if(signal) on(signal,'abort',()=>cleanup.splice(0).forEach(fn=>fn()),{once:true});
-  setMode('path');setPath('water');render();
+  setPath('water');render();setMode('path');
 
   return ()=>{cleanup.splice(0).forEach(fn=>fn());if(stage.contains(root))root.remove();};
 }
