@@ -41,5 +41,7 @@ test('LIGHT is present in the Play collection', async ({page}) => {
   const card=page.locator('.project-card').filter({has:page.locator('[data-instrument="light"]')});
   await expect(card).toBeVisible();
   await expect(card).toContainText('Light');
-  await expect(card).toContainText('SOURCE / PATH / OBSERVER');
+  await expect(card).toContainText('Light · Ocean Color · Mechanism');
+  await expect(card.locator('.lab-coord')).toHaveText('source / path / observer');
+  await expect(card.locator('[data-instrument="light"]')).toBeVisible();
 });
