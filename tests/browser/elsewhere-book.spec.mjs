@@ -128,3 +128,42 @@ test('BOOK 026 publishes the authored Chinese reading response verbatim', async 
   await expect(body.locator('blockquote')).toContainText('我慢慢地、慢慢地了解到，所谓父女母子一场，只不过意味着，你和他的缘分就是今生今世不断地在目送他的背影渐行渐远。');
   await expect(body).toContainText('龙应台在书里写下的，不过是人间最寻常的离别。可每一个人，却都要用半生的执拗与半生的泪光，才能彻底读懂那份沉静而深邃的爱。');
 });
+
+
+test('BOOK 026 Chinese essay uses readable paragraph and quote typography', async ({ page }) => {
+  await page.goto('/records/elsewhere-book-026.html');
+
+  const firstParagraph=page.locator('#recordBody .book-reading-essay > p').first();
+  const quote=page.locator('#recordBody .book-reading-essay blockquote');
+  const quoteParagraph=quote.locator('p');
+
+  const paragraphStyle=await firstParagraph.evaluate(node=>{
+    const style=getComputedStyle(node);
+    return {
+      textIndent:parseFloat(style.textIndent),
+      marginBottom:parseFloat(style.marginBottom),
+      lineHeight:parseFloat(style.lineHeight),
+      fontSize:parseFloat(style.fontSize)
+    };
+  });
+
+  expect(paragraphStyle.textIndent).toBeGreaterThanOrEqual(paragraphStyle.fontSize*1.9);
+  expect(paragraphStyle.marginBottom).toBeGreaterThan(paragraphStyle.fontSize);
+  expect(paragraphStyle.lineHeight).toBeGreaterThan(paragraphStyle.fontSize*1.75);
+
+  const quoteStyle=await quote.evaluate(node=>{
+    const style=getComputedStyle(node);
+    return {
+      borderLeftWidth:parseFloat(style.borderLeftWidth),
+      borderLeftStyle:style.borderLeftStyle,
+      paddingLeft:parseFloat(style.paddingLeft)
+    };
+  });
+
+  expect(quoteStyle.borderLeftStyle).toBe('solid');
+  expect(quoteStyle.borderLeftWidth).toBeGreaterThanOrEqual(2);
+  expect(quoteStyle.paddingLeft).toBeGreaterThan(10);
+
+  const quoteIndent=await quoteParagraph.evaluate(node=>parseFloat(getComputedStyle(node).textIndent));
+  expect(quoteIndent).toBe(0);
+});
