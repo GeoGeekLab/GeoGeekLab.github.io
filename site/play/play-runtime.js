@@ -5,7 +5,7 @@
   if (!modules?.loadInstrument || modules.__geoSpatialPlayRuntime) return;
 
   const baseLoadInstrument = modules.loadInstrument.bind(modules);
-  const PLAY_KINDS = new Set(['locate', 'zone', 'path', 'project', 'light']);
+  const PLAY_KINDS = new Set(['locate', 'zone', 'path', 'project', 'light', 'swath']);
   const PLAY_DOM_KIND = {
     locate: 'orient',
     zone: 'bound',
