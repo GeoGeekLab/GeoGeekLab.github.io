@@ -112,8 +112,20 @@
 .book-record-page .record-detail > .geo-field-mark{
   display:none !important;
 }
+.book-record-page{
+  --book-copy-size:10px;
+  --book-copy-leading:1.9;
+}
+
 .book-record-page .record-body{
   max-width:940px;
+}
+
+.book-record-page #recordBody p,
+.book-record-page #recordBody li,
+.book-record-page #recordBody dd{
+  font-size:var(--book-copy-size) !important;
+  line-height:var(--book-copy-leading) !important;
 }
 .book-record-page .book-language-switch{
   display:flex;
@@ -260,8 +272,8 @@
 /* Continuous Chinese BOOK essay */
 .book-record-page .book-reading-essay{
   max-width:860px;
-  font-size:10px;
-  line-height:1.9;
+  font-size:var(--book-copy-size);
+  line-height:var(--book-copy-leading);
   letter-spacing:.015em;
   color:var(--fg);
 }
@@ -269,8 +281,8 @@
 .book-record-page .book-reading-essay > p{
   margin:0 0 1.25em;
   text-indent:2em;
-  font-size:10px;
-  line-height:1.9;
+  font-size:var(--book-copy-size);
+  line-height:var(--book-copy-leading);
 }
 
 .book-record-page .book-reading-essay > p:last-child{
@@ -295,7 +307,7 @@
 
 @media(max-width:680px){
   .book-record-page .book-reading-essay{
-    font-size:10px;
+    font-size:var(--book-copy-size);
     line-height:1.85;
   }
 
