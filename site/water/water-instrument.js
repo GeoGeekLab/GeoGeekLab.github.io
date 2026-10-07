@@ -290,23 +290,53 @@ export async function mountWaterInstrument({stage,signal}={}){
   }
   function renderProbe(){
     const i=wavelengthIndex(probeNm),a=model.absorption,bb=model.backscattering;
+    const toa=atmosphere.reflectance.toaApprox[i];
     q('[data-role="probe-nm"]').textContent=probeNm+' nm';
     q('[data-role="budget-nm"]').textContent=probeNm+' nm';
     q('[data-role="probe-control"]').value=String(probeNm);
     q('[data-role="probe-a"]').textContent=format(a.total[i],4)+' m⁻¹';
     q('[data-role="probe-bb"]').textContent=format(bb.total[i],5)+' m⁻¹';
     q('[data-role="probe-Rrs"]').textContent=format(model.Rrs[i],5)+' sr⁻¹';
+    q('[data-role="probe-toa"]').textContent=format(toa,5);
     q('[data-role="probe-rrs"]').textContent=format(model.rrs[i],5)+' sr⁻¹';
     q('[data-role="probe-u"]').textContent=format(model.u[i],5);
     q('[data-role="a-probe"]').textContent=format(a.total[i],4)+' m⁻¹';
     q('[data-role="bb-probe"]').textContent=format(bb.total[i],5)+' m⁻¹';
-    q('[data-role="rrs-probe"]').textContent=format(model.Rrs[i],5)+' sr⁻¹';
+    q('[data-role="rrs-probe"]').textContent=(root.dataset.mode==='atmosphere'||root.dataset.mode==='sensor')
+      ? format(toa,5)
+      : format(model.Rrs[i],5)+' sr⁻¹';
     q('[data-role="abs-budget"]').innerHTML=budgetRow('water','baseline',a.water[i],a.total[i])+budgetRow('phyto','phyto',a.phytoplankton[i],a.total[i])+budgetRow('cdom','CDOM',a.cdom[i],a.total[i])+budgetRow('nap','NAP',a.nap[i],a.total[i]);
     q('[data-role="bb-budget"]').innerHTML=budgetRow('water','baseline',bb.water[i],bb.total[i])+budgetRow('particles','particles',bb.particles[i],bb.total[i]);
   }
+
+  function renderAtmosphere(){
+    const i=wavelengthIndex(probeNm);
+    const r=atmosphere.reflectance;
+    const total=r.toaApprox[i];
+    const ray=r.rayleighPath[i];
+    const aer=r.aerosolPath[i];
+    const water=r.waterTransmitted[i];
+    const pct=value=>total>0?clamp(value/total*100,0,100):0;
+
+    q('[data-role="atm-rayleigh"]').textContent=format(ray,5);
+    q('[data-role="atm-aerosol"]').textContent=format(aer,5);
+    q('[data-role="atm-water"]').textContent=format(water,5);
+    q('[data-role="atm-rayleigh-bar"]').style.width=pct(ray).toFixed(1)+'%';
+    q('[data-role="atm-aerosol-bar"]').style.width=pct(aer).toFixed(1)+'%';
+    q('[data-role="atm-water-bar"]').style.width=pct(water).toFixed(1)+'%';
+    q('[data-role="atm-geometry"]').textContent=
+      'SZA '+Math.round(atmosphereState.solarZenithDeg)+'° · VZA '+Math.round(atmosphereState.viewZenithDeg)+'° · RAZ '+Math.round(atmosphereState.relativeAzimuthDeg)+'° · Θ '+atmosphere.geometry.scatteringAngleDeg.toFixed(1)+'°';
+    q('[data-role="atm-fraction"]').textContent='ATMOSPHERIC PATH '+(atmosphere.atmosphereFraction[i]*100).toFixed(1)+'% OF ρTOA* @ '+probeNm+' nm';
+  }
+
   function renderSensor(){
     const def=WATER_SENSOR_DEFINITIONS[sensorId];
-    sensorObservation=sampleSensorRrs(WATER_WAVELENGTHS_NM,model.Rrs,sensorId);
+    sensorObservation=sampleSensorSpectrum(
+      WATER_WAVELENGTHS_NM,
+      atmosphere.reflectance.toaApprox,
+      sensorId,
+      'rhoTOA*'
+    );
     q('[data-role="sensor-name"]').textContent=def.label;
     q('[data-role="sensor-count"]').textContent=sensorObservation.sampledCount+' SAMPLED / '+sensorObservation.totalVisibleBands+' SHOWN';
     qa('[data-sensor]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sensor===sensorId)));
@@ -317,31 +347,50 @@ export async function mountWaterInstrument({stage,signal}={}){
       return `<button type="button" class="water-sensor-strip-band${band.status==='full'?'':' is-partial'}" data-sensor-band="${band.id}" style="left:${left}%;width:${width}%" title="${band.label} · ${band.centerNm} nm · ${band.widthNm} nm"></button>`;
     }).join('');
     q('[data-role="sensor-band-list"]').innerHTML=sensorObservation.bands.map(band=>{
-      const value=band.value==null?'DOMAIN EDGE':format(band.value,5)+' sr⁻¹';
+      const value=band.value==null?'DOMAIN EDGE':format(band.value,5);
       return `<button type="button" data-sensor-band="${band.id}" class="${band.status==='full'?'':'is-partial'}"><span>${band.label}</span><small>${band.centerNm} / ${band.widthNm} nm</small><strong>${value}</strong></button>`;
     }).join('');
     const full=sensorObservation.bands.filter(b=>b.value!=null);
     const nearest=full.reduce((best,b)=>!best||Math.abs(b.centerNm-probeNm)<Math.abs(best.centerNm-probeNm)?b:best,null);
-    q('[data-role="sensor-nearest"]').textContent=nearest?nearest.label+' · '+nearest.centerNm+' nm · '+format(nearest.value,5)+' sr⁻¹':'—';
+    q('[data-role="sensor-nearest"]').textContent=nearest?nearest.label+' · '+nearest.centerNm+' nm · '+format(nearest.value,5):'—';
   }
+
   function render(){
     model=computeWaterOptics(state);
-    syncControls();syncScene();renderSensor();
+    atmosphere=computeAtmosphereObservation(WATER_WAVELENGTHS_NM,model.Rrs,atmosphereState);
+    syncControls();
+    syncScene();
+    renderAtmosphere();
+    renderSensor();
+
     renderChart(q('[data-chart="a"]'),model.absorption.total,v=>format(v,2),q('[data-role="a-scale"]'));
     renderChart(q('[data-chart="bb"]'),model.backscattering.total,v=>format(v,4),q('[data-role="bb-scale"]'));
-    renderChart(q('[data-chart="Rrs"]'),model.Rrs,v=>format(v,4),q('[data-role="Rrs-scale"]'),{sensorOverlay:true});
+
+    const atmosphereMode=root.dataset.mode==='atmosphere'||root.dataset.mode==='sensor';
+    const thirdValues=atmosphereMode?atmosphere.reflectance.toaApprox:model.Rrs;
+    q('[data-role="third-title"]').textContent=atmosphereMode?'ρTOA*(λ)':'Rrs(λ)';
+    q('[data-role="third-subtitle"]').textContent=atmosphereMode?'PEDAGOGICAL TOA REFLECTANCE · DIMENSIONLESS':'IDEALIZED ABOVE-WATER · sr⁻¹';
+    renderChart(q('[data-chart="Rrs"]'),thirdValues,v=>format(v,4),q('[data-role="Rrs-scale"]'),{sensorOverlay:true});
+
     renderProbe();
     q('[data-role="causal"]').textContent=causal;
     qa('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===preset)));
   }
+
   function setProbe(value){probeNm=clamp(Math.round(Number(value)),400,700);render();}
   function setState(partial,nextCausal,nextPreset=''){state={...state,...partial};causal=nextCausal;preset=nextPreset;render();}
+  function setAtmosphereState(partial){
+    atmosphereState={...atmosphereState,...partial};
+    causal='ATMOSPHERE CHANGE → Rrs unchanged → ρTOA* changed → sensor bands changed';
+    render();
+  }
+
   function setMode(mode){
     root.dataset.mode=mode;
     qa('[data-water-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.waterMode===mode)));
     if(mode==='path'){
       q('[data-role="scene-label"]').textContent='RADIATIVE PATH';
-      q('[data-role="scene-title"]').textContent='From illumination to idealized water-leaving reflectance.';
+      q('[data-role="scene-title"]').textContent='From water optics through atmosphere to sensor.';
       q('[data-role="spectra-label"]').textContent='SYNC / ONE STATE · ONE PROBE';
       q('[data-role="spectra-hint"]').textContent='← → 1 nm · SHIFT 10 nm';
     }else if(mode==='iop'){
@@ -350,11 +399,16 @@ export async function mountWaterInstrument({stage,signal}={}){
       q('[data-role="spectra-label"]').textContent='SYNC / ONE STATE · ONE PROBE';
       q('[data-role="spectra-hint"]').textContent='← → 1 nm · SHIFT 10 nm';
       setPath('water');
+    }else if(mode==='atmosphere'){
+      q('[data-role="scene-label"]').textContent='ATMOSPHERE FORWARD LAYER';
+      q('[data-role="scene-title"]').textContent='Path reflectance dominates what the sensor sees.';
+      q('[data-role="spectra-label"]').textContent='Rrs BELOW / ρTOA* ABOVE THE ATMOSPHERE';
+      q('[data-role="spectra-hint"]').textContent='FIRST-ORDER · NOT ATMOSPHERIC CORRECTION';
     }else{
       q('[data-role="scene-label"]').textContent='SENSOR OBSERVATION';
-      q('[data-role="scene-title"]').textContent='Continuous Rrs becomes a band-limited observation.';
-      q('[data-role="spectra-label"]').textContent='CONTINUOUS Rrs / BAND-AVERAGED OBSERVATIONS';
-      q('[data-role="spectra-hint"]').textContent='SIMPLIFIED BANDPASS · ATMOSPHERE NOT APPLIED';
+      q('[data-role="scene-title"]').textContent='Pedagogical TOA reflectance becomes band-limited.';
+      q('[data-role="spectra-label"]').textContent='CONTINUOUS ρTOA* / BAND-AVERAGED OBSERVATIONS';
+      q('[data-role="spectra-hint"]').textContent='SIMPLIFIED BANDPASS · MEASURED SRF NOT APPLIED';
     }
     render();
   }
