@@ -20,7 +20,8 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   const body = page.locator('#recordBody');
   const firstBook001Paragraph = body.locator('p').first();
   const book001FontSize = await firstBook001Paragraph.evaluate(node => parseFloat(getComputedStyle(node).fontSize));
-  expect(book001FontSize).toBeCloseTo(10, 1);
+  expect(book001FontSize).toBeGreaterThanOrEqual(14);
+  expect(book001FontSize).toBeLessThanOrEqual(16);
   await expect(body).toContainText('Before reading The Glory and the Dream');
   await expect(body).toContainText('After a society passes through crisis after crisis');
 
@@ -150,7 +151,8 @@ test('BOOK 026 Chinese essay uses readable paragraph and quote typography', asyn
     };
   });
 
-  expect(paragraphStyle.fontSize).toBeCloseTo(10,1);
+  expect(paragraphStyle.fontSize).toBeGreaterThanOrEqual(14);
+  expect(paragraphStyle.fontSize).toBeLessThanOrEqual(16);
   expect(paragraphStyle.textIndent).toBeGreaterThanOrEqual(paragraphStyle.fontSize*1.9);
   expect(paragraphStyle.marginBottom).toBeGreaterThan(paragraphStyle.fontSize);
   expect(paragraphStyle.lineHeight).toBeGreaterThan(paragraphStyle.fontSize*1.75);
@@ -173,12 +175,25 @@ test('BOOK 026 Chinese essay uses readable paragraph and quote typography', asyn
 });
 
 
-test('BOOK template hard-enforces 10px reading copy', async ({ page }) => {
-  await page.goto('/records/elsewhere-book-001.html');
-  const book001Size = await page.locator('#recordBody p').first().evaluate(node => parseFloat(getComputedStyle(node).fontSize));
-  expect(book001Size).toBeCloseTo(10, 1);
+test('BOOK template globally enforces 14-16px copy, 1.9 leading, and two-em paragraph indent', async ({ page }) => {
+  for (const path of ['/records/elsewhere-book-001.html', '/records/elsewhere-book-026.html']) {
+    await page.goto(path);
+    const style = await page.locator('#recordBody p').first().evaluate(node => {
+      const computed = getComputedStyle(node);
+      return {
+        fontSize: parseFloat(computed.fontSize),
+        lineHeight: parseFloat(computed.lineHeight),
+        textIndent: parseFloat(computed.textIndent)
+      };
+    });
+
+    expect(style.fontSize).toBeGreaterThanOrEqual(14);
+    expect(style.fontSize).toBeLessThanOrEqual(16);
+    expect(style.lineHeight).toBeGreaterThanOrEqual(style.fontSize * 1.85);
+    expect(style.textIndent).toBeGreaterThanOrEqual(style.fontSize * 1.9);
+  }
 
   await page.goto('/records/elsewhere-book-026.html');
-  const book026Size = await page.locator('#recordBody p').first().evaluate(node => parseFloat(getComputedStyle(node).fontSize));
-  expect(book026Size).toBeCloseTo(10, 1);
+  const quoteIndent = await page.locator('#recordBody blockquote p').evaluate(node => parseFloat(getComputedStyle(node).textIndent));
+  expect(quoteIndent).toBe(0);
 });
