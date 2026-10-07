@@ -5,7 +5,8 @@ const CASES = [
   ['zone', 'bound'],
   ['path', 'connect'],
   ['project', 'project'],
-  ['light', 'light']
+  ['light', 'light'],
+  ['swath', 'swath']
 ];
 
 async function primeOrient(page) {
@@ -103,4 +104,33 @@ test('ORIENT accepts a real pointer judgment before confidence', async ({ page }
   const confidence = shell.locator('.orient-confidence-option').nth(1);
   await confidence.click();
   await expect(shell.getByRole('button', { name:'COMMIT' })).toBeEnabled();
+});
+
+
+test('Lab navigation uses a release-versioned document URL', async ({ page }) => {
+  await page.goto('/index.html', { waitUntil:'domcontentloaded' });
+  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release=20261007p');
+
+  await page.goto('/lab.html?release=20261007p', { waitUntil:'domcontentloaded' });
+  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', '20261007p');
+});
+
+test('latest Play click wins while shared runtime is still loading', async ({ page }) => {
+  await page.route('**/games.js', async route => {
+    await new Promise(resolve => setTimeout(resolve, 900));
+    await route.continue();
+  });
+
+  await page.goto('/lab.html?release=20261007p', { waitUntil:'domcontentloaded' });
+  const locate = page.locator('[data-instrument="locate"]').first();
+  const zone = page.locator('[data-instrument="zone"]').first();
+  await expect(locate).toBeVisible();
+  await expect(zone).toBeVisible();
+
+  await locate.click();
+  await zone.click();
+
+  await expect(page.locator('.play-shell[data-play-kind="bound"], .play-v2-shell[data-play-kind="bound"]')).toBeVisible({ timeout:20_000 });
+  await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.() || null)).toBe('zone');
+  await expect(page.locator('.play-shell[data-play-kind="orient"], .play-v2-shell[data-play-kind="orient"]')).toHaveCount(0);
 });
