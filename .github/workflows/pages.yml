@@ -42,7 +42,10 @@ jobs:
           sed -Ei 's#src="lab-page\.js(\?[^\"]*)?"#src="lab-page.js?v=20261007d"#' site/lab.html
           sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261007i"#' site/lab.html
           sed -Ei 's#src="play/play-runtime\.js(\?[^\"]*)?"#src="play/play-runtime.js?v=20261007d"#' site/lab.html
+          grep -F 'src="content.js?v=20261007d"' site/lab.html
+          grep -F 'src="archive-content.js?v=20261007d"' site/lab.html
           grep -F 'src="lab-page.js?v=20261007d"' site/lab.html
+          grep -F 'src="play/play-bootstrap.js?v=20261007d"' site/lab.html
           grep -F 'src="core/modules.js?v=20261007i"' site/lab.html
           grep -F 'src="play/play-runtime.js?v=20261007d"' site/lab.html
       - name: Verify data supply runtime and snapshots
@@ -103,7 +106,10 @@ jobs:
           test -s dist/play/orient/orient-ergonomics.js
           test -s dist/play/orient/orient-ergonomics.css
           test -s dist/play/orient/orient.css
+          grep -F 'content.js?v=20261007d' dist/lab.html
+          grep -F 'archive-content.js?v=20261007d' dist/lab.html
           grep -F 'lab-page.js?v=20261007d' dist/lab.html
+          grep -F 'play/play-bootstrap.js?v=20261007d' dist/lab.html
           grep -F 'core/modules.js?v=20261007i' dist/lab.html
           grep -F 'play/play-runtime.js?v=20261007d' dist/lab.html
           grep -E "lab-real-previews\.js\?v=capture-[0-9a-f]{12}" dist/lab.html
