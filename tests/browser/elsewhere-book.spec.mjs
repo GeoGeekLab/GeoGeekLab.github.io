@@ -121,6 +121,8 @@ test('BOOK 026 publishes the authored Chinese reading response verbatim', async 
   await expect(page.locator('#recordMeta')).toContainText('DISTANCE');
 
   const body=page.locator('#recordBody');
+  await expect(body.locator(':scope > article.book-reading-essay')).toHaveCount(1);
+  await expect(body.locator('.book-record-section')).toHaveCount(0);
   await expect(body).toContainText('初中时第一次翻开龙应台的《目送》，只觉得文字清丽，甚至有些平淡。');
   await expect(body).toContainText('人的一生，终究是一场无法弥补的辜负。');
   await expect(body.locator('blockquote')).toContainText('我慢慢地、慢慢地了解到，所谓父女母子一场，只不过意味着，你和他的缘分就是今生今世不断地在目送他的背影渐行渐远。');
