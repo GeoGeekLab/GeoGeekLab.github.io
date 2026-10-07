@@ -648,11 +648,70 @@ Supported teaching definitions:
 
 The band values are pedagogical TOA reflectance samples. They are not calibrated radiance, DN, or an atmospherically corrected product.
 
-## 16. V1/V1.6 exclusions
+## 15.4 Atmospheric Correction Experiment
 
-V1/V1.6 intentionally exclude:
+V1.7 adds a pedagogical inverse that recovers an estimated surface reflectance from the synthetic `rho_TOA*(lambda)`.
 
-- operational atmospheric correction / inversion;
+The inverse is:
+
+```text
+Rrs_est =
+  [rho_TOA* - rho_R(est) - rho_A(est)]
+  ------------------------------------
+          pi T_down(est) T_up(est)
+```
+
+The experiment treats pressure, solar/view geometry, aerosol single-scattering albedo, and aerosol phase-function asymmetry as known from the forward teaching model.
+
+Only two aerosol assumptions are intentionally allowed to be wrong:
+
+```text
+tau_a(550)
+alpha
+```
+
+The correction mode must preserve these causal rules:
+
+- changing correction assumptions must not change the true water state;
+- changing correction assumptions must not change the true atmosphere or `rho_TOA*`;
+- when assumed `tau_a(550)` and `alpha` equal the forward values, `Rrs_est` must recover `Rrs` to numerical precision;
+- negative `Rrs_est` values must remain visible and must not be clamped to zero;
+- the UI must distinguish the true atmosphere from the assumed correction atmosphere.
+
+This inverse is not an operational aerosol retrieval.
+
+It does not infer aerosol properties from NIR/SWIR bands, use aerosol lookup tables, perform multiple scattering, or apply mission calibration.
+
+### OLCI OC4 sensitivity diagnostic
+
+V1.7 also evaluates the NASA R2022 OLCI OC4 band-ratio polynomial on both the true `Rrs` and `Rrs_est`.
+
+The diagnostic uses:
+
+```text
+blue = max[Rrs(443), Rrs(490), Rrs(510)]
+green = Rrs(560)
+x = log10(blue / green)
+
+log10(chlor_a) =
+  0.42540
+  - 3.21679 x
+  + 2.86907 x^2
+  - 0.62628 x^3
+  - 1.09333 x^4
+```
+
+The purpose is to expose downstream sensitivity to atmospheric-correction error.
+
+The OC4 diagnostic must be compared against OC4 computed from the true model `Rrs`, not directly against the instrument's `Chl` state variable.
+
+The forward water model does not enforce the empirical covariance structure used to calibrate global OC4 because CDOM, NAP, and particle backscatter remain independently controllable.
+
+## 16. V1/V1.7 exclusions
+
+V1/V1.7 intentionally exclude:
+
+- operational atmospheric correction / aerosol inversion;
 - calibrated top-of-atmosphere radiance;
 - aerosol-model retrieval or LUT selection;
 - multiple-scattering Rayleigh correction;
@@ -673,11 +732,11 @@ V1/V1.6 intentionally exclude:
 - full scattering phase functions;
 - full measured detector-specific or time-dependent sensor SRF/RSR convolution;
 - sensor bands outside the validated 400–700 nm water-model domain;
-- OCx / OCI retrieval;
+- operational NASA CI/OCx hybrid chlor_a production;
 - QAA inversion;
 - OWT classification.
 
-These are not missing features. They are outside the current V1/V1.6 scientific contract.
+These are not missing features. They are outside the current V1/V1.7 scientific contract.
 
 ## 17. Required numerical assertions for Round 2
 
