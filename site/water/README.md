@@ -84,3 +84,27 @@ Corrections:
 The numerical audit samples 3,125 accepted states over the declared parameter envelope and checks positivity, component identities, interface-domain margin, intervention monotonicity, spectral-form identities, and reference-state diagnostic behavior.
 
 See `docs/WATER_AS_SPECTRUM_SCIENTIFIC_AUDIT.md`.
+
+
+## Round 6 Sensor Observation Layer
+
+Production mode now has three internal views:
+
+- `PATH`: conceptual light path and explicit exclusions.
+- `IOP`: constituent → IOP → AOP causal view.
+- `SENSOR`: continuous idealized `Rrs(λ)` → simplified bandpass → band-averaged `Rrs`.
+
+Sensor mode supports:
+
+- Sentinel-3 OLCI nominal visible bands through Oa10.
+- PACE OCI simplified nominal 5 nm teaching mode.
+- Sentinel-2A MSI B01–B04.
+- Landsat 8/9 OLI B1–B4.
+
+The sensor layer never changes the underlying water model.
+
+The current implementation uses rectangular bandpasses and labels them as simplified. Measured detector-specific or time-dependent SRF/RSR convolution remains outside this layer.
+
+Layout changes in this round move the PATH explanation card to the left, reduce scene height in Work mode, compact the control rail on shorter desktop screens, and reserve the upper scene for the sensor-sampling explanation while SENSOR mode is active.
+
+See `site/water/data/SENSOR_SOURCES.md`.
