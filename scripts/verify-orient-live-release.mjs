@@ -1,6 +1,12 @@
+import { readFile } from 'node:fs/promises';
+
 const base = String(process.env.ORIENT_RELEASE_BASE_URL || 'https://geogeeklab.github.io/').replace(/\/+$/, '');
+const localLab = await readFile(new URL('../site/lab.html', import.meta.url), 'utf8');
+const runtimeMatch = localLab.match(/play\/play-runtime\.js\?v=([^"'&<]+)/);
+if (!runtimeMatch) throw new Error('Local lab.html does not declare a versioned play runtime.');
+
 const expected = {
-  runtime: '20261003i',
+  runtime: runtimeMatch[1],
   feedback: '20261003g',
   trace: '20261003h',
   ergonomics: '20261003i'
