@@ -161,13 +161,14 @@
       sky.classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
       ocean.style.setProperty('--light-water-color',scene.waterColor.css);
       waterSignal.style.opacity=scene.mechanisms.waterBackscatter?'1':'0.05';
-      reflection.style.opacity=scene.mechanisms.surfaceReflection?String(Math.min(.72,.24+scene.surfaceReflectance*10)):'0';
+      const surfaceContribution=scene.mechanisms.surfaceReflection && scene.mechanisms.atmosphericScattering;
+      reflection.style.opacity=surfaceContribution?String(Math.min(.72,.24+scene.surfaceReflectance*10)):'0';
 
       root.querySelector('.light-ray-atmosphere').classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
-      root.querySelector('.light-ray-surface').classList.toggle('is-off',!scene.mechanisms.surfaceReflection);
+      root.querySelector('.light-ray-surface').classList.toggle('is-off',!surfaceContribution);
       root.querySelector('.light-ray-water').classList.toggle('is-off',!scene.mechanisms.waterBackscatter);
       root.querySelector('[data-path="atmosphere"]').classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
-      root.querySelector('[data-path="surface"]').classList.toggle('is-off',!scene.mechanisms.surfaceReflection);
+      root.querySelector('[data-path="surface"]').classList.toggle('is-off',!surfaceContribution);
       root.querySelector('[data-path="water"]').classList.toggle('is-off',!scene.mechanisms.waterBackscatter);
 
       if (snapshot.experiment) renderSpectrum(snapshot,scene);
