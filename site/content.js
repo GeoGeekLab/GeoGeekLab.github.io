@@ -779,7 +779,7 @@ window.GEOGEEK_ARCHIVE = {
       "text": {
         "en": {
           "status": "Live",
-          "title": "Wind Field",
+          "title": "Geographic Flow Laboratory",
           "tags": [
             "Atmosphere",
             "Wind",
