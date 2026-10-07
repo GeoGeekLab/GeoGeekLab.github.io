@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b120e">
+<meta name="robots" content="noindex,nofollow">
+<title>Water as Spectrum — Prototype</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="./water-prototype.css?v=20261007a">
+</head>
+<body class="water-prototype-page">
+<a class="skip" href="#waterWorkbench">Skip to instrument</a>
+
+<header class="water-prototype-head">
+  <div class="water-prototype-identity">
+    <a class="water-back" href="/lab.html" aria-label="Return to Lab">← LAB</a>
+    <span class="water-prototype-kicker">OBSERVATORY / WATER / LIGHT / SPECTRUM</span>
+    <h1>Water as Spectrum</h1>
+  </div>
+  <div class="water-mode-switch" role="group" aria-label="Observation mode">
+    <button type="button" data-water-mode="path" aria-pressed="true">PATH</button>
+    <button type="button" data-water-mode="iop" aria-pressed="false">IOP</button>
+  </div>
+  <div class="water-prototype-status">
+    <span>ROUND 3 PROTOTYPE</span>
+    <strong>400–700 nm</strong>
+  </div>
+</header>
+
+<main class="water-workbench" id="waterWorkbench" data-mode="path">
+  <section class="water-stage" aria-label="Water colour theory visualization">
+    <section class="water-scene-panel" aria-labelledby="sceneTitle">
+      <div class="water-panel-head">
+        <div>
+          <span id="sceneModeLabel">RADIATIVE PATH</span>
+          <h2 id="sceneTitle">From illumination to water-leaving reflectance.</h2>
+        </div>
+        <p id="sceneBoundary">Atmosphere is conceptual in V1. Quantitative output begins with water IOPs.</p>
+      </div>
+
+      <div class="water-scene" id="waterScene" data-path-focus="water">
+        <svg viewBox="0 0 1200 430" role="img" aria-labelledby="waterSceneSvgTitle waterSceneSvgDesc">
+          <title id="waterSceneSvgTitle">Conceptual light path through atmosphere, water surface and water column</title>
+          <desc id="waterSceneSvgDesc">Sunlight enters the atmosphere and water. Absorption and backscattering in the water affect the signal that leaves the surface toward a sensor.</desc>
+          <defs>
+            <marker id="waterArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z"></path>
+            </marker>
+            <linearGradient id="waterDepth" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-opacity=".11"></stop>
+              <stop offset="100%" stop-opacity=".32"></stop>
+            </linearGradient>
+          </defs>
+
+          <rect class="scene-atmosphere" x="0" y="0" width="1200" height="190"></rect>
+          <rect class="scene-water" x="0" y="205" width="1200" height="225" fill="url(#waterDepth)"></rect>
+          <line class="scene-surface" x1="0" y1="205" x2="1200" y2="205"></line>
+
+          <g class="scene-sun" aria-hidden="true">
+            <circle cx="155" cy="78" r="31"></circle>
+            <line x1="155" y1="27" x2="155" y2="12"></line>
+            <line x1="104" y1="78" x2="89" y2="78"></line>
+            <line x1="206" y1="78" x2="221" y2="78"></line>
+            <line x1="119" y1="42" x2="108" y2="31"></line>
+            <line x1="191" y1="42" x2="202" y2="31"></line>
+          </g>
+
+          <g class="scene-sensor" aria-hidden="true">
+            <path d="M1010 48h78l18 25-18 25h-78l-18-25z"></path>
+            <circle cx="1049" cy="73" r="9"></circle>
+          </g>
+
+          <path class="photon-path photon-down" d="M182 104 C 300 145, 390 166, 485 206 C 520 245, 545 286, 590 330"></path>
+          <path class="photon-path photon-up" d="M590 330 C 660 280, 706 242, 754 206 C 822 154, 900 119, 1008 90"></path>
+          <path class="photon-path photon-surface" d="M485 206 C 610 180, 764 156, 925 136"></path>
+
+          <g class="water-constituents" aria-hidden="true">
+            <g class="constituent constituent-chl">
+              <circle cx="315" cy="275" r="9"></circle><circle cx="345" cy="298" r="6"></circle><circle cx="290" cy="320" r="5"></circle>
+              <circle cx="375" cy="340" r="8"></circle><circle cx="405" cy="264" r="5"></circle>
+            </g>
+            <g class="constituent constituent-cdom">
+              <path d="M710 262c28 12 53 7 75-7"></path><path d="M690 307c35 15 70 12 106-9"></path><path d="M735 350c25 8 50 5 76-8"></path>
+            </g>
+            <g class="constituent constituent-particle">
+              <rect x="890" y="258" width="10" height="10"></rect><rect x="925" y="286" width="7" height="7"></rect>
+              <rect x="865" y="330" width="8" height="8"></rect><rect x="948" y="350" width="11" height="11"></rect>
+            </g>
+          </g>
+
+          <g class="scene-labels" aria-hidden="true">
+            <text x="42" y="36">SOLAR INPUT</text>
+            <text x="42" y="168">ATMOSPHERE · CONCEPTUAL IN V1</text>
+            <text x="42" y="228">AIR–WATER INTERFACE</text>
+            <text x="42" y="408">OPTICALLY DEEP WATER</text>
+            <text x="995" y="122">SENSOR / V1.5</text>
+          </g>
+
+          <g class="scene-water-logic" aria-hidden="true">
+            <text x="512" y="270">a(λ)</text>
+            <text x="618" y="270">bb(λ)</text>
+            <text x="548" y="385">IOPs → light field → rrs → Rrs</text>
+          </g>
+        </svg>
+
+        <div class="water-path-steps" role="group" aria-label="Light path step">
+          <button type="button" data-path-step="atmosphere">ATMOSPHERE</button>
+          <button type="button" data-path-step="interface">INTERFACE</button>
+          <button type="button" data-path-step="water" aria-pressed="true">WATER COLUMN</button>
+          <button type="button" data-path-step="sensor">SENSOR</button>
+        </div>
+
+        <div class="water-scene-note" aria-live="polite">
+          <span id="pathNoteLabel">WATER COLUMN</span>
+          <p id="pathNote">Absorption and backscattering are inherent optical properties. They determine how the in-water light field changes before light leaves the surface.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="water-spectra-panel" id="spectrumPanel" tabindex="0" aria-labelledby="spectraTitle" aria-describedby="probeHelp">
+      <div class="water-panel-head water-spectra-head">
+        <div>
+          <span>SYNCHRONIZED SPECTRA</span>
+          <h2 id="spectraTitle">One wavelength probe, three linked quantities.</h2>
+        </div>
+        <p id="probeHelp">Move over a plot, click, drag, or use ← →. Hold Shift for 10 nm.</p>
+      </div>
+
+      <div class="water-chart-stack">
+        <figure class="water-chart" data-chart="absorption">
+          <figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em id="absorptionProbeValue">—</em></figcaption>
+          <svg id="absorptionChart" viewBox="0 0 1000 190" preserveAspectRatio="none" aria-label="Total spectral absorption"></svg>
+        </figure>
+        <figure class="water-chart" data-chart="backscattering">
+          <figcaption><strong>bb(λ)</strong><span>BACKSCATTERING · m⁻¹</span><em id="backscatterProbeValue">—</em></figcaption>
+          <svg id="backscatterChart" viewBox="0 0 1000 190" preserveAspectRatio="none" aria-label="Total spectral backscattering"></svg>
+        </figure>
+        <figure class="water-chart" data-chart="rrs">
+          <figcaption><strong>Rrs(λ)</strong><span>ABOVE-WATER REFLECTANCE · sr⁻¹</span><em id="rrsProbeValue">—</em></figcaption>
+          <svg id="rrsChart" viewBox="0 0 1000 190" preserveAspectRatio="none" aria-label="Above-water remote-sensing reflectance"></svg>
+        </figure>
+      </div>
+    </section>
+  </section>
+
+  <aside class="water-controls" aria-label="Water state controls">
+    <section class="water-control-section">
+      <div class="water-control-heading">
+        <span>REFERENCE STATES</span>
+        <small>Pedagogical, not canonical classes</small>
+      </div>
+      <div class="water-presets" role="group" aria-label="Reference water state">
+        <button type="button" data-preset="clearOcean">CLEAR OCEAN</button>
+        <button type="button" data-preset="phytoplanktonRich">PHYTOPLANKTON</button>
+        <button type="button" data-preset="cdomRich">CDOM-RICH</button>
+        <button type="button" data-preset="turbidParticleRich">TURBID</button>
+      </div>
+    </section>
+
+    <section class="water-control-section">
+      <div class="water-control-heading">
+        <span>WATER STATE</span>
+        <small>Model inputs</small>
+      </div>
+
+      <label class="water-slider">
+        <span><b>CHLOROPHYLL</b><output id="chlOutput">1.00 mg m⁻³</output></span>
+        <input id="chlControl" type="range" min="0" max="1000" step="1" value="548" aria-label="Chlorophyll concentration">
+        <small>Chl → aph(λ) → a(λ)</small>
+      </label>
+
+      <label class="water-slider">
+        <span><b>CDOM</b><output id="cdomOutput">0.050 m⁻¹</output></span>
+        <input id="cdomControl" type="range" min="0" max="2" step="0.005" value="0.05" aria-label="CDOM absorption at 440 nanometres">
+        <small>ag(440) → ag(λ) → a(λ)</small>
+      </label>
+
+      <div class="water-particle-group">
+        <div class="water-particle-label"><b>PARTICLES</b><small>Absorption and backscatter remain independent</small></div>
+        <label class="water-slider">
+          <span><b>NAP ABSORPTION</b><output id="napOutput">0.020 m⁻¹</output></span>
+          <input id="napControl" type="range" min="0" max="1" step="0.002" value="0.02" aria-label="Non-algal particle absorption at 443 nanometres">
+          <small>aNAP(443) → aNAP(λ)</small>
+        </label>
+        <label class="water-slider">
+          <span><b>PARTICLE BACKSCATTER</b><output id="bbpOutput">0.0020 m⁻¹</output></span>
+          <input id="bbpControl" type="range" min="0" max="1000" step="1" value="526" aria-label="Particle backscattering at 443 nanometres">
+          <small>bbp(443) → bbp(λ)</small>
+        </label>
+      </div>
+    </section>
+
+    <section class="water-control-section water-probe-control">
+      <div class="water-control-heading">
+        <span>WAVELENGTH PROBE</span>
+        <strong id="probeWavelength">443 nm</strong>
+      </div>
+      <input id="probeControl" type="range" min="400" max="700" step="1" value="443" aria-label="Selected wavelength">
+      <div class="water-probe-summary">
+        <span><small>a</small><strong id="probeATotal">—</strong></span>
+        <span><small>bb</small><strong id="probeBbTotal">—</strong></span>
+        <span><small>Rrs</small><strong id="probeRrsTotal">—</strong></span>
+      </div>
+    </section>
+
+    <section class="water-control-section water-budget" aria-labelledby="budgetTitle">
+      <div class="water-control-heading">
+        <span id="budgetTitle">COMPONENT BUDGET</span>
+        <small id="budgetWavelength">443 nm</small>
+      </div>
+      <div class="water-budget-block">
+        <strong>ABSORPTION</strong>
+        <div id="absorptionBudget"></div>
+      </div>
+      <div class="water-budget-block">
+        <strong>BACKSCATTERING</strong>
+        <div id="backscatterBudget"></div>
+      </div>
+    </section>
+
+    <section class="water-control-section water-causal">
+      <div class="water-control-heading"><span>CAUSAL READOUT</span><small>Latest intervention</small></div>
+      <p id="causalReadout">REFERENCE STATE → IOPs → u(λ) → rrs(λ) → Rrs(λ)</p>
+    </section>
+  </aside>
+</main>
+
+<footer class="water-prototype-foot">
+  <span>V1 MODEL · OPTICALLY DEEP · 20 °C · 35 PSU</span>
+  <span id="waterFooterReadout">PROBE 443 nm</span>
+  <span>ATMOSPHERE / SENSOR SAMPLING NOT YET QUANTITATIVE</span>
+</footer>
+
+<script type="module" src="./water-prototype.js?v=20261007a"></script>
+</body>
+</html>

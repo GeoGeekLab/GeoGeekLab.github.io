@@ -22,3 +22,22 @@ Rebuild and test:
 node scripts/build-water-optics-data.mjs
 node --test tests/water/*.test.mjs
 ```
+
+
+## Round 3 prototype
+
+The interaction prototype is available at \`/water/prototype.html\`.
+
+It is intentionally not registered as \`lab:l13\` yet.
+
+The prototype validates:
+
+- one shared water state across PATH and IOP modes;
+- synchronized \`a(λ)\`, \`bb(λ)\`, and \`Rrs(λ)\` plots;
+- a shared 400–700 nm wavelength probe;
+- absorption and backscattering component budgets;
+- four pedagogical reference states;
+- independent NAP absorption and particle backscattering controls;
+- desktop and mobile workbench layout.
+
+Atmospheric correction and sensor spectral sampling remain outside the quantitative prototype.
