@@ -292,6 +292,24 @@ window.GEOGEEK_ARCHIVE = {
                 "First-order teaching atmosphere + inverse"
               ]
             ],
+            "swath": [
+              [
+                "INPUT",
+                "Altitude · FOV · detector samples"
+              ],
+              [
+                "GEOMETRY",
+                "Spherical Earth · nadir-pointing"
+              ],
+              [
+                "OUTPUT",
+                "Swath · nadir / edge GSD · orbit period"
+              ],
+              [
+                "LIMIT",
+                "Revisit · MTF · SNR not modeled"
+              ]
+            ],
             "locate": [
               [
                 "GEOMETRY",
