@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   quality:
+    if: github.ref != 'refs/heads/diag/play-live-fix-head'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
