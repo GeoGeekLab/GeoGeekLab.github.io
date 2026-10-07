@@ -338,3 +338,34 @@ test('Water uses side-by-side path and spectral analysis on wide screens and sta
   expect(stackedSpectra).not.toBeNull();
   expect(stackedSpectra.y).toBeGreaterThanOrEqual(stackedScene.y+stackedScene.height-2);
 });
+
+
+test('ATM work panel uses compact budget rows and readable diagnostics', async ({ page }) => {
+  await page.setViewportSize({ width:1920, height:900 });
+  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+  await page.locator('[data-water-mode="atmosphere"]').click();
+
+  await expect(page.locator('.water-atmosphere-scene')).toBeVisible();
+  await expect(page.locator('[data-role="atm-probe-nm"]')).toContainText('nm');
+  await expect(page.locator('[data-role="atm-dominant"]')).not.toHaveText('—');
+  await expect(page.locator('[data-role="atm-dominant-share"]')).toContainText('% OF ρTOA*');
+  await expect(page.locator('[data-role="atm-rayleigh-pct"]')).toContainText('%');
+  await expect(page.locator('[data-role="atm-aerosol-pct"]')).toContainText('%');
+  await expect(page.locator('[data-role="atm-water-pct"]')).toContainText('%');
+
+  const rows=page.locator('.water-atmosphere-budget > div');
+  await expect(rows).toHaveCount(3);
+  const boxes=await Promise.all([0,1,2].map(i=>rows.nth(i).boundingBox()));
+  for(const box of boxes) expect(box).not.toBeNull();
+  expect(boxes[1].y).toBeGreaterThan(boxes[0].y+boxes[0].height-2);
+  expect(boxes[2].y).toBeGreaterThan(boxes[1].y+boxes[1].height-2);
+
+  await expect(page.locator('.water-atmosphere-contract')).toBeHidden();
+
+  const captions=page.locator('.water-chart figcaption strong');
+  const captionSize=await captions.first().evaluate(node=>Number.parseFloat(getComputedStyle(node).fontSize));
+  expect(captionSize).toBeGreaterThanOrEqual(15);
+
+  await page.locator('[data-workspace-mode="inspect"]').click();
+  await expect(page.locator('.water-atmosphere-contract')).toBeVisible();
+});
