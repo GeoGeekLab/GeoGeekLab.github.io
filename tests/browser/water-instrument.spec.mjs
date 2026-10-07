@@ -275,6 +275,11 @@ test('Radiative path explorer focuses one stage at a time with buttons, hotspots
   expect(await page.locator('[data-path-label]:visible').count()).toBe(0);
   await expect(svg).toHaveAttribute('viewBox','0 0 1200 390');
 
+  await page.locator('[data-path-hotspot="sensor"]').click({ position:{x:20,y:20} });
+  await expect(scene).toHaveAttribute('data-path-focus','sensor');
+  await expect(svg).toHaveAttribute('viewBox','720 20 420 170');
+  await expect(page.locator('[data-role="path-equation"]')).toContainText('BANDPASS');
+
   await page.locator('[data-path-step="water"]').click();
   await expect(scene).toHaveAttribute('data-path-focus','water');
   await expect(svg).toHaveAttribute('viewBox','215 170 770 215');
@@ -282,12 +287,9 @@ test('Radiative path explorer focuses one stage at a time with buttons, hotspots
   expect(await page.locator('[data-path-label="water"]:visible').count()).toBeGreaterThan(0);
   expect(await page.locator('[data-path-label="atmosphere"]:visible').count()).toBe(0);
 
-  await page.locator('[data-path-hotspot="sensor"]').click({ position:{x:20,y:20} });
-  await expect(scene).toHaveAttribute('data-path-focus','sensor');
-  await expect(svg).toHaveAttribute('viewBox','720 20 420 170');
-  await expect(page.locator('[data-role="path-equation"]')).toContainText('BANDPASS');
-
   await scene.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(scene).toHaveAttribute('data-path-focus','sensor');
   await page.keyboard.press('ArrowLeft');
   await expect(scene).toHaveAttribute('data-path-focus','water');
   await page.keyboard.press('Escape');
