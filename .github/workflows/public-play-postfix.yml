@@ -13,5 +13,5 @@ jobs:
         with:
           node-version: 24
       - run: npm install --no-save playwright@1.55.0
-      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npx playwright install --with-deps webkit
       - run: node scripts/probe-public-play-postfix.mjs
