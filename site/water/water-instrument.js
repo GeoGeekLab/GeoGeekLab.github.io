@@ -33,7 +33,7 @@ const pathNotes={
   atmosphere:['ATMOSPHERE · FIRST-ORDER MODEL','ATMOSPHERE mode adds Rayleigh and aerosol path reflectance plus direct two-way attenuation. It is a teaching forward model, not operational atmospheric correction.'],
   interface:['AIR–WATER INTERFACE','Subsurface rrs and above-water Rrs are distinct AOPs. V1 applies an explicit interface-transfer approximation. The dashed surface path marks glint context and is excluded from the numerical Rrs.'],
   water:['WATER COLUMN','Absorption and backscattering are IOPs. Together they condition the light field before idealized water-leaving reflectance is formed.'],
-  sensor:['SENSOR OBSERVATION','SENSOR mode samples the pedagogical TOA reflectance after the atmosphere layer. Measured detector SRFs and retrieval algorithms remain excluded.']
+  sensor:['SENSOR OBSERVATION','SENSOR mode samples the pedagogical TOA reflectance after the atmosphere layer. Measured detector SRFs remain excluded; atmospheric correction is handled separately in AC mode.']
 };
 
 function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
@@ -238,6 +238,7 @@ function markup(){
           <span><small>INTERFACE</small><b>Lee et al. approximation</b></span><span><small>ATMOSPHERE</small><b>First-order · not correction</b></span>
           <span><small>RAYLEIGH</small><b>Hansen–Travis τR</b></span><span><small>AEROSOL</small><b>Ångström + HG phase</b></span>
           <span><small>GASES / MULTI</small><b>Excluded</b></span><span><small>GEOMETRY</small><b>Sun / view interactive</b></span>
+          <span><small>AC INVERSE</small><b>Manual aerosol assumption</b></span><span><small>RETRIEVAL</small><b>OLCI OC4 · diagnostic only</b></span>
           <span><small>rrs</small><b data-role="probe-rrs">—</b></span><span><small>u</small><b data-role="probe-u">—</b></span>
         </div>
       </section>
@@ -662,4 +663,4 @@ export async function mountWaterInstrument({stage,signal}={}){
 
 window.GeoGeekInstrumentMounts=window.GeoGeekInstrumentMounts||{};
 window.GeoGeekInstrumentMounts.water=mountWaterInstrument;
-window.GeoWaterSpectrum={mount:mountWaterInstrument,modelMeta:WATER_MODEL_META,atmosphereMeta:ATMOSPHERE_MODEL_META};
+window.GeoWaterSpectrum={mount:mountWaterInstrument,modelMeta:WATER_MODEL_META,atmosphereMeta:ATMOSPHERE_MODEL_META,correction:'manual-aerosol-first-order'};
