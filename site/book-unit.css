@@ -283,15 +283,6 @@
   background:rgba(172,94,52,.045);
 }
 
-.book-record-page .book-reading-essay blockquote::before{
-  content:"QUOTE";
-  display:block;
-  margin-bottom:.7em;
-  color:var(--signal);
-  font:650 8px/1 var(--mono);
-  letter-spacing:.1em;
-}
-
 .book-record-page .book-reading-essay blockquote p{
   margin:0;
   text-indent:0;
