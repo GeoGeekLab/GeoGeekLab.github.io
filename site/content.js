@@ -285,11 +285,11 @@ window.GEOGEEK_ARCHIVE = {
               ],
               [
                 "CHAIN",
-                "IOPs → Rrs → ρTOA* → sensor bands"
+                "IOPs → Rrs → ρTOA* → sensor / AC"
               ],
               [
                 "LIMIT",
-                "First-order atmosphere · not correction"
+                "First-order teaching atmosphere + inverse"
               ]
             ],
             "locate": [
@@ -929,8 +929,8 @@ window.GEOGEEK_ARCHIVE = {
             "Ocean Optics",
             "Remote Sensing"
           ],
-          "description": "An interactive water-colour theory instrument. Change water IOPs and atmospheric state, then follow the chain from above-water Rrs through a first-order atmosphere to sensor-band observations.",
-          "coord": "λ / a / bb / Rrs / ρTOA*",
+          "description": "An interactive water-colour theory instrument. Change water and atmospheric state, sample a synthetic TOA signal, then invert it with deliberately right or wrong aerosol assumptions.",
+          "coord": "λ / a / bb / Rrs / ρTOA* / Rrs_est",
           "instrumentKicker": "WATER / LIGHT / SPECTRUM",
           "source": "WOPP · Bricaud 1998 · Babin 2003 · NASA Ocean Color · mission spectral specifications"
         }
