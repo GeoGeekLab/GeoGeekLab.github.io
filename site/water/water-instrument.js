@@ -18,7 +18,7 @@ import {
   buildCorrectionExperiment
 } from './atmosphere-correction.js';
 
-const STYLE_URL = new URL('./water-instrument.css?v=20261007f', import.meta.url).href;
+const STYLE_URL = new URL('./water-instrument.css?v=20261007g', import.meta.url).href;
 
 function ensureStyle(){
   if(document.querySelector('link[data-water-instrument-style]')) return;
