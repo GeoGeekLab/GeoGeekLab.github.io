@@ -1672,3 +1672,83 @@
     display:none;
   }
 }
+
+
+/* Water split-scene intro containment v20261007o
+   The wide workspace makes the scene column deliberately narrow.
+   Sensor and correction intros must therefore stack instead of reserving a 320–340px copy column. */
+@media(min-width:1351px){
+  .water-sensor-intro,
+  .water-correction-intro{
+    min-width:0;
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    grid-auto-rows:auto;
+    gap:6px;
+    align-items:start;
+  }
+
+  .water-sensor-intro>span,
+  .water-sensor-intro>strong,
+  .water-sensor-intro>p,
+  .water-correction-intro>span,
+  .water-correction-intro>strong,
+  .water-correction-intro>p{
+    grid-column:1;
+    grid-row:auto;
+    min-width:0;
+    max-width:100%;
+  }
+
+  .water-sensor-intro>strong{
+    font-size:clamp(25px,1.75vw,31px);
+    line-height:1.04;
+    letter-spacing:-.03em;
+  }
+
+  .water-correction-intro>strong{
+    font-size:clamp(24px,1.65vw,30px);
+    line-height:1.04;
+    letter-spacing:-.035em;
+  }
+
+  .water-sensor-intro>p,
+  .water-correction-intro>p{
+    margin:0;
+    max-width:46ch;
+    font-size:10.5px;
+    line-height:1.45;
+  }
+}
+
+@media(min-width:1351px) and (max-height:850px){
+  .water-sensor-scene,
+  .water-correction-scene{
+    gap:12px;
+    padding:15px 18px;
+  }
+
+  .water-sensor-intro>strong,
+  .water-correction-intro>strong{
+    font-size:24px;
+    line-height:1.03;
+  }
+
+  .water-sensor-intro>p,
+  .water-correction-intro>p{
+    font-size:9.5px;
+    line-height:1.36;
+  }
+
+  .water-correction-equation{
+    padding-block:8px;
+  }
+
+  .water-correction-state>div{
+    padding:7px 9px;
+  }
+
+  .water-correction-metrics>div{
+    padding:7px;
+  }
+}
