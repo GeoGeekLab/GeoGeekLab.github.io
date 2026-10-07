@@ -264,6 +264,18 @@ export async function mountWaterInstrument({stage,signal}={}){
   let model=computeWaterOptics(state);
   let atmosphereState={...ATMOSPHERE_DEFAULT_STATE};
   let atmosphere=computeAtmosphereObservation(WATER_WAVELENGTHS_NM,model.Rrs,atmosphereState);
+  let correctionAssumption={
+    aerosolOpticalDepth550:ATMOSPHERE_DEFAULT_STATE.aerosolOpticalDepth550,
+    angstromExponent:ATMOSPHERE_DEFAULT_STATE.angstromExponent
+  };
+  let correctionMatched=true;
+  let correction=buildCorrectionExperiment(
+    WATER_WAVELENGTHS_NM,
+    model.Rrs,
+    atmosphere.reflectance.toaApprox,
+    atmosphereState,
+    correctionAssumption
+  );
   let probeNm=443;
   let preset='';
   let sensorId='olci';
@@ -278,6 +290,10 @@ export async function mountWaterInstrument({stage,signal}={}){
     sza:q('[data-atm-control="sza"]'),
     vza:q('[data-atm-control="vza"]'),
     raz:q('[data-atm-control="raz"]')
+  };
+  const corrControls={
+    aot:q('[data-corr-control="aot"]'),
+    alpha:q('[data-corr-control="alpha"]')
   };
 
   function syncControls(){
@@ -302,6 +318,15 @@ export async function mountWaterInstrument({stage,signal}={}){
     q('[data-atm-output="sza"]').textContent=Math.round(atmosphereState.solarZenithDeg)+'°';
     q('[data-atm-output="vza"]').textContent=Math.round(atmosphereState.viewZenithDeg)+'°';
     q('[data-atm-output="raz"]').textContent=Math.round(atmosphereState.relativeAzimuthDeg)+'°';
+
+    corrControls.aot.value=String(correctionAssumption.aerosolOpticalDepth550);
+    corrControls.alpha.value=String(correctionAssumption.angstromExponent);
+    q('[data-corr-output="aot"]').textContent=correctionAssumption.aerosolOpticalDepth550.toFixed(3);
+    q('[data-corr-output="alpha"]').textContent=correctionAssumption.angstromExponent.toFixed(2);
+    q('[data-role="corr-true-rail"]').textContent=
+      atmosphereState.aerosolOpticalDepth550.toFixed(3)+' / '+atmosphereState.angstromExponent.toFixed(2);
+    q('[data-correction-match]').textContent=correctionMatched?'MATCHED':'MATCH TRUE';
+    q('[data-correction-match]').setAttribute('aria-pressed',String(correctionMatched));
   }
   function syncScene(){
     const scene=q('[data-role="scene"]');
