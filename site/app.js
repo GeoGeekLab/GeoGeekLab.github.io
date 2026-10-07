@@ -672,7 +672,7 @@
 
     const { kind, item } = record;
     if (kind === 'lab' && item.instrument) {
-      setText('#recordDetailLabel', ui.scale?.levels?.RECORD || 'RECORD');
+      setText('#recordDetailLabel', item.detailLabel || ui.scale?.levels?.RECORD || 'RECORD');
       const detailSection = $('#detail');
       if (detailSection) {
         detailSection.dataset.scale = SCALE.RECORD;
@@ -694,6 +694,7 @@
     titleNode.style.viewTransitionName = 'record-title';
     excerptNode.textContent = excerpt || '';
     if (kind === 'notes' && item.bodyHtml) bodyNode.innerHTML = item.bodyHtml;
+    else if (kind === 'lab' && item.bodyHtml) bodyNode.innerHTML = item.bodyHtml;
     else bodyNode.innerHTML = `<p>${body || ''}</p>`;
     if (kind === 'notes') calibrateArchiveReading(bodyNode);
     document.title = `${displayRecordTitle(item.title)} — GeoGeek`;
@@ -726,6 +727,7 @@
         ['source', item.source || ('Browser-native')],
         ['status', item.status]
       ];
+      if (Array.isArray(item.recordConditions)) conditions.push(...item.recordConditions);
     } else {
       conditions = [
         ['field', values.livedField || 'Lived geography'],

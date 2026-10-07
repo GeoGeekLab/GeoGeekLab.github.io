@@ -627,3 +627,22 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* Core workspace map-first contract — 2026-10-07
+   Persistent context belongs to the record page. The live workspace gives the
+   visualization the vertical field in Focus, Work, and Inspect. */
+.instrument-dialog[data-lab-workspace="true"] .instrument-meta {
+  display: none !important;
+}
+.instrument-dialog[data-lab-workspace="true"] .instrument-shell {
+  grid-template-rows: auto minmax(0, 1fr) 40px;
+}
+.instrument-dialog[data-lab-workspace="true"][data-workspace-mode="focus"] .instrument-shell {
+  grid-template-rows: auto minmax(0, 1fr) 36px;
+}
+@media (max-width: 700px) {
+  .instrument-dialog[data-lab-workspace="true"] .instrument-shell {
+    grid-template-rows: auto minmax(0, 1fr) 36px;
+  }
+}

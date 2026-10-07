@@ -4,7 +4,7 @@
   if (!document.querySelector('link[data-lab-fullpage]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'lab-fullpage.css?v=20261002a';
+    link.href = 'lab-fullpage.css?v=20261007a';
     link.dataset.labFullpage = '1';
     document.head.appendChild(link);
   }
