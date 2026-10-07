@@ -566,9 +566,9 @@ Automatic scaling is allowed only when the current y-axis range is explicitly vi
 
 The UI must label this behavior as `AUTO Y` or equivalent. Exact wavelength-probe values remain the preferred magnitude comparison across different states.
 
-## 15.2 Sensor Observation Layer
+## 15.2 Atmosphere Forward Layer
 
-V1.5 adds a pedagogical sensor-sampling layer after the continuous above-water `Rrs(λ)` calculation.
+V1.6 adds a first-order pedagogical atmosphere between continuous above-water `Rrs(λ)` and sensor sampling.
 
 The causal boundary is:
 
@@ -577,14 +577,65 @@ water state
   ↓
 continuous Rrs(λ)
   ↓
-sensor bandpass integration
+first-order atmosphere
   ↓
-band-averaged Rrs
+pedagogical rho_TOA*(λ)
 ```
 
-Changing the selected sensor must not change the water state, IOPs, `u`, `rrs`, or continuous `Rrs`.
+The star is part of the scientific contract. `rho_TOA*` is a teaching approximation, not an operational top-of-atmosphere product.
 
-V1.5 uses simplified rectangular bandpasses derived from official nominal centre wavelengths and bandwidths or published wavelength ranges. It does not claim to reproduce measured detector-specific relative spectral response functions.
+The forward atmosphere is:
+
+```text
+rho_TOA* = rho_R + rho_A + T_down T_up · pi Rrs
+```
+
+with:
+
+- Hansen–Travis Rayleigh optical thickness scaled by surface pressure;
+- scalar Rayleigh phase function `3/4 (1 + cos² Theta)`;
+- aerosol optical thickness `tau_a(lambda) = tau_a(550)(lambda/550)^(-alpha)`;
+- fixed aerosol single-scattering albedo `omega0 = 0.95`;
+- fixed Henyey–Greenstein asymmetry parameter `g = 0.70`;
+- first-order plane-parallel single-scattering path reflectance;
+- direct two-way extinction for the water contribution.
+
+The interactive atmosphere state is limited to:
+
+```text
+tau_a(550)   0.00 – 0.50
+alpha        0.00 – 2.50
+pressure     800 – 1050 hPa
+sun zenith   0 – 65 deg
+view zenith  0 – 50 deg
+rel azimuth  0 – 180 deg
+```
+
+Changing atmosphere state must not change water IOPs, `u`, `rrs`, or continuous `Rrs`.
+
+The atmosphere layer deliberately omits multiple scattering, Rayleigh–aerosol interaction, gas absorption, polarization, foam, adjacency effects, and glint. Therefore it must never be labeled atmospheric correction.
+
+## 15.3 Sensor Observation Layer
+
+The sensor layer now samples continuous `rho_TOA*(λ)`, not surface `Rrs(λ)`.
+
+The causal boundary is:
+
+```text
+water state
+  ↓
+Rrs(λ)
+  ↓
+rho_TOA*(λ)
+  ↓
+sensor bandpass integration
+  ↓
+band-averaged rho_TOA*
+```
+
+Changing the selected sensor must not change the water state, atmosphere state, continuous `Rrs`, or continuous `rho_TOA*`.
+
+V1.6 uses simplified rectangular bandpasses derived from official nominal centre wavelengths and bandwidths or published wavelength ranges. It does not claim to reproduce measured detector-specific relative spectral response functions.
 
 A band is not numerically sampled when its full simplified support extends outside the quantitative 400–700 nm water-model domain.
 
@@ -595,20 +646,21 @@ Supported teaching definitions:
 - Sentinel-2A MSI B01–B04.
 - Landsat 8/9 OLI B1–B4.
 
-The output remains idealized above-water `Rrs`. It is not top-of-atmosphere radiance, calibrated sensor DN, or an atmospherically corrected satellite product.
+The band values are pedagogical TOA reflectance samples. They are not calibrated radiance, DN, or an atmospherically corrected product.
 
-## 16. V1 exclusions
+## 16. V1/V1.6 exclusions
 
-V1 intentionally excludes:
+V1/V1.6 intentionally exclude:
 
-- atmospheric correction;
-- quantitative top-of-atmosphere radiance;
-- aerosol retrieval;
-- Rayleigh correction;
+- operational atmospheric correction / inversion;
+- calibrated top-of-atmosphere radiance;
+- aerosol-model retrieval or LUT selection;
+- multiple-scattering Rayleigh correction;
 - adjacency effects;
 - whitecaps;
 - sunglint correction;
 - polarization;
+- atmospheric gas absorption (ozone, NO2, O2, water vapour);
 - Raman scattering;
 - chlorophyll fluorescence;
 - full BRDF / bidirectional correction;
@@ -625,7 +677,7 @@ V1 intentionally excludes:
 - QAA inversion;
 - OWT classification.
 
-These are not missing features. They are outside the V1 scientific contract.
+These are not missing features. They are outside the current V1/V1.6 scientific contract.
 
 ## 17. Required numerical assertions for Round 2
 
