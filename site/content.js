@@ -929,10 +929,10 @@ window.GEOGEEK_ARCHIVE = {
             "Ocean Optics",
             "Remote Sensing"
           ],
-          "description": "An interactive water-colour theory instrument. Change chlorophyll, CDOM, particle absorption, and backscattering, then follow how those IOPs become above-water remote-sensing reflectance.",
-          "coord": "λ / a / bb / Rrs",
+          "description": "An interactive water-colour theory instrument. Change water IOPs and atmospheric state, then follow the chain from above-water Rrs through a first-order atmosphere to sensor-band observations.",
+          "coord": "λ / a / bb / Rrs / ρTOA*",
           "instrumentKicker": "WATER / LIGHT / SPECTRUM",
-          "source": "WOPP · Bricaud 1998 · Babin 2003 · NASA GIOP-DC"
+          "source": "WOPP · Bricaud 1998 · Babin 2003 · NASA Ocean Color · mission spectral specifications"
         }
       },
       "relations": {
