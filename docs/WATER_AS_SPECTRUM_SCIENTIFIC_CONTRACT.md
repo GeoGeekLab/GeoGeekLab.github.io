@@ -837,6 +837,13 @@ A convenient implementation is not allowed to override a higher-authority defini
 - Gordon, H. R., Brown, O. B., Evans, R. H., Brown, J. W., Smith, R. C., Baker, K. S., & Clark, D. K. (1988). A semianalytic radiance model of ocean color.
 - Lee, Z.-P., Carder, K. L., & Arnone, R. A. (2002). Deriving inherent optical properties from water color: a multiband quasi-analytical algorithm for optically deep waters. *Applied Optics*, 41, 5755. DOI: 10.1364/AO.41.005755.
 
+### Atmosphere and downstream retrieval diagnostics
+
+- NASA SeaWiFS Project. *SeaWiFS Postlaunch Calibration and Validation Analyses, Part 1*, NASA Technical Memorandum 2000-206892, Vol. 9. Atmospheric-correction formulation and processing context.
+- NASA OB.DAAC. *Chlorophyll a*, Algorithm Theoretical Basis Document, v1.1, 6 November 2023. R2022 CI/OCx processing and sensor-specific OCx coefficients.
+- O'Reilly, J. E., & Werdell, P. J. (2019). Chlorophyll algorithms for ocean color sensors — OC4, OC5 & OC6. *Remote Sensing of Environment*.
+- Hu, C., Lee, Z., & Franz, B. (2012), with later NASA R2022 updates. Chlorophyll color-index framework.
+
 ### Pure water
 
 - Pope, R. M., & Fry, E. S. (1997). Absorption spectrum (380–700 nm) of pure water. *Applied Optics*, 36, 8710–8723. DOI: 10.1364/AO.36.008710.
