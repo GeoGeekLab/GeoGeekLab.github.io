@@ -5,8 +5,12 @@ import {
   WATER_MODEL_META,
   computeWaterOptics
 } from './water-model.js';
+import {
+  WATER_SENSOR_DEFINITIONS,
+  sampleSensorRrs
+} from './sensor-observation.js';
 
-const STYLE_URL = new URL('./water-instrument.css?v=20261007c', import.meta.url).href;
+const STYLE_URL = new URL('./water-instrument.css?v=20261007d', import.meta.url).href;
 
 function ensureStyle(){
   if(document.querySelector('link[data-water-instrument-style]')) return;
@@ -40,6 +44,7 @@ function markup(){
           <div class="water-internal-modes" role="group" aria-label="Water observation mode">
             <button type="button" data-water-mode="path" aria-pressed="true">PATH</button>
             <button type="button" data-water-mode="iop" aria-pressed="false">IOP</button>
+            <button type="button" data-water-mode="sensor" aria-pressed="false">SENSOR</button>
           </div>
         </div>
         <div class="water-scene" data-role="scene" data-path-focus="water">
@@ -67,11 +72,23 @@ function markup(){
             <button type="button" data-path-step="sensor">SENSOR</button>
           </div>
           <div class="water-path-note"><b data-role="path-label">WATER COLUMN</b><p data-role="path-note"></p></div>
+          <div class="water-sensor-scene" data-role="sensor-scene">
+            <div class="water-sensor-intro">
+              <span>OBSERVATION LAYER</span>
+              <strong data-role="sensor-name">Sentinel-3 OLCI</strong>
+              <p>Continuous idealized Rrs is averaged through simplified rectangular bandpasses. Changing the sensor never changes the water state or continuous Rrs.</p>
+            </div>
+            <div class="water-sensor-strip-wrap">
+              <div class="water-sensor-strip-axis"><span>400</span><b>WAVELENGTH · nm</b><span>700</span></div>
+              <div class="water-sensor-strip" data-role="sensor-strip" aria-label="Sensor bands from 400 to 700 nanometres"></div>
+            </div>
+            <div class="water-sensor-flow"><span>CONTINUOUS Rrs(λ)</span><i>→</i><span>SIMPLIFIED BANDPASS</span><i>→</i><strong data-role="sensor-count">—</strong></div>
+          </div>
         </div>
       </section>
 
       <section class="water-spectra-panel" data-role="spectrum-panel" tabindex="0" aria-label="Linked water optical spectra">
-        <div class="water-spectra-head"><span>SYNC / ONE STATE · ONE PROBE</span><strong>← → 1 nm · SHIFT 10 nm</strong></div>
+        <div class="water-spectra-head"><span data-role="spectra-label">SYNC / ONE STATE · ONE PROBE</span><strong data-role="spectra-hint">← → 1 nm · SHIFT 10 nm</strong></div>
         <div class="water-chart-stack">
           <figure class="water-chart"><figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em data-role="a-probe">—</em><small data-role="a-scale">AUTO Y</small></figcaption><svg data-chart="a" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
           <figure class="water-chart"><figcaption><strong>bb(λ)</strong><span>BACKSCATTER · m⁻¹</span><em data-role="bb-probe">—</em><small data-role="bb-scale">AUTO Y</small></figcaption><svg data-chart="bb" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
@@ -96,6 +113,22 @@ function markup(){
           <label class="water-slider"><span><b>NAP · aNAP(443)</b><output data-output="aNap443"></output></span><input data-control="aNap443" type="range" min="0" max="1" step=".002"><small>aNAP(443) → aNAP(λ)</small></label>
           <label class="water-slider"><span><b>BACKSCATTER · bbp(443)</b><output data-output="bbp443"></output></span><input data-control="bbp443" type="range" min="0" max="1000" step="1"><small>bbp(443) → bbp(λ) → bb(λ)</small></label>
         </div>
+      </section>
+      <section class="water-rail-section water-sensor-controls">
+        <div class="water-rail-heading"><span>SENSOR OBSERVATION</span><small>Rrs sampling only</small></div>
+        <div class="water-sensor-select" role="group" aria-label="Sensor">
+          <button type="button" data-sensor="olci">OLCI</button>
+          <button type="button" data-sensor="pace-oci">PACE OCI</button>
+          <button type="button" data-sensor="s2-msi">MSI</button>
+          <button type="button" data-sensor="landsat-oli">OLI</button>
+        </div>
+        <div class="water-sensor-contract">
+          <span><small>INPUT</small><b>Idealized Rrs</b></span>
+          <span><small>RESPONSE</small><b>Simplified top-hat</b></span>
+          <span><small>ATMOSPHERE</small><b>Not applied</b></span>
+        </div>
+        <div class="water-sensor-nearest"><small>NEAREST BAND TO PROBE</small><strong data-role="sensor-nearest">—</strong></div>
+        <div class="water-sensor-band-list" data-role="sensor-band-list" aria-label="Band-averaged Rrs"></div>
       </section>
       <section class="water-rail-section">
         <div class="water-rail-heading"><span>WAVELENGTH PROBE</span><strong data-role="probe-nm">443 nm</strong></div>
@@ -141,6 +174,8 @@ export async function mountWaterInstrument({stage,signal}={}){
   let model=computeWaterOptics(state);
   let probeNm=443;
   let preset='';
+  let sensorId='olci';
+  let sensorObservation=sampleSensorRrs(WATER_WAVELENGTHS_NM,model.Rrs,sensorId);
   let causal='REFERENCE STATE → IOPs → u(λ) → rrs(λ) → Rrs(λ)';
 
   const controls={chl:q('[data-control="chl"]'),ag440:q('[data-control="ag440"]'),aNap443:q('[data-control="aNap443"]'),bbp443:q('[data-control="bbp443"]')};
