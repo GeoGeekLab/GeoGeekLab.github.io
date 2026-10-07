@@ -149,3 +149,41 @@ See:
 
 - `site/water/data/ATMOSPHERE_SOURCES.md`
 - `site/water/data/SENSOR_SOURCES.md`
+
+
+## Round 8 Atmospheric Correction Experiment
+
+Production mode now has five internal views:
+
+- `PATH`: end-to-end causal chain.
+- `IOP`: water constituent → IOP → AOP.
+- `ATM`: `Rrs` → first-order atmosphere → `rho_TOA*`.
+- `SENSOR`: `rho_TOA*` → simplified band sampling.
+- `AC`: `rho_TOA*` → assumed atmosphere → `Rrs_est`.
+
+The AC teaching inverse is:
+
+```text
+Rrs_est =
+  [rho_TOA* - rho_R(est) - rho_A(est)]
+  ------------------------------------
+          pi T_down(est) T_up(est)
+```
+
+Pressure and sun/view geometry are treated as known ancillary inputs.
+
+The user can deliberately mismatch:
+
+- aerosol optical depth at 550 nm;
+- Ångström exponent.
+
+When the assumed aerosol matches the forward atmosphere, the first-order inverse closes to numerical precision.
+
+When assumptions are wrong, negative `Rrs_est` values are preserved. They are not clipped.
+
+AC mode also evaluates the NASA R2022 OLCI OC4 band-ratio polynomial on both true `Rrs` and corrected `Rrs_est`. This is a downstream sensitivity diagnostic, not a standard Level-2 chlorophyll product and not a validation of the model's `Chl` state variable.
+
+See:
+
+- `site/water/data/CORRECTION_SOURCES.md`
+- `tests/water/atmosphere-correction.test.mjs`
