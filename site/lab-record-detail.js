@@ -126,6 +126,23 @@
             </div>
           </section>
           <section class="lab-record-block">
+            <div class="lab-record-block-label">SENSOR OBSERVATION LAYER</div>
+            <div class="lab-record-copy">
+              <p>The SENSOR mode samples the already-computed idealized above-water <code>Rrs(λ)</code>. Selecting another sensor changes only spectral sampling; it does not change the water state, IOPs, <code>rrs</code>, or continuous <code>Rrs</code>.</p>
+              <p>Band values use simplified rectangular bandpasses. They are pedagogical band averages, not measured detector SRFs and not top-of-atmosphere observations.</p>
+            </div>
+            <div class="lab-record-facts">
+              <div><span>Sentinel-3 OLCI</span><strong>Nominal Oa01–Oa10 visible bands · simplified top-hat</strong></div>
+              <div><span>PACE OCI</span><strong>Nominal 5 nm teaching grid · actual OCI has finer sampling / measured RSR</strong></div>
+              <div><span>Sentinel-2A MSI</span><strong>B01–B04 nominal centre / bandwidth</strong></div>
+              <div><span>Landsat 8/9 OLI</span><strong>B1–B4 USGS wavelength ranges</strong></div>
+            </div>
+            <div class="lab-record-copy lab-record-links">
+              <p><a href="https://sentinels.copernicus.eu/documents/247904/0/OLCI_L2_ATBD_Pixel_Classification.pdf" target="_blank" rel="noreferrer">OLCI nominal bands ↗</a> · <a href="https://step.esa.int/main/wp-content/help/versions/12.0.0/snap-toolboxes/eu.esa.opt.opttbx.s2msi.reader/Sentinel2Overview.html" target="_blank" rel="noreferrer">Sentinel-2 MSI ↗</a> · <a href="https://www.usgs.gov/faqs/what-are-band-designations-landsat-satellites" target="_blank" rel="noreferrer">Landsat OLI ↗</a> · <a href="https://pace.oceansciences.org/oci.htm" target="_blank" rel="noreferrer">PACE OCI ↗</a></p>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
             <div class="lab-record-block-label">LIMITS</div>
             <div class="lab-record-copy">
               <p>Switching representation changes what can be inferred. Interpolation, aggregation, temporal sampling, and synthetic examples can create apparent continuity or structure that the source observations do not directly contain.</p>
@@ -326,7 +343,7 @@
           <section class="lab-record-block">
             <div class="lab-record-block-label">LIMITS</div>
             <div class="lab-record-copy">
-              <p>V1 does not solve atmospheric radiative transfer, top-of-atmosphere radiance, sun glint, adjacency effects, polarization, fluorescence, full BRDF geometry, shallow-water bottom reflectance, sensor spectral-response functions, or inversion products. The sun–atmosphere–sensor path shown in PATH mode is conceptual; the dashed glint path is explicitly excluded from numerical Rrs.</p>
+              <p>V1 does not solve atmospheric radiative transfer, top-of-atmosphere radiance, sun glint, adjacency effects, polarization, fluorescence, full BRDF geometry, shallow-water bottom reflectance, full measured sensor spectral-response functions, or inversion products. The sun–atmosphere–sensor path shown in PATH mode is conceptual; the dashed glint path is explicitly excluded from numerical Rrs.</p>
               <p>The quantitative model stops at 700 nm. The interface must not imply validated phytoplankton or reflectance output beyond that boundary. Spectral plots use zero-based automatic y scaling and expose the current <code>AUTO Y</code> range; compare exact magnitudes with the numeric axes and wavelength probe, not apparent curve height alone.</p>
             </div>
           </section>
