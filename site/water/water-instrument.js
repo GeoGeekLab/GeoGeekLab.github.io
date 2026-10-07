@@ -7,10 +7,15 @@ import {
 } from './water-model.js';
 import {
   WATER_SENSOR_DEFINITIONS,
-  sampleSensorRrs
+  sampleSensorSpectrum
 } from './sensor-observation.js';
+import {
+  ATMOSPHERE_DEFAULT_STATE,
+  ATMOSPHERE_MODEL_META,
+  computeAtmosphereObservation
+} from './atmosphere-model.js';
 
-const STYLE_URL = new URL('./water-instrument.css?v=20261007d', import.meta.url).href;
+const STYLE_URL = new URL('./water-instrument.css?v=20261007e', import.meta.url).href;
 
 function ensureStyle(){
   if(document.querySelector('link[data-water-instrument-style]')) return;
@@ -22,10 +27,10 @@ function ensureStyle(){
 }
 
 const pathNotes={
-  atmosphere:['ATMOSPHERE · NOT MODELED','The atmospheric path is context only. V1 does not calculate top-of-atmosphere radiance, Rayleigh/aerosol terms, or atmospheric correction.'],
+  atmosphere:['ATMOSPHERE · FIRST-ORDER MODEL','ATMOSPHERE mode adds Rayleigh and aerosol path reflectance plus direct two-way attenuation. It is a teaching forward model, not operational atmospheric correction.'],
   interface:['AIR–WATER INTERFACE','Subsurface rrs and above-water Rrs are distinct AOPs. V1 applies an explicit interface-transfer approximation. The dashed surface path marks glint context and is excluded from the numerical Rrs.'],
   water:['WATER COLUMN','Absorption and backscattering are IOPs. Together they condition the light field before idealized water-leaving reflectance is formed.'],
-  sensor:['SENSOR CONTEXT · NOT MODELED','V1 ends at continuous above-water Rrs. Sensor spectral-response functions, band integration, and retrieval algorithms are not applied.']
+  sensor:['SENSOR OBSERVATION','SENSOR mode samples the pedagogical TOA reflectance after the atmosphere layer. Measured detector SRFs and retrieval algorithms remain excluded.']
 };
 
 function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
@@ -44,6 +49,7 @@ function markup(){
           <div class="water-internal-modes" role="group" aria-label="Water observation mode">
             <button type="button" data-water-mode="path" aria-pressed="true">PATH</button>
             <button type="button" data-water-mode="iop" aria-pressed="false">IOP</button>
+            <button type="button" data-water-mode="atmosphere" aria-pressed="false">ATM</button>
             <button type="button" data-water-mode="sensor" aria-pressed="false">SENSOR</button>
           </div>
         </div>
@@ -62,7 +68,7 @@ function markup(){
               <g class="water-constituent cdom"><path d="M710 242c28 12 53 7 75-7"></path><path d="M690 287c35 15 70 12 106-9"></path><path d="M735 330c25 8 50 5 76-8"></path></g>
               <g class="water-constituent particle"><rect x="890" y="238" width="10" height="10"></rect><rect x="925" y="270" width="7" height="7"></rect><rect x="865" y="310" width="8" height="8"></rect><rect x="948" y="330" width="11" height="11"></rect></g>
             </g>
-            <text x="38" y="30">SOLAR INPUT</text><text x="38" y="150">ATMOSPHERE · NOT MODELED</text><text x="38" y="202">AIR–WATER INTERFACE</text><text x="38" y="370">OPTICALLY DEEP WATER</text><text x="988" y="108">SENSOR CONTEXT · NOT MODELED</text>
+            <text x="38" y="30">SOLAR INPUT</text><text x="38" y="150">ATMOSPHERE · FIRST-ORDER MODEL</text><text x="38" y="202">AIR–WATER INTERFACE</text><text x="38" y="370">OPTICALLY DEEP WATER</text><text x="988" y="108">SENSOR · SAMPLES ρTOA*</text>
             <text class="logic" x="515" y="245">a(λ)</text><text class="logic" x="625" y="245">bb(λ)</text><text class="logic" x="518" y="360">IOPs → u(λ) → rrs(λ) → Rrs(λ)</text>
           </svg>
           <div class="water-path-steps" role="group" aria-label="Light path step">
@@ -72,17 +78,36 @@ function markup(){
             <button type="button" data-path-step="sensor">SENSOR</button>
           </div>
           <div class="water-path-note"><b data-role="path-label">WATER COLUMN</b><p data-role="path-note"></p></div>
+          <div class="water-atmosphere-scene" data-role="atmosphere-scene">
+            <div class="water-atmosphere-intro">
+              <span>ATMOSPHERE FORWARD LAYER</span>
+              <strong>Rrs → ρTOA*</strong>
+              <p>Rayleigh + aerosol single scattering are added to a directly transmitted water term. Multiple scattering, gases, foam, adjacency, and glint are excluded.</p>
+            </div>
+            <div class="water-atmosphere-equation">
+              <span>ρR</span><i>+</i><span>ρA</span><i>+</i><span>T↓T↑ · πRrs</span><i>=</i><strong>ρTOA*</strong>
+            </div>
+            <div class="water-atmosphere-budget">
+              <div><span>RAYLEIGH PATH</span><b data-role="atm-rayleigh">—</b><i><em data-role="atm-rayleigh-bar"></em></i></div>
+              <div><span>AEROSOL PATH</span><b data-role="atm-aerosol">—</b><i><em data-role="atm-aerosol-bar"></em></i></div>
+              <div><span>WATER TRANSMITTED</span><b data-role="atm-water">—</b><i><em data-role="atm-water-bar"></em></i></div>
+            </div>
+            <div class="water-atmosphere-meta">
+              <span data-role="atm-geometry">—</span>
+              <span data-role="atm-fraction">—</span>
+            </div>
+          </div>
           <div class="water-sensor-scene" data-role="sensor-scene">
             <div class="water-sensor-intro">
               <span>OBSERVATION LAYER</span>
               <strong data-role="sensor-name">Sentinel-3 OLCI</strong>
-              <p>Continuous idealized Rrs is averaged through simplified rectangular bandpasses. Changing the sensor never changes the water state or continuous Rrs.</p>
+              <p>The pedagogical TOA reflectance is averaged through simplified rectangular bandpasses. Changing the sensor never changes the water or atmosphere state.</p>
             </div>
             <div class="water-sensor-strip-wrap">
               <div class="water-sensor-strip-axis"><span>400</span><b>WAVELENGTH · nm</b><span>700</span></div>
               <div class="water-sensor-strip" data-role="sensor-strip" aria-label="Sensor bands from 400 to 700 nanometres"></div>
             </div>
-            <div class="water-sensor-flow"><span>CONTINUOUS Rrs(λ)</span><i>→</i><span>SIMPLIFIED BANDPASS</span><i>→</i><strong data-role="sensor-count">—</strong></div>
+            <div class="water-sensor-flow"><span>CONTINUOUS ρTOA*(λ)</span><i>→</i><span>SIMPLIFIED BANDPASS</span><i>→</i><strong data-role="sensor-count">—</strong></div>
           </div>
         </div>
       </section>
@@ -92,7 +117,7 @@ function markup(){
         <div class="water-chart-stack">
           <figure class="water-chart"><figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em data-role="a-probe">—</em><small data-role="a-scale">AUTO Y</small></figcaption><svg data-chart="a" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
           <figure class="water-chart"><figcaption><strong>bb(λ)</strong><span>BACKSCATTER · m⁻¹</span><em data-role="bb-probe">—</em><small data-role="bb-scale">AUTO Y</small></figcaption><svg data-chart="bb" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
-          <figure class="water-chart"><figcaption><strong>Rrs(λ)</strong><span>IDEALIZED ABOVE-WATER · sr⁻¹</span><em data-role="rrs-probe">—</em><small data-role="Rrs-scale">AUTO Y</small></figcaption><svg data-chart="Rrs" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
+          <figure class="water-chart"><figcaption><strong data-role="third-title">Rrs(λ)</strong><span data-role="third-subtitle">IDEALIZED ABOVE-WATER · sr⁻¹</span><em data-role="rrs-probe">—</em><small data-role="Rrs-scale">AUTO Y</small></figcaption><svg data-chart="Rrs" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
         </div>
       </section>
     </section>
@@ -114,8 +139,24 @@ function markup(){
           <label class="water-slider"><span><b>BACKSCATTER · bbp(443)</b><output data-output="bbp443"></output></span><input data-control="bbp443" type="range" min="0" max="1000" step="1"><small>bbp(443) → bbp(λ) → bb(λ)</small></label>
         </div>
       </section>
+      <section class="water-rail-section water-atmosphere-controls">
+        <div class="water-rail-heading"><span>ATMOSPHERE</span><small>First-order forward model</small></div>
+        <label class="water-slider"><span><b>AOT · τa(550)</b><output data-atm-output="aot"></output></span><input data-atm-control="aot" type="range" min="0" max="0.5" step="0.005"><small>τa(λ) = τa(550) · (λ/550)^−α</small></label>
+        <label class="water-slider"><span><b>ÅNGSTRÖM · α</b><output data-atm-output="alpha"></output></span><input data-atm-control="alpha" type="range" min="0" max="2.5" step="0.05"><small>Spectral aerosol optical-depth slope</small></label>
+        <label class="water-slider"><span><b>SURFACE PRESSURE</b><output data-atm-output="pressure"></output></span><input data-atm-control="pressure" type="range" min="800" max="1050" step="1"><small>Scales Rayleigh optical thickness</small></label>
+        <div class="water-atm-geometry-grid">
+          <label><span>SUN ZENITH</span><output data-atm-output="sza"></output><input data-atm-control="sza" type="range" min="0" max="65" step="1"></label>
+          <label><span>VIEW ZENITH</span><output data-atm-output="vza"></output><input data-atm-control="vza" type="range" min="0" max="50" step="1"></label>
+          <label><span>REL AZIMUTH</span><output data-atm-output="raz"></output><input data-atm-control="raz" type="range" min="0" max="180" step="1"></label>
+        </div>
+        <div class="water-atmosphere-contract">
+          <span><small>AEROSOL SSA</small><b>0.95 fixed</b></span>
+          <span><small>HG g</small><b>0.70 fixed</b></span>
+          <span><small>GASES / MULTI</small><b>Excluded</b></span>
+        </div>
+      </section>
       <section class="water-rail-section water-sensor-controls">
-        <div class="water-rail-heading"><span>SENSOR OBSERVATION</span><small>Rrs sampling only</small></div>
+        <div class="water-rail-heading"><span>SENSOR OBSERVATION</span><small>TOA* sampling only</small></div>
         <div class="water-sensor-select" role="group" aria-label="Sensor">
           <button type="button" data-sensor="olci">OLCI</button>
           <button type="button" data-sensor="pace-oci">PACE OCI</button>
@@ -123,19 +164,19 @@ function markup(){
           <button type="button" data-sensor="landsat-oli">OLI</button>
         </div>
         <div class="water-sensor-contract">
-          <span><small>INPUT</small><b>Idealized Rrs</b></span>
+          <span><small>INPUT</small><b>ρTOA*</b></span>
           <span><small>RESPONSE</small><b>Simplified top-hat</b></span>
-          <span><small>ATMOSPHERE</small><b>Not applied</b></span>
+          <span><small>ATMOSPHERE</small><b>First-order applied</b></span>
         </div>
         <div class="water-sensor-nearest"><small>NEAREST BAND TO PROBE</small><strong data-role="sensor-nearest">—</strong></div>
-        <div class="water-sensor-band-list" data-role="sensor-band-list" aria-label="Band-averaged Rrs"></div>
+        <div class="water-sensor-band-list" data-role="sensor-band-list" aria-label="Band-averaged pedagogical TOA reflectance"></div>
       </section>
       <section class="water-rail-section">
         <div class="water-rail-heading"><span>WAVELENGTH PROBE</span><strong data-role="probe-nm">443 nm</strong></div>
         <input class="water-probe-input" data-role="probe-control" type="range" min="400" max="700" step="1" value="443">
         <div class="water-probe-summary"><span><small>a</small><b data-role="probe-a">—</b></span><span><small>bb</small><b data-role="probe-bb">—</b></span><span><small>Rrs</small><b data-role="probe-Rrs">—</b></span></div>
       </section>
-      <section class="water-rail-section">
+      <section class="water-rail-section water-budget-controls">
         <div class="water-rail-heading"><span>COMPONENT BUDGET</span><small data-role="budget-nm">443 nm</small></div>
         <div class="water-budget-block"><strong>ABSORPTION</strong><div data-role="abs-budget"></div></div>
         <div class="water-budget-block"><strong>BACKSCATTERING</strong><div data-role="bb-budget"></div></div>
@@ -147,7 +188,9 @@ function markup(){
           <span><small>DOMAIN</small><b>400–700 nm · 1 nm</b></span><span><small>BASELINE</small><b>20 °C · 35 PSU</b></span>
           <span><small>Sg</small><b>0.0176 nm⁻¹ · fixed mean</b></span><span><small>SNAP</small><b>0.0123 nm⁻¹ · fixed mean</b></span>
           <span><small>η</small><b>1.0 · teaching assumption</b></span><span><small>IOP→AOP</small><b>Gordon / GIOP form</b></span>
-          <span><small>INTERFACE</small><b>Lee et al. approximation</b></span><span><small>GEOMETRY</small><b>Not solved in V1</b></span>
+          <span><small>INTERFACE</small><b>Lee et al. approximation</b></span><span><small>ATMOSPHERE</small><b>First-order · not correction</b></span>
+          <span><small>RAYLEIGH</small><b>Hansen–Travis τR</b></span><span><small>AEROSOL</small><b>Ångström + HG phase</b></span>
+          <span><small>GASES / MULTI</small><b>Excluded</b></span><span><small>GEOMETRY</small><b>Sun / view interactive</b></span>
           <span><small>rrs</small><b data-role="probe-rrs">—</b></span><span><small>u</small><b data-role="probe-u">—</b></span>
         </div>
       </section>
