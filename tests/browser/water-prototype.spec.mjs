@@ -27,7 +27,7 @@ test('Water as Spectrum prototype links one state to PATH, IOP and synchronized 
   await expect(page.locator('#probeWavelength')).toHaveText('454 nm');
 
   const napBefore=await page.locator('#napOutput').textContent();
-  await page.locator('#bbpControl').fill('800');
+  await page.locator('#bbpControl').evaluate(node => { node.value = '800'; node.dispatchEvent(new Event('input', { bubbles:true })); });
   await expect(page.locator('#napOutput')).toHaveText(napBefore);
   await expect(page.locator('#causalReadout')).toContainText('bbp(443)');
 
@@ -35,8 +35,8 @@ test('Water as Spectrum prototype links one state to PATH, IOP and synchronized 
   await expect(page.locator('#backscatterBudget .water-budget-row')).toHaveCount(2);
 });
 
-test('Water as Spectrum prototype keeps controls below the visualization on narrow screens', async ({ page, isMobile }) => {
-  test.skip(!isMobile, 'mobile layout assertion');
+test('Water as Spectrum prototype keeps controls below the visualization on narrow screens', async ({ page }) => {
+  test.skip((page.viewportSize()?.width || 9999) > 820, 'mobile layout assertion');
   await page.goto('/water/prototype.html', { waitUntil:'domcontentloaded' });
 
   const stage=await page.locator('.water-stage').boundingBox();
