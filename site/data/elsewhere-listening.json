@@ -394,6 +394,253 @@
         "embedUrl": "https://www.youtube.com/embed/4cqhC_paryE?si=XtC8gKEDhWpUbfAa",
         "watchUrl": "https://www.youtube.com/watch?v=4cqhC_paryE"
       }
+    },
+    {
+      "id": "listening-020",
+      "ref": "elsewhere:listening-020",
+      "order": 20,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "7eul_Vt6SZY",
+        "embedUrl": "https://www.youtube.com/embed/7eul_Vt6SZY?si=RU9IAcOwLxl9KU35",
+        "watchUrl": "https://www.youtube.com/watch?v=7eul_Vt6SZY"
+      }
+    },
+    {
+      "id": "listening-021",
+      "ref": "elsewhere:listening-021",
+      "order": 21,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "q3-tOnJrZZM",
+        "embedUrl": "https://www.youtube.com/embed/q3-tOnJrZZM?si=pxbfXzB41upM1VF7",
+        "watchUrl": "https://www.youtube.com/watch?v=q3-tOnJrZZM"
+      }
+    },
+    {
+      "id": "listening-022",
+      "ref": "elsewhere:listening-022",
+      "order": 22,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "OpaV2Pjh0es",
+        "embedUrl": "https://www.youtube.com/embed/OpaV2Pjh0es?si=K0PnessPNVMIIxEN",
+        "watchUrl": "https://www.youtube.com/watch?v=OpaV2Pjh0es"
+      }
+    },
+    {
+      "id": "listening-023",
+      "ref": "elsewhere:listening-023",
+      "order": 23,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "ugk2e_5WZ8E",
+        "embedUrl": "https://www.youtube.com/embed/ugk2e_5WZ8E?si=NCDctga5np0_qP07",
+        "watchUrl": "https://www.youtube.com/watch?v=ugk2e_5WZ8E"
+      }
+    },
+    {
+      "id": "listening-024",
+      "ref": "elsewhere:listening-024",
+      "order": 24,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "toneoiqviCI",
+        "embedUrl": "https://www.youtube.com/embed/toneoiqviCI?si=DfnuaWgc1MrHNVqT",
+        "watchUrl": "https://www.youtube.com/watch?v=toneoiqviCI"
+      }
+    },
+    {
+      "id": "listening-025",
+      "ref": "elsewhere:listening-025",
+      "order": 25,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "CrtKn65se-I",
+        "embedUrl": "https://www.youtube.com/embed/CrtKn65se-I?si=AzsSzjqTFs_HFzaY",
+        "watchUrl": "https://www.youtube.com/watch?v=CrtKn65se-I"
+      }
+    },
+    {
+      "id": "listening-026",
+      "ref": "elsewhere:listening-026",
+      "order": 26,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "HBO5N5KGJzM",
+        "embedUrl": "https://www.youtube.com/embed/HBO5N5KGJzM?si=2JaKCApgRtl7kbhz",
+        "watchUrl": "https://www.youtube.com/watch?v=HBO5N5KGJzM"
+      }
+    },
+    {
+      "id": "listening-027",
+      "ref": "elsewhere:listening-027",
+      "order": 27,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "BKaVleWmvl0",
+        "embedUrl": "https://www.youtube.com/embed/BKaVleWmvl0?si=8WjsilfmAKg-AgXO",
+        "watchUrl": "https://www.youtube.com/watch?v=BKaVleWmvl0"
+      }
+    },
+    {
+      "id": "listening-028",
+      "ref": "elsewhere:listening-028",
+      "order": 28,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "p4qyC1Blbks",
+        "embedUrl": "https://www.youtube.com/embed/p4qyC1Blbks?si=YqYwO9ApOwLUyCXk",
+        "watchUrl": "https://www.youtube.com/watch?v=p4qyC1Blbks"
+      }
+    },
+    {
+      "id": "listening-029",
+      "ref": "elsewhere:listening-029",
+      "order": 29,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "w6W1NREITNc",
+        "embedUrl": "https://www.youtube.com/embed/w6W1NREITNc?si=I4jQ-DOJr0AKC4JJ",
+        "watchUrl": "https://www.youtube.com/watch?v=w6W1NREITNc"
+      }
+    },
+    {
+      "id": "listening-030",
+      "ref": "elsewhere:listening-030",
+      "order": 30,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "9o20U91aJdg",
+        "embedUrl": "https://www.youtube.com/embed/9o20U91aJdg?si=qIGPoRKWgn7rF28m",
+        "watchUrl": "https://www.youtube.com/watch?v=9o20U91aJdg"
+      }
+    },
+    {
+      "id": "listening-031",
+      "ref": "elsewhere:listening-031",
+      "order": 31,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "AnMhdn0wJ4I",
+        "embedUrl": "https://www.youtube.com/embed/AnMhdn0wJ4I?si=KbCkEKoJDxUbvEBF",
+        "watchUrl": "https://www.youtube.com/watch?v=AnMhdn0wJ4I"
+      }
+    },
+    {
+      "id": "listening-032",
+      "ref": "elsewhere:listening-032",
+      "order": 32,
+      "parentRef": "elsewhere:e03",
+      "title": "",
+      "titleStatus": "pending-source-verification",
+      "titleLanguage": "",
+      "titleForm": "",
+      "creator": "",
+      "firstReleased": "",
+      "change": "",
+      "source": {
+        "provider": "YouTube",
+        "videoId": "iP6XpLQM2Cs",
+        "embedUrl": "https://www.youtube.com/embed/iP6XpLQM2Cs?si=esoQjr4C64k0ioEf",
+        "watchUrl": "https://www.youtube.com/watch?v=iP6XpLQM2Cs"
+      }
     }
   ]
 }
