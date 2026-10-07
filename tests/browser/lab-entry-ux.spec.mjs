@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Lab entry hierarchy', () => {
-  test('presents a six-record Observatory and four-record Play collection', async ({ page }) => {
+  test('presents a six-record Observatory and five-record Play collection', async ({ page }) => {
     await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => document.querySelectorAll('#labList .project-card').length === 10);
+    await page.waitForFunction(() => document.querySelectorAll('#labList .project-card').length === 11);
     await page.waitForFunction(() => document.querySelectorAll('.lab-group-purpose').length === 2);
 
     const intro = page.locator('.page-title .page-intro');
@@ -26,7 +26,7 @@ test.describe('Lab entry hierarchy', () => {
     const observatory = page.locator('#labList > .lab-group-observatory');
     const play = page.locator('#labList > .lab-group-play');
     await expect(observatory.locator('.project-card')).toHaveCount(6);
-    await expect(play.locator('.project-card')).toHaveCount(4);
+    await expect(play.locator('.project-card')).toHaveCount(5);
     await expect(observatory.locator('#l11')).toHaveCount(1);
     await expect(observatory.locator('#l12')).toHaveCount(1);
 
