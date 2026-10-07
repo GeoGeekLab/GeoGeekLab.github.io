@@ -194,6 +194,45 @@
     enableProjectRouteKeyboard(stage);
   }
 
+  function entryTrigger(kind) {
+    return document.querySelector(`[data-instrument="${kind}"]`);
+  }
+
+  function setEntryState(trigger, state = 'idle') {
+    if (!trigger) return;
+    const label = trigger.querySelector('span');
+    if (label && !trigger.dataset.playEntryLabel) {
+      trigger.dataset.playEntryLabel = label.textContent?.trim() || 'OPEN INSTRUMENT';
+    }
+    const card = trigger.closest('.project-card');
+    if (state === 'opening') {
+      trigger.dataset.playEntryState = 'opening';
+      trigger.setAttribute('aria-busy', 'true');
+      if (label) label.textContent = 'OPENING…';
+      if (card) card.dataset.playEntryState = 'opening';
+      return;
+    }
+    trigger.removeAttribute('aria-busy');
+    if (state === 'error') {
+      trigger.dataset.playEntryState = 'error';
+      if (label) label.textContent = 'RETRY PLAY';
+      if (card) card.dataset.playEntryState = 'error';
+      return;
+    }
+    delete trigger.dataset.playEntryState;
+    if (label && trigger.dataset.playEntryLabel) label.textContent = trigger.dataset.playEntryLabel;
+    if (card) delete card.dataset.playEntryState;
+  }
+
+  function nativeFallback(trigger, kind) {
+    const raw = trigger?.getAttribute?.('href');
+    if (!raw) return false;
+    const current = new URL(location.href);
+    if (current.searchParams.get('instrument') === kind) return false;
+    location.assign(new URL(raw, location.href).href);
+    return true;
+  }
+
   async function openPlay(kind, { updateUrl = false } = {}) {
     if (!PLAY_KINDS.has(kind)) return null;
     if (opening.has(kind)) return opening.get(kind);
@@ -231,19 +270,27 @@
     if (!PLAY_KINDS.has(kind)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
+    setEntryState(trigger, 'opening');
     try {
       await openPlay(kind, { updateUrl: true });
+      setEntryState(trigger, 'idle');
     } catch (error) {
       console.warn(`[GeoGeek] Play ${kind} failed to load; retry remains available.`, error);
+      setEntryState(trigger, 'error');
+      nativeFallback(trigger, kind);
     }
   }, true);
 
   const requested = new URLSearchParams(location.search).get('instrument');
   if (PLAY_KINDS.has(requested)) queueMicrotask(async () => {
+    const trigger = entryTrigger(requested);
+    setEntryState(trigger, 'opening');
     try {
       await openPlay(requested, { updateUrl: false });
+      setEntryState(trigger, 'idle');
     } catch (error) {
       console.warn(`[GeoGeek] Direct Play ${requested} could not initialize.`, error);
+      setEntryState(trigger, 'error');
     }
   });
 })();
