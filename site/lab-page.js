@@ -141,6 +141,7 @@
     figure: 'transform',
     water: 'spectral',
     light: 'field',
+    swath: 'field',
     project: 'field'
   };
 
