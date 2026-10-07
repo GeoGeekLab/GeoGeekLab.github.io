@@ -588,7 +588,11 @@
                     <span class="lab-coord">${item.coord}</span>
                     <div class="project-actions">
                       <a class="project-cta project-link" data-record-ref="lab:${item.id}" data-transition-source href="${recordUrl(`lab:${item.id}`)}"><span>${'RECORD'}</span><b>↗</b></a>
-                      ${item.instrument ? `<button class="lab-enter project-cta" type="button" data-instrument="${item.instrument}"><span>${ui.lab?.enter || 'ENTER'}</span><b>↗</b></button>` : ''}
+                      ${item.instrument ? (
+                        (item.group || 'studies') === 'play'
+                          ? `<a class="lab-enter project-cta" data-instrument="${item.instrument}" data-play-fallback="true" href="lab.html?instrument=${encodeURIComponent(item.instrument)}#${item.id}"><span>${ui.lab?.enter || 'ENTER'}</span><b>↗</b></a>`
+                          : `<button class="lab-enter project-cta" type="button" data-instrument="${item.instrument}"><span>${ui.lab?.enter || 'ENTER'}</span><b>↗</b></button>`
+                      ) : ''}
                     </div>
                   </div>
                 </div>

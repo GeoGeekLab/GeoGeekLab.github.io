@@ -84,6 +84,14 @@
     light: () => window.GeoPlayLight?.register?.(),
     swath: () => window.GeoPlaySwath?.register?.()
   };
+  const READY = {
+    locate: () => Boolean(window.GeoPlayOrient),
+    zone: () => Boolean(window.GeoPlayBound),
+    path: () => Boolean(window.GeoPlayConnect),
+    project: () => Boolean(window.GeoPlayProject),
+    light: () => Boolean(window.GeoPlayLight),
+    swath: () => Boolean(window.GeoPlaySwath)
+  };
   const opening = new Map();
 
   async function loadPlay(kind) {
@@ -268,6 +276,9 @@
     const trigger = event.target.closest?.('[data-instrument]');
     const kind = trigger?.dataset.instrument;
     if (!PLAY_KINDS.has(kind)) return;
+    // A cold Play click keeps the native href. This makes first entry robust
+    // even when the enhancement runtime is stale, delayed, or unavailable.
+    if (trigger instanceof HTMLAnchorElement && !READY[kind]?.()) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     setEntryState(trigger, 'opening');

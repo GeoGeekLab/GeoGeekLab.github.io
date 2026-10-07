@@ -181,6 +181,7 @@
   document.addEventListener('click', async event => {
     const button = event.target.closest?.('[data-instrument]');
     if (!button) return;
+    if (button.matches?.('a[data-play-fallback="true"]')) return;
     const kind = button.dataset.instrument;
     const orbitEnhancementNeeded = kind === 'orbit' && (
       !loaded.has(scriptUrl(ORBIT_CATALOG_SOURCE)) || !loaded.has(scriptUrl(ORBIT_ENHANCEMENT))

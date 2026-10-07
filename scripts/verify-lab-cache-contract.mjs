@@ -4,6 +4,7 @@ import process from 'node:process';
 const ASSETS = [
   'content.js',
   'archive-content.js',
+  'app.js',
   'lab-page.js',
   'play/play-bootstrap.js',
   'core/modules.js',
