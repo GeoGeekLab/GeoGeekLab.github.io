@@ -41,3 +41,26 @@ The prototype validates:
 - desktop and mobile workbench layout.
 
 Atmospheric correction and sensor spectral sampling remain outside the quantitative prototype.
+
+
+## Round 4 production integration
+
+The production instrument is registered as:
+
+- record: `lab:l13`
+- group: `observatory`
+- instrument: `water`
+- title: `Water as Spectrum`
+- route: `/lab.html?instrument=water#l13`
+- record: `/records/lab-l13.html`
+
+The production workspace uses `water-instrument.js` and `water-instrument.css`.
+It reuses `water-model.js`; the prototype does not carry a separate scientific model.
+
+Workspace behavior:
+
+- Focus: visualization only.
+- Work: visualization plus primary water-state controls.
+- Inspect: primary controls plus the V1 model contract and subsurface readouts.
+
+The production V1 still excludes atmospheric correction, sensor response functions, and inversion.
