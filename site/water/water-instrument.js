@@ -605,16 +605,32 @@ export async function mountWaterInstrument({stage,signal}={}){
     const aer=r.aerosolPath[i];
     const water=r.waterTransmitted[i];
     const pct=value=>total>0?clamp(value/total*100,0,100):0;
+    const shares={
+      rayleigh:pct(ray),
+      aerosol:pct(aer),
+      water:pct(water)
+    };
+    const dominant=[
+      ['RAYLEIGH',shares.rayleigh],
+      ['AEROSOL',shares.aerosol],
+      ['WATER',shares.water]
+    ].sort((a,b)=>b[1]-a[1])[0];
 
+    q('[data-role="atm-probe-nm"]').textContent=probeNm+' nm';
     q('[data-role="atm-rayleigh"]').textContent=format(ray,5);
     q('[data-role="atm-aerosol"]').textContent=format(aer,5);
     q('[data-role="atm-water"]').textContent=format(water,5);
-    q('[data-role="atm-rayleigh-bar"]').style.width=pct(ray).toFixed(1)+'%';
-    q('[data-role="atm-aerosol-bar"]').style.width=pct(aer).toFixed(1)+'%';
-    q('[data-role="atm-water-bar"]').style.width=pct(water).toFixed(1)+'%';
+    q('[data-role="atm-rayleigh-pct"]').textContent=shares.rayleigh.toFixed(1)+'%';
+    q('[data-role="atm-aerosol-pct"]').textContent=shares.aerosol.toFixed(1)+'%';
+    q('[data-role="atm-water-pct"]').textContent=shares.water.toFixed(1)+'%';
+    q('[data-role="atm-rayleigh-bar"]').style.width=shares.rayleigh.toFixed(1)+'%';
+    q('[data-role="atm-aerosol-bar"]').style.width=shares.aerosol.toFixed(1)+'%';
+    q('[data-role="atm-water-bar"]').style.width=shares.water.toFixed(1)+'%';
+    q('[data-role="atm-dominant"]').textContent=dominant[0];
+    q('[data-role="atm-dominant-share"]').textContent=dominant[1].toFixed(1)+'% OF ρTOA*';
     q('[data-role="atm-geometry"]').textContent=
       'SZA '+Math.round(atmosphereState.solarZenithDeg)+'° · VZA '+Math.round(atmosphereState.viewZenithDeg)+'° · RAZ '+Math.round(atmosphereState.relativeAzimuthDeg)+'° · Θ '+atmosphere.geometry.scatteringAngleDeg.toFixed(1)+'°';
-    q('[data-role="atm-fraction"]').textContent='ATMOSPHERIC PATH '+(atmosphere.atmosphereFraction[i]*100).toFixed(1)+'% OF ρTOA* @ '+probeNm+' nm';
+    q('[data-role="atm-fraction"]').textContent='ATMOSPHERIC PATH '+(atmosphere.atmosphereFraction[i]*100).toFixed(1)+'% · WATER '+shares.water.toFixed(1)+'%';
   }
 
   function renderSensor(){
