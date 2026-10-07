@@ -18,7 +18,7 @@ import {
   buildCorrectionExperiment
 } from './atmosphere-correction.js';
 
-const STYLE_URL = new URL('./water-instrument.css?v=20261007i', import.meta.url).href;
+const STYLE_URL = new URL('./water-instrument.css?v=20261007j', import.meta.url).href;
 
 function ensureStyle(){
   if(document.querySelector('link[data-water-instrument-style]')) return;
@@ -30,10 +30,27 @@ function ensureStyle(){
 }
 
 const pathNotes={
-  atmosphere:['ATMOSPHERE · FIRST-ORDER MODEL','ATMOSPHERE mode adds Rayleigh and aerosol path reflectance plus direct two-way attenuation. It is a teaching forward model, not operational atmospheric correction.'],
-  interface:['AIR–WATER INTERFACE','Subsurface rrs and above-water Rrs are distinct AOPs. V1 applies an explicit interface-transfer approximation. The dashed surface path marks glint context and is excluded from the numerical Rrs.'],
-  water:['WATER COLUMN','Absorption and backscattering are IOPs. Together they condition the light field before idealized water-leaving reflectance is formed.'],
-  sensor:['SENSOR OBSERVATION','SENSOR mode samples the pedagogical TOA reflectance after the atmosphere layer. Measured detector SRFs remain excluded; atmospheric correction is handled separately in AC mode.']
+  overview:['RADIATIVE PATH','Select a stage to zoom the conceptual path. The overview keeps only the geometry; detailed labels appear only for the selected stage.'],
+  atmosphere:['ATMOSPHERE','Incoming and outgoing light are modified by Rayleigh scattering, aerosol scattering, and transmission before a sensor receives the signal.'],
+  interface:['AIR–WATER INTERFACE','Subsurface rrs and above-water Rrs are distinct AOPs. The interface transfer is modeled explicitly; the dashed glint path is context only and is excluded numerically.'],
+  water:['WATER COLUMN','Absorption a(λ) and backscattering bb(λ) are IOPs. Together they determine u(λ), subsurface rrs(λ), and idealized above-water Rrs(λ).'],
+  sensor:['SENSOR OBSERVATION','The sensor does not see a continuous spectrum. It integrates the pedagogical TOA reflectance through finite spectral bandpasses.']
+};
+
+const pathViews={
+  overview:'0 0 1200 390',
+  atmosphere:'55 0 1050 175',
+  interface:'350 120 520 145',
+  water:'215 170 770 215',
+  sensor:'720 20 420 170'
+};
+
+const pathFocusData={
+  overview:{equation:'SUN → ATMOSPHERE → INTERFACE → WATER → SENSOR',tags:['SELECT A STAGE','ARROW KEYS NAVIGATE']},
+  atmosphere:{equation:'ρTOA* = ρR + ρA + T↓T↑ · πRrs',tags:['RAYLEIGH','AEROSOL','TRANSMISSION']},
+  interface:{equation:'rrs → Rrs',tags:['INTERFACE TRANSFER','GLINT EXCLUDED']},
+  water:{equation:'a(λ), bb(λ) → u(λ) → rrs(λ) → Rrs(λ)',tags:['ABSORPTION','BACKSCATTER','OPTICALLY DEEP']},
+  sensor:{equation:'ρTOA*(λ) → BANDPASS → BAND-AVERAGED OBSERVATION',tags:['FINITE BANDS','MISSION RESPONSE','NO RETRIEVAL HERE']}
 };
 
 function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
@@ -57,8 +74,8 @@ function markup(){
             <button type="button" data-water-mode="correction" aria-pressed="false">AC</button>
           </div>
         </div>
-        <div class="water-scene" data-role="scene" data-path-focus="water">
-          <svg viewBox="0 0 1200 390" role="img" aria-label="Conceptual light path through atmosphere, water surface and optically deep water">
+        <div class="water-scene" data-role="scene" data-path-focus="overview" tabindex="0" aria-label="Interactive radiative path. Use stage buttons or left and right arrow keys.">
+          <svg data-role="path-svg" viewBox="0 0 1200 390" role="img" aria-label="Conceptual light path through atmosphere, water surface and optically deep water">
             <rect class="atmosphere" x="0" y="0" width="1200" height="165"></rect>
             <rect class="water-field" x="0" y="180" width="1200" height="210"></rect>
             <line class="surface" x1="0" y1="180" x2="1200" y2="180"></line>
@@ -72,17 +89,30 @@ function markup(){
               <g class="water-constituent cdom"><path d="M710 242c28 12 53 7 75-7"></path><path d="M690 287c35 15 70 12 106-9"></path><path d="M735 330c25 8 50 5 76-8"></path></g>
               <g class="water-constituent particle"><rect x="890" y="238" width="10" height="10"></rect><rect x="925" y="270" width="7" height="7"></rect><rect x="865" y="310" width="8" height="8"></rect><rect x="948" y="330" width="11" height="11"></rect></g>
             </g>
-            <text x="38" y="30">SOLAR INPUT</text><text x="38" y="150">ATMOSPHERE · FIRST-ORDER MODEL</text><text x="38" y="202">AIR–WATER INTERFACE</text><text x="38" y="370">OPTICALLY DEEP WATER</text><text x="988" y="108">SENSOR · SAMPLES ρTOA*</text>
-            <text class="logic" x="515" y="245">a(λ)</text><text class="logic" x="625" y="245">bb(λ)</text><text class="logic" x="518" y="360">IOPs → u(λ) → rrs(λ) → Rrs(λ)</text>
+            <text data-path-label="atmosphere" x="38" y="30">SOLAR INPUT</text><text data-path-label="atmosphere" x="38" y="150">ATMOSPHERE · FIRST-ORDER MODEL</text><text data-path-label="interface" x="38" y="202">AIR–WATER INTERFACE</text><text data-path-label="water" x="38" y="370">OPTICALLY DEEP WATER</text><text data-path-label="sensor" x="988" y="108">SENSOR · SAMPLES ρTOA*</text>
+            <text data-path-label="water" class="logic" x="515" y="245">a(λ)</text><text data-path-label="water" class="logic" x="625" y="245">bb(λ)</text><text data-path-label="water" class="logic" x="518" y="360">IOPs → u(λ) → rrs(λ) → Rrs(λ)</text>
+            <g class="water-path-hotspots" aria-hidden="true">
+              <rect data-path-hotspot="atmosphere" x="0" y="0" width="1200" height="165"></rect>
+              <rect data-path-hotspot="interface" x="0" y="156" width="1200" height="62"></rect>
+              <rect data-path-hotspot="water" x="0" y="218" width="1200" height="172"></rect>
+              <rect data-path-hotspot="sensor" x="965" y="25" width="170" height="105"></rect>
+            </g>
           </svg>
           <div class="water-path-dock">
-            <div class="water-path-steps" role="group" aria-label="Light path step">
-              <button type="button" data-path-step="atmosphere">ATMOSPHERE</button>
+            <div class="water-path-steps" role="group" aria-label="Radiative path stage">
+              <button type="button" data-path-step="overview" aria-pressed="true">OVERVIEW</button>
+              <button type="button" data-path-step="atmosphere">ATM</button>
               <button type="button" data-path-step="interface">INTERFACE</button>
-              <button type="button" data-path-step="water" aria-pressed="true">WATER</button>
+              <button type="button" data-path-step="water">WATER</button>
               <button type="button" data-path-step="sensor">SENSOR</button>
             </div>
-            <div class="water-path-note"><b data-role="path-label">WATER COLUMN</b><p data-role="path-note"></p></div>
+            <div class="water-path-context">
+              <div class="water-path-note"><b data-role="path-label">RADIATIVE PATH</b><p data-role="path-note"></p></div>
+              <div class="water-path-focus-summary">
+                <strong data-role="path-equation">SUN → ATMOSPHERE → INTERFACE → WATER → SENSOR</strong>
+                <div data-role="path-tags"></div>
+              </div>
+            </div>
           </div>
           <div class="water-atmosphere-scene" data-role="atmosphere-scene">
             <div class="water-atmosphere-intro">
