@@ -108,3 +108,44 @@ The current implementation uses rectangular bandpasses and labels them as simpli
 Layout changes in this round move the PATH explanation card to the left, reduce scene height in Work mode, compact the control rail on shorter desktop screens, and reserve the upper scene for the sensor-sampling explanation while SENSOR mode is active.
 
 See `site/water/data/SENSOR_SOURCES.md`.
+
+
+## Round 7 Atmosphere Forward Layer
+
+Production mode now has four internal views:
+
+- `PATH`: the full causal chain and explicit exclusions.
+- `IOP`: constituent → IOP → AOP.
+- `ATM`: above-water `Rrs` → first-order atmosphere → pedagogical `rho_TOA*`.
+- `SENSOR`: continuous `rho_TOA*` → simplified sensor bandpass → band-averaged `rho_TOA*`.
+
+The atmosphere model is intentionally first-order:
+
+```text
+rho_TOA* = rho_R + rho_A + T_down T_up · pi Rrs
+```
+
+It includes pressure-scaled Rayleigh optical thickness, Ångström aerosol optical depth, scalar single-scattering path reflectance, and direct two-way attenuation of the water term.
+
+Interactive atmosphere controls:
+
+- aerosol optical depth at 550 nm;
+- Ångström exponent;
+- surface pressure;
+- solar zenith;
+- view zenith;
+- relative azimuth.
+
+Fixed pedagogical aerosol assumptions:
+
+- single-scattering albedo = 0.95;
+- Henyey–Greenstein asymmetry parameter = 0.70.
+
+The layer explicitly excludes multiple scattering, Rayleigh–aerosol interaction, atmospheric gas absorption, polarization, foam, adjacency effects, and sun glint. It is not atmospheric correction.
+
+SENSOR mode now samples `rho_TOA*`, rather than surface `Rrs`.
+
+See:
+
+- `site/water/data/ATMOSPHERE_SOURCES.md`
+- `site/water/data/SENSOR_SOURCES.md`
