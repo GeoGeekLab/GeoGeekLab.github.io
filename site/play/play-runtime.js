@@ -320,6 +320,11 @@
       setEntryState(trigger, 'idle');
     } catch (error) {
       if (requestId !== entrySequence) return;
+      const dialog = document.getElementById('instrumentDialog');
+      if (dialog?.open && window.GeoInstruments?.getActive?.() === kind) {
+        setEntryState(trigger, 'idle');
+        return;
+      }
       entrySequence += 1;
       console.warn(`[GeoGeek] Play ${kind} failed to open promptly; using the native entry path.`, error);
       setEntryState(trigger, 'error');
