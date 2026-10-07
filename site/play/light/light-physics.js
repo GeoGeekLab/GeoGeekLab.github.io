@@ -101,7 +101,7 @@
       surfaceReflection:mechanisms?.surfaceReflection!==false
     };
     const sky=rayleighRelativeSpectrum(DEFAULT_WAVELENGTHS,state.atmosphericScattering);
-    const surface=surfaceReflectionRelative(rayleighRelativeSpectrum(DEFAULT_WAVELENGTHS,true),{enabled:state.surfaceReflection});
+    const surface=surfaceReflectionRelative(sky,{enabled:state.surfaceReflection});
     const waterSignal=waterLeavingSpectrum(waterOutput,state.waterBackscatter);
     return Object.freeze({
       mechanisms:Object.freeze(state),
