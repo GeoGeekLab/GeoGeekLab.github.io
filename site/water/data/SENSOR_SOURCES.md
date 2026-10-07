@@ -1,16 +1,16 @@
 # Water as Spectrum — Sensor Observation Layer provenance
 
-The sensor layer samples the instrument's already-modeled **idealized above-water Rrs**. It does not calculate top-of-atmosphere radiance and it does not perform atmospheric correction.
+The sensor layer samples the instrument's pedagogical continuous **rho_TOA*** produced by the first-order atmosphere layer. It does not sample surface Rrs directly.
 
 ## Response-model policy
 
 V1.5 uses a simplified rectangular (top-hat) bandpass:
 
 ```text
-Rrs_band = (1 / Δλ) ∫ Rrs(λ) dλ
+rho_TOA*_band = (1 / Δλ) ∫ rho_TOA*(λ) dλ
 ```
 
-over the nominal band support. This is pedagogical band integration, not a claim that a real instrument has a rectangular relative spectral response.
+over the nominal band support. This is pedagogical band integration, not a claim that a real instrument has a rectangular relative spectral response. The input rho_TOA* is itself a first-order teaching approximation, not calibrated satellite radiance.
 
 A band is not numerically sampled when its full simplified support extends outside the quantitative 400–700 nm model domain.
 
