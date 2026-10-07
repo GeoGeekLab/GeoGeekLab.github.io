@@ -4,8 +4,8 @@
   "id": "book-026",
   "data": {
     "unit": "book",
-    "status": "draft",
-    "scaffold": true,
+    "status": "open",
+    "scaffold": false,
     "order": 26,
     "parentRef": "elsewhere:e02",
     "firstPublished": "2008"
@@ -15,7 +15,14 @@
       "kind": "Book",
       "title": "目送",
       "author": "龙应台",
-      "subtitle": ""
+      "subtitle": "",
+      "before": "初中时第一次翻开龙应台的《目送》，只觉得文字清丽，甚至有些平淡。",
+      "shift": {
+        "type": "distance",
+        "text": "直到读研究生，我才第一次走出旧时羽翼的阴凉，独自推着行李箱走入一座完全陌生的城市。"
+      },
+      "after": "以前读到这句话，只当它是纸上一抹清丽而遥远的苍凉。如今，我才骤然惊醒，那每一个字，都是用岁月的离散与无能为力的愧疚，重重烫在心口上的烙印。",
+      "return": "龙应台在书里写下的，不过是人间最寻常的离别。可每一个人，却都要用半生的执拗与半生的泪光，才能彻底读懂那份沉静而深邃的爱。"
     }
   },
   "relations": {
