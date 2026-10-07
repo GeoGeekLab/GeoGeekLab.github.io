@@ -181,7 +181,11 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path" -o "/tmp/$(basename "$path")"
             test -s "/tmp/$(basename "$path")"
           done
+          curl --fail --silent --show-error --location "$base/lab.html" | grep -F 'content.js?v=20261007d'
+          curl --fail --silent --show-error --location "$base/lab.html" | grep -F 'lab-page.js?v=20261007d'
+          curl --fail --silent --show-error --location "$base/lab.html" | grep -F 'play/play-bootstrap.js?v=20261007d'
           curl --fail --silent --show-error --location "$base/lab.html" | grep -F 'core/modules.js?v=20261007i'
+          curl --fail --silent --show-error --location "$base/lab.html" | grep -F 'play/play-runtime.js?v=20261007d'
           curl --fail --silent --show-error --location "$base/core/modules.js" | grep -F 'provider-stability.js?v=20261004b'
           curl --fail --silent --show-error --location "$base/core/provider-stability.js" | grep -F "const RELEASE = '20261004b'"
           curl --fail --silent --show-error --location "$base/core/observatory-entry.js" | grep -F "const RELEASE = '20261004b'"
