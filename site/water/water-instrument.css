@@ -1270,13 +1270,13 @@
 
   .water-chart{
     min-width:0;
-    grid-template-columns:86px minmax(390px,1fr) minmax(155px,190px);
-    justify-content:stretch;
+    grid-template-columns:86px minmax(390px,640px) minmax(155px,190px);
+    justify-content:center;
   }
 
   .water-chart-plot{
     width:100%;
-    max-width:none;
+    max-width:640px;
   }
 
   .water-chart figcaption{
@@ -1357,7 +1357,12 @@
   }
 
   .water-chart{
-    grid-template-columns:80px minmax(360px,1fr) minmax(145px,170px);
+    grid-template-columns:80px minmax(360px,590px) minmax(145px,170px);
+    justify-content:center;
+  }
+
+  .water-chart-plot{
+    max-width:590px;
   }
 
   .water-chart-sidecar{
