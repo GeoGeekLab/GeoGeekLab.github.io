@@ -1003,7 +1003,7 @@ window.GEOGEEK_ARCHIVE = {
       "id": "l16",
       "data": {
         "group": "observatory",
-        "visual": "orbit",
+        "visual": "swath",
         "featured": false,
         "instrument": "swath"
       },
