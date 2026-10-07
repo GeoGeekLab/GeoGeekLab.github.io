@@ -101,8 +101,10 @@ test('Atmosphere layer changes TOA without changing water Rrs', async ({ page })
   await expect(page.locator('[data-role="third-title"]')).toHaveText('ρTOA*(λ)');
   await expect(page.locator('[data-role="spectra-hint"]')).toContainText('NOT ATMOSPHERIC CORRECTION');
 
-  await page.locator('[data-atm-control="aot"]').fill('0.35');
-  await page.locator('[data-atm-control="aot"]').dispatchEvent('input');
+  await page.locator('[data-atm-control="aot"]').evaluate(node => {
+    node.value='0.35';
+    node.dispatchEvent(new Event('input',{bubbles:true}));
+  });
 
   await expect(page.locator('[data-role="probe-Rrs"]')).toHaveText(rrsBefore);
   await expect(page.locator('[data-role="probe-toa"]')).not.toHaveText(toaBefore);
