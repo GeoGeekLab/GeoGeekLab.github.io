@@ -77,7 +77,7 @@ test.describe('site-wide visual readiness', () => {
       await page.goto('/index.html');
       await expectReady(page);
       await page.getByRole('link', { name: label, exact: true }).first().click();
-      await page.waitForURL(`**${route}`);
+      await page.waitForURL(url => new URL(url).pathname === route);
       await expectReady(page);
 
       await page.goBack({ waitUntil: 'domcontentloaded' });

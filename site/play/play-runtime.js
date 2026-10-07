@@ -85,6 +85,26 @@
     swath: () => window.GeoPlaySwath?.register?.()
   };
   const opening = new Map();
+  let entrySequence = 0;
+  let warmPromise = null;
+  const ENTRY_TIMEOUT_MS = 6000;
+
+  async function warmPlayBase() {
+    if (warmPromise) return warmPromise;
+    warmPromise = (async () => {
+      // Warm the shared instrument shell with a game-kind so games.js,
+      // instruments.js and the common Play shell are ready before the user
+      // reaches the Play collection.
+      await baseLoadInstrument('locate');
+      for (const src of COMMON) await modules.loadScript(src);
+      return true;
+    })().catch(error => {
+      warmPromise = null;
+      console.warn('[GeoGeek] Play prewarm deferred; on-demand loading remains available.', error);
+      return false;
+    });
+    return warmPromise;
+  }
 
   async function loadPlay(kind) {
     const instruments = await baseLoadInstrument(kind);
@@ -233,11 +253,12 @@
     return true;
   }
 
-  async function openPlay(kind, { updateUrl = false } = {}) {
+  async function openPlay(kind, { updateUrl = false, requestId = 0 } = {}) {
     if (!PLAY_KINDS.has(kind)) return null;
     if (opening.has(kind)) return opening.get(kind);
     const pending = (async () => {
       const instruments = await loadPlay(kind);
+      if (requestId && requestId !== entrySequence) return instruments;
       const active = window.GeoInstruments?.getActive?.() === kind;
       if (!active || !isPlayMounted(kind)) {
         await instruments?.openByKind?.(kind, { updateUrl });
@@ -264,18 +285,48 @@
   modules.loadInstrument = loadPlay;
   modules.__geoSpatialPlayRuntime = true;
 
+  const scheduleWarm = () => warmPlayBase();
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(scheduleWarm, { timeout: 1400 });
+  } else {
+    setTimeout(scheduleWarm, 350);
+  }
+
+  function withEntryTimeout(promise, ms = ENTRY_TIMEOUT_MS) {
+    let timer = 0;
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Play startup timed out.')), ms);
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+  }
+
   window.addEventListener('click', async event => {
     const trigger = event.target.closest?.('[data-instrument]');
     const kind = trigger?.dataset.instrument;
     if (!PLAY_KINDS.has(kind)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
+    if (trigger.dataset.playEntryState === 'opening') return;
+
+    const requestId = ++entrySequence;
+    document.querySelectorAll('[data-play-entry-state="opening"]').forEach(node => {
+      if (node !== trigger) setEntryState(node, 'idle');
+    });
     setEntryState(trigger, 'opening');
+
     try {
-      await openPlay(kind, { updateUrl: true });
+      await withEntryTimeout(openPlay(kind, { updateUrl: true, requestId }));
+      if (requestId !== entrySequence) return;
       setEntryState(trigger, 'idle');
     } catch (error) {
-      console.warn(`[GeoGeek] Play ${kind} failed to load; retry remains available.`, error);
+      if (requestId !== entrySequence) return;
+      const dialog = document.getElementById('instrumentDialog');
+      if (dialog?.open && window.GeoInstruments?.getActive?.() === kind) {
+        setEntryState(trigger, 'idle');
+        return;
+      }
+      entrySequence += 1;
+      console.warn(`[GeoGeek] Play ${kind} failed to open promptly; using the native entry path.`, error);
       setEntryState(trigger, 'error');
       nativeFallback(trigger, kind);
     }
