@@ -18,6 +18,9 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   await expect.poll(() => detail.evaluate((node) => getComputedStyle(node).opacity)).toBe('1');
 
   const body = page.locator('#recordBody');
+  const firstBook001Paragraph = body.locator('p').first();
+  const book001FontSize = await firstBook001Paragraph.evaluate(node => parseFloat(getComputedStyle(node).fontSize));
+  expect(book001FontSize).toBeCloseTo(10, 1);
   await expect(body).toContainText('Before reading The Glory and the Dream');
   await expect(body).toContainText('After a society passes through crisis after crisis');
 
@@ -167,4 +170,15 @@ test('BOOK 026 Chinese essay uses readable paragraph and quote typography', asyn
 
   const quoteIndent=await quoteParagraph.evaluate(node=>parseFloat(getComputedStyle(node).textIndent));
   expect(quoteIndent).toBe(0);
+});
+
+
+test('BOOK template hard-enforces 10px reading copy', async ({ page }) => {
+  await page.goto('/records/elsewhere-book-001.html');
+  const book001Size = await page.locator('#recordBody p').first().evaluate(node => parseFloat(getComputedStyle(node).fontSize));
+  expect(book001Size).toBeCloseTo(10, 1);
+
+  await page.goto('/records/elsewhere-book-026.html');
+  const book026Size = await page.locator('#recordBody p').first().evaluate(node => parseFloat(getComputedStyle(node).fontSize));
+  expect(book026Size).toBeCloseTo(10, 1);
 });
