@@ -539,6 +539,9 @@ export async function mountWaterInstrument({stage,signal}={}){
         angstromExponent:atmosphereState.angstromExponent
       };
     }
+    correctionMatched=
+      Math.abs(correctionAssumption.aerosolOpticalDepth550-atmosphereState.aerosolOpticalDepth550)<1e-12 &&
+      Math.abs(correctionAssumption.angstromExponent-atmosphereState.angstromExponent)<1e-12;
     causal='ATMOSPHERE CHANGE → Rrs unchanged → ρTOA* changed → correction target changed';
     render();
   }
