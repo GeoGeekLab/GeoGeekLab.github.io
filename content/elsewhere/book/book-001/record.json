@@ -9,7 +9,8 @@
     "parentRef": "elsewhere:e02",
     "firstPublished": "1974",
     "editionRead": "First edition, Little, Brown, Boston, 1974",
-    "languageRead": "English"
+    "languageRead": "English",
+    "defaultReadingLanguage": "zh"
   },
   "text": {
     "en": {
