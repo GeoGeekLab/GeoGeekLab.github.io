@@ -18,7 +18,7 @@ import {
   buildCorrectionExperiment
 } from './atmosphere-correction.js';
 
-const STYLE_URL = new URL('./water-instrument.css?v=20261007l', import.meta.url).href;
+const STYLE_URL = new URL('./water-instrument.css?v=20261007m', import.meta.url).href;
 
 function ensureStyle(){
   if(document.querySelector('link[data-water-instrument-style]')) return;
@@ -116,21 +116,41 @@ function markup(){
           </div>
           <div class="water-atmosphere-scene" data-role="atmosphere-scene">
             <div class="water-atmosphere-intro">
-              <span>ATMOSPHERE FORWARD LAYER</span>
-              <strong>Rrs → ρTOA*</strong>
-              <p>Rayleigh + aerosol single scattering are added to a directly transmitted water term. Multiple scattering, gases, foam, adjacency, and glint are excluded.</p>
+              <div class="water-atmosphere-title">
+                <span>ATMOSPHERE BUDGET · <b data-role="atm-probe-nm">—</b></span>
+                <strong>Rrs <i>→</i> ρTOA*</strong>
+              </div>
+              <div class="water-atmosphere-dominant">
+                <small>DOMINANT TERM</small>
+                <b data-role="atm-dominant">—</b>
+                <em data-role="atm-dominant-share">—</em>
+              </div>
+              <p>Rayleigh and aerosol path scattering are added to the directly transmitted water signal. The forward layer is deliberately first-order.</p>
             </div>
-            <div class="water-atmosphere-equation">
+            <div class="water-atmosphere-equation" aria-label="Top of atmosphere teaching reflectance equation">
               <span>ρR</span><i>+</i><span>ρA</span><i>+</i><span>T↓T↑ · πRrs</span><i>=</i><strong>ρTOA*</strong>
             </div>
             <div class="water-atmosphere-budget">
-              <div><span>RAYLEIGH PATH</span><b data-role="atm-rayleigh">—</b><i><em data-role="atm-rayleigh-bar"></em></i></div>
-              <div><span>AEROSOL PATH</span><b data-role="atm-aerosol">—</b><i><em data-role="atm-aerosol-bar"></em></i></div>
-              <div><span>WATER TRANSMITTED</span><b data-role="atm-water">—</b><i><em data-role="atm-water-bar"></em></i></div>
+              <div>
+                <span>RAYLEIGH PATH</span><b data-role="atm-rayleigh">—</b><small data-role="atm-rayleigh-pct">—</small>
+                <i><em data-role="atm-rayleigh-bar"></em></i>
+              </div>
+              <div>
+                <span>AEROSOL PATH</span><b data-role="atm-aerosol">—</b><small data-role="atm-aerosol-pct">—</small>
+                <i><em data-role="atm-aerosol-bar"></em></i>
+              </div>
+              <div>
+                <span>WATER TRANSMITTED</span><b data-role="atm-water">—</b><small data-role="atm-water-pct">—</small>
+                <i><em data-role="atm-water-bar"></em></i>
+              </div>
             </div>
             <div class="water-atmosphere-meta">
               <span data-role="atm-geometry">—</span>
               <span data-role="atm-fraction">—</span>
+            </div>
+            <div class="water-atmosphere-scope">
+              <span>EXCLUDED</span>
+              <b>MULTIPLE SCATTERING · GASES · FOAM · ADJACENCY · GLINT</b>
             </div>
           </div>
           <div class="water-sensor-scene" data-role="sensor-scene">
