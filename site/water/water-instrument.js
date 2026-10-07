@@ -627,31 +627,83 @@ export async function mountWaterInstrument({stage,signal}={}){
     renderSensor();
     renderCorrection();
 
-    renderChart(q('[data-chart="a"]'),model.absorption.total,v=>format(v,2),q('[data-role="a-scale"]'));
-    renderChart(q('[data-chart="bb"]'),model.backscattering.total,v=>format(v,4),q('[data-role="bb-scale"]'));
+    renderChart(
+      q('[data-chart="a"]'),
+      [
+        {id:'water',values:model.absorption.water,role:'component'},
+        {id:'phyto',values:model.absorption.phytoplankton,role:'component'},
+        {id:'cdom',values:model.absorption.cdom,role:'component'},
+        {id:'nap',values:model.absorption.nap,role:'component'},
+        {id:'total',values:model.absorption.total,role:'primary'}
+      ],
+      v=>format(v,2),
+      q('[data-role="a-scale"]')
+    );
+
+    renderChart(
+      q('[data-chart="bb"]'),
+      [
+        {id:'bb-water',values:model.backscattering.water,role:'component'},
+        {id:'bb-particles',values:model.backscattering.particles,role:'component'},
+        {id:'total',values:model.backscattering.total,role:'primary'}
+      ],
+      v=>format(v,4),
+      q('[data-role="bb-scale"]')
+    );
 
     const mode=root.dataset.mode;
-    if(mode==='atmosphere'||mode==='sensor'){
+    if(mode==='atmosphere'){
       q('[data-role="third-title"]').textContent='ρTOA*(λ)';
-      q('[data-role="third-subtitle"]').textContent='PEDAGOGICAL TOA REFLECTANCE · DIMENSIONLESS';
-      renderChart(q('[data-chart="Rrs"]'),atmosphere.reflectance.toaApprox,v=>format(v,4),q('[data-role="Rrs-scale"]'),{sensorOverlay:true});
+      q('[data-role="third-subtitle"]').textContent='TOA DECOMPOSITION · DIMENSIONLESS';
+      renderChart(
+        q('[data-chart="Rrs"]'),
+        [
+          {id:'rayleigh',values:atmosphere.reflectance.rayleighPath,role:'component'},
+          {id:'aerosol',values:atmosphere.reflectance.aerosolPath,role:'component'},
+          {id:'water-transmitted',values:atmosphere.reflectance.waterTransmitted,role:'component'},
+          {id:'toa',values:atmosphere.reflectance.toaApprox,role:'primary'}
+        ],
+        v=>format(v,4),
+        q('[data-role="Rrs-scale"]'),
+        {showXAxis:true}
+      );
+    }else if(mode==='sensor'){
+      q('[data-role="third-title"]').textContent='ρTOA*(λ)';
+      q('[data-role="third-subtitle"]').textContent='CONTINUOUS + SENSOR BAND SAMPLES';
+      renderChart(
+        q('[data-chart="Rrs"]'),
+        [{id:'toa',values:atmosphere.reflectance.toaApprox,role:'primary'}],
+        v=>format(v,4),
+        q('[data-role="Rrs-scale"]'),
+        {sensorOverlay:true,showXAxis:true}
+      );
     }else if(mode==='correction'){
       q('[data-role="third-title"]').textContent='Rrs_est(λ)';
       q('[data-role="third-subtitle"]').textContent='CORRECTED ESTIMATE · TRUE Rrs DASHED · sr⁻¹';
       renderChart(
         q('[data-chart="Rrs"]'),
-        correction.correction.estimatedRrs,
+        [
+          {id:'truth',values:model.Rrs,role:'reference'},
+          {id:'estimate',values:correction.correction.estimatedRrs,role:'primary'}
+        ],
         v=>format(v,4),
         q('[data-role="Rrs-scale"]'),
-        {referenceValues:model.Rrs,allowNegative:true}
+        {allowNegative:true,showXAxis:true}
       );
     }else{
       q('[data-role="third-title"]').textContent='Rrs(λ)';
       q('[data-role="third-subtitle"]').textContent='IDEALIZED ABOVE-WATER · sr⁻¹';
-      renderChart(q('[data-chart="Rrs"]'),model.Rrs,v=>format(v,4),q('[data-role="Rrs-scale"]'));
+      renderChart(
+        q('[data-chart="Rrs"]'),
+        [{id:'rrs',values:model.Rrs,role:'primary'}],
+        v=>format(v,4),
+        q('[data-role="Rrs-scale"]'),
+        {showXAxis:true}
+      );
     }
 
     renderProbe();
+    renderSidecars();
     q('[data-role="causal"]').textContent=causal;
     qa('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===preset)));
   }
