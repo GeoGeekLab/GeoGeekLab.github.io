@@ -116,7 +116,7 @@
 
       const ids = new Set(cards.map(card => card.id));
       if (ids.has('l11') || ids.has('l12')) block.classList.add('lab-group-studies');
-      else if (ids.has('l04') || ids.has('l05') || ids.has('l06') || ids.has('l10') || ids.has('l13')) block.classList.add('lab-group-observatory');
+      else if (ids.has('l04') || ids.has('l05') || ids.has('l06') || ids.has('l10') || ids.has('l13') || ids.has('l16')) block.classList.add('lab-group-observatory');
       else if (ids.has('l07') || ids.has('l08') || ids.has('l09')) block.classList.add('lab-group-play');
     });
   }
