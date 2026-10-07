@@ -94,7 +94,7 @@
   }
 
   if (list) {
-    const instrumentIds = new Set(['l04','l05','l06','l07','l08','l09','l10','l11','l12','l13']);
+    const instrumentIds = new Set(['l04','l05','l06','l07','l08','l09','l10','l11','l12','l13','l14','l15']);
 
     // The Lab collection should only show records that actually expose an instrument.
     list.querySelectorAll('.project-card').forEach(card => {
@@ -139,7 +139,9 @@
     zone: 'field',
     path: 'field',
     figure: 'transform',
-    water: 'spectral'
+    water: 'spectral',
+    light: 'field',
+    project: 'field'
   };
 
   function setInstrumentIdentity(kind = '') {

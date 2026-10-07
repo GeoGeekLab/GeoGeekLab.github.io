@@ -76,7 +76,7 @@ jobs:
 
       - name: Verify production Lab previews
         run: |
-          for name in orbit earth flow pulse figure world locate zone path project; do
+          for name in orbit earth flow pulse figure world water locate zone path project light; do
             test -s "site/assets/lab/previews/${name}.jpg"
           done
           grep -E "const VERSION = 'capture-[0-9a-f]{12}';" site/lab-real-previews.js

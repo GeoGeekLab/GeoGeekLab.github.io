@@ -5,12 +5,13 @@
   if (!modules?.loadInstrument || modules.__geoSpatialPlayRuntime) return;
 
   const baseLoadInstrument = modules.loadInstrument.bind(modules);
-  const PLAY_KINDS = new Set(['locate', 'zone', 'path', 'project']);
+  const PLAY_KINDS = new Set(['locate', 'zone', 'path', 'project', 'light']);
   const PLAY_DOM_KIND = {
     locate: 'orient',
     zone: 'bound',
     path: 'connect',
-    project: 'project'
+    project: 'project',
+    light: 'light'
   };
   const COMMON = [
     'play/play-core.js?v=20261005a',
@@ -36,6 +37,12 @@
       'play/project/project-morph.js?v=20261005c',
       'play/project/project-view.js?v=20261005c',
       'play/project/project-route-view.js?v=20261005b'
+    ],
+    light: [
+      'play/light/light-content.js?v=20261007a',
+      'play/light/light-physics.js?v=20261007a',
+      'play/light/light-experiments.js?v=20261007a',
+      'play/light/light-view.js?v=20261007a'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {
@@ -49,7 +56,8 @@
     locate: 'play/orient/orient.js?v=20261003f',
     zone: 'play/bound/bound.js?v=20261005c',
     path: 'play/connect/connect.js?v=20261005c',
-    project: 'play/project/project.js?v=20261005e'
+    project: 'play/project/project.js?v=20261005e',
+    light: 'play/light/light.js?v=20261007a'
   };
   const OPTIONAL_POST_SCRIPTS = {
     locate: [
@@ -64,7 +72,8 @@
     locate: () => window.GeoPlayOrient?.register?.(),
     zone: () => window.GeoPlayBound?.register?.(),
     path: () => window.GeoPlayConnect?.register?.(),
-    project: () => window.GeoPlayProject?.register?.()
+    project: () => window.GeoPlayProject?.register?.(),
+    light: () => window.GeoPlayLight?.register?.()
   };
   const opening = new Map();
 

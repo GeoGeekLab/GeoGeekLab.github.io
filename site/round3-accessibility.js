@@ -118,7 +118,7 @@
         return { node, index, x, y, dx: 0, dy: 0 };
       });
 
-      const minDistance = 30;
+      const minDistance = 34;
       const radius = 12.5;
       for (let pass = 0; pass < 24; pass += 1) {
         let changed = false;
@@ -170,9 +170,19 @@
     }).observe(stage, { childList: true, subtree: true });
 
     document.addEventListener('click', event => {
-      if (event.target.closest('[data-atlas-mode], .atlas-modes button, .atlas-view-controls button')) scheduleSeparation();
+      if (event.target.closest('[data-atlas-mode], .atlas-modes button, .atlas-view-controls button, .projections [data-projection]')) scheduleSeparation();
     });
     addEventListener('resize', scheduleSeparation, { passive: true });
+    addEventListener('load', scheduleSeparation, { once: true });
+
+    const body = document.body;
+    if (body) {
+      new MutationObserver(scheduleSeparation).observe(body, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    }
+    setTimeout(scheduleSeparation, 240);
   }
 
   function installScrollableRegionSemantics() {

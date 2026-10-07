@@ -391,6 +391,91 @@
             </div>
           </section>
         </article>`
+    },
+
+    l14: {
+      detailLabel: 'INSTRUMENT NOTES',
+      recordConditions: [
+        ['geometry', 'Natural Earth 1:110m'],
+        ['judgment', 'Prediction before projection change'],
+        ['representations', 'Mercator · Equal Earth · azimuthal'],
+        ['limit', 'Representation changes · geography stays']
+      ],
+      bodyHtml: `
+        <article class="lab-record-detail" aria-label="Project Play notes">
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">PURPOSE</div>
+            <div class="lab-record-copy">
+              <h2>Separate the geography from the representation.</h2>
+              <p>Project asks for a spatial judgment before the projection is changed. The reveal shows which apparent area, route, or relation moved while the underlying geography stayed fixed.</p>
+            </div>
+          </section>
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">EXPERIMENT</div>
+            <div class="lab-record-facts">
+              <div><span>INPUT</span><strong>One committed prediction</strong></div>
+              <div><span>TRANSFORM</span><strong>Projection or viewpoint change</strong></div>
+              <div><span>MEASURE</span><strong>Apparent screen-space consequence</strong></div>
+              <div><span>INVARIANT</span><strong>Underlying geographic geometry</strong></div>
+            </div>
+          </section>
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">LIMITS / SOURCE</div>
+            <div class="lab-record-copy lab-record-links">
+              <p>The exercise demonstrates projection consequences. It does not imply that one projection is universally correct.</p>
+              <p><a href="https://www.naturalearthdata.com/" target="_blank" rel="noreferrer">Natural Earth ↗</a> · <a href="https://d3js.org/d3-geo" target="_blank" rel="noreferrer">D3 geo ↗</a></p>
+            </div>
+          </section>
+        </article>`
+    },
+
+    l15: {
+      detailLabel: 'INSTRUMENT NOTES',
+      recordConditions: [
+        ['water', 'Rrs · 400–700 nm · 1 nm'],
+        ['atmosphere', 'Normalized Rayleigh λ⁻⁴ teaching path'],
+        ['surface', 'Fixed-angle unpolarized Fresnel path'],
+        ['limit', 'No TOA radiance · no rough-surface BRDF']
+      ],
+      bodyHtml: `
+        <article class="lab-record-detail" aria-label="Light Play notes">
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">PURPOSE</div>
+            <div class="lab-record-copy">
+              <h2>Ask which light path makes a visible signal exist.</h2>
+              <p>Light is a mechanism-ablation Play. It removes one physical contribution at a time, then compares the scene, the path diagram, and the spectrum.</p>
+            </div>
+          </section>
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">THREE PATHS</div>
+            <div class="lab-record-facts">
+              <div><span>SKY</span><strong>Atmospheric scattering contribution</strong></div>
+              <div><span>SURFACE</span><strong>Reflected-sky contribution</strong></div>
+              <div><span>WATER</span><strong>Water-leaving remote-sensing reflectance</strong></div>
+              <div><span>INTERACTION</span><strong>Predict → commit → remove → compare</strong></div>
+            </div>
+          </section>
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">SCIENTIFIC BOUNDARY</div>
+            <div class="lab-record-copy">
+              <p>The water path directly reuses the validated Water as Spectrum forward model. The atmosphere uses only a normalized Rayleigh spectral shape, and the surface uses a fixed-angle Fresnel teaching model.</p>
+              <p>The display color is illustrative. The Play does not solve top-of-atmosphere radiance, aerosol multiple scattering, sunglint geometry, polarization, whitecaps, or a rough-surface BRDF.</p>
+            </div>
+          </section>
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">MECHANISM ABLATION</div>
+            <div class="lab-record-copy">
+              <p>Turning water backscatter off is a thought experiment. It collapses the displayed water-leaving signal without creating a natural-water state inside the Water model.</p>
+              <p>Turning atmospheric scattering off also removes the reflected-sky contribution because the diffuse sky source is absent. The surface reflection mechanism itself is not disabled.</p>
+            </div>
+          </section>
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">SOURCE</div>
+            <div class="lab-record-copy lab-record-links">
+              <p><a href="records/lab-l13.html">Water as Spectrum record ↗</a> · <a href="https://github.com/GeoGeekLab/GeoGeekLab.github.io/tree/main/site/play/light" target="_blank" rel="noreferrer">Light source ↗</a></p>
+            </div>
+          </section>
+        </article>`
     }
   };
 
