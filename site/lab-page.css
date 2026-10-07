@@ -640,3 +640,54 @@
 @media (prefers-reduced-motion: reduce) {
   .instrument-dialog[data-instrument-family="map"] * { scroll-behavior: auto !important; }
 }
+
+
+/* Water as Spectrum collection preview */
+.project-visual-water .preview-water{
+  background:
+    linear-gradient(180deg,rgba(30,58,53,.72),rgba(9,19,15,.98));
+}
+.preview-water .water-spectrum{
+  position:absolute;
+  left:8%;
+  right:8%;
+  height:1px;
+  border-top:1px solid rgba(241,239,231,.66);
+  transform-origin:left center;
+  z-index:2;
+}
+.preview-water .ws-a{
+  top:31%;
+  border-color:rgba(196,185,130,.72);
+  transform:skewY(-5deg);
+}
+.preview-water .ws-b{
+  top:50%;
+  border-color:rgba(131,184,181,.78);
+  transform:skewY(3deg);
+}
+.preview-water .ws-r{
+  top:68%;
+  border-color:rgba(209,99,57,.82);
+  transform:skewY(-2deg);
+}
+.preview-water .water-probe{
+  position:absolute;
+  z-index:3;
+  left:34%;
+  top:16%;
+  bottom:16%;
+  width:1px;
+  background:rgba(209,99,57,.9);
+}
+.preview-water .water-band{
+  position:absolute;
+  z-index:1;
+  bottom:17%;
+  width:8%;
+  height:52%;
+  opacity:.16;
+}
+.preview-water .band-blue{left:18%;background:#7599c4}
+.preview-water .band-green{left:45%;background:#8fb58c}
+.preview-water .band-red{left:70%;background:#c9795d}

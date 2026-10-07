@@ -6,7 +6,8 @@ const instruments = [
   ['flow', '<div class="flow-lab"><section class="flow-map-shell">FIELD</section><aside class="flow-rail"><div class="flow-card">REPRESENTATION</div></aside></div>', '.flow-rail'],
   ['pulse', '<div class="pulse-layout pulse-observation-lab"><section class="pulse-map-wrap">EVENT FIELD</section><aside class="pulse-panel"><div class="pulse-panel-section">TEMPORAL CONTROL</div></aside></div>', '.pulse-panel'],
   ['figure', '<div class="figure-layout figure-workbench"><section class="figure-stage">IMAGE / TRACE</section><aside class="figure-control"><div class="figure-card">SCALAR FIELD</div></aside></div>', '.figure-control'],
-  ['world', '<div class="world-layout"><section class="world-map-wrap">PROJECTION</section><aside class="world-panel">PROJECTION CONTROLS</aside></div>', '.world-panel']
+  ['world', '<div class="world-layout"><section class="world-map-wrap">PROJECTION</section><aside class="world-panel">PROJECTION CONTROLS</aside></div>', '.world-panel'],
+  ['water', '<div class="water-lab"><section class="water-main">SPECTRAL FIELD</section><aside class="water-control-rail">IOP CONTROLS</aside></div>', '.water-control-rail']
 ];
 
 for (const [kind, fixture, railSelector] of instruments) {

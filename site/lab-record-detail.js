@@ -263,6 +263,82 @@
             </div>
           </section>
         </article>`
+    },
+
+    l13: {
+      detailLabel: 'INSTRUMENT NOTES',
+      recordConditions: [
+        ['domain', '400–700 nm · 1 nm'],
+        ['water state', 'Optically deep · 20 °C · 35 PSU baseline'],
+        ['forward model', 'a / bb → u → rrs → Rrs'],
+        ['status', 'Browser-native deterministic model']
+      ],
+      bodyHtml: `
+        <article class="lab-record-detail" aria-label="Water as Spectrum instrument notes">
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">PURPOSE</div>
+            <div class="lab-record-copy">
+              <h2>Follow how water becomes a spectrum before a sensor samples it.</h2>
+              <p>Water as Spectrum is a theory instrument for aquatic remote sensing. It links constituent state to inherent optical properties and then to idealized above-water remote-sensing reflectance. The working surface is interactive; this record keeps the definitions, assumptions, and provenance.</p>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">DEFINITIONS</div>
+            <div class="lab-record-facts">
+              <div><span>a(λ)</span><strong>Total absorption · m⁻¹ · IOP</strong></div>
+              <div><span>bb(λ)</span><strong>Total backscattering · m⁻¹ · IOP</strong></div>
+              <div><span>rrs(λ)</span><strong>Subsurface remote-sensing reflectance · sr⁻¹ · AOP</strong></div>
+              <div><span>Rrs(λ)</span><strong>Above-water remote-sensing reflectance · sr⁻¹ · AOP</strong></div>
+              <div><span>DOMAIN</span><strong>400–700 nm quantitative V1</strong></div>
+              <div><span>WATER</span><strong>Optically deep · no bottom term</strong></div>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">FORWARD MODEL</div>
+            <div class="lab-record-copy">
+              <p>Total absorption is <code>a = aw + aph + ag + aNAP</code>. Total backscattering is <code>bb = bbw + bbp</code>. The model then evaluates <code>u = bb / (a + bb)</code>, <code>rrs = 0.0949u + 0.0794u²</code>, and <code>Rrs = 0.52rrs / (1 − 1.7rrs)</code>.</p>
+              <p>The <code>rrs</code> and <code>Rrs</code> quantities are not interchangeable. The latter includes an explicit air–water interface approximation.</p>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">COMPONENT MODELS</div>
+            <div class="lab-record-facts">
+              <div><span>PURE WATER</span><strong>WOPP absorption · Zhang et al. seawater scattering</strong></div>
+              <div><span>PHYTOPLANKTON</span><strong>Bricaud et al. 1998 · aph = Aphi · Chl^Ephi</strong></div>
+              <div><span>CDOM</span><strong>Exponential ag spectrum · S = 0.0176 nm⁻¹</strong></div>
+              <div><span>NAP</span><strong>Exponential aNAP spectrum · S = 0.0123 nm⁻¹</strong></div>
+              <div><span>PARTICLE bb</span><strong>Power law referenced to 443 nm · η = 1.0 in V1</strong></div>
+              <div><span>BASELINE</span><strong>20 °C · 35 PSU</strong></div>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">WHAT THE CONTROLS MEAN</div>
+            <div class="lab-record-copy">
+              <p>Chlorophyll is a constituent proxy that parameterizes phytoplankton absorption. <code>ag(440)</code>, <code>aNAP(443)</code>, and <code>bbp(443)</code> are optical amplitudes. Particle absorption and particle backscattering remain independent because no universal concentration-to-IOP relationship exists across natural waters.</p>
+              <p>The four named water states are reproducible pedagogical scenarios, not an optical-water-type classification.</p>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">LIMITS</div>
+            <div class="lab-record-copy">
+              <p>V1 does not solve atmospheric radiative transfer, top-of-atmosphere radiance, sun glint, adjacency effects, polarization, fluorescence, full BRDF geometry, shallow-water bottom reflectance, sensor spectral-response functions, or inversion products. The sun–atmosphere–sensor path shown in PATH mode is conceptual until those terms are separately implemented and validated.</p>
+              <p>The quantitative model stops at 700 nm. The interface must not imply validated phytoplankton or reflectance output beyond that boundary.</p>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">REFERENCES / IMPLEMENTATIONS</div>
+            <div class="lab-record-copy lab-record-links">
+              <p><a href="https://doi.org/10.1029/98JC02712" target="_blank" rel="noreferrer">Bricaud et al. 1998 ↗</a> · <a href="https://doi.org/10.1029/2001JC000882" target="_blank" rel="noreferrer">Babin et al. 2003 ↗</a> · <a href="https://doi.org/10.1364/OE.17.005698" target="_blank" rel="noreferrer">Zhang et al. 2009 ↗</a> · <a href="https://doi.org/10.1364/AO.41.005755" target="_blank" rel="noreferrer">Lee et al. 2002 ↗</a></p>
+              <p><a href="https://github.com/GeoGeekLab/GeoGeekLab.github.io/blob/main/docs/WATER_AS_SPECTRUM_SCIENTIFIC_CONTRACT.md" target="_blank" rel="noreferrer">Scientific contract ↗</a> · <a href="https://github.com/GeoGeekLab/GeoGeekLab.github.io/tree/main/site/water" target="_blank" rel="noreferrer">Model and provenance ↗</a></p>
+            </div>
+          </section>
+        </article>`
     }
   };
 

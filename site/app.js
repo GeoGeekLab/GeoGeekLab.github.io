@@ -487,8 +487,8 @@
 
 
   function labPreviewKind(item) {
-    const byId = { l01: 'terrain', l02: 'evidence', l03: 'worlds', l10: 'pulse', l11: 'figure', l12: 'world' };
-    const byInstrument = { orbit: 'orbit', earth: 'earth', flow: 'flow', pulse: 'pulse', figure: 'figure', locate: 'locate', zone: 'zone', path: 'path' };
+    const byId = { l01: 'terrain', l02: 'evidence', l03: 'worlds', l10: 'pulse', l11: 'figure', l12: 'world', l13: 'water' };
+    const byInstrument = { orbit: 'orbit', earth: 'earth', flow: 'flow', pulse: 'pulse', figure: 'figure', world: 'world', water: 'water', locate: 'locate', zone: 'zone', path: 'path' };
     return item.visual || byInstrument[item.instrument] || byId[item.id] || 'terrain';
   }
 
@@ -501,6 +501,7 @@
     if (kind === 'pulse') return `<div class="preview-art preview-pulse"><span class="map mass a"></span><span class="map mass b"></span><span class="map mass c"></span><i class="quake q1"></i><i class="quake q2"></i><i class="quake q3"></i><i class="quake q4"></i><b class="preview-stamp">${tagLine}</b></div>`;
     if (kind === 'figure') return `<div class="preview-art preview-figure"><div class="figure-panel raster"></div><div class="figure-panel vector"></div><b class="preview-stamp">${tagLine}</b></div>`;
     if (kind === 'world') return `<div class="preview-art preview-world"><span class="map mass a"></span><span class="map mass b"></span><span class="map mass c"></span><i class="graticule"></i><b class="preview-stamp">${tagLine}</b></div>`;
+    if (kind === 'water') return `<div class="preview-art preview-water"><i class="water-spectrum ws-a"></i><i class="water-spectrum ws-b"></i><i class="water-spectrum ws-r"></i><i class="water-probe"></i><span class="water-band band-blue"></span><span class="water-band band-green"></span><span class="water-band band-red"></span><b class="preview-stamp">${tagLine}</b></div>`;
     if (kind === 'locate') return `<div class="preview-art preview-game"><span class="map mass a"></span><span class="map mass b"></span><span class="map mass c"></span><i class="target-dot"></i><i class="crosshair"></i><b class="preview-stamp">${tagLine}</b></div>`;
     if (kind === 'zone') return `<div class="preview-art preview-game preview-zone"><span class="map mass a"></span><span class="map mass b"></span><span class="map mass c"></span><i class="zone-fill"></i><b class="preview-stamp">${tagLine}</b></div>`;
     if (kind === 'path') return `<div class="preview-art preview-game preview-path"><span class="map mass a"></span><span class="map mass b"></span><span class="map mass c"></span><i class="route-line"></i><b class="preview-stamp">${tagLine}</b></div>`;

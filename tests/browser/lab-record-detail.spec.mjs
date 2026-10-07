@@ -6,7 +6,8 @@ const records = [
   ['l06', 'Geographic Flow Laboratory', 'Open-Meteo', 'Compare movement representations'],
   ['l10', 'Earth Pulse', 'USGS all_day GeoJSON', 'USGS GeoJSON feeds'],
   ['l11', 'Image → Trace', 'Browser raster', 'Test when a raster image begins to behave like a field'],
-  ['l12', 'World as Relation', 'Natural Earth 1:110m', 'Natural Earth']
+  ['l12', 'World as Relation', 'Natural Earth 1:110m', 'Natural Earth'],
+  ['l13', 'Water as Spectrum', '400–700 nm', 'Follow how water becomes a spectrum']
 ];
 
 for (const [id, title, condition, bodyMarker] of records) {

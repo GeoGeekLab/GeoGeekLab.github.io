@@ -274,6 +274,24 @@ window.GEOGEEK_ARCHIVE = {
                 "Geographic lon / lat"
               ]
             ],
+            "water": [
+              [
+                "DOMAIN",
+                "400–700 nm · 1 nm"
+              ],
+              [
+                "WATER",
+                "20 °C · 35 PSU"
+              ],
+              [
+                "MODEL",
+                "IOPs → u → rrs → Rrs"
+              ],
+              [
+                "LIMIT",
+                "Optically deep · no atmosphere"
+              ]
+            ],
             "locate": [
               [
                 "GEOMETRY",
@@ -890,6 +908,35 @@ window.GEOGEEK_ARCHIVE = {
           90
         ],
         "scope": "global"
+      }
+    },
+    {
+      "ref": "lab:l13",
+      "kind": "lab",
+      "id": "l13",
+      "data": {
+        "group": "observatory",
+        "visual": "water",
+        "featured": true,
+        "instrument": "water"
+      },
+      "text": {
+        "en": {
+          "status": "Instrument",
+          "title": "Water as Spectrum",
+          "tags": [
+            "Water Colour",
+            "Ocean Optics",
+            "Remote Sensing"
+          ],
+          "description": "An interactive water-colour theory instrument. Change chlorophyll, CDOM, particle absorption, and backscattering, then follow how those IOPs become above-water remote-sensing reflectance.",
+          "coord": "λ / a / bb / Rrs",
+          "instrumentKicker": "WATER / LIGHT / SPECTRUM",
+          "source": "WOPP · Bricaud 1998 · Babin 2003 · NASA GIOP-DC"
+        }
+      },
+      "relations": {
+        "trace": []
       }
     },
     {
