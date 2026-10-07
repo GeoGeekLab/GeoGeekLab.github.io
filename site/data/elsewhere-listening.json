@@ -400,76 +400,83 @@
       "ref": "elsewhere:listening-020",
       "order": 20,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "No Matter What",
+      "titleStatus": "verified",
+      "titleLanguage": "en",
+      "titleForm": "original",
+      "creator": "Boyzone",
+      "firstReleased": "1998",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "7eul_Vt6SZY",
         "embedUrl": "https://www.youtube.com/embed/7eul_Vt6SZY?si=RU9IAcOwLxl9KU35",
-        "watchUrl": "https://www.youtube.com/watch?v=7eul_Vt6SZY"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=7eul_Vt6SZY",
+        "videoTitle": "Boyzone - No Matter What"
+      },
+      "context": "Official music video"
     },
     {
       "id": "listening-021",
       "ref": "elsewhere:listening-021",
       "order": 21,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "いのちの名前",
+      "titleStatus": "verified",
+      "titleLanguage": "ja",
+      "titleForm": "original",
+      "creator": "久石譲 · 平原綾香",
+      "firstReleased": "2001",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "q3-tOnJrZZM",
         "embedUrl": "https://www.youtube.com/embed/q3-tOnJrZZM?si=pxbfXzB41upM1VF7",
-        "watchUrl": "https://www.youtube.com/watch?v=q3-tOnJrZZM"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=q3-tOnJrZZM",
+        "videoTitle": "久石讓&平原綾香《千與千尋》主題歌曲《生命的名字》經典現場！"
+      },
+      "context": "《千と千尋の神隠し》 · live performance"
     },
     {
       "id": "listening-022",
       "ref": "elsewhere:listening-022",
       "order": 22,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "大鱼",
+      "titleStatus": "verified",
+      "titleLanguage": "zh-Hans",
+      "titleForm": "original",
+      "creator": "周深 · 郭沁",
+      "firstReleased": "2016",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "OpaV2Pjh0es",
         "embedUrl": "https://www.youtube.com/embed/OpaV2Pjh0es?si=K0PnessPNVMIIxEN",
-        "watchUrl": "https://www.youtube.com/watch?v=OpaV2Pjh0es"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=OpaV2Pjh0es",
+        "videoTitle": "周深 / 郭沁《大鱼》现场合唱"
+      },
+      "context": "《中国新歌声2》第10期 · duet performance"
     },
     {
       "id": "listening-023",
       "ref": "elsewhere:listening-023",
       "order": 23,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "となりのトトロ",
+      "titleStatus": "verified",
+      "titleLanguage": "ja",
+      "titleForm": "original",
+      "creator": "井上あずみ",
+      "firstReleased": "1988",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "ugk2e_5WZ8E",
         "embedUrl": "https://www.youtube.com/embed/ugk2e_5WZ8E?si=NCDctga5np0_qP07",
         "watchUrl": "https://www.youtube.com/watch?v=ugk2e_5WZ8E"
-      }
+      },
+      "context": "《となりのトトロ》主題歌"
     },
     {
       "id": "listening-024",
@@ -487,27 +494,33 @@
         "provider": "YouTube",
         "videoId": "toneoiqviCI",
         "embedUrl": "https://www.youtube.com/embed/toneoiqviCI?si=DfnuaWgc1MrHNVqT",
-        "watchUrl": "https://www.youtube.com/watch?v=toneoiqviCI"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=toneoiqviCI",
+        "videoTitle": "西班牙斗牛士进行曲Spanish Bullfighter March",
+        "channel": "zestygalaxyways"
+      },
+      "context": "YouTube source title: 西班牙斗牛士进行曲 / Spanish Bullfighter March"
     },
     {
       "id": "listening-025",
       "ref": "elsewhere:listening-025",
       "order": 25,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "L'Internationale",
+      "titleStatus": "verified",
+      "titleLanguage": "fr",
+      "titleForm": "original",
+      "creator": "Eugène Pottier · Pierre De Geyter",
+      "firstReleased": "1888",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "CrtKn65se-I",
         "embedUrl": "https://www.youtube.com/embed/CrtKn65se-I?si=AzsSzjqTFs_HFzaY",
-        "watchUrl": "https://www.youtube.com/watch?v=CrtKn65se-I"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=CrtKn65se-I",
+        "videoTitle": "敬播：國際歌！獻給在中國想唱國際歌的民眾【94要客訴】",
+        "channel": "94要客訴"
+      },
+      "context": "YouTube source presents the work as 《國際歌》"
     },
     {
       "id": "listening-026",
@@ -526,121 +539,135 @@
         "videoId": "HBO5N5KGJzM",
         "embedUrl": "https://www.youtube.com/embed/HBO5N5KGJzM?si=2JaKCApgRtl7kbhz",
         "watchUrl": "https://www.youtube.com/watch?v=HBO5N5KGJzM"
-      }
+      },
+      "context": "YouTube metadata could not be reliably resolved from indexed sources."
     },
     {
       "id": "listening-027",
       "ref": "elsewhere:listening-027",
       "order": 27,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "纸短情长",
+      "titleStatus": "verified",
+      "titleLanguage": "zh-Hans",
+      "titleForm": "original",
+      "creator": "烟把儿乐队",
+      "firstReleased": "2017",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "BKaVleWmvl0",
         "embedUrl": "https://www.youtube.com/embed/BKaVleWmvl0?si=8WjsilfmAKg-AgXO",
-        "watchUrl": "https://www.youtube.com/watch?v=BKaVleWmvl0"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=BKaVleWmvl0",
+        "videoTitle": "纸短情长 烟把儿乐队",
+        "channel": "中国流行歌曲Chinese popular songs"
+      },
+      "context": "YouTube upload by 中国流行歌曲 Chinese popular songs"
     },
     {
       "id": "listening-028",
       "ref": "elsewhere:listening-028",
       "order": 28,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "不再猶豫",
+      "titleStatus": "verified",
+      "titleLanguage": "zh-Hant",
+      "titleForm": "original",
+      "creator": "Beyond · 于文文 · 葉世榮",
+      "firstReleased": "1991",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "p4qyC1Blbks",
         "embedUrl": "https://www.youtube.com/embed/p4qyC1Blbks?si=YqYwO9ApOwLUyCXk",
-        "watchUrl": "https://www.youtube.com/watch?v=p4qyC1Blbks"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=p4qyC1Blbks",
+        "videoTitle": "【竖屏完整版】于文文x 叶世荣《不再犹豫》230119 山东卫视春晚"
+      },
+      "context": "2023 山东卫视春晚 · 于文文 × 叶世荣"
     },
     {
       "id": "listening-029",
       "ref": "elsewhere:listening-029",
       "order": 29,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "今天妳要嫁給我",
+      "titleStatus": "verified",
+      "titleLanguage": "zh-Hant",
+      "titleForm": "original",
+      "creator": "陶喆",
+      "firstReleased": "2006",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "w6W1NREITNc",
         "embedUrl": "https://www.youtube.com/embed/w6W1NREITNc?si=I4jQ-DOJr0AKC4JJ",
-        "watchUrl": "https://www.youtube.com/watch?v=w6W1NREITNc"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=w6W1NREITNc",
+        "videoTitle": "【Live】陶喆David Tao |《今天妳要嫁給我》Marry Me Today"
+      },
+      "context": "Live · Soul Power II"
     },
     {
       "id": "listening-030",
       "ref": "elsewhere:listening-030",
       "order": 30,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "牛仔很忙",
+      "titleStatus": "verified",
+      "titleLanguage": "zh-Hant",
+      "titleForm": "original",
+      "creator": "周杰倫",
+      "firstReleased": "2007",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "9o20U91aJdg",
         "embedUrl": "https://www.youtube.com/embed/9o20U91aJdg?si=qIGPoRKWgn7rF28m",
-        "watchUrl": "https://www.youtube.com/watch?v=9o20U91aJdg"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=9o20U91aJdg",
+        "videoTitle": "周杰倫 - 牛仔很忙"
+      },
+      "context": "Official music video"
     },
     {
       "id": "listening-031",
       "ref": "elsewhere:listening-031",
       "order": 31,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "Nevada",
+      "titleStatus": "verified",
+      "titleLanguage": "en",
+      "titleForm": "original",
+      "creator": "Vicetone · Cozi Zuehlsdorff",
+      "firstReleased": "2016",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "AnMhdn0wJ4I",
         "embedUrl": "https://www.youtube.com/embed/AnMhdn0wJ4I?si=KbCkEKoJDxUbvEBF",
-        "watchUrl": "https://www.youtube.com/watch?v=AnMhdn0wJ4I"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=AnMhdn0wJ4I",
+        "videoTitle": "Vicetone - Nevada (ft. Cozi Zuehlsdorff)"
+      },
+      "context": "Vicetone feat. Cozi Zuehlsdorff"
     },
     {
       "id": "listening-032",
       "ref": "elsewhere:listening-032",
       "order": 32,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "TiK ToK",
+      "titleStatus": "verified",
+      "titleLanguage": "en",
+      "titleForm": "original",
+      "creator": "Kesha",
+      "firstReleased": "2009",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "iP6XpLQM2Cs",
         "embedUrl": "https://www.youtube.com/embed/iP6XpLQM2Cs?si=esoQjr4C64k0ioEf",
-        "watchUrl": "https://www.youtube.com/watch?v=iP6XpLQM2Cs"
-      }
+        "watchUrl": "https://www.youtube.com/watch?v=iP6XpLQM2Cs",
+        "videoTitle": "Ke$ha - TiK ToK (Official HD Video)"
+      },
+      "context": "Official HD video"
     }
   ]
 }
