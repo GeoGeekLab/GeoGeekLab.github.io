@@ -111,3 +111,18 @@ test('BOOK scaffold pages keep metadata while leaving the reading response empty
   await expect(page.locator('#recordMeta')).toContainText('1936');
   await expect(page.locator('#recordBody')).toBeEmpty();
 });
+
+
+test('BOOK 026 publishes the authored Chinese reading response verbatim', async ({ page }) => {
+  await page.goto('/records/elsewhere-book-026.html');
+
+  await expect(page.locator('#recordTitle')).toHaveText('目送');
+  await expect(page.locator('#recordMeta')).toContainText('龙应台');
+  await expect(page.locator('#recordMeta')).toContainText('DISTANCE');
+
+  const body=page.locator('#recordBody');
+  await expect(body).toContainText('初中时第一次翻开龙应台的《目送》，只觉得文字清丽，甚至有些平淡。');
+  await expect(body).toContainText('人的一生，终究是一场无法弥补的辜负。');
+  await expect(body.locator('blockquote')).toContainText('我慢慢地、慢慢地了解到，所谓父女母子一场，只不过意味着，你和他的缘分就是今生今世不断地在目送他的背影渐行渐远。');
+  await expect(body).toContainText('龙应台在书里写下的，不过是人间最寻常的离别。可每一个人，却都要用半生的执拗与半生的泪光，才能彻底读懂那份沉静而深邃的爱。');
+});
