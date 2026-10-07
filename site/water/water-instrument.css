@@ -657,8 +657,8 @@
 }
 .water-chart{
   min-width:0;
-  grid-template-columns:92px minmax(520px,700px) minmax(160px,190px);
-  justify-content:start;
+  grid-template-columns:92px minmax(520px,650px) minmax(180px,220px);
+  justify-content:center;
   align-items:stretch;
   overflow:hidden;
 }
@@ -674,7 +674,7 @@
   min-width:0;
   min-height:0;
   width:100%;
-  max-width:700px;
+  max-width:650px;
   border-right:1px solid var(--water-line-soft);
 }
 .water-chart-plot svg{
@@ -845,9 +845,10 @@
 
 @media(max-width:1500px) and (min-width:1101px){
   .water-chart{
-    grid-template-columns:84px minmax(460px,1fr) 152px;
+    grid-template-columns:84px minmax(460px,620px) 160px;
+    justify-content:center;
   }
-  .water-chart-plot{max-width:none}
+  .water-chart-plot{max-width:620px}
   .water-chart-sidecar{padding-inline:7px}
   .water-sidecar-row{font-size:5.9px}
 }
@@ -889,7 +890,7 @@
     grid-template-rows:minmax(102px,.88fr) minmax(102px,.88fr) minmax(126px,1.12fr);
   }
   .water-chart{
-    grid-template-columns:82px minmax(430px,650px) minmax(145px,172px);
+    grid-template-columns:82px minmax(430px,590px) minmax(150px,170px);
   }
   .water-chart figcaption{padding:6px 6px 6px 8px}
   .water-chart-sidecar{padding:5px 7px;gap:2px}
