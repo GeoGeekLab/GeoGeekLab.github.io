@@ -116,3 +116,47 @@ test('Atmosphere layer changes TOA without changing water Rrs', async ({ page })
   await expect(page.locator('.water-sensor-controls')).toBeVisible();
   await expect(page.locator('[data-role="third-title"]')).toHaveText('ρTOA*(λ)');
 });
+
+
+test('Atmospheric correction mode exposes aerosol-assumption error and preserves negative Rrs', async ({ page }) => {
+  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+
+  await page.locator('[data-water-mode="atmosphere"]').click();
+  await page.locator('[data-atm-control="aot"]').evaluate(node => {
+    node.value='0.15';
+    node.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  await page.locator('[data-atm-control="alpha"]').evaluate(node => {
+    node.value='1.0';
+    node.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+
+  await page.locator('[data-water-mode="correction"]').click();
+  await expect(page.locator('.water-lab')).toHaveAttribute('data-mode','correction');
+  await expect(page.locator('.water-correction-scene')).toBeVisible();
+  await expect(page.locator('.water-correction-controls')).toBeVisible();
+  await expect(page.locator('[data-role="third-title"]')).toHaveText('Rrs_est(λ)');
+  await expect(page.locator('[data-role="third-subtitle"]')).toContainText('TRUE Rrs DASHED');
+  await expect(page.locator('[data-role="corr-negative"]')).toHaveText('0 / 301');
+
+  const rrsTruth=await page.locator('[data-role="probe-Rrs"]').textContent();
+  const rrsEstimateMatched=await page.locator('[data-role="probe-Rrs-est"]').textContent();
+  expect(rrsEstimateMatched).toBe(rrsTruth);
+
+  await page.locator('[data-corr-control="aot"]').evaluate(node => {
+    node.value='0.25';
+    node.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+
+  await expect(page.locator('[data-correction-match]')).toHaveText('MATCH TRUE');
+  await expect(page.locator('[data-role="corr-rmse"]')).not.toHaveText('0 sr⁻¹');
+  const negativeText=await page.locator('[data-role="corr-negative"]').textContent();
+  expect(Number.parseInt(negativeText,10)).toBeGreaterThan(0);
+  await expect(page.locator('[data-role="causal"]')).toContainText('Rrs_est');
+  await expect(page.locator('[data-role="spectra-hint"]')).toContainText('NEGATIVE VALUES PRESERVED');
+
+  await page.locator('[data-correction-match]').click();
+  await expect(page.locator('[data-correction-match]')).toHaveText('MATCHED');
+  await expect(page.locator('[data-role="corr-negative"]')).toHaveText('0 / 301');
+  await expect(page.locator('[data-role="probe-Rrs-est"]')).toHaveText(rrsTruth);
+});
