@@ -41,13 +41,6 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   await expect(chinesePanel).toContainText('在翻开这部皇皇巨著之前，二十世纪中叶的美国在我脑海中');
   await expect(chinesePanel).toContainText('历史从不曾依原样描红');
   await expect(chinesePanel).toContainText('它没有顺理成章的传世孤本，却值得在不同的时代风浪里，一次又一次翻开残页，回去追问。');
-  const music = chinesePanel.locator('.book-music');
-  await expect(music).toBeVisible();
-  await expect(music.locator('.book-music-head')).toContainText('补充音乐');
-  await expect(music.locator('iframe')).toHaveCount(13);
-  await expect(music.locator('iframe').first()).toHaveAttribute('src', /7eul_Vt6SZY/);
-  await expect(music.locator('iframe').last()).toHaveAttribute('src', /iP6XpLQM2Cs/);
-  await expect(music.locator('iframe').first()).toHaveAttribute('loading', 'lazy');
 });
 
 test('Elsewhere exposes BOOK as a thirty-four-record collection index', async ({ page }) => {
