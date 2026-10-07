@@ -160,3 +160,49 @@ test('Atmospheric correction mode exposes aerosol-assumption error and preserves
   await expect(page.locator('[data-role="corr-negative"]')).toHaveText('0 / 301');
   await expect(page.locator('[data-role="probe-Rrs-est"]')).toHaveText(rrsTruth);
 });
+
+
+test('Water workspace layout keeps the theory canvas and spectra readable', async ({ page }) => {
+  await page.setViewportSize({ width:1920, height:900 });
+  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+
+  const root=page.locator('.water-lab');
+  const scenePanel=page.locator('.water-scene-panel');
+  const sceneSvg=page.locator('.water-scene > svg');
+  const dock=page.locator('.water-path-dock');
+  const note=page.locator('.water-path-note');
+  const rail=page.locator('.water-control-rail');
+  const readout=page.locator('.water-readout-controls');
+
+  await expect(dock).toBeVisible();
+  const [sceneBox,noteBox,panelBox,railBox,readoutBox]=await Promise.all([
+    sceneSvg.boundingBox(),note.boundingBox(),scenePanel.boundingBox(),rail.boundingBox(),readout.boundingBox()
+  ]);
+  expect(sceneBox).not.toBeNull();
+  expect(noteBox).not.toBeNull();
+  expect(panelBox).not.toBeNull();
+  expect(railBox).not.toBeNull();
+  expect(readoutBox).not.toBeNull();
+
+  expect(noteBox.y).toBeGreaterThanOrEqual(sceneBox.y + sceneBox.height - 1);
+  expect(readoutBox.y + readoutBox.height).toBeLessThanOrEqual(railBox.y + railBox.height + 2);
+
+  const charts=page.locator('.water-chart');
+  await expect(charts).toHaveCount(3);
+  const spectrumBox=await page.locator('.water-spectra-panel').boundingBox();
+  const lastChartBox=await charts.nth(2).boundingBox();
+  expect(spectrumBox).not.toBeNull();
+  expect(lastChartBox).not.toBeNull();
+  expect(lastChartBox.y + lastChartBox.height).toBeLessThanOrEqual(spectrumBox.y + spectrumBox.height + 2);
+
+  const pathHeight=panelBox.height;
+  for(const mode of ['iop','atmosphere','sensor','correction']){
+    await page.locator(`[data-water-mode="${mode}"]`).click();
+    const nextBox=await scenePanel.boundingBox();
+    expect(nextBox).not.toBeNull();
+    expect(Math.abs(nextBox.height-pathHeight)).toBeLessThanOrEqual(1);
+  }
+
+  await expect(page.locator('.water-ac-legend')).toBeVisible();
+  await expect(page.locator('.water-chart-primary')).toBeVisible();
+});
