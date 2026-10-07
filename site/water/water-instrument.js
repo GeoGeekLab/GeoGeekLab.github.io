@@ -817,10 +817,19 @@ export async function mountWaterInstrument({stage,signal}={}){
     render();
   }
   function setPath(step){
-    q('[data-role="scene"]').dataset.pathFocus=step;
+    if(!pathNotes[step]) return;
+    const scene=q('[data-role="scene"]');
+    const svg=q('[data-role="path-svg"]');
+    scene.dataset.pathFocus=step;
+    svg.setAttribute('viewBox',pathViews[step]);
     qa('[data-path-step]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pathStep===step)));
+    qa('[data-path-label]').forEach(label=>{
+      label.style.display=step!=='overview'&&label.dataset.pathLabel===step?'':'none';
+    });
     q('[data-role="path-label"]').textContent=pathNotes[step][0];
     q('[data-role="path-note"]').textContent=pathNotes[step][1];
+    q('[data-role="path-equation"]').textContent=pathFocusData[step].equation;
+    q('[data-role="path-tags"]').innerHTML=pathFocusData[step].tags.map(tag=>`<span>${tag}</span>`).join('');
   }
   function pointerProbe(event,svg){
     const rect=svg.getBoundingClientRect(), viewX=(event.clientX-rect.left)/rect.width*1000;
@@ -829,6 +838,26 @@ export async function mountWaterInstrument({stage,signal}={}){
 
   qa('[data-water-mode]').forEach(b=>on(b,'click',()=>setMode(b.dataset.waterMode)));
   qa('[data-path-step]').forEach(b=>on(b,'click',()=>setPath(b.dataset.pathStep)));
+  on(q('[data-role="scene"]'),'click',event=>{
+    if(root.dataset.mode!=='path'&&root.dataset.mode!=='iop') return;
+    const hotspot=event.target.closest?.('[data-path-hotspot]');
+    if(hotspot) setPath(hotspot.dataset.pathHotspot);
+  });
+  on(q('[data-role="scene"]'),'keydown',event=>{
+    if(root.dataset.mode!=='path'&&root.dataset.mode!=='iop') return;
+    const stages=['overview','atmosphere','interface','water','sensor'];
+    const current=q('[data-role="scene"]').dataset.pathFocus||'overview';
+    if(event.key==='Escape'){
+      event.preventDefault();
+      setPath('overview');
+      return;
+    }
+    if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight') return;
+    event.preventDefault();
+    const index=stages.indexOf(current);
+    const delta=event.key==='ArrowRight'?1:-1;
+    setPath(stages[(index+delta+stages.length)%stages.length]);
+  });
   qa('[data-preset]').forEach(b=>on(b,'click',()=>setState(WATER_REFERENCE_STATES[b.dataset.preset],'PRESET → component IOPs → a(λ), bb(λ) → u(λ) → Rrs(λ)',b.dataset.preset)));
   qa('[data-sensor]').forEach(b=>on(b,'click',()=>{sensorId=b.dataset.sensor;causal='SENSOR CHANGE → water + atmosphere unchanged → band sampling changed';render();}));
   on(root,'click',event=>{
@@ -869,7 +898,7 @@ export async function mountWaterInstrument({stage,signal}={}){
   });
 
   if(signal) on(signal,'abort',()=>cleanup.splice(0).forEach(fn=>fn()),{once:true});
-  setPath('water');render();setMode('path');
+  setPath('overview');render();setMode('path');
 
   return ()=>{cleanup.splice(0).forEach(fn=>fn());if(stage.contains(root))root.remove();};
 }
