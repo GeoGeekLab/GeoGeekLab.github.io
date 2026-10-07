@@ -19,7 +19,7 @@ test('public Lab opens every Play from the collection click path', async ({page}
   page.on('pageerror', error => pageErrors.push(String(error?.stack || error)));
   page.on('requestfailed', request => failedRequests.push(`${request.method()} ${request.url()} :: ${request.failure()?.errorText || 'failed'}`));
 
-  await page.goto(`${LIVE}?livePlayProbe=1`, {waitUntil:'networkidle', timeout:60_000});
+  await page.goto(`${LIVE}?livePlayProbe=1`, {waitUntil:'domcontentloaded', timeout:30_000});\n  await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime) && document.querySelectorAll('.lab-group-play .project-card [data-instrument]').length >= 5, null, {timeout:20_000});
 
   const runtime = await page.evaluate(() => ({
     geoModules: Boolean(window.GeoModules),
