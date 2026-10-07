@@ -306,6 +306,7 @@
     if (!PLAY_KINDS.has(kind)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
+    if (trigger.dataset.playEntryState === 'opening') return;
 
     const requestId = ++entrySequence;
     document.querySelectorAll('[data-play-entry-state="opening"]').forEach(node => {
