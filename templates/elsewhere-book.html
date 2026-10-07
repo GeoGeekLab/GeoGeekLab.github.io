@@ -16,7 +16,19 @@
 <meta property="og:description" content="{{DESCRIPTION}}"/>
 <link href="styles.css" rel="stylesheet"/>
 <link href="/ux-refinements.css" rel="stylesheet"/>
-<link href="/book-unit.css?v=20261006h" rel="stylesheet"/>
+<link href="/book-unit.css?v=20261007a" rel="stylesheet"/>
+<style data-book-template-typography>
+.book-record-page{
+  --book-copy-size:10px;
+  --book-copy-leading:1.9;
+}
+.book-record-page #recordBody p,
+.book-record-page #recordBody li,
+.book-record-page #recordBody dd{
+  font-size:var(--book-copy-size) !important;
+  line-height:var(--book-copy-leading) !important;
+}
+</style>
 <script src="/ux-preinit.js?v=20260930g"></script>
 </head>
 <body class="record-page book-record-page" data-page-key="record" data-record-ref="{{REF}}" data-static-record="true">
