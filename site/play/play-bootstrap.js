@@ -11,7 +11,7 @@
     return item;
   }
 
-  const PLAY_KINDS = new Set(['locate','zone','path','project','light']);
+  const PLAY_KINDS = new Set(['locate','zone','path','project','light','swath']);
 
   function ensurePlayFallbackLinks() {
     PLAY_KINDS.forEach(kind => {
