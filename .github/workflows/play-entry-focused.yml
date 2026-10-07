@@ -1,0 +1,17 @@
+name: Play Entry Focused Diagnostic
+on:
+  push:
+    branches:
+      - diag/play-live-fix-head
+jobs:
+  play-entry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/browser/play-entry-pointer.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=1 --retries=0
