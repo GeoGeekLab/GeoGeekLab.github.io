@@ -55,5 +55,5 @@ test('SWATH appears in the Observatory collection',async({page})=>{
   await expect(card).toContainText('Instrument');
   await expect(card.locator('[data-instrument="swath"]')).toBeVisible();
   await expect(card.locator('.lab-coord')).toHaveText('altitude / FOV / GSD');
-  await expect(card.locator('.preview-swath')).toBeVisible();
+  await expect(card.locator('.project-visual')).toHaveAttribute('data-real-preview','swath',{timeout:10_000});
 });
