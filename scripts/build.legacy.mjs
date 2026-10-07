@@ -31,17 +31,18 @@ const escapeAttr = value => String(value ?? '')
   .replace(/</g, '&lt;')
   .replace(/>/g, '&gt;');
 
-const renderBookBody = (bodyEn, bodyZh = '') => {
+const renderBookBody = (bodyEn, bodyZh = '', defaultLanguage = 'en') => {
   if (!bodyZh) return bodyEn;
+  const defaultZh = defaultLanguage === 'zh';
   return `<div class="book-language-switch" aria-label="Reading language">
   <span>READING LANGUAGE</span>
   <div class="book-language-options" role="group" aria-label="Choose reading language">
-    <button type="button" data-book-lang-button="en" aria-pressed="true">ENGLISH</button>
-    <button type="button" data-book-lang-button="zh" aria-pressed="false">中文</button>
+    <button type="button" data-book-lang-button="en" aria-pressed="${defaultZh ? 'false' : 'true'}">ENGLISH</button>
+    <button type="button" data-book-lang-button="zh" aria-pressed="${defaultZh ? 'true' : 'false'}">中文</button>
   </div>
 </div>
-<div class="book-language-panel" data-book-lang-panel="en" lang="en">${bodyEn}</div>
-<div class="book-language-panel" data-book-lang-panel="zh" lang="zh-Hans" hidden>${bodyZh}</div>`;
+<div class="book-language-panel" data-book-lang-panel="en" lang="en"${defaultZh ? ' hidden' : ''}>${bodyEn}</div>
+<div class="book-language-panel" data-book-lang-panel="zh" lang="zh-Hans"${defaultZh ? '' : ' hidden'}>${bodyZh}</div>`;
 };
 
 const series = JSON.parse(fs.readFileSync(path.join(fieldNotesDir, 'series.json'), 'utf8'));
@@ -104,7 +105,7 @@ if (fs.existsSync(bookContentDir)) {
     const bodyZh = fs.existsSync(bodyZhPath) ? fs.readFileSync(bodyZhPath, 'utf8').trim() : '';
     if (scaffold && (bodyEn || bodyZh)) throw new Error(`BOOK ${entry.name}: scaffold body files must stay empty`);
     if (!scaffold && !bodyEn) throw new Error(`BOOK ${entry.name}: authored body.en.html must not be empty`);
-    record.text.en.bodyHtml = renderBookBody(bodyEn, bodyZh);
+    record.text.en.bodyHtml = renderBookBody(bodyEn, bodyZh, record.data?.defaultReadingLanguage || 'en');
     bookRecords.push(record);
   }
 }
