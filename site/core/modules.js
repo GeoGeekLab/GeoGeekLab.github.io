@@ -8,6 +8,7 @@
   const PROVIDER_STABILITY_RUNTIME = 'core/provider-stability.js?v=20261004b';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002e';
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261002e';
+  const WATER_INSTRUMENT = 'water/water-instrument.js?v=20261007b';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
@@ -151,6 +152,7 @@
     if (kind === 'figure' && !window.GeoFigureViewerV2Polish) await loadScript('figure-viewer-v2-polish.js?v=20261001e');
     if (kind === 'flow' && !window.GeoFlowLab) await loadScript('flow-lab.js?v=20261002a');
     if (kind === 'flow' && !window.GeoFlowLabPolish) await loadScript('flow-lab-polish.js?v=20261002b');
+    if (kind === 'water' && !window.GeoGeekInstrumentMounts?.water) await loadModule(WATER_INSTRUMENT);
     return window.GeoInstruments;
   }
 
@@ -189,7 +191,8 @@
       (kind === 'earth' && !window.GeoEarthTemporalLab) ||
       (kind === 'pulse' && !window.GeoPulseObservationLab) ||
       (kind === 'flow' && (!window.GeoFlowLab || !window.GeoFlowLabPolish)) ||
-      (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish));
+      (kind === 'figure' && (!window.GeoFigureWorkbench || !window.GeoFigureViewerV2 || !window.GeoFigureViewerV2Polish)) ||
+      (kind === 'water' && !window.GeoGeekInstrumentMounts?.water);
     if (window.GeoInstruments && !enhancementNeeded) return;
     event.preventDefault();
     event.stopImmediatePropagation();

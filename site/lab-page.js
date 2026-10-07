@@ -94,7 +94,7 @@
   }
 
   if (list) {
-    const instrumentIds = new Set(['l04','l05','l06','l07','l08','l09','l10','l11','l12']);
+    const instrumentIds = new Set(['l04','l05','l06','l07','l08','l09','l10','l11','l12','l13']);
 
     // The Lab collection should only show records that actually expose an instrument.
     list.querySelectorAll('.project-card').forEach(card => {
@@ -116,7 +116,7 @@
 
       const ids = new Set(cards.map(card => card.id));
       if (ids.has('l11') || ids.has('l12')) block.classList.add('lab-group-studies');
-      else if (ids.has('l04') || ids.has('l05') || ids.has('l06') || ids.has('l10')) block.classList.add('lab-group-observatory');
+      else if (ids.has('l04') || ids.has('l05') || ids.has('l06') || ids.has('l10') || ids.has('l13')) block.classList.add('lab-group-observatory');
       else if (ids.has('l07') || ids.has('l08') || ids.has('l09')) block.classList.add('lab-group-play');
     });
   }
@@ -138,7 +138,8 @@
     locate: 'field',
     zone: 'field',
     path: 'field',
-    figure: 'transform'
+    figure: 'transform',
+    water: 'spectral'
   };
 
   function setInstrumentIdentity(kind = '') {
@@ -160,6 +161,7 @@
     if (stage.querySelector('.pulse-layout')) return 'pulse';
     if (stage.querySelector('.world-layout')) return 'world';
     if (stage.querySelector('.figure-layout')) return 'figure';
+    if (stage.querySelector('.water-lab')) return 'water';
     if (stage.querySelector('.game-layout')) {
       const requested = new URLSearchParams(location.search).get('instrument');
       return requested || 'field';

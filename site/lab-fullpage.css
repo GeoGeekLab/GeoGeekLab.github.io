@@ -1,5 +1,5 @@
 /* GeoGeek Lab full-page workspace
-   Shared shell for the six core instruments: World, Figure, Orbit, Earth, Flow, Pulse.
+   Shared shell for the seven core instruments: World, Figure, Orbit, Earth, Flow, Pulse.
    The browser viewport is the instrument. Secondary information is progressively disclosed. */
 
 :root {
@@ -24,7 +24,8 @@
   [data-instrument-kind="orbit"],
   [data-instrument-kind="earth"],
   [data-instrument-kind="flow"],
-  [data-instrument-kind="pulse"]
+  [data-instrument-kind="pulse"],
+  [data-instrument-kind="water"]
 ) {
   position: fixed;
   inset: 0;
@@ -49,7 +50,8 @@
   [data-instrument-kind="orbit"],
   [data-instrument-kind="earth"],
   [data-instrument-kind="flow"],
-  [data-instrument-kind="pulse"]
+  [data-instrument-kind="pulse"],
+  [data-instrument-kind="water"]
 )::backdrop {
   background: var(--lab-workspace-bg) !important;
   backdrop-filter: none !important;

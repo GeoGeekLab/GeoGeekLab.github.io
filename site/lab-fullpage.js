@@ -4,7 +4,7 @@
   if (!document.querySelector('link[data-lab-fullpage]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'lab-fullpage.css?v=20261007a';
+    link.href = 'lab-fullpage.css?v=20261007b';
     link.dataset.labFullpage = '1';
     document.head.appendChild(link);
   }
@@ -22,7 +22,7 @@
   const close = document.getElementById('instrumentClose');
   if (!dialog || !head || !close) return;
 
-  const CORE = new Set(['world', 'figure', 'orbit', 'earth', 'flow', 'pulse']);
+  const CORE = new Set(['world', 'figure', 'orbit', 'earth', 'flow', 'pulse', 'water']);
   const MODES = ['focus', 'work', 'inspect'];
   const STORAGE = 'geogeek.lab.workspaceMode';
   const REFINEMENTS = {
