@@ -38,8 +38,10 @@ for (const [instrument, kind] of CASES) {
     const trigger = page.locator(`[data-instrument="${instrument}"]`).first();
     await expect(trigger).toBeVisible({ timeout:10_000 });
     await page.evaluate(() => { window.__geoPlayColdEntryDocument = 'before-navigation'; });
-    await trigger.click();
-    await expect.poll(() => page.evaluate(() => window.__geoPlayColdEntryDocument)).toBeUndefined();
+    const navigated = page.waitForURL(new RegExp(`instrument=${instrument}`), { waitUntil:'domcontentloaded', timeout:20_000 });
+    await trigger.click({ noWaitAfter:true });
+    await navigated;
+    expect(await page.evaluate(() => window.__geoPlayColdEntryDocument)).toBeUndefined();
     await expect(page.locator('#instrumentDialog')).toHaveAttribute('open', '', { timeout:20_000 });
     await expect(page.locator(`.play-shell[data-play-kind="${kind}"], .play-v2-shell[data-play-kind="${kind}"]`)).toBeVisible({ timeout:20_000 });
   });
@@ -119,7 +121,8 @@ test('Play entry still navigates when Play enhancement scripts fail to load', as
   await expect(trigger).toHaveAttribute('href', /instrument=light/);
   await page.evaluate(() => { window.__geoPlayFallbackDocument = 'before-navigation'; });
 
+  const navigated = page.waitForURL(/instrument=light/, { waitUntil:'domcontentloaded', timeout:20_000 });
   await trigger.click({ noWaitAfter:true });
-  await expect(page).toHaveURL(/instrument=light/);
-  await expect.poll(() => page.evaluate(() => window.__geoPlayFallbackDocument)).toBeUndefined();
+  await navigated;
+  expect(await page.evaluate(() => window.__geoPlayFallbackDocument)).toBeUndefined();
 });
