@@ -260,3 +260,39 @@ test('Water spectra render compact component analysis instead of stretched singl
   await page.locator('[data-workspace-mode="inspect"]').click();
   await expect(page.locator('.water-budget-controls')).toBeVisible();
 });
+
+
+test('Radiative path explorer focuses one stage at a time with buttons, hotspots, and keyboard', async ({ page }) => {
+  await page.setViewportSize({ width:1920, height:900 });
+  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+
+  const scene=page.locator('[data-role="scene"]');
+  const svg=page.locator('[data-role="path-svg"]');
+
+  await expect(scene).toHaveAttribute('data-path-focus','overview');
+  await expect(page.locator('[data-path-step="overview"]')).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('[data-role="path-equation"]')).toContainText('SUN');
+  expect(await page.locator('[data-path-label]:visible').count()).toBe(0);
+  await expect(svg).toHaveAttribute('viewBox','0 0 1200 390');
+
+  await page.locator('[data-path-step="water"]').click();
+  await expect(scene).toHaveAttribute('data-path-focus','water');
+  await expect(svg).toHaveAttribute('viewBox','215 170 770 215');
+  await expect(page.locator('[data-role="path-equation"]')).toContainText('a(λ)');
+  expect(await page.locator('[data-path-label="water"]:visible').count()).toBeGreaterThan(0);
+  expect(await page.locator('[data-path-label="atmosphere"]:visible').count()).toBe(0);
+
+  await page.locator('[data-path-hotspot="sensor"]').click({ position:{x:20,y:20} });
+  await expect(scene).toHaveAttribute('data-path-focus','sensor');
+  await expect(svg).toHaveAttribute('viewBox','720 20 420 170');
+  await expect(page.locator('[data-role="path-equation"]')).toContainText('BANDPASS');
+
+  await scene.focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(scene).toHaveAttribute('data-path-focus','water');
+  await page.keyboard.press('Escape');
+  await expect(scene).toHaveAttribute('data-path-focus','overview');
+
+  await page.locator('[data-water-mode="iop"]').click();
+  await expect(scene).toHaveAttribute('data-path-focus','water');
+});
