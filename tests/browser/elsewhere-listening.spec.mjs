@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('Elsewhere exposes LISTENING as a nineteen-record Sound as landscape collection using BOOK index geometry', async ({ page }) => {
+test('Elsewhere exposes LISTENING as a thirty-two-record Sound as landscape collection using BOOK index geometry', async ({ page }) => {
   await page.goto('/elsewhere.html#e03');
 
   const listening = page.locator('#e03[data-collection-entry="true"]');
@@ -10,12 +10,12 @@ test('Elsewhere exposes LISTENING as a nineteen-record Sound as landscape collec
   await expect(listening.locator('.elsewhere-entry-lede')).toHaveText('What has no coordinate can still give direction.');
 
   const index = listening.locator('.listening-unit');
-  await expect(index).toHaveAttribute('data-listening-count', '19');
+  await expect(index).toHaveAttribute('data-listening-count', '32');
   await expect(index.locator('.listening-unit-head')).toContainText('LISTENING INDEX');
-  await expect(index.locator('.listening-unit-head')).toContainText('19 RECORDS');
+  await expect(index.locator('.listening-unit-head')).toContainText('32 RECORDS');
 
   const rows = index.locator('.listening-unit-row');
-  await expect(rows).toHaveCount(19);
+  await expect(rows).toHaveCount(32);
   await expect(rows.nth(0)).toContainText('稻香');
   await expect(rows.nth(1)).toContainText('The Nights');
   await expect(rows.nth(2)).toContainText('We Will Rock You');
@@ -35,9 +35,14 @@ test('Elsewhere exposes LISTENING as a nineteen-record Sound as landscape collec
   await expect(rows.nth(16)).toContainText('España Cañí');
   await expect(rows.nth(17)).toContainText('Victory');
   await expect(rows.nth(18)).toContainText("L'inverno, RV 297: II. Largo");
+  await expect(rows.nth(19)).toContainText('7eul_Vt6SZY');
+  await expect(rows.nth(20)).toContainText('q3-tOnJrZZM');
+  await expect(rows.nth(31)).toContainText('iP6XpLQM2Cs');
 
   await expect(rows.nth(0)).toHaveAttribute('href', 'records/elsewhere-listening-001.html');
   await expect(rows.nth(18)).toHaveAttribute('href', 'records/elsewhere-listening-019.html');
+  await expect(rows.nth(19)).toHaveAttribute('href', 'records/elsewhere-listening-020.html');
+  await expect(rows.nth(31)).toHaveAttribute('href', 'records/elsewhere-listening-032.html');
   await expect(index.locator('.listening-unit-empty')).toHaveCount(0);
 
   await expect(rows.first().locator(':scope > *')).toHaveCount(4);
@@ -94,4 +99,22 @@ test('LISTENING preserves original or first-release title language and supplied 
   await expect(page.locator('#recordTitle')).toHaveAttribute('lang', 'it');
   await expect(page.locator('#recordExcerpt')).toContainText('Antonio Vivaldi');
   await expect(page.locator('#recordMeta')).not.toContainText('SOURCE TITLE PENDING');
+});
+
+
+test('LISTENING user-supplied YouTube sources materialize as pending-title records', async ({ page }) => {
+  await page.goto('/records/elsewhere-listening-020.html');
+  await expect(page.locator('#recordTitle')).toHaveText('7eul_Vt6SZY');
+  await expect(page.locator('#recordMeta')).toContainText('SOURCE TITLE PENDING');
+  await expect(page.locator('.listening-record-embed iframe')).toHaveAttribute(
+    'src',
+    'https://www.youtube.com/embed/7eul_Vt6SZY?si=RU9IAcOwLxl9KU35'
+  );
+
+  await page.goto('/records/elsewhere-listening-032.html');
+  await expect(page.locator('#recordTitle')).toHaveText('iP6XpLQM2Cs');
+  await expect(page.locator('.listening-record-embed iframe')).toHaveAttribute(
+    'src',
+    'https://www.youtube.com/embed/iP6XpLQM2Cs?si=esoQjr4C64k0ioEf'
+  );
 });
