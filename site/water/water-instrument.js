@@ -145,20 +145,20 @@ function markup(){
         <div class="water-chart-stack">
           <figure class="water-chart"><figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em data-role="a-probe">—</em><small data-role="a-scale">AUTO Y</small></figcaption><svg data-chart="a" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
           <figure class="water-chart"><figcaption><strong>bb(λ)</strong><span>BACKSCATTER · m⁻¹</span><em data-role="bb-probe">—</em><small data-role="bb-scale">AUTO Y</small></figcaption><svg data-chart="bb" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
-          <figure class="water-chart"><figcaption><strong data-role="third-title">Rrs(λ)</strong><span data-role="third-subtitle">IDEALIZED ABOVE-WATER · sr⁻¹</span><em data-role="rrs-probe">—</em><small data-role="Rrs-scale">AUTO Y</small></figcaption><svg data-chart="Rrs" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
+          <figure class="water-chart water-chart-primary"><figcaption><strong data-role="third-title">Rrs(λ)</strong><span data-role="third-subtitle">IDEALIZED ABOVE-WATER · sr⁻¹</span><em data-role="rrs-probe">—</em><small data-role="Rrs-scale">AUTO Y</small><div class="water-ac-legend" aria-label="Atmospheric correction plot legend"><span><i class="is-est"></i>Rrs_est</span><span><i class="is-true"></i>true Rrs</span><span><i class="is-probe"></i>probe</span></div></figcaption><svg data-chart="Rrs" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
         </div>
       </section>
     </section>
 
     <aside class="water-control-rail" aria-label="Water optical controls">
-      <section class="water-rail-section">
+      <section class="water-rail-section water-primary-controls water-reference-controls">
         <div class="water-rail-heading"><span>REFERENCE STATES</span><small>Pedagogical states</small></div>
         <div class="water-presets">
           <button type="button" data-preset="clearOcean">CLEAR OCEAN</button><button type="button" data-preset="phytoplanktonRich">PHYTO-RICH</button>
           <button type="button" data-preset="cdomRich">CDOM-RICH</button><button type="button" data-preset="turbidParticleRich">PARTICLE-RICH</button>
         </div>
       </section>
-      <section class="water-rail-section">
+      <section class="water-rail-section water-primary-controls water-state-controls">
         <div class="water-rail-heading"><span>WATER STATE</span><small>Inputs, not satellite products</small></div>
         <label class="water-slider"><span><b>CHLOROPHYLL</b><output data-output="chl"></output></span><input data-control="chl" type="range" min="0" max="1000" step="1"><small>Chl → aph(λ) → a(λ)</small></label>
         <label class="water-slider"><span><b>CDOM · ag(440)</b><output data-output="ag440"></output></span><input data-control="ag440" type="range" min="0" max="2" step=".005"><small>ag(440) → ag(λ) → a(λ)</small></label>
@@ -220,7 +220,7 @@ function markup(){
         </div>
         <p class="water-correction-note">OC4 is a sensitivity diagnostic using NASA OLCI coefficients. It is compared against OC4 from the true Rrs, not against the model Chl control.</p>
       </section>
-      <section class="water-rail-section">
+      <section class="water-rail-section water-readout-controls">
         <div class="water-rail-heading"><span>WAVELENGTH PROBE</span><strong data-role="probe-nm">443 nm</strong></div>
         <input class="water-probe-input" data-role="probe-control" type="range" min="400" max="700" step="1" value="443">
         <div class="water-probe-summary"><span><small>a</small><b data-role="probe-a">—</b></span><span><small>bb</small><b data-role="probe-bb">—</b></span><span><small>Rrs</small><b data-role="probe-Rrs">—</b></span><span><small>ρTOA*</small><b data-role="probe-toa">—</b></span><span class="water-correction-probe"><small>Rrs_est</small><b data-role="probe-Rrs-est">—</b></span></div>
@@ -230,7 +230,7 @@ function markup(){
         <div class="water-budget-block"><strong>ABSORPTION</strong><div data-role="abs-budget"></div></div>
         <div class="water-budget-block"><strong>BACKSCATTERING</strong><div data-role="bb-budget"></div></div>
       </section>
-      <section class="water-rail-section"><div class="water-rail-heading"><span>CAUSAL READOUT</span><small>Latest intervention</small></div><p class="water-causal" data-role="causal">REFERENCE STATE → IOPs → u(λ) → rrs(λ) → Rrs(λ)</p></section>
+      <section class="water-rail-section water-causal-controls"><div class="water-rail-heading"><span>CAUSAL READOUT</span><small>Latest intervention</small></div><p class="water-causal" data-role="causal">REFERENCE STATE → IOPs → u(λ) → rrs(λ) → Rrs(λ)</p></section>
       <section class="water-rail-section water-inspect-only">
         <div class="water-rail-heading"><span>MODEL CONTRACT</span><small>Inspect</small></div>
         <div class="water-inspect-grid">
