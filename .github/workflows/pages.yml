@@ -39,12 +39,12 @@ jobs:
             --output site/assets/lab/sentinel2.jpg \
             https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
           test -s site/assets/lab/sentinel2.jpg
-          sed -Ei 's#src="lab-page\.js(\?[^\"]*)?"#src="lab-page.js?v=20261003e"#' site/lab.html
-          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261004b"#' site/lab.html
-          sed -Ei 's#src="play/play-runtime\.js(\?[^\"]*)?"#src="play/play-runtime.js?v=20261003i"#' site/lab.html
-          grep -F 'src="lab-page.js?v=20261003e"' site/lab.html
-          grep -F 'src="core/modules.js?v=20261004b"' site/lab.html
-          grep -F 'src="play/play-runtime.js?v=20261003i"' site/lab.html
+          sed -Ei 's#src="lab-page\.js(\?[^\"]*)?"#src="lab-page.js?v=20261007d"#' site/lab.html
+          sed -Ei 's#src="core/modules\.js(\?[^\"]*)?"#src="core/modules.js?v=20261007i"#' site/lab.html
+          sed -Ei 's#src="play/play-runtime\.js(\?[^\"]*)?"#src="play/play-runtime.js?v=20261007d"#' site/lab.html
+          grep -F 'src="lab-page.js?v=20261007d"' site/lab.html
+          grep -F 'src="core/modules.js?v=20261007i"' site/lab.html
+          grep -F 'src="play/play-runtime.js?v=20261007d"' site/lab.html
       - name: Verify data supply runtime and snapshots
         env:
           DATA_SUPPLY_REQUIRE_REFERENCES: '1'
@@ -103,9 +103,9 @@ jobs:
           test -s dist/play/orient/orient-ergonomics.js
           test -s dist/play/orient/orient-ergonomics.css
           test -s dist/play/orient/orient.css
-          grep -F 'lab-page.js?v=20261003e' dist/lab.html
-          grep -F 'core/modules.js?v=20261004b' dist/lab.html
-          grep -F 'play/play-runtime.js?v=20261003i' dist/lab.html
+          grep -F 'lab-page.js?v=20261007d' dist/lab.html
+          grep -F 'core/modules.js?v=20261007i' dist/lab.html
+          grep -F 'play/play-runtime.js?v=20261007d' dist/lab.html
           grep -E "lab-real-previews\.js\?v=capture-[0-9a-f]{12}" dist/lab.html
           grep -F 'orient-state.js?v=20261003f' dist/play/play-runtime.js
           grep -F 'orient-storage.js?v=20261003f' dist/play/play-runtime.js
@@ -175,7 +175,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path" -o "/tmp/$(basename "$path")"
             test -s "/tmp/$(basename "$path")"
           done
-          curl --fail --silent --show-error --location "$base/lab.html" | grep -F 'core/modules.js?v=20261004b'
+          curl --fail --silent --show-error --location "$base/lab.html" | grep -F 'core/modules.js?v=20261007i'
           curl --fail --silent --show-error --location "$base/core/modules.js" | grep -F 'provider-stability.js?v=20261004b'
           curl --fail --silent --show-error --location "$base/core/provider-stability.js" | grep -F "const RELEASE = '20261004b'"
           curl --fail --silent --show-error --location "$base/core/observatory-entry.js" | grep -F "const RELEASE = '20261004b'"
