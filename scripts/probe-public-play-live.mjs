@@ -1,93 +1,64 @@
-import { chromium, firefox, webkit } from 'playwright';
+import { webkit } from 'playwright';
 
-const LIVE = 'https://geogeeklab.github.io/lab.html';
-const plays = [
-  ['locate','orient'],
-  ['zone','bound'],
-  ['path','connect'],
-  ['project','project'],
-  ['light','light']
-];
-const engines = { chromium, firefox, webkit };
-let failed = false;
+const LIVE='https://geogeeklab.github.io/lab.html';
 
-for (const [engineName, engine] of Object.entries(engines)) {
-  const browser = await engine.launch({ headless:true });
-  try {
-    for (const [kind, domKind] of plays) {
-      const context = await browser.newContext({
-        viewport: engineName === 'webkit' ? { width:390, height:844 } : { width:1440, height:1000 }
-      });
-      const page = await context.newPage();
-      const consoleLines = [];
-      const pageErrors = [];
-      const failedRequests = [];
-      page.on('console', msg => {
-        if (msg.type()==='error' || msg.type()==='warning') {
-          const value=msg.text();
-          consoleLines.push(value.length > 500 ? value.slice(0,500)+'…' : value);
-        }
-      });
-      page.on('pageerror', error => pageErrors.push(String(error?.stack || error).slice(0,800)));
-      page.on('requestfailed', request => failedRequests.push(`${request.method()} ${request.url()} :: ${request.failure()?.errorText || 'failed'}`));
-
-      await page.goto(`${LIVE}?probe=${Date.now()}-${engineName}-${kind}`, { waitUntil:'domcontentloaded', timeout:30_000 });
-      await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime), null, {timeout:10_000});
-      const trigger=page.locator(`[data-instrument="${kind}"]`).first();
-      await trigger.scrollIntoViewIfNeeded();
-      const pre=await trigger.evaluate(el=>({tag:el.tagName,href:el.getAttribute('href'),text:el.textContent.trim()}));
-      const started=Date.now();
-      await trigger.click({ timeout:10_000, noWaitAfter:true });
-      await page.waitForTimeout(80);
-      const immediate=await page.evaluate((kind)=>({
-        dialogOpen:Boolean(document.getElementById('instrumentDialog')?.open),
-        active:window.GeoInstruments?.getActive?.()||null,
-        entryState:document.querySelector(`[data-instrument="${kind}"]`)?.dataset.playEntryState||null,
-        entryText:document.querySelector(`[data-instrument="${kind}"]`)?.textContent?.trim()||'',
-        stageLength:document.getElementById('instrumentStage')?.innerHTML?.length||0,
-        url:location.href
-      }),kind);
-
-      let finalState;
-      try {
-        await page.waitForFunction(({kind}) => {
-          const dialog=document.getElementById('instrumentDialog');
-          const stage=document.getElementById('instrumentStage');
-          return Boolean(dialog?.open && window.GeoInstruments?.getActive?.()===kind && (stage?.innerHTML?.length||0)>80);
-        }, {kind}, {timeout:20_000});
-        finalState=await page.evaluate(({kind,domKind})=>({
-          ok:true,
-          dialogOpen:Boolean(document.getElementById('instrumentDialog')?.open),
-          active:window.GeoInstruments?.getActive?.()||null,
-          shell:Boolean(document.querySelector(`.play-shell[data-play-kind="${domKind}"],.play-v2-shell[data-play-kind="${domKind}"]`)),
-          entryState:document.querySelector(`[data-instrument="${kind}"]`)?.dataset.playEntryState||null,
-          entryText:document.querySelector(`[data-instrument="${kind}"]`)?.textContent?.trim()||'',
-          stageLength:document.getElementById('instrumentStage')?.innerHTML?.length||0,
-          stageText:document.getElementById('instrumentStage')?.textContent?.trim().slice(0,160)||'',
-          url:location.href
-        }),{kind,domKind});
-      } catch (error) {
-        failed=true;
-        finalState=await page.evaluate((kind)=>({
-          ok:false,
-          dialogOpen:Boolean(document.getElementById('instrumentDialog')?.open),
-          active:window.GeoInstruments?.getActive?.()||null,
-          entryState:document.querySelector(`[data-instrument="${kind}"]`)?.dataset.playEntryState||null,
-          entryText:document.querySelector(`[data-instrument="${kind}"]`)?.textContent?.trim()||'',
-          stageLength:document.getElementById('instrumentStage')?.innerHTML?.length||0,
-          stageText:document.getElementById('instrumentStage')?.textContent?.trim().slice(0,160)||'',
-          url:location.href
-        }),kind);
-      }
-
-      console.log('RESULT', JSON.stringify({
-        engine:engineName,kind,elapsedMs:Date.now()-started,pre,immediate,finalState,
-        consoleLines,pageErrors,failedRequests
-      }));
-      await context.close();
-    }
-  } finally {
-    await browser.close();
-  }
+async function snapshot(page,label){
+  const data=await page.evaluate(()=>({
+    url:location.href,
+    runtime:Boolean(window.GeoModules?.__geoSpatialPlayRuntime),
+    geoInstruments:Boolean(window.GeoInstruments),
+    active:window.GeoInstruments?.getActive?.()||null,
+    orient:Boolean(window.GeoPlayOrient),
+    game:Boolean(window.GeoGame),
+    playCore:Boolean(window.GeoPlay?.core),
+    dialogOpen:Boolean(document.getElementById('instrumentDialog')?.open),
+    entryState:document.querySelector('[data-instrument="locate"]')?.dataset.playEntryState||null,
+    stageLength:document.getElementById('instrumentStage')?.innerHTML?.length||0,
+    scripts:[...document.scripts].filter(s=>/games\.js|instruments\.js|figure-instrument|play\/|orient\//.test(s.src)).map(s=>({
+      src:s.src,
+      loaded:s.dataset.loaded||null,
+      failed:s.dataset.loadFailed||null,
+      readyState:s.readyState||null
+    }))
+  }));
+  console.log(label,JSON.stringify(data));
 }
-if (failed) process.exit(1);
+
+const browser=await webkit.launch({headless:true});
+let failed=false;
+try{
+  for(const mode of ['click','direct']){
+    const context=await browser.newContext({viewport:{width:390,height:844}});
+    const page=await context.newPage();
+    const consoleLines=[]; const pageErrors=[]; const failedRequests=[];
+    page.on('console',m=>{if(['error','warning'].includes(m.type()))consoleLines.push(m.text().slice(0,500));});
+    page.on('pageerror',e=>pageErrors.push(String(e?.stack||e).slice(0,800)));
+    page.on('requestfailed',r=>failedRequests.push(`${r.method()} ${r.url()} :: ${r.failure()?.errorText||'failed'}`));
+
+    const url=mode==='direct'
+      ? `${LIVE}?instrument=locate&probe=${Date.now()}`
+      : `${LIVE}?probe=${Date.now()}`;
+    await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
+    await page.waitForFunction(()=>Boolean(window.GeoModules?.__geoSpatialPlayRuntime),null,{timeout:10000});
+    await snapshot(page,`BEFORE_${mode.toUpperCase()}`);
+
+    if(mode==='click'){
+      const trigger=page.locator('[data-instrument="locate"]').first();
+      await trigger.scrollIntoViewIfNeeded();
+      await trigger.click({noWaitAfter:true,timeout:10000});
+    }
+
+    for(const delay of [250,1000,3000,7000,15000]){
+      await page.waitForTimeout(delay-(delay===250?0:({1000:250,3000:1000,7000:3000,15000:7000}[delay]||0)));
+      await snapshot(page,`AT_${delay}MS_${mode.toUpperCase()}`);
+    }
+
+    const end=await page.evaluate(()=>({
+      ok:Boolean(document.getElementById('instrumentDialog')?.open && window.GeoInstruments?.getActive?.()==='locate' && (document.getElementById('instrumentStage')?.innerHTML?.length||0)>80)
+    }));
+    console.log('DIAGNOSTICS',mode,JSON.stringify({end,consoleLines,pageErrors,failedRequests}));
+    if(!end.ok) failed=true;
+    await context.close();
+  }
+} finally { await browser.close(); }
+if(failed)process.exit(1);
