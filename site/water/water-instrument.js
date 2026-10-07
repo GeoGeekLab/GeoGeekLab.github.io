@@ -31,7 +31,7 @@ function format(value,digits){if(value===0)return '0';if(Math.abs(value)<0.001)r
 function wavelengthIndex(wl){return clamp(Math.round(wl)-400,0,WATER_WAVELENGTHS_NM.length-1);}
 
 function markup(){
-  return \`
+  return `
   <div class="water-lab" data-mode="path">
     <section class="water-main">
       <section class="water-scene-panel">
@@ -117,12 +117,12 @@ function markup(){
         </div>
       </section>
     </aside>
-  </div>\`;
+  </div>`;
 }
 
 function budgetRow(component,label,value,total){
   const pct=total>0?clamp(value/total*100,0,100):0;
-  return \`<div class="water-budget-row" data-component="\${component}"><span>\${label}</span><div class="water-budget-track"><div class="water-budget-fill" style="width:\${pct.toFixed(2)}%"></div></div><output>\${format(value,4)}</output></div>\`;
+  return `<div class="water-budget-row" data-component="${component}"><span>${label}</span><div class="water-budget-track"><div class="water-budget-fill" style="width:${pct.toFixed(2)}%"></div></div><output>${format(value,4)}</output></div>`;
 }
 
 export async function mountWaterInstrument({stage,signal}={}){
@@ -170,9 +170,9 @@ export async function mountWaterInstrument({stage,signal}={}){
     const path=values.map((v,i)=>(i?'L':'M')+x(400+i).toFixed(2)+' '+y(v).toFixed(2)).join(' ');
     const area=path+' L '+right+' '+bottom+' L '+left+' '+bottom+' Z';
     const i=wavelengthIndex(probeNm), px=x(probeNm), py=y(values[i]);
-    svg.innerHTML=[0,.5,1].map(t=>{const yy=bottom-t*(bottom-top);return \`<line class="water-grid-line" x1="\${left}" y1="\${yy}" x2="\${right}" y2="\${yy}"></line><text class="water-axis-label" x="6" y="\${yy+3}">\${formatter(t*yMax)}</text>\`;}).join('')+
-      [400,450,500,550,600,650,700].map(wl=>{const xx=x(wl);return \`<line class="water-grid-line" x1="\${xx}" y1="\${top}" x2="\${xx}" y2="\${bottom}"></line><text class="water-axis-label" text-anchor="middle" x="\${xx}" y="174">\${wl}</text>\`;}).join('')+
-      \`<path class="water-spectrum-area" d="\${area}"></path><path class="water-spectrum-line" d="\${path}"></path><line class="water-probe-line" x1="\${px}" y1="\${top}" x2="\${px}" y2="\${bottom}"></line><circle class="water-probe-dot" cx="\${px}" cy="\${py}" r="4"></circle><rect class="water-hit" x="\${left}" y="\${top}" width="\${right-left}" height="\${bottom-top}"></rect>\`;
+    svg.innerHTML=[0,.5,1].map(t=>{const yy=bottom-t*(bottom-top);return `<line class="water-grid-line" x1="${left}" y1="${yy}" x2="${right}" y2="${yy}"></line><text class="water-axis-label" x="6" y="${yy+3}">${formatter(t*yMax)}</text>`;}).join('')+
+      [400,450,500,550,600,650,700].map(wl=>{const xx=x(wl);return `<line class="water-grid-line" x1="${xx}" y1="${top}" x2="${xx}" y2="${bottom}"></line><text class="water-axis-label" text-anchor="middle" x="${xx}" y="174">${wl}</text>`;}).join('')+
+      `<path class="water-spectrum-area" d="${area}"></path><path class="water-spectrum-line" d="${path}"></path><line class="water-probe-line" x1="${px}" y1="${top}" x2="${px}" y2="${bottom}"></line><circle class="water-probe-dot" cx="${px}" cy="${py}" r="4"></circle><rect class="water-hit" x="${left}" y="${top}" width="${right-left}" height="${bottom-top}"></rect>`;
   }
   function renderProbe(){
     const i=wavelengthIndex(probeNm),a=model.absorption,bb=model.backscattering;
