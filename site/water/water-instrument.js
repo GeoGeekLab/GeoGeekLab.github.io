@@ -75,13 +75,15 @@ function markup(){
             <text x="38" y="30">SOLAR INPUT</text><text x="38" y="150">ATMOSPHERE · FIRST-ORDER MODEL</text><text x="38" y="202">AIR–WATER INTERFACE</text><text x="38" y="370">OPTICALLY DEEP WATER</text><text x="988" y="108">SENSOR · SAMPLES ρTOA*</text>
             <text class="logic" x="515" y="245">a(λ)</text><text class="logic" x="625" y="245">bb(λ)</text><text class="logic" x="518" y="360">IOPs → u(λ) → rrs(λ) → Rrs(λ)</text>
           </svg>
-          <div class="water-path-steps" role="group" aria-label="Light path step">
-            <button type="button" data-path-step="atmosphere">ATMOSPHERE</button>
-            <button type="button" data-path-step="interface">INTERFACE</button>
-            <button type="button" data-path-step="water" aria-pressed="true">WATER</button>
-            <button type="button" data-path-step="sensor">SENSOR</button>
+          <div class="water-path-dock">
+            <div class="water-path-steps" role="group" aria-label="Light path step">
+              <button type="button" data-path-step="atmosphere">ATMOSPHERE</button>
+              <button type="button" data-path-step="interface">INTERFACE</button>
+              <button type="button" data-path-step="water" aria-pressed="true">WATER</button>
+              <button type="button" data-path-step="sensor">SENSOR</button>
+            </div>
+            <div class="water-path-note"><b data-role="path-label">WATER COLUMN</b><p data-role="path-note"></p></div>
           </div>
-          <div class="water-path-note"><b data-role="path-label">WATER COLUMN</b><p data-role="path-note"></p></div>
           <div class="water-atmosphere-scene" data-role="atmosphere-scene">
             <div class="water-atmosphere-intro">
               <span>ATMOSPHERE FORWARD LAYER</span>
