@@ -203,6 +203,60 @@ test('Water workspace layout keeps the theory canvas and spectra readable', asyn
     expect(Math.abs(nextBox.height-pathHeight)).toBeLessThanOrEqual(1);
   }
 
-  await expect(page.locator('.water-ac-legend')).toBeVisible();
+  await expect(page.locator('.water-sidecar-legend')).toBeVisible();
   await expect(page.locator('.water-chart-primary')).toBeVisible();
+});
+
+
+test('Water spectra render compact component analysis instead of stretched single curves', async ({ page }) => {
+  await page.setViewportSize({ width:1920, height:900 });
+  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+
+  await expect(page.locator('.water-chart')).toHaveCount(3);
+  await expect(page.locator('.water-chart-sidecar')).toHaveCount(3);
+
+  const absorptionPlot=page.locator('[data-spectrum="absorption"] .water-chart-plot');
+  const backscatterPlot=page.locator('[data-spectrum="backscatter"] .water-chart-plot');
+  const outputPlot=page.locator('[data-spectrum="output"] .water-chart-plot');
+  const [aBox,bbBox,outBox]=await Promise.all([
+    absorptionPlot.boundingBox(),
+    backscatterPlot.boundingBox(),
+    outputPlot.boundingBox()
+  ]);
+
+  expect(aBox).not.toBeNull();
+  expect(bbBox).not.toBeNull();
+  expect(outBox).not.toBeNull();
+  expect(aBox.width).toBeLessThanOrEqual(705);
+  expect(bbBox.width).toBeLessThanOrEqual(705);
+  expect(outBox.width).toBeLessThanOrEqual(705);
+
+  expect(await page.locator('[data-chart="a"] .water-spectrum-component').count()).toBe(4);
+  expect(await page.locator('[data-chart="bb"] .water-spectrum-component').count()).toBe(2);
+  expect(await page.locator('[data-chart="a"] .water-axis-label-x').count()).toBe(0);
+  expect(await page.locator('[data-chart="bb"] .water-axis-label-x').count()).toBe(0);
+  expect(await page.locator('[data-chart="Rrs"] .water-axis-label-x').count()).toBe(7);
+
+  await expect(page.locator('[data-sidecar="a"]')).toContainText('phyto');
+  await expect(page.locator('[data-sidecar="a"]')).toContainText('CDOM');
+  await expect(page.locator('[data-sidecar="bb"]')).toContainText('particles');
+
+  await page.locator('[data-water-mode="atmosphere"]').click();
+  expect(await page.locator('[data-chart="Rrs"] .water-spectrum-component').count()).toBe(3);
+  await expect(page.locator('[data-sidecar="output"]')).toContainText('TOA DECOMPOSITION');
+  await expect(page.locator('[data-sidecar="output"]')).toContainText('Rayleigh');
+  await expect(page.locator('[data-sidecar="output"]')).toContainText('aerosol');
+
+  await page.locator('[data-water-mode="sensor"]').click();
+  await expect(page.locator('[data-sidecar="output"]')).toContainText('NEAREST BAND');
+  expect(await page.locator('[data-chart="Rrs"] .water-sensor-sample-dot').count()).toBeGreaterThan(0);
+
+  await page.locator('[data-water-mode="correction"]').click();
+  await expect(page.locator('.water-sidecar-legend')).toBeVisible();
+  await expect(page.locator('[data-sidecar="output"]')).toContainText('AC ERROR');
+  await expect(page.locator('[data-chart="Rrs"] .water-spectrum-reference')).toHaveCount(1);
+
+  await expect(page.locator('.water-budget-controls')).toBeHidden();
+  await page.locator('[data-workspace-mode="inspect"]').click();
+  await expect(page.locator('.water-budget-controls')).toBeVisible();
 });
