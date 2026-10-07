@@ -177,6 +177,8 @@ The range follows the concentration domain represented in Bricaud et al. (1998).
 
 Chlorophyll is not itself an IOP. It parameterizes `aph(λ)` through an empirical bio-optical relationship.
 
+In V1, changing `Chl` changes `aph` only. It does not automatically change `bbp`, `aNAP`, fluorescence, particle-size distribution, or any other covarying ecological property. The control is an isolated model intervention, not a complete bloom simulator.
+
 ### 5.3 CDOM amplitude
 
 UI label: `CDOM`  
@@ -188,7 +190,7 @@ Interactive teaching envelope: **0–2.0 m⁻¹**.
 
 The slider represents an absorption coefficient, not a CDOM mass concentration.
 
-The chosen upper bound is a teaching envelope, not a claimed global natural maximum. Published coastal values can exceed this range.
+The chosen upper bound is an exploratory teaching envelope. It is not derived from the Babin et al. (2003) amplitude distribution and must not be presented as an empirical percentile, validity limit, or global natural maximum.
 
 ### 5.4 Non-algal particle absorption amplitude
 
@@ -234,6 +236,8 @@ Each component is classified as a definition, published parameterization, or ped
 ### 6.1 Pure water absorption — published parameterization
 
 Use the Water Optical Properties Processor (WOPP) spectral absorption model at 20 °C and 35 PSU.
+
+Because the generated browser baseline is evaluated at salinity 35 PSU, user-facing component labels should say `WATER / SEAWATER BASELINE` or `BASELINE`, not imply a zero-salinity pure-water spectrum.
 
 Implementation strategy for V1:
 
@@ -296,9 +300,9 @@ V1 fixes:
 Sg = 0.0176 nm⁻¹
 ```
 
-Babin et al. (2003) reported a mean CDOM spectral slope near 0.0176 nm⁻¹ with standard deviation about 0.0020 nm⁻¹ across diverse European coastal waters.
+Babin et al. (2003) reported a mean CDOM spectral slope near 0.0176 nm⁻¹ with standard deviation about 0.0020 nm⁻¹ across diverse European coastal waters. The study also reported statistically significant regional differences, so the mean slope is not universal.
 
-Future Inspect mode can expose `Sg`, but V1 keeps it fixed so users learn amplitude effects before spectral-shape uncertainty.
+Future Inspect mode can expose `Sg`, but V1 keeps it fixed so users learn amplitude effects before spectral-shape uncertainty. Inspect mode must identify 0.0176 nm⁻¹ as a fixed mean, not a natural constant.
 
 ### 6.5 Non-algal particle absorption — published spectral form
 
@@ -316,7 +320,7 @@ SNAP = 0.0123 nm⁻¹
 
 Babin et al. (2003) reported an average NAP spectral slope of about 0.0123 nm⁻¹ with standard deviation about 0.0013 nm⁻¹.
 
-The exponential is a model form. Mineral-rich waters can show departures from it.
+The exponential is a model form, not a universal particle law. Babin et al. documented regional variation and spectral departures, including mineral-associated structure and Baltic spectra that departed from the exponential fit at shorter wavelengths.
 
 ### 6.6 Particle backscattering — published spectral form with fixed pedagogical slope
 
@@ -428,6 +432,8 @@ V1.5 can introduce a separately validated atmospheric signal-decomposition model
 
 V1 may display sun and sensor geometry for conceptual orientation.
 
+A drawn surface-reflection or glint path must be labeled `EXCLUDED` or equivalent. It must not visually merge with the modeled water-leaving `Rrs` path.
+
 Changing geometry must not alter the numerical Rrs unless a geometry-dependent radiative-transfer or interface model has been implemented and documented.
 
 Therefore V1 geometry controls, if present, must be labeled conceptual.
@@ -530,7 +536,7 @@ eta       = 1.0
 
 Expected behavior: strong suppression of short-visible Rrs.
 
-### TURBID PARTICLE-RICH
+### PARTICLE-RICH
 
 ```text
 Chl       = 2.0 mg m⁻³
@@ -542,6 +548,8 @@ eta       = 1.0
 
 Expected behavior: much stronger particulate optical influence; reflectance magnitude can remain high despite particle absorption because absorption and backscattering are independent variables.
 
+The UI must not shorten this preset to `TURBID`. Turbidity is an observational quantity and is not equivalent to either `aNAP` or `bbp`.
+
 The reference states must be validated numerically in Round 2 before they become UI presets.
 
 ## 15. Visual color contract
@@ -549,6 +557,14 @@ The reference states must be validated numerically in Round 2 before they become
 Any displayed water color / RGB swatch is **illustrative** unless a documented colorimetric conversion from a defined spectrum, illuminant, and observer function is implemented.
 
 The instrument must not claim that a CSS color is the literal apparent color seen by a human observer.
+
+## 15.1 Plot-scale contract
+
+V1 spectral plots use zero-based linear y-axes with automatic per-state scaling.
+
+Automatic scaling is allowed only when the current y-axis range is explicitly visible next to each plot. A curve becoming visually taller or shorter after an intervention must not be interpretable without its numeric scale.
+
+The UI must label this behavior as `AUTO Y` or equivalent. Exact wavelength-probe values remain the preferred magnitude comparison across different states.
 
 ## 16. V1 exclusions
 

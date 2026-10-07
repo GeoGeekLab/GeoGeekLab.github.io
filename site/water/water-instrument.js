@@ -6,7 +6,7 @@ import {
   computeWaterOptics
 } from './water-model.js';
 
-const STYLE_URL = new URL('./water-instrument.css?v=20261007b', import.meta.url).href;
+const STYLE_URL = new URL('./water-instrument.css?v=20261007c', import.meta.url).href;
 
 function ensureStyle(){
   if(document.querySelector('link[data-water-instrument-style]')) return;
@@ -18,10 +18,10 @@ function ensureStyle(){
 }
 
 const pathNotes={
-  atmosphere:['ATMOSPHERE','The atmospheric path is conceptually present, but V1 does not calculate top-of-atmosphere radiance or atmospheric correction.'],
-  interface:['AIR–WATER INTERFACE','Subsurface rrs and above-water Rrs are distinct AOPs. V1 applies an explicit interface-transfer approximation.'],
-  water:['WATER COLUMN','Absorption and backscattering are IOPs. Together they condition the light field before water-leaving reflectance is formed.'],
-  sensor:['SENSOR','V1 ends at continuous above-water Rrs. Sensor response functions and band integration belong to the next observation phase.']
+  atmosphere:['ATMOSPHERE · NOT MODELED','The atmospheric path is context only. V1 does not calculate top-of-atmosphere radiance, Rayleigh/aerosol terms, or atmospheric correction.'],
+  interface:['AIR–WATER INTERFACE','Subsurface rrs and above-water Rrs are distinct AOPs. V1 applies an explicit interface-transfer approximation. The dashed surface path marks glint context and is excluded from the numerical Rrs.'],
+  water:['WATER COLUMN','Absorption and backscattering are IOPs. Together they condition the light field before idealized water-leaving reflectance is formed.'],
+  sensor:['SENSOR CONTEXT · NOT MODELED','V1 ends at continuous above-water Rrs. Sensor spectral-response functions, band integration, and retrieval algorithms are not applied.']
 };
 
 function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
@@ -36,7 +36,7 @@ function markup(){
     <section class="water-main">
       <section class="water-scene-panel">
         <div class="water-mini-head">
-          <div><span data-role="scene-label">RADIATIVE PATH</span><strong data-role="scene-title">From illumination to water-leaving reflectance.</strong></div>
+          <div><span data-role="scene-label">RADIATIVE PATH</span><strong data-role="scene-title">From illumination to idealized water-leaving reflectance.</strong></div>
           <div class="water-internal-modes" role="group" aria-label="Water observation mode">
             <button type="button" data-water-mode="path" aria-pressed="true">PATH</button>
             <button type="button" data-water-mode="iop" aria-pressed="false">IOP</button>
@@ -51,13 +51,13 @@ function markup(){
             <g class="sensor"><path d="M1010 42h74l17 23-17 23h-74l-17-23z"></path><circle cx="1047" cy="65" r="8"></circle></g>
             <path class="ray ray-down" d="M178 95 C 300 132, 390 148, 480 181 C 520 220, 548 260, 590 310"></path>
             <path class="ray ray-up" d="M590 310 C 660 264, 710 222, 755 181 C 830 132, 905 104, 1007 82"></path>
-            <path class="ray ray-surface" d="M480 181 C 615 158, 770 139, 930 121"></path>
+            <path class="ray ray-surface" d="M480 181 C 615 158, 770 139, 930 121"></path><text class="excluded" x="750" y="135">GLINT PATH · EXCLUDED</text>
             <g class="water-constituents">
               <g class="water-constituent chl"><circle cx="315" cy="250" r="9"></circle><circle cx="350" cy="278" r="6"></circle><circle cx="290" cy="306" r="5"></circle><circle cx="390" cy="320" r="8"></circle></g>
               <g class="water-constituent cdom"><path d="M710 242c28 12 53 7 75-7"></path><path d="M690 287c35 15 70 12 106-9"></path><path d="M735 330c25 8 50 5 76-8"></path></g>
               <g class="water-constituent particle"><rect x="890" y="238" width="10" height="10"></rect><rect x="925" y="270" width="7" height="7"></rect><rect x="865" y="310" width="8" height="8"></rect><rect x="948" y="330" width="11" height="11"></rect></g>
             </g>
-            <text x="38" y="30">SOLAR INPUT</text><text x="38" y="150">ATMOSPHERE · CONCEPTUAL</text><text x="38" y="202">AIR–WATER INTERFACE</text><text x="38" y="370">OPTICALLY DEEP WATER</text>
+            <text x="38" y="30">SOLAR INPUT</text><text x="38" y="150">ATMOSPHERE · NOT MODELED</text><text x="38" y="202">AIR–WATER INTERFACE</text><text x="38" y="370">OPTICALLY DEEP WATER</text><text x="988" y="108">SENSOR CONTEXT · NOT MODELED</text>
             <text class="logic" x="515" y="245">a(λ)</text><text class="logic" x="625" y="245">bb(λ)</text><text class="logic" x="518" y="360">IOPs → u(λ) → rrs(λ) → Rrs(λ)</text>
           </svg>
           <div class="water-path-steps" role="group" aria-label="Light path step">
@@ -73,9 +73,9 @@ function markup(){
       <section class="water-spectra-panel" data-role="spectrum-panel" tabindex="0" aria-label="Linked water optical spectra">
         <div class="water-spectra-head"><span>SYNC / ONE STATE · ONE PROBE</span><strong>← → 1 nm · SHIFT 10 nm</strong></div>
         <div class="water-chart-stack">
-          <figure class="water-chart"><figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em data-role="a-probe">—</em></figcaption><svg data-chart="a" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
-          <figure class="water-chart"><figcaption><strong>bb(λ)</strong><span>BACKSCATTER · m⁻¹</span><em data-role="bb-probe">—</em></figcaption><svg data-chart="bb" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
-          <figure class="water-chart"><figcaption><strong>Rrs(λ)</strong><span>ABOVE-WATER · sr⁻¹</span><em data-role="rrs-probe">—</em></figcaption><svg data-chart="Rrs" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
+          <figure class="water-chart"><figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em data-role="a-probe">—</em><small data-role="a-scale">AUTO Y</small></figcaption><svg data-chart="a" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
+          <figure class="water-chart"><figcaption><strong>bb(λ)</strong><span>BACKSCATTER · m⁻¹</span><em data-role="bb-probe">—</em><small data-role="bb-scale">AUTO Y</small></figcaption><svg data-chart="bb" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
+          <figure class="water-chart"><figcaption><strong>Rrs(λ)</strong><span>IDEALIZED ABOVE-WATER · sr⁻¹</span><em data-role="rrs-probe">—</em><small data-role="Rrs-scale">AUTO Y</small></figcaption><svg data-chart="Rrs" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg></figure>
         </div>
       </section>
     </section>
@@ -84,8 +84,8 @@ function markup(){
       <section class="water-rail-section">
         <div class="water-rail-heading"><span>REFERENCE STATES</span><small>Pedagogical states</small></div>
         <div class="water-presets">
-          <button type="button" data-preset="clearOcean">CLEAR OCEAN</button><button type="button" data-preset="phytoplanktonRich">PHYTOPLANKTON</button>
-          <button type="button" data-preset="cdomRich">CDOM-RICH</button><button type="button" data-preset="turbidParticleRich">TURBID</button>
+          <button type="button" data-preset="clearOcean">CLEAR OCEAN</button><button type="button" data-preset="phytoplanktonRich">PHYTO-RICH</button>
+          <button type="button" data-preset="cdomRich">CDOM-RICH</button><button type="button" data-preset="turbidParticleRich">PARTICLE-RICH</button>
         </div>
       </section>
       <section class="water-rail-section">
@@ -111,8 +111,10 @@ function markup(){
       <section class="water-rail-section water-inspect-only">
         <div class="water-rail-heading"><span>MODEL CONTRACT</span><small>Inspect</small></div>
         <div class="water-inspect-grid">
-          <span><small>DOMAIN</small><b>400–700 nm · 1 nm</b></span><span><small>WATER</small><b>20 °C · 35 PSU</b></span>
-          <span><small>η</small><b>1.0 fixed</b></span><span><small>GEOMETRY</small><b>Not solved in V1</b></span>
+          <span><small>DOMAIN</small><b>400–700 nm · 1 nm</b></span><span><small>BASELINE</small><b>20 °C · 35 PSU</b></span>
+          <span><small>Sg</small><b>0.0176 nm⁻¹ · fixed mean</b></span><span><small>SNAP</small><b>0.0123 nm⁻¹ · fixed mean</b></span>
+          <span><small>η</small><b>1.0 · teaching assumption</b></span><span><small>IOP→AOP</small><b>Gordon / GIOP form</b></span>
+          <span><small>INTERFACE</small><b>Lee et al. approximation</b></span><span><small>GEOMETRY</small><b>Not solved in V1</b></span>
           <span><small>rrs</small><b data-role="probe-rrs">—</b></span><span><small>u</small><b data-role="probe-u">—</b></span>
         </div>
       </section>
@@ -162,9 +164,10 @@ export async function mountWaterInstrument({stage,signal}={}){
     scene.style.setProperty('--cdom-opacity',String(.16+.76*clamp(cdomNorm,0,1)));
     scene.style.setProperty('--particle-opacity',String(.18+.72*clamp(particleNorm,0,1)));
   }
-  function renderChart(svg,values,formatter){
+  function renderChart(svg,values,formatter,scaleNode){
     const left=52,right=984,top=14,bottom=151;
     const max=Math.max(...values), yMax=max>0?max*1.08:1;
+    if(scaleNode) scaleNode.textContent='AUTO Y · 0–'+formatter(yMax);
     const x=wl=>left+(wl-400)/300*(right-left);
     const y=v=>bottom-v/yMax*(bottom-top);
     const path=values.map((v,i)=>(i?'L':'M')+x(400+i).toFixed(2)+' '+y(v).toFixed(2)).join(' ');
@@ -187,15 +190,15 @@ export async function mountWaterInstrument({stage,signal}={}){
     q('[data-role="a-probe"]').textContent=format(a.total[i],4)+' m⁻¹';
     q('[data-role="bb-probe"]').textContent=format(bb.total[i],5)+' m⁻¹';
     q('[data-role="rrs-probe"]').textContent=format(model.Rrs[i],5)+' sr⁻¹';
-    q('[data-role="abs-budget"]').innerHTML=budgetRow('water','water',a.water[i],a.total[i])+budgetRow('phyto','phyto',a.phytoplankton[i],a.total[i])+budgetRow('cdom','CDOM',a.cdom[i],a.total[i])+budgetRow('nap','NAP',a.nap[i],a.total[i]);
-    q('[data-role="bb-budget"]').innerHTML=budgetRow('water','water',bb.water[i],bb.total[i])+budgetRow('particles','particles',bb.particles[i],bb.total[i]);
+    q('[data-role="abs-budget"]').innerHTML=budgetRow('water','baseline',a.water[i],a.total[i])+budgetRow('phyto','phyto',a.phytoplankton[i],a.total[i])+budgetRow('cdom','CDOM',a.cdom[i],a.total[i])+budgetRow('nap','NAP',a.nap[i],a.total[i]);
+    q('[data-role="bb-budget"]').innerHTML=budgetRow('water','baseline',bb.water[i],bb.total[i])+budgetRow('particles','particles',bb.particles[i],bb.total[i]);
   }
   function render(){
     model=computeWaterOptics(state);
     syncControls();syncScene();
-    renderChart(q('[data-chart="a"]'),model.absorption.total,v=>format(v,2));
-    renderChart(q('[data-chart="bb"]'),model.backscattering.total,v=>format(v,4));
-    renderChart(q('[data-chart="Rrs"]'),model.Rrs,v=>format(v,4));
+    renderChart(q('[data-chart="a"]'),model.absorption.total,v=>format(v,2),q('[data-role="a-scale"]'));
+    renderChart(q('[data-chart="bb"]'),model.backscattering.total,v=>format(v,4),q('[data-role="bb-scale"]'));
+    renderChart(q('[data-chart="Rrs"]'),model.Rrs,v=>format(v,4),q('[data-role="Rrs-scale"]'));
     renderProbe();
     q('[data-role="causal"]').textContent=causal;
     qa('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===preset)));

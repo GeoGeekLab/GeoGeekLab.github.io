@@ -29,20 +29,20 @@ const outputs={
 
 const pathNotes={
   atmosphere:{
-    label:"ATMOSPHERE",
-    text:"The atmosphere strongly conditions satellite water-colour observations. V1 shows this path conceptually only; it does not calculate top-of-atmosphere radiance or atmospheric correction."
+    label:"ATMOSPHERE · NOT MODELED",
+    text:"The atmosphere strongly conditions satellite water-colour observations. V1 shows this path as context only; it does not calculate top-of-atmosphere radiance, aerosol/Rayleigh terms, or atmospheric correction."
   },
   interface:{
     label:"AIR–WATER INTERFACE",
-    text:"Subsurface rrs and above-water Rrs are different AOPs. V1 uses an explicit interface-transfer approximation instead of treating them as the same quantity."
+    text:"Subsurface rrs and above-water Rrs are different AOPs. V1 uses an explicit interface-transfer approximation. The dashed surface path marks glint context and is excluded from numerical Rrs."
   },
   water:{
     label:"WATER COLUMN",
     text:"Absorption and backscattering are inherent optical properties. They determine how the in-water light field changes before light leaves the surface."
   },
   sensor:{
-    label:"SENSOR",
-    text:"V1 ends at continuous above-water Rrs. Spectral response functions, band integration, and retrieval algorithms are reserved for the sensor phase."
+    label:"SENSOR CONTEXT · NOT MODELED",
+    text:"V1 ends at continuous above-water Rrs. Spectral response functions, band integration, and retrieval algorithms are not applied."
   }
 };
 
@@ -73,7 +73,7 @@ function setMode(mode){
   $$("[data-water-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.waterMode===mode)));
   if(mode==="path"){
     $("#sceneModeLabel").textContent="RADIATIVE PATH";
-    $("#sceneTitle").textContent="From illumination to water-leaving reflectance.";
+    $("#sceneTitle").textContent="From illumination to idealized water-leaving reflectance.";
     $("#sceneBoundary").textContent="Atmosphere is conceptual in V1. Quantitative output begins with water IOPs.";
   }else{
     $("#sceneModeLabel").textContent="INHERENT → APPARENT";
@@ -118,10 +118,11 @@ function chartPath(values,yMax){
   return values.map((v,i)=>(i===0?"M":"L")+x(400+i).toFixed(2)+" "+y(v).toFixed(2)).join(" ");
 }
 
-function renderChart(svg,values,unitFormatter){
+function renderChart(svg,values,unitFormatter,scaleNode){
   const left=54,right=982,top=18,bottom=160;
   const maxValue=Math.max(...values);
   const yMax=maxValue>0?maxValue*1.08:1;
+  if(scaleNode) scaleNode.textContent='AUTO Y · 0–'+unitFormatter(yMax);
   const x=wl=>left+(wl-400)/300*(right-left);
   const y=v=>bottom-(v/yMax)*(bottom-top);
   const idx=indexForWavelength(probeNm);
@@ -178,13 +179,13 @@ function renderProbe(){
   $("#rrsProbeValue").textContent=format(model.Rrs[i],5)+" sr⁻¹";
 
   $("#absorptionBudget").innerHTML=
-    budgetRow("water","water",a.water[i],a.total[i])+
+    budgetRow("water","baseline",a.water[i],a.total[i])+
     budgetRow("phyto","phyto",a.phytoplankton[i],a.total[i])+
     budgetRow("cdom","CDOM",a.cdom[i],a.total[i])+
     budgetRow("nap","NAP",a.nap[i],a.total[i]);
 
   $("#backscatterBudget").innerHTML=
-    budgetRow("water","water",bb.water[i],bb.total[i])+
+    budgetRow("water","baseline",bb.water[i],bb.total[i])+
     budgetRow("particles","particles",bb.particles[i],bb.total[i]);
 }
 
@@ -193,9 +194,9 @@ function renderAll(){
   syncControlPositions();
   syncSceneIntensity();
 
-  renderChart($("#absorptionChart"),model.absorption.total,function(v){return format(v,2);});
-  renderChart($("#backscatterChart"),model.backscattering.total,function(v){return format(v,4);});
-  renderChart($("#rrsChart"),model.Rrs,function(v){return format(v,4);});
+  renderChart($("#absorptionChart"),model.absorption.total,function(v){return format(v,2);},$("#absorptionScale"));
+  renderChart($("#backscatterChart"),model.backscattering.total,function(v){return format(v,4);},$("#backscatterScale"));
+  renderChart($("#rrsChart"),model.Rrs,function(v){return format(v,4);},$("#rrsScale"));
   renderProbe();
 
   $("#causalReadout").textContent=lastCausal;

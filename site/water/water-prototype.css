@@ -190,12 +190,14 @@ body.water-prototype-page{
 .photon-up{stroke:rgba(116,186,184,.82)}
 .photon-surface{stroke:rgba(209,99,57,.45);stroke-dasharray:6 8}
 .scene-labels text,
-.scene-water-logic text{
+.scene-water-logic text,
+.scene-excluded{
   fill:var(--water-muted);
   font:600 9px var(--mono);
   letter-spacing:.09em;
 }
 .scene-water-logic text{fill:rgba(229,234,230,.72);font-size:11px}
+.scene-excluded{fill:var(--water-signal)!important;font-size:8px!important}
 .constituent{transition:opacity .2s ease}
 .constituent-chl{fill:var(--water-green);opacity:var(--chl-opacity,.5)}
 .constituent-cdom{fill:none;stroke:var(--water-amber);stroke-width:3;opacity:var(--cdom-opacity,.4)}
@@ -292,6 +294,11 @@ body.water-prototype-page{
   color:var(--water-body);
   font:600 9px/1 var(--mono);
   font-style:normal;
+}
+.water-chart figcaption small{
+  color:var(--water-signal);
+  font:650 7px/1.2 var(--mono);
+  letter-spacing:.055em;
 }
 .water-chart svg{
   width:100%;

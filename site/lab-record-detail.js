@@ -306,10 +306,10 @@
           <section class="lab-record-block">
             <div class="lab-record-block-label">COMPONENT MODELS</div>
             <div class="lab-record-facts">
-              <div><span>PURE WATER</span><strong>WOPP absorption · Zhang et al. seawater scattering</strong></div>
+              <div><span>SEAWATER BASELINE</span><strong>WOPP absorption at 20 °C / 35 PSU · Zhang et al. seawater scattering</strong></div>
               <div><span>PHYTOPLANKTON</span><strong>Bricaud et al. 1998 · aph = Aphi · Chl^Ephi</strong></div>
-              <div><span>CDOM</span><strong>Exponential ag spectrum · S = 0.0176 nm⁻¹</strong></div>
-              <div><span>NAP</span><strong>Exponential aNAP spectrum · S = 0.0123 nm⁻¹</strong></div>
+              <div><span>CDOM</span><strong>Exponential ag spectrum · S = 0.0176 nm⁻¹ fixed study-wide mean</strong></div>
+              <div><span>NAP</span><strong>Exponential aNAP spectrum · S = 0.0123 nm⁻¹ fixed study-wide mean</strong></div>
               <div><span>PARTICLE bb</span><strong>Power law referenced to 443 nm · η = 1.0 in V1</strong></div>
               <div><span>BASELINE</span><strong>20 °C · 35 PSU</strong></div>
             </div>
@@ -318,16 +318,16 @@
           <section class="lab-record-block">
             <div class="lab-record-block-label">WHAT THE CONTROLS MEAN</div>
             <div class="lab-record-copy">
-              <p>Chlorophyll is a constituent proxy that parameterizes phytoplankton absorption. <code>ag(440)</code>, <code>aNAP(443)</code>, and <code>bbp(443)</code> are optical amplitudes. Particle absorption and particle backscattering remain independent because no universal concentration-to-IOP relationship exists across natural waters.</p>
-              <p>The four named water states are reproducible pedagogical scenarios, not an optical-water-type classification.</p>
+              <p>Chlorophyll is a constituent proxy that parameterizes phytoplankton absorption. In V1, changing <code>Chl</code> changes <code>aph</code> only; it does not automatically change particle backscatter, NAP, fluorescence, or ecological community structure. <code>ag(440)</code>, <code>aNAP(443)</code>, and <code>bbp(443)</code> are optical amplitudes.</p>
+              <p>Particle absorption and particle backscattering remain independent because no universal concentration-to-IOP relationship exists across natural waters. The fixed CDOM and NAP spectral slopes are study-wide means from Babin et al. (2003), not universal constants. The four named water states are reproducible pedagogical scenarios, not an optical-water-type or turbidity classification.</p>
             </div>
           </section>
 
           <section class="lab-record-block">
             <div class="lab-record-block-label">LIMITS</div>
             <div class="lab-record-copy">
-              <p>V1 does not solve atmospheric radiative transfer, top-of-atmosphere radiance, sun glint, adjacency effects, polarization, fluorescence, full BRDF geometry, shallow-water bottom reflectance, sensor spectral-response functions, or inversion products. The sun–atmosphere–sensor path shown in PATH mode is conceptual until those terms are separately implemented and validated.</p>
-              <p>The quantitative model stops at 700 nm. The interface must not imply validated phytoplankton or reflectance output beyond that boundary.</p>
+              <p>V1 does not solve atmospheric radiative transfer, top-of-atmosphere radiance, sun glint, adjacency effects, polarization, fluorescence, full BRDF geometry, shallow-water bottom reflectance, sensor spectral-response functions, or inversion products. The sun–atmosphere–sensor path shown in PATH mode is conceptual; the dashed glint path is explicitly excluded from numerical Rrs.</p>
+              <p>The quantitative model stops at 700 nm. The interface must not imply validated phytoplankton or reflectance output beyond that boundary. Spectral plots use zero-based automatic y scaling and expose the current <code>AUTO Y</code> range; compare exact magnitudes with the numeric axes and wavelength probe, not apparent curve height alone.</p>
             </div>
           </section>
 

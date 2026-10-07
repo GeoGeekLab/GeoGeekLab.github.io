@@ -35,7 +35,7 @@
       <div class="water-panel-head">
         <div>
           <span id="sceneModeLabel">RADIATIVE PATH</span>
-          <h2 id="sceneTitle">From illumination to water-leaving reflectance.</h2>
+          <h2 id="sceneTitle">From illumination to idealized water-leaving reflectance.</h2>
         </div>
         <p id="sceneBoundary">Atmosphere is conceptual in V1. Quantitative output begins with water IOPs.</p>
       </div>
@@ -74,7 +74,7 @@
 
           <path class="photon-path photon-down" d="M182 104 C 300 145, 390 166, 485 206 C 520 245, 545 286, 590 330"></path>
           <path class="photon-path photon-up" d="M590 330 C 660 280, 706 242, 754 206 C 822 154, 900 119, 1008 90"></path>
-          <path class="photon-path photon-surface" d="M485 206 C 610 180, 764 156, 925 136"></path>
+          <path class="photon-path photon-surface" d="M485 206 C 610 180, 764 156, 925 136"></path><text class="scene-excluded" x="760" y="152">GLINT PATH · EXCLUDED</text>
 
           <g class="water-constituents" aria-hidden="true">
             <g class="constituent constituent-chl">
@@ -92,10 +92,10 @@
 
           <g class="scene-labels" aria-hidden="true">
             <text x="42" y="36">SOLAR INPUT</text>
-            <text x="42" y="168">ATMOSPHERE · CONCEPTUAL IN V1</text>
+            <text x="42" y="168">ATMOSPHERE · NOT MODELED</text>
             <text x="42" y="228">AIR–WATER INTERFACE</text>
             <text x="42" y="408">OPTICALLY DEEP WATER</text>
-            <text x="995" y="122">SENSOR / V1.5</text>
+            <text x="995" y="122">SENSOR CONTEXT · NOT MODELED</text>
           </g>
 
           <g class="scene-water-logic" aria-hidden="true">
@@ -130,15 +130,15 @@
 
       <div class="water-chart-stack">
         <figure class="water-chart" data-chart="absorption">
-          <figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em id="absorptionProbeValue">—</em></figcaption>
+          <figcaption><strong>a(λ)</strong><span>ABSORPTION · m⁻¹</span><em id="absorptionProbeValue">—</em><small id="absorptionScale">AUTO Y</small></figcaption>
           <svg id="absorptionChart" viewBox="0 0 1000 190" preserveAspectRatio="none" aria-label="Total spectral absorption"></svg>
         </figure>
         <figure class="water-chart" data-chart="backscattering">
-          <figcaption><strong>bb(λ)</strong><span>BACKSCATTERING · m⁻¹</span><em id="backscatterProbeValue">—</em></figcaption>
+          <figcaption><strong>bb(λ)</strong><span>BACKSCATTERING · m⁻¹</span><em id="backscatterProbeValue">—</em><small id="backscatterScale">AUTO Y</small></figcaption>
           <svg id="backscatterChart" viewBox="0 0 1000 190" preserveAspectRatio="none" aria-label="Total spectral backscattering"></svg>
         </figure>
         <figure class="water-chart" data-chart="rrs">
-          <figcaption><strong>Rrs(λ)</strong><span>ABOVE-WATER REFLECTANCE · sr⁻¹</span><em id="rrsProbeValue">—</em></figcaption>
+          <figcaption><strong>Rrs(λ)</strong><span>IDEALIZED ABOVE-WATER · sr⁻¹</span><em id="rrsProbeValue">—</em><small id="rrsScale">AUTO Y</small></figcaption>
           <svg id="rrsChart" viewBox="0 0 1000 190" preserveAspectRatio="none" aria-label="Above-water remote-sensing reflectance"></svg>
         </figure>
       </div>
@@ -153,9 +153,9 @@
       </div>
       <div class="water-presets" role="group" aria-label="Reference water state">
         <button type="button" data-preset="clearOcean">CLEAR OCEAN</button>
-        <button type="button" data-preset="phytoplanktonRich">PHYTOPLANKTON</button>
+        <button type="button" data-preset="phytoplanktonRich">PHYTO-RICH</button>
         <button type="button" data-preset="cdomRich">CDOM-RICH</button>
-        <button type="button" data-preset="turbidParticleRich">TURBID</button>
+        <button type="button" data-preset="turbidParticleRich">PARTICLE-RICH</button>
       </div>
     </section>
 

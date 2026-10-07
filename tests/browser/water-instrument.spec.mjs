@@ -11,8 +11,13 @@ test('Water as Spectrum opens as a production Lab observatory instrument', async
 
   await expect(page.locator('.water-lab')).toBeVisible();
   await expect(page.locator('.water-chart')).toHaveCount(3);
+  await expect(page.locator('[data-role="a-scale"]')).toContainText('AUTO Y');
+  await expect(page.locator('[data-role="bb-scale"]')).toContainText('AUTO Y');
+  await expect(page.locator('[data-role="Rrs-scale"]')).toContainText('AUTO Y');
   await expect(page.locator('.water-control-rail')).toBeVisible();
   await expect(page.locator('[data-role="probe-nm"]')).toHaveText('443 nm');
+  await expect(page.locator('.water-scene')).toContainText('GLINT PATH · EXCLUDED');
+  await expect(page.locator('[data-preset="turbidParticleRich"]')).toHaveText('PARTICLE-RICH');
 
   const before=await page.locator('[data-role="probe-Rrs"]').textContent();
   await page.locator('[data-preset="cdomRich"]').click();
@@ -28,6 +33,8 @@ test('Water as Spectrum opens as a production Lab observatory instrument', async
   await expect(page.locator('.water-control-rail')).toBeVisible();
   await expect(page.locator('.water-inspect-only')).toBeVisible();
   await expect(page.locator('.water-inspect-only')).toContainText('400–700 nm');
+  await expect(page.locator('.water-inspect-only')).toContainText('fixed mean');
+  await expect(page.locator('.water-inspect-only')).toContainText('teaching assumption');
 
   await page.locator('[data-water-mode="iop"]').click();
   await expect(page.locator('.water-lab')).toHaveAttribute('data-mode','iop');

@@ -64,3 +64,23 @@ Workspace behavior:
 - Inspect: primary controls plus the V1 model contract and subsurface readouts.
 
 The production V1 still excludes atmospheric correction, sensor response functions, and inversion.
+
+
+## Round 5 scientific audit
+
+Round 5 did not add a new physical process. It audited the existing model and corrected presentation risks.
+
+Corrections:
+
+- automatic y-axis scaling is now explicit as `AUTO Y` on every spectrum;
+- the particle-rich preset is no longer labeled `TURBID`;
+- the 20 °C / 35 PSU water component is described as a seawater baseline in user-facing copy;
+- the surface/glint path is labeled as excluded from the numerical `Rrs`;
+- sensor and atmosphere labels explicitly state that they are not modeled;
+- Babin CDOM/NAP slopes are identified as fixed study-wide means, not universal constants;
+- the chlorophyll control explicitly changes `aph` only in V1;
+- Inspect mode now exposes the fixed-slope and semi-analytical assumptions.
+
+The numerical audit samples 3,125 accepted states over the declared parameter envelope and checks positivity, component identities, interface-domain margin, intervention monotonicity, spectral-form identities, and reference-state diagnostic behavior.
+
+See `docs/WATER_AS_SPECTRUM_SCIENTIFIC_AUDIT.md`.

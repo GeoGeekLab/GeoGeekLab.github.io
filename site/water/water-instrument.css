@@ -86,6 +86,7 @@
 .water-scene .ray-surface{stroke:rgba(209,99,57,.48);stroke-dasharray:6 8}
 .water-scene text{fill:var(--water-muted);font:600 8px var(--mono);letter-spacing:.08em}
 .water-scene .logic{fill:rgba(229,234,230,.76);font-size:10px}
+.water-scene .excluded{fill:var(--water-signal);font-size:7px}
 .water-constituent.chl{fill:var(--water-green);opacity:var(--chl-opacity,.5)}
 .water-constituent.cdom{fill:none;stroke:var(--water-amber);stroke-width:3;opacity:var(--cdom-opacity,.4)}
 .water-constituent.particle{fill:var(--water-rust);opacity:var(--particle-opacity,.5)}
@@ -137,6 +138,7 @@
 .water-chart figcaption strong{color:var(--water-fg);font:500 15px/1 var(--mono)}
 .water-chart figcaption span{color:var(--water-faint);font:650 6.5px/1.3 var(--mono);letter-spacing:.06em}
 .water-chart figcaption em{color:var(--water-body);font:600 8px/1 var(--mono);font-style:normal}
+.water-chart figcaption small{color:var(--water-signal);font:650 6.5px/1.2 var(--mono);letter-spacing:.055em}
 .water-chart svg{width:100%;height:100%;min-height:88px;display:block;touch-action:none;cursor:crosshair}
 .water-grid-line{stroke:var(--water-line-soft);stroke-width:1;vector-effect:non-scaling-stroke}
 .water-axis-label{fill:var(--water-faint);font:600 8px var(--mono)}

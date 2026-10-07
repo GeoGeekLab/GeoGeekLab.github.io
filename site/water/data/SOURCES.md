@@ -8,7 +8,7 @@ Source snapshot: `source/wopp-purewater-absorption-v3-400-700.tsv`.
 
 Upstream: `ocean-colour/ocpy@3aed28acbeaad1e699ede06f049edd73b3eb41e9`, file `ocpy/water/WOPP/purewater_abs_coefficients_v3.dat`.
 
-The source table gives pure-water absorption at 20 °C and 0 PSU plus salinity and temperature coefficients. V1 evaluates:
+The source table gives pure-water absorption at 20 °C and 0 PSU plus salinity and temperature coefficients. V1 evaluates a 35 PSU seawater baseline:
 
 ```text
 aw(λ, 20 °C, 35 PSU) = a0(λ) + 35 · PsiS(λ)
@@ -51,6 +51,8 @@ aNAP(λ) = aNAP443 · exp[-0.0123 · (λ - 443)]
 
 Reference: Babin, M. et al. (2003), *JGR Oceans* 108, 3211. DOI 10.1029/2001JC000882.
 
+The fixed slopes are the study-wide means, not universal constants: `SCDOM = 0.0176 ± 0.0020 nm⁻¹` and `SNAP = 0.0123 ± 0.0013 nm⁻¹` (mean ± SD). The paper reports regional variation and spectral departures, so V1 treats these as teaching defaults.
+
 ## Reflectance
 
 ```text
@@ -59,7 +61,7 @@ rrs = 0.0949 u + 0.0794 u²
 Rrs = 0.52 rrs / (1 - 1.7 rrs)
 ```
 
-The first relationship uses the NASA GIOP-DC default Gordon-style coefficients. The interface relationship follows Lee, Carder & Arnone (2002).
+The first relationship uses the NASA GIOP-DC default Gordon-style coefficients. The interface relationship follows Lee, Carder & Arnone (2002). These are semi-analytical/interface approximations, not a full angular radiative-transfer solution.
 
 ## Rebuild
 
