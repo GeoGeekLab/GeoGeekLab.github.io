@@ -125,22 +125,7 @@
               <p>Representation is an analytical choice. A field answers what direction and magnitude exist at locations; an OD network summarizes exchange; a trajectory preserves ordered motion; particles expose advection through a field.</p>
             </div>
           </section>
-          <section class="lab-record-block">
-            <div class="lab-record-block-label">SENSOR OBSERVATION LAYER</div>
-            <div class="lab-record-copy">
-              <p>The SENSOR mode samples the already-computed idealized above-water <code>Rrs(λ)</code>. Selecting another sensor changes only spectral sampling; it does not change the water state, IOPs, <code>rrs</code>, or continuous <code>Rrs</code>.</p>
-              <p>Band values use simplified rectangular bandpasses. They are pedagogical band averages, not measured detector SRFs and not top-of-atmosphere observations.</p>
-            </div>
-            <div class="lab-record-facts">
-              <div><span>Sentinel-3 OLCI</span><strong>Nominal Oa01–Oa10 visible bands · simplified top-hat</strong></div>
-              <div><span>PACE OCI</span><strong>Nominal 5 nm teaching grid · actual OCI has finer sampling / measured RSR</strong></div>
-              <div><span>Sentinel-2A MSI</span><strong>B01–B04 nominal centre / bandwidth</strong></div>
-              <div><span>Landsat 8/9 OLI</span><strong>B1–B4 USGS wavelength ranges</strong></div>
-            </div>
-            <div class="lab-record-copy lab-record-links">
-              <p><a href="https://sentinels.copernicus.eu/documents/247904/0/OLCI_L2_ATBD_Pixel_Classification.pdf" target="_blank" rel="noreferrer">OLCI nominal bands ↗</a> · <a href="https://step.esa.int/main/wp-content/help/versions/12.0.0/snap-toolboxes/eu.esa.opt.opttbx.s2msi.reader/Sentinel2Overview.html" target="_blank" rel="noreferrer">Sentinel-2 MSI ↗</a> · <a href="https://www.usgs.gov/faqs/what-are-band-designations-landsat-satellites" target="_blank" rel="noreferrer">Landsat OLI ↗</a> · <a href="https://pace.oceansciences.org/oci.htm" target="_blank" rel="noreferrer">PACE OCI ↗</a></p>
-            </div>
-          </section>
+          
 
           <section class="lab-record-block">
             <div class="lab-record-block-label">LIMITS</div>
@@ -287,7 +272,7 @@
       recordConditions: [
         ['domain', '400–700 nm · 1 nm'],
         ['water state', 'Optically deep · 20 °C · 35 PSU baseline'],
-        ['forward model', 'a / bb → u → rrs → Rrs'],
+        ['forward model', 'a / bb → Rrs → ρTOA* → sensor bands'],
         ['runtime', 'Browser-native deterministic model']
       ],
       bodyHtml: `
@@ -295,8 +280,8 @@
           <section class="lab-record-block">
             <div class="lab-record-block-label">PURPOSE</div>
             <div class="lab-record-copy">
-              <h2>Follow how water becomes a spectrum before a sensor samples it.</h2>
-              <p>Water as Spectrum is a theory instrument for aquatic remote sensing. It links constituent state to inherent optical properties and then to idealized above-water remote-sensing reflectance. The working surface is interactive; this record keeps the definitions, assumptions, and provenance.</p>
+              <h2>Follow how water becomes a spectrum, crosses an atmosphere, and reaches a sensor.</h2>
+              <p>Water as Spectrum is a theory instrument for aquatic remote sensing. It links constituent state to inherent optical properties, idealized above-water remote-sensing reflectance, a first-order atmosphere, and simplified sensor sampling. The working surface is interactive; this record keeps the definitions, assumptions, and provenance.</p>
             </div>
           </section>
 
@@ -341,10 +326,40 @@
           </section>
 
           <section class="lab-record-block">
+            <div class="lab-record-block-label">ATMOSPHERE FORWARD LAYER</div>
+            <div class="lab-record-copy">
+              <p>The ATM mode evaluates a first-order teaching approximation <code>ρTOA* = ρR + ρA + T↓T↑ · πRrs</code>. The star is deliberate: <code>ρTOA*</code> is not an operational top-of-atmosphere product.</p>
+              <p>Rayleigh optical thickness follows the Hansen–Travis wavelength law and scales with surface pressure. Aerosol optical depth follows the Ångström power law from <code>τa(550)</code> and <code>α</code>. Rayleigh and aerosol path reflectance use scalar single-scattering phase functions.</p>
+            </div>
+            <div class="lab-record-facts">
+              <div><span>RAYLEIGH</span><strong>Pressure-scaled τR · scalar phase function</strong></div>
+              <div><span>AEROSOL</span><strong>Ångström τa(λ) · HG g = 0.70 · SSA = 0.95</strong></div>
+              <div><span>TRANSMISSION</span><strong>Direct two-way extinction approximation</strong></div>
+              <div><span>GEOMETRY</span><strong>Sun zenith · view zenith · relative azimuth</strong></div>
+              <div><span>EXCLUDED</span><strong>Multiple scattering · gases · polarization · foam · glint</strong></div>
+              <div><span>USE</span><strong>Causal teaching, not atmospheric correction</strong></div>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">SENSOR OBSERVATION LAYER</div>
+            <div class="lab-record-copy">
+              <p>SENSOR mode samples continuous <code>ρTOA*(λ)</code>, not surface <code>Rrs(λ)</code>. Selecting another sensor changes only spectral sampling; it does not change the water state, atmosphere state, continuous <code>Rrs</code>, or continuous <code>ρTOA*</code>.</p>
+              <p>Band values use simplified rectangular bandpasses. They are pedagogical band averages, not measured detector SRFs, calibrated radiance, or DN.</p>
+            </div>
+            <div class="lab-record-facts">
+              <div><span>Sentinel-3 OLCI</span><strong>Nominal Oa01–Oa10 visible bands · simplified top-hat</strong></div>
+              <div><span>PACE OCI</span><strong>Nominal 5 nm teaching grid · actual OCI has finer sampling / measured RSR</strong></div>
+              <div><span>Sentinel-2A MSI</span><strong>B01–B04 nominal centre / bandwidth</strong></div>
+              <div><span>Landsat 8/9 OLI</span><strong>B1–B4 USGS wavelength ranges</strong></div>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
             <div class="lab-record-block-label">LIMITS</div>
             <div class="lab-record-copy">
-              <p>V1 does not solve atmospheric radiative transfer, top-of-atmosphere radiance, sun glint, adjacency effects, polarization, fluorescence, full BRDF geometry, shallow-water bottom reflectance, full measured sensor spectral-response functions, or inversion products. The sun–atmosphere–sensor path shown in PATH mode is conceptual; the dashed glint path is explicitly excluded from numerical Rrs.</p>
-              <p>The quantitative model stops at 700 nm. The interface must not imply validated phytoplankton or reflectance output beyond that boundary. Spectral plots use zero-based automatic y scaling and expose the current <code>AUTO Y</code> range; compare exact magnitudes with the numeric axes and wavelength probe, not apparent curve height alone.</p>
+              <p>The atmosphere layer is first-order only. It does not include multiple scattering, Rayleigh–aerosol interaction, atmospheric gas absorption, polarization, foam, adjacency effects, or sun glint. It is not an atmospheric-correction algorithm. The dashed glint path remains explicitly excluded.</p>
+              <p>The quantitative water and atmosphere teaching domain stops at 700 nm. Sensor bands whose simplified support extends outside that domain are shown but not integrated. Spectral plots use zero-based automatic y scaling and expose the current <code>AUTO Y</code> range; compare exact magnitudes with the numeric axes and wavelength probe, not apparent curve height alone.</p>
             </div>
           </section>
 
@@ -352,6 +367,7 @@
             <div class="lab-record-block-label">REFERENCES / IMPLEMENTATIONS</div>
             <div class="lab-record-copy lab-record-links">
               <p><a href="https://doi.org/10.1029/98JC02712" target="_blank" rel="noreferrer">Bricaud et al. 1998 ↗</a> · <a href="https://doi.org/10.1029/2001JC000882" target="_blank" rel="noreferrer">Babin et al. 2003 ↗</a> · <a href="https://doi.org/10.1364/OE.17.005698" target="_blank" rel="noreferrer">Zhang et al. 2009 ↗</a> · <a href="https://doi.org/10.1364/AO.41.005755" target="_blank" rel="noreferrer">Lee et al. 2002 ↗</a></p>
+              <p><a href="https://oceancolor.gsfc.nasa.gov/SeaWiFS/TECH_REPORTS/PLVol9.pdf" target="_blank" rel="noreferrer">NASA ocean-colour atmosphere formulation ↗</a> · <a href="https://earth.gsfc.nasa.gov/climate/data/deep-blue/science" target="_blank" rel="noreferrer">NASA Ångström relation ↗</a></p>
               <p><a href="https://github.com/GeoGeekLab/GeoGeekLab.github.io/blob/main/docs/WATER_AS_SPECTRUM_SCIENTIFIC_CONTRACT.md" target="_blank" rel="noreferrer">Scientific contract ↗</a> · <a href="https://github.com/GeoGeekLab/GeoGeekLab.github.io/tree/main/site/water" target="_blank" rel="noreferrer">Model and provenance ↗</a></p>
             </div>
           </section>
