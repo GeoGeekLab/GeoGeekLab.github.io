@@ -352,57 +352,171 @@ export async function mountWaterInstrument({stage,signal}={}){
     scene.style.setProperty('--cdom-opacity',String(.16+.76*clamp(cdomNorm,0,1)));
     scene.style.setProperty('--particle-opacity',String(.18+.72*clamp(particleNorm,0,1)));
   }
-  function renderChart(svg,values,formatter,scaleNode,{sensorOverlay=false,referenceValues=null,allowNegative=false}={}){
-    const left=52,right=984,top=14,bottom=151;
-    const domainValues=referenceValues?[...values,...referenceValues]:values;
-    const rawMin=Math.min(...domainValues);
-    const rawMax=Math.max(...domainValues);
+  function renderChart(svg,series,formatter,scaleNode,{sensorOverlay=false,showXAxis=false,allowNegative=false}={}){
+    const left=52,right=984,top=12,bottom=158;
+    const primary=series.find(item=>item.role==='primary')||series[0];
+    const allValues=series.flatMap(item=>item.values);
+    const rawMin=Math.min(...allValues);
+    const rawMax=Math.max(...allValues);
     const yMin=allowNegative&&rawMin<0?rawMin*1.08:0;
     const yMax=rawMax>0?rawMax*1.08:(allowNegative?1e-6:1);
     const span=Math.max(1e-12,yMax-yMin);
 
-    if(scaleNode){
-      scaleNode.textContent='AUTO Y · '+formatter(yMin)+'–'+formatter(yMax);
-    }
+    if(scaleNode) scaleNode.textContent='AUTO Y · '+formatter(yMin)+'–'+formatter(yMax);
 
     const x=wl=>left+(wl-400)/300*(right-left);
     const y=v=>bottom-(v-yMin)/span*(bottom-top);
-    const path=values.map((v,i)=>(i?'L':'M')+x(400+i).toFixed(2)+' '+y(v).toFixed(2)).join(' ');
+    const makePath=values=>values.map((v,i)=>(i?'L':'M')+x(400+i).toFixed(2)+' '+y(v).toFixed(2)).join(' ');
+    const primaryPath=makePath(primary.values);
     const zeroY=y(0);
-    const area=path+' L '+right+' '+zeroY+' L '+left+' '+zeroY+' Z';
-    const referencePath=referenceValues
-      ? referenceValues.map((v,i)=>(i?'L':'M')+x(400+i).toFixed(2)+' '+y(v).toFixed(2)).join(' ')
-      : '';
-    const i=wavelengthIndex(probeNm), px=x(probeNm), py=y(values[i]);
+    const area=primaryPath+' L '+right+' '+zeroY+' L '+left+' '+zeroY+' Z';
+    const i=wavelengthIndex(probeNm),px=x(probeNm),py=y(primary.values[i]);
 
-    const sensorMarks=sensorOverlay && root.dataset.mode==='sensor'
-      ? sensorObservation.bands.map(band=>{
-          const lo=Math.max(400,band.supportNm[0]),hi=Math.min(700,band.supportNm[1]);
-          if(hi<=lo) return '';
-          const rect=`<rect class="water-sensor-band-window${band.status==='full'?'':' is-partial'}" x="${x(lo)}" y="${top}" width="${Math.max(1,x(hi)-x(lo))}" height="${bottom-top}"></rect>`;
-          const dot=band.value==null?'':`<circle class="water-sensor-sample-dot" data-band-id="${band.id}" cx="${x(band.centerNm)}" cy="${y(band.value)}" r="3.2"></circle>`;
-          return rect+dot;
-        }).join('')
+    const featureTicks=[443,490,510,560,665];
+    const verticalGuides=[400,...featureTicks,700].map(wl=>{
+      const xx=x(wl);
+      const cls=featureTicks.includes(wl)?'water-feature-line':'water-grid-line';
+      return `<line class="${cls}" x1="${xx}" y1="${top}" x2="${xx}" y2="${bottom}"></line>`;
+    }).join('');
+
+    const xLabels=showXAxis
+      ? [400,...featureTicks,700].map(wl=>`<text class="water-axis-label water-axis-label-x" text-anchor="middle" x="${x(wl)}" y="176">${wl}</text>`).join('')
       : '';
 
-    const grid=[0,.5,1].map(t=>{
+    const horizontalGrid=[0,.5,1].map(t=>{
       const value=yMin+t*span;
       const yy=y(value);
-      return `<line class="water-grid-line" x1="${left}" y1="${yy}" x2="${right}" y2="${yy}"></line><text class="water-axis-label" x="6" y="${yy+3}">${formatter(value)}</text>`;
+      return `<line class="water-grid-line" x1="${left}" y1="${yy}" x2="${right}" y2="${yy}"></line><text class="water-axis-label" x="5" y="${yy+3}">${formatter(value)}</text>`;
+    }).join('');
+
+    const componentPaths=series.filter(item=>item!==primary).map(item=>{
+      const role=item.role==='reference'?' water-spectrum-reference':' water-spectrum-component';
+      return `<path class="${role.trim()} water-series-${item.id}" d="${makePath(item.values)}"></path>`;
     }).join('');
 
     const zeroLine=allowNegative&&yMin<0&&yMax>0
       ? `<line class="water-zero-line" x1="${left}" y1="${zeroY}" x2="${right}" y2="${zeroY}"></line>`
       : '';
 
-    svg.innerHTML=grid+
-      [400,450,500,550,600,650,700].map(wl=>{const xx=x(wl);return `<line class="water-grid-line" x1="${xx}" y1="${top}" x2="${xx}" y2="${bottom}"></line><text class="water-axis-label" text-anchor="middle" x="${xx}" y="174">${wl}</text>`;}).join('')+
+    const sensorMarks=sensorOverlay&&root.dataset.mode==='sensor'
+      ? sensorObservation.bands.map(band=>{
+          const lo=Math.max(400,band.supportNm[0]),hi=Math.min(700,band.supportNm[1]);
+          if(hi<=lo)return '';
+          const rect=`<rect class="water-sensor-band-window${band.status==='full'?'':' is-partial'}" x="${x(lo)}" y="${top}" width="${Math.max(1,x(hi)-x(lo))}" height="${bottom-top}"></rect>`;
+          const dot=band.value==null?'':`<circle class="water-sensor-sample-dot" cx="${x(band.centerNm)}" cy="${y(band.value)}" r="3.2"></circle>`;
+          return rect+dot;
+        }).join('')
+      : '';
+
+    svg.innerHTML=
+      horizontalGrid+
+      verticalGuides+
+      xLabels+
       sensorMarks+
       `<path class="water-spectrum-area" d="${area}"></path>`+
       zeroLine+
-      (referencePath?`<path class="water-spectrum-reference" d="${referencePath}"></path>`:'')+
-      `<path class="water-spectrum-line" d="${path}"></path><line class="water-probe-line" x1="${px}" y1="${top}" x2="${px}" y2="${bottom}"></line><circle class="water-probe-dot" cx="${px}" cy="${py}" r="4"></circle><rect class="water-hit" x="${left}" y="${top}" width="${right-left}" height="${bottom-top}"></rect>`;
+      componentPaths+
+      `<path class="water-spectrum-line water-series-${primary.id}" d="${primaryPath}"></path>`+
+      `<line class="water-probe-line" x1="${px}" y1="${top}" x2="${px}" y2="${bottom}"></line>`+
+      `<circle class="water-probe-dot" cx="${px}" cy="${py}" r="4"></circle>`+
+      `<rect class="water-hit" x="${left}" y="${top}" width="${right-left}" height="${bottom-top}"></rect>`;
   }
+
+  function sidecarRow(label,value,{tone='',share=''}={}){
+    return `<div class="water-sidecar-row ${tone}"><span>${label}</span><strong>${value}</strong>${share?`<em>${share}</em>`:''}</div>`;
+  }
+
+  function share(value,total){
+    return total>0?(value/total*100).toFixed(1)+'%':'—';
+  }
+
+  function spectralPeak(values){
+    let index=0;
+    for(let i=1;i<values.length;i++) if(values[i]>values[index]) index=i;
+    return Object.freeze({wavelength:400+index,value:values[index]});
+  }
+
+  function renderSidecars(){
+    const i=wavelengthIndex(probeNm);
+    const a=model.absorption;
+    const bb=model.backscattering;
+
+    q('[data-sidecar="a"]').innerHTML=
+      `<div class="water-sidecar-head"><b>${probeNm} nm</b><span>COMPONENTS</span></div>`+
+      sidecarRow('TOTAL',format(a.total[i],4),{tone:'is-total'})+
+      sidecarRow('water',format(a.water[i],4),{share:share(a.water[i],a.total[i])})+
+      sidecarRow('phyto',format(a.phytoplankton[i],4),{share:share(a.phytoplankton[i],a.total[i])})+
+      sidecarRow('CDOM',format(a.cdom[i],4),{share:share(a.cdom[i],a.total[i])})+
+      sidecarRow('NAP',format(a.nap[i],4),{share:share(a.nap[i],a.total[i])})+
+      `<div class="water-sidecar-unit">m⁻¹</div>`;
+
+    q('[data-sidecar="bb"]').innerHTML=
+      `<div class="water-sidecar-head"><b>${probeNm} nm</b><span>COMPONENTS</span></div>`+
+      sidecarRow('TOTAL',format(bb.total[i],5),{tone:'is-total'})+
+      sidecarRow('water',format(bb.water[i],5),{share:share(bb.water[i],bb.total[i])})+
+      sidecarRow('particles',format(bb.particles[i],5),{share:share(bb.particles[i],bb.total[i])})+
+      sidecarRow('bbp slope η','1.00',{tone:'is-meta'})+
+      `<div class="water-sidecar-unit">m⁻¹</div>`;
+
+    const mode=root.dataset.mode;
+    const output=q('[data-sidecar="output"]');
+
+    if(mode==='atmosphere'){
+      const r=atmosphere.reflectance;
+      const total=r.toaApprox[i];
+      output.innerHTML=
+        `<div class="water-sidecar-head"><b>${probeNm} nm</b><span>TOA DECOMPOSITION</span></div>`+
+        sidecarRow('ρTOA*',format(total,5),{tone:'is-total'})+
+        sidecarRow('Rayleigh',format(r.rayleighPath[i],5),{share:share(r.rayleighPath[i],total)})+
+        sidecarRow('aerosol',format(r.aerosolPath[i],5),{share:share(r.aerosolPath[i],total)})+
+        sidecarRow('water',format(r.waterTransmitted[i],5),{share:share(r.waterTransmitted[i],total)})+
+        sidecarRow('atm path',(atmosphere.atmosphereFraction[i]*100).toFixed(1)+'%',{tone:'is-meta'});
+      return;
+    }
+
+    if(mode==='sensor'){
+      const full=sensorObservation.bands.filter(b=>b.value!=null);
+      const nearest=full.reduce((best,b)=>!best||Math.abs(b.centerNm-probeNm)<Math.abs(best.centerNm-probeNm)?b:best,null);
+      output.innerHTML=
+        `<div class="water-sidecar-head"><b>${WATER_SENSOR_DEFINITIONS[sensorId].shortLabel}</b><span>NEAREST BAND</span></div>`+
+        (nearest
+          ? sidecarRow(nearest.label,nearest.centerNm+' nm',{tone:'is-total'})+
+            sidecarRow('band ρTOA*',format(nearest.value,5))+
+            sidecarRow('Δλ',nearest.widthNm+' nm')+
+            sidecarRow('probe Δ',Math.abs(nearest.centerNm-probeNm).toFixed(1)+' nm',{tone:'is-meta'})
+          : sidecarRow('band','DOMAIN EDGE',{tone:'is-meta'}));
+      return;
+    }
+
+    if(mode==='correction'){
+      const truth=model.Rrs[i];
+      const est=correction.correction.estimatedRrs[i];
+      const delta=est-truth;
+      const rel=Math.abs(truth)>1e-8?delta/truth:null;
+      output.innerHTML=
+        `<div class="water-sidecar-head"><b>${probeNm} nm</b><span>AC ERROR</span></div>`+
+        `<div class="water-sidecar-legend"><span><i class="is-est"></i>Rrs_est</span><span><i class="is-true"></i>true Rrs</span><span><i class="is-probe"></i>probe</span></div>`+
+        sidecarRow('TRUE',format(truth,5),{tone:'is-total'})+
+        sidecarRow('EST',format(est,5),{tone:est<0?'is-negative':''})+
+        sidecarRow('ΔRrs',(delta>=0?'+':'')+format(delta,5))+
+        sidecarRow('relative',rel==null?'—':(rel>=0?'+':'')+(rel*100).toFixed(1)+'%')+
+        sidecarRow('negative λ',correction.diagnostics.negativeCount+' / '+WATER_WAVELENGTHS_NM.length,{tone:'is-meta'})+
+        sidecarRow('RMSE',format(correction.diagnostics.rmse,6),{tone:'is-meta'})+
+        sidecarRow('OC4 Δ',correction.oc4RelativeBias==null?'INVALID':(correction.oc4RelativeBias>=0?'+':'')+(correction.oc4RelativeBias*100).toFixed(1)+'%',{tone:'is-meta'});
+      return;
+    }
+
+    const peak=spectralPeak(model.Rrs);
+    output.innerHTML=
+      `<div class="water-sidecar-head"><b>${probeNm} nm</b><span>WATER SIGNAL</span></div>`+
+      sidecarRow('Rrs',format(model.Rrs[i],5),{tone:'is-total'})+
+      sidecarRow('rrs',format(model.rrs[i],5))+
+      sidecarRow('u',format(model.u[i],5))+
+      sidecarRow('λmax',peak.wavelength+' nm',{tone:'is-meta'})+
+      sidecarRow('peak Rrs',format(peak.value,5),{tone:'is-meta'})+
+      `<div class="water-sidecar-unit">sr⁻¹</div>`;
+  }
+
   function renderProbe(){
     const i=wavelengthIndex(probeNm),a=model.absorption,bb=model.backscattering;
     const toa=atmosphere.reflectance.toaApprox[i];
