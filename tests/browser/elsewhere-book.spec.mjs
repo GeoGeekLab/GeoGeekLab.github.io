@@ -32,32 +32,13 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   await expect(chinese).toHaveAttribute('aria-pressed', 'true');
 
   const chinesePanel = body.locator('[data-book-lang-panel="zh"]');
-  await expect(chinesePanel).toContainText('读《光荣与梦想》之前');
-  await expect(chinesePanel).toContainText('繁盛从来不是一个所有人同时抵达的季节');
-  await expect(chinesePanel).toContainText('昨日的结局也不会照着旧稿再写一次');
-
-  const shiftSection = chinesePanel.locator('.book-record-section').nth(2);
-  const labelBox = await shiftSection.locator('.book-record-section-label').boundingBox();
-  const paragraphBoxes = await shiftSection.locator(':scope > p').evaluateAll((nodes) =>
-    nodes.map((node) => {
-      const box = node.getBoundingClientRect();
-      return { left: box.left, right: box.right, top: box.top };
-    }),
-  );
-  const leftEdges = paragraphBoxes.map((box) => box.left);
-  const topEdges = paragraphBoxes.map((box) => box.top);
-  expect(labelBox).not.toBeNull();
-
-  const viewportWidth = page.viewportSize()?.width ?? 1280;
-  if (viewportWidth <= 600) {
-    const labelBottom = labelBox.y + labelBox.height;
-    expect(Math.min(...topEdges)).toBeGreaterThanOrEqual(labelBottom);
-    expect(Math.abs(Math.min(...leftEdges) - labelBox.x)).toBeLessThan(2);
-  } else {
-    const labelRight = labelBox.x + labelBox.width;
-    expect(Math.min(...leftEdges)).toBeGreaterThan(labelRight + 10);
-  }
-  expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
+  await expect(chinesePanel.locator(':scope > article.book-reading-essay')).toHaveCount(1);
+  await expect(chinesePanel.locator('.book-record-section')).toHaveCount(0);
+  await expect(chinesePanel.locator('.book-reading-essay > p')).toHaveCount(13);
+  await expect(chinesePanel).toContainText('“那幻灭的光芒究竟去了哪里？昔日的荣耀与梦想又落在了何方？”');
+  await expect(chinesePanel).toContainText('在翻开这部皇皇巨著之前，二十世纪中叶的美国在我脑海中');
+  await expect(chinesePanel).toContainText('历史从不曾依原样描红');
+  await expect(chinesePanel).toContainText('它没有顺理成章的传世孤本，却值得在不同的时代风浪里，一次又一次翻开残页，回去追问。');
 });
 
 test('Elsewhere exposes BOOK as a thirty-four-record collection index', async ({ page }) => {
