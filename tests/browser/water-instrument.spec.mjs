@@ -55,7 +55,7 @@ test('Water as Spectrum is listed in Observatory and links to its record', async
 });
 
 
-test('Sensor Observation Layer samples Rrs without changing the continuous model', async ({ page }) => {
+test('Sensor Observation Layer samples pedagogical TOA reflectance without changing the continuous model', async ({ page }) => {
   await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
 
   const scene=page.locator('.water-scene');
@@ -67,6 +67,7 @@ test('Sensor Observation Layer samples Rrs without changing the continuous model
   expect(noteBox.x).toBeLessThan(sceneBox.x + sceneBox.width * 0.5);
 
   const continuousBefore=await page.locator('[data-role="probe-Rrs"]').textContent();
+  const toaBefore=await page.locator('[data-role="probe-toa"]').textContent();
   await page.locator('[data-water-mode="sensor"]').click();
   await expect(page.locator('.water-lab')).toHaveAttribute('data-mode','sensor');
   await expect(page.locator('.water-sensor-controls')).toBeVisible();
@@ -78,9 +79,38 @@ test('Sensor Observation Layer samples Rrs without changing the continuous model
   await expect(page.locator('[data-role="sensor-name"]')).toHaveText('Sentinel-2A MSI');
   await expect(page.locator('[data-role="sensor-band-list"] button')).toHaveCount(4);
   await expect(page.locator('[data-role="probe-Rrs"]')).toHaveText(continuousBefore);
+  await expect(page.locator('[data-role="probe-toa"]')).toHaveText(toaBefore);
 
   await page.locator('[data-sensor="pace-oci"]').click();
   await expect(page.locator('[data-role="sensor-count"]')).toContainText('60 SAMPLED / 60 SHOWN');
   await expect(page.locator('[data-role="sensor-band-list"] button')).toHaveCount(60);
-  await expect(page.locator('[data-role="spectra-hint"]')).toContainText('ATMOSPHERE NOT APPLIED');
+  await expect(page.locator('[data-role="spectra-hint"]')).toContainText('MEASURED SRF NOT APPLIED');
+});
+
+
+test('Atmosphere layer changes TOA without changing water Rrs', async ({ page }) => {
+  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+
+  const rrsBefore=await page.locator('[data-role="probe-Rrs"]').textContent();
+  const toaBefore=await page.locator('[data-role="probe-toa"]').textContent();
+
+  await page.locator('[data-water-mode="atmosphere"]').click();
+  await expect(page.locator('.water-lab')).toHaveAttribute('data-mode','atmosphere');
+  await expect(page.locator('.water-atmosphere-controls')).toBeVisible();
+  await expect(page.locator('.water-atmosphere-scene')).toBeVisible();
+  await expect(page.locator('[data-role="third-title"]')).toHaveText('ρTOA*(λ)');
+  await expect(page.locator('[data-role="spectra-hint"]')).toContainText('NOT ATMOSPHERIC CORRECTION');
+
+  await page.locator('[data-atm-control="aot"]').fill('0.35');
+  await page.locator('[data-atm-control="aot"]').dispatchEvent('input');
+
+  await expect(page.locator('[data-role="probe-Rrs"]')).toHaveText(rrsBefore);
+  await expect(page.locator('[data-role="probe-toa"]')).not.toHaveText(toaBefore);
+  await expect(page.locator('[data-role="atm-fraction"]')).toContainText('ATMOSPHERIC PATH');
+  await expect(page.locator('[data-role="causal"]')).toContainText('ρTOA*');
+
+  await page.locator('[data-water-mode="sensor"]').click();
+  await expect(page.locator('.water-atmosphere-controls')).toBeVisible();
+  await expect(page.locator('.water-sensor-controls')).toBeVisible();
+  await expect(page.locator('[data-role="third-title"]')).toHaveText('ρTOA*(λ)');
 });
