@@ -298,3 +298,43 @@ test('Radiative path explorer focuses one stage at a time with buttons, hotspots
   await page.locator('[data-water-mode="iop"]').click();
   await expect(scene).toHaveAttribute('data-path-focus','water');
 });
+
+
+test('Water uses side-by-side path and spectral analysis on wide screens and stacks on narrower screens', async ({ page }) => {
+  await page.setViewportSize({ width:1920, height:900 });
+  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+
+  const main=page.locator('.water-main');
+  const scene=page.locator('.water-scene-panel');
+  const spectra=page.locator('.water-spectra-panel');
+
+  const [mainBox,sceneBox,spectraBox]=await Promise.all([
+    main.boundingBox(),scene.boundingBox(),spectra.boundingBox()
+  ]);
+  expect(mainBox).not.toBeNull();
+  expect(sceneBox).not.toBeNull();
+  expect(spectraBox).not.toBeNull();
+
+  expect(Math.abs(sceneBox.y-spectraBox.y)).toBeLessThanOrEqual(1);
+  expect(sceneBox.x+sceneBox.width).toBeLessThanOrEqual(spectraBox.x+2);
+  expect(sceneBox.height).toBeGreaterThan(mainBox.height-2);
+  expect(spectraBox.height).toBeGreaterThan(mainBox.height-2);
+  expect(sceneBox.width/spectraBox.width).toBeGreaterThan(0.55);
+  expect(sceneBox.width/spectraBox.width).toBeLessThan(0.75);
+
+  await page.locator('[data-workspace-mode="inspect"]').click();
+  const [inspectScene,inspectSpectra]=await Promise.all([
+    scene.boundingBox(),spectra.boundingBox()
+  ]);
+  expect(inspectScene).not.toBeNull();
+  expect(inspectSpectra).not.toBeNull();
+  expect(inspectScene.width).toBeLessThan(inspectSpectra.width);
+
+  await page.setViewportSize({ width:1280, height:900 });
+  const [stackedScene,stackedSpectra]=await Promise.all([
+    scene.boundingBox(),spectra.boundingBox()
+  ]);
+  expect(stackedScene).not.toBeNull();
+  expect(stackedSpectra).not.toBeNull();
+  expect(stackedSpectra.y).toBeGreaterThanOrEqual(stackedScene.y+stackedScene.height-2);
+});
