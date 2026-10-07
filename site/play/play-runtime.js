@@ -11,7 +11,8 @@
     zone: 'bound',
     path: 'connect',
     project: 'project',
-    light: 'light'
+    light: 'light',
+    swath: 'swath'
   };
   const COMMON = [
     'play/play-core.js?v=20261005a',
@@ -43,6 +44,12 @@
       'play/light/light-physics.js?v=20261007a',
       'play/light/light-experiments.js?v=20261007a',
       'play/light/light-view.js?v=20261007a'
+    ],
+    swath: [
+      'play/swath/swath-content.js?v=20261007a',
+      'play/swath/swath-physics.js?v=20261007a',
+      'play/swath/swath-experiments.js?v=20261007a',
+      'play/swath/swath-view.js?v=20261007a'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {
@@ -57,7 +64,8 @@
     zone: 'play/bound/bound.js?v=20261005c',
     path: 'play/connect/connect.js?v=20261005c',
     project: 'play/project/project.js?v=20261005e',
-    light: 'play/light/light.js?v=20261007a'
+    light: 'play/light/light.js?v=20261007a',
+    swath: 'play/swath/swath.js?v=20261007a'
   };
   const OPTIONAL_POST_SCRIPTS = {
     locate: [
@@ -73,7 +81,8 @@
     zone: () => window.GeoPlayBound?.register?.(),
     path: () => window.GeoPlayConnect?.register?.(),
     project: () => window.GeoPlayProject?.register?.(),
-    light: () => window.GeoPlayLight?.register?.()
+    light: () => window.GeoPlayLight?.register?.(),
+    swath: () => window.GeoPlaySwath?.register?.()
   };
   const opening = new Map();
 
