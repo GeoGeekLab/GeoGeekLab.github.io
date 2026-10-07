@@ -152,3 +152,61 @@ test('duplicate click while a Play is opening does not cancel the pending open',
   await expect(page.locator('.play-shell[data-play-kind="orient"], .play-v2-shell[data-play-kind="orient"]')).toBeVisible({ timeout:20_000 });
   await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.() || null)).toBe('locate');
 });
+
+
+test('PROJECT morph keeps area and route sphere paths finite', async ({ page }) => {
+  const consoleErrors=[];
+  page.on('console', message => {
+    if (message.type()==='error') consoleErrors.push(message.text());
+  });
+
+  const shell=await openDirect(page,'project','project');
+  await expect(shell).toBeVisible();
+
+  const result=await page.evaluate(() => {
+    const d3=window.d3;
+    const api=window.GeoPlayProjectMorph;
+    const content=window.GeoPlayProjectContent;
+    const configs=[
+      {
+        fromRaw:d3.geoMercatorRaw,
+        toRaw:d3.geoEqualEarthRaw,
+        fromRotate:[0,0,0],
+        toRotate:[0,0,0]
+      },
+      {
+        fromRaw:d3.geoMercatorRaw,
+        toRaw:d3.geoAzimuthalEquidistantRaw,
+        fromRotate:content.ROUTE_EXPERIMENT.from.rotate,
+        toRotate:content.ROUTE_EXPERIMENT.to.rotate
+      }
+    ];
+    const samples=[];
+    for(const config of configs){
+      const morph=api.create({d3,...config});
+      for(const value of [0,.01,.25,.5,.75,.99,1]){
+        morph.set(value);
+        samples.push({value,d:morph.path({type:'Sphere'})});
+      }
+    }
+    return samples;
+  });
+
+  for(const sample of result){
+    expect(sample.d).toBeTruthy();
+    expect(sample.d).not.toMatch(/NaN|Infinity/);
+  }
+
+  await shell.getByRole('button',{name:'GREENLAND'}).click();
+  const scrubber=shell.locator('.project-v2-scrubber');
+  for(const value of ['0','25','50','75','100']){
+    await scrubber.evaluate((node,next)=>{
+      node.value=next;
+      node.dispatchEvent(new Event('input',{bubbles:true}));
+    },value);
+    const bad=await shell.locator('path[d*="NaN"], path[d*="Infinity"]').count();
+    expect(bad).toBe(0);
+  }
+
+  expect(consoleErrors.filter(line => /attribute d|parsing d|NaN/.test(line))).toEqual([]);
+});
