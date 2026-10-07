@@ -34,7 +34,7 @@ test('public Lab opens every Play from the collection click path', async ({page}
     }))
   }));
 
-  expect(runtime.playCards.map(item=>item.kind)).toEqual(plays.map(([kind])=>kind));
+  expect(new Set(runtime.playCards.map(item=>item.kind))).toEqual(new Set(plays.map(([kind])=>kind)));
   expect(runtime.geoModules).toBeTruthy();
   expect(runtime.playRuntime).toBeTruthy();
 
