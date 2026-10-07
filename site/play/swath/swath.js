@@ -8,7 +8,7 @@
     GeoPlay.core.ensureStyle('play/swath/swath.css?v=20261007a','swath-play');
     const shell=GeoPlay.shell.createV2(stage,{kind:'swath',title:'SWATH'});
     let game=null;const traced=new Set();
-    const callbacks={onSelect:id=>game?.select(id),onCommit:()=>game?.commit(),onPerturb:()=>game?.perturb(),onNext:()=>game?.next(),onFree:(key,value)=>game?.setFree(key,value),onRestart:()=>{traced.clear();game?.restart();}};
+    const callbacks={onSelect:id=>game?.select(id),onCommit:()=>game?.commit(),onPerturb:()=>game?.perturb(),onNext:()=>game?.next(),onFree:(key,value)=>game?.setFree(key,value),onResetFree:()=>game?.resetFree(),onRestart:()=>{traced.clear();game?.restart();}};
     const view=viewApi.create({shell,content,physics,callbacks});
     function modelFor(snapshot){if(snapshot.phase==='free')return{current:physics.compute(snapshot.freeConfig)};return{comparison:physics.compare(snapshot.experiment.from,snapshot.experiment.to)};}
     function render(snapshot){if(signal?.aborted)return;const model=modelFor(snapshot);view.render(snapshot,model);if(snapshot.phase==='revealed'&&snapshot.experiment&&!traced.has(snapshot.experiment.id)){traced.add(snapshot.experiment.id);const c=model.comparison;GeoPlay.trace.append({play:'swath',trialId:snapshot.experiment.id,judgment:{prediction:snapshot.selection,correct:snapshot.correct},relation:{variable:snapshot.experiment.action},conditions:{before:c.before.config,after:c.after.config},result:{swathBeforeKm:c.before.swathKm,swathAfterKm:c.after.swathKm,gsdBeforeM:c.before.nadirGsdM,gsdAfterM:c.after.nadirGsdM},effect:{swathRatio:c.swathRatio,gsdRatio:c.gsdRatio,predictionRevised:!snapshot.correct}});}}
