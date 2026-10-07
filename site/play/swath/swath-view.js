@@ -312,7 +312,7 @@
       panel.setAttribute('aria-label','SWATH sensor design console');
       panel.innerHTML=`
         <div class="swath-free-head">
-          <span>OBSERVATORY / SENSOR DESIGN</span>
+          <span>PLAY / SENSOR DESIGN</span>
           <h2>DESIGN A SENSOR</h2>
           <p>Change one variable. Coverage geometry and sampling density respond separately.</p>
         </div>
