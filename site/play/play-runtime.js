@@ -35,7 +35,7 @@
     ],
     project: [
       'play/project/project-content.js?v=20261005c',
-      'play/project/project-morph.js?v=20261005c',
+      'play/project/project-morph.js?v=20261007a',
       'play/project/project-view.js?v=20261005c',
       'play/project/project-route-view.js?v=20261005b'
     ],
