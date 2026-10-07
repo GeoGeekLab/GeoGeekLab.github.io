@@ -1,6 +1,6 @@
 # SWATH Play
 
-SWATH is a browser-native sensor-geometry Play.
+SWATH is a browser-native sensor-geometry Observatory instrument with a guided prediction sequence.
 
 It asks users to predict how three design changes affect an Earth-observing sensor:
 
