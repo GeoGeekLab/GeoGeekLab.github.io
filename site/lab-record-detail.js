@@ -272,7 +272,7 @@
       recordConditions: [
         ['domain', '400–700 nm · 1 nm'],
         ['water state', 'Optically deep · 20 °C · 35 PSU baseline'],
-        ['forward model', 'a / bb → Rrs → ρTOA* → sensor bands'],
+        ['chain', 'a / bb → Rrs → ρTOA* → sensor / AC'],
         ['runtime', 'Browser-native deterministic model']
       ],
       bodyHtml: `
@@ -356,9 +356,28 @@
           </section>
 
           <section class="lab-record-block">
+            <div class="lab-record-block-label">ATMOSPHERIC CORRECTION EXPERIMENT</div>
+            <div class="lab-record-copy">
+              <p>AC mode inverts the same first-order teaching atmosphere: <code>Rrs_est = [ρTOA* − ρR(est) − ρA(est)] / [πT↓(est)T↑(est)]</code>. Pressure and sun/view geometry are treated as known ancillary quantities; only aerosol optical depth and Ångström exponent are allowed to differ from the forward truth.</p>
+              <p>When the assumed aerosol matches the forward atmosphere, the inverse closes to numerical precision. When it does not, negative <code>Rrs_est</code> values are retained rather than clipped, because over-subtraction is itself a diagnostic atmospheric-correction failure mode.</p>
+            </div>
+            <div class="lab-record-facts">
+              <div><span>TRUE ATMOSPHERE</span><strong>Forward AOT + α generate ρTOA*</strong></div>
+              <div><span>ASSUMED ATMOSPHERE</span><strong>User-controlled AOT + α drive the inverse</strong></div>
+              <div><span>KNOWN ANCILLARY</span><strong>Pressure + sun/view/azimuth geometry</strong></div>
+              <div><span>ERROR OUTPUTS</span><strong>Rrs RMSE · negative wavelengths · spectral bias</strong></div>
+              <div><span>OC4 DIAGNOSTIC</span><strong>NASA R2022 OLCI OC4 · true Rrs vs corrected Rrs</strong></div>
+              <div><span>NOT INCLUDED</span><strong>NIR/SWIR aerosol retrieval · LUTs · operational AC</strong></div>
+            </div>
+            <div class="lab-record-copy">
+              <p>The OC4 diagnostic is intentionally compared against OC4 evaluated on the true model <code>Rrs</code>, not against the instrument's <code>Chl</code> control. The forward water model keeps CDOM, NAP, and particle backscatter independent, so it does not reproduce the empirical covariance used to calibrate a global chlorophyll algorithm.</p>
+            </div>
+          </section>
+
+          <section class="lab-record-block">
             <div class="lab-record-block-label">LIMITS</div>
             <div class="lab-record-copy">
-              <p>The atmosphere layer is first-order only. It does not include multiple scattering, Rayleigh–aerosol interaction, atmospheric gas absorption, polarization, foam, adjacency effects, or sun glint. It is not an atmospheric-correction algorithm. The dashed glint path remains explicitly excluded.</p>
+              <p>The forward atmosphere and AC inverse are first-order teaching models. They do not include multiple scattering, Rayleigh–aerosol interaction, atmospheric gas absorption, polarization, foam, adjacency effects, sun glint, mission calibration, aerosol-model lookup tables, or operational aerosol retrieval. The dashed glint path remains explicitly excluded.</p>
               <p>The quantitative water and atmosphere teaching domain stops at 700 nm. Sensor bands whose simplified support extends outside that domain are shown but not integrated. Spectral plots use zero-based automatic y scaling and expose the current <code>AUTO Y</code> range; compare exact magnitudes with the numeric axes and wavelength probe, not apparent curve height alone.</p>
             </div>
           </section>
@@ -367,7 +386,7 @@
             <div class="lab-record-block-label">REFERENCES / IMPLEMENTATIONS</div>
             <div class="lab-record-copy lab-record-links">
               <p><a href="https://doi.org/10.1029/98JC02712" target="_blank" rel="noreferrer">Bricaud et al. 1998 ↗</a> · <a href="https://doi.org/10.1029/2001JC000882" target="_blank" rel="noreferrer">Babin et al. 2003 ↗</a> · <a href="https://doi.org/10.1364/OE.17.005698" target="_blank" rel="noreferrer">Zhang et al. 2009 ↗</a> · <a href="https://doi.org/10.1364/AO.41.005755" target="_blank" rel="noreferrer">Lee et al. 2002 ↗</a></p>
-              <p><a href="https://oceancolor.gsfc.nasa.gov/SeaWiFS/TECH_REPORTS/PLVol9.pdf" target="_blank" rel="noreferrer">NASA ocean-colour atmosphere formulation ↗</a> · <a href="https://earth.gsfc.nasa.gov/climate/data/deep-blue/science" target="_blank" rel="noreferrer">NASA Ångström relation ↗</a></p>
+              <p><a href="https://oceancolor.gsfc.nasa.gov/SeaWiFS/TECH_REPORTS/PLVol9.pdf" target="_blank" rel="noreferrer">NASA ocean-colour atmosphere formulation ↗</a> · <a href="https://earth.gsfc.nasa.gov/climate/data/deep-blue/science" target="_blank" rel="noreferrer">NASA Ångström relation ↗</a> · <a href="https://oceancolor.gsfc.nasa.gov/files/atbd/atbd-obdaac-chlorophyll-a.pdf" target="_blank" rel="noreferrer">NASA chlor_a ATBD / OLCI OC4 ↗</a></p>
               <p><a href="https://github.com/GeoGeekLab/GeoGeekLab.github.io/blob/main/docs/WATER_AS_SPECTRUM_SCIENTIFIC_CONTRACT.md" target="_blank" rel="noreferrer">Scientific contract ↗</a> · <a href="https://github.com/GeoGeekLab/GeoGeekLab.github.io/tree/main/site/water" target="_blank" rel="noreferrer">Model and provenance ↗</a></p>
             </div>
           </section>
