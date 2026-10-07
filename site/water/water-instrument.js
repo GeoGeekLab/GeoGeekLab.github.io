@@ -14,8 +14,11 @@ import {
   ATMOSPHERE_MODEL_META,
   computeAtmosphereObservation
 } from './atmosphere-model.js';
+import {
+  buildCorrectionExperiment
+} from './atmosphere-correction.js';
 
-const STYLE_URL = new URL('./water-instrument.css?v=20261007e', import.meta.url).href;
+const STYLE_URL = new URL('./water-instrument.css?v=20261007f', import.meta.url).href;
 
 function ensureStyle(){
   if(document.querySelector('link[data-water-instrument-style]')) return;
@@ -51,6 +54,7 @@ function markup(){
             <button type="button" data-water-mode="iop" aria-pressed="false">IOP</button>
             <button type="button" data-water-mode="atmosphere" aria-pressed="false">ATM</button>
             <button type="button" data-water-mode="sensor" aria-pressed="false">SENSOR</button>
+            <button type="button" data-water-mode="correction" aria-pressed="false">AC</button>
           </div>
         </div>
         <div class="water-scene" data-role="scene" data-path-focus="water">
@@ -108,6 +112,28 @@ function markup(){
               <div class="water-sensor-strip" data-role="sensor-strip" aria-label="Sensor bands from 400 to 700 nanometres"></div>
             </div>
             <div class="water-sensor-flow"><span>CONTINUOUS ρTOA*(λ)</span><i>→</i><span>SIMPLIFIED BANDPASS</span><i>→</i><strong data-role="sensor-count">—</strong></div>
+          </div>
+          <div class="water-correction-scene" data-role="correction-scene">
+            <div class="water-correction-intro">
+              <span>ATMOSPHERIC CORRECTION EXPERIMENT</span>
+              <strong>ρTOA* → Rrs_est</strong>
+              <p>Subtract an assumed atmospheric path, then divide by assumed two-way transmission. Pressure and geometry are treated as known; aerosol AOT and spectral slope may be wrong.</p>
+            </div>
+            <div class="water-correction-equation">
+              <strong>Rrs_est</strong><i>=</i><span>[ρTOA* − ρR(est) − ρA(est)]</span><i>/</i><span>[π · T↓(est)T↑(est)]</span>
+            </div>
+            <div class="water-correction-state">
+              <div><span>TRUE AEROSOL</span><b data-role="corr-true-aerosol">—</b></div>
+              <i>≠?</i>
+              <div><span>ASSUMED AEROSOL</span><b data-role="corr-assumed-aerosol">—</b></div>
+            </div>
+            <div class="water-correction-metrics">
+              <div><span>Rrs RMSE</span><b data-role="corr-rmse">—</b></div>
+              <div><span>NEGATIVE λ</span><b data-role="corr-negative">—</b></div>
+              <div><span>OC4 TRUE-Rrs</span><b data-role="corr-oc4-true">—</b></div>
+              <div><span>OC4 CORRECTED</span><b data-role="corr-oc4-est">—</b></div>
+              <div><span>OC4 Δ</span><b data-role="corr-oc4-bias">—</b></div>
+            </div>
           </div>
         </div>
       </section>
@@ -171,10 +197,31 @@ function markup(){
         <div class="water-sensor-nearest"><small>NEAREST BAND TO PROBE</small><strong data-role="sensor-nearest">—</strong></div>
         <div class="water-sensor-band-list" data-role="sensor-band-list" aria-label="Band-averaged pedagogical TOA reflectance"></div>
       </section>
+      <section class="water-rail-section water-correction-controls">
+        <div class="water-rail-heading"><span>CORRECTION ASSUMPTION</span><small>Aerosol uncertainty only</small></div>
+        <div class="water-correction-truth">
+          <span><small>TRUE AOT / α</small><b data-role="corr-true-rail">—</b></span>
+          <button type="button" data-correction-match>MATCH TRUE</button>
+        </div>
+        <label class="water-slider"><span><b>ASSUMED AOT · τa(550)</b><output data-corr-output="aot"></output></span><input data-corr-control="aot" type="range" min="0" max="0.5" step="0.005"><small>Wrong path amplitude can over- or under-subtract atmosphere.</small></label>
+        <label class="water-slider"><span><b>ASSUMED ÅNGSTRÖM · α</b><output data-corr-output="alpha"></output></span><input data-corr-control="alpha" type="range" min="0" max="2.5" step="0.05"><small>Wrong spectral slope redistributes correction error by wavelength.</small></label>
+        <div class="water-correction-presets">
+          <button type="button" data-corr-preset="lowAot">AOT −0.05</button>
+          <button type="button" data-corr-preset="highAot">AOT +0.05</button>
+          <button type="button" data-corr-preset="lowAlpha">α −0.5</button>
+          <button type="button" data-corr-preset="highAlpha">α +0.5</button>
+        </div>
+        <div class="water-correction-contract">
+          <span><small>KNOWN</small><b>Pressure + geometry</b></span>
+          <span><small>INVERSE</small><b>Same first-order physics</b></span>
+          <span><small>NOT INCLUDED</small><b>NIR/SWIR aerosol retrieval</b></span>
+        </div>
+        <p class="water-correction-note">OC4 is a sensitivity diagnostic using NASA OLCI coefficients. It is compared against OC4 from the true Rrs, not against the model Chl control.</p>
+      </section>
       <section class="water-rail-section">
         <div class="water-rail-heading"><span>WAVELENGTH PROBE</span><strong data-role="probe-nm">443 nm</strong></div>
         <input class="water-probe-input" data-role="probe-control" type="range" min="400" max="700" step="1" value="443">
-        <div class="water-probe-summary"><span><small>a</small><b data-role="probe-a">—</b></span><span><small>bb</small><b data-role="probe-bb">—</b></span><span><small>Rrs</small><b data-role="probe-Rrs">—</b></span><span><small>ρTOA*</small><b data-role="probe-toa">—</b></span></div>
+        <div class="water-probe-summary"><span><small>a</small><b data-role="probe-a">—</b></span><span><small>bb</small><b data-role="probe-bb">—</b></span><span><small>Rrs</small><b data-role="probe-Rrs">—</b></span><span><small>ρTOA*</small><b data-role="probe-toa">—</b></span><span class="water-correction-probe"><small>Rrs_est</small><b data-role="probe-Rrs-est">—</b></span></div>
       </section>
       <section class="water-rail-section water-budget-controls">
         <div class="water-rail-heading"><span>COMPONENT BUDGET</span><small data-role="budget-nm">443 nm</small></div>
