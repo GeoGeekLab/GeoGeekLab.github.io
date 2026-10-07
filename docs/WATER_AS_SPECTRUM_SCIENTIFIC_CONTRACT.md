@@ -260,23 +260,27 @@ V1 stores the generated `bbw` table rather than recomputing the seawater thermod
 
 ### 6.3 Phytoplankton absorption — published empirical bio-optical model
 
-For 400–700 nm use the Bricaud et al. (1998) chlorophyll-dependent parameterization:
+For 400–700 nm V1 uses the original Bricaud et al. (1998) empirical total phytoplankton absorption relationship:
 
 ```text
-aph(λ) = A(λ) · Chl ^ B(λ)
+aph(λ) = Aphi(λ) · Chl ^ Ephi(λ)
 ```
 
-where `A(λ)` and `B(λ)` are the published spectral coefficient tables.
+The published/source table contains both total-particle `Ap/Ep` and phytoplankton `Aphi/Ephi` coefficient pairs. V1 uses `Aphi/Ephi`.
 
-The Round 2 implementation must vendor one verified coefficient table with provenance. The preferred verification path is:
+This is distinct from chlorophyll-specific absorption:
 
-1. Bricaud et al. (1998) publication / associated data.
-2. NASA OCSSW / GIOP implementation where the same parameterization is used.
-3. An independent implementation only as a cross-check.
+```text
+aph*(λ) = Aphi(λ) · Chl ^ [Ephi(λ) - 1]
+```
+
+and from NASA GIOP-DC's normalized phytoplankton spectral basis. V1 computes total `aph` directly because chlorophyll is an explicit teaching state variable rather than an inversion magnitude.
+
+The Round 2 implementation vendors a verified coefficient table with provenance. The primary equation is Bricaud et al. (1998). The frozen coefficient table is cross-checked against the BSD-licensed `ocean-colour/ocpy` implementation and the NASA/OCSSW representation.
 
 Do not use an arbitrary normalized phytoplankton spectrum in place of the Bricaud parameterization.
 
-Do not extrapolate the Bricaud coefficients beyond their validated visible range.
+Do not extrapolate the Bricaud coefficients beyond 400–700 nm.
 
 ### 6.4 CDOM absorption — published spectral form
 

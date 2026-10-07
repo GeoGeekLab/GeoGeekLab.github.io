@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "build:orient-content": "node scripts/build-orient-relations.mjs",
-    "qa": "npm run qa:orient && npm run qa:connect && npm run qa:bound && node scripts/qa.mjs",
+    "qa": "npm run qa:water && npm run qa:orient && npm run qa:connect && npm run qa:bound && node scripts/qa.mjs",
     "qa:connect": "node --test tests/connect/*.test.mjs",
     "qa:bound": "node --test tests/bound/*.test.mjs",
     "qa:links": "node scripts/check-links.mjs",
@@ -15,6 +15,7 @@
     "qa:orient": "node --test tests/orient/*.test.mjs && node scripts/check-orient-content.mjs",
     "qa:orient:release-browser": "playwright test -c playwright.orient-release.config.mjs",
     "qa:orient:production": "node scripts/verify-orient-live-release.mjs",
-    "preview": "node scripts/preview.mjs"
+    "preview": "node scripts/preview.mjs",
+    "qa:water": "node --test tests/water/*.test.mjs"
   }
 }
