@@ -1,0 +1,17 @@
+name: Public Play Postfix Diagnostic
+on:
+  push:
+    branches:
+      - diag/public-play-postfix
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --no-save playwright@1.55.0
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: node scripts/probe-public-play-postfix.mjs
