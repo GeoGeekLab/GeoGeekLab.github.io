@@ -134,3 +134,21 @@ test('latest Play click wins while shared runtime is still loading', async ({ pa
   await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.() || null)).toBe('zone');
   await expect(page.locator('.play-shell[data-play-kind="orient"], .play-v2-shell[data-play-kind="orient"]')).toHaveCount(0);
 });
+
+
+test('duplicate click while a Play is opening does not cancel the pending open', async ({ page }) => {
+  await page.route('**/games.js', async route => {
+    await new Promise(resolve => setTimeout(resolve, 900));
+    await route.continue();
+  });
+
+  await page.goto('/lab.html?release=20261007p', { waitUntil:'domcontentloaded' });
+  const locate = page.locator('[data-instrument="locate"]').first();
+  await expect(locate).toBeVisible();
+
+  await locate.click();
+  await locate.click();
+
+  await expect(page.locator('.play-shell[data-play-kind="orient"], .play-v2-shell[data-play-kind="orient"]')).toBeVisible({ timeout:20_000 });
+  await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.() || null)).toBe('locate');
+});
