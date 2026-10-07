@@ -227,9 +227,9 @@ test('Water spectra render compact component analysis instead of stretched singl
   expect(aBox).not.toBeNull();
   expect(bbBox).not.toBeNull();
   expect(outBox).not.toBeNull();
-  expect(aBox.width).toBeLessThanOrEqual(705);
-  expect(bbBox.width).toBeLessThanOrEqual(705);
-  expect(outBox.width).toBeLessThanOrEqual(705);
+  expect(aBox.width).toBeLessThanOrEqual(655);
+  expect(bbBox.width).toBeLessThanOrEqual(655);
+  expect(outBox.width).toBeLessThanOrEqual(655);
 
   expect(await page.locator('[data-chart="a"] .water-spectrum-component').count()).toBe(4);
   expect(await page.locator('[data-chart="bb"] .water-spectrum-component').count()).toBe(2);
