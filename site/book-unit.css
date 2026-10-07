@@ -113,7 +113,7 @@
   display:none !important;
 }
 .book-record-page{
-  --book-copy-size:10px;
+  --book-copy-size:clamp(14px,1vw,16px);
   --book-copy-leading:1.9;
 }
 
@@ -126,6 +126,14 @@
 .book-record-page #recordBody dd{
   font-size:var(--book-copy-size) !important;
   line-height:var(--book-copy-leading) !important;
+}
+
+.book-record-page #recordBody p{
+  text-indent:2em !important;
+}
+
+.book-record-page #recordBody blockquote p{
+  text-indent:0 !important;
 }
 .book-record-page .book-language-switch{
   display:flex;
