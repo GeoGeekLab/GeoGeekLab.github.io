@@ -284,12 +284,12 @@ window.GEOGEEK_ARCHIVE = {
                 "20 °C · 35 PSU"
               ],
               [
-                "MODEL",
-                "IOPs → u → rrs → Rrs"
+                "CHAIN",
+                "IOPs → Rrs → ρTOA* → sensor bands"
               ],
               [
                 "LIMIT",
-                "Optically deep · no atmosphere"
+                "First-order atmosphere · not correction"
               ]
             ],
             "locate": [
