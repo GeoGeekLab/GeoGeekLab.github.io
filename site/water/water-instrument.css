@@ -119,15 +119,19 @@
 .water-path-steps button[aria-pressed="true"]{color:var(--water-fg);background:rgba(209,99,57,.11)}
 .water-lab[data-mode="iop"] .water-path-steps{opacity:.45}
 .water-lab[data-mode="iop"] .water-scene .logic{fill:var(--water-fg)}
-.water-atmosphere-scene,.water-sensor-scene{display:none;position:absolute;inset:0;padding:20px 24px;align-content:center;gap:18px;background:linear-gradient(90deg,rgba(8,16,12,.98),rgba(13,25,19,.93))}
+.water-atmosphere-scene,.water-sensor-scene,.water-correction-scene{display:none;position:absolute;inset:0;padding:20px 24px;align-content:center;gap:18px;background:linear-gradient(90deg,rgba(8,16,12,.98),rgba(13,25,19,.93))}
 .water-lab[data-mode="atmosphere"] .water-scene>svg,
 .water-lab[data-mode="atmosphere"] .water-path-steps,
 .water-lab[data-mode="atmosphere"] .water-path-note,
 .water-lab[data-mode="sensor"] .water-scene>svg,
 .water-lab[data-mode="sensor"] .water-path-steps,
-.water-lab[data-mode="sensor"] .water-path-note{display:none}
+.water-lab[data-mode="sensor"] .water-path-note,
+.water-lab[data-mode="correction"] .water-scene>svg,
+.water-lab[data-mode="correction"] .water-path-steps,
+.water-lab[data-mode="correction"] .water-path-note{display:none}
 .water-lab[data-mode="atmosphere"] .water-atmosphere-scene{display:grid}
 .water-lab[data-mode="sensor"] .water-sensor-scene{display:grid}
+.water-lab[data-mode="correction"] .water-correction-scene{display:grid}
 
 .water-atmosphere-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(330px,43%);gap:7px 26px;align-items:end}
 .water-atmosphere-intro span{color:var(--water-signal);font:700 7.5px/1 var(--mono);letter-spacing:.11em}
@@ -160,6 +164,23 @@
 .water-sensor-flow i{color:var(--water-signal);font-style:normal}
 .water-sensor-flow strong{color:var(--water-fg);font-weight:650}
 
+.water-correction-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,44%);gap:7px 26px;align-items:end}
+.water-correction-intro span{color:var(--water-signal);font:700 7.5px/1 var(--mono);letter-spacing:.11em}
+.water-correction-intro strong{grid-row:2;grid-column:1;color:var(--water-fg);font:500 clamp(24px,2.2vw,36px)/1 var(--serif);letter-spacing:-.04em}
+.water-correction-intro p{grid-row:1/3;grid-column:2;margin:0;color:var(--water-body);font-size:10px;line-height:1.48}
+.water-correction-equation{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px;border-top:1px solid var(--water-line-soft);border-bottom:1px solid var(--water-line-soft);color:var(--water-body);font:650 8.2px/1.25 var(--mono)}
+.water-correction-equation strong{color:var(--water-fg)}
+.water-correction-equation i{color:var(--water-signal);font-style:normal}
+.water-correction-state{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.water-correction-state>div{display:grid;gap:5px;padding:9px 11px;border:1px solid var(--water-line-soft)}
+.water-correction-state span{color:var(--water-faint);font:650 6.5px/1 var(--mono);letter-spacing:.07em}
+.water-correction-state b{color:var(--water-fg);font:600 9px/1 var(--mono)}
+.water-correction-state>i{color:var(--water-signal);font:700 9px/1 var(--mono);font-style:normal}
+.water-correction-metrics{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--water-line-soft);border-left:1px solid var(--water-line-soft)}
+.water-correction-metrics>div{display:grid;gap:5px;padding:8px;border-right:1px solid var(--water-line-soft);border-bottom:1px solid var(--water-line-soft)}
+.water-correction-metrics span{color:var(--water-faint);font:650 6.2px/1 var(--mono);letter-spacing:.06em}
+.water-correction-metrics b{color:var(--water-fg);font:600 7.7px/1.2 var(--mono)}
+
 .water-spectra-panel{display:grid;grid-template-rows:38px minmax(0,1fr)}
 .water-spectra-head{
   display:flex;align-items:center;justify-content:space-between;gap:14px;
@@ -185,13 +206,17 @@
 .water-axis-label{fill:var(--water-faint);font:600 8px var(--mono)}
 .water-spectrum-line{fill:none;stroke:#d9ded9;stroke-width:2;vector-effect:non-scaling-stroke}
 .water-spectrum-area{fill:rgba(131,184,181,.05)}
+.water-spectrum-reference{fill:none;stroke:rgba(131,184,181,.82);stroke-width:1.4;stroke-dasharray:5 5;vector-effect:non-scaling-stroke}
+.water-zero-line{stroke:rgba(209,99,57,.58);stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}
 .water-sensor-band-window{fill:rgba(131,184,181,.075)}
 .water-sensor-band-window.is-partial{fill:rgba(209,99,57,.055)}
 .water-sensor-sample-dot{fill:var(--water-signal);stroke:var(--water-bg);stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}
 .water-lab[data-mode="atmosphere"] .water-chart:nth-child(-n+2),
-.water-lab[data-mode="sensor"] .water-chart:nth-child(-n+2){opacity:.56}
+.water-lab[data-mode="sensor"] .water-chart:nth-child(-n+2),
+.water-lab[data-mode="correction"] .water-chart:nth-child(-n+2){opacity:.56}
 .water-lab[data-mode="atmosphere"] .water-chart:last-child,
-.water-lab[data-mode="sensor"] .water-chart:last-child{background:rgba(131,184,181,.025)}
+.water-lab[data-mode="sensor"] .water-chart:last-child,
+.water-lab[data-mode="correction"] .water-chart:last-child{background:rgba(131,184,181,.025)}
 .water-probe-line{stroke:var(--water-signal);stroke-width:1;vector-effect:non-scaling-stroke}
 .water-probe-dot{fill:var(--water-signal);stroke:var(--water-bg);stroke-width:2;vector-effect:non-scaling-stroke}
 .water-hit{fill:transparent;pointer-events:all}
@@ -218,12 +243,14 @@
 .water-slider input,.water-probe-input{width:100%;accent-color:var(--water-signal)}
 .water-particle-group{margin-top:5px;padding-top:9px;border-top:1px solid var(--water-line)}
 .water-particle-group>p{margin:0 0 4px;color:var(--water-faint);font:540 7px/1.35 var(--mono)}
-.water-atmosphere-controls,.water-sensor-controls{display:none}
+.water-atmosphere-controls,.water-sensor-controls,.water-correction-controls{display:none}
 .water-lab[data-mode="atmosphere"] .water-atmosphere-controls,
 .water-lab[data-mode="sensor"] .water-atmosphere-controls,
-.water-lab[data-mode="sensor"] .water-sensor-controls{display:block}
+.water-lab[data-mode="sensor"] .water-sensor-controls,
+.water-lab[data-mode="correction"] .water-correction-controls{display:block}
 .water-lab[data-mode="atmosphere"] .water-budget-controls,
-.water-lab[data-mode="sensor"] .water-budget-controls{display:none}
+.water-lab[data-mode="sensor"] .water-budget-controls,
+.water-lab[data-mode="correction"] .water-budget-controls{display:none}
 .water-atm-geometry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding-top:8px;border-top:1px solid var(--water-line-soft)}
 .water-atm-geometry-grid label{display:grid;gap:5px;min-width:0}
 .water-atm-geometry-grid span{color:var(--water-faint);font:650 6.2px/1 var(--mono)}
@@ -233,6 +260,21 @@
 .water-atmosphere-contract span{display:grid;gap:4px;padding:7px;border-right:1px solid var(--water-line-soft);border-bottom:1px solid var(--water-line-soft)}
 .water-atmosphere-contract small{color:var(--water-faint);font:650 6px/1 var(--mono)}
 .water-atmosphere-contract b{color:var(--water-body);font:600 6.8px/1.25 var(--mono)}
+.water-correction-truth{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch;margin-bottom:7px}
+.water-correction-truth span{display:grid;gap:4px;padding:7px;border:1px solid var(--water-line-soft)}
+.water-correction-truth small{color:var(--water-faint);font:650 6px/1 var(--mono)}
+.water-correction-truth b{color:var(--water-fg);font:600 8px/1 var(--mono)}
+.water-correction-truth button,.water-correction-presets button{border:1px solid var(--water-line-soft);background:transparent;color:var(--water-muted);cursor:pointer;font:650 6.5px/1 var(--mono);letter-spacing:.05em}
+.water-correction-truth button{padding:0 9px}
+.water-correction-truth button[aria-pressed="true"]{color:var(--water-fg);background:rgba(131,184,181,.08)}
+.water-correction-presets{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:7px}
+.water-correction-presets button{min-height:27px}
+.water-correction-presets button:hover,.water-correction-truth button:hover{color:var(--water-fg);background:rgba(209,99,57,.08)}
+.water-correction-contract{display:grid;grid-template-columns:repeat(3,1fr);margin-top:9px;border-top:1px solid var(--water-line-soft);border-left:1px solid var(--water-line-soft)}
+.water-correction-contract span{display:grid;gap:4px;padding:7px;border-right:1px solid var(--water-line-soft);border-bottom:1px solid var(--water-line-soft)}
+.water-correction-contract small{color:var(--water-faint);font:650 5.8px/1 var(--mono)}
+.water-correction-contract b{color:var(--water-body);font:600 6.5px/1.25 var(--mono)}
+.water-correction-note{margin:8px 0 0;color:var(--water-faint);font:550 6.5px/1.45 var(--mono)}
 .water-sensor-select{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--water-line-soft);border-left:1px solid var(--water-line-soft)}
 .water-sensor-select button{min-height:32px;border:0;border-right:1px solid var(--water-line-soft);border-bottom:1px solid var(--water-line-soft);background:transparent;color:var(--water-muted);cursor:pointer;font:650 7px/1 var(--mono);letter-spacing:.065em}
 .water-sensor-select button[aria-pressed="true"],.water-sensor-select button:hover{color:var(--water-fg);background:rgba(209,99,57,.09)}
@@ -254,6 +296,9 @@
 .water-probe-summary span{display:grid;gap:4px;padding:7px;border-right:1px solid var(--water-line-soft);border-bottom:1px solid var(--water-line-soft)}
 .water-probe-summary small{color:var(--water-faint);font:650 6.5px/1 var(--mono)}
 .water-probe-summary b{color:var(--water-body);font:600 7.5px/1.2 var(--mono)}
+.water-correction-probe{display:none!important}
+.water-lab[data-mode="correction"] .water-probe-summary{grid-template-columns:repeat(5,1fr)}
+.water-lab[data-mode="correction"] .water-correction-probe{display:grid!important}
 .water-budget-block+.water-budget-block{margin-top:12px}
 .water-budget-block>strong{display:block;margin-bottom:6px;color:var(--water-faint);font:650 7px/1 var(--mono);letter-spacing:.07em}
 .water-budget-row{display:grid;grid-template-columns:58px minmax(0,1fr) 67px;gap:6px;align-items:center;min-height:21px}
@@ -293,10 +338,14 @@
   .water-main{min-height:760px;border-right:0;border-bottom:1px solid var(--water-line);grid-template-rows:300px 460px}
   .water-control-rail{overflow:visible}
   .water-path-note{left:10px;right:10px;bottom:48px;width:auto}
-  .water-atmosphere-scene,.water-sensor-scene{padding:16px 13px;gap:14px}
-  .water-atmosphere-intro,.water-sensor-intro{grid-template-columns:1fr}
-  .water-atmosphere-intro p,.water-sensor-intro p{grid-row:auto;grid-column:auto}
-  .water-atmosphere-intro strong,.water-sensor-intro strong{grid-row:auto;grid-column:auto}
+  .water-atmosphere-scene,.water-sensor-scene,.water-correction-scene{padding:16px 13px;gap:14px}
+  .water-atmosphere-intro,.water-sensor-intro,.water-correction-intro{grid-template-columns:1fr}
+  .water-atmosphere-intro p,.water-sensor-intro p,.water-correction-intro p{grid-row:auto;grid-column:auto}
+  .water-atmosphere-intro strong,.water-sensor-intro strong,.water-correction-intro strong{grid-row:auto;grid-column:auto}
+  .water-correction-equation{flex-wrap:wrap}
+  .water-correction-metrics{grid-template-columns:repeat(2,1fr)}
+  .water-correction-state{grid-template-columns:1fr}
+  .water-correction-state>i{display:none}
   .water-atmosphere-budget{grid-template-columns:1fr}
   .water-atmosphere-meta{display:grid;gap:5px}
   .water-sensor-flow{flex-wrap:wrap}
