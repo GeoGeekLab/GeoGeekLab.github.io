@@ -269,6 +269,8 @@
 .book-record-page .book-reading-essay > p{
   margin:0 0 1.25em;
   text-indent:2em;
+  font-size:10px;
+  line-height:1.9;
 }
 
 .book-record-page .book-reading-essay > p:last-child{
