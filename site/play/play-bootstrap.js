@@ -11,6 +11,33 @@
     return item;
   }
 
+  const PLAY_KINDS = new Set(['locate','zone','path','project','light']);
+
+  function ensurePlayFallbackLinks() {
+    PLAY_KINDS.forEach(kind => {
+      const trigger = document.querySelector(`[data-instrument="${kind}"]`);
+      if (!trigger) return;
+      const card = trigger.closest('.project-card');
+      const href = card?.dataset.detailHref || `lab.html?instrument=${encodeURIComponent(kind)}#${card?.id || ''}`;
+
+      if (trigger instanceof HTMLAnchorElement) {
+        trigger.href = href;
+        trigger.dataset.playFallback = 'true';
+        return;
+      }
+
+      const link = document.createElement('a');
+      [...trigger.attributes].forEach(attribute => {
+        if (attribute.name === 'type') return;
+        link.setAttribute(attribute.name, attribute.value);
+      });
+      link.href = href;
+      link.dataset.playFallback = 'true';
+      link.innerHTML = trigger.innerHTML;
+      trigger.replaceWith(link);
+    });
+  }
+
   function alignCard(kind, { title, meta, copy, coord, stamp }) {
     const trigger = document.querySelector(`[data-instrument="${kind}"]`);
     const card = trigger?.closest('.project-card');
@@ -99,9 +126,18 @@
     node.innerHTML=`<div><small>YOUR SPATIAL TRACE / ${String(groups.size).padStart(2,'0')} INSTRUMENTS</small><strong>NOT A SCORE. A RECORD OF WHAT CHANGED.</strong></div><p>${rows}</p>`;
   }
 
+  ensurePlayFallbackLinks();
   alignPlayContent();
   document.getElementById('instrumentDialog')?.addEventListener('close',renderSpatialTrace);
   window.addEventListener('storage',event=>{if(event.key===TRACE_KEY)renderSpatialTrace();});
+
+  // If the dedicated Play runtime is unavailable, preserve the anchor's native
+  // navigation instead of letting the generic instrument loader swallow it.
+  window.addEventListener('click', event => {
+    const link = event.target.closest?.('a[data-play-fallback="true"][data-instrument]');
+    if (!link || window.GeoModules?.__geoSpatialPlayRuntime) return;
+    event.stopPropagation();
+  }, true);
 
   document.addEventListener('click', event => {
     const button = event.target.closest?.('.play-shell[data-play-kind="orient"][data-play-state="trace"] .play-action.is-secondary');
