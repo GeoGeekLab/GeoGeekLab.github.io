@@ -260,7 +260,7 @@
 /* Continuous Chinese BOOK essay */
 .book-record-page .book-reading-essay{
   max-width:860px;
-  font-size:clamp(12px,.85vw,14px);
+  font-size:10px;
   line-height:1.9;
   letter-spacing:.015em;
   color:var(--fg);
@@ -293,7 +293,7 @@
 
 @media(max-width:680px){
   .book-record-page .book-reading-essay{
-    font-size:12px;
+    font-size:10px;
     line-height:1.85;
   }
 
