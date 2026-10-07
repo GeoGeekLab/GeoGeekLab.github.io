@@ -113,7 +113,7 @@
   display:none !important;
 }
 .book-record-page{
-  --book-copy-size:clamp(14px,1vw,16px);
+  --book-copy-size:clamp(18px,1.15vw,20px);
   --book-copy-leading:1.9;
 }
 
