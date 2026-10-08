@@ -19,7 +19,7 @@ try {
       page.on('requestfailed', req => {
         if (failedRequests.length < 8) failedRequests.push(req.url().slice(0,180) + ': ' + req.failure()?.errorText);
       });
-      const url = host + '/lab.html?release=20261008v7p1#l15';
+      const url = host + '/lab.html?release=20261008v8#l15';
       let outcome = 'PASS', reason = '';
       const diag = {};
       try {
@@ -56,7 +56,7 @@ try {
         if (diag.after.error) throw new Error('Stage rendered error: '+diag.after.error);
         if (diag.after.active !== kind) throw new Error('Incorrect active kind: '+diag.after.active);
         const shell = page.locator('.play-shell[data-play-kind="'+dom+'"],.play-v2-shell[data-play-kind="'+dom+'"]');
-        if (diag.before.release !== '20261008v7p1') throw new Error('Production Lab HTML is not the deployed PLAY repair release: ' + diag.before.release);
+        if (diag.before.release !== '20261008v8') throw new Error('Production Lab HTML is not the deployed PLAY repair release: ' + diag.before.release);
         if (mode === 'desktop' && (kind === 'light' || kind === 'swath')) {
           const name = kind === 'light' ? 'BLACK' : 'MORE GROUND · COARSER PIXELS';
           const choice = shell.getByRole('button', {name});
