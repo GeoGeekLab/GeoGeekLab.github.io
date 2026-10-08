@@ -68,4 +68,4 @@ const uncertaintyWorkspace={
    adv(param('chl')+param('ag')+param('anap')+param('bbp')+param('eta')+'<p class="aside-note">The displayed 1σ values are local linearized estimates under the chosen noise assumptions. They are not uncertainty budgets, inverse-model validation, or retrieval certification.</p>');
  }
 };
-return {uncertaintyWorkspace,run};
+export {uncertaintyWorkspace,run};
