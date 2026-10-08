@@ -37,7 +37,9 @@
   const localCountryName = properties => properties?.NAME_LONG || properties?.NAME || properties?.ADMIN || '—';
   const localRegionName = value => value || '—';
   if (principle) principle.textContent = labUI.principle || principle.textContent;
-  if (closeButton) closeButton.setAttribute('aria-label', labUI.close || 'Close');
+  // Do not overwrite the authoritative full-page Lab Index exit label if this
+  // instrument controller loads after the workspace identity controller.
+  if (closeButton && closeButton.dataset.labExit !== 'true') closeButton.setAttribute('aria-label', labUI.close || 'Close');
   if (boundary) boundary.textContent = labUI.boundary || boundary.textContent;
 
   function renderConditions(kind, item) {
