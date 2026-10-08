@@ -1087,7 +1087,7 @@ const sensorWorkspace={...TABS[3],plots:plots.sensor,
   return csection('SENSOR','select instrument','<div class="switch-row">'+sensorButtons+'</div>')+
     csection('SPECTRAL RESPONSE','select integration',responseButtons(state))+
     csection('BAND SAMPLES','Rrs or TOA · complete bands only',rows)+
-    adv('<p class="aside-note">The measured tables are pinned to public Git blobs in jbferet/prosail and are reported as measured instrument responses by the publisher. Their underlying original agency SRF issue is not independently confirmed. This educational RT model remains unvalidated.</p>');
+    adv('<p class="aside-note">The measured tables are pinned to public Git blobs in jbferet/prosail and are reported as measured instrument responses by the publisher. Their underlying original agency SRF issue is not independently confirmed. This educational RT model remains unvalidated.</p><button type="button" class="ghost-btn" data-export="json">↓ Export Experiment + Sensor SRF JSON</button>');
  }
 };
 return {sensorWorkspace,responseButtons};
