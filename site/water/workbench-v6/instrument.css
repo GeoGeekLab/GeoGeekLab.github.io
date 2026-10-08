@@ -1,0 +1,20 @@
+/* V6 styling is scoped to the native Water instrument. */
+.instrument-dialog[data-instrument-kind="water"] .instrument-workspace-modes { display:none!important; }
+.instrument-dialog[data-instrument-kind="water"] .instrument-stage {
+  overflow:hidden!important;
+  padding:0!important;
+  min-height:0!important;
+  background:#0b130f;
+}
+.instrument-dialog[data-instrument-kind="water"] .instrument-stage>.water-v6-frame {
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:0;
+  border:0;
+  background:#0b130f;
+}
+.instrument-dialog[data-instrument-kind="water"] .instrument-meta { display:none!important; }
+@media (max-width:760px) {
+  .instrument-dialog[data-instrument-kind="water"] .instrument-stage { overflow:hidden!important; }
+}
