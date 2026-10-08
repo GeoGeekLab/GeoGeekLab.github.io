@@ -111,6 +111,7 @@ jobs:
       - name: Static QA
         run: |
           node --test site/water/workbench-v6/smoke.test.mjs
+          node --test site/water/workbench-v7/smoke.test.mjs
           npm run qa
           node scripts/verify-play-live-release.mjs --local
 
