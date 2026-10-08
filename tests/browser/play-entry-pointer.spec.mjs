@@ -109,10 +109,10 @@ test('ORIENT accepts a real pointer judgment before confidence', async ({ page }
 
 test('Lab navigation uses a release-versioned document URL', async ({ page }) => {
   await page.goto('/index.html', { waitUntil:'domcontentloaded' });
-  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release=20261008b');
+  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release=20261008c');
 
-  await page.goto('/lab.html?release=20261008b', { waitUntil:'domcontentloaded' });
-  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', '20261008b');
+  await page.goto('/lab.html?release=20261008c', { waitUntil:'domcontentloaded' });
+  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', '20261008c');
 });
 
 test('latest Play click wins while shared runtime is still loading', async ({ page }) => {
@@ -121,7 +121,7 @@ test('latest Play click wins while shared runtime is still loading', async ({ pa
     await route.continue();
   });
 
-  await page.goto('/lab.html?release=20261008b', { waitUntil:'domcontentloaded' });
+  await page.goto('/lab.html?release=20261008c', { waitUntil:'domcontentloaded' });
   const locate = page.locator('[data-instrument="locate"]').first();
   const zone = page.locator('[data-instrument="zone"]').first();
   await expect(locate).toBeVisible();
@@ -137,17 +137,29 @@ test('latest Play click wins while shared runtime is still loading', async ({ pa
 
 
 test('duplicate click while a Play is opening does not cancel the pending open', async ({ page }) => {
-  await page.route('**/games.js', async route => {
-    await new Promise(resolve => setTimeout(resolve, 900));
-    await route.continue();
+  await page.goto('/lab.html?release=20261008c', { waitUntil:'domcontentloaded' });
+  await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime));
+  await page.evaluate(() => {
+    const load = window.GeoModules.loadScript.bind(window.GeoModules);
+    window.__duplicateClickBlocked = false;
+    window.GeoModules.loadScript = src => {
+      if (src.startsWith('play/orient/orient-geometry.js') && !window.__duplicateClickBlocked) {
+        window.__duplicateClickBlocked = true;
+        return new Promise(resolve => {
+          window.__releaseDuplicateClick = () => resolve(load(src));
+        });
+      }
+      return load(src);
+    };
   });
 
-  await page.goto('/lab.html?release=20261008b', { waitUntil:'domcontentloaded' });
   const locate = page.locator('[data-instrument="locate"]').first();
   await expect(locate).toBeVisible();
-
   await locate.click();
+  await expect.poll(() => page.evaluate(() => window.__duplicateClickBlocked)).toBe(true);
   await locate.click();
+  await expect(locate).toContainText('OPENING');
+  await page.evaluate(() => window.__releaseDuplicateClick());
 
   await expect(page.locator('.play-shell[data-play-kind="orient"], .play-v2-shell[data-play-kind="orient"]')).toBeVisible({ timeout:20_000 });
   await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.() || null)).toBe('locate');
@@ -196,4 +208,85 @@ test('PROJECT direct link preserves its interactive state without a second mount
   await page.waitForTimeout(1200);
   await expect(shell).toHaveAttribute('data-play-state','transforming');
   await expect(page.locator('.play-v2-shell[data-play-kind="project"]')).toHaveCount(1);
+});
+
+
+test('PLAY retry after a stalled startup ignores the late first result', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+  await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime));
+  await page.evaluate(() => {
+    const originalLoad = window.GeoModules.loadScript.bind(window.GeoModules);
+    const originalTimeout = window.setTimeout.bind(window);
+    window.setTimeout = (callback, delay, ...args) => {
+      if (delay === 15000) {
+        window.__expirePlayOpening = () => callback(...args);
+        return originalTimeout(() => {}, 30000);
+      }
+      return originalTimeout(callback, delay, ...args);
+    };
+    window.__delayedLight = false;
+    window.GeoModules.loadScript = src => {
+      if (src.startsWith('play/light/light.js') && !window.__delayedLight) {
+        window.__delayedLight = true;
+        return new Promise(resolve => {
+          window.__releaseDelayedLight = () => resolve(originalLoad(src));
+        });
+      }
+      return originalLoad(src);
+    };
+  });
+
+  const trigger = page.locator('[data-instrument="light"]').first();
+  await trigger.click();
+  await expect.poll(() => page.evaluate(() => window.__delayedLight)).toBe(true);
+  await page.evaluate(() => window.__expirePlayOpening());
+  await expect(trigger).toContainText('RETRY PLAY');
+
+  await trigger.click();
+  const shell = page.locator('.play-v2-shell[data-play-kind="light"]');
+  await expect(shell).toBeVisible({ timeout:20_000 });
+  await page.evaluate(() => window.__releaseDelayedLight());
+  await page.waitForTimeout(250);
+  await expect(shell).toHaveCount(1);
+  await expect(trigger).not.toContainText('RETRY PLAY');
+  await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.())).toBe('light');
+});
+
+
+test('PLAY rapid A-B-A clicks honor the final request after both older loads finish', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+  await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime));
+  await page.evaluate(() => {
+    const originalLoad = window.GeoModules.loadScript.bind(window.GeoModules);
+    const barriers = {};
+    window.__playBarriers = barriers;
+    window.GeoModules.loadScript = src => {
+      const key = src.includes('play/orient/orient-geometry.js') ? 'orient' :
+        src.includes('play/bound/bound.js') ? 'bound' : null;
+      if (!key) return originalLoad(src);
+      if (!barriers[key]) {
+        let release;
+        const promise = new Promise(resolve => {
+          release = () => resolve(originalLoad(src));
+        });
+        barriers[key] = { promise, release };
+      }
+      return barriers[key].promise;
+    };
+  });
+
+  const locate = page.locator('[data-instrument="locate"]').first();
+  const bound = page.locator('[data-instrument="zone"]').first();
+  await locate.click();
+  await expect.poll(() => page.evaluate(() => Boolean(window.__playBarriers.orient))).toBe(true);
+  await bound.click();
+  await expect.poll(() => page.evaluate(() => Boolean(window.__playBarriers.bound))).toBe(true);
+  await locate.click();
+  await page.evaluate(() => Object.values(window.__playBarriers).forEach(entry => entry.release()));
+
+  const orient = page.locator('.play-shell[data-play-kind="orient"], .play-v2-shell[data-play-kind="orient"]');
+  await expect(orient).toBeVisible({ timeout:20_000 });
+  await expect(page.locator('.play-v2-shell[data-play-kind="bound"]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.())).toBe('locate');
+  await expect(locate).not.toContainText('OPENING');
 });
