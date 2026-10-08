@@ -153,6 +153,7 @@ test('V7.1 spectral geometry is proportional and hover reads all component curve
   await app.locator('[data-plot="bb"]').click();
   const svg=app.locator('#mainContent svg.graph[data-chart-ref]').first();
   await expect(svg).toBeVisible();
+  await expect(svg).toHaveAttribute('data-water-probe-bound','1');
   const geom=await svg.evaluate(node=>{
     const b=node.getBoundingClientRect(),v=node.viewBox.baseVal;
     return {cssRatio:b.width/b.height,svgRatio:v.width/v.height,lines:node.querySelectorAll('path.graph-line').length};
@@ -182,6 +183,7 @@ test('V7.1 chart geometry follows compact mobile viewport without stretching tex
   await app.locator('[data-plot="bb"]').click();
   const svg=app.locator('#mainContent svg.graph[data-chart-ref]').first();
   await expect(svg).toBeVisible();
+  await expect(svg).toHaveAttribute('data-water-probe-bound','1');
   await expect.poll(async()=>svg.evaluate(node=>{
     const b=node.getBoundingClientRect(),v=node.viewBox.baseVal;
     return Math.abs(b.width/b.height-v.width/v.height);
