@@ -313,7 +313,7 @@ html[data-geogeek-embedded="true"] .tab{padding-inline:11px}
   <div class="top-info"><span class="buildtag" title="GeoGeek first-order ocean-color radiative-transfer approximation, 400–700 nm">GEOGEEK MODEL · v10.0</span><div class="header-actions"><button type="button" class="ghost-btn" id="exportBtn">↓ Export CSV</button><button type="button" class="ghost-btn" id="importBtn">↑ Import JSON</button><input type="file" id="importFile" accept=".json,application/json" hidden aria-label="Import saved experiment JSON"><button type="button" class="ghost-btn" id="inspectBtn">ⓘ Model Scope</button></div></div>
  </header>
  <nav class="appnav" aria-label="Ocean-color analysis workspaces"><div class="nav-scroll" role="tablist" id="mainNav"></div><div class="appnav-end">MODEL STATE <em>● LOCAL / GEOGEEK</em>　 |　 SINGLE SESSION</div></nav>
- <div class="workspace" id="workspace">
+ <details id="v10Science" style="margin:4px 20px;padding:7px 10px;border:1px solid #42604f;color:#b9d3c4;font:11px system-ui;border-radius:5px"><summary>MODEL / ASSUMPTIONS / VALIDITY · SEMI_ANALYTICAL · 400–700 nm · NOT RESEARCH-VALIDATED</summary><p id="v10ScienceState">V9-compatible baseline; fixed optical slopes.</p><p>IOP to Rrs uses Gordon/GIOP and Lee approximations. Atmospheric signal is first-order rho_TOA*. Depth-angle RT, fluorescence, bottom reflectance, and operational satellite L1/L2 retrieval are NOT calculated.</p></details><div class="workspace" id="workspace">
   <main class="main-space" aria-label="Primary analysis workspace">
    <header class="workspace-head"><div><span class="eyebrow" id="spaceEyebrow">WORKSPACE / 02</span><h2 class="space-title" id="spaceTitle">Water Optics · IOP → Rrs</h2><p class="space-subtitle" id="spaceSubtitle">Adjust water constituent parameters and examine their spectral effects.</p></div><div class="head-controls"><button class="tiny-btn" id="lockAxisBtn" type="button" aria-pressed="false">◇ Lock Y-axis</button><button class="tiny-btn" id="panelBtn" type="button" aria-pressed="true">▤ Hide Controls</button></div></header>
    <div class="chart-area"><div class="chart-top"><div class="plot-switches" role="group" aria-label="Spectral analysis views" id="plotNav"></div><div class="plot-flag">400–700 nm · FIRST-ORDER OPTICAL MODEL</div></div><div class="chart-main" id="mainContent" aria-live="polite"></div></div>
@@ -359,7 +359,7 @@ return {};
 const {TABS, DATA, CFG, PSETS, initialParams, plots} = require("core/config.js");
 const {clone,clamp} = require("core/numbers.js");
 const {SENSITIVITY_PARAMETERS,SENSITIVITY_STEPS} = require("analysis/sensitivity.js");
-const STORAGE_KEY='water_ui_geo_v9';
+const STORAGE_KEY='water_ui_geo_v10';const V9_STORAGE_KEY='water_ui_geo_v9';
 const V8_STORAGE_KEY='water_ui_geo_v8';
 const V7_STORAGE_KEY='water_ui_geo_v4';
 const V3_STORAGE_KEY='water_ui_geo_v3';
@@ -377,7 +377,7 @@ function validateParams(input){
   const n=input?.[key];
   if(typeof n==='number'&&Number.isFinite(n))params[key]=clamp(n,CFG[key].min,CFG[key].max);
  }
- params.sg=initialParams.sg;params.snap=initialParams.snap;
+ // V10 allows bounded optical-slope variants; default remains V9-compatible.
  return params;
 }
 function translateLegacySnapshotLabel(label){
@@ -439,7 +439,7 @@ function validateSession(input){
 function createSessionStore(storage){
  if(storage===undefined){try{storage=globalThis.localStorage;}catch{storage=null;}}
  let source=null;
- try{source=JSON.parse(storage?.getItem(STORAGE_KEY)||storage?.getItem(V8_STORAGE_KEY)||storage?.getItem(V7_STORAGE_KEY)||storage?.getItem(V3_STORAGE_KEY)||storage?.getItem(OLD_STORAGE_KEY)||'null');}catch{/* private browsing or invalid previous state */}
+ try{source=JSON.parse(storage?.getItem(STORAGE_KEY)||storage?.getItem(V9_STORAGE_KEY)||storage?.getItem(V8_STORAGE_KEY)||storage?.getItem(V7_STORAGE_KEY)||storage?.getItem(V3_STORAGE_KEY)||storage?.getItem(OLD_STORAGE_KEY)||'null');}catch{/* private browsing or invalid previous state */}
  const state=validateSession(source);
  const listeners=new Set();
  const persist=()=>{try{storage?.setItem(STORAGE_KEY,JSON.stringify(state));}catch{/* storage blocked */}};
@@ -492,8 +492,8 @@ const CFG={
  raz:{label:'Relative azimuth angle',unit:'°',min:0,max:180,step:1,tip:'Relative solar–sensor azimuth angle.'},
  corrAot:{label:'Assumed aerosol depth · τ_a(550)',unit:'',min:0,max:.5,step:.005,tip:'Aerosol optical thickness assumed in the inverse correction.'},
  corrAlpha:{label:'Assumed Ångström exponent · α',unit:'',min:0,max:2.5,step:.05,tip:'Aerosol spectral exponent assumed in the inverse correction.'},
- sg:{label:'CDOM spectral slope · S_g',unit:'nm⁻¹',min:.005,max:.03,step:.0001,tip:'Fixed constant in the upstream model; not editable.'},
- snap:{label:'NAP spectral slope · S_NAP',unit:'nm⁻¹',min:.005,max:.03,step:.0001,tip:'Fixed constant in the upstream model; not editable.'},
+ sg:{label:'CDOM spectral slope · S_g',unit:'nm⁻¹',min:.005,max:.03,step:.0001,tip:'Study-mean slope; custom values are an exploratory teaching assumption.'},
+ snap:{label:'NAP spectral slope · S_NAP',unit:'nm⁻¹',min:.005,max:.03,step:.0001,tip:'Study-mean slope; custom values are an exploratory teaching assumption.'},
  eta:{label:'Backscattering exponent · η',unit:'',min:0,max:2,step:.01,tip:'Spectral exponent accepted by the upstream model; upstream UI defaults to η = 1.'}
 };
 const stageData={
@@ -617,7 +617,7 @@ const geogeekAdapter=Object.freeze({
  domainNm:[400,700],stepNm:1,
  modelAssumptions:{water:'optically deep / Gordon-GIOP + Lee interface',atmosphere:ATMOSPHERE_MODEL_META.approximation,sensor:'nominal rectangles or published measured SRF as selected in UI',g0:WATER_MODEL_META.g0,g1:WATER_MODEL_META.g1,fixedSg:WATER_MODEL_META.cdomSlopeNm1,fixedSNap:WATER_MODEL_META.napSlopeNm1,float32ReferenceTables:true},
  compute(params){
-  const water=computeWaterOptics({chl:params.chl,ag440:params.ag,aNap443:params.anap,bbp443:params.bbp,eta:params.eta});
+  const water=computeWaterOptics({chl:params.chl,ag440:params.ag,aNap443:params.anap,bbp443:params.bbp,eta:params.eta,sg:params.sg,snap:params.snap});
   const atmState={aerosolOpticalDepth550:params.aot,angstromExponent:params.alpha,pressureHpa:params.pressure,solarZenithDeg:params.sza,viewZenithDeg:params.vza,relativeAzimuthDeg:params.raz};
   const atmosphere=computeAtmosphereObservation(water.wavelengthNm,water.Rrs,atmState);
   const correction=buildCorrectionExperiment(water.wavelengthNm,water.Rrs,atmosphere.reflectance.toaApprox,atmState,{aerosolOpticalDepth550:params.corrAot,angstromExponent:params.corrAlpha});
@@ -646,12 +646,12 @@ const WATER_DEFAULT_STATE=Object.freeze({chl:1,ag440:.05,aNap443:.02,bbp443:.002
 function finite(name,v){if(!Number.isFinite(v))throw new TypeError(`${name} must be finite`)}
 function validateWaterState(input={}){const state={...WATER_DEFAULT_STATE,...input};for(const [k,[lo,hi]] of Object.entries(WATER_STATE_BOUNDS)){finite(k,state[k]);if(state[k]<lo||state[k]>hi)throw new RangeError(`${k} must be between ${lo} and ${hi}`);}return Object.freeze(state)}
 function phytoplanktonAbsorption(chl){finite('chl',chl);if(chl<=0)throw new RangeError('chl must be greater than zero');return BRICAUD_APHI_A.map((v,i)=>v*Math.pow(chl,BRICAUD_APHI_E[i]));}
-function cdomAbsorption(ag440){finite('ag440',ag440);if(ag440<0)throw new RangeError('ag440 must be non-negative');return WATER_WAVELENGTHS_NM.map(wl=>ag440*Math.exp(-WATER_MODEL_META.cdomSlopeNm1*(wl-WATER_MODEL_META.cdomReferenceNm)));}
-function napAbsorption(aNap443){finite('aNap443',aNap443);if(aNap443<0)throw new RangeError('aNap443 must be non-negative');return WATER_WAVELENGTHS_NM.map(wl=>aNap443*Math.exp(-WATER_MODEL_META.napSlopeNm1*(wl-WATER_MODEL_META.napReferenceNm)));}
+function cdomAbsorption(ag440,slope=WATER_MODEL_META.cdomSlopeNm1){finite('ag440',ag440);if(ag440<0)throw new RangeError('ag440 must be non-negative');return WATER_WAVELENGTHS_NM.map(wl=>ag440*Math.exp(-slope*(wl-WATER_MODEL_META.cdomReferenceNm)));}
+function napAbsorption(aNap443,slope=WATER_MODEL_META.napSlopeNm1){finite('aNap443',aNap443);if(aNap443<0)throw new RangeError('aNap443 must be non-negative');return WATER_WAVELENGTHS_NM.map(wl=>aNap443*Math.exp(-slope*(wl-WATER_MODEL_META.napReferenceNm)));}
 function particleBackscatter(bbp443,eta=1){finite('bbp443',bbp443);finite('eta',eta);if(bbp443<0)throw new RangeError('bbp443 must be non-negative');return WATER_WAVELENGTHS_NM.map(wl=>bbp443*Math.pow(WATER_MODEL_META.particleBackscatterReferenceNm/wl,eta));}
 function subsurfaceToAboveWater(rrs){finite('rrs',rrs);if(rrs<0)throw new RangeError('rrs must be non-negative');const denominator=1-1.7*rrs;if(!(denominator>0))throw new RangeError('rrs outside interface approximation domain');return .52*rrs/denominator;}
 function aboveWaterToSubsurface(Rrs){finite('Rrs',Rrs);if(Rrs<0)throw new RangeError('Rrs must be non-negative');return Rrs/(.52+1.7*Rrs);}
-function computeWaterOptics(input={}){const state=validateWaterState(input);const aph=phytoplanktonAbsorption(state.chl),ag=cdomAbsorption(state.ag440),aNap=napAbsorption(state.aNap443),bbp=particleBackscatter(state.bbp443,state.eta),a=[],bb=[],u=[],rrs=[],Rrs=[];
+function computeWaterOptics(input={}){const state=validateWaterState(input);const aph=phytoplanktonAbsorption(state.chl),ag=cdomAbsorption(state.ag440,input.sg??WATER_MODEL_META.cdomSlopeNm1),aNap=napAbsorption(state.aNap443,input.snap??WATER_MODEL_META.napSlopeNm1),bbp=particleBackscatter(state.bbp443,state.eta),a=[],bb=[],u=[],rrs=[],Rrs=[];
 for(let i=0;i<WATER_WAVELENGTHS_NM.length;i++){a[i]=PURE_WATER_A_M1[i]+aph[i]+ag[i]+aNap[i];bb[i]=PURE_WATER_BB_M1[i]+bbp[i];u[i]=bb[i]/(a[i]+bb[i]);rrs[i]=WATER_MODEL_META.g0*u[i]+WATER_MODEL_META.g1*u[i]*u[i];Rrs[i]=subsurfaceToAboveWater(rrs[i]);}
 return Object.freeze({state,wavelengthNm:WATER_WAVELENGTHS_NM,absorption:Object.freeze({water:PURE_WATER_A_M1,phytoplankton:Object.freeze(aph),cdom:Object.freeze(ag),nap:Object.freeze(aNap),total:Object.freeze(a)}),backscattering:Object.freeze({water:PURE_WATER_BB_M1,particles:Object.freeze(bbp),total:Object.freeze(bb)}),u:Object.freeze(u),rrs:Object.freeze(rrs),Rrs:Object.freeze(Rrs)});}
 
@@ -801,7 +801,8 @@ function createWorkbench({store,models,charts,controls}){
   const key=state.tab+':'+state.plot;state.axisLocked=Boolean(state.axisRanges[key]);
   $('lockAxisBtn').disabled=state.tab==='path'||state.tab==='uncertainty';
   $('workspace').classList.toggle('u9-active',state.tab==='uncertainty');
-  const plotFlag=document.querySelector('.plot-flag');if(plotFlag)plotFlag.textContent=state.tab==='uncertainty'?'LOCAL FISHER DIAGNOSTICS · ASSUMED NOISE':'400–700 nm · FIRST-ORDER OPTICAL MODEL';
+  const scienceNode=document.getElementById('v10ScienceState');if(scienceNode)scienceNode.textContent='Model '+globalThis.GeoGeekV10Contract.model.version+' · '+globalThis.GeoGeekV10Contract.modelVariant(state.params)+' · Sg='+state.params.sg.toFixed(4)+' nm⁻¹; SNAP='+state.params.snap.toFixed(4)+' nm⁻¹';
+   const plotFlag=document.querySelector('.plot-flag');if(plotFlag)plotFlag.textContent=state.tab==='uncertainty'?'LOCAL FISHER DIAGNOSTICS · ASSUMED NOISE':'400–700 nm · FIRST-ORDER OPTICAL MODEL';
   $('lockAxisBtn').setAttribute('aria-pressed',String(state.axisLocked));
   $('lockAxisBtn').classList.toggle('is-on',state.axisLocked);
   $('lockAxisBtn').textContent=state.axisLocked?'◆ Y-axis Locked':'◇ Lock Current Y-axis';
@@ -918,7 +919,7 @@ const p=state.params,idx=state.probe-400;
  renderControls({state,controls}){
   const {param,csection,adv,presets}=controls;
   let html='';
-  html=csection('REFERENCE STATES','pedagogical',presets())+csection('WATER / CORE PARAMETERS','4 variables',param('chl')+param('ag')+param('anap')+param('bbp'))+adv(param('eta')+'<p class="aside-note">S_g = 0.0176 nm⁻¹ and S_NAP = 0.0123 nm⁻¹ are fixed in the upstream model. The spectral backscattering exponent η is adjustable here; the upstream user interface fixes η at 1.0.</p>')
+  html=csection('REFERENCE STATES','pedagogical',presets())+csection('WATER / CORE PARAMETERS','4 variables',param('chl')+param('ag')+param('anap')+param('bbp'))+adv(param('eta')+param('sg')+param('snap')+'<button type="button" class="ghost-btn" data-reset-slopes="1">Restore literature-mean slopes</button><p class="aside-note">Default slopes retain V9 results. Custom slopes create a V10 EXPLORATORY MODEL VARIANT, not a validated natural-water relationship.</p>')
   return html;
  }
 };
@@ -1477,7 +1478,8 @@ function bindWorkbenchEvents({store,workbench,exports}){
   if(t.dataset.plot){if(plots[state.tab].some(([id])=>id===t.dataset.plot))update(s=>{s.plot=t.dataset.plot});return;}
   if(t.dataset.stage){update(s=>{s.stage=t.dataset.stage},'chart');return;}
   if(t.dataset.goto){changeWorkspace(t.dataset.goto);return;}
-  if(t.dataset.preset){
+  if(t.dataset.resetSlopes){update(s=>{s.params.sg=.0176;s.params.snap=.0123;s.preset=''});return;}
+   if(t.dataset.preset){
    const preset=PSETS[t.dataset.preset];if(!preset)return;
    update(s=>{Object.assign(s.params,{chl:preset.chl,ag:preset.ag,anap:preset.anap,bbp:preset.bbp,eta:preset.eta});s.preset=t.dataset.preset});
    notify(`Applied ${preset.label} reference state`);return;
