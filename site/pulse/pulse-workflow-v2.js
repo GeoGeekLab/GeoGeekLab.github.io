@@ -112,12 +112,17 @@
       '</div>',
       '<p data-pc="grid-legend" aria-live="polite">Points: hover or focus to inspect; click to pin. Drag blank map to pan. Use wheel to zoom.</p>',
       '<div class="pw-actions"><button type="button" data-pc="zoom-in">ZOOM +</button><button type="button" data-pc="zoom-out">ZOOM −</button><button type="button" data-pc="zoom-reset">RESET VIEW</button></div>',
-      '<p>Grid cells use a spherical surface-area approximation. Colour intensity uses one locked maximum across the A and B grids for comparison; no detection-completeness correction is applied.</p>'
+      '<p>Grid cells use a spherical surface-area approximation. Colour intensity uses one locked maximum across the A and B grids for comparison; no detection-completeness correction is applied.</p>',
+      '<h3>07 · EVENT FINDER & ANALYSIS EXPORTS</h3>',
+      '<label class="pw-search-label">EVENT ID / PLACE<input type="search" data-pc="find" placeholder="Search visible events (2+ characters)"></label>',
+      '<div class="pw-found" data-pc="found" aria-live="polite">Search by USGS ID or place to locate overlapping points.</div>',
+      '<div class="pw-actions"><button type="button" data-pc="charts-csv">EXPORT CHARTS CSV</button><button type="button" data-pc="grid-csv">EXPORT A/B GRID CSV</button></div>',
+      '<p>Chart and grid CSVs hold numeric A/B aggregates. Export the first-round MANIFEST JSON and selected event records with them for provenance.</p>'
     ].join('');
     const exportSection = $$('.pw-section',side).find(el=>el.textContent?.includes('04 · EXPORT'));
     if (exportSection) {
       const title = $('h3',exportSection);
-      if (title) title.textContent='07 · EXPORT';
+      if (title) title.textContent='08 · EXPORT';
       exportSection.before(analysis);
     } else side.appendChild(analysis);
 
@@ -147,7 +152,7 @@
     };
     let periods=null,latest={a:[],b:[]},currentGrid=new Map();
     let lastDatasetKey='',pinnedId=null,gridPin=null,hovered=null;
-    let maxShared=0, drag=null;
+    let maxShared=0, drag=null, chartBins={trend:[],magnitude:[],depth:[]};
     let drawQueued=false;
 
     function tell(value,error=false) {
@@ -322,11 +327,13 @@
         {label:'Deep depth ≥300 km',tick:'≥300',ok:d=>d!=null&&d>=300},
         {label:'Depth unknown',tick:'?',ok:d=>d==null}
       ];
-      renderBars(el('depth'),categories.map(category=>({
+      chartBins={trend,magnitude:magBins,depth:categories.map(category=>({
         label:category.label,tick:category.tick,
         a:latest.a.filter(e=>category.ok(e.depth)).length,
         b:latest.b.filter(e=>category.ok(e.depth)).length
-      })));
+      }))};
+      renderBars(el('depth'),chartBins.depth);
+
     }
 
     function gridValue(cell,measure) {
@@ -412,10 +419,87 @@
       setStats();
       charts();
       renderGrid();
+      if(el('find').value) findEvents();
       if(pinnedId){
         const keep=state.visible.find(e=>e.id===pinnedId);
         if(keep)detailEvent(keep,true); else {pinnedId=null;detail.textContent='The selected event is no longer in the visible set.';}
       }
+    }
+
+
+    function csvText(value) {
+      let input=value==null?'':String(value);
+      if (/^[=+\-@\t\r\n]/.test(input)) input="'"+input;
+      return '"'+input.replace(/"/g,'""')+'"';
+    }
+    function saveCsv(label,columns,rows) {
+      const data='\ufeff'+[columns,...rows].map(row=>row.map(csvText).join(',')).join('\r\n')+'\r\n';
+      const url=URL.createObjectURL(new Blob([data],{type:'text/csv;charset=utf-8'}));
+      const link=document.createElement('a');
+      link.download='pulse-'+label+'-'+new Date().toISOString().replace(/[:.]/g,'-')+'.csv';
+      link.href=url;
+      document.body.appendChild(link);
+      link.click();link.remove();
+      window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }
+    function exportCharts() {
+      if(!state.source||!periods)return;
+      const rows=[];
+      for(const [chart,bins] of Object.entries(chartBins)) {
+        for(const bin of bins) {
+          rows.push([chart,bin.label,bin.a,bin.b,bin.windows?.a||'',bin.windows?.b||'']);
+        }
+      }
+      saveCsv('comparison-charts',['chart','category','count_A','count_B','interval_A_UTC','interval_B_UTC'],rows);
+    }
+    function exportGrid() {
+      if(!state.source||!periods)return;
+      const resolution=Number(el('resolution').value);
+      const cellsA=groupGrid(latest.a,resolution);
+      const cellsB=groupGrid(latest.b,resolution);
+      const keys=new Set([...cellsA.keys(),...cellsB.keys()]);
+      const rows=[...keys].map(key=>{
+        const a=cellsA.get(key),b=cellsB.get(key),cell=a||b;
+        const densityA=a?gridValue(a,'area'):0;
+        const densityB=b?gridValue(b,'area'):0;
+        return [resolution,cell.west,cell.east,cell.south,cell.north,
+          cell.area,a?.count||0,b?.count||0,densityA,densityB];
+      }).sort((a,b)=>a[3]-b[3]||a[1]-b[1]);
+      saveCsv('comparison-grid',
+        ['resolution_degrees','west','east','south','north','approx_area_km2',
+          'count_A','count_B','count_per_million_km2_A','count_per_million_km2_B'],rows);
+    }
+    function findEvents() {
+      const root=el('found');
+      root.replaceChildren();
+      const query=el('find').value.trim().toLowerCase();
+      if(query.length<2) {root.textContent='Type at least two characters to search the current filtered/ROI catalogue.';return;}
+      const hits=state.visible.filter(e=>(e.place+' '+e.id).toLowerCase().includes(query)).slice(0,25);
+      if(!hits.length) {root.textContent='No matching visible records.';return;}
+      const intro=document.createElement('span');
+      intro.textContent='Up to 25 matching records. Select one to inspect and locate it:';
+      root.append(intro);
+      hits.forEach(event=>{
+        const button=document.createElement('button');
+        button.type='button';
+        button.textContent=event.id+' · '+event.place+' · '+(event.mag==null?'M?':'M'+event.mag.toFixed(1));
+        button.addEventListener('click',()=>{
+          pinnedId=event.id;gridPin=null;
+          detailEvent(event,true);context.inspect(event);
+          el('display').value='points';renderGrid();
+          const width=Math.min(svg.viewBox.baseVal.width,250),height=width/2;
+          const px=(event.lon+180)/360*1000;
+          const py=(90-event.lat)/180*500;
+          const x=Math.max(0,Math.min(1000-width,px-width/2));
+          const y=Math.max(0,Math.min(500-height,py-height/2));
+          svg.setAttribute('viewBox',[x,y,width,height].join(' '));
+          const index=state.visible.indexOf(event);
+          const marker=$('.pw-event[data-pw-index="'+index+'"]',dots);
+          marker?.focus({preventScroll:true});
+          map.scrollIntoView({block:'nearest',behavior:'auto'});
+        });
+        root.append(button);
+      });
     }
 
     function mapEventInfo(target) {
@@ -523,6 +607,9 @@
     listen(el('auto'),'click',()=>{autoWindows();tell('Source split into disjoint temporal halves.');render();});
     listen(el('apply'),'click',applyWindows);
     ['display','resolution','measure','scope'].forEach(key=>listen(el(key),'change',render));
+    listen(el('find'),'input',findEvents);
+    listen(el('charts-csv'),'click',exportCharts);
+    listen(el('grid-csv'),'click',exportGrid);
     listen(workspace,'pulse:workflow-render',render);
     workspace._pulseAnalysisMetadata=()=>({
       version:2,periodsUTC:periods?{
@@ -536,6 +623,7 @@
       caveat:'Observed record counts and records/hour are not completeness-corrected earthquake occurrence rates.'
     });
     render();
+    findEvents();
 
     function cleanup(){
       listeners.forEach(off=>off());
