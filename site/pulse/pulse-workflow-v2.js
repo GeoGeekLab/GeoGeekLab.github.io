@@ -554,22 +554,21 @@
     listen(svg,'focusout',event=>{
       if(event.target.closest?.('.pw-event, .pw-grid-cell'))clearHover();
     });
-    listen(svg,'click',event=>{
-      const info=mapEventInfo(event.target);
-      if(!info)return;
+    function activateMapFeature(target) {
+      const info=mapEventInfo(target);
+      if(!info)return false;
       if(info.kind==='point') {
         pinnedId=info.item.id;gridPin=null;detailEvent(info.item,true);
         context.inspect(info.item);
       } else {
         gridPin=info.item.key;pinnedId=null;detailCell(info.item,true);
       }
-    });
+      return true;
+    }
+    listen(svg,'click',event=>activateMapFeature(event.target));
     listen(svg,'keydown',event=>{
       if(event.key!=='Enter'&&event.key!==' ')return;
-      const info=mapEventInfo(event.target);
-      if(!info)return;
-      event.preventDefault();
-      event.target.click();
+      if(activateMapFeature(event.target))event.preventDefault();
     });
 
     function zoom(factor,relX=.5,relY=.5) {
