@@ -87,7 +87,7 @@
   const opening = new Map();
   let entrySequence = 0;
   let warmPromise = null;
-  const ENTRY_TIMEOUT_MS = 6000;
+  const ENTRY_TIMEOUT_MS = 15000;
 
   async function warmPlayBase() {
     if (warmPromise) return warmPromise;
@@ -261,7 +261,11 @@
       if (requestId && requestId !== entrySequence) return instruments;
       const active = window.GeoInstruments?.getActive?.() === kind;
       if (!active || !isPlayMounted(kind)) {
-        await instruments?.openByKind?.(kind, { updateUrl });
+        if (!instruments?.openByKind) throw new Error(`Play controller unavailable: ${kind}`);
+        await instruments.openByKind(kind, { updateUrl });
+      }
+      if (!isPlayMounted(kind) && !document.getElementById('instrumentStage')?.querySelector('.instrument-error')) {
+        throw new Error(`Play did not mount: ${kind}`);
       }
       modules.normalizeInstrumentAria?.(kind);
       queueMicrotask(enhancePlayAccessibility);
@@ -328,7 +332,10 @@
       entrySequence += 1;
       console.warn(`[GeoGeek] Play ${kind} failed to open promptly; using the native entry path.`, error);
       setEntryState(trigger, 'error');
-      nativeFallback(trigger, kind);
+      // Keep the failure visible and retryable. Do not navigate in a loop
+      // while scripts are still loading or the current instrument already matches.
+      const status = document.getElementById('instrumentReadout');
+      if (status) status.textContent = `PLAY / ${kind.toUpperCase()} / LOAD FAILED · RETRY PLAY`;
     }
   }, true);
 
