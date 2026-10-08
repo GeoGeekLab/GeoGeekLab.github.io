@@ -102,7 +102,9 @@ test('comparative periods, interactive charts and manifest are linked to filtere
 test('mouse and keyboard inspection show complete points; map zoom and configurable grid work',async({page})=>{
   await open(page);
   const work=page.locator('.pulse-workflow');
-  const circle=work.locator('.pw-event').first();
+  // This isolated point tests physical pointer hit testing. Overlapping points are
+  // intentionally reached through the event finder instead of forced hover.
+  const circle=work.locator('.pw-event[data-event-id="B Polar"]');
   await circle.hover();
   await expect(work.locator('.pw-hover-detail')).toContainText('A Pacific');
   await expect(work.locator('.pw-hover-detail')).toContainText('COORDINATES');
