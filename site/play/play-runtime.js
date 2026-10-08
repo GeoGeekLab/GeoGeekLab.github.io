@@ -287,6 +287,17 @@
     setTimeout(scheduleWarm, 350);
   }
 
+  // Expired attempts must not be reused by later clicks.
+  function abandonOpening(kind) {
+    entrySequence += 1;
+    opening.delete(kind);
+    const stage = document.getElementById('instrumentStage');
+    if (window.GeoInstruments?.getActive?.() === kind &&
+        !isPlayMounted(kind) && !stage?.querySelector('.instrument-error')) {
+      window.GeoInstruments?.close?.();
+    }
+  }
+
   function showStageRetry(kind) {
     const stageError = document.getElementById('instrumentStage')?.querySelector('.instrument-error');
     if (!stageError || stageError.querySelector('[data-play-retry]')) return;
@@ -296,11 +307,17 @@
     retry.dataset.playRetry = kind;
     retry.textContent = 'RETRY PLAY';
     retry.addEventListener('click', async () => {
+      const requestId = ++entrySequence;
+      opening.delete(kind);
       retry.disabled = true;
       try {
-        await withEntryTimeout(openPlay(kind, { updateUrl: true }));
+        await withEntryTimeout(openPlay(kind, { updateUrl: true, requestId }));
+        if (requestId !== entrySequence) return;
+        if (!isPlayMounted(kind)) throw new Error('Play retry did not mount: ' + kind);
         setEntryState(entryTrigger(kind), 'idle');
       } catch (error) {
+        if (requestId !== entrySequence) return;
+        abandonOpening(kind);
         console.warn(`[GeoGeek] Play ${kind} retry failed.`, error);
         setEntryState(entryTrigger(kind), 'error');
         showStageRetry(kind);
@@ -344,7 +361,7 @@
         setEntryState(trigger, 'idle');
         return;
       }
-      entrySequence += 1;
+      abandonOpening(kind);
       console.warn(`[GeoGeek] Play ${kind} failed to open or mount.`, error);
       setEntryState(trigger, 'error');
       // Keep the failure visible and retryable. Do not navigate in a loop
@@ -357,12 +374,16 @@
 
   const requested = new URLSearchParams(location.search).get('instrument');
   if (PLAY_KINDS.has(requested)) queueMicrotask(async () => {
+    const requestId = ++entrySequence;
     const trigger = entryTrigger(requested);
     setEntryState(trigger, 'opening');
     try {
-      await openPlay(requested, { updateUrl: false });
+      await withEntryTimeout(openPlay(requested, { updateUrl: false, requestId }));
+      if (requestId !== entrySequence) return;
       setEntryState(trigger, 'idle');
     } catch (error) {
+      if (requestId !== entrySequence) return;
+      abandonOpening(requested);
       console.warn(`[GeoGeek] Direct Play ${requested} could not initialize.`, error);
       setEntryState(trigger, 'error');
       showStageRetry(requested);
