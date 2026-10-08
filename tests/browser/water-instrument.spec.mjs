@@ -253,7 +253,7 @@ test('V9 Fisher workspace shows eight tabs, bounded Jacobian and assumed-noise c
  await expect(app.locator('.u9-metrics')).toContainText('ASSUMED σ(Rrs)');
  await expect(app.locator('[data-u9-parameter="chl"]')).toHaveAttribute('aria-pressed','true');
  await app.locator('[data-plot="jacobian"]').click();
- await expect(app.locator('.u9-matrix-row').count()).resolves.toBeGreaterThan(4);
+ await expect.poll(()=>app.locator('.u9-matrix-row').count()).toBeGreaterThan(4);
  await app.locator('[data-plot="correlation"]').click();
  await expect(app.locator('.u9-summary')).toContainText('Covariance');
  await app.locator('[data-plot="summary"]').click();
