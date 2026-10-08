@@ -1,12 +1,14 @@
 import { readFile, stat } from 'node:fs/promises';
 
 const kinds = ['locate', 'zone', 'path', 'project', 'light', 'swath'];
-const release = '20261008c';
 const local = process.argv.includes('--local');
 const base = String(process.env.PLAY_RELEASE_BASE_URL || 'https://geogeeklab.github.io/').replace(/\/+$/, '');
 const html = await readFile(new URL('../site/lab.html', import.meta.url), 'utf8');
-if (!html.includes('<meta content="' + release + '" name="geogeek-lab-release"/>')) {
-  throw new Error('Lab release metadata is stale.');
+// The authored Lab page is the single source of truth for the release token.
+// Still verify that the live page advertises exactly the same release.
+const release = html.match(/<meta content="([^"]+)" name="geogeek-lab-release"\/>/)?.[1];
+if (!release || !/^20\d{6}[0-9a-z]+$/i.test(release)) {
+  throw new Error('Lab release metadata is missing or malformed.');
 }
 const version = html.match(/src="play\/play-runtime\.js\?v=([^"]+)"/)?.[1];
 if (!version) throw new Error('Lab HTML is missing the versioned Play runtime.');
