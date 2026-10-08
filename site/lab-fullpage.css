@@ -97,6 +97,8 @@
   text-wrap: balance;
 }
 
+.instrument-workspace-modes[hidden] { display: none !important; }
+
 .instrument-workspace-modes {
   align-self: center;
   display: flex;
