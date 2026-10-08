@@ -30,7 +30,7 @@ test('V7 production loader has three imports available as fallbacks',()=>{
  assert.match(loader,/loadModule\(WATER_WORKBENCH_V6\)/);
  assert.match(loader,/loadModule\(WATER_WORKBENCH_V5\)/);
  assert.match(loader,/loadModule\(WATER_INSTRUMENT\)/);
- assert.match(lab,/core\/modules\.js\?v=20261008v(?:7|8)[a-z0-9]*/);
+ assert.match(lab,/core\/modules\.js\?v=20261008v[7-9][a-z0-9]*/);
 });
 
 
@@ -45,5 +45,5 @@ test('V7.1 spectral chart hotfix is versioned and keeps multiseries geometry acc
  assert.match(chartFix,/pointermove/);
  assert.match(chartFix,/data-water-markers/);
  assert.match(chartFix,/data\.series\.map/);
- assert.match(lab,/core\/modules\.js\?v=20261008v(?:7|8)[a-z0-9]*/);
+ assert.match(lab,/core\/modules\.js\?v=20261008v[7-9][a-z0-9]*/);
 });

@@ -13,6 +13,7 @@
   const WATER_WORKBENCH_V6 = 'water/workbench-v6/instrument.js?v=6.0.0';
   const WATER_WORKBENCH_V7 = 'water/workbench-v7/instrument.js?v=7.1.0';
   const WATER_WORKBENCH_V8 = 'water/workbench-v8/instrument.js?v=8.0.0';
+  const WATER_WORKBENCH_V9 = 'water/workbench-v9/instrument.js?v=9.0.0';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
@@ -158,17 +159,20 @@
     if (kind === 'flow' && !window.GeoFlowLabPolish) await loadScript('flow-lab-polish.js?v=20261002b');
     if (kind === 'water' && !window.GeoGeekInstrumentMounts?.water) {
       try {
-        await loadModule(WATER_WORKBENCH_V8);
-      } catch (v8Error) {
-        console.warn('[GeoGeek] Water V8 import unavailable; falling back to V7.', v8Error);
-        try { await loadModule(WATER_WORKBENCH_V7); }
-        catch (v7Failure) {
-          console.warn('[GeoGeek] Water V7 import unavailable; falling back to V6.', v7Failure);
-          try { await loadModule(WATER_WORKBENCH_V6); }
-          catch (v6Failure) {
-            console.warn('[GeoGeek] Water V6 import unavailable; falling back to V5.', v6Failure);
-            try { await loadModule(WATER_WORKBENCH_V5); }
-            catch { await loadModule(WATER_INSTRUMENT); }
+        await loadModule(WATER_WORKBENCH_V9);
+      } catch (v9Error) {
+        console.warn('[GeoGeek] Water V9 import unavailable; loading V8.', v9Error);
+        try {
+          await loadModule(WATER_WORKBENCH_V8);
+        } catch (v8Error) {
+          console.warn('[GeoGeek] Water V8 import unavailable; loading V7.', v8Error);
+          try { await loadModule(WATER_WORKBENCH_V7); }
+          catch (v7Error) {
+            try { await loadModule(WATER_WORKBENCH_V6); }
+            catch (v6Error) {
+              try { await loadModule(WATER_WORKBENCH_V5); }
+              catch { await loadModule(WATER_INSTRUMENT); }
+            }
           }
         }
       }
