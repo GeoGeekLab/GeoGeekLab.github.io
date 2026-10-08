@@ -117,6 +117,8 @@ jobs:
           node --test site/water/workbench-v9/tests/model-integration.test.mjs
           node --test site/water/workbench-v9/tests/startup-recovery.test.mjs
           node --test site/water/workbench-v10/tests/v10-scientific-contract.test.mjs
+          node scripts/verify-water-rt-reference.mjs
+          node --test site/water/workbench-v10-1/tests/rt-reference.test.mjs
           npm run qa
           node scripts/verify-play-live-release.mjs --local
 
@@ -125,6 +127,8 @@ jobs:
 
       - name: Validate Water V10.0 browser tests
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v10.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Validate Water V10.1 numerical RT browser tests
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v101.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate ORIENT release browser suite
         run: npx playwright test -c playwright.orient-release.config.mjs --list
 

@@ -15,6 +15,7 @@
   const WATER_WORKBENCH_V8 = 'water/workbench-v8/instrument.js?v=8.0.0';
   const WATER_WORKBENCH_V9 = 'water/workbench-v9/instrument.js?v=9.1.0';
   const WATER_WORKBENCH_V10 = 'water/workbench-v10/instrument.js?v=10.0.0';
+  const WATER_WORKBENCH_V101 = 'water/workbench-v10-1/instrument.js?v=10.1.0';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
@@ -160,13 +161,15 @@
     if (kind === 'flow' && !window.GeoFlowLabPolish) await loadScript('flow-lab-polish.js?v=20261002b');
     if (kind === 'water' && !window.GeoGeekInstrumentMounts?.water) {
       try {
-        if (new URLSearchParams(location.search).get('waterVersion') === 'v9') {
-          await loadModule(WATER_WORKBENCH_V9);
-        } else {
-          try { await loadModule(WATER_WORKBENCH_V10); }
-          catch (v10Error) {
-            console.warn('[GeoGeek] Water V10 import unavailable; restoring V9.', v10Error);
-            await loadModule(WATER_WORKBENCH_V9);
+        const requestedWaterVersion=new URLSearchParams(location.search).get('waterVersion');
+        if(requestedWaterVersion==='v9')await loadModule(WATER_WORKBENCH_V9);
+        else if(requestedWaterVersion==='v10')await loadModule(WATER_WORKBENCH_V10);
+        else {
+          try { await loadModule(WATER_WORKBENCH_V101); }
+          catch (v101Error){
+            console.warn('[GeoGeek] V10.1 module unavailable; restoring V10.0.',v101Error);
+            try { await loadModule(WATER_WORKBENCH_V10); }
+            catch (v10Error){console.warn('[GeoGeek] V10.0 unavailable; restoring V9.',v10Error);await loadModule(WATER_WORKBENCH_V9);}
           }
         }
       } catch (v9Error) {
