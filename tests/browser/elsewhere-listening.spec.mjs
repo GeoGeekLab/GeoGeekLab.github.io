@@ -39,9 +39,9 @@ test('Elsewhere exposes LISTENING as a thirty-two-record Sound as landscape coll
   await expect(rows.nth(20)).toContainText('いのちの名前');
   await expect(rows.nth(21)).toContainText('大鱼');
   await expect(rows.nth(22)).toContainText('となりのトトロ');
-  await expect(rows.nth(23)).toContainText('toneoiqviCI');
+  await expect(rows.nth(23)).toContainText('西班牙斗牛士进行曲 Spanish Bullfighter March');
   await expect(rows.nth(24)).toContainText("L'Internationale");
-  await expect(rows.nth(25)).toContainText('HBO5N5KGJzM');
+  await expect(rows.nth(25)).toContainText('七月上');
   await expect(rows.nth(26)).toContainText('纸短情长');
   await expect(rows.nth(27)).toContainText('不再猶豫');
   await expect(rows.nth(28)).toContainText('今天妳要嫁給我');
@@ -124,12 +124,14 @@ test('LISTENING resolves supplied YouTube IDs to verified metadata where source 
   );
 
   await page.goto('/records/elsewhere-listening-024.html');
-  await expect(page.locator('#recordTitle')).toHaveText('toneoiqviCI');
+  await expect(page.locator('#recordTitle')).toHaveText('西班牙斗牛士进行曲 Spanish Bullfighter March');
   await expect(page.locator('#recordMeta')).toContainText('SOURCE TITLE PENDING');
 
   await page.goto('/records/elsewhere-listening-026.html');
-  await expect(page.locator('#recordTitle')).toHaveText('HBO5N5KGJzM');
-  await expect(page.locator('#recordMeta')).toContainText('SOURCE TITLE PENDING');
+  await expect(page.locator('#recordTitle')).toHaveText('七月上');
+  await expect(page.locator('#recordExcerpt')).toContainText('Jam（阿敬）');
+  await expect(page.locator('#recordExcerpt')).toContainText('2015');
+  await expect(page.locator('#recordMeta')).not.toContainText('SOURCE TITLE PENDING');
 
   await page.goto('/records/elsewhere-listening-032.html');
   await expect(page.locator('#recordTitle')).toHaveText('TiK ToK');
