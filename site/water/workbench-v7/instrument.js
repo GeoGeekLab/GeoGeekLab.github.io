@@ -25,6 +25,7 @@
     ensureStyles();
     const token = 'w' + (++sequence) + '-' + Math.random().toString(36).slice(2, 14);
     const url = new URL(frameUrl);
+    url.searchParams.set('chartfix', '7.1.0');
     url.searchParams.set('embed', '1');
     url.searchParams.set('instance', token);
 

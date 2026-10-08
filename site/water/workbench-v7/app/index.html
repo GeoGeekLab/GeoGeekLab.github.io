@@ -556,7 +556,7 @@ function chartSvg(series,mode='rrs',{bands=[],samples=[],unit='',height=360}={})
  const lines=series.map((s,i)=>`<path class="graph-line ${i===1?'compare':i>=2?'secondary':''}" d="${s.values.map((v,j)=>`${j?'L':'M'}${toX(400+j).toFixed(2)},${toY(v).toFixed(2)}`).join(' ')}" ${i>=2?'opacity=".85"':''}/>`).join('');
  const active=toX(state.probe),acty=toY(getSample({[series[0].key||'data']:series[0].values},series[0].key||'data',state.probe));
  const probes=`<line class="probe-line" x1="${active}" x2="${active}" y1="${T}" y2="${B}"/><circle class="active-dot" cx="${active}" cy="${acty}" r="5"/>`;
- return `<svg class="graph" data-chart-click="true" data-domain-min="${domain.min}" data-domain-max="${domain.max}" data-clipped="${domain.clipped}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" tabindex="0" role="img" aria-label="Modeled ${mode} spectrum spanning 400 to 700 nanometers. Click or use arrow keys to select a probe wavelength."><defs><clipPath id="${clipId}"><rect x="${L}" y="${T}" width="${R-L}" height="${B-T}"/></clipPath></defs>${grids}<g clip-path="url(#${clipId})">${bandRects}${lines}${sampleDots}${probes}</g><line class="spine" x1="${L}" x2="${R}" y1="${B}" y2="${B}"/><text x="${R+12}" y="${H-15}" text-anchor="start">nm</text></svg>`;
+ return `<svg class="graph" data-chart-click="true" data-chart-ref="${(window.__geoChartFixRegistry ||= []).push({series,mode,bands,samples,unit})-1}" data-domain-min="${domain.min}" data-domain-max="${domain.max}" data-clipped="${domain.clipped}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" tabindex="0" role="img" aria-label="Modeled ${mode} spectrum spanning 400 to 700 nanometers. Click or use arrow keys to select a probe wavelength."><defs><clipPath id="${clipId}"><rect x="${L}" y="${T}" width="${R-L}" height="${B-T}"/></clipPath></defs>${grids}<g clip-path="url(#${clipId})">${bandRects}${lines}${sampleDots}${probes}</g><line class="spine" x1="${L}" x2="${R}" y1="${B}" y2="${B}"/><text x="${R+12}" y="${H-15}" text-anchor="start">nm</text></svg>`;
 }
 function chartFrame(title,subtitle,series,mode,metrics=[],options={}){const selected=series[0],idx=state.probe-400;const domain=chartDomain(series);const caution=domain.clipped?'<div class="axis-notice" role="status">Some values are outside the locked Y-axis range. Unlock to view the full spectrum.</div>':'';const header=`<div class="chart-label-row"><div><span class="plot-main-title">${title}</span><span class="plot-subtitle">${subtitle}</span></div><div class="legend">${series.map((s,i)=>`<span><i class="swatch ${i===1?'alt':i>=2?'third':''}"></i>${s.label}</span>`).join('')}</div></div>`;const note=`<div class="chart-footer"><span>PROBE　${state.probe} nm　·　${selected.label}: <strong>${f(selected.values[idx],5)} ${options.unit||''}</strong></span><span>Select wavelength on chart · ←/→ 1 nm · Shift 10 nm</span></div>`;return `<div class="hero-plot">${header}${caution}${chartSvg(series,mode,options)}${note}</div>${metricGrid(metrics)}`}
 function metricGrid(items){if(!items.length)return'';return `<div class="metric-grid">${items.map((m)=>`<div class="metric"><small>${m.label}</small><strong class="${m.accent?'accent-val':''}">${m.value}</strong><em>${m.unit||'model output'}</em></div>`).join('')}</div>`}
@@ -616,6 +616,7 @@ function createWorkbench({store,models,charts,controls}){
   else nav.querySelectorAll('[data-plot]').forEach(el=>el.setAttribute('aria-pressed',String(state.plot===el.dataset.plot)));
  }
  function chart(){
+  window.__geoChartFixRegistry=[];
   const data=models.run(state.params);
   $('mainContent').classList.toggle('path-workbench',state.tab==='path');
   $('mainContent').classList.toggle('band-workbench',state.tab==='sensitivity'&&state.plot==='bands');
@@ -1176,5 +1177,6 @@ const __cache={};
 function __require(id){if(Object.hasOwn(__cache,id))return __cache[id];if(!__factories[id])throw new Error('Module not found: '+id);return __cache[id]=__factories[id](__require);}
 __require('main.js');
 </script>
+<script src="../chart-fix.js?v=7.1.0"></script>
 </body>
 </html>
