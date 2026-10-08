@@ -258,7 +258,9 @@
   const initialKind = new URLSearchParams(location.search).get('instrument');
   if (initialKind) setInstrumentIdentity(initialKind);
 
-  if (initialKind && families[initialKind]) {
+  // PLAY direct links are owned by play-runtime.js. Do not open them twice.
+  const playKinds = new Set(['locate', 'zone', 'path', 'project', 'light', 'swath']);
+  if (initialKind && families[initialKind] && !playKinds.has(initialKind)) {
     let attempts = 0;
     let opening = false;
     const openRequested = async () => {
