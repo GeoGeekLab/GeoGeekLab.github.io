@@ -1,7 +1,7 @@
 import { readFile, stat } from 'node:fs/promises';
 
 const kinds = ['locate', 'zone', 'path', 'project', 'light', 'swath'];
-const release = '20261008c';
+const release = '20261008d';
 const local = process.argv.includes('--local');
 const base = String(process.env.PLAY_RELEASE_BASE_URL || 'https://geogeeklab.github.io/').replace(/\/+$/, '');
 const html = await readFile(new URL('../site/lab.html', import.meta.url), 'utf8');

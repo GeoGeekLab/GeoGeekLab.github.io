@@ -16,7 +16,7 @@
   };
   const COMMON = [
     'play/play-core.js?v=20261005a',
-    'play/play-shell.js?v=20261005b',
+    'play/play-shell.js?v=20261008d',
     'play/play-trace.js?v=20261002c'
   ];
   const PRE_SCRIPTS = {
