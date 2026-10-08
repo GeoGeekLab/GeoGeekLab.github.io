@@ -14,10 +14,10 @@ async function openWater(page) {
   return {dialog,iframe,app};
 }
 
-test('V9 deep link opens the native Water dialog and all seven analysis workspaces', async ({page})=>{
+test('V9 deep link opens the native Water dialog and all eight analysis workspaces', async ({page})=>{
   const {dialog,app}=await openWater(page);
   await expect(page.locator('#instrumentTitle')).toHaveText('Water as Spectrum');
-  await expect(app.locator('#mainNav [data-tab]')).toHaveCount(7);
+  await expect(app.locator('#mainNav [data-tab]')).toHaveCount(8);
   for(const tab of ['path','iop','atm','sensor','ac','compare','sensitivity']){
     await app.locator('[data-tab="'+tab+'"]').click();
     await expect(app.locator('[data-tab="'+tab+'"]')).toHaveAttribute('aria-selected','true');
