@@ -70,7 +70,10 @@
     if (!src) return Promise.resolve();
     if (refinementLoads.has(src)) return refinementLoads.get(src);
     const promise = import(new URL(src, document.baseURI).href)
-      .then(() => kind === 'pulse' ? import(new URL('pulse/pulse-workflow-v1.js?v=20261008a', document.baseURI).href) : undefined)
+      .then(() => kind === 'pulse'
+        ? import(new URL('pulse/pulse-workflow-v1.js?v=20261008b', document.baseURI).href)
+            .then(() => import(new URL('pulse/pulse-workflow-v2.js?v=20261008b', document.baseURI).href))
+        : undefined)
       .catch(error => {
       refinementLoads.delete(src);
       throw error;
