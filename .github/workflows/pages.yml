@@ -115,6 +115,7 @@ jobs:
         run: node scripts/verify-field-note-pages.mjs
       - name: QA
         run: |
+          node --test site/water/workbench-v6/smoke.test.mjs
           node scripts/qa.mjs
           node scripts/verify-play-live-release.mjs --local
       - name: ORIENT release browsers
