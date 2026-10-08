@@ -146,6 +146,7 @@
 @media(max-width:500px){.band-response-panel{padding:10px}.band-response-metrics{grid-template-columns:1fr}.band-response-label,.band-response-row{grid-template-columns:76px minmax(55px,1fr) 74px 26px;gap:5px}.band-response-row{padding:5px}.band-name,.band-elasticity{font-size:10px}}
 
 
+.workspace.rt-active .probe-bar{display:none}
 /* V10.1 · scientific WATER RT, typography- and axis-led, no decorative photon animation */
 .rt-shell{display:flex;flex-direction:column;gap:12px;width:100%;padding:16px;background:#101d17;color:#dce9e0;border:1px solid #335547;border-radius:8px;overflow-y:auto;min-height:100%}
 .rt-intro{display:flex;justify-content:space-between;gap:18px;border-bottom:1px solid #375448;padding-bottom:12px}
@@ -931,6 +932,7 @@ function createWorkbench({store,models,charts,controls}){
   const key=state.tab+':'+state.plot;state.axisLocked=Boolean(state.axisRanges[key]);
   $('lockAxisBtn').disabled=state.tab==='path'||state.tab==='uncertainty'||state.tab==='rt';
   $('workspace').classList.toggle('u9-active',state.tab==='uncertainty');
+  $('workspace').classList.toggle('rt-active',state.tab==='rt');
   const scienceNode=document.getElementById('v10ScienceState');if(scienceNode)scienceNode.textContent='Model '+globalThis.GeoGeekV10Contract.model.version+' · '+globalThis.GeoGeekV10Contract.modelVariant(state.params)+' · Sg='+state.params.sg.toFixed(4)+' nm⁻¹; SNAP='+state.params.snap.toFixed(4)+' nm⁻¹';
    const plotFlag=document.querySelector('.plot-flag');if(plotFlag)plotFlag.textContent=state.tab==='rt'?'DOM REFERENCE · 5 SAMPLED WAVELENGTHS · NOT CROSS-VALIDATED':state.tab==='uncertainty'?'LOCAL FISHER DIAGNOSTICS · ASSUMED NOISE':'400–700 nm · FIRST-ORDER OPTICAL MODEL';
   $('lockAxisBtn').setAttribute('aria-pressed',String(state.axisLocked));
