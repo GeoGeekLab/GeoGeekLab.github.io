@@ -514,7 +514,7 @@ const paceBands=Array.from({length:60},(_,i)=>{const centerNm=402.5+i*5;return O
 const WATER_SENSOR_ORDER=Object.freeze(['olci','pace-oci','s2-msi','landsat-oli']);
 const WATER_SENSOR_DEFINITIONS=Object.freeze({
  olci:{id:'olci',label:'Sentinel-3 OLCI',shortLabel:'OLCI',responseModel:'simplified-top-hat',fidelity:'Nominal band centres and widths; not measured time-dependent SRF',bands:[
- {id:'Oa01',label:'Oa01',centerNm:400,widthNm:15},{id:'Oa02',label:'Oa02',centerNm:412.5,widthNm:10},{id:'Oa03',label:'Oa03',centerNm:442.5,widthNm:10},{id:'Oa04',label:'Oa04',centerNm:490,widthNm:10},{id:'Oa05',label:'Oa05',centerNm:510,widthNm:10},{id:'Oa06',label:'Oa06',centerNm:560,widthNm:10},{id:'Oa07',label:'Oa07',centerNm:620,widthNm:10},{id:'Oa08',label:'Oa08',centerNm:665,widthNm:10},{id:'Oa09',label:'Oa09',centerNm:673.75,widthNm:7.5},{id:'Oa10',label:'Oa10',centerNm:681.25,widthNm:7.5}]},
+ {id:'Oa01',label:'Oa01',centerNm:400,widthNm:15},{id:'Oa02',label:'Oa02',centerNm:412.5,widthNm:10},{id:'Oa03',label:'Oa03',centerNm:442.5,widthNm:10},{id:'Oa04',label:'Oa04',centerNm:490,widthNm:10},{id:'Oa05',label:'Oa05',centerNm:510,widthNm:10},{id:'Oa06',label:'Oa06',centerNm:560,widthNm:10},{id:'Oa07',label:'Oa07',centerNm:620,widthNm:10},{id:'Oa08',label:'Oa08',centerNm:665,widthNm:10},{id:'Oa09',label:'Oa09',centerNm:673.75,widthNm:7.5},{id:'Oa10',label:'Oa10',centerNm:681.25,widthNm:7.5},{id:'Oa11',label:'Oa11',centerNm:708.75,widthNm:10}]},
  'pace-oci':{id:'pace-oci',label:'PACE OCI',shortLabel:'OCI',responseModel:'simplified-top-hat',fidelity:'Nominal 5 nm teaching mode only; actual OCI has finer sampling and measured RSR',bands:paceBands},
  's2-msi':{id:'s2-msi',label:'Sentinel-2A MSI',shortLabel:'MSI',responseModel:'simplified-top-hat',fidelity:'Nominal S2A centre wavelength and bandwidth; not measured SRF',bands:[{id:'B01',label:'B01 Coastal',centerNm:442.7,widthNm:21},{id:'B02',label:'B02 Blue',centerNm:492.4,widthNm:66},{id:'B03',label:'B03 Green',centerNm:559.8,widthNm:36},{id:'B04',label:'B04 Red',centerNm:664.6,widthNm:31}]},
  'landsat-oli':{id:'landsat-oli',label:'Landsat 8/9 OLI',shortLabel:'OLI',responseModel:'simplified-top-hat',fidelity:'Published wavelength ranges represented as rectangular bandpasses',bands:[{id:'B1',label:'B1 Coastal',centerNm:440,widthNm:20},{id:'B2',label:'B2 Blue',centerNm:480,widthNm:60},{id:'B3',label:'B3 Green',centerNm:560,widthNm:60},{id:'B4',label:'B4 Red',centerNm:655,widthNm:30}]} });
@@ -718,7 +718,7 @@ const {WATER_SENSOR_DEFINITIONS,WATER_SENSOR_ORDER} = require("model/upstream/se
 
 function assertSpectrum(wavelengths,values){if(!Array.isArray(wavelengths)||!Array.isArray(values)||wavelengths.length!==values.length||wavelengths.length<2)throw new TypeError('wavelengths and values must be equal-length arrays');for(let i=0;i<wavelengths.length;i++){if(!Number.isFinite(wavelengths[i])||!Number.isFinite(values[i]))throw new TypeError('spectrum must be finite');if(i&&wavelengths[i]<=wavelengths[i-1])throw new RangeError('wavelengths must be strictly increasing')}}
 function interpolate(wavelengths,values,x){if(x<wavelengths[0]||x>wavelengths.at(-1))return null;const exact=wavelengths.indexOf(x);if(exact>=0)return values[exact];let hi=1;while(hi<wavelengths.length&&wavelengths[hi]<x)hi++;const lo=hi-1,t=(x-wavelengths[lo])/(wavelengths[hi]-wavelengths[lo]);return values[lo]+(values[hi]-values[lo])*t}
-function rectangularBandAverage(wavelengths,values,centerNm,widthNm){assertSpectrum(wavelengths,values);if(!Number.isFinite(centerNm)||!Number.isFinite(widthNm)||widthNm<=0)throw new RangeError('invalid band definition');const lo=centerNm-widthNm/2,hi=centerNm+widthNm/2,domainLo=wavelengths[0],domainHi=wavelengths.at(-1);if(lo<domainLo||hi>domainHi)return Object.freeze({value:null,supportNm:Object.freeze([lo,hi]),coverageFraction:Math.max(0,Math.min(hi,domainHi)-Math.max(lo,domainLo))/widthNm,status:'partial'});const xs=[lo];for(let x=Math.ceil(lo);x<=Math.floor(hi);x++)if(x>lo&&x<hi)xs.push(x);xs.push(hi);let area=0;for(let i=1;i<xs.length;i++){const x0=xs[i-1],x1=xs[i],y0=interpolate(wavelengths,values,x0),y1=interpolate(wavelengths,values,x1);area+=(y0+y1)*.5*(x1-x0)}return Object.freeze({value:area/widthNm,supportNm:Object.freeze([lo,hi]),coverageFraction:1,status:'full'})}
+function rectangularBandAverage(wavelengths,values,centerNm,widthNm){assertSpectrum(wavelengths,values);if(!Number.isFinite(centerNm)||!Number.isFinite(widthNm)||widthNm<=0)throw new RangeError('invalid band definition');const lo=centerNm-widthNm/2,hi=centerNm+widthNm/2,domainLo=wavelengths[0],domainHi=wavelengths.at(-1);if(lo<domainLo||hi>domainHi)return Object.freeze({value:null,supportNm:Object.freeze([lo,hi]),coverageFraction:Math.max(0,Math.min(hi,domainHi)-Math.max(lo,domainLo))/widthNm,status:lo>domainHi||hi<domainLo?'out_of_model_domain':'partial'});const xs=[lo];for(let x=Math.ceil(lo);x<=Math.floor(hi);x++)if(x>lo&&x<hi)xs.push(x);xs.push(hi);let area=0;for(let i=1;i<xs.length;i++){const x0=xs[i-1],x1=xs[i],y0=interpolate(wavelengths,values,x0),y1=interpolate(wavelengths,values,x1);area+=(y0+y1)*.5*(x1-x0)}return Object.freeze({value:area/widthNm,supportNm:Object.freeze([lo,hi]),coverageFraction:1,status:'full'})}
 function sampleSensorSpectrum(wavelengths,values,sensorId='olci',quantity='spectrum'){assertSpectrum(wavelengths,values);const sensor=WATER_SENSOR_DEFINITIONS[sensorId];if(!sensor)throw new RangeError(`Unknown sensor: ${sensorId}`);const bands=sensor.bands.map(band=>Object.freeze({...band,...rectangularBandAverage(wavelengths,values,band.centerNm,band.widthNm)}));return Object.freeze({sensor,quantity,domainNm:Object.freeze([wavelengths[0],wavelengths.at(-1)]),responseModel:'simplified-top-hat',sampledCount:bands.filter(b=>b.status==='full').length,totalVisibleBands:bands.length,bands:Object.freeze(bands)})}
 function sampleSensorRrs(wavelengths,Rrs,sensorId='olci'){return sampleSensorSpectrum(wavelengths,Rrs,sensorId,'Rrs')}
 
@@ -1096,6 +1096,7 @@ return {sensorWorkspace,responseButtons};
 "workspaces/ac.js": function(require){
 const {TABS, plots} = require("core/config.js");
 const {f} = require("core/numbers.js");
+const {makeSensorObservation}=require("model/geogeek-adapter.js");
 const acWorkspace={
  ...TABS[4],
  plots: plots.ac,
@@ -1106,7 +1107,7 @@ const p=state.params,idx=state.probe-400;
 
  const oc4=data.correction;const oc4True=oc4.truthOc4.valid?f(oc4.truthOc4.value,4):'—';const oc4Est=oc4.estimatedOc4.valid?f(oc4.estimatedOc4.value,4):'—';const oc4Bias=oc4.oc4RelativeBias!=null?f(oc4.oc4RelativeBias*100,2)+'%':'—';
  const errs=data.corrected.map((v,i)=>v-data.rrs[i]);const rmse=Math.sqrt(errs.reduce((s,x)=>s+x*x,0)/errs.length);const nNeg=data.corrected.filter(x=>x<0).length;if(state.plot==='error'){content=chartFrame('Δ Rrs(λ)','RECOVERED − REFERENCE · sr⁻¹',[{label:'RESIDUAL',values:errs}],'error',[{label:'Rrs RMSE',value:f(rmse,5),unit:'sr⁻¹'},{label:'NEGATIVE SAMPLES',value:nNeg,unit:'wavelength samples'},{label:'Δ AOT',value:f(p.corrAot-p.aot,3)},{label:'Δ α',value:f(p.corrAlpha-p.alpha,2)}],{unit:'sr⁻¹'})}else{content=chartFrame('Rrs_est / Rrs_reference','MANUAL ASSUMPTION · FIRST-ORDER INVERSE',[{label:'ESTIMATED',values:data.corrected},{label:'MODEL REFERENCE',values:data.rrs}],'correction',[{label:'Rrs RMSE',value:f(rmse,5),unit:'sr⁻¹'},{label:'NEGATIVE SAMPLES',value:nNeg,unit:'wavelength samples'},{label:'REFERENCE AOT',value:f(p.aot,3)},{label:'ASSUMED AOT',value:f(p.corrAot,3),accent:true}],{unit:'sr⁻¹'})}
- return content+charts.metricGrid([{label:'OC4 REFERENCE Rrs',value:oc4True,unit:'mg/m³ · algorithm estimate'},{label:'OC4 CORRECTED Rrs',value:oc4Est,unit:'mg/m³ · algorithm estimate'},{label:'OC4 RELATIVE BIAS',value:oc4Bias,unit:'relative to reference-Rrs OC4; not input Chl'}]);
+ const obs=makeSensorObservation(data,state.sensor,'rrs',{responseMode:state.responseMode,srfPlatform:state.srfPlatform});const bandOC4=globalThis.GeoGeekV10Contract.olciBandOC4(obs);const bandNote=bandOC4.status==='valid'?'OLCI '+obs.responseModel+' · '+bandOC4.bandIds.join('/')+' · band OC4 '+f(bandOC4.value,4)+' mg/m³':'Band OC4 unavailable: '+bandOC4.reason;return content+charts.metricGrid([{label:'OC4 REFERENCE Rrs',value:oc4True,unit:'mg/m³ · wavelength-value diagnostic'},{label:'OC4 CORRECTED Rrs',value:oc4Est,unit:'mg/m³ · wavelength-value diagnostic'},{label:'OC4 RELATIVE BIAS',value:oc4Bias,unit:'relative to reference-Rrs OC4'}])+'<div class="hint-strip">V10 BAND-INTEGRATED OC4: '+bandNote+'. Not a validated Level-2 chlorophyll product.</div>';
  },
  renderControls({state,controls}){
   const {param,csection,adv,presets}=controls;
@@ -1339,7 +1340,7 @@ function createExports({store,models,notify}){
    wavelength_nm:A.w,scenarioA_Rrs_sr1:A.rrs,scenarioB_Rrs_sr1:B.rrs,deltaBminusA_Rrs_sr1:delta};
  }
  function parseImport(payload){
-  if(!payload||payload.kind!=='water-as-spectrum'||![3,4,5,6].includes(payload.schemaVersion))throw new Error('unrecognized experiment schema');
+  if(!payload||payload.kind!=='water-as-spectrum'||![3,4,5,6,7].includes(payload.schemaVersion))throw new Error('unrecognized experiment schema');
   if(payload.model?.id!==models.meta.id||payload.model?.modelVersion!==models.meta.modelVersion)throw new Error('incompatible model ID or version');
   if(!payload.state?.params||!payload.scenarioA?.params)throw new Error('missing experiment parameters or scenario A');
   // Strict restoration: do not silently clamp physically invalid experiments.
@@ -1348,13 +1349,13 @@ function createExports({store,models,notify}){
     const v=params[name];
     if(typeof v!=='number'||!Number.isFinite(v)||v<bound.min||v>bound.max)throw new Error(`invalid ${label}.${name}`);
    }
-   if(params.sg!==.0176||params.snap!==.0123)throw new Error('incompatible fixed optical slopes');
+   if(payload.schemaVersion<=6&&(params.sg!==.0176||params.snap!==.0123))throw new Error('incompatible fixed optical slopes');
   };
   checkParams(payload.state.params,'working parameters');
   checkParams(payload.scenarioA.params,'scenario A');
   if(payload.scenarioB)checkParams(payload.scenarioB.params,'scenario B');
   if(!DATA[payload.state.sensor]||!Number.isInteger(payload.state.probeNm)||payload.state.probeNm<400||payload.state.probeNm>700)throw new Error('invalid sensor or probe wavelength');
-  if(payload.schemaVersion===6){
+  if(payload.schemaVersion>=6){
     const e=globalThis.GeoGeekV9Engine,u=payload.state;
     if(!Array.isArray(u.uncertaintyParameters)||u.uncertaintyParameters.length<1||u.uncertaintyParameters.length>5||
        new Set(u.uncertaintyParameters).size!==u.uncertaintyParameters.length||
@@ -1362,7 +1363,8 @@ function createExports({store,models,notify}){
        !e.SIGMAS.includes(u.uncertaintySigma)||!e.STEPS.includes(u.uncertaintyStep))
      throw new Error('invalid V9 noise hypothesis or parameter subset');
   }
-  const validated=validateSession({params:payload.state.params,sensor:payload.state.sensor,probe:payload.state.probeNm,baseline:payload.scenarioA,snapshotB:payload.scenarioB,compareBSource:payload.compareBSource,
+  if(payload.schemaVersion===7&&(!payload.science||payload.science.modelVariant!==globalThis.GeoGeekV10Contract.modelVariant(payload.state.params)))throw new Error('invalid V10 variant provenance');
+   const validated=validateSession({params:payload.state.params,sensor:payload.state.sensor,probe:payload.state.probeNm,baseline:payload.scenarioA,snapshotB:payload.scenarioB,compareBSource:payload.compareBSource,
    sensitivityParameter:payload.state.sensitivityParameter,sensitivityStep:payload.state.sensitivityStep,
    uncertaintyParameters:payload.state.uncertaintyParameters,uncertaintySigma:payload.state.uncertaintySigma,uncertaintyStep:payload.state.uncertaintyStep,
    responseMode:payload.state.responseMode,srfPlatform:payload.state.srfPlatform,srfBand:payload.state.srfBand});
@@ -1378,7 +1380,7 @@ function createExports({store,models,notify}){
  }
  function exportJSON(){
   const d=models.run(state.params),opts={responseMode:state.responseMode,srfPlatform:state.srfPlatform},toaBands=makeSensorObservation(d,state.sensor,'toa',opts),rrsBands=makeSensorObservation(d,state.sensor,'rrs',opts);
-  const out={kind:'water-as-spectrum',schemaVersion:6,
+  const out={kind:'water-as-spectrum',schemaVersion:7,appVersion:'10.0.0',science:{modelType:'SEMI_ANALYTICAL',modelId:models.meta.id,scienceModelVersion:models.meta.modelVersion,modelVariant:globalThis.GeoGeekV10Contract.modelVariant(state.params),domainNm:[400,700],researchValidated:false,limitations:globalThis.GeoGeekV10Contract.model.assumptions},
    model:models.meta,source:'GeoGeekLab/GeoGeekLab.github.io site/water @ 20261007p',
    outputsAreSimulated:true,syntheticUiDemo:false,researchValidated:false,
    dataTableRepresentation:'float32-packaged optical tables, separately provenance-pinned 1nm measured sensor responses where selected',
@@ -1387,15 +1389,15 @@ function createExports({store,models,notify}){
     responseMode:state.responseMode,srfPlatform:state.srfPlatform,srfBand:state.srfBand,
     uncertaintyParameters:state.uncertaintyParameters,uncertaintySigma:state.uncertaintySigma,uncertaintyStep:state.uncertaintyStep},
    scenarioA:state.baseline,scenarioB:state.snapshotB,compareBSource:state.compareBSource,
-   diagnostics:d.correction.diagnostics,oc4:{trueRrs:d.correction.truthOc4,correctedRrs:d.correction.estimatedOc4,relativeBias:d.correction.oc4RelativeBias},
+   diagnostics:d.correction.diagnostics,oc4:{trueRrs:d.correction.truthOc4,correctedRrs:d.correction.estimatedOc4,relativeBias:d.correction.oc4RelativeBias,bandIntegratedReference:globalThis.GeoGeekV10Contract.olciBandOC4(rrsBands),method:'Legacy wavelength-value OC4 vs sensor-band integration'},
    spectra:asSeries(d),comparison:compare(),
-   sensor:{toa:toaBands,rrs:rrsBands,provenance:rrsBands.provenance,responseMode:rrsBands.actualResponseMode},
+   sensor:{toa:toaBands,rrs:rrsBands,bandValidity:rrsBands.bands.map(globalThis.GeoGeekV10Contract.classifyBand),provenance:rrsBands.provenance,responseMode:rrsBands.actualResponseMode},
    sensitivity:state.tab==='sensitivity'?calculateSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep}):null,
    sensorBandSensitivity:state.tab==='sensitivity'?calculateBandSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep,sensor:state.sensor,responseMode:state.responseMode,srfPlatform:state.srfPlatform}):null,
    uncertaintyAndIdentifiability:state.tab==='uncertainty'?runUncertainty(state,models):null
   };
-  download('water_as_spectrum_v9_geogeek_model.json',JSON.stringify(out,null,2),'application/json;charset=utf-8');
-  notify('Exported GeoGeek V9 simulated model data (JSON; not independently validated)');
+  download('water_as_spectrum_v10_geogeek_model.json',JSON.stringify(out,null,2),'application/json;charset=utf-8');
+  notify('Exported V10 schema 7 teaching data; not independently validated');
  }
  function exportCSV(){
   const d=models.run(state.params);
@@ -1416,7 +1418,7 @@ function createExports({store,models,notify}){
    if(se)values.push(se.derivative[i],se.delta[i],se.elasticity[i]??'',se.upperRrs[i],se.lowerRrs[i]);
    rows.push(values.join(','));
   }
-  download('water_as_spectrum_v9_geogeek_spectra.csv',rows.join('\n'),'text/csv;charset=utf-8');
+  download('water_as_spectrum_v10_geogeek_spectra.csv',rows.join('\n'),'text/csv;charset=utf-8');
   notify('Exported GeoGeek V9 simulated spectra (CSV)');
  }
  function exportBandCSV(){
@@ -1429,7 +1431,7 @@ function createExports({store,models,notify}){
   for(const b of r.bands){const rank=r.rankedBandIds.indexOf(b.id);
    lines.push([b.id,b.centerNm,b.widthNm,b.coverageFraction,b.status,b.referenceRrs??'',b.lowerRrs??'',b.upperRrs??'',b.derivative??'',b.deltaUpper??'',b.elasticity??'',rank<0?'':rank+1].join(','));
   }
-  download('water_as_spectrum_v9_band_sensitivity.csv',lines.join('\n'),'text/csv;charset=utf-8');
+  download('water_as_spectrum_v10_band_sensitivity.csv',lines.join('\n'),'text/csv;charset=utf-8');
   notify('Exported sensor-band sensitivity using selected SRF model (not validated)');
  }
  function exportJacobianCSV(){
@@ -1443,7 +1445,7 @@ function createExports({store,models,notify}){
   const rows=[...meta,header.join(',')];
   for(const b of x.observations)rows.push([b.bandId,b.centerNm,'full',1,b.referenceRrs,x.noise.sigmaRrsSr1,...b.derivatives].join(','));
   for(const b of x.dropped)rows.push([b.id,'',b.status,b.coverageFraction??'','','',...x.selected.map(()=>'')].join(','));
-  download('water_as_spectrum_v9_jacobian.csv',rows.join('\n'),'text/csv;charset=utf-8');
+  download('water_as_spectrum_v10_jacobian.csv',rows.join('\n'),'text/csv;charset=utf-8');
   notify('Exported assumed-noise Jacobian; not validated retrieval uncertainty');
  }
  return {exportJSON,exportCSV,exportBandCSV,exportJacobianCSV,parseImport,compare};
