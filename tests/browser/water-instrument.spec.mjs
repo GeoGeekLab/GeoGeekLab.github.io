@@ -58,7 +58,7 @@ test('V6 exports 301 sensitivity samples and retains scientific provenance',asyn
   expect(json.suggestedFilename()).toMatch(/\.json$/);
   await app.locator('#inspectBtn').click();
   await expect(app.locator('#inspectorDialog')).toBeVisible();
-  await expect(app.locator('#inspectorDialog')).toContainText('not real-data retrieval');
+  await expect(app.locator('#inspectorDialog')).toContainText('no independent field validation');
   await app.locator('#closeInspector').click();
 });
 
