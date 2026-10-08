@@ -345,7 +345,7 @@
         return;
       }
       entrySequence += 1;
-      console.warn(`[GeoGeek] Play ${kind} failed to open promptly; using the native entry path.`, error);
+      console.warn(`[GeoGeek] Play ${kind} failed to open or mount.`, error);
       setEntryState(trigger, 'error');
       // Keep the failure visible and retryable. Do not navigate in a loop
       // while scripts are still loading or the current instrument already matches.
