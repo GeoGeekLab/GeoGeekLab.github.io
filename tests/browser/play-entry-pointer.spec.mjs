@@ -137,17 +137,29 @@ test('latest Play click wins while shared runtime is still loading', async ({ pa
 
 
 test('duplicate click while a Play is opening does not cancel the pending open', async ({ page }) => {
-  await page.route('**/games.js', async route => {
-    await new Promise(resolve => setTimeout(resolve, 900));
-    await route.continue();
+  await page.goto('/lab.html?release=20261008c', { waitUntil:'domcontentloaded' });
+  await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime));
+  await page.evaluate(() => {
+    const load = window.GeoModules.loadScript.bind(window.GeoModules);
+    window.__duplicateClickBlocked = false;
+    window.GeoModules.loadScript = src => {
+      if (src.startsWith('play/orient/orient-geometry.js') && !window.__duplicateClickBlocked) {
+        window.__duplicateClickBlocked = true;
+        return new Promise(resolve => {
+          window.__releaseDuplicateClick = () => resolve(load(src));
+        });
+      }
+      return load(src);
+    };
   });
 
-  await page.goto('/lab.html?release=20261008c', { waitUntil:'domcontentloaded' });
   const locate = page.locator('[data-instrument="locate"]').first();
   await expect(locate).toBeVisible();
-
   await locate.click();
+  await expect.poll(() => page.evaluate(() => window.__duplicateClickBlocked)).toBe(true);
   await locate.click();
+  await expect(locate).toContainText('OPENING');
+  await page.evaluate(() => window.__releaseDuplicateClick());
 
   await expect(page.locator('.play-shell[data-play-kind="orient"], .play-v2-shell[data-play-kind="orient"]')).toBeVisible({ timeout:20_000 });
   await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.() || null)).toBe('locate');
