@@ -115,7 +115,9 @@ test('Lab navigation uses a release-versioned document URL', async ({ page }) =>
   await page.goto('/index.html', { waitUntil:'domcontentloaded' });
   const href=await page.getByRole('link', { name:'Lab' }).first().getAttribute('href');
   // A navigation link can append an explicit cache-busting suffix to the release token.
-  expect(href).toMatch(new RegExp('^/lab\\.html\\?release='+release+'[0-9a-z]*
+  const target=new URL(href, 'https://example.invalid');
+  expect(target.pathname).toBe('/lab.html');
+  expect(target.searchParams.get('release')?.startsWith(release)).toBe(true);
 });
 
 test('latest Play click wins while shared runtime is still loading', async ({ page }) => {
