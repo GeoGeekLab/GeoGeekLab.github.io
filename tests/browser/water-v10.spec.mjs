@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 
 async function openV10(page) {
- await page.goto('/lab.html?instrument=water#l13',{waitUntil:'domcontentloaded'});
+ await page.goto('/lab.html?instrument=water&waterVersion=v10#l13',{waitUntil:'domcontentloaded'});
  const dialog=page.locator('#instrumentDialog');
  await expect(dialog).toBeVisible({timeout:20000});
  const frame=page.locator('#instrumentStage iframe.water-v10-frame');
