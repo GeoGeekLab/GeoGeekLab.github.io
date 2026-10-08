@@ -109,10 +109,10 @@ test('ORIENT accepts a real pointer judgment before confidence', async ({ page }
 
 test('Lab navigation uses a release-versioned document URL', async ({ page }) => {
   await page.goto('/index.html', { waitUntil:'domcontentloaded' });
-  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release=20261008c');
+  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release=20261008v7p1');
 
-  await page.goto('/lab.html?release=20261008c', { waitUntil:'domcontentloaded' });
-  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', '20261008c');
+  await page.goto('/lab.html?release=20261008v7p1', { waitUntil:'domcontentloaded' });
+  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', '20261008v7p1');
 });
 
 test('latest Play click wins while shared runtime is still loading', async ({ page }) => {
@@ -121,7 +121,7 @@ test('latest Play click wins while shared runtime is still loading', async ({ pa
     await route.continue();
   });
 
-  await page.goto('/lab.html?release=20261008c', { waitUntil:'domcontentloaded' });
+  await page.goto('/lab.html?release=20261008v7p1', { waitUntil:'domcontentloaded' });
   const locate = page.locator('[data-instrument="locate"]').first();
   const zone = page.locator('[data-instrument="zone"]').first();
   await expect(locate).toBeVisible();
@@ -137,7 +137,7 @@ test('latest Play click wins while shared runtime is still loading', async ({ pa
 
 
 test('duplicate click while a Play is opening does not cancel the pending open', async ({ page }) => {
-  await page.goto('/lab.html?release=20261008c', { waitUntil:'domcontentloaded' });
+  await page.goto('/lab.html?release=20261008v7p1', { waitUntil:'domcontentloaded' });
   await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime));
   await page.evaluate(() => {
     const load = window.GeoModules.loadScript.bind(window.GeoModules);
@@ -289,4 +289,58 @@ test('PLAY rapid A-B-A clicks honor the final request after both older loads fin
   await expect(page.locator('.play-v2-shell[data-play-kind="bound"]')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.())).toBe('locate');
   await expect(locate).not.toContainText('OPENING');
+});
+
+
+test('LIGHT exposes choice controls at the 1843 by 832 Chrome viewport', async ({ page }) => {
+  await page.setViewportSize({ width:1843, height:832 });
+  await page.goto('/lab.html?instrument=light', { waitUntil:'domcontentloaded' });
+  const shell = page.locator('.play-v2-shell[data-play-kind="light"]');
+  await expect(shell).toBeVisible({timeout:20_000});
+  const black = shell.getByRole('button',{name:'BLACK'});
+  await expect(black).toBeVisible();
+  const dimensions = await page.evaluate(() => {
+    const rect=selector=>document.querySelector(selector)?.getBoundingClientRect();
+    const stage=rect('#instrumentStage');
+    const shell=rect('.play-v2-shell[data-play-kind="light"]');
+    const button=[...document.querySelectorAll('.light-panel button')].find(b=>b.textContent.trim()==='BLACK');
+    const choice=button?.getBoundingClientRect();
+    const hit=choice&&document.elementFromPoint(choice.x+choice.width/2,choice.y+choice.height/2);
+    return {
+      stageBottom:stage?.bottom,
+      shellBottom:shell?.bottom,
+      choiceBottom:choice?.bottom,
+      hitIsButton:!!hit&&!!button&&(hit===button||button.contains(hit)),
+      modeHidden:document.querySelector('.instrument-workspace-modes')?.hidden,
+      modeDisplay:getComputedStyle(document.querySelector('.instrument-workspace-modes')).display
+    };
+  });
+  expect(dimensions.shellBottom).toBeLessThanOrEqual(dimensions.stageBottom+2);
+  expect(dimensions.choiceBottom).toBeLessThan(dimensions.stageBottom);
+  expect(dimensions.hitIsButton).toBe(true);
+  expect(dimensions.modeHidden).toBe(true);
+  expect(dimensions.modeDisplay).toBe('none');
+  await black.click({timeout:6000});
+  await expect(black).toHaveAttribute('aria-pressed','true');
+  await shell.getByRole('button',{name:'COMMIT PREDICTION'}).click();
+  await expect(shell).toHaveAttribute('data-play-state','committed');
+});
+
+test('SWATH choices remain visible on a 1280 by 720 Chrome viewport', async ({ page }) => {
+  await page.setViewportSize({ width:1280, height:720 });
+  await page.goto('/lab.html?instrument=swath', { waitUntil:'domcontentloaded' });
+  const shell=page.locator('.play-v2-shell[data-play-kind="swath"]');
+  await expect(shell).toBeVisible({timeout:20_000});
+  const option=shell.getByRole('button',{name:'MORE GROUND · COARSER PIXELS'});
+  const geometry=await option.evaluate(el=>{
+    const control=el.getBoundingClientRect();
+    const stage=document.getElementById('instrumentStage').getBoundingClientRect();
+    const at=document.elementFromPoint(control.left+control.width/2,control.top+control.height/2);
+    return {controlBottom:control.bottom,stageBottom:stage.bottom,hit:at===el||el.contains(at)};
+  });
+  expect(geometry.controlBottom).toBeLessThan(geometry.stageBottom);
+  expect(geometry.hit).toBe(true);
+  await option.click({timeout:6000});
+  await shell.getByRole('button',{name:'COMMIT PREDICTION'}).click();
+  await expect(shell).toHaveAttribute('data-play-state','committed');
 });

@@ -69,7 +69,7 @@
 
   function createV2(stage, { kind, title = kind } = {}) {
     if (!stage) throw new Error('GeoPlay V2 shell requires a stage.');
-    GeoPlay.core?.ensureStyle?.('play/play-v2.css?v=20261005a','play-v2');
+    GeoPlay.core?.ensureStyle?.('play/play-v2.css?v=20261008e','play-v2');
     stage.innerHTML = `
       <div class="play-v2-shell" data-play-kind="${kind || ''}" data-play-state="loading">
         <header class="play-v2-header">
