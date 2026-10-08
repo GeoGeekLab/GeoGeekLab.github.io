@@ -11,7 +11,7 @@
   const WATER_INSTRUMENT = 'water/water-instrument.js?v=20261007o';
   const WATER_WORKBENCH_V5 = 'water/workbench-v5/instrument.js?v=5.0.0';
   const WATER_WORKBENCH_V6 = 'water/workbench-v6/instrument.js?v=6.0.0';
-  const WATER_WORKBENCH_V7 = 'water/workbench-v7/instrument.js?v=7.0.0';
+  const WATER_WORKBENCH_V7 = 'water/workbench-v7/instrument.js?v=7.1.0';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
