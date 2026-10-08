@@ -110,3 +110,24 @@ varies with time, region, network and magnitude, and magnitude types differ.
 Two different-duration windows can have different counts without proving any
 change in underlying seismicity. Spatial cell resolution does not correct
 catalogue completeness, and a 2° angular cell is not constant-area.
+
+
+### Event finder and aggregate CSVs
+
+The EVENT FINDER searches the *currently filtered and ROI-limited* catalogue
+by provider event ID or place name (two or more characters). It presents up to
+25 matches to keep the interface responsive. Selecting a result pins its source
+details, switches to point mode and centres the map on its coordinates. Use
+this route when event points overlap.
+
+**EXPORT CHARTS CSV** outputs the A/B count for every time-trend, magnitude,
+and depth histogram bin. Time-trend rows carry the actual UTC interval for
+each side even though the graphic uses relative elapsed time.
+
+**EXPORT A/B GRID CSV** outputs the union of occupied geographic grid cells
+in A or B with longitude/latitude boundaries, approximate cell area,
+raw A/B counts and area-normalized A/B densities.
+
+Neither aggregate CSV embeds the original immutable event catalogue. To
+reproduce results later, save all of the following together: the selected
+events GeoJSON, the A/B aggregate CSVs, and the full manifest JSON.
