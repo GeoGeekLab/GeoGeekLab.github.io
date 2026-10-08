@@ -87,7 +87,7 @@
   const opening = new Map();
   let entrySequence = 0;
   let warmPromise = null;
-  const ENTRY_TIMEOUT_MS = 6000;
+  const ENTRY_TIMEOUT_MS = 15000;
 
   async function warmPlayBase() {
     if (warmPromise) return warmPromise;
@@ -244,15 +244,6 @@
     if (card) delete card.dataset.playEntryState;
   }
 
-  function nativeFallback(trigger, kind) {
-    const raw = trigger?.getAttribute?.('href');
-    if (!raw) return false;
-    const current = new URL(location.href);
-    if (current.searchParams.get('instrument') === kind) return false;
-    location.assign(new URL(raw, location.href).href);
-    return true;
-  }
-
   async function openPlay(kind, { updateUrl = false, requestId = 0 } = {}) {
     if (!PLAY_KINDS.has(kind)) return null;
     if (opening.has(kind)) return opening.get(kind);
@@ -261,8 +252,12 @@
       if (requestId && requestId !== entrySequence) return instruments;
       const active = window.GeoInstruments?.getActive?.() === kind;
       if (!active || !isPlayMounted(kind)) {
-        await instruments?.openByKind?.(kind, { updateUrl });
+        if (!instruments?.openByKind) throw new Error(`Play controller unavailable: ${kind}`);
+        await instruments.openByKind(kind, { updateUrl });
       }
+      const stageError = document.getElementById('instrumentStage')?.querySelector('.instrument-error');
+      if (stageError) throw new Error(`Play mounted an error view: ${kind}`);
+      if (!isPlayMounted(kind)) throw new Error(`Play did not mount: ${kind}`);
       modules.normalizeInstrumentAria?.(kind);
       queueMicrotask(enhancePlayAccessibility);
       return instruments;
@@ -290,6 +285,30 @@
     requestIdleCallback(scheduleWarm, { timeout: 1400 });
   } else {
     setTimeout(scheduleWarm, 350);
+  }
+
+  function showStageRetry(kind) {
+    const stageError = document.getElementById('instrumentStage')?.querySelector('.instrument-error');
+    if (!stageError || stageError.querySelector('[data-play-retry]')) return;
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'play-action';
+    retry.dataset.playRetry = kind;
+    retry.textContent = 'RETRY PLAY';
+    retry.addEventListener('click', async () => {
+      retry.disabled = true;
+      try {
+        await withEntryTimeout(openPlay(kind, { updateUrl: true }));
+        setEntryState(entryTrigger(kind), 'idle');
+      } catch (error) {
+        console.warn(`[GeoGeek] Play ${kind} retry failed.`, error);
+        setEntryState(entryTrigger(kind), 'error');
+        showStageRetry(kind);
+      } finally {
+        retry.disabled = false;
+      }
+    });
+    stageError.appendChild(retry);
   }
 
   function withEntryTimeout(promise, ms = ENTRY_TIMEOUT_MS) {
@@ -321,14 +340,18 @@
     } catch (error) {
       if (requestId !== entrySequence) return;
       const dialog = document.getElementById('instrumentDialog');
-      if (dialog?.open && window.GeoInstruments?.getActive?.() === kind) {
+      if (dialog?.open && window.GeoInstruments?.getActive?.() === kind && isPlayMounted(kind)) {
         setEntryState(trigger, 'idle');
         return;
       }
       entrySequence += 1;
-      console.warn(`[GeoGeek] Play ${kind} failed to open promptly; using the native entry path.`, error);
+      console.warn(`[GeoGeek] Play ${kind} failed to open or mount.`, error);
       setEntryState(trigger, 'error');
-      nativeFallback(trigger, kind);
+      // Keep the failure visible and retryable. Do not navigate in a loop
+      // while scripts are still loading or the current instrument already matches.
+      const status = document.getElementById('instrumentReadout');
+      if (status) status.textContent = `PLAY / ${kind.toUpperCase()} / LOAD FAILED · RETRY PLAY`;
+      showStageRetry(kind);
     }
   }, true);
 
@@ -342,6 +365,7 @@
     } catch (error) {
       console.warn(`[GeoGeek] Direct Play ${requested} could not initialize.`, error);
       setEntryState(trigger, 'error');
+      showStageRetry(requested);
     }
   });
 })();
