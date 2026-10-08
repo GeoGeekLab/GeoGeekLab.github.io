@@ -66,7 +66,7 @@ function sampleWithResponse(wavelengths,values,sensorId='olci',quantity='Rrs',op
   const profile=getMeasuredBand(sensorId,b.id,platform);
   return {...b,...integrateMeasured(wavelengths,values,profile)};
  });
- return {sensor,quantity,domainNm:[wavelengths[0],wavelengths.at(-1)],
+ return {sensor:sensorId==='landsat-oli'?{...sensor,label:'Landsat 8 OLI'}:(sensorId==='s2-msi'&&platform==='s2b'?{...sensor,label:'Sentinel-2B MSI'}:sensor),quantity,domainNm:[wavelengths[0],wavelengths.at(-1)],
   responseModel:'published-measured-1nm-srf',requestedResponseMode:'measured',
   actualResponseMode:'measured',platform,
   provenance:{publisher:'jbferet/prosail',sourceFile:source.sourcePath,gitBlobSHA:source.sourceBlobSHA,url:source.sourceUrl,
