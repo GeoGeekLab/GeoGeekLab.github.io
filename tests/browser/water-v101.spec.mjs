@@ -17,7 +17,7 @@ test('V10.1 renders an accessible numerical RT depth profile and 9-tab navigatio
  await expect(app.locator('.rt-shell')).toContainText('SELF-GENERATED');
  await expect(app.locator('.rt-svg')).toHaveCount(2);
  await expect(app.locator('.rt-svg').first()).toHaveAttribute('role','img');
- await expect(app.locator('.rt-shell')).toContainText('No Fresnel');
+ await expect(app.locator('.rt-shell')).toContainText('no Fresnel');
 });
 test('V10.1 enforces discrete water, spectral and depth selections',async({page})=>{
  const app=await openRT(page);
