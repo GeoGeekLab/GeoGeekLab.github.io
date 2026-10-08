@@ -109,10 +109,10 @@ test('ORIENT accepts a real pointer judgment before confidence', async ({ page }
 
 test('Lab navigation uses a release-versioned document URL', async ({ page }) => {
   await page.goto('/index.html', { waitUntil:'domcontentloaded' });
-  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release=20261007p');
+  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release=20261008b');
 
-  await page.goto('/lab.html?release=20261007p', { waitUntil:'domcontentloaded' });
-  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', '20261007p');
+  await page.goto('/lab.html?release=20261008b', { waitUntil:'domcontentloaded' });
+  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', '20261008b');
 });
 
 test('latest Play click wins while shared runtime is still loading', async ({ page }) => {
@@ -121,7 +121,7 @@ test('latest Play click wins while shared runtime is still loading', async ({ pa
     await route.continue();
   });
 
-  await page.goto('/lab.html?release=20261007p', { waitUntil:'domcontentloaded' });
+  await page.goto('/lab.html?release=20261008b', { waitUntil:'domcontentloaded' });
   const locate = page.locator('[data-instrument="locate"]').first();
   const zone = page.locator('[data-instrument="zone"]').first();
   await expect(locate).toBeVisible();
@@ -142,7 +142,7 @@ test('duplicate click while a Play is opening does not cancel the pending open',
     await route.continue();
   });
 
-  await page.goto('/lab.html?release=20261007p', { waitUntil:'domcontentloaded' });
+  await page.goto('/lab.html?release=20261008b', { waitUntil:'domcontentloaded' });
   const locate = page.locator('[data-instrument="locate"]').first();
   await expect(locate).toBeVisible();
 
@@ -185,4 +185,15 @@ test('PLAY direct-link startup preserves a decision without a second mount', asy
   await expect(shell).toHaveAttribute('data-play-state','ready');
   await page.waitForTimeout(900);
   await expect(shell).toHaveAttribute('data-play-state','ready');
+});
+
+test('PROJECT direct link preserves its interactive state without a second mount', async ({ page }) => {
+  await page.goto('/lab.html?instrument=project', { waitUntil:'domcontentloaded' });
+  const shell = page.locator('.play-v2-shell[data-play-kind="project"]');
+  await expect(shell).toBeVisible({ timeout:20_000 });
+  await shell.getByRole('button',{name:'GREENLAND'}).click();
+  await expect(shell).toHaveAttribute('data-play-state','transforming');
+  await page.waitForTimeout(1200);
+  await expect(shell).toHaveAttribute('data-play-state','transforming');
+  await expect(page.locator('.play-v2-shell[data-play-kind="project"]')).toHaveCount(1);
 });

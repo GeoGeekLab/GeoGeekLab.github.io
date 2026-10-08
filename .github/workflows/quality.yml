@@ -109,7 +109,9 @@ jobs:
           grep -F 'orient-ergonomics.css?v=20261003i' dist/play/orient/orient-ergonomics.js
 
       - name: Static QA
-        run: npm run qa
+        run: |
+          npm run qa
+          node scripts/verify-play-live-release.mjs --local
 
       - name: Internal links and assets
         run: npm run qa:links

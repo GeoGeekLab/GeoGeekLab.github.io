@@ -17,15 +17,10 @@
   };
 
   const KIND_GROUP = {
-    orbit: 'observatory',
-    earth: 'observatory',
-    flow: 'observatory',
-    pulse: 'observatory',
-    figure: 'studies',
-    world: 'studies',
-    locate: 'play',
-    zone: 'play',
-    path: 'play'
+    orbit: 'observatory', earth: 'observatory', flow: 'observatory',
+    pulse: 'observatory', figure: 'observatory', world: 'observatory', water: 'observatory',
+    locate: 'play', zone: 'play', path: 'play',
+    project: 'play', light: 'play', swath: 'play'
   };
 
   const MODE_HELP = {

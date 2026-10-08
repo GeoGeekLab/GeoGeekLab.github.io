@@ -104,3 +104,19 @@ test.describe('Lab workspace affordances', () => {
     await expect(page.locator('#instrumentGroupLabel')).toHaveText('PLAY / SPATIAL REASONING');
   });
 });
+
+test('all thirteen Lab instruments display the correct workspace group', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+  const groups = {
+    OBSERVATORY: ['orbit','earth','flow','pulse','figure','world','water'],
+    'PLAY / SPATIAL REASONING': ['locate','zone','path','project','light','swath']
+  };
+  for (const [label, kinds] of Object.entries(groups)) {
+    for (const kind of kinds) {
+      await page.evaluate(name => {
+        document.getElementById('instrumentDialog').dataset.instrumentKind = name;
+      }, kind);
+      await expect(page.locator('#instrumentGroupLabel')).toHaveText(label);
+    }
+  }
+});
