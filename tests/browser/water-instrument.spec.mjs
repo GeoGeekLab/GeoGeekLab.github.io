@@ -1,20 +1,20 @@
 import { test, expect } from '@playwright/test';
 
-// V8 replaces the legacy monolithic Water DOM with a same-origin iframe.
+// V9 replaces the legacy monolithic Water DOM with a same-origin iframe.
 // Test the public Lab entry and the real instrument, not the obsolete V3 selectors.
 async function openWater(page) {
   await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
   const dialog=page.locator('#instrumentDialog');
   await expect(dialog).toBeVisible({timeout:20000});
   await expect(dialog).toHaveAttribute('data-instrument-kind','water');
-  const iframe=page.locator('#instrumentStage iframe.water-v8-frame');
+  const iframe=page.locator('#instrumentStage iframe.water-v9-frame');
   await expect(iframe).toBeVisible({timeout:20000});
-  const app=page.frameLocator('#instrumentStage iframe.water-v8-frame');
+  const app=page.frameLocator('#instrumentStage iframe.water-v9-frame');
   await expect(app.locator('[data-tab="sensitivity"]')).toBeVisible({timeout:20000});
   return {dialog,iframe,app};
 }
 
-test('V8 deep link opens the native Water dialog and all seven analysis workspaces', async ({page})=>{
+test('V9 deep link opens the native Water dialog and all seven analysis workspaces', async ({page})=>{
   const {dialog,app}=await openWater(page);
   await expect(page.locator('#instrumentTitle')).toHaveText('Water as Spectrum');
   await expect(app.locator('#mainNav [data-tab]')).toHaveCount(7);
@@ -26,7 +26,7 @@ test('V8 deep link opens the native Water dialog and all seven analysis workspac
   await expect(dialog).toHaveAttribute('data-lab-workspace','true');
 });
 
-test('V8 sensitivity exposes finite-difference physics and parameter perturbation',async ({page})=>{
+test('V9 sensitivity exposes finite-difference physics and parameter perturbation',async ({page})=>{
   const {app}=await openWater(page);
   await app.locator('[data-tab="sensitivity"]').click();
   await expect(app.locator('#spaceTitle')).toContainText('Sensitivity');
@@ -43,13 +43,13 @@ test('V8 sensitivity exposes finite-difference physics and parameter perturbatio
   }
 });
 
-test('V8 exports 301 sensitivity samples and retains scientific provenance',async ({page})=>{
+test('V9 exports 301 sensitivity samples and retains scientific provenance',async ({page})=>{
   const {app}=await openWater(page);
   await app.locator('[data-tab="sensitivity"]').click();
   const csvPending=page.waitForEvent('download');
   await app.locator('#exportBtn').click();
   const csv=await csvPending;
-  expect(csv.suggestedFilename()).toContain('v8');
+  expect(csv.suggestedFilename()).toContain('v9');
   expect(csv.suggestedFilename()).toMatch(/\.csv$/);
   const jsonPending=page.waitForEvent('download');
   await app.locator('#advancedDetails summary').click();
@@ -62,7 +62,7 @@ test('V8 exports 301 sensitivity samples and retains scientific provenance',asyn
   await app.locator('#closeInspector').click();
 });
 
-test('V8 retains Water state across close and reopen and keeps native close working',async ({page})=>{
+test('V9 retains Water state across close and reopen and keeps native close working',async ({page})=>{
   const {dialog,app}=await openWater(page);
   await app.locator('[data-tab="sensitivity"]').click();
   await app.locator('[data-sensitivity-parameter="bbp"]').click();
@@ -75,7 +75,7 @@ test('V8 retains Water state across close and reopen and keeps native close work
   await expect(reopened.app.locator('[data-sensitivity-step="20"]')).toHaveAttribute('aria-pressed','true');
 });
 
-test('V8 spectral plots and parameter controls remain usable on narrow viewports',async ({page})=>{
+test('V9 spectral plots and parameter controls remain usable on narrow viewports',async ({page})=>{
   const {app}=await openWater(page);
   await app.locator('[data-tab="sensitivity"]').click();
   await expect(app.locator('svg[data-chart-click]')).toBeVisible();
@@ -85,7 +85,7 @@ test('V8 spectral plots and parameter controls remain usable on narrow viewports
   expect(overflow).toBe(false);
 });
 
-test('V8 radiative PATH stages remain fully visible without nested clipping at compact desktop height', async ({page})=>{
+test('V9 radiative PATH stages remain fully visible without nested clipping at compact desktop height', async ({page})=>{
   await page.setViewportSize({width:1840,height:830});
   const {app}=await openWater(page);
   await app.locator('[data-tab="path"]').click();
@@ -116,7 +116,7 @@ test('V8 radiative PATH stages remain fully visible without nested clipping at c
   await expect(app.locator('.path-stage-card[data-stage="sat"]')).toHaveAttribute('aria-pressed','true');
 });
 
-test('V8 radiative PATH wraps on narrow viewports without horizontal overflow',async ({page})=>{
+test('V9 radiative PATH wraps on narrow viewports without horizontal overflow',async ({page})=>{
   await page.setViewportSize({width:390,height:820});
   const {app}=await openWater(page);
   await app.locator('[data-tab="path"]').click();
@@ -125,7 +125,7 @@ test('V8 radiative PATH wraps on narrow viewports without horizontal overflow',a
   expect(overflow).toBe(false);
 });
 
-test('V8 band sensitivity uses sensor-integrated values and rejects partial bands', async ({page})=>{
+test('V9 band sensitivity uses sensor-integrated values and rejects partial bands', async ({page})=>{
   const {app}=await openWater(page);
   await app.locator('[data-tab="sensitivity"]').click();
   await app.locator('[data-plot="bands"]').click();
@@ -146,7 +146,7 @@ test('V8 band sensitivity uses sensor-integrated values and rejects partial band
 });
 
 
-test('V8 spectral geometry is proportional and hover reads all component curves',async({page})=>{
+test('V9 spectral geometry is proportional and hover reads all component curves',async({page})=>{
   await page.setViewportSize({width:1440,height:900});
   const {app}=await openWater(page);
   await app.locator('[data-tab="iop"]').click();
@@ -176,7 +176,7 @@ test('V8 spectral geometry is proportional and hover reads all component curves'
   await expect(app.locator('#mainContent svg.graph[data-chart-ref]')).toHaveCount(3);
 });
 
-test('V8 chart geometry follows compact mobile viewport without stretching text',async({page})=>{
+test('V9 chart geometry follows compact mobile viewport without stretching text',async({page})=>{
   await page.setViewportSize({width:390,height:844});
   const {app}=await openWater(page);
   await app.locator('[data-tab="iop"]').click();
@@ -200,7 +200,7 @@ test('V8 chart geometry follows compact mobile viewport without stretching text'
 });
 
 
-test('V8 published Sentinel-2 measured SRF is distinct from nominal and reports missing B01',async ({page})=>{
+test('V9 published Sentinel-2 measured SRF is distinct from nominal and reports missing B01',async ({page})=>{
  const {app}=await openWater(page);
  await app.locator('[data-tab="sensor"]').click();
  await app.locator('[data-sensor="msi"]').click();
@@ -220,7 +220,7 @@ test('V8 published Sentinel-2 measured SRF is distinct from nominal and reports 
  await expect(app.locator('[data-response-mode="measured"]')).toBeDisabled();
 });
 
-test('V8 sensitivity and experimental JSON preserve the measured SRF source provenance',async ({page})=>{
+test('V9 sensitivity and experimental JSON preserve the measured SRF source provenance',async ({page})=>{
  const {app}=await openWater(page);
  await app.locator('[data-tab="sensitivity"]').click();
  await app.locator('[data-sensor="msi"]').click();
@@ -234,11 +234,11 @@ test('V8 sensitivity and experimental JSON preserve the measured SRF source prov
  const dl=page.waitForEvent('download');
  await app.locator('[data-export="bands"]').click();
  const f=await dl;
- expect(f.suggestedFilename()).toContain('v8');
+ expect(f.suggestedFilename()).toContain('v9');
  await app.locator('[data-tab="sensor"]').click();
  await app.locator('[data-sensor="msi"]').click();
  await app.locator('#advancedDetails summary').click();
  const json=page.waitForEvent('download');
  await app.locator('[data-export="json"]').click();
- expect((await json).suggestedFilename()).toContain('v8');
+ expect((await json).suggestedFilename()).toContain('v9');
 });
