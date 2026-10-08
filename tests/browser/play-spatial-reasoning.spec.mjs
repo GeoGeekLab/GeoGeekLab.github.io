@@ -178,3 +178,30 @@ test('PROJECT morphs area and route representations continuously while preservin
   await expect(shell.locator('.project-v2-panel')).toContainText("THE ROUTE DIDN'T CHANGE.");
   await expect(shell.locator('.project-v2-panel')).toContainText('THE REPRESENTATION DID.');
 });
+
+test('Project SVG path coordinates stay finite from Mercator to Equal Earth', async ({ page }) => {
+  await page.goto('/lab.html?instrument=project', { waitUntil:'domcontentloaded' });
+  const shell=page.locator('.play-v2-shell[data-play-kind="project"]');
+  await expect(shell).toBeVisible({timeout:20_000});
+
+  async function assertFinitePaths() {
+    const values=await shell.locator('.project-v2-map path').evaluateAll(elements =>
+      elements.map(el=>el.getAttribute('d')||'')
+    );
+    expect(values.filter(value=>value.length>0).length).toBeGreaterThanOrEqual(3);
+    expect(values.filter(value=>/NaN|Infinity|undefined/.test(value))).toEqual([]);
+  }
+
+  await assertFinitePaths();
+  await shell.getByRole('button',{name:'GREENLAND'}).click();
+  const slider=shell.getByRole('slider',{name:'Projection transformation from Mercator to Equal Earth'});
+  for(const value of [0,25,50,75,100]) {
+    await slider.evaluate((input,percent)=>{
+      input.value=String(percent);
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+    },value);
+    await assertFinitePaths();
+  }
+  await shell.getByRole('button',{name:'REVEAL AREA'}).click();
+  await assertFinitePaths();
+});

@@ -108,11 +108,12 @@ test('ORIENT accepts a real pointer judgment before confidence', async ({ page }
 
 
 test('Lab navigation uses a release-versioned document URL', async ({ page }) => {
-  await page.goto('/index.html', { waitUntil:'domcontentloaded' });
-  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release=20261008v7p1');
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+  const release=await page.locator('meta[name="geogeek-lab-release"]').getAttribute('content');
+  expect(release).toMatch(/^2026[0-9a-z]+$/);
 
-  await page.goto('/lab.html?release=20261008v7p1', { waitUntil:'domcontentloaded' });
-  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', '20261008v7p1');
+  await page.goto('/index.html', { waitUntil:'domcontentloaded' });
+  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release='+release);
 });
 
 test('latest Play click wins while shared runtime is still loading', async ({ page }) => {
@@ -121,7 +122,7 @@ test('latest Play click wins while shared runtime is still loading', async ({ pa
     await route.continue();
   });
 
-  await page.goto('/lab.html?release=20261008v7p1', { waitUntil:'domcontentloaded' });
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
   const locate = page.locator('[data-instrument="locate"]').first();
   const zone = page.locator('[data-instrument="zone"]').first();
   await expect(locate).toBeVisible();
@@ -137,7 +138,7 @@ test('latest Play click wins while shared runtime is still loading', async ({ pa
 
 
 test('duplicate click while a Play is opening does not cancel the pending open', async ({ page }) => {
-  await page.goto('/lab.html?release=20261008v7p1', { waitUntil:'domcontentloaded' });
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
   await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime));
   await page.evaluate(() => {
     const load = window.GeoModules.loadScript.bind(window.GeoModules);
