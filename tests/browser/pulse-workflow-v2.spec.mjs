@@ -106,7 +106,7 @@ test('mouse and keyboard inspection show complete points; map zoom and configura
   // intentionally reached through the event finder instead of forced hover.
   const circle=work.locator('.pw-event[data-event-id="B Polar Two"]');
   await circle.hover();
-  await expect(work.locator('.pw-hover-detail')).toContainText('A Pacific');
+  await expect(work.locator('.pw-hover-detail')).toContainText('B Polar Two');
   await expect(work.locator('.pw-hover-detail')).toContainText('COORDINATES');
   await expect(work.locator('.pw-floating-tip')).toBeVisible();
   await circle.click();
