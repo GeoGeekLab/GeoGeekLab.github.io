@@ -30,6 +30,41 @@
 .sensitivity-options .switch{flex:1 1 54px;min-height:36px;padding-inline:7px}
 @media(max-width:735px){.sensitivity-method{line-height:1.65}}
 
+
+/* V6.1 PATH layout: fully visible stages at realistic Lab dialog heights. */
+.chart-main.path-workbench {gap:8px;padding:8px clamp(12px,1.5vw,20px);overflow-y:auto;}
+.path-workbench .path-hero {flex:1 1 auto;min-height:258px;padding:0;overflow:hidden;}
+.path-workbench .chart-label-row {flex:none;min-height:36px;padding:8px 14px 4px;align-items:center;}
+.path-workbench .plot-main-title {font-size:17px;}
+.path-workbench .stages {flex:1;min-height:0;gap:9px;padding:8px 12px 10px;justify-content:stretch;}
+.path-stage-grid {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;flex:1;min-height:93px;align-items:stretch;}
+.path-stage-card {position:relative;display:flex;min-width:0;min-height:0;flex-direction:column;justify-content:space-between;align-items:center;gap:4px;padding:12px 5px 9px;background:#15281d;border:1px solid #486853;border-radius:8px;color:#dce5d9;cursor:pointer;text-align:center;}
+.path-stage-card:not(:last-child)::after {content:"→";position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:#9eae9d;font:700 13px var(--mono);z-index:2;pointer-events:none;}
+.path-stage-card[aria-pressed="true"] {background:#272a20;border:2px solid var(--accent);padding:11px 4px 8px;}
+.path-stage-card:hover,.path-stage-card:focus-visible {border-color:#d8a278;background:#253a29;}
+.path-stage-code {font:600 clamp(8px,.75vw,11px)/1.25 var(--mono);color:#a7c6b6;overflow-wrap:anywhere;}
+.path-stage-symbol {font:normal clamp(24px,2.9vw,38px)/1 var(--sans);color:#f0edcf;}
+.path-stage-action {font:600 clamp(8px,.65vw,10px)/1.3 var(--mono);color:#accbbc;}
+.path-stage-card[aria-pressed="true"] .path-stage-action {color:#ffc099;}
+.path-workbench .stage-explain {flex:0 0 auto;min-height:0;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:9px 11px;border:1px solid var(--line);border-radius:6px;}
+.path-workbench .stage-explain h3 {font-size:16px;margin:2px 0 2px;}
+.path-workbench .stage-explain p {font-size:11px;line-height:1.35;}
+.path-workbench .stage-explain .eyebrow {font-size:9px;}
+.path-workbench .stage-explain .ghost-btn {font-size:11px;min-height:32px;padding:6px 10px;white-space:normal;max-width:180px;}
+.path-workbench .path-hint {flex:0 0 auto;padding:7px 10px;font-size:11px;line-height:1.4;}
+@media(max-width:760px) {
+ .chart-main.path-workbench {overflow:visible;}
+ .path-workbench .path-hero {flex:0 0 auto;min-height:0;height:auto;}
+ .path-workbench .stages {flex:0 0 auto;gap:12px;}
+ .path-stage-grid {grid-template-columns:repeat(2,minmax(0,1fr));min-height:0;}
+ .path-stage-card {min-height:112px;}
+ .path-stage-card::after {display:none;}
+ .path-stage-code {font-size:10px;}
+ .path-stage-symbol {font-size:29px;}
+ .path-stage-action {font-size:9px;}
+ .path-workbench .stage-explain {grid-template-columns:1fr;}
+ .path-workbench .stage-explain .ghost-btn {max-width:none;justify-self:stretch;}
+}
 </style>
 <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.dataset.geogeekEmbedded="true";</script>
 <style>
@@ -553,6 +588,7 @@ function createWorkbench({store,models,charts,controls}){
  }
  function chart(){
   const data=models.run(state.params);
+  $('mainContent').classList.toggle('path-workbench',state.tab==='path');
   $('mainContent').innerHTML=active().renderChart({state,data,models,charts});
   $('probeValue').textContent=state.probe+' nm';
   $('probeReadout').innerHTML=`Rrs <b>${f(data.rrs[state.probe-400],5)}</b> sr⁻¹`;
@@ -598,7 +634,13 @@ return {WORKSPACES};
 },
 "workspaces/path.js": function(require){
 const {TABS, plots, stageData} = require("core/config.js");
-function overview(state){let stages=[['sun','01','SOLAR INPUT','☀'],['atm','02','ATMOSPHERE','∿'],['surface','03','INTERFACE','≈'],['water','04','WATER','◉'],['sat','05','SENSOR','▣']];let blocks=stages.map(([id,no,label,ic],i)=>{let x=12+i*205;return `<g class="stage-tile" data-stage="${id}" role="button" tabindex="0" aria-label="${label}" aria-pressed="${state.stage===id}"><rect x="${x}" y="80" width="177" height="175" rx="9"/><text x="${x+18}" y="108" class="sub">${no} / ${label}</text><text x="${x+88}" y="174" text-anchor="middle" font-size="30" style="font-size:35px">${ic}</text><text class="sub" x="${x+88}" y="215" text-anchor="middle">CLICK TO INSPECT</text></g>${i<4?`<path class="arrow" d="M${x+179} 167 h24"/>`:''}`}).join('');const info=stageData[state.stage];return `<div class="hero-plot" style="padding:8px 14px"><div class="chart-label-row"><span class="plot-main-title">Radiative path</span><span class="eyebrow">SELECT A STAGE · ONE FOCUS</span></div><div class="stages"><svg class="stage-svg" viewBox="0 0 1025 330" role="group" aria-label="Selectable radiative-transfer stages">${blocks}<path d="M48 280 Q290 310 520 290 T990 286" fill="none" stroke="#284e43" stroke-width="2" stroke-dasharray="6 8"/></svg><div class="stage-explain"><div><span class="eyebrow">${info.formula}</span><h3>${info.title}</h3><p>${info.text}</p></div><button type="button" class="ghost-btn" data-goto="${state.stage==='atm'?'atm':state.stage==='sat'?'sensor':state.stage==='water'?'iop':state.stage==='surface'?'iop':'atm'}">Open related workspace →</button></div></div></div><div class="hint-strip"><b>HOW TO USE: </b>Select a pathway stage to inspect the relevant physical process and model assumptions. Open a dedicated workspace to examine parameters and spectra.</div>`}
+function overview(state){
+ const stages=[['sun','01','SOLAR INPUT','☀'],['atm','02','ATMOSPHERE','∿'],['surface','03','INTERFACE','≈'],['water','04','WATER','◉'],['sat','05','SENSOR','▣']];
+ const cards=stages.map(([id,no,label,icon])=>`<button type="button" class="path-stage-card" data-stage="${id}" aria-label="Inspect ${label}" aria-pressed="${state.stage===id}"><span class="path-stage-code">${no} / ${label}</span><span class="path-stage-symbol" aria-hidden="true">${icon}</span><span class="path-stage-action">${state.stage===id?'SELECTED':'SELECT TO INSPECT'}</span></button>`).join('');
+ const info=stageData[state.stage];
+ const related=state.stage==='atm'?'atm':state.stage==='sat'?'sensor':state.stage==='sun'?'atm':'iop';
+ return `<div class="hero-plot path-hero"><div class="chart-label-row"><span class="plot-main-title">Radiative path</span><span class="eyebrow">SELECT A STAGE · ONE FOCUS</span></div><div class="stages"><div class="path-stage-grid" role="group" aria-label="Selectable radiative-transfer stages">${cards}</div><div class="stage-explain" role="status"><div><span class="eyebrow">${info.formula}</span><h3>${info.title}</h3><p>${info.text}</p></div><button type="button" class="ghost-btn" data-goto="${related}">Open related workspace →</button></div></div></div><div class="hint-strip path-hint"><b>HOW TO USE: </b>Select a pathway stage to inspect the relevant physical process and model assumptions. Open a dedicated workspace to examine parameters and spectra.</div>`;
+}
 
 const pathWorkspace={
  ...TABS[0],
