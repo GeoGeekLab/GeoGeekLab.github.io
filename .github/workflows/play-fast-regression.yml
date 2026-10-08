@@ -1,4 +1,4 @@
-name: Fast PLAY and Water V5 regression
+name: Fast Project polar geometry regression
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: fix/play-visible-controls-on-water-v6-20261008
+          ref: fix/project-finite-polar-geometry-20261008
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -34,9 +34,9 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Build
         run: npm run build
-      - name: Test PLAY viewport and Water V5/legacy
+      - name: Test Project finite SVG paths and PLAY entrypoints
         run: |
-          npx playwright test tests/browser/play-entry-pointer.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+          npx playwright test tests/browser/play-spatial-reasoning.spec.mjs tests/browser/play-entry-pointer.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Upload traces
         if: failure()
         uses: actions/upload-artifact@v4
