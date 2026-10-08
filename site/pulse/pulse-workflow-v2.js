@@ -271,8 +271,9 @@
           });
           const description=bin.label+' · '+(key==='a'?'A':'B')+': '+value+' event'+(value===1?'':'s')+
             (bin.windows&&bin.windows[key]?' · '+bin.windows[key]:'');
+          const pin=()=>{chartReadout.textContent='SELECTED · '+description;};
           const show=event=>{
-            chartReadout.textContent=description;
+            if (!chartReadout.textContent.startsWith('SELECTED · ')) chartReadout.textContent=description;
             tooltip(description,event,r.getBoundingClientRect());
           };
           r.addEventListener('pointerenter',show);
@@ -280,8 +281,8 @@
           r.addEventListener('pointerleave',hideTooltip);
           r.addEventListener('focus',show);
           r.addEventListener('blur',hideTooltip);
-          r.addEventListener('click',()=>{chartReadout.textContent='SELECTED · '+description;});
-          r.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();r.click();}});
+          r.addEventListener('click',pin);
+          r.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();pin();}});
           const title=node('title',{},description);
           r.append(title);
           svg.append(r);
