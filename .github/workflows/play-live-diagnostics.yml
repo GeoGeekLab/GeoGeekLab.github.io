@@ -1,0 +1,26 @@
+name: Diagnose live PLAY clicks
+
+on:
+  push:
+    branches:
+      - diagnostics/play-live-browser-20261008
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-play:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install real browser
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Check production clicks and collect browser errors
+        run: node scripts/diagnose-play-live-browser.mjs
