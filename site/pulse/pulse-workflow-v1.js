@@ -264,16 +264,24 @@
       state.visible.forEach((event, index) => {
         const xy = project(event.lon, event.lat);
         const radius = event.mag == null ? 2.3 : Math.max(1.8,Math.min(5.8,2.1 + (event.mag + 1)*0.38));
-        const circle = buildSvg('circle', {
-          cx:xy[0].toFixed(2),cy:xy[1].toFixed(2),r:radius.toFixed(2),
-          'class':'pw-event','data-event-id':event.id,'data-pw-index':index,role:'button',tabindex:0,
+        const group = buildSvg('g', {
+          'class':'pw-event','data-event-id':event.id,'data-pw-index':index,
+          'transform':'translate(' + xy[0].toFixed(2) + ' ' + xy[1].toFixed(2) + ')',
+          'role':'button','tabindex':'0',
           'aria-label':event.place + ', M ' + (event.mag == null ? 'unknown' : event.mag)
         });
+        const hit = buildSvg('circle', {'class':'pw-event-hit',r:Math.max(11,radius + 6)});
+        const marker = buildSvg('circle', {'class':'pw-event-marker',r:radius.toFixed(2)});
         const tip = buildSvg('title');
         tip.textContent = event.place + ' · M ' + (event.mag == null ? '?' : event.mag) + ' · ' + iso(event.time);
-        circle.appendChild(tip);
-        circle.addEventListener('click', () => inspect(event));
-        fragment.appendChild(circle);
+        group.append(hit,marker,tip);
+        group.addEventListener('click', () => inspect(event));
+        group.addEventListener('keydown', key => {
+          if (key.key !== 'Enter' && key.key !== ' ') return;
+          key.preventDefault();
+          inspect(event);
+        });
+        fragment.appendChild(group);
       });
       dots.appendChild(fragment);
       mapCaption.textContent = (state.source === 'history' ? 'HISTORICAL QUERY' : '24 H SNAPSHOT') +
