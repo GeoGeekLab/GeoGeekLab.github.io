@@ -1,0 +1,45 @@
+name: Fast PLAY and Water V5 regression
+
+on:
+  push:
+    branches:
+      - diagnostics/play-live-browser-20261008
+
+permissions:
+  contents: read
+
+jobs:
+  fast-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/play-controls-clipped-viewport-20261008
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Prepare data
+        env:
+          DATA_SUPPLY_ALLOW_STALE: '1'
+        run: |
+          node scripts/prime-data-supply-from-live.mjs
+          node scripts/prepare-data-references.mjs
+          node scripts/update-data-supply.mjs
+          mkdir -p site/assets/lab
+          curl --fail --location --retry 3 --output site/assets/lab/sentinel2.jpg https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
+      - name: Install browser tools
+        run: |
+          npm install --no-save @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Build
+        run: npm run build
+      - name: Test PLAY viewport and Water V5/legacy
+        run: |
+          npx playwright test tests/browser/play-entry-pointer.spec.mjs tests/browser/water-instrument.spec.mjs tests/browser/water-v5.spec.mjs --project=desktop-chromium --workers=2
+      - name: Upload traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fast-regression-traces
+          path: test-results
