@@ -198,7 +198,8 @@ jobs:
           done
           grep -Fq 'core/modules.js?v=20261008v8' /tmp/geogeek-water-v8/lab.html
           grep -Fq 'WATER_WORKBENCH_V8' /tmp/geogeek-water-v8/modules.js
-          grep -Fq 'workbench-v8/app/index.html' /tmp/geogeek-water-v8/instrument.js
+          grep -Fq 'water/workbench-v8/' /tmp/geogeek-water-v8/instrument.js
+          grep -Fq "'app/index.html'" /tmp/geogeek-water-v8/instrument.js
           grep -Fq 'measured-response-data.js?v=8.0.0' /tmp/geogeek-water-v8/index.html
           grep -Fq 'model/measured-sensor-response.js' /tmp/geogeek-water-v8/index.html
           grep -Fq 'pointermove' /tmp/geogeek-water-v8/chart-fix.js
