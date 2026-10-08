@@ -103,6 +103,8 @@ test('RT-109 V10.1 engine fallback and V10.0 source keep distinct iframe mounts'
  assert.match(v101,/workbench-v10\/instrument\.js/);
  assert.match(v101,/V10\.0 fallback/);
  assert.match(app,/schemaVersion:8/);
- assert.match(app,/data-rt-case/);
+ mockReference();
+ const caseControls=rtWorkspace.renderControls({state:validateSession({tab:'rt'}),controls:{csection:(a,b,html)=>html}});
+ assert.match(caseControls,/data-rt-case="clear"/);
  assert.match(app,/workspaces\/rt\.js/);
 });
