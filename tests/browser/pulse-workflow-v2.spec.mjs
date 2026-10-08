@@ -141,3 +141,33 @@ test('original Pulse keeps one original land layer even when workflow map is mou
   await page.locator('.pulse-workflow [data-pw="return"]').click();
   await expect(page.locator('.pulse-observation-lab')).toBeVisible();
 });
+
+
+test('event finder locates overlapping points; A/B aggregate CSV exports retain comparable bins',async({page})=>{
+  await open(page);
+  const work=page.locator('.pulse-workflow');
+  await work.locator('[data-pc="find"]').fill('Polar');
+  await expect(work.locator('[data-pc="found"] button')).toHaveCount(2);
+  await work.locator('[data-pc="found"] button').first().click();
+  await expect(work.locator('.pw-hover-detail')).toContainText('PINNED');
+  await expect(work.locator('.pw-hover-detail')).toContainText('B Polar');
+  await expect(work.locator('[data-pc="display"]')).toHaveValue('points');
+  await expect.poll(async()=>Number((await work.locator('.pw-map').getAttribute('viewBox')).split(' ')[2])).toBeLessThan(1000);
+
+  const chartDownload=page.waitForEvent('download');
+  await work.locator('[data-pc="charts-csv"]').click();
+  const chart=await chartDownload;
+  const chartCsv=await readFile(await chart.path(),'utf8');
+  expect(chartCsv).toContain('"chart","category","count_A","count_B"');
+  expect(chartCsv).toContain('"trend"');
+  expect(chartCsv).toContain('"magnitude"');
+  expect(chartCsv).toContain('"depth"');
+
+  const gridDownload=page.waitForEvent('download');
+  await work.locator('[data-pc="grid-csv"]').click();
+  const grid=await gridDownload;
+  const gridCsv=await readFile(await grid.path(),'utf8');
+  expect(gridCsv).toContain('"approx_area_km2"');
+  expect(gridCsv).toContain('"count_per_million_km2_A"');
+  expect(gridCsv.split('\r\n').length).toBeGreaterThan(3);
+});
