@@ -33,7 +33,7 @@ function simulate({saved=null,loadExternal=false,blockFallback=false}={}){
   documentElement:{dataset:{geogeekEmbedded:'false'}},
   head:{appendChild(){}},body:{appendChild(){}},activeElement:null
  };
- const context=vm.createContext({document,console:fakeConsole,atob,localStorage:{
+ const context=vm.createContext({document,console:fakeConsole,atob,URLSearchParams,localStorage:{
    getItem:key=>contents[key]||null,setItem:(key,value)=>{contents[key]=value}
  },setTimeout:()=>1,clearTimeout(){}});
  context.window=context;context.parent=context;
