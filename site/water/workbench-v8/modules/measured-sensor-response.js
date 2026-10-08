@@ -73,4 +73,4 @@ function sampleWithResponse(wavelengths,values,sensorId='olci',quantity='Rrs',op
    note:'Published measured SRF values; exact original ESA/USGS release version not independently confirmed.'},
   sampledCount:bands.filter(b=>b.status==='full').length,totalVisibleBands:bands.length,bands};
 }
-return {sampleWithResponse,supportsMeasured,getMeasuredBand,integrateMeasured,resolvedPlatform};
+export {sampleWithResponse,supportsMeasured,getMeasuredBand,integrateMeasured,resolvedPlatform};
