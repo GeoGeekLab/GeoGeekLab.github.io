@@ -10,8 +10,8 @@ const html=fs.readFileSync(path.join(root,'app/index.html'),'utf8');
 const engine=fs.readFileSync(path.join(root,'analysis/uncertainty-engine.js'),'utf8');
 const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]
  .map(m=>m[1]).filter(Boolean);
-const fallback=scripts.find(x=>x.includes('data')&&x.includes('GeoGeekV9Engine'))||
- scripts.find(x=>x.includes('identifiability engine unavailable; using the identical bundled fallback'));
+const fallback=scripts.find(x=>x.includes('[Water V9] External identifiability engine unavailable; using the identical bundled fallback.'));
+
 const main=scripts.find(x=>x.includes('const __factories='));
 assert.ok(fallback,'engine fallback must exist in the HTML');
 assert.ok(main,'application inline bundle must exist');
