@@ -126,6 +126,8 @@ jobs:
           node scripts/verify-play-live-release.mjs --local
       - name: Water V9 backward compatibility (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-instrument.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Water V10.0 browser integration (desktop and mobile Chromium)
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v10.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: ORIENT release browsers
         run: npm run qa:orient:release-browser
       - name: Upload Pages artifact
@@ -245,6 +247,24 @@ jobs:
           grep -Fq 'pointermove' /tmp/geogeek-water-v9/chart-fix.js
           grep -Fq 'GeoGeekMeasuredSRFData' /tmp/geogeek-water-v9/measured-response-data.js
           echo 'Water V9 live asset smoke passed: 8 workspaces, Fisher diagnostics and V8 SRF'
+      - name: Verify public Water V10.0 scientific-contract assets
+        env:
+          WATER_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${WATER_RELEASE_BASE_URL%/}"
+          mkdir -p /tmp/geogeek-water-v10
+          for path in lab.html core/modules.js water/workbench-v10/instrument.js water/workbench-v10/app/index.html water/workbench-v10/science-contract.js; do
+            file="/tmp/geogeek-water-v10/$(basename "$path")"
+            curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261008v10" -o "$file"
+            test -s "$file"
+          done
+          grep -Fq 'core/modules.js?v=20261008v10' /tmp/geogeek-water-v10/lab.html
+          grep -Fq 'WATER_WORKBENCH_V10' /tmp/geogeek-water-v10/modules.js
+          grep -Fq 'water/workbench-v10/' /tmp/geogeek-water-v10/instrument.js
+          grep -Fq 'schemaVersion:7' /tmp/geogeek-water-v10/index.html
+          grep -Fq 'GeoGeekV10Contract' /tmp/geogeek-water-v10/science-contract.js
+          echo 'Water V10.0 live asset smoke passed'
       - name: Verify public ORIENT release
         env:
           ORIENT_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
