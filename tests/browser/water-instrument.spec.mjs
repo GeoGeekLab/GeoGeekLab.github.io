@@ -144,3 +144,55 @@ test('V7 band sensitivity uses sensor-integrated values and rejects partial band
   await app.locator('[data-sensor="msi"]').click();
   await expect(app.locator('.band-response-row').first()).toBeVisible();
 });
+
+
+test('V7.1 spectral geometry is proportional and hover reads all component curves',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  const {app}=await openWater(page);
+  await app.locator('[data-tab="iop"]').click();
+  await app.locator('[data-plot="bb"]').click();
+  const svg=app.locator('#mainContent svg.graph[data-chart-ref]').first();
+  await expect(svg).toBeVisible();
+  const geom=await svg.evaluate(node=>{
+    const b=node.getBoundingClientRect(),v=node.viewBox.baseVal;
+    return {cssRatio:b.width/b.height,svgRatio:v.width/v.height,lines:node.querySelectorAll('path.graph-line').length};
+  });
+  expect(Math.abs(geom.cssRatio-geom.svgRatio)).toBeLessThan(.015);
+  expect(geom.lines).toBe(3);
+  const bounds=await svg.boundingBox();
+  await page.mouse.move(bounds.x+bounds.width*.54,bounds.y+bounds.height*.45);
+  const tooltip=app.locator('.chart-hover-values:visible');
+  await expect(tooltip).toBeVisible();
+  for(const label of ['TOTAL','WATER','PARTICLES'])await expect(tooltip).toContainText(label);
+  await expect(app.locator('.chart-footer .multi-values .v')).toHaveCount(3);
+  const hovered=Number((await tooltip.locator('strong').first().textContent()).split(' ')[0]);
+  await page.mouse.click(bounds.x+bounds.width*.54,bounds.y+bounds.height*.45);
+  const pinned=Number((await app.locator('#probeValue').textContent()).split(' ')[0]);
+  expect(Math.abs(pinned-hovered)).toBeLessThanOrEqual(1);
+  await app.locator('[data-plot="a"]').click();
+  await expect(app.locator('#mainContent [data-probe-dot]')).toHaveCount(5);
+  await app.locator('[data-plot="all"]').click();
+  await expect(app.locator('#mainContent svg.graph[data-chart-ref]')).toHaveCount(3);
+});
+
+test('V7.1 chart geometry follows compact mobile viewport without stretching text',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  const {app}=await openWater(page);
+  await app.locator('[data-tab="iop"]').click();
+  await app.locator('[data-plot="bb"]').click();
+  const svg=app.locator('#mainContent svg.graph[data-chart-ref]').first();
+  await expect(svg).toBeVisible();
+  await expect.poll(async()=>svg.evaluate(node=>{
+    const b=node.getBoundingClientRect(),v=node.viewBox.baseVal;
+    return Math.abs(b.width/b.height-v.width/v.height);
+  })).toBeLessThan(.02);
+  await app.locator('[data-plot="all"]').click();
+  await expect(app.locator('#mainContent svg.graph[data-chart-ref]')).toHaveCount(3);
+  for(const node of await app.locator('#mainContent svg.graph[data-chart-ref]').all()){
+    const mismatch=await node.evaluate(svg=>{
+      const b=svg.getBoundingClientRect(),v=svg.viewBox.baseVal;
+      return Math.abs(b.width/b.height-v.width/v.height);
+    });
+    expect(mismatch).toBeLessThan(.02);
+  }
+});
