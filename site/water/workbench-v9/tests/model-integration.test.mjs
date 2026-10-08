@@ -5,7 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import '../analysis/uncertainty-engine.js';
 const dir=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const root=path.resolve(dir,'../../');
+const root=path.resolve(dir,'..');
 const E=globalThis.GeoGeekV9Engine;
 const srf=fs.readFileSync(path.join(dir,'srf/measured-response-data.js'),'utf8');
 (new Function('window',srf))(globalThis);
