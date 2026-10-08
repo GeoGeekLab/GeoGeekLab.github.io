@@ -42,3 +42,8 @@
  .pulse-workflow .pw-two{grid-template-columns:repeat(2,minmax(0,1fr))}
  .pulse-workflow .pw-comparison strong{font-size:14px}
 }
+
+.pulse-workflow .pw-search-label{display:grid;gap:6px;font-size:10px;font-weight:650;color:#c5d6c9}
+.pulse-workflow .pw-search-label input{width:100%;border:1px solid #4d7458;border-radius:3px;background:#0d1d13;color:#f5f6e9;padding:9px;font-size:12px}
+.pulse-workflow .pw-found{display:grid;gap:5px;max-height:188px;overflow-y:auto;background:#111c15;border:1px solid #304837;padding:8px;color:#bdcfbf;font-size:11px}
+.pulse-workflow .pw-found button{text-align:left;font-weight:550;line-height:1.4;white-space:normal}
