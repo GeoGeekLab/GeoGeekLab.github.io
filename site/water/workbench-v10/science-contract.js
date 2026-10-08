@@ -53,6 +53,15 @@ function bandMean(wavelengths,values,weights) {
  }
  return total>0?{status:'valid',value:weighted/total}:{status:'missing_data',value:null,reason:'Zero SRF mass'};
 }
+function reflectanceFromBandRadiance({wavelengths,toaRadiance,solarIrradiance,weights,mu0,earthSunDistanceAU=1}) {
+ if(!(mu0>0&&mu0<=1)||!(earthSunDistanceAU>0))throw new Error('Invalid solar geometry or Earth–Sun distance');
+ const radiance=bandMean(wavelengths,toaRadiance,weights);
+ const irradiance=bandMean(wavelengths,solarIrradiance,weights);
+ if(radiance.status!=='valid'||irradiance.status!=='valid'||!(irradiance.value>0))return {
+  status:'missing_data',value:null,reason:'Missing band radiance or positive extraterrestrial irradiance'};
+ return {status:'valid',value:Math.PI*radiance.value*Math.pow(earthSunDistanceAU,2)/(mu0*irradiance.value),
+   unit:'1',input:'L_TOA_band / E0_band',measurementModel:'radiance-based',researchValidated:false};
+}
 const coefficients=Object.freeze([.42540,-3.21679,2.86907,-.62628,-1.09333]);
 function olciBandOC4(observation) {
  if(observation?.sensor?.id!=='olci')return {status:'not_applicable',value:null,reason:'V10.0 supports only nominal OLCI band-integrated OC4'};
@@ -69,5 +78,5 @@ function olciBandOC4(observation) {
 }
 const modelVariant=p=>p?.sg===.0176&&p?.snap===.0123?'V9_COMPAT_FIXED_SLOPES':'V10_EXPLORATORY_CUSTOM_SLOPES';
 root.GeoGeekV10Contract=Object.freeze({appVersion:'10.0.0',model,domain,variables,statuses,
- quantity,classifyBand,bandMean,olciBandOC4,modelVariant});
+ quantity,classifyBand,bandMean,reflectanceFromBandRadiance,olciBandOC4,modelVariant});
 })(globalThis);
