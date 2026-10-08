@@ -123,6 +123,8 @@ jobs:
           node --test site/water/workbench-v9/tests/startup-recovery.test.mjs
           node scripts/qa.mjs
           node scripts/verify-play-live-release.mjs --local
+      - name: Water V9 UI regression (desktop and mobile Chromium)
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-instrument.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: ORIENT release browsers
         run: npm run qa:orient:release-browser
       - name: Upload Pages artifact
