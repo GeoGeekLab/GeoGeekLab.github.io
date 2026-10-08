@@ -1,5 +1,5 @@
 /**
- * GeoGeek Water as Spectrum V10 — native water-instrument adapter.
+ * GeoGeek Water as Spectrum V10.1 — native water-instrument adapter.
  * The GeoGeek host owns openByKind, URL handling, dialog close, and cancellation.
  * The same-origin iframe isolates IDs, CSS, and delegated app listeners.
  */
@@ -96,7 +96,7 @@
     } catch (error) {
       cleanup();
       console.error('[GeoGeek] Water V10.1 startup failed; attempting V10.0 recovery:',error);
-      // V9 remains a complete independent instrument. Do not mislabel V9 as V10.
+      // V10.0 remains a complete independent instrument. Never present it as the V10.1 RT dataset workspace.
       const old=mounts.water;
       try{
         if(!window.GeoWaterWorkbenchV10?.mount){
@@ -114,14 +114,14 @@
         mounts.water=old;
         const notice=document.createElement('div');
         notice.setAttribute('role','status');
-        notice.textContent='V10 unavailable · showing V10.0 fallback (without V10 custom-slope and contract features)';
+        notice.textContent='V10.1 RT unavailable · showing V10.0 (without numerical WATER RT reference)';
         notice.style.cssText='position:absolute;top:0;left:12px;z-index:12;padding:5px 9px;color:#f3ddc2;background:#493226;border:1px solid #bd8b5f;border-radius:0 0 5px 5px;font:11px monospace';
         stage.appendChild(notice);
         return ()=>{notice.remove();if(typeof close==='function')close();};
       }catch(fallbackError){
         mounts.water=old;
         console.error('[GeoGeek] Water V10.0 recovery also failed:',fallbackError);
-        throw new Error('Water V10.1 and V9 could not initialize',{cause:error});
+        throw new Error('Water V10.1 and V10.0 could not initialize',{cause:error});
       }
     }
   }
