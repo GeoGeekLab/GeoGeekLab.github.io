@@ -10,6 +10,8 @@ The existing first-order water optics, atmosphere, correction, 400–700 nm spec
 
 Response profiles are transformed *without spectral shape fitting* from the publicly distributed, 1 nm tab-separated tables in [jbferet/prosail](https://github.com/jbferet/prosail/tree/master/data-raw). The publisher refers to their values as satellite spectral-response data. Related agency references: [Copernicus Sentinel-2 SRF documentation](https://sentiwiki.copernicus.eu/web/s2-documents); [USGS Landsat Spectral Characteristics](https://landsat.usgs.gov/spectral-characteristics-viewer).
 
+The upstream PROSAIL repository distributes this material alongside GPL-3-licensed software; its GPL-3 licence is included at `srf/UPSTREAM-PROSAIL-GPL3.txt`. Agency-origin response-data rights may differ and should be assessed before separate redistribution. The transformed V8 data asset is kept separate from the application logic and preserves upstream attribution.
+
 The exact originating official ESA/USGS version for each CSV in this secondary source has **not been independently established**, so the UI says *published measured SRF* and **does not** claim to contain the latest agency version, instrument detector-level SRFs, or on-orbit time-varying calibration.
 
 | Platform | Source Git blob SHA | Supported complete measured visible bands |
