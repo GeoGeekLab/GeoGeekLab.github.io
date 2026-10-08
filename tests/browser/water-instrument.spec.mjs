@@ -84,3 +84,43 @@ test('V6 spectral plots and parameter controls remain usable on narrow viewports
   const overflow=await app.locator('body').evaluate(node=>node.scrollWidth > window.innerWidth + 3);
   expect(overflow).toBe(false);
 });
+
+test('V6 radiative PATH stages remain fully visible without nested clipping at compact desktop height', async ({page})=>{
+  await page.setViewportSize({width:1840,height:830});
+  const {app}=await openWater(page);
+  await app.locator('[data-tab="path"]').click();
+  const tiles=app.locator('.path-stage-card');
+  await expect(tiles).toHaveCount(5);
+  const dimensions=await app.locator('#mainContent').evaluate(node=>{
+    const hint=node.querySelector('.path-hint'),stage=node.querySelector('.path-stage-grid'),details=node.querySelector('.stage-explain');
+    const viewport=node.getBoundingClientRect();
+    return {noScroll:node.scrollHeight<=node.clientHeight+3,
+      tiles:[...node.querySelectorAll('.path-stage-card')].every(card=>{
+        const box=card.getBoundingClientRect();
+        return box.top>=viewport.top&&box.bottom<=viewport.bottom&&box.height>=95;
+      }),
+      detailsVisible:details.getBoundingClientRect().bottom<=viewport.bottom+3,
+      hintVisible:hint.getBoundingClientRect().bottom<=viewport.bottom+3,
+      horizontalOverflow:node.scrollWidth>node.clientWidth+3};
+  });
+  expect(dimensions.noScroll).toBe(true);
+  expect(dimensions.tiles).toBe(true);
+  expect(dimensions.detailsVisible).toBe(true);
+  expect(dimensions.hintVisible).toBe(true);
+  expect(dimensions.horizontalOverflow).toBe(false);
+  await app.locator('.path-stage-card[data-stage="atm"]').click();
+  await expect(app.locator('.path-stage-card[data-stage="atm"]')).toHaveAttribute('aria-pressed','true');
+  await expect(app.locator('.stage-explain')).toContainText('Atmospheric Scattering');
+  await app.locator('.path-stage-card[data-stage="sat"]').focus();
+  await app.locator('.path-stage-card[data-stage="sat"]').press('Enter');
+  await expect(app.locator('.path-stage-card[data-stage="sat"]')).toHaveAttribute('aria-pressed','true');
+});
+
+test('V6 radiative PATH wraps on narrow viewports without horizontal overflow',async ({page})=>{
+  await page.setViewportSize({width:390,height:820});
+  const {app}=await openWater(page);
+  await app.locator('[data-tab="path"]').click();
+  await expect(app.locator('.path-stage-card')).toHaveCount(5);
+  const overflow=await app.locator('body').evaluate(el=>el.scrollWidth>window.innerWidth+3);
+  expect(overflow).toBe(false);
+});
