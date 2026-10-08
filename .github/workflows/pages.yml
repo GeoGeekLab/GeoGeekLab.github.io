@@ -116,6 +116,7 @@ jobs:
       - name: QA
         run: |
           node --test site/water/workbench-v6/smoke.test.mjs
+          node --test site/water/workbench-v7/smoke.test.mjs
           node scripts/qa.mjs
           node scripts/verify-play-live-release.mjs --local
       - name: ORIENT release browsers
