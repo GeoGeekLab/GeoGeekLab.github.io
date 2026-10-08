@@ -116,7 +116,7 @@
     const playBlock=document.querySelector('[data-instrument="locate"]')?.closest('.lab-group-block');
     if (!playBlock) return;
     const records=readTrace();
-    const names={orient:'ORIENT',bound:'BOUND',connect:'CONNECT',project:'PROJECT',light:'LIGHT'};
+    const names={orient:'ORIENT',bound:'BOUND',connect:'CONNECT',project:'PROJECT',light:'LIGHT',swath:'SWATH'};
     const groups=new Map();
     records.forEach(record=>{if(names[record.play])groups.set(record.play,(groups.get(record.play)||0)+1);});
     let node=playBlock.querySelector('.spatial-trace-summary');
