@@ -157,39 +157,6 @@
     else if (PLAY_KINDS.has(kind)) label.textContent = 'PLAY / SPATIAL REASONING';
   }
 
-  async function openDirectProject() {
-    if (!document.getElementById('labList')) return;
-    if (new URLSearchParams(location.search).get('instrument') !== 'project') return;
-
-    const dialog = document.getElementById('instrumentDialog');
-    const stage = document.getElementById('instrumentStage');
-    if (dialog?.open) return;
-    if (dialog) {
-      dialog.dataset.instrumentKind = 'project';
-      dialog.dataset.instrumentFamily = 'field';
-    }
-    if (stage) stage.dataset.instrumentKind = 'project';
-
-    let attempts = 0;
-    const retry = async () => {
-      if (dialog?.open || attempts >= 120) return;
-      attempts += 1;
-      const modules = window.GeoModules;
-      if (!modules?.loadInstrument) {
-        setTimeout(retry, 50);
-        return;
-      }
-      try {
-        const instruments = await modules.loadInstrument('project');
-        if (!dialog?.open) await instruments?.openByKind?.('project', { updateUrl: false });
-        modules.normalizeInstrumentAria?.('project');
-        syncWorkspaceGroupLabel();
-      } catch (error) {
-        console.warn('[GeoGeek] Direct Project instrument could not initialize yet.', error);
-      }
-    };
-    retry();
-  }
 
   document.addEventListener('DOMContentLoaded', () => {
     normalizeCollection();
@@ -202,6 +169,5 @@
       observer.observe(dialog, { attributes: true, attributeFilter: ['data-instrument-kind', 'open'] });
     }
 
-    openDirectProject();
   });
 })();

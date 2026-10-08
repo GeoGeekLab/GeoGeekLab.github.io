@@ -114,7 +114,9 @@ jobs:
       - name: Verify Field Note bodies
         run: node scripts/verify-field-note-pages.mjs
       - name: QA
-        run: node scripts/qa.mjs
+        run: |
+          node scripts/qa.mjs
+          node scripts/verify-play-live-release.mjs --local
       - name: ORIENT release browsers
         run: npm run qa:orient:release-browser
       - name: Upload Pages artifact
@@ -177,3 +179,8 @@ jobs:
         env:
           ORIENT_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
         run: npm run qa:orient:production
+      - name: Verify all six public PLAY modules
+        env:
+          PLAY_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: node scripts/verify-play-live-release.mjs
+
