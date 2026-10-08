@@ -132,7 +132,7 @@ test('V9 band sensitivity uses sensor-integrated values and rejects partial band
   await expect(app.locator('.band-response-row')).toHaveCount(10);
   await expect(app.locator('.band-response-row[data-band-result="Oa01"]')).toHaveAttribute('data-status','partial');
   await expect(app.locator('.band-response-row[data-band-result="Oa02"]')).toHaveAttribute('data-status','full');
-  await expect(app.locator('.band-response-intro')).toContainText('not measured SRFs');
+  await expect(app.locator('.band-response-intro')).toContainText('simplified-top-hat');
   await app.locator('[data-sensitivity-parameter="ag"]').click();
   await app.locator('[data-sensitivity-step="10"]').click();
   await expect(app.locator('[data-plot="bands"]')).toHaveAttribute('aria-pressed','true');
@@ -283,4 +283,41 @@ test('V9 exports a band-by-band Jacobian CSV and session provenance JSON',async(
  const json=page.waitForEvent('download');
  await app.locator('[data-export="json"]').click();
  expect((await json).suggestedFilename()).toContain('v9');
+});
+
+
+test('V9 recovers a persisted V8 session even if the standalone uncertainty engine request is blocked',async({page})=>{
+ const old={tab:'iop',plot:'rrs',probe:443,showPanel:true,axisRanges:{},
+  sensor:'olci',responseMode:'nominal',srfPlatform:'s2a',srfBand:'B02',
+  params:{chl:1,ag:.05,anap:.02,bbp:.002,aot:.1,alpha:.7,pressure:1013.25,
+   sza:30,vza:10,raz:135,corrAot:.1,corrAlpha:.7,sg:.0176,snap:.0123,eta:1},
+  sensitivityParameter:'chl',sensitivityStep:5};
+ await page.addInitScript(saved=>{
+  if(location.pathname.includes('/water/workbench-v9/app/index.html')){
+   localStorage.removeItem('water_ui_geo_v9');
+   localStorage.setItem('water_ui_geo_v8',JSON.stringify(saved));
+  }
+ },old);
+ await page.route('**/water/workbench-v9/analysis/uncertainty-engine.js*',route=>route.abort());
+ const {app}=await openWater(page);
+ await expect(app.locator('#mainNav [data-tab]')).toHaveCount(8);
+ await expect(app.locator('#mainContent svg')).toBeVisible();
+ await expect(app.locator('#controls [data-range="chl"]')).toBeVisible();
+ await app.locator('[data-tab="uncertainty"]').click();
+ await expect(app.locator('.u9-metrics')).toBeVisible();
+ await expect(app.locator('.u9-metrics')).toContainText('MATRIX RANK');
+ await app.locator('[data-tab="iop"]').click();
+ await expect(app.locator('#mainContent svg')).toBeVisible();
+});
+
+test('V9 resumed session remains interactive after a same-origin iframe reload',async({page})=>{
+ const {app}=await openWater(page);
+ await app.locator('[data-tab="uncertainty"]').click();
+ await app.locator('[data-u9-sigma="0.0001"]').click();
+ await expect(app.locator('[data-u9-sigma="0.0001"]')).toHaveAttribute('aria-pressed','true');
+ await page.reload({waitUntil:'domcontentloaded'});
+ const resumed=page.frameLocator('#instrumentStage iframe.water-v9-frame');
+ await expect(resumed.locator('#mainNav [data-tab]')).toHaveCount(8,{timeout:20000});
+ await expect(resumed.locator('.u9-metrics')).toBeVisible();
+ await expect(resumed.locator('[data-u9-sigma="0.0001"]')).toHaveAttribute('aria-pressed','true');
 });

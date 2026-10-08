@@ -6,7 +6,7 @@
 (() => {
   'use strict';
   const rootUrl = new URL('water/workbench-v9/', document.baseURI);
-  const stylesheet = new URL('instrument.css?v=7.0.0', rootUrl).href;
+  const stylesheet = new URL('instrument.css?v=9.1.0', rootUrl).href;
   const frameUrl = new URL('app/index.html', rootUrl);
   const mounts = window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};
   let sequence = 0;
@@ -16,7 +16,7 @@
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = stylesheet;
-    link.dataset.waterV8Style = '1';
+    link.dataset.waterV9Style = '1';
     document.head.appendChild(link);
   }
 
@@ -25,7 +25,7 @@
     ensureStyles();
     const token = 'w' + (++sequence) + '-' + Math.random().toString(36).slice(2, 14);
     const url = new URL(frameUrl);
-    url.searchParams.set('chartfix', '9.0.0');
+    url.searchParams.set('chartfix', '9.1.0');
     url.searchParams.set('embed', '1');
     url.searchParams.set('instance', token);
 
@@ -50,6 +50,12 @@
       if (event.data?.instance !== token) return;
       if (event.data.type === 'geogeek:water-v5:ready') {
         if (!settled) { settled = true; clearTimeout(timeout); resolveReady(true); }
+      } else if (event.data.type === 'geogeek:water-v5:boot-error') {
+        if(!settled){
+          settled=true;
+          clearTimeout(timeout);
+          rejectReady(new Error('Water V9 startup failure: '+String(event.data.message||'unknown').slice(0,180)));
+        }
       } else if (event.data.type === 'geogeek:water-v5:escape') {
         if (document.getElementById('instrumentDialog')?.open &&
             window.GeoInstruments?.getActive?.() === 'water') {
@@ -76,7 +82,7 @@
     timeout = setTimeout(() => {
       if (settled) return;
       settled = true;
-      rejectReady(new Error('Water V5 did not initialize within 15 seconds'));
+      rejectReady(new Error('Water V9 did not initialize within 15 seconds'));
     }, 15000);
     frame.src = url.href;
 
@@ -89,10 +95,37 @@
       return cleanup;
     } catch (error) {
       cleanup();
-      throw error;
+      console.error('[GeoGeek] Water V9 startup failed; attempting V8 recovery:',error);
+      // V8 remains a complete independent instrument. Do not mislabel V8 as V9.
+      const old=mounts.water;
+      try{
+        if(!window.GeoWaterWorkbenchV8?.mount){
+          await new Promise((resolve,reject)=>{
+            const script=document.createElement('script');
+            script.src=new URL('water/workbench-v8/instrument.js?v=8.0.0',document.baseURI).href;
+            script.onload=resolve;
+            script.onerror=()=>reject(new Error('Water V8 fallback adapter could not load'));
+            document.head.appendChild(script);
+          });
+        }
+        const fallback=window.GeoWaterWorkbenchV8?.mount||mounts.water;
+        if(typeof fallback!=='function'||fallback===mount)throw new Error('Fallback mount unavailable');
+        const close=await fallback({stage,signal});
+        mounts.water=old;
+        const notice=document.createElement('div');
+        notice.setAttribute('role','status');
+        notice.textContent='V9 unavailable · showing V8 fallback (without uncertainty diagnostics)';
+        notice.style.cssText='position:absolute;top:0;left:12px;z-index:12;padding:5px 9px;color:#f3ddc2;background:#493226;border:1px solid #bd8b5f;border-radius:0 0 5px 5px;font:11px monospace';
+        stage.appendChild(notice);
+        return ()=>{notice.remove();if(typeof close==='function')close();};
+      }catch(fallbackError){
+        mounts.water=old;
+        console.error('[GeoGeek] Water V8 recovery also failed:',fallbackError);
+        throw new Error('Water V9 and V8 could not initialize',{cause:error});
+      }
     }
   }
 
   mounts.water = mount;
-  window.GeoWaterWorkbenchV9 = { version: '7.0.0', mount };
+  window.GeoWaterWorkbenchV9 = { version: '9.1.0', mount };
 })();

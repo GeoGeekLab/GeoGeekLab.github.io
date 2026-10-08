@@ -26,6 +26,10 @@
 
 
 
+/* V9 initialization error reporting */
+.water-render-error{padding:18px;border:1px solid #9b6d4e;background:#251d18;color:#edd9cc;border-radius:6px;max-width:680px;margin:12px auto;font:13px/1.6 var(--sans)}
+.water-render-error h3{font:23px var(--serif);margin:0 0 8px}
+.water-render-error p{margin:8px 0}
 /* V9 model-aware identifiability: matrix layout and explicit rank diagnostics */
 .workspace.u9-active .probe-bar{display:none}
 .u9-active .chart-main{overflow:hidden;min-height:0}
@@ -144,6 +148,139 @@
 </style>
 <script src="../srf/measured-response-data.js?v=8.0.0"></script>
 <script src="../analysis/uncertainty-engine.js?v=9.0.0"></script>
+<script data-v9-resilience="local-engine-fallback">
+/* Preserve a usable V9 UI when a same-origin external script is missed by cache, CSP or transient network failure. */
+if (!globalThis.GeoGeekV9Engine) {
+  console.warn('[Water V9] External identifiability engine unavailable; using the identical bundled fallback.');
+/* Water as Spectrum V9: local noise-assumption/Fisher diagnostics, not field uncertainty.
+ * Independent, homoscedastic Gaussian Rrs band errors are USER ASSUMPTIONS.
+ * Parameter scaling is explicit and stable even for near-zero parameter values.
+ * Full-rank covariance is withheld for rank-deficient Jacobians.
+ * Data acquisition and forward models remain outside this module. */
+((root)=>{
+'use strict';
+const PARAMETERS=Object.freeze([
+ {id:'chl',label:'Chl-a',scale:1,unit:'mg m⁻³'},
+ {id:'ag',label:'CDOM a_g(440)',scale:.1,unit:'m⁻¹'},
+ {id:'anap',label:'NAP a_NAP(443)',scale:.1,unit:'m⁻¹'},
+ {id:'bbp',label:'Particle b_bp(443)',scale:.01,unit:'m⁻¹'},
+ {id:'eta',label:'Backscatter exponent η',scale:1,unit:'dimensionless'}
+]);
+const IDS=PARAMETERS.map(p=>p.id);
+const SIGMAS=Object.freeze([.000005,.00002,.0001]);
+const STEPS=Object.freeze([1,5,10]);
+function requireFiniteNumber(n,tag){
+ if(!Number.isFinite(n))throw new RangeError('Invalid '+tag);
+ return n;
+}
+function eigensystemSymmetric(matrix){
+ const n=matrix.length;
+ const A=matrix.map(x=>x.slice()),V=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>+(i===j)));
+ if(!n)return {values:[],vectors:[]};
+ const maxAbs=Math.max(1,...A.flat().map(Math.abs));
+ for(let iteration=0;iteration<200;iteration++){
+  let p=0,q=0,m=0;
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){let v=Math.abs(A[i][j]);if(v>m){p=i;q=j;m=v;}}
+  if(m<maxAbs*1e-13)break;
+  const tau=(A[q][q]-A[p][p])/(2*A[p][q]);
+  const t=(tau>=0?1:-1)/(Math.abs(tau)+Math.sqrt(1+tau*tau));
+  const c=1/Math.sqrt(1+t*t),s=t*c;
+  const app=A[p][p],aqq=A[q][q],apq=A[p][q];
+  A[p][p]=app-t*apq;A[q][q]=aqq+t*apq;A[p][q]=A[q][p]=0;
+  for(let k=0;k<n;k++){
+   if(k!==p&&k!==q){const akp=A[k][p],akq=A[k][q];
+    A[k][p]=A[p][k]=c*akp-s*akq;
+    A[k][q]=A[q][k]=s*akp+c*akq;}
+   const vkp=V[k][p],vkq=V[k][q];
+   V[k][p]=c*vkp-s*vkq;V[k][q]=s*vkp+c*vkq;
+  }
+ }
+ const sorted=Array.from({length:n},(_,i)=>i).sort((a,b)=>A[b][b]-A[a][a]);
+ return {values:sorted.map(i=>Math.max(0,A[i][i])),vectors:sorted.map(j=>V.map(row=>row[j]))};
+}
+function diagnoseFisher(jacobian,sigma,scales){
+ const k=scales.length,n=jacobian.length;
+ const F=Array.from({length:k},()=>Array(k).fill(0));
+ for(const row of jacobian)for(let i=0;i<k;i++)for(let j=0;j<=i;j++)F[i][j]+=row[i]*row[j]/(sigma*sigma);
+ for(let i=0;i<k;i++)for(let j=i+1;j<k;j++)F[i][j]=F[j][i];
+ const e=eigensystemSymmetric(F),max=e.values[0]||0;
+ const cutoff=Math.max(max*1e-9,1e-12);
+ const rank=e.values.filter(v=>v>cutoff).length,identifiable=rank===k&&n>=k;
+ const condition=identifiable?Math.sqrt(max/e.values[k-1]):null;
+ let covariance=null,correlation=null,uncertainties=null;
+ if(identifiable){
+  const c=Array.from({length:k},()=>Array(k).fill(0));
+  for(let j=0;j<k;j++)for(let i=0;i<k;i++)for(let h=0;h<k;h++){
+   c[i][h]+=e.vectors[j][i]*e.vectors[j][h]/e.values[j]*scales[i]*scales[h];
+  }
+  covariance=c;
+  uncertainties=Array.from({length:k},(_,i)=>Math.sqrt(Math.max(0,c[i][i])));
+  correlation=Array.from({length:k},(_,i)=>Array.from({length:k},(_,j)=>
+   uncertainties[i]>0&&uncertainties[j]>0?Math.max(-1,Math.min(1,c[i][j]/(uncertainties[i]*uncertainties[j]))):null));
+ }
+ // Null direction: not a numerical "solution"; indicates a locally degenerate parameter combination.
+ const weakest=e.vectors.at(-1)||[];
+ return {fisher:F,eigenvalues:e.values,rank,cutoff,identifiable,condition,
+  covariance,correlation,uncertainties,weakestDirection:weakest,weakestEigenvalue:e.values.at(-1)||0,
+  status:!identifiable?'rank-deficient':condition>1e3?'ill-conditioned':'full-rank'};
+}
+function analyze({models,params,bounds,sample,selected=['chl','ag'],noiseSigma=.00002,stepPercent=5}){
+ if(!models||typeof models.run!=='function'||typeof sample!=='function')throw new Error('Model and observation callbacks required');
+ if(!Array.isArray(selected)||!selected.length||selected.length>5||new Set(selected).size!==selected.length||selected.some(x=>!IDS.includes(x)))throw new Error('Invalid parameter selection');
+ if(!SIGMAS.includes(noiseSigma))throw new Error('Unsupported hypothetical noise sigma');
+ if(!STEPS.includes(stepPercent))throw new Error('Unsupported finite difference step');
+ const channels=(p)=>sample(models.run(p));
+ const baseline=channels(params);
+ if(!baseline||!Array.isArray(baseline.bands))throw new Error('No sensor observation');
+ const refs=baseline.bands.filter(b=>b.status==='full'&&Number.isFinite(b.value));
+ const validIndex=refs.map(b=>baseline.bands.findIndex(x=>x.id===b.id));
+ const selectedDefs=selected.map(id=>PARAMETERS.find(p=>p.id===id));
+ const columns=[],perturbations=[];
+ for(const def of selectedDefs){
+  const key=def.id,base=requireFiniteNumber(params[key],key);
+  const range=bounds?.[key]||{min:0,max:Math.max(1,base*2)};
+  let h=Math.max(def.scale*stepPercent/100,Math.abs(base)*stepPercent/100,def.scale*1e-6);
+  const lo=Math.max(range.min,base-h),hi=Math.min(range.max,base+h);
+  if(!(hi>lo))throw new Error('Cannot perturb '+key+' within model domain');
+  const below={...params,[key]:lo},above={...params,[key]:hi};
+  const bottom=channels(below).bands,top=channels(above).bands;
+  const differential=validIndex.map(index=>{
+   const low=bottom[index],high=top[index];
+   if(low?.status!=='full'||high?.status!=='full'||!Number.isFinite(low.value)||!Number.isFinite(high.value))return null;
+   return (high.value-low.value)/(hi-lo);
+  });
+  columns.push(differential);
+  perturbations.push({parameter:key,baseline:base,lower:lo,upper:hi,mode:lo===base?'forward':hi===base?'backward':'central',stepSize:hi-lo,
+    derivativeUnit:'sr⁻¹ / '+def.unit,scale:def.scale});
+ }
+ const retained=refs.map((b,row)=>({bandId:b.id,centerNm:b.centerNm,referenceRrs:b.value,
+  derivatives:columns.map(col=>col[row])})).filter(item=>item.derivatives.every(Number.isFinite));
+ const dropped=baseline.bands.filter(b=>b.status!=='full').map(b=>({id:b.id,status:b.status,coverageFraction:b.coverageFraction??null}));
+ const J=retained.map(row=>row.derivatives.map((v,i)=>v*selectedDefs[i].scale));
+ const diagnosis=diagnoseFisher(J,noiseSigma,selectedDefs.map(p=>p.scale));
+ let pair={first:null,second:null,cosine:null};
+ for(let i=0;i<selected.length;i++)for(let j=i+1;j<selected.length;j++){
+  let dot=0,ni=0,nj=0;
+  for(const row of J){dot+=row[i]*row[j];ni+=row[i]*row[i];nj+=row[j]*row[j];}
+  const value=ni>0&&nj>0?dot/Math.sqrt(ni*nj):null;
+  if(value!==null&&(pair.cosine===null||Math.abs(value)>Math.abs(pair.cosine)))pair={first:selected[i],second:selected[j],cosine:value};
+ }
+ return {
+  kind:'v9-local-fisher-diagnostics',scope:'hypothetical independent, homoscedastic Gaussian error in band-averaged Rrs; linearized around selected model state; no calibration or field validation',
+  selected,definitions:selectedDefs,noise:{type:'independent-constant-sigma',sigmaRrsSr1:noiseSigma,source:'user-assumed, not instrument specification'},
+  stepPercent,perturbations,observations:retained,dropped,numberOfMeasurements:retained.length,numberOfParameters:selected.length,
+  source:{sensor:baseline.sensor?.label||baseline.sensor?.id||null,responseModel:baseline.responseModel,platform:baseline.platform,provenance:baseline.provenance||null},
+  pairwiseColumnCosine:pair,...diagnosis,
+  interpretation:diagnosis.identifiable?
+   'Formal local 1-sigma covariance is conditional on the chosen parameters, noise assumption and linearization. It is not a validated retrieval uncertainty.' :
+   'The selected parameter combination is not locally identifiable under these available bands. Formal finite covariance is withheld.'
+ };
+}
+root.GeoGeekV9Engine=Object.freeze({PARAMETERS,IDS,SIGMAS,STEPS,eigensystemSymmetric,diagnoseFisher,analyze});
+})(globalThis);
+
+}
+</script>
 <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.dataset.geogeekEmbedded="true";</script>
 <style>
 /* Active only inside the GeoGeek instrument iframe. Do not alter standalone UI. */
@@ -293,7 +430,7 @@ function validateSession(input){
  state.compareBSource=input.compareBSource==='saved'&&state.snapshotB?'saved':'live';
  state.sensitivityParameter=SENSITIVITY_PARAMETERS.includes(input.sensitivityParameter)?input.sensitivityParameter:'chl';
  state.sensitivityStep=SENSITIVITY_STEPS.includes(input.sensitivityStep)?input.sensitivityStep:5;
- const U=globalThis.GeoGeekV9Engine;
+ const U=globalThis.GeoGeekV9Engine||{IDS:['chl','ag','anap','bbp','eta'],SIGMAS:[.000005,.00002,.0001],STEPS:[1,5,10]};
  state.uncertaintyParameters=Array.isArray(input.uncertaintyParameters)&&input.uncertaintyParameters.length>0&&input.uncertaintyParameters.length<=5&&new Set(input.uncertaintyParameters).size===input.uncertaintyParameters.length&&input.uncertaintyParameters.every(x=>U.IDS.includes(x))?input.uncertaintyParameters:['chl','ag'];
  state.uncertaintySigma=U.SIGMAS.includes(input.uncertaintySigma)?input.uncertaintySigma:.00002;
  state.uncertaintyStep=U.STEPS.includes(input.uncertaintyStep)?input.uncertaintyStep:5;
@@ -695,7 +832,17 @@ function createWorkbench({store,models,charts,controls}){
   node.scrollTop=lastControlsTab===state.tab?oldScroll:0;
   lastControlsTab=state.tab;
  }
- function render(){navigation();header();plotNav();chart();side();}
+ function render(){
+  try{navigation();header();plotNav();chart();side();}
+  catch(error){
+   console.error('[Water V9] Workspace render failed:',error);
+   const safe=String(error?.message||'Unknown render failure').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])).slice(0,180);
+   const message='<section role="alert" class="water-render-error"><h3>Workspace unavailable</h3><p>The current workspace could not initialize. No scientific results are being displayed.</p><p class="aside-note">Diagnostic: '+safe+'</p><button type="button" class="ghost-btn" data-retry-render="1">Retry workspace</button></section>';
+   $('mainContent').innerHTML=message;
+   $('controls').innerHTML='<div class="water-render-error"><p>Parameters cannot be edited until rendering succeeds.</p></div>';
+   throw error;
+  }
+ }
  function notify(message){
   const el=$('toast');el.textContent=message;el.classList.add('visible');
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),2400);
@@ -1005,6 +1152,7 @@ const {makeSensorObservation}=require("model/geogeek-adapter.js");
 const {responseButtons}=require("workspaces/sensor.js");
 const E=globalThis.GeoGeekV9Engine;
 function run(state,models){
+ if(!E||typeof E.analyze!=='function')throw new Error('V9 identifiability engine unavailable; reload the workbench');
  return E.analyze({models,params:state.params,bounds:CFG,selected:state.uncertaintyParameters,
   noiseSigma:state.uncertaintySigma,stepPercent:state.uncertaintyStep,
   sample:d=>makeSensorObservation(d,state.sensor,'rrs',{responseMode:state.responseMode,srfPlatform:state.srfPlatform})});
@@ -1324,6 +1472,7 @@ function bindWorkbenchEvents({store,workbench,exports}){
  function changeWorkspace(id){if(plots[id])update(s=>{s.tab=id;s.plot=plots[id][0][0];});}
  function click(event){
   const t=event.target.closest?.('button,[data-stage]');if(!t)return;
+  if(t.dataset.retryRender){workbench.render();return;}
   if(t.dataset.tab){changeWorkspace(t.dataset.tab);return;}
   if(t.dataset.plot){if(plots[state.tab].some(([id])=>id===t.dataset.plot))update(s=>{s.plot=t.dataset.plot});return;}
   if(t.dataset.stage){update(s=>{s.stage=t.dataset.stage},'chart');return;}
@@ -1469,7 +1618,17 @@ return {initializeEmbedBridge};
 }};
 const __cache={};
 function __require(id){if(Object.hasOwn(__cache,id))return __cache[id];if(!__factories[id])throw new Error('Module not found: '+id);return __cache[id]=__factories[id](__require);}
-__require('main.js');
+try {
+ __require('main.js');
+} catch (error) {
+ console.error('[Water V9] Application startup failed:',error);
+ const safe=String(error?.message||'Initialization error').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])).slice(0,180);
+ const main=document.getElementById('mainContent');
+ if(main&&!main.querySelector('[role="alert"]'))main.innerHTML='<section role="alert" class="water-render-error"><h3>Water workbench could not start</h3><p>Rendering stopped; no model values have been inferred.</p><p class="aside-note">'+safe+'</p></section>';
+ const params=document.getElementById('controls');if(params)params.textContent='Workspace initialization failed';
+ const token=new URLSearchParams(location.search).get('instance');
+ if(document.documentElement.dataset.geogeekEmbedded==='true'&&token&&/^[a-zA-Z0-9-]{8,100}$/.test(token))window.parent.postMessage({type:'geogeek:water-v5:boot-error',instance:token,message:String(error?.message||'Boot error').slice(0,180)},location.origin);
+}
 </script>
 <script src="../chart-fix.js?v=8.0.0"></script>
 </body>
