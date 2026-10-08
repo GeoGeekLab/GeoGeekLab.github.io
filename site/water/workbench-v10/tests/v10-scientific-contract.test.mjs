@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
 import '../science-contract.js';
 import '../../workbench-v9/analysis/uncertainty-engine.js';
@@ -93,6 +94,15 @@ test('AT-F12-02 schema v6 import and schema v7 variant import retain science mea
  assert.equal(exporter.parseImport(modern).params.sg,.024);
  assert.throws(()=>exporter.parseImport({...modern,science:{modelVariant:'V9_COMPAT_FIXED_SLOPES'}}),/provenance/);
  assert.throws(()=>exporter.parseImport({...old,state:{...state,params:custom}}),/fixed optical slopes/);
+});
+test('AT-F01-03 V10 startup has byte-matching inlined contract before app boot',()=>{
+ const app=fs.readFileSync(path.join(root,'app/index.html'),'utf8');
+ const source=fs.readFileSync(path.join(root,'science-contract.js'),'utf8');
+ const m=app.match(/<script data-v10-science-fallback="inline">([\\s\\S]*?)<\\/script>/);
+ assert.ok(m,'Missing inlined validity contract fallback');
+ assert.ok(m[1].includes(source),'V10 inline and external scientific contracts diverged');
+ const isolated={};vm.runInNewContext(m[1],isolated);
+ assert.equal(isolated.GeoGeekV10Contract.appVersion,'10.0.0');
 });
 test('V10 bundle retains scoped mount contract, eight tabs and schema 7',()=>{
  const app=fs.readFileSync(path.join(root,'app/index.html'),'utf8');
