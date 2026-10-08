@@ -9,6 +9,12 @@
   const SVG = 'http://www.w3.org/2000/svg';
   const QUERY_ENDPOINT = 'https://earthquake.usgs.gov/fdsnws/event/1/query';
   const FEED_ENDPOINT = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
+  const style = document.createElement('link');
+  style.rel = 'stylesheet';
+  style.href = new URL('./pulse-workflow-v1.css?v=20261008a', import.meta.url).href;
+  style.setAttribute('data-pulse-workflow-style', '1');
+  if (!document.querySelector('link[data-pulse-workflow-style]')) document.head.appendChild(style);
+
   const MAX_EVENTS = 10000;
   const MAX_DAYS = 31;
   const DAY = 86400000;
