@@ -61,3 +61,8 @@
  .pw-section{padding:12px}
 }
 @media(prefers-reduced-motion:reduce){.pulse-workflow *{scroll-behavior:auto!important;transition:none!important}}
+
+.pulse-workflow .pw-event{cursor:pointer;outline:none}
+.pulse-workflow .pw-event-hit{fill:transparent;pointer-events:all}
+.pulse-workflow .pw-event-marker{fill:#f07e59;stroke:#fff4d3;stroke-width:.7;pointer-events:none}
+.pulse-workflow .pw-event:hover .pw-event-marker,.pulse-workflow .pw-event:focus .pw-event-marker{fill:#ffe09b;stroke:#fff;stroke-width:1.5}
