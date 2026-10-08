@@ -102,5 +102,7 @@ test('V8 preserves old scene and chart UI, versions load paths and export',()=>{
  assert.match(app,/schemaVersion:5/);
  assert.match(app,/responseMode:state\.responseMode/);
  assert.match(upstream,/WATER_WORKBENCH_V8/);
- assert.match(lab,/core\/modules\.js\?v=20261008v8/);
+ const token=lab.match(/<meta content="([^"]+)" name="geogeek-lab-release"\/>/)?.[1];
+ assert.ok(token,'Lab release metadata');
+ assert.ok(lab.includes('core/modules.js?v='+token),'Lab loader cache matches release token');
 });
