@@ -134,7 +134,10 @@
       $('.lab-principle')?.setAttribute('aria-label', ui.a11y?.instrumentPrinciple || ('Instrument principle'));
       const conditions = $('#instrumentConditions');
       if (conditions) conditions.setAttribute('aria-label', 'Observation conditions');
-      $('#instrumentClose')?.setAttribute('aria-label', ui.lab?.close || ('Close instrument'));
+      // Full-page workspace owns the Lab Index exit semantics. Locale/UI copy
+      // refreshes must not replace its accessible name after identity sync.
+      const close = $('#instrumentClose');
+      if (close && close.dataset.labExit !== 'true') close.setAttribute('aria-label', ui.lab?.close || ('Close instrument'));
       setText('#instrumentReadout', `${ui.scale?.label || 'INFORMATION SCALE'} / ${ui.scale?.levels?.DETAIL || 'DETAIL'} · 1 : 500`);
       setText('#instrumentBoundary', ui.lab?.boundary);
     }
