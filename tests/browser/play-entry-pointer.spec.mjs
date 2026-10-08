@@ -108,11 +108,14 @@ test('ORIENT accepts a real pointer judgment before confidence', async ({ page }
 
 
 test('Lab navigation uses a release-versioned document URL', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+  const release=await page.locator('meta[name="geogeek-lab-release"]').getAttribute('content');
+  expect(release).toBeTruthy();
   await page.goto('/index.html', { waitUntil:'domcontentloaded' });
-  await expect(page.getByRole('link', { name:'Lab' }).first()).toHaveAttribute('href', '/lab.html?release=20261008v7p1');
-
-  await page.goto('/lab.html?release=20261008v7p1', { waitUntil:'domcontentloaded' });
-  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', '20261008v7p1');
+  const href=await page.getByRole('link', { name:'Lab' }).first().getAttribute('href');
+  const target=new URL(href, 'https://example.invalid');
+  expect(target.pathname).toBe('/lab.html');
+  expect(target.searchParams.get('release')?.startsWith(release)).toBe(true);
 });
 
 test('latest Play click wins while shared runtime is still loading', async ({ page }) => {
