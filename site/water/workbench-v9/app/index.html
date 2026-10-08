@@ -900,7 +900,7 @@ function profile(state){
  const band=def.bands.find(b=>b.id===state.srfBand)||def.bands[0];
  const r=getMeasuredBand(sid,band.id,platform);
  const pick=def.bands.map(b=>'<button class="switch" type="button" data-srf-band="'+b.id+'" aria-pressed="'+(band.id===b.id)+'">'+b.id+'</button>').join('');
- if(!r)return '<div class="srf-profile"><h3>'+band.id+' · no published measured response</h3><p>V8 does not reconstruct missing measured values or substitute a Gaussian response.</p><div class="switch-row">'+pick+'</div></div>';
+ if(!r)return '<div class="srf-profile"><h3>'+band.id+' · no published measured response</h3><p>Missing measured response values are never reconstructed or substitute a Gaussian response.</p><div class="switch-row">'+pick+'</div></div>';
  const W=800,H=280,L=68,R=758,T=18,B=224;
  const x=v=>L+(v-400)*(R-L)/300,y=v=>B-v*(B-T);
  const path=r.relativeResponse.map((v,i)=>(i?'L':'M')+x(r.startNm+i).toFixed(2)+' '+y(v).toFixed(2)).join(' ');
@@ -1272,7 +1272,7 @@ function createExports({store,models,notify}){
  }
  function exportBandCSV(){
   const r=calculateBandSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep,sensor:state.sensor,responseMode:state.responseMode,srfPlatform:state.srfPlatform});
-  const meta=[`# GeoGeek V8 sensor-band finite-difference teaching simulation; NOT independently validated`,
+  const meta=[`# GeoGeek V9 sensor-band finite-difference teaching simulation; NOT independently validated`,
    `# sensor=${r.sensor};response=${r.responseModel};platform=${r.platform||'nominal'};sourceSHA=${r.provenance?.gitBlobSHA||'none'};parameter=${r.parameter};step_percent=${r.stepPercent};scheme=${r.derivativeScheme}`,
    '# PARTIAL/UNAVAILABLE bands have blank numerical values and are excluded from ranking; no sensor noise is modeled'];
   const header='band_id,center_nm,width_nm,coverage_fraction,status,Rrs_reference_sr1,Rrs_lower_sr1,Rrs_upper_sr1,dRrs_dp,delta_upper_Rrs_sr1,elasticity,rank';
@@ -1280,8 +1280,8 @@ function createExports({store,models,notify}){
   for(const b of r.bands){const rank=r.rankedBandIds.indexOf(b.id);
    lines.push([b.id,b.centerNm,b.widthNm,b.coverageFraction,b.status,b.referenceRrs??'',b.lowerRrs??'',b.upperRrs??'',b.derivative??'',b.deltaUpper??'',b.elasticity??'',rank<0?'':rank+1].join(','));
   }
-  download('water_as_spectrum_v8_band_sensitivity.csv',lines.join('\n'),'text/csv;charset=utf-8');
-  notify('Exported sensor-band sensitivity (nominal top-hat model; not validated)');
+  download('water_as_spectrum_v9_band_sensitivity.csv',lines.join('\n'),'text/csv;charset=utf-8');
+  notify('Exported sensor-band sensitivity using selected SRF model (not validated)');
  }
  function exportJacobianCSV(){
   const x=runUncertainty(state,models);
