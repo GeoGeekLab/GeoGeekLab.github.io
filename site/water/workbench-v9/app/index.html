@@ -220,7 +220,8 @@ return {};
 const {TABS, DATA, CFG, PSETS, initialParams, plots} = require("core/config.js");
 const {clone,clamp} = require("core/numbers.js");
 const {SENSITIVITY_PARAMETERS,SENSITIVITY_STEPS} = require("analysis/sensitivity.js");
-const STORAGE_KEY='water_ui_geo_v8';
+const STORAGE_KEY='water_ui_geo_v9';
+const V8_STORAGE_KEY='water_ui_geo_v8';
 const V7_STORAGE_KEY='water_ui_geo_v4';
 const V3_STORAGE_KEY='water_ui_geo_v3';
 const OLD_STORAGE_KEY='water_ui_proto_v2';
@@ -228,7 +229,8 @@ const defaultState=()=>({
  tab:'iop',plot:'rrs',probe:443,showPanel:true,axisLocked:false,axisRanges:{},advanced:false,
  sensor:'olci',responseMode:'nominal',srfPlatform:'s2a',srfBand:'B02',preset:'',stage:'water',params:clone(initialParams),
  baseline:{params:clone(initialParams),sensor:'olci',name:'A · Reference scenario'},
- snapshotB:null,compareBSource:'live',sensitivityParameter:'chl',sensitivityStep:5
+ snapshotB:null,compareBSource:'live',sensitivityParameter:'chl',sensitivityStep:5,
+ uncertaintyParameters:['chl','ag'],uncertaintySigma:.00002,uncertaintyStep:5
 });
 function validateParams(input){
  const params=clone(initialParams);
@@ -289,12 +291,16 @@ function validateSession(input){
  state.compareBSource=input.compareBSource==='saved'&&state.snapshotB?'saved':'live';
  state.sensitivityParameter=SENSITIVITY_PARAMETERS.includes(input.sensitivityParameter)?input.sensitivityParameter:'chl';
  state.sensitivityStep=SENSITIVITY_STEPS.includes(input.sensitivityStep)?input.sensitivityStep:5;
+ const U=globalThis.GeoGeekV9Engine;
+ state.uncertaintyParameters=Array.isArray(input.uncertaintyParameters)&&input.uncertaintyParameters.length>0&&input.uncertaintyParameters.length<=5&&new Set(input.uncertaintyParameters).size===input.uncertaintyParameters.length&&input.uncertaintyParameters.every(x=>U.IDS.includes(x))?input.uncertaintyParameters:['chl','ag'];
+ state.uncertaintySigma=U.SIGMAS.includes(input.uncertaintySigma)?input.uncertaintySigma:.00002;
+ state.uncertaintyStep=U.STEPS.includes(input.uncertaintyStep)?input.uncertaintyStep:5;
  return state;
 }
 function createSessionStore(storage){
  if(storage===undefined){try{storage=globalThis.localStorage;}catch{storage=null;}}
  let source=null;
- try{source=JSON.parse(storage?.getItem(STORAGE_KEY)||storage?.getItem(V7_STORAGE_KEY)||storage?.getItem(V3_STORAGE_KEY)||storage?.getItem(OLD_STORAGE_KEY)||'null');}catch{/* private browsing or invalid previous state */}
+ try{source=JSON.parse(storage?.getItem(STORAGE_KEY)||storage?.getItem(V8_STORAGE_KEY)||storage?.getItem(V7_STORAGE_KEY)||storage?.getItem(V3_STORAGE_KEY)||storage?.getItem(OLD_STORAGE_KEY)||'null');}catch{/* private browsing or invalid previous state */}
  const state=validateSession(source);
  const listeners=new Set();
  const persist=()=>{try{storage?.setItem(STORAGE_KEY,JSON.stringify(state));}catch{/* storage blocked */}};
@@ -1165,6 +1171,7 @@ const {validateSession} = require("core/session-store.js");
 const {CFG,DATA} = require("core/config.js");
 const {calculateSensitivity} = require("analysis/sensitivity.js");
 const {calculateBandSensitivity} = require("analysis/band-sensitivity.js");
+const {run:runUncertainty}=require("workspaces/uncertainty.js");
 // Simulated physical-model outputs, with explicit teaching approximation and provenance metadata.
 function createExports({store,models,notify}){
  const {state}=store;
@@ -1179,7 +1186,7 @@ function createExports({store,models,notify}){
    wavelength_nm:A.w,scenarioA_Rrs_sr1:A.rrs,scenarioB_Rrs_sr1:B.rrs,deltaBminusA_Rrs_sr1:delta};
  }
  function parseImport(payload){
-  if(!payload||payload.kind!=='water-as-spectrum'||![3,4,5].includes(payload.schemaVersion))throw new Error('unrecognized experiment schema');
+  if(!payload||payload.kind!=='water-as-spectrum'||![3,4,5,6].includes(payload.schemaVersion))throw new Error('unrecognized experiment schema');
   if(payload.model?.id!==models.meta.id||payload.model?.modelVersion!==models.meta.modelVersion)throw new Error('incompatible model ID or version');
   if(!payload.state?.params||!payload.scenarioA?.params)throw new Error('missing experiment parameters or scenario A');
   // Strict restoration: do not silently clamp physically invalid experiments.
@@ -1196,9 +1203,11 @@ function createExports({store,models,notify}){
   if(!DATA[payload.state.sensor]||!Number.isInteger(payload.state.probeNm)||payload.state.probeNm<400||payload.state.probeNm>700)throw new Error('invalid sensor or probe wavelength');
   const validated=validateSession({params:payload.state.params,sensor:payload.state.sensor,probe:payload.state.probeNm,baseline:payload.scenarioA,snapshotB:payload.scenarioB,compareBSource:payload.compareBSource,
    sensitivityParameter:payload.state.sensitivityParameter,sensitivityStep:payload.state.sensitivityStep,
+   uncertaintyParameters:payload.state.uncertaintyParameters,uncertaintySigma:payload.state.uncertaintySigma,uncertaintyStep:payload.state.uncertaintyStep,
    responseMode:payload.state.responseMode,srfPlatform:payload.state.srfPlatform,srfBand:payload.state.srfBand});
   return {params:validated.params,sensor:validated.sensor,probe:validated.probe,baseline:validated.baseline,snapshotB:validated.snapshotB,compareBSource:validated.compareBSource,sensitivityParameter:validated.sensitivityParameter,sensitivityStep:validated.sensitivityStep,
-   responseMode:validated.responseMode,srfPlatform:validated.srfPlatform,srfBand:validated.srfBand};
+   responseMode:validated.responseMode,srfPlatform:validated.srfPlatform,srfBand:validated.srfBand,
+   uncertaintyParameters:validated.uncertaintyParameters,uncertaintySigma:validated.uncertaintySigma,uncertaintyStep:validated.uncertaintyStep};
  }
  function download(filename,data,mime){
   const url=URL.createObjectURL(new Blob([data],{type:mime}));
@@ -1208,22 +1217,24 @@ function createExports({store,models,notify}){
  }
  function exportJSON(){
   const d=models.run(state.params),opts={responseMode:state.responseMode,srfPlatform:state.srfPlatform},toaBands=makeSensorObservation(d,state.sensor,'toa',opts),rrsBands=makeSensorObservation(d,state.sensor,'rrs',opts);
-  const out={kind:'water-as-spectrum',schemaVersion:5,
+  const out={kind:'water-as-spectrum',schemaVersion:6,
    model:models.meta,source:'GeoGeekLab/GeoGeekLab.github.io site/water @ 20261007p',
    outputsAreSimulated:true,syntheticUiDemo:false,researchValidated:false,
    dataTableRepresentation:'float32-packaged optical tables, separately provenance-pinned 1nm measured sensor responses where selected',
    exportedAt:new Date().toISOString(),
    state:{params:state.params,sensor:state.sensor,probeNm:state.probe,tab:state.tab,plot:state.plot,sensitivityParameter:state.sensitivityParameter,sensitivityStep:state.sensitivityStep,
-    responseMode:state.responseMode,srfPlatform:state.srfPlatform,srfBand:state.srfBand},
+    responseMode:state.responseMode,srfPlatform:state.srfPlatform,srfBand:state.srfBand,
+    uncertaintyParameters:state.uncertaintyParameters,uncertaintySigma:state.uncertaintySigma,uncertaintyStep:state.uncertaintyStep},
    scenarioA:state.baseline,scenarioB:state.snapshotB,compareBSource:state.compareBSource,
    diagnostics:d.correction.diagnostics,oc4:{trueRrs:d.correction.truthOc4,correctedRrs:d.correction.estimatedOc4,relativeBias:d.correction.oc4RelativeBias},
    spectra:asSeries(d),comparison:compare(),
    sensor:{toa:toaBands,rrs:rrsBands,provenance:rrsBands.provenance,responseMode:rrsBands.actualResponseMode},
    sensitivity:state.tab==='sensitivity'?calculateSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep}):null,
-   sensorBandSensitivity:state.tab==='sensitivity'?calculateBandSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep,sensor:state.sensor,responseMode:state.responseMode,srfPlatform:state.srfPlatform}):null
+   sensorBandSensitivity:state.tab==='sensitivity'?calculateBandSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep,sensor:state.sensor,responseMode:state.responseMode,srfPlatform:state.srfPlatform}):null,
+   uncertaintyAndIdentifiability:state.tab==='uncertainty'?runUncertainty(state,models):null
   };
-  download('water_as_spectrum_v8_geogeek_model.json',JSON.stringify(out,null,2),'application/json;charset=utf-8');
-  notify('Exported GeoGeek V8 simulated model data (JSON; not independently validated)');
+  download('water_as_spectrum_v9_geogeek_model.json',JSON.stringify(out,null,2),'application/json;charset=utf-8');
+  notify('Exported GeoGeek V9 simulated model data (JSON; not independently validated)');
  }
  function exportCSV(){
   const d=models.run(state.params);
@@ -1244,8 +1255,8 @@ function createExports({store,models,notify}){
    if(se)values.push(se.derivative[i],se.delta[i],se.elasticity[i]??'',se.upperRrs[i],se.lowerRrs[i]);
    rows.push(values.join(','));
   }
-  download('water_as_spectrum_v8_geogeek_spectra.csv',rows.join('\n'),'text/csv;charset=utf-8');
-  notify('Exported GeoGeek V8 simulated spectra (CSV)');
+  download('water_as_spectrum_v9_geogeek_spectra.csv',rows.join('\n'),'text/csv;charset=utf-8');
+  notify('Exported GeoGeek V9 simulated spectra (CSV)');
  }
  function exportBandCSV(){
   const r=calculateBandSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep,sensor:state.sensor,responseMode:state.responseMode,srfPlatform:state.srfPlatform});
@@ -1260,7 +1271,21 @@ function createExports({store,models,notify}){
   download('water_as_spectrum_v8_band_sensitivity.csv',lines.join('\n'),'text/csv;charset=utf-8');
   notify('Exported sensor-band sensitivity (nominal top-hat model; not validated)');
  }
- return {exportJSON,exportCSV,exportBandCSV,parseImport,compare};
+ function exportJacobianCSV(){
+  const x=runUncertainty(state,models);
+  const meta=['# GeoGeek V9 · local Fisher/Jacobian analysis · NOT empirically validated',
+   '# userAssumedSigmaRrs_sr1='+x.noise.sigmaRrsSr1+';independentGaussian=true;source=USER_ASSUMPTION',
+   '# model='+models.meta.modelVersion+';sensor='+state.sensor+';response='+x.source.responseModel+';platform='+(x.source.platform||'nominal')+';sha='+(x.source.provenance?.gitBlobSHA||'none'),
+   '# selected='+x.selected.join('|')+';step_percent='+x.stepPercent+';rank='+x.rank+'/'+x.numberOfParameters+';conditionalSigma='+x.identifiable,
+   '# local linearization only; rank-deficient covariance is null; excluded SRF bands are not extrapolated'];
+  const header=['band_id','center_nm','reference_Rrs_sr1','assumed_sigma_Rrs_sr1',...x.selected.map(id=>'dRrs_d'+id)];
+  const rows=[...meta,header.join(',')];
+  for(const b of x.observations)rows.push([b.bandId,b.centerNm,b.referenceRrs,x.noise.sigmaRrsSr1,...b.derivatives].join(','));
+  for(const b of x.dropped)rows.push([b.id,'','','',...x.selected.map(()=>'')].join(','));
+  download('water_as_spectrum_v9_jacobian.csv',rows.join('\n'),'text/csv;charset=utf-8');
+  notify('Exported assumed-noise Jacobian; not validated retrieval uncertainty');
+ }
+ return {exportJSON,exportCSV,exportBandCSV,exportJacobianCSV,parseImport,compare};
 }
 
 return {createExports};
@@ -1325,6 +1350,16 @@ function bindWorkbenchEvents({store,workbench,exports}){
    if(t.dataset.compareSource==='saved'&&!state.snapshotB)return;
    update(s=>{s.compareBSource=t.dataset.compareSource});return;
   }
+  if(t.dataset.u9Parameter){
+   const key=t.dataset.u9Parameter;
+   if(globalThis.GeoGeekV9Engine.IDS.includes(key))update(s=>{
+    if(s.uncertaintyParameters.includes(key)){if(s.uncertaintyParameters.length>1)s.uncertaintyParameters=s.uncertaintyParameters.filter(x=>x!==key);}
+    else s.uncertaintyParameters=[...s.uncertaintyParameters,key];
+   });return;
+  }
+  if(t.dataset.u9Sigma){const v=Number(t.dataset.u9Sigma);if(globalThis.GeoGeekV9Engine.SIGMAS.includes(v))update(s=>{s.uncertaintySigma=v});return;}
+  if(t.dataset.u9Step){const v=Number(t.dataset.u9Step);if(globalThis.GeoGeekV9Engine.STEPS.includes(v))update(s=>{s.uncertaintyStep=v});return;}
+  if(t.dataset.export==='u9jacobian'){exports.exportJacobianCSV();return;}
   if(t.dataset.export==='json'){exports.exportJSON();return;}
   if(t.dataset.export==='bands'){exports.exportBandCSV();return;}
  }
@@ -1383,6 +1418,7 @@ function bindWorkbenchEvents({store,workbench,exports}){
     s.sensitivityParameter=imported.sensitivityParameter;
     s.sensitivityStep=imported.sensitivityStep;
     s.responseMode=imported.responseMode;s.srfPlatform=imported.srfPlatform;s.srfBand=imported.srfBand;
+    s.uncertaintyParameters=imported.uncertaintyParameters;s.uncertaintySigma=imported.uncertaintySigma;s.uncertaintyStep=imported.uncertaintyStep;
     s.preset='';s.axisRanges={};s.axisLocked=false;
    });
    notify('Experiment imported; model parameters and A/B scenarios restored');
