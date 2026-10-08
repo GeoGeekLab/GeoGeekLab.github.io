@@ -52,7 +52,8 @@ test('V6 exports 301 sensitivity samples and retains scientific provenance',asyn
   expect(csv.suggestedFilename()).toContain('v6');
   expect(csv.suggestedFilename()).toMatch(/\.csv$/);
   const jsonPending=page.waitForEvent('download');
-  await app.locator('[data-export="json"]').last().click();
+  await app.locator('#advancedDetails summary').click();
+  await app.locator('[data-export="json"]').click();
   const json=await jsonPending;
   expect(json.suggestedFilename()).toMatch(/\.json$/);
   await app.locator('#inspectBtn').click();
