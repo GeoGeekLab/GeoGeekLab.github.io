@@ -473,6 +473,7 @@ store.subscribe(scope=>{
  else if(scope==='full')workbench.render();
 });
 bindWorkbenchEvents({store,workbench,exports});
+window.addEventListener('geogeek:rt101-ready',()=>{if(store.state.tab==='rt')workbench.render();});
 workbench.render();
 initializeEmbedBridge();
 
@@ -482,7 +483,7 @@ return {};
 const {TABS, DATA, CFG, PSETS, initialParams, plots} = require("core/config.js");
 const {clone,clamp} = require("core/numbers.js");
 const {SENSITIVITY_PARAMETERS,SENSITIVITY_STEPS} = require("analysis/sensitivity.js");
-const STORAGE_KEY='water_ui_geo_v101';const V9_STORAGE_KEY='water_ui_geo_v9';
+const STORAGE_KEY='water_ui_geo_v101';const V10_STORAGE_KEY='water_ui_geo_v10';const V9_STORAGE_KEY='water_ui_geo_v9';
 const V8_STORAGE_KEY='water_ui_geo_v8';
 const V7_STORAGE_KEY='water_ui_geo_v4';
 const V3_STORAGE_KEY='water_ui_geo_v3';
@@ -492,7 +493,8 @@ const defaultState=()=>({
  sensor:'olci',responseMode:'nominal',srfPlatform:'s2a',srfBand:'B02',preset:'',stage:'water',params:clone(initialParams),
  baseline:{params:clone(initialParams),sensor:'olci',name:'A · Reference scenario'},
  snapshotB:null,compareBSource:'live',sensitivityParameter:'chl',sensitivityStep:5,
- uncertaintyParameters:['chl','ag'],uncertaintySigma:.00002,uncertaintyStep:5
+ uncertaintyParameters:['chl','ag'],uncertaintySigma:.00002,uncertaintyStep:5,
+ rtCase:'clear',rtSun:30,rtWl:490,rtDepth:0
 });
 function validateParams(input){
  const params=clone(initialParams);
@@ -557,12 +559,16 @@ function validateSession(input){
  state.uncertaintyParameters=Array.isArray(input.uncertaintyParameters)&&input.uncertaintyParameters.length>0&&input.uncertaintyParameters.length<=5&&new Set(input.uncertaintyParameters).size===input.uncertaintyParameters.length&&input.uncertaintyParameters.every(x=>U.IDS.includes(x))?input.uncertaintyParameters:['chl','ag'];
  state.uncertaintySigma=U.SIGMAS.includes(input.uncertaintySigma)?input.uncertaintySigma:.00002;
  state.uncertaintyStep=U.STEPS.includes(input.uncertaintyStep)?input.uncertaintyStep:5;
+ state.rtCase=['clear','phyto','cdom'].includes(input.rtCase)?input.rtCase:'clear';
+ state.rtSun=[0,30,60].includes(input.rtSun)?input.rtSun:30;
+ state.rtWl=[440,490,550,620,680].includes(input.rtWl)?input.rtWl:490;
+ state.rtDepth=[0,.5,1,2,3,5,7,10,15,20].includes(input.rtDepth)?input.rtDepth:0;
  return state;
 }
 function createSessionStore(storage){
  if(storage===undefined){try{storage=globalThis.localStorage;}catch{storage=null;}}
  let source=null;
- try{source=JSON.parse(storage?.getItem(STORAGE_KEY)||storage?.getItem(V9_STORAGE_KEY)||storage?.getItem(V8_STORAGE_KEY)||storage?.getItem(V7_STORAGE_KEY)||storage?.getItem(V3_STORAGE_KEY)||storage?.getItem(OLD_STORAGE_KEY)||'null');}catch{/* private browsing or invalid previous state */}
+ try{source=JSON.parse(storage?.getItem(STORAGE_KEY)||storage?.getItem(V10_STORAGE_KEY)||storage?.getItem(V9_STORAGE_KEY)||storage?.getItem(V8_STORAGE_KEY)||storage?.getItem(V7_STORAGE_KEY)||storage?.getItem(V3_STORAGE_KEY)||storage?.getItem(OLD_STORAGE_KEY)||'null');}catch{/* private browsing or invalid previous state */}
  const state=validateSession(source);
  const listeners=new Set();
  const persist=()=>{try{storage?.setItem(STORAGE_KEY,JSON.stringify(state));}catch{/* storage blocked */}};
@@ -590,7 +596,8 @@ const TABS=[
  {id:'ac',no:'05',label:'ATM. CORRECTION',title:'Atmospheric Correction Sensitivity',subtitle:'Compare simulated reference Rrs with Rrs recovered under assumed aerosol properties.',side:'Correction Assumptions',sideSub:'Matched first-order forward/inverse experiment; not real-data retrieval validation.'},
  {id:'compare',no:'06',label:'A/B COMPARISON',title:'Scenario Comparison',subtitle:'Compare saved and live model scenarios on a common spectral grid.',side:'Scenario Snapshots',sideSub:'Scenario A is saved; scenario B can be live or saved.'},
  {id:'sensitivity',no:'07',label:'SENSITIVITY',title:'Local Spectral Sensitivity',subtitle:'Estimate finite-difference responses of Rrs to individual water-optical parameters.',side:'Sensitivity Setup',sideSub:'One parameter at a time; centered differences where model bounds permit.'},
- {id:'uncertainty',no:'08',label:'UNCERTAINTY',title:'Uncertainty & Identifiability',subtitle:'Multi-parameter Jacobian, assumed band-noise Fisher information and local rank diagnostics.',side:'Noise & Parameter Setup',sideSub:'Hypothetical observation error; results do not estimate empirical retrieval accuracy.'}
+ {id:'uncertainty',no:'08',label:'UNCERTAINTY',title:'Uncertainty & Identifiability',subtitle:'Multi-parameter Jacobian, assumed band-noise Fisher information and local rank diagnostics.',side:'Noise & Parameter Setup',sideSub:'Hypothetical observation error; results do not estimate empirical retrieval accuracy.'},
+ {id:'rt',no:'09',label:'WATER RT',title:'Underwater Radiative Transfer Reference',subtitle:'Discrete-ordinate reference slices: depth, upward zenith radiance and matched semi-analytical discrepancy.',side:'Numerical Reference Grid',sideSub:'Three water cases · three fixed in-water solar angles · five spectral nodes.'}
 ];
 const PSETS={
  clear:{label:'CLEAR OCEAN',chl:.1,ag:.02,anap:.005,bbp:.0007,eta:1},
@@ -626,7 +633,7 @@ const stageData={
  water:{title:'Water-Column Optics',formula:'a(λ), b_b(λ) → u(λ) → R_rs(λ)',text:'Water constituents change absorption and backscattering, which control modeled above-water remote-sensing reflectance.'},
  sat:{title:'Sensor Band Integration',formula:'ρ_TOA* → spectral band integration',text:'The sensor integrates a simulated TOA spectrum with selected nominal or available published measured spectral response weights.'}
 };
-const plots={path:[['path','PATHWAY']],iop:[['rrs','Rrs'],['a','ABSORPTION'],['bb','BACKSCATTERING'],['all','THREE-PANEL VIEW']],atm:[['toa','TOA BUDGET'],['ray','RAYLEIGH'],['aeros','AEROSOL'],['water','WATER']],sensor:[['sensor','TOA BANDS'],['rrsBands','Rrs BANDS'],['srfProfile','MEASURED SRF PROFILE']],ac:[['correction','RECOVERED / REFERENCE'],['error','Rrs RESIDUAL']],compare:[['overlay','SPECTRAL OVERLAY'],['delta','B − A RESIDUAL']],sensitivity:[['derivative','LOCAL DERIVATIVE'],['delta','POSITIVE STEP ΔRrs'],['overlay','BASELINE / PERTURBED'],['bands','SENSOR BAND RESPONSE']],uncertainty:[['summary','INFORMATION'],['jacobian','JACOBIAN'],['correlation','CORRELATIONS']]};
+const plots={path:[['path','PATHWAY']],iop:[['rrs','Rrs'],['a','ABSORPTION'],['bb','BACKSCATTERING'],['all','THREE-PANEL VIEW']],atm:[['toa','TOA BUDGET'],['ray','RAYLEIGH'],['aeros','AEROSOL'],['water','WATER']],sensor:[['sensor','TOA BANDS'],['rrsBands','Rrs BANDS'],['srfProfile','MEASURED SRF PROFILE']],ac:[['correction','RECOVERED / REFERENCE'],['error','Rrs RESIDUAL']],compare:[['overlay','SPECTRAL OVERLAY'],['delta','B − A RESIDUAL']],sensitivity:[['derivative','LOCAL DERIVATIVE'],['delta','POSITIVE STEP ΔRrs'],['overlay','BASELINE / PERTURBED'],['bands','SENSOR BAND RESPONSE']],uncertainty:[['summary','INFORMATION'],['jacobian','JACOBIAN'],['correlation','CORRELATIONS']],rt:[['depth','DEPTH / Ed · Eu · Kd'],['angular','UPWARD ZENITH FIELD'],['compare','MATCHED rrs / RT']]}
 
 return {TABS,PSETS,initialParams,DATA,CFG,stageData,plots};
 },
@@ -922,10 +929,10 @@ function createWorkbench({store,models,charts,controls}){
   $('sideTitle').textContent=w.side;
   $('sideSubtitle').textContent=w.sideSub;
   const key=state.tab+':'+state.plot;state.axisLocked=Boolean(state.axisRanges[key]);
-  $('lockAxisBtn').disabled=state.tab==='path'||state.tab==='uncertainty';
+  $('lockAxisBtn').disabled=state.tab==='path'||state.tab==='uncertainty'||state.tab==='rt';
   $('workspace').classList.toggle('u9-active',state.tab==='uncertainty');
   const scienceNode=document.getElementById('v10ScienceState');if(scienceNode)scienceNode.textContent='Model '+globalThis.GeoGeekV10Contract.model.version+' · '+globalThis.GeoGeekV10Contract.modelVariant(state.params)+' · Sg='+state.params.sg.toFixed(4)+' nm⁻¹; SNAP='+state.params.snap.toFixed(4)+' nm⁻¹';
-   const plotFlag=document.querySelector('.plot-flag');if(plotFlag)plotFlag.textContent=state.tab==='uncertainty'?'LOCAL FISHER DIAGNOSTICS · ASSUMED NOISE':'400–700 nm · FIRST-ORDER OPTICAL MODEL';
+   const plotFlag=document.querySelector('.plot-flag');if(plotFlag)plotFlag.textContent=state.tab==='rt'?'DOM REFERENCE · 5 SAMPLED WAVELENGTHS · NOT CROSS-VALIDATED':state.tab==='uncertainty'?'LOCAL FISHER DIAGNOSTICS · ASSUMED NOISE':'400–700 nm · FIRST-ORDER OPTICAL MODEL';
   $('lockAxisBtn').setAttribute('aria-pressed',String(state.axisLocked));
   $('lockAxisBtn').classList.toggle('is-on',state.axisLocked);
   $('lockAxisBtn').textContent=state.axisLocked?'◆ Y-axis Locked':'◇ Lock Current Y-axis';
@@ -985,6 +992,7 @@ const {acWorkspace} = require("workspaces/ac.js");
 const {compareWorkspace} = require("workspaces/compare.js");
 const {sensitivityWorkspace} = require("workspaces/sensitivity.js");
 const {uncertaintyWorkspace}=require("workspaces/uncertainty.js");
+const {rtWorkspace}=require("workspaces/rt.js");
 const WORKSPACES=Object.freeze({
  path: pathWorkspace,
  iop: iopWorkspace,
@@ -993,7 +1001,8 @@ const WORKSPACES=Object.freeze({
  ac: acWorkspace,
  compare: compareWorkspace,
  sensitivity: sensitivityWorkspace,
- uncertainty: uncertaintyWorkspace
+ uncertainty: uncertaintyWorkspace,
+ rt:rtWorkspace
 });
 
 return {WORKSPACES};
@@ -1085,7 +1094,7 @@ function overview(state){
  const stages=[['sun','01','SOLAR INPUT','☀'],['atm','02','ATMOSPHERE','∿'],['surface','03','INTERFACE','≈'],['water','04','WATER','◉'],['sat','05','SENSOR','▣']];
  const cards=stages.map(([id,no,label,icon])=>`<button type="button" class="path-stage-card" data-stage="${id}" aria-label="Inspect ${label}" aria-pressed="${state.stage===id}"><span class="path-stage-code">${no} / ${label}</span><span class="path-stage-symbol" aria-hidden="true">${icon}</span><span class="path-stage-action">${state.stage===id?'SELECTED':'SELECT TO INSPECT'}</span></button>`).join('');
  const info=stageData[state.stage];
- const related=state.stage==='atm'?'atm':state.stage==='sat'?'sensor':state.stage==='sun'?'atm':'iop';
+ const related=state.stage==='atm'?'atm':state.stage==='sat'?'sensor':state.stage==='sun'?'atm':'rt';
  return `<div class="hero-plot path-hero"><div class="chart-label-row"><span class="plot-main-title">Radiative path</span><span class="eyebrow">SELECT A STAGE · ONE FOCUS</span></div><div class="stages"><div class="path-stage-grid" role="group" aria-label="Selectable radiative-transfer stages">${cards}</div><div class="stage-explain" role="status"><div><span class="eyebrow">${info.formula}</span><h3>${info.title}</h3><p>${info.text}</p></div><button type="button" class="ghost-btn" data-goto="${related}">Open related workspace →</button></div></div></div><div class="hint-strip path-hint"><b>HOW TO USE: </b>Select a pathway stage to inspect the relevant physical process and model assumptions. Open a dedicated workspace to examine parameters and spectra.</div>`;
 }
 
@@ -1544,7 +1553,7 @@ function createExports({store,models,notify}){
    wavelength_nm:A.w,scenarioA_Rrs_sr1:A.rrs,scenarioB_Rrs_sr1:B.rrs,deltaBminusA_Rrs_sr1:delta};
  }
  function parseImport(payload){
-  if(!payload||payload.kind!=='water-as-spectrum'||![3,4,5,6,7].includes(payload.schemaVersion))throw new Error('unrecognized experiment schema');
+  if(!payload||payload.kind!=='water-as-spectrum'||![3,4,5,6,7,8].includes(payload.schemaVersion))throw new Error('unrecognized experiment schema');
   if(payload.model?.id!==models.meta.id||payload.model?.modelVersion!==models.meta.modelVersion)throw new Error('incompatible model ID or version');
   if(!payload.state?.params||!payload.scenarioA?.params)throw new Error('missing experiment parameters or scenario A');
   // Strict restoration: do not silently clamp physically invalid experiments.
@@ -1567,14 +1576,17 @@ function createExports({store,models,notify}){
        !e.SIGMAS.includes(u.uncertaintySigma)||!e.STEPS.includes(u.uncertaintyStep))
      throw new Error('invalid V9 noise hypothesis or parameter subset');
   }
-  if(payload.schemaVersion===7&&(!payload.science||payload.science.modelVariant!==globalThis.GeoGeekV10Contract.modelVariant(payload.state.params)))throw new Error('invalid V10 variant provenance');
+  if(payload.schemaVersion>=7&&(!payload.science||payload.science.modelVariant!==globalThis.GeoGeekV10Contract.modelVariant(payload.state.params)))throw new Error('invalid V10 variant provenance');
+  if(payload.schemaVersion===8){const r=payload.waterRT,u=payload.state;if(!r||r.datasetSchema!=='water-rt-reference-v1'||r.caseId!==u.rtCase||r.szaInWaterDeg!==u.rtSun||r.wavelengthNm!==u.rtWl||r.depthM!==u.rtDepth||!['clear','phyto','cdom'].includes(u.rtCase)||![0,30,60].includes(u.rtSun)||![440,490,550,620,680].includes(u.rtWl)||![0,.5,1,2,3,5,7,10,15,20].includes(u.rtDepth))throw new Error('invalid RT reference provenance');}
    const validated=validateSession({params:payload.state.params,sensor:payload.state.sensor,probe:payload.state.probeNm,baseline:payload.scenarioA,snapshotB:payload.scenarioB,compareBSource:payload.compareBSource,
    sensitivityParameter:payload.state.sensitivityParameter,sensitivityStep:payload.state.sensitivityStep,
    uncertaintyParameters:payload.state.uncertaintyParameters,uncertaintySigma:payload.state.uncertaintySigma,uncertaintyStep:payload.state.uncertaintyStep,
-   responseMode:payload.state.responseMode,srfPlatform:payload.state.srfPlatform,srfBand:payload.state.srfBand});
+   responseMode:payload.state.responseMode,srfPlatform:payload.state.srfPlatform,srfBand:payload.state.srfBand,
+    rtCase:payload.state.rtCase,rtSun:payload.state.rtSun,rtWl:payload.state.rtWl,rtDepth:payload.state.rtDepth});
   return {params:validated.params,sensor:validated.sensor,probe:validated.probe,baseline:validated.baseline,snapshotB:validated.snapshotB,compareBSource:validated.compareBSource,sensitivityParameter:validated.sensitivityParameter,sensitivityStep:validated.sensitivityStep,
    responseMode:validated.responseMode,srfPlatform:validated.srfPlatform,srfBand:validated.srfBand,
-   uncertaintyParameters:validated.uncertaintyParameters,uncertaintySigma:validated.uncertaintySigma,uncertaintyStep:validated.uncertaintyStep};
+   uncertaintyParameters:validated.uncertaintyParameters,uncertaintySigma:validated.uncertaintySigma,uncertaintyStep:validated.uncertaintyStep,
+    rtCase:validated.rtCase,rtSun:validated.rtSun,rtWl:validated.rtWl,rtDepth:validated.rtDepth};
  }
  function download(filename,data,mime){
   const url=URL.createObjectURL(new Blob([data],{type:mime}));
@@ -1584,14 +1596,16 @@ function createExports({store,models,notify}){
  }
  function exportJSON(){
   const d=models.run(state.params),opts={responseMode:state.responseMode,srfPlatform:state.srfPlatform},toaBands=makeSensorObservation(d,state.sensor,'toa',opts),rrsBands=makeSensorObservation(d,state.sensor,'rrs',opts);
-  const out={kind:'water-as-spectrum',schemaVersion:7,appVersion:'10.0.0',science:{modelType:'SEMI_ANALYTICAL',modelId:models.meta.id,scienceModelVersion:models.meta.modelVersion,modelVariant:globalThis.GeoGeekV10Contract.modelVariant(state.params),domainNm:[400,700],researchValidated:false,limitations:globalThis.GeoGeekV10Contract.model.assumptions},
+  const out={kind:'water-as-spectrum',schemaVersion:8,appVersion:'10.1.0',science:{modelType:'SEMI_ANALYTICAL',modelId:models.meta.id,scienceModelVersion:models.meta.modelVersion,modelVariant:globalThis.GeoGeekV10Contract.modelVariant(state.params),domainNm:[400,700],researchValidated:false,limitations:globalThis.GeoGeekV10Contract.model.assumptions},
    model:models.meta,source:'GeoGeekLab/GeoGeekLab.github.io site/water @ 20261007p',
    outputsAreSimulated:true,syntheticUiDemo:false,researchValidated:false,
    dataTableRepresentation:'float32-packaged optical tables, separately provenance-pinned 1nm measured sensor responses where selected',
    exportedAt:new Date().toISOString(),
    state:{params:state.params,sensor:state.sensor,probeNm:state.probe,tab:state.tab,plot:state.plot,sensitivityParameter:state.sensitivityParameter,sensitivityStep:state.sensitivityStep,
     responseMode:state.responseMode,srfPlatform:state.srfPlatform,srfBand:state.srfBand,
-    uncertaintyParameters:state.uncertaintyParameters,uncertaintySigma:state.uncertaintySigma,uncertaintyStep:state.uncertaintyStep},
+    uncertaintyParameters:state.uncertaintyParameters,uncertaintySigma:state.uncertaintySigma,uncertaintyStep:state.uncertaintyStep,
+    rtCase:state.rtCase,rtSun:state.rtSun,rtWl:state.rtWl,rtDepth:state.rtDepth},
+   waterRT:globalThis.GeoGeekRT101?.snapshot(state)||{status:'missing',datasetSchema:'water-rt-reference-v1',caseId:state.rtCase,szaInWaterDeg:state.rtSun,wavelengthNm:state.rtWl,depthM:state.rtDepth},
    scenarioA:state.baseline,scenarioB:state.snapshotB,compareBSource:state.compareBSource,
    diagnostics:d.correction.diagnostics,oc4:{trueRrs:d.correction.truthOc4,correctedRrs:d.correction.estimatedOc4,relativeBias:d.correction.oc4RelativeBias,bandIntegratedReference:globalThis.GeoGeekV10Contract.olciBandOC4(rrsBands),method:'Legacy wavelength-value OC4 vs sensor-band integration'},
    spectra:asSeries(d),comparison:compare(),
@@ -1600,8 +1614,8 @@ function createExports({store,models,notify}){
    sensorBandSensitivity:state.tab==='sensitivity'?calculateBandSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep,sensor:state.sensor,responseMode:state.responseMode,srfPlatform:state.srfPlatform}):null,
    uncertaintyAndIdentifiability:state.tab==='uncertainty'?runUncertainty(state,models):null
   };
-  download('water_as_spectrum_v10_geogeek_model.json',JSON.stringify(out,null,2),'application/json;charset=utf-8');
-  notify('Exported V10 schema 7 teaching data; not independently validated');
+  download('water_as_spectrum_v101_geogeek_model.json',JSON.stringify(out,null,2),'application/json;charset=utf-8');
+  notify('Exported V10.1 schema 8 with RT slice provenance; not externally RT-validated');
  }
  function exportCSV(){
   const d=models.run(state.params);
@@ -1680,6 +1694,13 @@ function bindWorkbenchEvents({store,workbench,exports}){
  function click(event){
   const t=event.target.closest?.('button,[data-stage]');if(!t)return;
   if(t.dataset.retryRender){workbench.render();return;}
+  const rt=globalThis.GeoGeekRT101;
+  if(t.dataset.rtRetry){rt?.load(true);workbench.chart();return;}
+  if(t.dataset.rtCase){if(rt?.ids.includes(t.dataset.rtCase))update(s=>{s.rtCase=t.dataset.rtCase});return;}
+  if(t.dataset.rtSun!==undefined){const v=Number(t.dataset.rtSun);if(rt?.suns.includes(v))update(s=>{s.rtSun=v});return;}
+  if(t.dataset.rtWl){const v=Number(t.dataset.rtWl);if(rt?.wavelengths.includes(v))update(s=>{s.rtWl=v});return;}
+  if(t.dataset.rtDepth!==undefined){const v=Number(t.dataset.rtDepth);if(rt?.depths.includes(v))update(s=>{s.rtDepth=v});return;}
+  if(t.dataset.rtApply){const c=rt?.caseData(state.rtCase);if(!c){notify('RT reference unavailable; no parameters changed');return;}update(s=>{Object.assign(s.params,c.params,{sza:s.rtSun});s.preset='';});notify('Matched IOP and nominal in-water solar angle loaded');return;}
   if(t.dataset.tab){changeWorkspace(t.dataset.tab);return;}
   if(t.dataset.plot){if(plots[state.tab].some(([id])=>id===t.dataset.plot))update(s=>{s.plot=t.dataset.plot});return;}
   if(t.dataset.stage){update(s=>{s.stage=t.dataset.stage},'chart');return;}
@@ -1788,6 +1809,7 @@ function bindWorkbenchEvents({store,workbench,exports}){
     s.sensitivityStep=imported.sensitivityStep;
     s.responseMode=imported.responseMode;s.srfPlatform=imported.srfPlatform;s.srfBand=imported.srfBand;
     s.uncertaintyParameters=imported.uncertaintyParameters;s.uncertaintySigma=imported.uncertaintySigma;s.uncertaintyStep=imported.uncertaintyStep;
+     s.rtCase=imported.rtCase;s.rtSun=imported.rtSun;s.rtWl=imported.rtWl;s.rtDepth=imported.rtDepth;
     s.preset='';s.axisRanges={};s.axisLocked=false;
    });
    notify('Experiment imported; model parameters and A/B scenarios restored');
