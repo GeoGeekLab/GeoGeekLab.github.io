@@ -22,10 +22,10 @@ test('V6 adapter verifies origin, performs cleanup, and matches embedded postMes
   assert.match(mount,/geogeek:water-v5:ready/);
   assert.match(app,/geogeek:water-v5:ready/);
 });
-test('Lab loader has V6/V5/legacy fallbacks and V6 cache token',()=>{
+test('Lab loader preserves V6/V5/legacy fallbacks and a versioned cache token',()=>{
   assert.match(loader,/loadModule\(WATER_WORKBENCH_V6\)/);
   assert.match(loader,/loadModule\(WATER_WORKBENCH_V5\)/);
   assert.match(loader,/loadModule\(WATER_INSTRUMENT\)/);
-  assert.match(html,/core\/modules\.js\?v=20261008v6/);
+  assert.match(html,/core\/modules\.js\?v=20\d{6}[a-z0-9]+/i);
   assert.match(html,/geogeek-lab-release/);
 });
