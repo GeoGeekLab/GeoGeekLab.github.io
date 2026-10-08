@@ -308,7 +308,7 @@
     retry.textContent = 'RETRY PLAY';
     retry.addEventListener('click', async () => {
       const requestId = ++entrySequence;
-      opening.delete(kind);
+      opening.clear();
       retry.disabled = true;
       try {
         await withEntryTimeout(openPlay(kind, { updateUrl: true, requestId }));
@@ -345,6 +345,8 @@
     if (trigger.dataset.playEntryState === 'opening') return;
 
     const requestId = ++entrySequence;
+    // New user intent supersedes every pending Play opening, even the same kind.
+    opening.clear();
     document.querySelectorAll('[data-play-entry-state="opening"]').forEach(node => {
       if (node !== trigger) setEntryState(node, 'idle');
     });
@@ -375,6 +377,7 @@
   const requested = new URLSearchParams(location.search).get('instrument');
   if (PLAY_KINDS.has(requested)) queueMicrotask(async () => {
     const requestId = ++entrySequence;
+    opening.clear();
     const trigger = entryTrigger(requested);
     setEntryState(trigger, 'opening');
     try {
