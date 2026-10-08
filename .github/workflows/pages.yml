@@ -178,6 +178,36 @@ jobs:
           curl --fail --silent --show-error --location "$base/core/provider-stability.js" | grep -F "const RELEASE = '20261004b'"
           curl --fail --silent --show-error --location "$base/core/observatory-entry.js" | grep -F "const RELEASE = '20261004b'"
           curl --fail --silent --show-error --location "$base/orbital/orbit-catalog-source.js" | grep -F 'unified-supply-v2'
+      - name: Verify public Water V8 measured SRF assets
+        env:
+          WATER_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${WATER_RELEASE_BASE_URL%/}"
+          mkdir -p /tmp/geogeek-water-v8
+          for path in \
+            lab.html \
+            core/modules.js \
+            water/workbench-v8/instrument.js \
+            water/workbench-v8/app/index.html \
+            water/workbench-v8/chart-fix.js \
+            water/workbench-v8/srf/measured-response-data.js; do
+            file="/tmp/geogeek-water-v8/$(basename "$path")"
+            curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?v=20261008v8" -o "$file"
+            test -s "$file"
+          done
+          grep -Fq 'core/modules.js?v=20261008v8' /tmp/geogeek-water-v8/lab.html
+          grep -Fq 'WATER_WORKBENCH_V8' /tmp/geogeek-water-v8/modules.js
+          grep -Fq 'water/workbench-v8/' /tmp/geogeek-water-v8/instrument.js
+          grep -Fq "'app/index.html'" /tmp/geogeek-water-v8/instrument.js
+          grep -Fq 'measured-response-data.js?v=8.0.0' /tmp/geogeek-water-v8/index.html
+          grep -Fq 'model/measured-sensor-response.js' /tmp/geogeek-water-v8/index.html
+          grep -Fq 'pointermove' /tmp/geogeek-water-v8/chart-fix.js
+          grep -Fq 'GeoGeekMeasuredSRFData' /tmp/geogeek-water-v8/measured-response-data.js
+          grep -Fq 'be6c8291507aadfb75d9abcef6689be1600144dd' /tmp/geogeek-water-v8/measured-response-data.js
+          grep -Fq '94753de9654d69ec3be6f19c4b27bf7aa4c8381b' /tmp/geogeek-water-v8/measured-response-data.js
+          grep -Fq '8092b059b8c9d46ca8dadfb159b5a0654554464d' /tmp/geogeek-water-v8/measured-response-data.js
+          echo 'Water V8 live asset smoke passed: Lab entry, mount, charts, and 3 pinned SRF profiles'
       - name: Verify public ORIENT release
         env:
           ORIENT_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
