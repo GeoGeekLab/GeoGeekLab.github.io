@@ -44,6 +44,15 @@ test('AT-F02-02 changing optical slopes changes only their documented spectral c
  assert.notEqual(custom.absorption.cdom[400-400],base.absorption.cdom[400-400]);
  assert.notEqual(custom.absorption.nap[700-400],base.absorption.nap[700-400]);
 });
+test('AT-F02-04 direct model invocation rejects physically unsupported custom slope bounds',()=>{
+ assert.throws(()=>geogeekAdapter.compute({...defaults,sg:-.02}),/optical slopes/);
+ assert.throws(()=>geogeekAdapter.compute({...defaults,snap:.5}),/optical slopes/);
+});
+test('AT-F03-04 radiance-first reflectance uses separately integrated L and E0',()=>{
+ const out=C.reflectanceFromBandRadiance({wavelengths:[400,410,420],toaRadiance:[2,2,2],solarIrradiance:[100,100,100],weights:[0,1,0],mu0:.5});
+ assert.equal(out.status,'valid');assert.ok(Math.abs(out.value-Math.PI*.04)<1e-12);
+ assert.throws(()=>C.reflectanceFromBandRadiance({wavelengths:[400,410],toaRadiance:[1,1],solarIrradiance:[1,1],weights:[1,1],mu0:0}),/solar geometry/);
+});
 test('AT-F01-02 unsupported 720 nm is null and explicitly out of model domain',()=>{
  const x=C.quantity('Rrs',.003,720);
  assert.equal(x.status,'out_of_domain');assert.equal(x.value,null);assert.equal(x.unit,'sr^-1');
