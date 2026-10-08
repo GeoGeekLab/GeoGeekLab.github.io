@@ -485,7 +485,8 @@
 
   function openByKind(kind, options = {}) {
     const item = (data.lab || []).find(entry => entry.instrument === kind);
-    if (!item || !mounts[kind]) return;
+    if (!item) throw new Error(`Unknown instrument: ${kind}`);
+    if (typeof mounts[kind] !== 'function') throw new Error(`Instrument not registered: ${kind}`);
     if (options.updateUrl !== false) {
       try {
         const url = new URL(location.href);
