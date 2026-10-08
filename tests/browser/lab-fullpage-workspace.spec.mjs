@@ -82,15 +82,15 @@ for (const [kind, fixture, railSelector] of instruments) {
 
 // Water V6 owns its context rail inside an iframe. Unlike the host-side map
 // instruments, the native FOCUS/WORK/INSPECT toolbar is intentionally hidden.
-test('water V7 keeps the native full-page shell and internal context rail', async ({page}) => {
+test('water V8 keeps the native full-page shell and internal context rail', async ({page}) => {
   await page.goto('/lab.html?instrument=water#l13', {waitUntil:'domcontentloaded'});
   const dialog=page.locator('#instrumentDialog');
   await expect(dialog).toBeVisible({timeout:20000});
   await expect(dialog).toHaveAttribute('data-lab-workspace','true');
   await expect(page.locator('#instrumentClose')).toBeVisible();
-  await expect(page.locator('#instrumentStage iframe.water-v7-frame')).toBeVisible({timeout:20000});
+  await expect(page.locator('#instrumentStage iframe.water-v8-frame')).toBeVisible({timeout:20000});
   await expect(page.locator('.instrument-workspace-modes')).toBeHidden();
-  const app=page.frameLocator('#instrumentStage iframe.water-v7-frame');
+  const app=page.frameLocator('#instrumentStage iframe.water-v8-frame');
   await app.locator('[data-tab="iop"]').click();
   await expect(app.locator('#controls')).toBeVisible();
   await app.locator('#panelBtn').click();
