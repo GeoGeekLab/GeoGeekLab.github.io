@@ -80,6 +80,15 @@ try {
           await shell.getByRole('button',{name:'COMMIT PREDICTION'}).click();
           await shell.getByRole('button',{name:'WIDEN FOV'}).waitFor({state:'visible',timeout:7000});
         }
+        if (kind === 'light' || kind === 'swath') {
+          diag.geometry = await page.evaluate(kind => {
+            const stage = document.getElementById('instrumentStage')?.getBoundingClientRect();
+            const root = document.querySelector('.play-v2-shell[data-play-kind="' + kind + '"]')?.getBoundingClientRect();
+            const panel = document.querySelector('.play-v2-shell[data-play-kind="' + kind + '"] .light-panel, .play-v2-shell[data-play-kind="' + kind + '"] .swath-panel')?.getBoundingClientRect();
+            const toolbar = document.querySelector('.instrument-workspace-modes');
+            return { stageHeight:stage?.height, stageBottom:stage?.bottom, rootHeight:root?.height, rootBottom:root?.bottom, panelBottom:panel?.bottom, toolbarDisplay:toolbar && getComputedStyle(toolbar).display };
+          },kind);
+        }
         diag.internalControl = 'PASS';
         diag.playState = await shell.getAttribute('data-play-state');
       } catch(error) {
