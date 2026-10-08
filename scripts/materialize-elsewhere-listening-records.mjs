@@ -45,7 +45,8 @@ for (const record of records) {
 
   const provider = String(record.source.provider);
   const sourceId = String(record.source.bvid || record.source.videoId || record.source.aid || record.id);
-  const displayTitle = title || sourceId;
+  const sourceTitle = String(record.source.videoTitle || '').trim();
+  const displayTitle = title || sourceTitle || sourceId;
   const excerpt = [record.creator, record.firstReleased].filter(Boolean).join(' · ')
     || String(record.context || 'Source title pending verification.');
   const noteParts = [record.context, record.note].filter(Boolean);
