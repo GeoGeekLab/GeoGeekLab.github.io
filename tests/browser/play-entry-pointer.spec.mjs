@@ -239,3 +239,42 @@ test('PLAY retry after a stalled startup ignores the late first result', async (
   await expect(trigger).not.toContainText('RETRY PLAY');
   await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.())).toBe('light');
 });
+
+
+test('PLAY rapid A-B-A clicks honor the final request after both older loads finish', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+  await page.waitForFunction(() => Boolean(window.GeoModules?.__geoSpatialPlayRuntime));
+  await page.evaluate(() => {
+    const originalLoad = window.GeoModules.loadScript.bind(window.GeoModules);
+    const barriers = {};
+    window.__playBarriers = barriers;
+    window.GeoModules.loadScript = src => {
+      const key = src.includes('play/orient/orient-geometry.js') ? 'orient' :
+        src.includes('play/bound/bound.js') ? 'bound' : null;
+      if (!key) return originalLoad(src);
+      if (!barriers[key]) {
+        let release;
+        const promise = new Promise(resolve => {
+          release = () => resolve(originalLoad(src));
+        });
+        barriers[key] = { promise, release };
+      }
+      return barriers[key].promise;
+    };
+  });
+
+  const locate = page.locator('[data-instrument="locate"]').first();
+  const bound = page.locator('[data-instrument="zone"]').first();
+  await locate.click();
+  await expect.poll(() => page.evaluate(() => Boolean(window.__playBarriers.orient))).toBe(true);
+  await bound.click();
+  await expect.poll(() => page.evaluate(() => Boolean(window.__playBarriers.bound))).toBe(true);
+  await locate.click();
+  await page.evaluate(() => Object.values(window.__playBarriers).forEach(entry => entry.release()));
+
+  const orient = page.locator('.play-shell[data-play-kind="orient"], .play-v2-shell[data-play-kind="orient"]');
+  await expect(orient).toBeVisible({ timeout:20_000 });
+  await expect(page.locator('.play-v2-shell[data-play-kind="bound"]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.())).toBe('locate');
+  await expect(locate).not.toContainText('OPENING');
+});
