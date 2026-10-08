@@ -176,12 +176,12 @@
     const mapCaption = el('map-caption');
     const roiCaption = el('roi-caption');
 
-    const background = buildSvg('rect', {x:0,y:0,width:1000,height:500,fill:'#0c1613'});
+    const background = buildSvg('rect', {x:0,y:0,width:1000,height:500,fill:'#0c1613','class':'pw-world-background'});
     svg.appendChild(background);
     const originalGrid = select('.pulse-graticule', baseMap);
     const originalLand = select('.pulse-land', baseMap);
-    if (originalGrid) svg.appendChild(originalGrid.cloneNode(true));
-    if (originalLand) svg.appendChild(originalLand.cloneNode(true));
+    if (originalGrid) { const copy = originalGrid.cloneNode(true); copy.setAttribute('class','pw-graticule'); svg.appendChild(copy); }
+    if (originalLand) { const copy = originalLand.cloneNode(true); copy.setAttribute('class','pw-land'); svg.appendChild(copy); }
     const dots = buildSvg('g', {'class':'pw-dots'});
     const shapes = buildSvg('g', {'class':'pw-roi-shapes'});
     const hit = buildSvg('rect', {'class':'pw-draw-hit',x:0,y:0,width:1000,height:500});
@@ -261,12 +261,12 @@
       ['geojson','csv','manifest'].forEach(name => el(name).disabled = !state.source || state.busy);
       dots.replaceChildren();
       const fragment = document.createDocumentFragment();
-      state.visible.forEach(event => {
+      state.visible.forEach((event, index) => {
         const xy = project(event.lon, event.lat);
         const radius = event.mag == null ? 2.3 : Math.max(1.8,Math.min(5.8,2.1 + (event.mag + 1)*0.38));
         const circle = buildSvg('circle', {
           cx:xy[0].toFixed(2),cy:xy[1].toFixed(2),r:radius.toFixed(2),
-          'class':'pw-event','data-event-id':event.id,
+          'class':'pw-event','data-event-id':event.id,'data-pw-index':index,role:'button',tabindex:0,
           'aria-label':event.place + ', M ' + (event.mag == null ? 'unknown' : event.mag)
         });
         const tip = buildSvg('title');
@@ -279,6 +279,7 @@
       mapCaption.textContent = (state.source === 'history' ? 'HISTORICAL QUERY' : '24 H SNAPSHOT') +
         ' · ' + state.visible.length.toLocaleString('en-US') + ' displayed records · EQUIRECTANGULAR';
       renderRoi();
+      workspace.dispatchEvent(new CustomEvent('pulse:workflow-render'));
     }
 
     function inspect(event) {
@@ -414,9 +415,10 @@
 
     function pointerLocation(event) {
       const bounds = svg.getBoundingClientRect();
+      const view = svg.viewBox.baseVal;
       return {
-        x:Math.max(0,Math.min(1000,(event.clientX-bounds.left)*1000/bounds.width)),
-        y:Math.max(0,Math.min(500,(event.clientY-bounds.top)*500/bounds.height))
+        x:Math.max(0,Math.min(1000, view.x+(event.clientX-bounds.left)*view.width/bounds.width)),
+        y:Math.max(0,Math.min(500, view.y+(event.clientY-bounds.top)*view.height/bounds.height))
       };
     }
 
@@ -447,7 +449,7 @@
         queryDatesUTC:{start:state.loadedStart,end:state.loadedEnd},
         loadedValidRecords:state.events.length,discardedInvalidRecords:state.invalid,
         visibleRecords:state.visible.length,
-        roi:state.roi,viewFilters:{
+        roi:state.roi,analysis:typeof workspace._pulseAnalysisMetadata === 'function' ? workspace._pulseAnalysisMetadata() : null,viewFilters:{
           minMagnitude:number(el('view-mag').value),
           depthClass:el('depth').value,status:el('status').value
         },
@@ -478,6 +480,7 @@
       }
     }
 
+    workspace._pulseWorkflowContext = {state, render, inspect, svg};
     const listeners = [];
     const listen = (target,kind,handler,options) => {
       target.addEventListener(kind,handler,options);
