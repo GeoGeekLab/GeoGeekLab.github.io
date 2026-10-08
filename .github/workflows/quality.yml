@@ -123,6 +123,8 @@ jobs:
       - name: Internal links and assets
         run: npm run qa:links
 
+      - name: Validate Water V10.0 browser tests
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v10.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate ORIENT release browser suite
         run: npx playwright test -c playwright.orient-release.config.mjs --list
 
