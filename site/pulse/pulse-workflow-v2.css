@@ -47,3 +47,5 @@
 .pulse-workflow .pw-search-label input{width:100%;border:1px solid #4d7458;border-radius:3px;background:#0d1d13;color:#f5f6e9;padding:9px;font-size:12px}
 .pulse-workflow .pw-found{display:grid;gap:5px;max-height:188px;overflow-y:auto;background:#111c15;border:1px solid #304837;padding:8px;color:#bdcfbf;font-size:11px}
 .pulse-workflow .pw-found button{text-align:left;font-weight:550;line-height:1.4;white-space:normal}
+
+.pulse-workflow .pw-event:focus-visible .pw-event-marker{stroke:#fff7af;stroke-width:2}
