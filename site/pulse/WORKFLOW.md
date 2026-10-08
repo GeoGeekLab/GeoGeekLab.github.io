@@ -58,3 +58,55 @@ Run the targeted browser test:
 \`\`\`sh
 npx playwright test tests/browser/pulse-workflow.spec.mjs
 \`\`\`
+
+
+## Round 2: analysis, comparison and map interaction
+
+The **COMPARE TWO UTC WINDOWS** panel divides the loaded (not remotely re-queried)
+events into two user-selected disjoint UTC intervals. Both intervals use the
+same ROI and view filters. The end bound is **exclusive**: \`start <= time < end\`.
+\`SPLIT SOURCE IN HALF\` initializes two equally long adjacent windows from
+the earliest and latest source event; **APPLY WINDOWS** validates user input.
+Overlapping or invalid windows are rejected without changing the applied windows.
+
+The A/B comparisons include:
+
+- Per-window count, maximum magnitude, median depth, and observed catalogue
+  records per hour. The last measure is descriptive, not a completeness-adjusted
+  physical occurrence rate.
+- Time chart: twelve equal **relative elapsed-time** bins in each window.
+  The horizontal axis is a fraction of each distinct duration, **not absolute UTC**
+  and not automatically a comparison of equal-length periods.
+- Magnitude histogram: 0.5 magnitude-wide bins, with missing magnitudes counted
+  separately. A and B share the same magnitude bins.
+- Depth histogram: <70 km, 70–<300 km, ≥300 km, and unknown depth.
+- Each bar exposes its exact count and time interval via mouse hover or
+  keyboard focus; click or Enter pins its description in the chart readout.
+
+Use **MAP REPRESENTATION** for points or a configurable 2°, 5°, 10° or 20°
+geographic grid, raw counts, or counts per 10⁶ km² spherical surface area.
+Use MAP DATA to show all filtered records or the A/B period subsets. The A/B
+grid modes share the same rendering maximum for meaningful visual comparison.
+An empty cell is uncoloured. No gridded value estimates seismic hazard.
+
+Mouse, touch and keyboard:
+
+- Hover or keyboard-focus an event marker to show ID, place, magnitude, magnitude
+  type, depth, coordinates, origin time, update time, status and event type.
+- Click or press Enter/Space to pin an event and show its official USGS link.
+- In grid view, hover, focus or click an occupied cell to inspect count, area,
+  angular bounds and up to five contained events. Clicking a contained event
+  opens its details in the local inspector.
+- Wheel to zoom; drag an empty map area to pan. Use **RESET VIEW** to restore
+  global extent. The same view transform is respected by the rectangle ROI tool.
+- The exported **MANIFEST JSON** and exported GeoJSON metadata contain the
+  active A/B windows, comparison counts, grid measure/resolution, map subset
+  and viewBox. The exported event records remain the entire filtered/ROI
+  selection, not only one of the comparison windows.
+
+Limitations: A/B intervals only partition the *already fetched* data; they
+do not retrieve records beyond the source query. Detection completeness
+varies with time, region, network and magnitude, and magnitude types differ.
+Two different-duration windows can have different counts without proving any
+change in underlying seismicity. Spatial cell resolution does not correct
+catalogue completeness, and a 2° angular cell is not constant-area.
