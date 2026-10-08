@@ -180,8 +180,8 @@
     svg.appendChild(background);
     const originalGrid = select('.pulse-graticule', baseMap);
     const originalLand = select('.pulse-land', baseMap);
-    if (originalGrid) svg.appendChild(originalGrid.cloneNode(true));
-    if (originalLand) svg.appendChild(originalLand.cloneNode(true));
+    if (originalGrid) { const clone = originalGrid.cloneNode(true); clone.setAttribute('class','pw-graticule'); svg.appendChild(clone); }
+    if (originalLand) { const clone = originalLand.cloneNode(true); clone.setAttribute('class','pw-land'); svg.appendChild(clone); }
     const dots = buildSvg('g', {'class':'pw-dots'});
     const shapes = buildSvg('g', {'class':'pw-roi-shapes'});
     const hit = buildSvg('rect', {'class':'pw-draw-hit',x:0,y:0,width:1000,height:500});
