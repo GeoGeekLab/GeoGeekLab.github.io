@@ -52,6 +52,7 @@ test('V10.0 export schema v7 retains model identity and guarded variant',async({
  await app.locator('#num-sg').dispatchEvent('change');
  const pending=page.waitForEvent('download');
  await app.locator('[data-tab="compare"]').click();
+ if (!(await app.locator('#advancedDetails').evaluate(el=>el.open))) await app.locator('#advancedDetails summary').click();
  await app.locator('[data-export="json"]').click();
  const download=await pending;
  expect(download.suggestedFilename()).toContain('v10');
