@@ -27,6 +27,8 @@
 
 
 /* V9 model-aware identifiability: matrix layout and explicit rank diagnostics */
+.workspace.u9-active .probe-bar{display:none}
+.u9-active .chart-main{overflow:hidden;min-height:0}
 .u9-container{overflow:auto;flex:1;min-height:0;max-height:100%;padding:13px;color:var(--text)}
 .u9-summary{background:#112119;border:1px solid var(--line);border-radius:7px;padding:16px;min-height:100%;font:12px/1.65 var(--sans)}
 .u9-summary h3{margin:0 0 6px;font:normal 23px var(--serif)}
@@ -51,7 +53,7 @@
 .u9-cell{padding:9px 10px;font:11px/1.5 var(--mono);border-right:1px solid var(--line);min-width:0}
 .u9-cell small{display:block;color:var(--muted);font:9px var(--mono)}
 .u9-matrix-row.head,.u9-corr-row.head{background:#284131;color:var(--text);font-weight:600}
-.u9-corr-table .u9-matrix{--u9-cols:2}
+.u9-corr-table .u9-matrix{width:100%}
 .u9-choice-list{display:flex;flex-wrap:wrap;gap:5px}
 .u9-select{max-width:100%;white-space:normal;text-align:left}
 .u9-export{width:100%;margin:5px 0}
@@ -660,7 +662,9 @@ function createWorkbench({store,models,charts,controls}){
   $('sideTitle').textContent=w.side;
   $('sideSubtitle').textContent=w.sideSub;
   const key=state.tab+':'+state.plot;state.axisLocked=Boolean(state.axisRanges[key]);
-  $('lockAxisBtn').disabled=state.tab==='path';
+  $('lockAxisBtn').disabled=state.tab==='path'||state.tab==='uncertainty';
+  $('workspace').classList.toggle('u9-active',state.tab==='uncertainty');
+  const plotFlag=document.querySelector('.plot-flag');if(plotFlag)plotFlag.textContent=state.tab==='uncertainty'?'LOCAL FISHER DIAGNOSTICS · ASSUMED NOISE':'400–700 nm · FIRST-ORDER OPTICAL MODEL';
   $('lockAxisBtn').setAttribute('aria-pressed',String(state.axisLocked));
   $('lockAxisBtn').classList.toggle('is-on',state.axisLocked);
   $('lockAxisBtn').textContent=state.axisLocked?'◆ Y-axis Locked':'◇ Lock Current Y-axis';
@@ -1201,6 +1205,14 @@ function createExports({store,models,notify}){
   checkParams(payload.scenarioA.params,'scenario A');
   if(payload.scenarioB)checkParams(payload.scenarioB.params,'scenario B');
   if(!DATA[payload.state.sensor]||!Number.isInteger(payload.state.probeNm)||payload.state.probeNm<400||payload.state.probeNm>700)throw new Error('invalid sensor or probe wavelength');
+  if(payload.schemaVersion===6){
+    const e=globalThis.GeoGeekV9Engine,u=payload.state;
+    if(!Array.isArray(u.uncertaintyParameters)||u.uncertaintyParameters.length<1||u.uncertaintyParameters.length>5||
+       new Set(u.uncertaintyParameters).size!==u.uncertaintyParameters.length||
+       u.uncertaintyParameters.some(p=>!e.IDS.includes(p))||
+       !e.SIGMAS.includes(u.uncertaintySigma)||!e.STEPS.includes(u.uncertaintyStep))
+     throw new Error('invalid V9 noise hypothesis or parameter subset');
+  }
   const validated=validateSession({params:payload.state.params,sensor:payload.state.sensor,probe:payload.state.probeNm,baseline:payload.scenarioA,snapshotB:payload.scenarioB,compareBSource:payload.compareBSource,
    sensitivityParameter:payload.state.sensitivityParameter,sensitivityStep:payload.state.sensitivityStep,
    uncertaintyParameters:payload.state.uncertaintyParameters,uncertaintySigma:payload.state.uncertaintySigma,uncertaintyStep:payload.state.uncertaintyStep,
@@ -1278,10 +1290,10 @@ function createExports({store,models,notify}){
    '# model='+models.meta.modelVersion+';sensor='+state.sensor+';response='+x.source.responseModel+';platform='+(x.source.platform||'nominal')+';sha='+(x.source.provenance?.gitBlobSHA||'none'),
    '# selected='+x.selected.join('|')+';step_percent='+x.stepPercent+';rank='+x.rank+'/'+x.numberOfParameters+';conditionalSigma='+x.identifiable,
    '# local linearization only; rank-deficient covariance is null; excluded SRF bands are not extrapolated'];
-  const header=['band_id','center_nm','reference_Rrs_sr1','assumed_sigma_Rrs_sr1',...x.selected.map(id=>'dRrs_d'+id)];
+  const header=['band_id','center_nm','status','coverage_fraction','reference_Rrs_sr1','assumed_sigma_Rrs_sr1',...x.selected.map(id=>'dRrs_d'+id)];
   const rows=[...meta,header.join(',')];
-  for(const b of x.observations)rows.push([b.bandId,b.centerNm,b.referenceRrs,x.noise.sigmaRrsSr1,...b.derivatives].join(','));
-  for(const b of x.dropped)rows.push([b.id,'','','',...x.selected.map(()=>'')].join(','));
+  for(const b of x.observations)rows.push([b.bandId,b.centerNm,'full',1,b.referenceRrs,x.noise.sigmaRrsSr1,...b.derivatives].join(','));
+  for(const b of x.dropped)rows.push([b.id,'',b.status,b.coverageFraction??'','','',...x.selected.map(()=>'')].join(','));
   download('water_as_spectrum_v9_jacobian.csv',rows.join('\n'),'text/csv;charset=utf-8');
   notify('Exported assumed-noise Jacobian; not validated retrieval uncertainty');
  }
