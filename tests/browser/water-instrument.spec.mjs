@@ -242,3 +242,45 @@ test('V9 sensitivity and experimental JSON preserve the measured SRF source prov
  await app.locator('[data-export="json"]').click();
  expect((await json).suggestedFilename()).toContain('v9');
 });
+
+
+test('V9 Fisher workspace shows eight tabs, bounded Jacobian and assumed-noise controls',async({page})=>{
+ const {app}=await openWater(page);
+ await expect(app.locator('#mainNav [data-tab]')).toHaveCount(8);
+ await app.locator('[data-tab="uncertainty"]').click();
+ await expect(app.locator('#spaceTitle')).toContainText('Uncertainty & Identifiability');
+ await expect(app.locator('.u9-metrics')).toBeVisible();
+ await expect(app.locator('.u9-metrics')).toContainText('ASSUMED σ(Rrs)');
+ await expect(app.locator('[data-u9-parameter="chl"]')).toHaveAttribute('aria-pressed','true');
+ await app.locator('[data-plot="jacobian"]').click();
+ await expect(app.locator('.u9-matrix-row').count()).resolves.toBeGreaterThan(4);
+ await app.locator('[data-plot="correlation"]').click();
+ await expect(app.locator('.u9-summary')).toContainText('Covariance');
+ await app.locator('[data-plot="summary"]').click();
+ await app.locator('[data-u9-sigma="0.0001"]').click();
+ await expect(app.locator('[data-u9-sigma="0.0001"]')).toHaveAttribute('aria-pressed','true');
+ await app.locator('[data-u9-step="10"]').click();
+ await expect(app.locator('[data-u9-step="10"]')).toHaveAttribute('aria-pressed','true');
+});
+test('V9 insufficient measured MSI bands with five parameters report rank deficiency without covariance',async({page})=>{
+ const {app}=await openWater(page);
+ await app.locator('[data-tab="uncertainty"]').click();
+ await app.locator('[data-sensor="msi"]').click();
+ await app.locator('[data-response-mode="measured"]').click();
+ for(const id of ['anap','bbp','eta']) await app.locator('[data-u9-parameter="'+id+'"]').click();
+ await expect(app.locator('.u9-alert')).toContainText('RANK DEFICIENT');
+ await expect(app.locator('.u9-null')).toContainText('No parameter uncertainties');
+ await expect(app.locator('.u9-metrics')).toContainText('3 bands');
+ await app.locator('[data-plot="correlation"]').click();
+ await expect(app.locator('.u9-alert')).toContainText('Covariance withheld');
+});
+test('V9 exports a band-by-band Jacobian CSV and session provenance JSON',async({page})=>{
+ const {app}=await openWater(page);
+ await app.locator('[data-tab="uncertainty"]').click();
+ const csv=page.waitForEvent('download');
+ await app.locator('[data-export="u9jacobian"]').click();
+ expect((await csv).suggestedFilename()).toBe('water_as_spectrum_v9_jacobian.csv');
+ const json=page.waitForEvent('download');
+ await app.locator('[data-export="json"]').click();
+ expect((await json).suggestedFilename()).toContain('v9');
+});
