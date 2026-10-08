@@ -145,6 +145,40 @@
 @media(max-width:930px){.band-response-label,.band-response-row{grid-template-columns:minmax(85px,1fr) minmax(95px,1.2fr) 80px 34px}.band-response-label span:nth-child(4),.band-response-detail{display:none}}
 @media(max-width:500px){.band-response-panel{padding:10px}.band-response-metrics{grid-template-columns:1fr}.band-response-label,.band-response-row{grid-template-columns:76px minmax(55px,1fr) 74px 26px;gap:5px}.band-response-row{padding:5px}.band-name,.band-elasticity{font-size:10px}}
 
+
+/* V10.1 · scientific WATER RT, typography- and axis-led, no decorative photon animation */
+.rt-shell{display:flex;flex-direction:column;gap:12px;width:100%;padding:16px;background:#101d17;color:#dce9e0;border:1px solid #335547;border-radius:8px;overflow-y:auto;min-height:100%}
+.rt-intro{display:flex;justify-content:space-between;gap:18px;border-bottom:1px solid #375448;padding-bottom:12px}
+.rt-intro h2{font:normal clamp(19px,2.4vw,30px)/1.16 Georgia,serif;margin:3px 0 6px}
+.rt-intro p,.rt-prose{font:12px/1.65 system-ui,sans-serif;color:#aac2b2;margin:4px 0}
+.rt-eyebrow{font:10px/1.5 monospace;letter-spacing:.12em;color:#9bd6bf}
+.rt-symbol{white-space:nowrap;font:25px/1.2 Georgia,serif;color:#a3d9bf;align-self:center}
+.rt-state-row{display:flex;gap:7px;flex-wrap:wrap}.rt-status{border:1px solid #56736a;border-radius:4px;padding:5px 8px;font:10px/1.5 monospace;color:#bfd5ca;background:#22322a}.rt-ok{border-color:#739a7a;color:#c2e8c8}.rt-warn{border-color:#ae8858;color:#f4d1a6}
+.rt-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.rt-metric{min-width:0;border:1px solid #355344;border-radius:5px;padding:10px;background:#192b22}
+.rt-metric small,.rt-metric span{display:block;font:10px/1.45 system-ui,sans-serif;color:#9eb5a7}
+.rt-metric small{letter-spacing:.08em;font-family:monospace}
+.rt-metric strong{display:block;font:600 clamp(12px,1.45vw,16px)/1.45 monospace;color:#dfece1;overflow-wrap:anywhere;margin:7px 0 3px}
+.rt-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rt-card{border:1px solid #345245;background:#16261d;border-radius:6px;padding:12px;min-width:0}
+.rt-card-head h3{margin:0 0 4px;font:normal 18px/1.25 Georgia,serif}.rt-card-head p{margin:0;color:#a5bcad;font:11px/1.5 system-ui}
+.rt-svg{display:block;width:100%;height:auto;margin:7px 0 0}.rt-axis{font:12px monospace;fill:#acc3b5}
+.rt-legend{display:flex;flex-wrap:wrap;gap:14px;padding-top:8px}
+.rt-key{display:inline-flex;gap:7px;align-items:center;font:10px/1.4 system-ui;color:#c3d9ca}.rt-key i{display:inline-block;width:14px;height:3px}
+.rt-bottom{border-top:1px solid #355344;padding:12px 2px 2px}.rt-bottom strong{font:600 12px system-ui}.rt-bottom p{font:11px/1.7 system-ui;color:#b3cabe;margin:5px 0}.rt-bottom span{font:10px/1.5 monospace;color:#9cae9f}
+.rt-two{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:9px}
+.rt-empty{margin:auto;max-width:560px;padding:25px}
+.rt-select-grid{border-bottom:1px solid #365144;padding:10px 0}
+.rt-control-name{display:block;margin-bottom:7px;font:10px/1.5 monospace;letter-spacing:.08em;color:#b9cbbb}
+.rt-buttons{display:flex;flex-wrap:wrap;gap:5px}
+.rt-choice{font:10px monospace;border:1px solid #426454;border-radius:4px;background:#1a2d23;color:#cce0ce;padding:8px 9px;cursor:pointer}
+.rt-choice[aria-pressed="true"]{background:#355545;border-color:#a3d9bf;color:#f0f7ec}
+.rt-choice:focus-visible,.rt-primary:focus-visible{outline:2px solid #eed79a;outline-offset:3px}
+.rt-primary{display:block;width:100%;text-align:center;background:#365644;border:1px solid #8caf94;color:#f0f7ec;padding:11px;font:600 11px system-ui;border-radius:5px;cursor:pointer;margin:11px 0}
+.rt-primary:disabled{opacity:.5;cursor:not-allowed}.rt-side-warning{font:11px/1.6 system-ui;color:#d1b49b;margin:8px 0}
+@media(max-width:1100px){.rt-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.rt-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.rt-shell{padding:9px}.rt-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.rt-intro{flex-direction:column}.rt-symbol{display:none}.rt-svg .rt-axis{font-size:10px}}
+
 </style>
 <script src="../../workbench-v9/srf/measured-response-data.js?v=8.0.0"></script>
 <script src="../../workbench-v9/analysis/uncertainty-engine.js?v=9.0.0"></script>
@@ -963,6 +997,87 @@ const WORKSPACES=Object.freeze({
 });
 
 return {WORKSPACES};
+},
+"workspaces/rt.js": function(require){
+const {TABS,plots}=require("core/config.js");
+const {f}=require("core/numbers.js");
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function linePlot({heading,desc,series,xLabel,yLabel,xs,labels,height=230}){
+ const W=720,H=height,L=66,R=22,T=30,B=42;
+ const all=series.flatMap(s=>s.ys).filter(Number.isFinite);
+ const max=Math.max(...all,0)*1.12||1;
+ const left=Math.min(...xs),right=Math.max(...xs);
+ const X=x=>L+(x-left)/Math.max(1,right-left)*(W-L-R);
+ const Y=y=>H-B-Math.max(0,y)/max*(H-T-B);
+ const grid=[0,.25,.5,.75,1].map(t=>'<line x1="'+L+'" y1="'+Y(t*max)+'" x2="'+(W-R)+'" y2="'+Y(t*max)+'" stroke="#395446" stroke-dasharray="3 6"/><text x="'+(L-7)+'" y="'+(Y(t*max)+4)+'" text-anchor="end" class="rt-axis">'+(t*max).toPrecision(3)+'</text>').join('');
+ const xticks=xs.filter((v,i)=>i===0||i===xs.length-1||i===Math.floor((xs.length-1)/2)).map(v=>'<text class="rt-axis" x="'+X(v)+'" y="'+(H-18)+'" text-anchor="middle">'+esc(v)+'</text>').join('');
+ const lines=series.map((s,si)=>{
+  const color=s.color||["#a3d9bf","#e8bb83","#86b7e4"][si%3];
+  const poly=xs.map((v,i)=>Number.isFinite(s.ys[i])?X(v).toFixed(1)+','+Y(s.ys[i]).toFixed(1):null).filter(Boolean).join(' ');
+  const dots=xs.map((x,i)=>Number.isFinite(s.ys[i])?'<circle cx="'+X(x)+'" cy="'+Y(s.ys[i])+'" r="3.2" fill="'+color+'"><title>'+esc(s.name)+' · '+x+': '+s.ys[i].toPrecision(5)+'</title></circle>':'').join('');
+  return '<polyline points="'+poly+'" fill="none" stroke="'+color+'" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'+dots;
+ }).join('');
+ const legend=series.map((s,i)=>'<span class="rt-key"><i style="background:'+(s.color||["#a3d9bf","#e8bb83","#86b7e4"][i%3])+'"></i>'+esc(s.name)+'</span>').join('');
+ return '<section class="rt-card"><header class="rt-card-head"><div><h3>'+esc(heading)+'</h3><p>'+esc(desc)+'</p></div></header><div class="rt-legend">'+legend+'</div><svg viewBox="0 0 '+W+' '+H+'" class="rt-svg" role="img" aria-label="'+esc(heading+'. '+yLabel+' versus '+xLabel)+'"><title>'+esc(heading)+'</title><desc>'+esc(desc)+'</desc>'+grid+'<path d="M'+L+' '+T+'V'+(H-B)+'H'+(W-R)+'" stroke="#78998a" fill="none"/>'+xticks+lines+'<text class="rt-axis" x="'+(W/2)+'" y="'+(H-2)+'" text-anchor="middle">'+esc(xLabel)+'</text><text class="rt-axis" x="'+L+'" y="17">'+esc(yLabel)+'</text></svg></section>';
+}
+function flags(engine,state,c){
+ const matched=engine.matches(state.params,state.rtCase,state.rtSun);
+ return '<div class="rt-state-row"><span class="rt-status '+(matched?'rt-ok':'rt-warn')+'">'+(matched?'CURRENT WATER IOP / SUN: MATCHED':'CURRENT WORKBENCH STATE: DIFFERENT')+'</span><span class="rt-status">REFERENCE: SELF-GENERATED · NOT EXTERNALLY BENCHMARKED</span></div>'+
+ '<p class="rt-prose">'+(matched?'Current semi-analytical rrs is evaluated at the same parameter vector and nominal in-water sun angle as the reference.':'Plots always compare archived reference and semi-analytical outputs for the same stored IOP case. Current Water Optics sliders are not being compared. Use “Load matched case” to synchronize them.')+'</p>';
+}
+function controlsGroup(label,items,dataKey,current){
+ return '<div class="rt-select-grid"><span class="rt-control-name">'+esc(label)+'</span><div class="rt-buttons">'+items.map(x=>'<button type="button" class="rt-choice" data-'+dataKey+'="'+esc(x.value)+'" aria-pressed="'+(current===x.value)+'">'+esc(x.label)+'</button>').join('')+'</div></div>';
+}
+const rtWorkspace={
+ ...TABS.at(-1),plots:plots.rt,
+ renderControls({state,controls}){
+  const eng=globalThis.GeoGeekRT101,meta=eng?.caseData(state.rtCase);
+  let h=controlsGroup('WATER CLASS',[
+   {value:'clear',label:'CLEAR OCEAN'},{value:'phyto',label:'PHYTO-RICH'},{value:'cdom',label:'CDOM-RICH'}],'rt-case',state.rtCase);
+  h+=controlsGroup('SUN ZENITH IN WATER',eng?.suns.map(n=>({value:n,label:n+'°'}))||[],'rt-sun',state.rtSun);
+  h+=controlsGroup('WAVELENGTH · SAMPLED',eng?.wavelengths.map(n=>({value:n,label:n+' nm'}))||[],'rt-wl',state.rtWl);
+  h+=controlsGroup('DEPTH · SAMPLED',eng?.depths.map(n=>({value:n,label:n+' m'}))||[],'rt-depth',state.rtDepth);
+  h+='<button type="button" class="rt-primary" data-rt-apply="1" '+(meta?'':'disabled')+'>Load matched water IOP &amp; nominal sun state →</button>';
+  h+='<p class="rt-side-warning">Discrete reference grid only. Solar angle is imposed IN WATER without refraction. No wavelength/angle extrapolation. No interpolation is used between water classes.</p>';
+  return controls.csection('RT REFERENCE CASE','3 optical waters · fixed IOPs',h);
+ },
+ renderChart({state,data,charts}){
+  const eng=globalThis.GeoGeekRT101;
+  if(!eng||eng.status!=='ready'){
+   return '<div class="rt-shell"><div class="rt-eyebrow">NUMERICAL REFERENCE / '+esc(eng?.status||'missing')+'</div><section class="rt-card rt-empty"><h3>Reference dataset unavailable</h3><p>'+esc(eng?.error||'Loading the fixed DOM reference slices…')+'</p><p>No simulated light-field values will be invented while loading fails.</p><button type="button" class="rt-primary" data-rt-retry="1">Retry reference loading</button></section></div>';
+  }
+  const c=eng.caseData(state.rtCase),r=eng.record(state.rtCase,state.rtSun,state.rtWl);
+  if(!c||!r)return '<div class="rt-shell"><p role="alert">No matching discrete reference node. No extrapolation.</p></div>';
+  const k=r.depths.indexOf(state.rtDepth);
+  const num=n=>Number.isFinite(n)?(Math.abs(n)<.001?n.toExponential(2):n.toFixed(5)):'—';
+  const compare=c.records.filter(x=>x.sza===state.rtSun).sort((x,y)=>x.nm-y.nm);
+  const rmse=Math.sqrt(compare.reduce((s,v)=>s+Math.pow(v.semiRrs-v.rrs,2),0)/compare.length);
+  const bias=compare.reduce((s,v)=>s+v.semiRrs-v.rrs,0)/compare.length;
+  let content='<div class="rt-shell"><div class="rt-intro"><div><div class="rt-eyebrow">WORKSPACE 09 · WATER RADIATIVE TRANSFER</div><h2>Depth, direction &amp; model discrepancy</h2><p>Scalar plane-parallel discrete ordinates · azimuth-averaged HG phase · clear no-interface boundary</p></div><div class="rt-symbol" aria-hidden="true">μ<sub>↑</sub> · z ↓</div></div>';
+  content+=flags(eng,state,c);
+  content+='<div class="rt-metrics">'+[
+   ['CASE',c.label,'fixed IOP scenario'],['PROBE',r.nm+' nm · '+r.sza+'°','discrete spectral / solar node'],
+   ['Ed('+state.rtDepth+'m) / Ed(0−)',num(r.Ed[k]),'normalized irradiance'],
+   ['Eu('+state.rtDepth+'m) / Ed(0−)',num(r.Eu[k]),'normalized irradiance'],
+   ['Kd('+state.rtDepth+'m)',num(r.Kd[k])+' m⁻¹','local finite-depth estimate']
+  ].map(v=>'<div class="rt-metric"><small>'+esc(v[0])+'</small><strong>'+esc(v[1])+'</strong><span>'+esc(v[2])+'</span></div>').join('')+'</div>';
+  if(state.plot==='depth'){
+   content+='<div class="rt-grid">'+linePlot({heading:'Plane irradiance with depth',desc:'Ed includes collimated beam plus diffuse downwelling; Eu is diffuse upwelling.',series:[{name:'Ed / incident Ed',ys:r.Ed,color:'#a3d9bf'},{name:'Eu / incident Ed',ys:r.Eu,color:'#e8bb83'}],xs:r.depths,xLabel:'Depth z · m',yLabel:'Normalized irradiance',height:230})+
+    linePlot({heading:'Diffuse attenuation · Kd(z)',desc:'Finite differences of −d ln[Ed]/dz at the sampled depths; not an independently measured Kd.',series:[{name:'Kd(z)',ys:r.Kd,color:'#86b7e4'}],xs:r.depths,xLabel:'Depth z · m',yLabel:'Kd · m⁻¹',height:230})+'</div>';
+  }else if(state.plot==='angular'){
+   const values=r.Lu[k].slice(0,eng.dataset.grid.upwardMu.length);
+   const absMu=eng.dataset.grid.upwardMu.map(m=>Math.abs(m));
+   content+=linePlot({heading:'Upward angular radiance · z = '+state.rtDepth+' m',desc:'Azimuth-averaged radiance at eight upward Gauss–Legendre zenith nodes; NOT a 2D sun-relative azimuthal field.',series:[{name:'Lu / incident Ed',ys:values,color:'#a3d9bf'}],xs:absMu,xLabel:'|μ| = cos(upward zenith) · 0=horizon, 1=nadir',yLabel:'Lu / Ed(0−) · sr⁻¹',height:265});
+   content+='<p class="rt-prose">Viewing angles are quadrature nodes. Near-nadir comparison uses the most vertical available upward node (|μ|='+Math.abs(eng.dataset.grid.upwardMu[0]).toFixed(3)+'); it is not exactly μ=−1.</p>';
+  }else{
+   content+=linePlot({heading:'Matched below-surface rrs',desc:'Reference numerically integrates the scalar RTE. The legacy Gordon/GIOP-style relation is evaluated on the SAME IOP case. Both are subsurface quantities in sr⁻¹.',series:[{name:'Discrete-ordinate RT (near nadir)',ys:compare.map(x=>x.rrs),color:'#a3d9bf'},{name:'V9/V10 semi-analytical rrs',ys:compare.map(x=>x.semiRrs),color:'#e8bb83'}],xs:compare.map(x=>x.nm),xLabel:'Wavelength · nm (five discrete nodes)',yLabel:'Subsurface rrs · sr⁻¹',height:265});
+   content+='<div class="rt-metrics rt-two"><div class="rt-metric"><small>MEAN SEMI − RT BIAS</small><strong>'+num(bias)+' sr⁻¹</strong><span>Five wavelengths; not an accuracy validation</span></div><div class="rt-metric"><small>PAIRWISE SPECTRAL RMSE</small><strong>'+num(rmse)+' sr⁻¹</strong><span>Same optical inputs, distinct scattering assumptions</span></div></div>';
+  }
+  content+='<div class="rt-bottom"><strong>Scientific scope</strong><p>Elastic-only, homogeneous optically deep ocean; HG g=0.8 and b=bb/fb; sun direction imposed within water; no Fresnel/refraction, azimuthal anisotropy, waves, atmosphere, bottom, Raman or fluorescence. Self-generated solver has internal residual and quadrature checks, but no external HydroLight/DISORT validation.</p><span>Solver '+esc(eng.dataset.referenceEngine)+' · residual '+esc(r.residual)+' · '+r.iterations+' iterations · normalized Ed-direct(0−)=1</span></div></div>';
+  return content;
+ }
+};
+return {rtWorkspace};
 },
 "workspaces/path.js": function(require){
 const {TABS, plots, stageData} = require("core/config.js");
