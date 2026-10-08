@@ -6,8 +6,7 @@ const instruments = [
   ['flow', '<div class="flow-lab"><section class="flow-map-shell">FIELD</section><aside class="flow-rail"><div class="flow-card">REPRESENTATION</div></aside></div>', '.flow-rail'],
   ['pulse', '<div class="pulse-layout pulse-observation-lab"><section class="pulse-map-wrap">EVENT FIELD</section><aside class="pulse-panel"><div class="pulse-panel-section">TEMPORAL CONTROL</div></aside></div>', '.pulse-panel'],
   ['figure', '<div class="figure-layout figure-workbench"><section class="figure-stage">IMAGE / TRACE</section><aside class="figure-control"><div class="figure-card">SCALAR FIELD</div></aside></div>', '.figure-control'],
-  ['world', '<div class="world-layout"><section class="world-map-wrap">PROJECTION</section><aside class="world-panel">PROJECTION CONTROLS</aside></div>', '.world-panel'],
-  ['water', '<div class="water-lab"><section class="water-main">SPECTRAL FIELD</section><aside class="water-control-rail">IOP CONTROLS</aside></div>', '.water-control-rail']
+  ['world', '<div class="world-layout"><section class="world-map-wrap">PROJECTION</section><aside class="world-panel">PROJECTION CONTROLS</aside></div>', '.world-panel']
 ];
 
 for (const [kind, fixture, railSelector] of instruments) {
@@ -80,3 +79,22 @@ for (const [kind, fixture, railSelector] of instruments) {
     expect(titleSize).toBeGreaterThanOrEqual(30);
   });
 }
+
+// Water V6 owns its context rail inside an iframe. Unlike the host-side map
+// instruments, the native FOCUS/WORK/INSPECT toolbar is intentionally hidden.
+test('water V6 keeps the native full-page shell and internal context rail', async ({page}) => {
+  await page.goto('/lab.html?instrument=water#l13', {waitUntil:'domcontentloaded'});
+  const dialog=page.locator('#instrumentDialog');
+  await expect(dialog).toBeVisible({timeout:20000});
+  await expect(dialog).toHaveAttribute('data-lab-workspace','true');
+  await expect(page.locator('#instrumentClose')).toBeVisible();
+  await expect(page.locator('#instrumentStage iframe.water-v6-frame')).toBeVisible({timeout:20000});
+  await expect(page.locator('.instrument-workspace-modes')).toBeHidden();
+  const app=page.frameLocator('#instrumentStage iframe.water-v6-frame');
+  await app.locator('[data-tab="iop"]').click();
+  await expect(app.locator('#controls')).toBeVisible();
+  await app.locator('#panelBtn').click();
+  await expect(app.locator('#controls')).not.toBeVisible();
+  await app.locator('#panelBtn').click();
+  await expect(app.locator('#controls')).toBeVisible();
+});

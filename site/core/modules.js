@@ -10,6 +10,7 @@
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261002e';
   const WATER_INSTRUMENT = 'water/water-instrument.js?v=20261007o';
   const WATER_WORKBENCH_V5 = 'water/workbench-v5/instrument.js?v=5.0.0';
+  const WATER_WORKBENCH_V6 = 'water/workbench-v6/instrument.js?v=6.0.0';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
@@ -155,10 +156,15 @@
     if (kind === 'flow' && !window.GeoFlowLabPolish) await loadScript('flow-lab-polish.js?v=20261002b');
     if (kind === 'water' && !window.GeoGeekInstrumentMounts?.water) {
       try {
-        await loadModule(WATER_WORKBENCH_V5);
-      } catch (error) {
-        console.warn('[GeoGeek] Water V5 module unavailable; loading the original instrument.', error);
-        await loadModule(WATER_INSTRUMENT);
+        await loadModule(WATER_WORKBENCH_V6);
+      } catch (v6Error) {
+        console.warn('[GeoGeek] Water V6 import unavailable; attempting V5.', v6Error);
+        try {
+          await loadModule(WATER_WORKBENCH_V5);
+        } catch (v5Error) {
+          console.warn('[GeoGeek] Water V5 import unavailable; loading legacy Water.', v5Error);
+          await loadModule(WATER_INSTRUMENT);
+        }
       }
     }
     return window.GeoInstruments;
