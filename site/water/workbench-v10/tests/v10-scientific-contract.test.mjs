@@ -98,10 +98,12 @@ test('AT-F12-02 schema v6 import and schema v7 variant import retain science mea
 test('AT-F01-03 V10 startup has byte-matching inlined contract before app boot',()=>{
  const app=fs.readFileSync(path.join(root,'app/index.html'),'utf8');
  const source=fs.readFileSync(path.join(root,'science-contract.js'),'utf8');
- const m=app.match(/<script data-v10-science-fallback="inline">([\\s\\S]*?)<\\/script>/);
- assert.ok(m,'Missing inlined validity contract fallback');
- assert.ok(m[1].includes(source),'V10 inline and external scientific contracts diverged');
- const isolated={};vm.runInNewContext(m[1],isolated);
+ const start=app.indexOf('<script data-v10-science-fallback="inline">');
+ const end=app.indexOf('</script>',start);
+ assert.ok(start>=0&&end>start,'Missing inline validity contract fallback');
+ const inline=app.slice(start,end);
+ assert.ok(inline.includes(source),'V10 inline and external contracts diverged');
+ const isolated={};vm.runInNewContext(inline.slice(inline.indexOf('>')+1),isolated);
  assert.equal(isolated.GeoGeekV10Contract.appVersion,'10.0.0');
 });
 test('V10 bundle retains scoped mount contract, eight tabs and schema 7',()=>{
