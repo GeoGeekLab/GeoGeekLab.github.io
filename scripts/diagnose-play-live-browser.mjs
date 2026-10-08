@@ -59,8 +59,8 @@ try {
         if (kind === 'locate') {
           const start = shell.getByRole('button', {name:'START FIELD →'});
           const skip = shell.getByRole('button', {name:'SKIP PRIMER'});
-          if (await start.isVisible()) await start.click();
-          else if (await skip.isVisible()) await skip.click();
+          if (await start.isVisible() && await start.isEnabled()) await start.click();
+          else if (await skip.isVisible() && await skip.isEnabled()) await skip.click();
           else throw new Error('ORIENT primer controls are not visible');
         } else if (kind === 'zone') {
           await shell.getByRole('button', {name:'GUIDED REGION'}).click();
