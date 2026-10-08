@@ -83,7 +83,7 @@ for (const [kind, fixture, railSelector] of instruments) {
 // Water V6 owns its context rail inside an iframe. Unlike the host-side map
 // instruments, the native FOCUS/WORK/INSPECT toolbar is intentionally hidden.
 test('water V9 keeps the native full-page shell and internal context rail', async ({page}) => {
-  await page.goto('/lab.html?instrument=water#l13', {waitUntil:'domcontentloaded'});
+  await page.goto('/lab.html?instrument=water&waterVersion=v9#l13', {waitUntil:'domcontentloaded'});
   const dialog=page.locator('#instrumentDialog');
   await expect(dialog).toBeVisible({timeout:20000});
   await expect(dialog).toHaveAttribute('data-lab-workspace','true');

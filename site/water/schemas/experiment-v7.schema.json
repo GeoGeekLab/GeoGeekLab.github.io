@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://geogeeklab.github.io/water/schemas/experiment-v7.schema.json",
+  "title": "Water as Spectrum V10.0 reproducible teaching experiment (schema 7)",
+  "description": "V10.0 compatibility wrapper around V9 semi-analytical forward calculations. Not an independent radiative-transfer validation.",
+  "type": "object",
+  "required": [
+    "kind",
+    "schemaVersion",
+    "appVersion",
+    "model",
+    "science",
+    "state",
+    "scenarioA",
+    "sensor",
+    "spectra"
+  ],
+  "properties": {
+    "kind": {
+      "const": "water-as-spectrum"
+    },
+    "schemaVersion": {
+      "const": 7
+    },
+    "appVersion": {
+      "type": "string"
+    },
+    "model": {
+      "type": "object",
+      "required": [
+        "id",
+        "modelVersion"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "modelVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "science": {
+      "type": "object",
+      "required": [
+        "modelType",
+        "modelId",
+        "scienceModelVersion",
+        "modelVariant",
+        "domainNm",
+        "researchValidated",
+        "limitations"
+      ],
+      "properties": {
+        "modelType": {
+          "const": "SEMI_ANALYTICAL"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "scienceModelVersion": {
+          "type": "string"
+        },
+        "modelVariant": {
+          "enum": [
+            "V9_COMPAT_FIXED_SLOPES",
+            "V10_EXPLORATORY_CUSTOM_SLOPES"
+          ]
+        },
+        "domainNm": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": 400
+            },
+            {
+              "const": 700
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "researchValidated": {
+          "const": false
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "required": [
+        "params",
+        "sensor",
+        "probeNm"
+      ],
+      "properties": {
+        "sensor": {
+          "enum": [
+            "olci",
+            "oci",
+            "msi",
+            "oli"
+          ]
+        },
+        "probeNm": {
+          "type": "integer",
+          "minimum": 400,
+          "maximum": 700
+        },
+        "params": {
+          "type": "object",
+          "required": [
+            "chl",
+            "ag",
+            "anap",
+            "bbp",
+            "eta",
+            "sg",
+            "snap"
+          ],
+          "properties": {
+            "chl": {
+              "type": "number",
+              "minimum": 0.02,
+              "maximum": 25
+            },
+            "ag": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "anap": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "bbp": {
+              "type": "number",
+              "minimum": 0.0001,
+              "maximum": 0.03
+            },
+            "eta": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "sg": {
+              "type": "number",
+              "minimum": 0.005,
+              "maximum": 0.03
+            },
+            "snap": {
+              "type": "number",
+              "minimum": 0.005,
+              "maximum": 0.03
+            }
+          }
+        }
+      }
+    },
+    "scenarioA": {
+      "type": "object"
+    },
+    "scenarioB": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "sensor": {
+      "type": "object",
+      "required": [
+        "rrs",
+        "toa",
+        "bandValidity"
+      ]
+    },
+    "spectra": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

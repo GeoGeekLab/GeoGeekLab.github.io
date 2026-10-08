@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // V9 replaces the legacy monolithic Water DOM with a same-origin iframe.
 // Test the public Lab entry and the real instrument, not the obsolete V3 selectors.
 async function openWater(page) {
-  await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
+  await page.goto('/lab.html?instrument=water&waterVersion=v9#l13', { waitUntil:'domcontentloaded' });
   const dialog=page.locator('#instrumentDialog');
   await expect(dialog).toBeVisible({timeout:20000});
   await expect(dialog).toHaveAttribute('data-instrument-kind','water');
