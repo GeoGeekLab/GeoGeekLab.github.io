@@ -32,3 +32,18 @@ test('V7 production loader has three imports available as fallbacks',()=>{
  assert.match(loader,/loadModule\(WATER_INSTRUMENT\)/);
  assert.match(lab,/core\/modules\.js\?v=20261008v7/);
 });
+
+
+test('V7.1 spectral chart hotfix is versioned and keeps multiseries geometry accessible',()=>{
+ const chartFix=fs.readFileSync(path.join(root,'chart-fix.js'),'utf8');
+ assert.match(app,/data-chart-ref/);
+ assert.match(app,/__geoChartFixRegistry/);
+ assert.match(app,/chart-fix\.js\?v=7\.1\.0/);
+ assert.match(bridge,/chartfix/);
+ assert.match(chartFix,/preserveAspectRatio','xMidYMid meet/);
+ assert.match(chartFix,/getBoundingClientRect/);
+ assert.match(chartFix,/pointermove/);
+ assert.match(chartFix,/data-water-markers/);
+ assert.match(chartFix,/data\.series\.map/);
+ assert.match(lab,/core\/modules\.js\?v=20261008v7p2/);
+});
