@@ -152,3 +152,27 @@ test('duplicate click while a Play is opening does not cancel the pending open',
   await expect(page.locator('.play-shell[data-play-kind="orient"], .play-v2-shell[data-play-kind="orient"]')).toBeVisible({ timeout:20_000 });
   await expect.poll(() => page.evaluate(() => window.GeoInstruments?.getActive?.() || null)).toBe('locate');
 });
+
+test('PLAY reports a failed module and allows a clean second click', async ({ page }) => {
+  await page.route('**/play/light/light.js?*', route => route.abort());
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+  const trigger = page.locator('[data-instrument="light"]').first();
+  await trigger.click();
+  await expect(trigger).toContainText('RETRY PLAY', { timeout:20_000 });
+  await expect(page).toHaveURL(/\\/lab\\.html(?:\\?.*)?$/);
+  await page.unroute('**/play/light/light.js?*');
+  await trigger.click();
+  await expect(page.locator('.play-v2-shell[data-play-kind="light"]')).toBeVisible({ timeout:20_000 });
+});
+
+test('CONNECT exposes a retry action after a failed world dataset request', async ({ page }) => {
+  const atlas = '**/world-atlas@2.0.2/countries-110m.json';
+  await page.route(atlas, route => route.abort());
+  await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
+  await page.locator('[data-instrument="path"]').first().click();
+  const retry = page.locator('#instrumentStage [data-play-retry="path"]');
+  await expect(retry).toBeVisible({ timeout:20_000 });
+  await page.unroute(atlas);
+  await retry.click();
+  await expect(page.locator('.play-v2-shell[data-play-kind="connect"]')).toBeVisible({ timeout:20_000 });
+});
