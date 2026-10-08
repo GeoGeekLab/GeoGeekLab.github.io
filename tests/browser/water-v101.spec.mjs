@@ -55,6 +55,9 @@ test('V10.1 experiment JSON schema v8 preserves the actual RT reference selectio
  await app.locator('[data-rt-wl="550"]').click();
  await app.locator('[data-rt-depth="5"]').click();
  await app.locator('[data-tab="compare"]').click();
+ const advanced=app.locator('#advancedDetails');
+ if(!(await advanced.evaluate(el=>el.open))) await advanced.locator('summary').click();
+ await expect(app.locator('[data-export="json"]')).toBeVisible();
  const pending=page.waitForEvent('download');
  await app.locator('[data-export="json"]').click();
  const file=await pending;
