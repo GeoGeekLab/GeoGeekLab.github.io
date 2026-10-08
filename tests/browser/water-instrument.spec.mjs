@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test';
 
+// The legacy Water test suite verifies the fallback instrument intentionally.
+// Production uses Water V5 in a same-origin iframe; its own browser test is separate.
+test.beforeEach(async ({page}) => {
+  await page.route('**/water/workbench-v5/instrument.js*', route => route.abort());
+});
+
+
 test('Water as Spectrum opens as a production Lab observatory instrument', async ({ page }) => {
   await page.goto('/lab.html?instrument=water#l13', { waitUntil:'domcontentloaded' });
 
