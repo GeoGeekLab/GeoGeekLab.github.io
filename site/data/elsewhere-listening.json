@@ -495,10 +495,10 @@
         "videoId": "toneoiqviCI",
         "embedUrl": "https://www.youtube.com/embed/toneoiqviCI?si=DfnuaWgc1MrHNVqT",
         "watchUrl": "https://www.youtube.com/watch?v=toneoiqviCI",
-        "videoTitle": "西班牙斗牛士进行曲Spanish Bullfighter March",
-        "channel": "zestygalaxyways"
+        "videoTitle": "西班牙斗牛士进行曲 Spanish Bullfighter March",
+        "channel": "GalaxyWays"
       },
-      "context": "YouTube source title: 西班牙斗牛士进行曲 / Spanish Bullfighter March"
+      "context": "YouTube source title: 西班牙斗牛士进行曲 Spanish Bullfighter March"
     },
     {
       "id": "listening-025",
@@ -527,20 +527,21 @@
       "ref": "elsewhere:listening-026",
       "order": 26,
       "parentRef": "elsewhere:e03",
-      "title": "",
-      "titleStatus": "pending-source-verification",
-      "titleLanguage": "",
-      "titleForm": "",
-      "creator": "",
-      "firstReleased": "",
+      "title": "七月上",
+      "titleStatus": "verified",
+      "titleLanguage": "zh-Hans",
+      "titleForm": "original",
+      "creator": "Jam（阿敬）",
+      "firstReleased": "2015",
       "change": "",
       "source": {
         "provider": "YouTube",
         "videoId": "HBO5N5KGJzM",
         "embedUrl": "https://www.youtube.com/embed/HBO5N5KGJzM?si=2JaKCApgRtl7kbhz",
-        "watchUrl": "https://www.youtube.com/watch?v=HBO5N5KGJzM"
+        "watchUrl": "https://www.youtube.com/watch?v=HBO5N5KGJzM",
+        "videoTitle": "Jam阿敬《七月上》"
       },
-      "context": "YouTube metadata could not be reliably resolved from indexed sources."
+      "context": "民谣 · Jam（阿敬）"
     },
     {
       "id": "listening-027",
