@@ -96,6 +96,18 @@ test('RT-108 strict loading-failure UI does not fabricate reference curves',()=>
  assert.match(html,/Reference dataset unavailable/);
  assert.doesNotMatch(html,/rt-svg/);
 });
+test('RT-110 failed reference fetch still exports an honest importable schema identity',async()=>{
+ const engine=fs.readFileSync(path.join(root,'rt-engine.js'),'utf8');
+ const sandbox={fetch:()=>Promise.reject(new Error('offline')),Event:class Event{constructor(type){this.type=type}},dispatchEvent:()=>{}};
+ vm.runInNewContext(engine,sandbox);
+ await sandbox.GeoGeekRT101.load();
+ const x=sandbox.GeoGeekRT101.snapshot(validateSession({tab:'rt'}));
+ assert.equal(x.status,'error');
+ assert.equal(x.datasetSchema,'water-rt-reference-v1');
+ assert.equal(x.dataAvailable,false);
+ assert.equal(x.ioPs,null);
+ assert.equal(x.referenceEngine,null);
+});
 test('RT-109 V10.1 engine fallback and V10.0 source keep distinct iframe mounts',()=>{
  const v101=fs.readFileSync(path.join(root,'instrument.js'),'utf8');
  assert.match(v101,/GeoWaterWorkbenchV101/);
