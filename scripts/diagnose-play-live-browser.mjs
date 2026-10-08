@@ -9,7 +9,7 @@ const browser = await chromium.launch({ headless: true, args:['--disable-dev-shm
 let failures = 0;
 try {
   for (const mode of ['desktop', 'mobile']) {
-    const device = mode === 'mobile' ? devices['Pixel 7'] : { viewport:{width:1440,height:900} };
+    const device = mode === 'mobile' ? devices['Pixel 7'] : { viewport:{width:1843,height:832} };
     for (const [kind,dom] of kinds) {
       const context = await browser.newContext({ ...device, reducedMotion:'reduce' });
       const page = await context.newPage();
@@ -19,7 +19,7 @@ try {
       page.on('requestfailed', req => {
         if (failedRequests.length < 8) failedRequests.push(req.url().slice(0,180) + ': ' + req.failure()?.errorText);
       });
-      const url = host + '/lab.html?release=20261008c#l15';
+      const url = host + '/lab.html?release=20261008v7p1#l15';
       let outcome = 'PASS', reason = '';
       const diag = {};
       try {
@@ -56,6 +56,29 @@ try {
         if (diag.after.error) throw new Error('Stage rendered error: '+diag.after.error);
         if (diag.after.active !== kind) throw new Error('Incorrect active kind: '+diag.after.active);
         const shell = page.locator('.play-shell[data-play-kind="'+dom+'"],.play-v2-shell[data-play-kind="'+dom+'"]');
+        if (diag.before.release !== '20261008v7p1') throw new Error('Production Lab HTML is not the deployed PLAY repair release: ' + diag.before.release);
+        if (mode === 'desktop' && (kind === 'light' || kind === 'swath')) {
+          const name = kind === 'light' ? 'BLACK' : 'MORE GROUND · COARSER PIXELS';
+          const choice = shell.getByRole('button', {name});
+          await choice.waitFor({state:'visible',timeout:8000});
+          diag.initialControl = await choice.evaluate(button => {
+            const rect = button.getBoundingClientRect();
+            const stage = document.getElementById('instrumentStage')?.getBoundingClientRect();
+            const hit = document.elementFromPoint(rect.left + rect.width/2, rect.top + rect.height/2);
+            const toolbar = document.querySelector('.instrument-workspace-modes');
+            return {
+              top:rect.top,bottom:rect.bottom,
+              stageTop:stage?.top,stageBottom:stage?.bottom,
+              hit:!!hit&&(hit===button||button.contains(hit)),
+              toolbarDisplay:toolbar?getComputedStyle(toolbar).display:null
+            };
+          });
+          const g=diag.initialControl;
+          if (!g.hit || g.top < g.stageTop-2 || g.bottom > g.stageBottom+2 || g.toolbarDisplay!=='none') {
+            throw new Error('PLAY control is clipped or obstructed: '+JSON.stringify(g));
+          }
+        }
+
         if (kind === 'locate') {
           const start = shell.getByRole('button', {name:'START FIELD →'});
           const skip = shell.getByRole('button', {name:'SKIP PRIMER'});
