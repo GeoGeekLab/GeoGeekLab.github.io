@@ -116,6 +116,7 @@ jobs:
           node --test site/water/workbench-v9/tests/uncertainty.test.mjs
           node --test site/water/workbench-v9/tests/model-integration.test.mjs
           node --test site/water/workbench-v9/tests/startup-recovery.test.mjs
+          node --test site/water/workbench-v10/tests/v10-scientific-contract.test.mjs
           npm run qa
           node scripts/verify-play-live-release.mjs --local
 
