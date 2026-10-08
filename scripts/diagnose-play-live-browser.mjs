@@ -55,6 +55,33 @@ try {
         }));
         if (diag.after.error) throw new Error('Stage rendered error: '+diag.after.error);
         if (diag.after.active !== kind) throw new Error('Incorrect active kind: '+diag.after.active);
+        const shell = page.locator('.play-shell[data-play-kind="'+dom+'"],.play-v2-shell[data-play-kind="'+dom+'"]');
+        if (kind === 'locate') {
+          const start = shell.getByRole('button', {name:'START FIELD →'});
+          const skip = shell.getByRole('button', {name:'SKIP PRIMER'});
+          if (await start.isVisible()) await start.click();
+          else if (await skip.isVisible()) await skip.click();
+          else throw new Error('ORIENT primer controls are not visible');
+        } else if (kind === 'zone') {
+          await shell.getByRole('button', {name:'GUIDED REGION'}).click();
+          await page.waitForFunction(() => document.querySelector('.play-v2-shell[data-play-kind="bound"]')?.dataset.playState==='ready',null,{timeout:7000});
+        } else if (kind === 'path') {
+          for (const name of ['Spain','France','Germany','Poland']) await shell.getByRole('button',{name}).click();
+          await page.waitForFunction(() => document.querySelector('.play-v2-shell[data-play-kind="connect"]')?.dataset.playState==='routeReady',null,{timeout:7000});
+        } else if (kind === 'project') {
+          await shell.getByRole('button',{name:'GREENLAND'}).click();
+          await page.waitForFunction(() => document.querySelector('.play-v2-shell[data-play-kind="project"]')?.dataset.playState==='transforming',null,{timeout:7000});
+        } else if (kind === 'light') {
+          await shell.getByRole('button',{name:'BLACK'}).click();
+          await shell.getByRole('button',{name:'COMMIT PREDICTION'}).click();
+          await shell.getByRole('button',{name:'REMOVE SCATTERING'}).waitFor({state:'visible',timeout:7000});
+        } else if (kind === 'swath') {
+          await shell.getByRole('button',{name:'MORE GROUND · COARSER PIXELS'}).click();
+          await shell.getByRole('button',{name:'COMMIT PREDICTION'}).click();
+          await shell.getByRole('button',{name:'WIDEN FOV'}).waitFor({state:'visible',timeout:7000});
+        }
+        diag.internalControl = 'PASS';
+        diag.playState = await shell.getAttribute('data-play-state');
       } catch(error) {
         failures++;
         outcome='FAIL'; reason=String(error.message).slice(0,350);
