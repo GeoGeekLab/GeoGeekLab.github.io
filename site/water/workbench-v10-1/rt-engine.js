@@ -43,7 +43,7 @@
  }
  function snapshot(state){
   const c=caseData(state.rtCase),r=record(state.rtCase,state.rtSun,state.rtWl);
-  return {status:phase,datasetSchema:data?.schema||null,referenceEngine:data?.referenceEngine||null,
+  return {status:phase,datasetSchema:'water-rt-reference-v1',dataAvailable:Boolean(data),referenceEngine:data?.referenceEngine||null,
    caseId:state.rtCase,szaInWaterDeg:state.rtSun,wavelengthNm:state.rtWl,depthM:state.rtDepth,
    inputParams:c?.params||null,ioPs:r?{a_m1:r.a,bb_m1:r.bb,b_m1:r.b}:null,
    numerical:r?{iterations:r.iterations,residual:r.residual}:null,
