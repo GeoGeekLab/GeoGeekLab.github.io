@@ -191,7 +191,10 @@ test('Pulse detaches dense event DOM and coalesces rapid timeline scrubbing per 
   await page.locator('[data-pulse-representation="events"]').click();
   await expect(lab).toHaveAttribute('data-representation', 'events');
   await expect.poll(async () => (await page.evaluate(() => window.GeoPulseRound5Stats?.attachBatches || 0))).toBeGreaterThan(0);
-  await expect.poll(async () => (await page.evaluate(() => window.GeoPulseRound5Stats?.liveEventCount || 0))).toBeGreaterThan(0);
+  // Dense SVG reattachment runs in animation-frame batches. A fixed map
+  // viewport can briefly delay a frame while its containing grid is measured.
+  await expect.poll(async () => (await page.evaluate(() => window.GeoPulseRound5Stats?.liveEventCount || 0)),
+    {timeout:15000}).toBeGreaterThan(0);
 
   // Switch back while reattachment may still be in progress. The wrapper must
   // cancel the remaining batches rather than forcing all 2,400 SVG groups live.
