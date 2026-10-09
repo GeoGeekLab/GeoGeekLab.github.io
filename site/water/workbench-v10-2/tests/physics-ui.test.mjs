@@ -32,10 +32,11 @@ test('UX-061: path has five conceptual stages separate from computed readouts',(
  assert.equal((html.match(/data-stage="/g)||[]).length,5);
  for(const id of ['sun','atm','surface','water','sat'])assert.match(html,new RegExp('data-stage="'+id+'"'));
  for(const phrase of ['SCHEMATIC ONLY','not calculated photon trajectories','ACTUAL COMPUTED MODEL VALUES',
-  'does not solve an angle-resolved','not in this schematic','data-goto="iop"',
+  'does not solve an angle-resolved','data-goto="iop"',
   'Choosing a stage changes only the explanation','Simulated TOA ρ*'])assert.ok(html.includes(phrase),phrase);
  assert.match(html,/aria-pressed="true"/);
  assert.match(html,/Input \/ conditions/);
+ assert.match(V.path({...state,stage:'sat'},data,stageData),/not in this schematic/);
 });
 test('UX-061: stage selection does not change model arrays or water parameters',()=>{
  const {state,data,params}=sample(),oldParams=JSON.stringify(params);
