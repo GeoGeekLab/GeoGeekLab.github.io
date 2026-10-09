@@ -105,11 +105,18 @@ test('mouse and keyboard inspection show complete points; map zoom and configura
   // This isolated point tests physical pointer hit testing. Overlapping points are
   // intentionally reached through the event finder instead of forced hover.
   const circle=work.locator('.pw-event[data-event-id="B Polar Two"]');
-  await circle.hover();
+  // SVG <g> bounds are not necessarily the painted hit surface. Move the
+  // mouse to the real circle's screen coordinates and verify event delivery.
+  await circle.scrollIntoViewIfNeeded();
+  const hit=await circle.locator('.pw-event-hit').evaluate(node=>{
+    const box=node.getBoundingClientRect();
+    return {x:box.left+box.width/2,y:box.top+box.height/2};
+  });
+  await page.mouse.move(hit.x,hit.y);
   await expect(work.locator('.pw-hover-detail')).toContainText('B Polar Two');
   await expect(work.locator('.pw-hover-detail')).toContainText('COORDINATES');
   await expect(work.locator('.pw-floating-tip')).toBeVisible();
-  await circle.click();
+  await page.mouse.click(hit.x,hit.y);
   await expect(work.locator('.pw-hover-detail')).toContainText('PINNED');
 
   await work.locator('[data-pc="zoom-in"]').click();
