@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createRequire} from 'node:module';
-const require=createRequire(import.meta.url);
-const {local,ellipse,path}=require('../../site/world-distortion-v12.js');
+import '../../site/world-distortion-v12.js';
+const {local,ellipse,path}=globalThis.GeoWorldDistortion;
 const R=Math.PI/180;
 const projection=(formula,scale=100)=>Object.assign(([lon,lat])=>formula(lon*R,lat*R).map(x=>x*scale),{scale:()=>scale});
 const plate=projection((l,p)=>[l,-p]);
