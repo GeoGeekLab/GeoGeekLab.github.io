@@ -46,7 +46,7 @@ test('UX-064 nominal sensor shows no invented OLCI Oa11 sample',async({page})=>{
  await expect(row).toContainText('centre above 700 nm');
  await expect(row.locator('td').nth(4)).toHaveText('—');
  await expect(app.locator('.p6b-stages')).toContainText('Band integration');
- await expect(app.locator('.p6b-chart-section')).toContainText('SIMULATED');
+ await expect(app.locator('.p6b-chart-section')).toContainText('Simulated TOA');
 });
 test('UX-064 changes between sensor types and SRF modes without silent replacement',async({page})=>{
  const app=await open(page,'sensor');
