@@ -15,7 +15,9 @@ Lab release marker: `20261009v102`
 
 **STEP 03 — DONE.** Shared visual tokens, representative Project/Light samples, and legacy Orient token injection passed the desktop design contract after the selected-hover correction.
 
-**STEP 04 — DONE.** All six PLAY instruments occupy the desktop browser viewport without outer modal margins. The edge-to-edge shell, navigation, close/Escape behavior, and non-PLAY isolation passed regression. **Next: STEP 05 — Project visual redesign.**
+**STEP 04 — DONE.** All six PLAY instruments occupy the desktop browser viewport without outer modal margins. The edge-to-edge shell, navigation, close/Escape behavior, and non-PLAY isolation passed regression.
+
+**STEP 05 — DONE.** Project uses a desktop three-column task / map / evidence workbench. The area and route contracts passed desktop geometry, interaction and visual acceptance. **Next: STEP 06 — Light visual redesign.**
 
 ## Roadmap
 
@@ -26,7 +28,7 @@ Lab release marker: `20261009v102`
 | 02 | Light spectrum comparison correction | DONE |
 | 03 | Desktop design tokens and components | DONE |
 | 04 | Edge-to-edge PLAY workspace | DONE |
-| 05 | Project visual redesign | PLANNED |
+| 05 | Project visual redesign | DONE |
 | 06 | Light visual redesign | PLANNED |
 | 07 | Bound visual redesign | PLANNED |
 | 08 | Swath visual redesign | PLANNED |
@@ -302,6 +304,57 @@ The skipped cases are eleven intentionally desktop-only STEP 03–04 browser cas
 4. Verify desktop canvas geometry, prediction-before-reveal contract, geodesic rendering, keyboard/pointer behavior and scientific annotations.
 5. Capture Project entry, commitment, projection, route and reveal at declared desktop viewports.
 6. Update acceptance and this status with actual test evidence. Keep other five instruments unchanged unless a verified shared-shell issue requires an exception.
+
+
+## STEP 05 acceptance — 2026-10-09
+
+### Decision: DONE
+
+**Validated implementation revision:** `e4e2165817df051c34a61463cea55eba5b5b21e9`  
+**Passing CI:** [GeoGeek Quality 37925719679](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37925719679) — COMPLETED / SUCCESS.  
+**Visual artifact:** `quality-reports`, artifact ID `11614926246`.
+
+### Changes delivered
+
+- `site/play/project/project-view.js`: area task and scientific evidence separated; true-area data introduced only after the reveal.
+- `site/play/project/project-route-view.js`: route stages, legend and geodesic evidence in the independent rail.
+- `site/play/project/project-v2.css`: edge-to-edge three-column Project workspace with legible mapping layers and responsive desktop rail sizing.
+- `site/play/project/project.js`, `site/play/play-runtime.js`, `site/lab.html`: versioned Project-specific stylesheet/script resources; no changes to other instrument logic.
+- `tests/browser/project-desktop-redesign.spec.mjs`: verifies rail boundaries, reveal progression, legend timing, keyboard input and viewport constraints.
+- `docs/play-desktop-redesign/ACCEPTANCE.md`, `STATUS.md`: record final evidence and remaining release checks.
+
+The STEP 01 projection geometry and scientific data model remain untouched. `project-morph.js`, spherical area, geodesic sampling, trace logic, and prediction state flow are unchanged.
+
+### Test and screenshot acceptance
+
+- Full CI at the validated revision: **504 Playwright cases; 489 passed, 15 skipped, 0 failed, 0 flaky**.
+- Project desktop redesign test cases: **3/3 passed**. Dedicated mobile counterparts are intentionally skipped.
+- Desktop sizes: **1920×1080, 1440×900, 1366×768**.
+- Twelve screenshots verified: area prediction and revealed area, route drawing and route result, each at the three desktop sizes.
+- Visual inspection: task rail, map canvas and evidence rail have no mutual overlap; the Mercator/Equal Earth and azimuthal/geodesic scenes remain legible.
+- Small desktop height: India ≈3.29M km², Greenland ≈2.17M km² and the apparent-area comparison remain visible in the 1366×768 result without scrolling.
+- Hover, keyboard focus, pointer drawing, slider progression and pre-commit truth hiding are covered by existing and new browser tests.
+- `ACCEPTANCE.md` contains the per-contract evidence for P01–P06 and explicit deferrals.
+
+### Post-acceptance CI note
+
+A **later, documentation-only** branch commit `dad4c7d8a403ffbf435eba036c273b7a3da9eba5` triggered [run 37928388374](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37928388374), which reported **487 passed, 15 skipped, 1 failed**. The failure was in the pre-existing `play-fullviewport-workspace.spec.mjs` World isolation/close scenario: the World Dialog retained its `open` attribute after the close button click. No Project-specific test failed, and the branch comparison with the passing implementation showed only `ACCEPTANCE.md` changed. This suite failure is not represented as passing; review it during cross-instrument release regression at STEP 12, or earlier if it reproduces in other steps.
+
+### Remaining release requirements
+
+- True browser 125% zoom: **NOT RUN**. A smaller CSS viewport is not equivalent.
+- Identical-state pixel-level comparison against STEP 00 source captures: **NOT RUN**.
+- Other PLAY instrument visual redesigns: **DEFERRED to STEPS 06–10**.
+- Non-PLAY close reliability regression: **OPEN**, as noted above.
+
+### STEP 06 handoff — Light visual redesign
+
+1. Read all five project documents and the current branch HEAD.
+2. Preserve STEP 02 shared spectral Y scale, actual SVG zero baseline, the wavelength/units annotation and three mechanism states.
+3. Organize Light scene, scientific path legend, before/after spectrum, task controls and measurement evidence as a desktop workspace without persistent overlap.
+4. Keep Light visual changes scoped to the Light instrument. Do not alter Project's completed visual layout or other PLAY physics.
+5. Verify guided progression, numerical scale, pointer/keyboard controls and model limitations at 1920×1080, 1440×900 and 1366×768.
+6. Record screenshot evidence and test outcomes in `ACCEPTANCE.md` and `STATUS.md` before closing STEP 06.
 
 ## Future log format
 
