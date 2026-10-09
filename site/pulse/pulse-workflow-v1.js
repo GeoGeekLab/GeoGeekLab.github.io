@@ -11,7 +11,7 @@
   const FEED_ENDPOINT = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = new URL('./pulse-workflow-v1.css?v=20261009r3', import.meta.url).href;
+  style.href = new URL('./pulse-workflow-v1.css?v=20261009r3b', import.meta.url).href;
   style.setAttribute('data-pulse-workflow-style', '1');
   if (!document.querySelector('link[data-pulse-workflow-style]')) document.head.appendChild(style);
 
