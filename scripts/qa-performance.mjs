@@ -23,10 +23,16 @@ function executableScripts(html) {
   });
 }
 
+function isDeclaredWaterV102SyncDependency(attrs, src) {
+  const declared=attrs.match(/\bdata-geogeek-sync-dependency\s*=\s*(['"])water-v102-(physics|atm-sensor|analysis)\1/i);
+  return Boolean(declared && new RegExp('(?:^|/)v102-'+declared[2]+'-views\\.js(?:[?#].*)?$','i').test(src));
+}
+
 function accidentalBlockingLocalScripts(html) {
   return executableScripts(html).filter(({ attrs, src }) =>
     !/^(?:https?:)?\/\//i.test(src) &&
     !isIntentionalSyncBootstrap(src) &&
+    !isDeclaredWaterV102SyncDependency(attrs, src) &&
     !/\b(?:defer|async)\b/i.test(attrs) &&
     !/\btype\s*=\s*(['"])module\1/i.test(attrs)
   );
