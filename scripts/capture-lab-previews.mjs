@@ -129,6 +129,12 @@ async function captureInstrument(kind) {
     if (kind === 'pulse') {
       assertPulseProductionSupply();
       await lockPulseToSameOrigin(page);
+      page.on('pageerror',error=>console.error('Pulse preview page error:',error.message));
+      page.on('requestfailed',request=>{
+        if (/pulse|usgs|natural-earth|data\/snapshots|data\/reference/.test(request.url())) {
+          console.error('Pulse preview request failed:',request.url(),request.failure()?.errorText);
+        }
+      });
     }
 
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
@@ -145,7 +151,25 @@ async function captureInstrument(kind) {
 
     if (kind === 'pulse') {
       await page.waitForFunction(() => !!window.GeoPulseObservationLab && window.GeoGeekInstrumentMounts?.pulse === window.GeoPulseObservationLab.mount, null, { timeout: 10000 });
-      await page.waitForSelector('.pulse-observation-lab[data-state="ready"]', { state: 'visible', timeout: 10000 });
+      await page.waitForSelector('.pulse-observation-lab[data-state="ready"]', { state: 'visible', timeout: 10000 })
+        .catch(async error=>{
+          const diagnostic=await page.evaluate(()=>{
+            const stage=document.querySelector('#instrumentStage');
+            const lab=stage?.querySelector('.pulse-observation-lab');
+            const dialog=document.querySelector('#instrumentDialog');
+            const instrumentError=stage?.querySelector('.instrument-error');
+            return {
+              dialogTask:dialog?.dataset.pulseTask||null,
+              stageBusy:stage?.getAttribute('aria-busy'),
+              labState:lab?.dataset.state||null,
+              labHidden:lab?getComputedStyle(lab).display:null,
+              instrumentError:instrumentError?.textContent?.slice(0,600)||null,
+              stageText:stage?.textContent?.slice(0,900)||null
+            };
+          });
+          console.error('Pulse preview readiness diagnostic:',JSON.stringify(diagnostic));
+          throw error;
+        });
     }
 
     if (kind === 'flow') await exerciseFlowLab(page);
