@@ -9,14 +9,14 @@ Lab release marker: `20261009v102`
 
 **STEP 00 — DONE (documentation and visual-reference baseline).** No PLAY runtime, stylesheet or test implementation was modified. The provided six screenshots have been catalogued; repeatable browser captures and baseline test results are not yet available.
 
-**STEP 01 — IN REVIEW.** The Mercator latitude-bound correction and targeted Project browser regression have been committed. Actual browser geometry, interaction states, and screenshots are not yet verified. STEP 02 must not start until STEP 01 passes its acceptance gate.
+**STEP 01 — DONE.** The Project projection geometry correction passed full GitHub Quality, dedicated browser geometry regressions, area/route interaction tests, and post-fix desktop screenshot inspection. **Next: STEP 02 — Light spectral comparison correction.**
 
 ## Roadmap
 
 | Step | Task | State |
 | --- | --- | --- |
 | 00 | Project audit and baseline | DONE |
-| 01 | Project geometry correction | IN REVIEW |
+| 01 | Project geometry correction | DONE |
 | 02 | Light spectrum comparison correction | PLANNED |
 | 03 | Desktop design tokens and components | PLANNED |
 | 04 | Edge-to-edge PLAY workspace | PLANNED |
@@ -128,6 +128,38 @@ GitHub Actions quality workflow triggered for commit `02cd6e98e155ca2b76281b7577
 P01 and P02 are **IN REVIEW**, not PASS. Confirm the true SVG land/sphere extent and finite shape at Mercator, intermediate projection states, Equal Earth and Tokyo-centered azimuthal. Confirm P03–P05 against existing interaction tests. P06's full workspace layout belongs to STEP 05 and is not claimed complete here.
 
 Do not start STEP 02 until the required Project browser test and screenshots have been evaluated. If CI fails due an unrelated dependency, record the blocker and rerun the targeted Project test in a suitable environment before closing STEP 01.
+
+
+## STEP 01 acceptance — 2026-10-09
+
+### Decision: DONE
+
+Validated implementation revision: `f00b78c28e1baa7aeefbe6330c5f2a72d9563813`.
+
+- [GeoGeek Quality run 37901771959](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37901771959) **COMPLETED / SUCCESS**, including build, static QA, links, the complete browser suite and Lighthouse.
+- Embedded Playwright report: **472 total; 471 passed; 1 skipped; 0 failed; 0 flaky**.
+- Project-related tests: **14/14 passed**, including new geometry tests (four runs across two configured browser projects) and existing pointer, apparent-area, finite-coordinate, area-and-route tests.
+- New desktop geometry checks cover **1920×1080, 1366×768 and 1440×900**. The area and route scrubbers are checked at 0%, 25%, 50%, 75%, 100%.
+- Automated screenshot attachments in the `quality-reports` artifact:
+  - `area-mercator-1920`: `playwright-report/data/4e22d514db99af41c400193e0f70054635c953ca.png` (1920×1080; desktop Chromium).
+  - `route-azimuthal-1440`: `playwright-report/data/d454d1dab851b4a57d19dc8af1a52e1312c0e51e.png` (1440×900; desktop Chromium).
+- Visual inspection of both desktop screenshots: the initial world map is now legible and occupies a meaningful square field, rather than the previous narrow vertical strip; Greenland/India highlights are distinguishable. The final route projection shows Tokyo, Vancouver and a visible geodesic; the azimuthal field and route remain finite.
+- `tests/browser/water-prototype.spec.mjs` contains the one skipped test. It is unrelated to Project.
+- STEP 01 acceptance values and remaining deferred items are recorded in `ACCEPTANCE.md` under `STEP 01 acceptance`.
+
+### Boundaries and remaining issues
+
+P01–P05 **PASS** for the geometry and established experiment contracts. P06, a completely unobstructed full workspace, is intentionally deferred to **STEP 05**. The edge-to-edge PLAY workspace is **STEP 04**. The initial reference screenshot was 1920×869, so same-resolution pixel comparison was **NOT RUN**; the before/after evaluation was qualitative. Desktop 125% zoom screenshots remain **NOT RUN** and belong to STEP 12.
+
+The reports and screenshots originate from the tested implementation revision above. Subsequent commits to `ACCEPTANCE.md` and `STATUS.md` are documentation-only changes; they do not modify the tested projection code.
+
+### Handoff — STEP 02
+
+1. Verify this status and the acceptance matrix on `design/play-desktop-v2`.
+2. Restrict STEP 02 runtime changes to Light's spectral graph and immediately related tests.
+3. Replace independent before/after curve normalization with a shared domain within each trial.
+4. Confirm zero-signal handling, units, mechanism dependencies, and readout descriptions.
+5. Run Light browser and numerical tests. Record screenshot evidence and test status without assuming success.
 
 ## Future log format
 
