@@ -913,6 +913,51 @@ return {chartSvg,chartFrame,metricGrid,fmtShort};
 
 return {createChartComponents};
 },
+"components/workbench-shell.js": function(require){
+/* Presentation only. Stable workspace IDs, model state and experiment schema are
+ * owned by existing V10.1 modules. No numerical work is done in this component. */
+const GROUPS=Object.freeze([
+ {label:'Physical model',ids:['path','iop','atm','sensor','ac']},
+ {label:'Analysis',ids:['compare','sensitivity','uncertainty']},
+ {label:'Numerical reference',ids:['rt']}
+]);
+function escapeText(x){return String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderGroupedNavigation(tab,workspaces){
+ const map=new Map(workspaces.map(x=>[x.id,x]));
+ if(GROUPS.flatMap(g=>g.ids).length!==map.size||new Set(GROUPS.flatMap(g=>g.ids)).size!==map.size||
+    GROUPS.some(g=>g.ids.some(id=>!map.has(id))))throw Error('Grouped navigation must contain all workspaces exactly once');
+ return GROUPS.map((group,index)=>{
+  const selected=group.ids.includes(tab);
+  const tabs=group.ids.map(id=>{
+   const w=map.get(id),on=id===tab;
+   return '<button type="button" role="tab" class="tab" id="tab-'+id+'" data-tab="'+id+'" aria-selected="'+on+'" aria-controls="mainContent" tabindex="'+(on?'0':'-1')+'"><span class="no">'+escapeText(w.no)+'</span>'+escapeText(w.label)+'</button>';
+  }).join('');
+  return '<div role="presentation" class="ui-nav-group'+(selected?' is-current':'')+'" data-nav-group="'+index+'"><span aria-hidden="true" class="ui-nav-heading">'+escapeText(group.label)+'</span><div role="presentation" class="ui-nav-links">'+tabs+'</div></div>';
+ }).join('');
+}
+function renderScientificStatus(state,rt){
+ const isRT=state.tab==='rt';
+ const modelVariant=globalThis.GeoGeekV10Contract?.modelVariant?.(state.params)||'unspecified';
+ const model=isRT?'Scalar DOM · fixed grid':'Semi-analytical · '+(modelVariant==='baseline'?'baseline':modelVariant);
+ let validation=isRT?'Internal numerical checks · no external benchmark':'Teaching model · not field validated';
+ let reference;
+ if(isRT){
+  const status=rt?.status||'loading';
+  reference=status==='ready'
+   ?(rt.matches(state.params,state.rtCase,state.rtSun)?'RT archived case · current state matched':'RT archived case · current state differs')
+   :('RT dataset '+status+' · no inferred values');
+ }else if(state.tab==='uncertainty'){
+  reference='Assumed independent Gaussian noise · local Fisher';
+ }else if(state.tab==='sensor'){
+  reference=state.responseMode==='measured'?'Published SRF where supported':'Nominal SRF · not measured response';
+ }else{
+  reference='V10.1 semi-analytical formulation';
+ }
+ return {uiModelStatus:model,uiSessionStatus:'Local browser · no cloud sync',
+   uiValidationStatus:validation,uiReferenceStatus:reference};
+}
+return {GROUPS,renderGroupedNavigation,renderScientificStatus};
+},
 "components/parameter-controls.js": function(require){
 const {CFG,PSETS} = require("core/config.js");
 const {sliderVal} = require("core/numbers.js");
