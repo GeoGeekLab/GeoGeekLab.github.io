@@ -81,6 +81,7 @@
 
     const analysis = document.createElement('section');
     analysis.className='pw-section pw-analysis';
+    analysis.dataset.pwSection='compare';
     analysis.innerHTML = [
       '<h3>04 · COMPARE TWO UTC WINDOWS</h3>',
       '<p>A and B are half-open UTC intervals [start, end). Both use the existing source, ROI and view filters. Periods must not overlap.</p>',
@@ -96,7 +97,7 @@
         '<div><small>WINDOW A</small><strong data-pc="a-count">—</strong><span data-pc="a-detail">—</span></div>',
         '<div><small>WINDOW B</small><strong data-pc="b-count">—</strong><span data-pc="b-detail">—</span></div>',
       '</div>',
-      '<p>Counts and observed records/hour describe these filtered catalogue windows only. They are not completeness-corrected seismicity rates or hazard estimates.</p>',
+      '<p data-pc="comparison-note">Counts and observed records/hour describe only the filtered catalogue. They are not completeness-corrected seismicity rates or hazard estimates.</p>',
       '<h3>05 · TEMPORAL & DISTRIBUTION CHARTS</h3>',
       '<div class="pw-chart-wrap"><div class="pw-chart-head"><strong>TIME TREND</strong><small>12 RELATIVE ELAPSED-TIME BINS · A / B</small></div><svg class="pw-chart" data-pc="trend" viewBox="0 0 600 175" role="group" aria-label="A and B event counts by relative elapsed-time bin"></svg></div>',
       '<div class="pw-chart-wrap"><div class="pw-chart-head"><strong>MAGNITUDE DISTRIBUTION</strong><small>0.5 MAGNITUDE BINS · UNKNOWN INCLUDED</small></div><svg class="pw-chart" data-pc="magnitude" viewBox="0 0 600 175" role="group" aria-label="A and B earthquake magnitude histogram"></svg></div>',
@@ -238,6 +239,12 @@
     function setStats() {
       const countA=periodStats(latest.a,periods?.a.end-periods?.a.start);
       const countB=periodStats(latest.b,periods?.b.end-periods?.b.start);
+      el('comparison-note').textContent=
+        'A: '+num(countA.count)+' events / '+num((periods.a.end-periods.a.start)/3600000)+' h; '+
+        'B: '+num(countB.count)+' events / '+num((periods.b.end-periods.b.start)/3600000)+
+        ' h. Rates shown as observed records/h = counts ÷ window hours, not detection-corrected seismicity rates. '+
+        'Both windows use the same '+state.visible.length+' ROI/filter records from a '+state.events.length+
+        '-record loaded catalogue. Hazard and completeness cannot be inferred.';
       [['a',countA],['b',countB]].forEach(([key,s])=>{
         el(key+'-count').textContent=num(s.count)+' EVENTS';
         el(key+'-detail').textContent='MAX '+(s.maxMagnitude==null?'—':'M'+s.maxMagnitude.toFixed(1))+
