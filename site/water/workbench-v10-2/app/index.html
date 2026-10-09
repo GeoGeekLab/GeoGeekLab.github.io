@@ -1161,7 +1161,7 @@ function depthProfile({depths,series,selectedDepth,title,desc,axisTitle,log=fals
   textNode(xmin,ymin-10,'z increases downward','start','#b6cfc0');
  return svg({title,description:desc,body});
 }
-function spectralChart({xs,series,title,desc,unit,selectedWavelength}){
+function spectralChart({xs,series,title,desc,unit,selectedWavelength,xTitle='Wavelength (nm) · sampled nodes',nodeUnit='nm',xDigits=0}){
  const xmin=75,xmax=WIDTH-24,ymin=YTOP,ymax=HEIGHT-YBOTTOM;
  const vals=series.flatMap(s=>s.data).filter(Number.isFinite);
  const ymaxValue=Math.max(0,...vals)*1.13||1;
@@ -1172,17 +1172,17 @@ function spectralChart({xs,series,title,desc,unit,selectedWavelength}){
  }
  for(const nm of xs){
   const x=X(nm);body+=line(x,ymin,x,ymax,nm===selectedWavelength?'#997a54':'#304b3e',nm===selectedWavelength?'5 4':'3 6')+
-   textNode(x,ymax+19,nm+'','middle',nm===selectedWavelength?'#e9c598':'#b8d1c1');
+   textNode(x,ymax+19,xDigits?Number(nm).toFixed(xDigits):nm+'','middle',nm===selectedWavelength?'#e9c598':'#b8d1c1');
  }
  for(const s of series){
   // Mark discrete nodes only. No continuous spectral RT curve is implied.
   for(let i=0;i<xs.length;i++)if(Number.isFinite(s.data[i])){
    const x=X(xs[i]),y=Y(s.data[i]);
-   body+=dot(x,y,s.color,s.label+' at '+xs[i]+' nm: '+fmt(s.data[i],6));
+   body+=dot(x,y,s.color,s.label+' at '+xs[i]+' '+nodeUnit+': '+fmt(s.data[i],6));
    body+=line(x-4,y,x+4,y,s.color);
   }
  }
- body+=textNode((xmin+xmax)/2,HEIGHT-17,'Wavelength (nm) · sampled nodes');
+ body+=textNode((xmin+xmax)/2,HEIGHT-17,xTitle);
  body+=textNode(xmin,ymin-10,unit,'start','#d0e0d5');
  return svg({title,description:desc,body});
 }
@@ -1276,7 +1276,7 @@ function renderAngular(r,state,eng){
  const svgChart=spectralChart({xs:x,series:[{label:'Azimuth-averaged L_u',data:y,color:COLOR.rt}],
   title:'Upward radiance across eight direction nodes',
   desc:'Eight upward zenith Gauss nodes. Horizontal coordinate is absolute directional cosine; no sun-relative azimuth is resolved.',
-  selectedWavelength:-1,unit:'L_u / E_d0 (sr⁻¹)'});
+  selectedWavelength:-1,unit:'L_u / E_d0 (sr⁻¹)',xTitle:'|μ| = |cos(upward zenith)| · 0=horizon, 1=nadir',nodeUnit:'|μ|',xDigits:2});
  const chart=chartCard('Upward radiance at z = '+state.rtDepth+' m',
   '|μ| = 0 indicates the upward horizon and |μ| = 1 is exactly upward nadir. Points are solved quadrature nodes, not an interpolated viewing-angle field.',
   svgChart,[{label:'Azimuth-averaged L_u',color:COLOR.rt}]);
