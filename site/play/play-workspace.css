@@ -5,17 +5,19 @@
  */
 @media (min-width: 1024px) {
 .instrument-dialog[data-play-workspace="true"] {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  max-width: none;
-  max-height: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
+  /* Match the proven Lab full-page sizing contract. Legacy dialog rules
+     can otherwise retain their max-width and constrain the PLAY viewport. */
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   background: #0b100e;
   color: #edece5;
   box-shadow: none;
