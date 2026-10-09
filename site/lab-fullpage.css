@@ -427,11 +427,7 @@
 .instrument-dialog[data-instrument-kind="pulse"] .pulse-panel-section > strong,
 .instrument-dialog[data-instrument-kind="pulse"] .pulse-control-heading strong { font-size: 14px !important; line-height: 1.28 !important; }
 .instrument-dialog[data-instrument-kind="pulse"] .pulse-panel-section p { color: var(--lab-workspace-body) !important; font-size: 11px !important; line-height: 1.5 !important; }
-/* Pulse uses a consistent map + provenance rail in both research tasks. */
-.instrument-dialog[data-instrument-kind="pulse"] .pulse-encoding,
-.instrument-dialog[data-instrument-kind="pulse"] .pulse-provenance {
-  display: block !important;
-}
+/* Pulse keeps its scientific context visible; task navigation replaces density modes. */
 
 /* FIGURE — source image and derived field form one visual argument. */
 .instrument-dialog[data-instrument-kind="figure"] .figure-workbench,
