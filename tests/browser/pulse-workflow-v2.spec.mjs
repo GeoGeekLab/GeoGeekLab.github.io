@@ -544,3 +544,56 @@ test('Pulse ROI, field status and controls remain legible at narrow layouts',asy
   expect(mapRect.width).toBeGreaterThan(180);
   expect(mapRect.height).toBeGreaterThan(90);
 });
+
+test('comparison denominators track ROI-filter scope and never claim seismic hazard rates',async({page})=>{
+  await open(page);
+  const work=page.locator('.pulse-workflow');
+  const note=work.locator('[data-pc="comparison-note"]');
+  await expect(note).toContainText('A: 3 events /');
+  await expect(note).toContainText('B: 2 events /');
+  await expect(note).toContainText('5 ROI/filter records from a 5-record loaded catalogue');
+  await expect(note).toContainText('not detection-corrected seismicity rates');
+
+  // Narrow ROI to the A records while retaining the loaded catalogue.
+  for(const [key,value] of Object.entries({west:'-80',east:'-55',south:'0',north:'25'})){
+    await work.locator('[data-pw="'+key+'"]').fill(value);
+  }
+  await work.locator('[data-pw="apply-roi"]').click();
+  await expect(work.locator('[data-pw="visible"]')).toHaveText('3');
+  await expect(note).toContainText('3 ROI/filter records from a 5-record loaded catalogue');
+  await expect(note).toContainText('B: 0 events /');
+  await work.locator('[data-pw="reset-roi"]').click();
+  await expect(note).toContainText('5 ROI/filter records from a 5-record loaded catalogue');
+});
+
+test('mobile Observe and Analyze controls have 44px touch targets without horizontal page overflow',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await open(page);
+  await page.waitForFunction(()=>Boolean(document.querySelector('link[data-pulse-ui-system]')?.sheet));
+  const touch=async selector=>page.locator(selector).first().evaluate(node=>({
+    width:node.getBoundingClientRect().width,
+    height:node.getBoundingClientRect().height
+  }));
+  for(const selector of [
+    '.pw-section-nav button',
+    '[data-pw="draw"]',
+    '[data-pw="snapshot"]',
+    '[data-pw="west"]',
+    '[data-pc="display"]',
+    '[data-pc="zoom-in"]'
+  ]){
+    const size=await touch(selector);
+    expect(size.height,selector).toBeGreaterThanOrEqual(44);
+    expect(size.width,selector).toBeGreaterThan(20);
+  }
+  await expect(page.locator('.pulse-workflow')).toBeVisible();
+  const source=page.locator('[data-pw="source-state"]');
+  await expect(source).toContainText('USGS feed generated');
+  await page.locator('.pulse-task-tabs [data-pulse-task="observe"]').click();
+  await expect(page.locator('.pulse-observation-lab')).toBeVisible();
+  for(const selector of ['#pulsePlay','#pulseMagnitudeFilter','#pulseTimeline']){
+    expect((await touch(selector)).height,selector).toBeGreaterThanOrEqual(44);
+  }
+  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+});
