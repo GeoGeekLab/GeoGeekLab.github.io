@@ -233,7 +233,10 @@ test('SOURCE navigation scrolls the controls rail only and never displaces the f
     };
   });
   const before = await layout();
-  await source.click();
+  // Playwright locator.click() scrolls all ancestors to bring an offscreen
+  // button into view on narrow mobile layouts. That auto-scroll is unrelated
+  // to the SOURCE handler; trigger the link directly to test its scroll scope.
+  await source.evaluate(link => link.click());
   await expect.poll(async () => (await layout()).railScroll).toBeGreaterThan(before.railScroll + 30);
   const after = await layout();
 
