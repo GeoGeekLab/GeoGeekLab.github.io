@@ -29,7 +29,7 @@
     orbit:'orbital/orbit-round2.js?v=20261002a',
     earth:'earth-observation-v3/earth-round2.js?v=20261002a',
     flow:'flow/flow-round2.js?v=20261002d',
-    pulse:'pulse/pulse-round6.js?v=20261009r3'
+    pulse:'pulse/pulse-round6.js?v=20261009fixed1'
   };
   const refinementLoads = new Map();
   let activeKind = '';
@@ -114,15 +114,33 @@
     });
   }
 
+  function loadPulseMapViewport() {
+    const existing = document.querySelector('link[data-pulse-map-viewport]');
+    if (existing?.sheet) return Promise.resolve();
+    return new Promise((resolve,reject) => {
+      const link=existing||document.createElement('link');
+      link.rel='stylesheet';
+      link.href=new URL('pulse/pulse-map-viewport.css?v=20261009fixed1',document.baseURI).href;
+      link.dataset.pulseMapViewport='1';
+      link.onload=resolve;
+      link.onerror=()=>{
+        link.remove();
+        reject(new Error('Earth Pulse fixed map viewport could not load'));
+      };
+      if(!existing)document.head.appendChild(link);
+    });
+  }
+
   function loadRefinement(kind) {
     const src = REFINEMENTS[kind];
     if (!src) return Promise.resolve();
     if (refinementLoads.has(src)) return refinementLoads.get(src);
     const promise = import(new URL(src, document.baseURI).href)
       .then(() => kind === 'pulse'
-        ? import(new URL('pulse/pulse-workflow-v1.js?v=20261009r5', document.baseURI).href)
-            .then(() => import(new URL('pulse/pulse-workflow-v2.js?v=20261009r5', document.baseURI).href))
+        ? import(new URL('pulse/pulse-workflow-v1.js?v=20261009fixed1', document.baseURI).href)
+            .then(() => import(new URL('pulse/pulse-workflow-v2.js?v=20261009fixed1', document.baseURI).href))
             .then(loadPulseVisualSystem)
+            .then(loadPulseMapViewport)
         : undefined)
       .catch(error => {
       refinementLoads.delete(src);
