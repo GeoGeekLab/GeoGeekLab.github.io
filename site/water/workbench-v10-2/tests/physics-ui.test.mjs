@@ -32,7 +32,7 @@ test('UX-061: path has five conceptual stages separate from computed readouts',(
  assert.equal((html.match(/data-stage="/g)||[]).length,5);
  for(const id of ['sun','atm','surface','water','sat'])assert.match(html,new RegExp('data-stage="'+id+'"'));
  for(const phrase of ['SCHEMATIC ONLY','not calculated photon trajectories','ACTUAL COMPUTED MODEL VALUES',
-  'not an angle-resolved','not in this schematic','data-goto="iop"',
+  'does not solve an angle-resolved','not in this schematic','data-goto="iop"',
   'Choosing a stage changes only the explanation','Simulated TOA ρ*'])assert.ok(html.includes(phrase),phrase);
  assert.match(html,/aria-pressed="true"/);
  assert.match(html,/Input \/ conditions/);
@@ -43,8 +43,9 @@ test('UX-061: stage selection does not change model arrays or water parameters',
  const after=V.path({...state,stage:'atm'},data,stageData);
  assert.notEqual(before,after);
  assert.equal(JSON.stringify(params),oldParams);
- assert.ok(before.includes(data.a[43].toExponential(4)),'same computed absorption in path view');
- assert.ok(after.includes(data.a[43].toExponential(4)),'focus selection does not replace modeled data');
+ const aValue=Math.abs(data.a[43])<.001?data.a[43].toExponential(4):data.a[43].toFixed(5);
+ assert.ok(before.includes(aValue),'same computed absorption in path view');
+ assert.ok(after.includes(aValue),'focus selection does not replace modeled data');
 });
 test('UX-062: IOP/AOP view gives three distinct quantities, units and models',()=>{
  const {state,data}=sample(),html=V.optics(state,data,mockCharts);
