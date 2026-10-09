@@ -279,3 +279,91 @@ test('ROI drawing, pointer-centred zoom and drag pan stay accurate with SVG lett
   expect(await roi('north')).toBeCloseTo(lat(180),1);
   await expect(work.locator('[data-pw="visible"]')).toHaveText('3');
 });
+
+test('ROI and filters invalidate stale event selections without changing catalogue statistics',async({page})=>{
+  await open(page);
+  const work=page.locator('.pulse-workflow');
+  await work.locator('[data-pc="find"]').fill('A Rift');
+  await work.locator('[data-pc="found"] button').first().click();
+  await expect(work.locator('.pw-selected')).toContainText('A Rift');
+  await expect(work.locator('.pw-hover-detail')).toContainText('PINNED · A Rift');
+
+  // The ROI retains A Rift and A Pacific but excludes the other records.
+  for(const [key,value] of Object.entries({west:'-82',east:'-63',south:'5',north:'25'})){
+    await work.locator('[data-pw="'+key+'"]').fill(value);
+  }
+  await work.locator('[data-pw="apply-roi"]').click();
+  await expect(work.locator('[data-pw="loaded"]')).toHaveText('5');
+  await expect(work.locator('[data-pw="visible"]')).toHaveText('2');
+  await expect(work.locator('.pw-selected')).toContainText('A Rift');
+  await expect(work.locator('.pw-hover-detail')).toContainText('A Rift');
+
+  // M >= 4 removes the previously pinned M3.6 record.
+  await work.locator('[data-pw="view-mag"]').fill('4');
+  await work.locator('[data-pw="view-mag"]').dispatchEvent('change');
+  await expect(work.locator('[data-pw="visible"]')).toHaveText('1');
+  await expect(work.locator('[data-pw="max-mag"]')).toHaveText('M 4.1');
+  await expect(work.locator('.pw-selected')).toContainText('outside the current ROI or filters');
+  await expect(work.locator('.pw-hover-detail')).toContainText('outside the current ROI or filters');
+  await expect(work.locator('[data-pc="found"]')).toContainText('No matching visible records');
+
+  const downloadPromise=page.waitForEvent('download');
+  await work.locator('[data-pw="geojson"]').click();
+  const file=await downloadPromise;
+  const saved=JSON.parse(await readFile(await file.path(),'utf8'));
+  expect(saved.features.map(f=>f.id)).toEqual(['A Pacific']);
+  expect(saved.metadata.loadedValidRecords).toBe(5);
+  expect(saved.metadata.visibleRecords).toBe(1);
+
+  await work.locator('[data-pw="reset-roi"]').click();
+  await expect(work.locator('[data-pw="visible"]')).toHaveText('3');
+  await expect(work.locator('.pw-selected')).not.toContainText('A Rift');
+});
+
+test('window scope constrains point markers and invalidates selections outside map data',async({page})=>{
+  await open(page);
+  const work=page.locator('.pulse-workflow');
+  const a=work.locator('.pw-event[data-event-id="A Pacific"]');
+  const b=work.locator('.pw-event[data-event-id="B Polar"]');
+  await work.locator('[data-pc="find"]').fill('A Pacific');
+  await work.locator('[data-pc="found"] button').first().click();
+  await expect(work.locator('.pw-selected')).toContainText('A Pacific');
+
+  await work.locator('[data-pc="scope"]').selectOption('b');
+  await expect(a).toBeHidden();
+  await expect(b).toBeVisible();
+  await expect(work.locator('.pw-selected')).toContainText('outside the current map data');
+  await expect(work.locator('.pw-hover-detail')).toContainText('outside the current map data');
+  await expect(work.locator('[data-pw="visible"]')).toHaveText('5');
+  await expect(work.locator('[data-pc="grid-legend"]')).toContainText('2 shown of 5 filtered records');
+
+  await work.locator('[data-pc="scope"]').selectOption('a');
+  await expect(a).toBeVisible();
+  await expect(b).toBeHidden();
+  await expect(work.locator('[data-pc="grid-legend"]')).toContainText('3 shown of 5 filtered records');
+  await expect(work.locator('.pw-selected')).not.toContainText('A Pacific');
+
+  await work.locator('[data-pc="display"]').selectOption('grid');
+  const cell=work.locator('.pw-grid-cell').first();
+  await cell.focus();
+  await cell.press('Enter');
+  await expect(work.locator('.pw-hover-detail')).toContainText('PINNED ·');
+  await work.locator('[data-pc="scope"]').selectOption('b');
+  await expect(work.locator('.pw-hover-detail')).toContainText('Selected cell is outside the current map subset');
+});
+
+test('catalogue reload invalidates event and comparison pins even when record count is unchanged',async({page})=>{
+  await open(page);
+  const work=page.locator('.pulse-workflow');
+  await work.locator('[data-pc="find"]').fill('B Polar');
+  await work.locator('[data-pc="found"] button').first().click();
+  await expect(work.locator('.pw-hover-detail')).toContainText('PINNED · B Polar');
+
+  // Fetch the same fixture again. A new catalogue revision must invalidate old pins.
+  await work.locator('[data-pw="snapshot"]').click();
+  await expect(work.locator('[data-pw="loaded"]')).toHaveText('5');
+  await expect(work.locator('.pw-selected')).toContainText('A new catalogue was loaded');
+  await expect(work.locator('.pw-hover-detail')).toContainText('Catalogue updated');
+  await expect(work.locator('[data-pc="a-count"]')).toContainText('3 EVENTS');
+  await expect(work.locator('[data-pc="b-count"]')).toContainText('2 EVENTS');
+});
