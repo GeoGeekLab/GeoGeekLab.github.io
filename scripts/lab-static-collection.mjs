@@ -13,7 +13,6 @@ const GROUPS = [
   ['play', 'PLAY / SPATIAL REASONING',
     'Practice location, boundary, adjacency, and path reasoning through direct geographic feedback.', PLAY]
 ];
-const PREFERRED_KEYS = ['SOURCE', 'FEED', 'SENSOR', 'MODEL', 'GEOMETRY', 'INPUT', 'WINDOW', 'TIME', 'PROJECTION', 'MEASURE', 'RELATION', 'TASK'];
 const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
   .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
@@ -53,19 +52,7 @@ async function labModel(dist) {
   return model;
 }
 
-function conditionMarkup(ui, item) {
-  const source = ui?.lab?.conditions?.[item.instrument];
-  if (!Array.isArray(source) || source.length === 0) return '';
-  const ranked = [...source].sort((a, b) => {
-    const aIndex = PREFERRED_KEYS.indexOf(String(a?.[0] || '').toUpperCase());
-    const bIndex = PREFERRED_KEYS.indexOf(String(b?.[0] || '').toUpperCase());
-    return (aIndex < 0 ? 999 : aIndex) - (bIndex < 0 ? 999 : bIndex);
-  }).slice(0, 2);
-  return '<dl class="lab-card-conditions">' + ranked.map(([key, value]) =>
-    '<div><dt>' + esc(key) + '</dt><dd>' + esc(value) + '</dd></div>').join('') + '</dl>';
-}
-
-function renderCard(ui, item, cacheVersion) {
+function renderCard(item, cacheVersion) {
   const kind = String(item.instrument || '');
   if (!kind || !/^[a-z]+$/.test(kind)) {
     throw new Error('Lab first-paint: invalid instrument in ' + item.id);
@@ -86,7 +73,8 @@ function renderCard(ui, item, cacheVersion) {
     '<div class="project-meta"><span>' + esc(item.status) + '</span><span>' + esc(tags) + '</span></div>',
     '<h2>' + esc(title) + '</h2>',
     '<p>' + esc(item.description) + '</p>',
-    conditionMarkup(ui, item),
+    // Conditions are instrument-specific runtime metadata. The existing Lab
+    // enhancement inserts them after all instrument modules align their model.
     '<div class="project-foot"><span class="lab-coord">' + esc(item.coord) + '</span>',
     '<div class="project-actions">',
     '<a class="project-cta project-link" data-record-ref="' + esc(ref) +
@@ -106,7 +94,7 @@ export async function staticLabCollection(html, dist, cacheVersion) {
     if (!byId.has(id)) throw new Error('Lab first-paint: missing instrument ' + id);
   }
   const collection = GROUPS.map(([key, label, purpose, ids]) => {
-    const cards = ids.map(id => renderCard(model.ui, byId.get(id), cacheVersion)).join('\n');
+    const cards = ids.map(id => renderCard(byId.get(id), cacheVersion)).join('\n');
     return '<section class="lab-group-block lab-group-' + key +
       '" data-group-key="' + key + '"><div class="lab-group-label"><span>' + label +
       '</span><i></i></div><p class="lab-group-purpose">' + esc(purpose) +
