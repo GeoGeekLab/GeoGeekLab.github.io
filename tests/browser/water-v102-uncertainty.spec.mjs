@@ -48,7 +48,7 @@ test('UX-054: sensor, noise and step selections preserve selected parameters and
  await expect(app.locator('[data-sensor="msi"]')).toHaveAttribute('aria-pressed','true');
  await expect(app.locator('[data-u9-parameter="chl"]')).toHaveAttribute('aria-pressed','true');
  await expect(app.locator('#num-chl')).toHaveValue(initial);
- await expect(app.locator('#mainContent')).toContainText('5.000e-6');
+ await expect(app.locator('#mainContent')).toContainText('5.000000e-6');
 });
 test('UX-052: small screen permits matrix horizontal scrolling without page-level overflow',async({page})=>{
  await page.setViewportSize({width:390,height:844});
