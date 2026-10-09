@@ -68,7 +68,7 @@ test('UX-084 science glossary distinguishes Rrs, rrs, total b, bb and TOA',()=>{
  assert.match(g,/Total inherent scattering coefficient/);
  assert.match(g,/not total b/);
  assert.match(g,/dimensionless/);
- assert.match(g,/not calibrated radiance/);
+ assert.match(g,/not calibrated radiance/i);
  assert.match(g,/not independently cross-validated/);
  assert.equal(view.TERMS.length,10);
 });
