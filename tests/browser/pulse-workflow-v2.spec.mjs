@@ -484,6 +484,11 @@ test('Observe and Analyze use one semantic scientific visual system',async({page
   expect(analysisInput.fontSize).toBeGreaterThanOrEqual(12);
   expect(analysisMap.borderRadius).toBe('0px');
 
+  // Install a non-world ROI so its SVG rectangle exists for visual comparison.
+  for(const [key,value] of Object.entries({west:'-170',east:'170',south:'-80',north:'80'})){
+    await work.locator('[data-pw="'+key+'"]').fill(value);
+  }
+  await work.locator('[data-pw="apply-roi"]').click();
   await work.locator('[data-pc="display"]').selectOption('grid');
   const eventGrid=await styleOf('.pw-grid-cell');
   const roi=await styleOf('.pw-roi-rect');
