@@ -63,6 +63,10 @@ test('Stages 5–7: keyboard navigation and 390px analysis tables remain contain
 });
 test('Stages 5–7: historical waterVersion=v101 rollback is an independent instrument',async({page})=>{
  await page.goto('/lab.html?instrument=water&waterVersion=v101#l13',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#instrumentDialog')).toHaveAttribute('data-water-ui-version','v101',{timeout:25000});
+ await expect(page.locator('#instrumentDialog')).toHaveAttribute('data-instrument-kind','water',{timeout:25000});
+ // The historical V10.1 adapter does not set V10.2's data-water-ui-version marker.
+ await expect(page.locator('#instrumentStage iframe.water-v101-frame')).toBeVisible({timeout:25000});
  await expect(page.locator('#instrumentStage iframe.water-v102-frame')).toHaveCount(0);
+ const historical=page.frameLocator('#instrumentStage iframe.water-v101-frame');
+ await expect(historical.locator('#mainNav [data-tab]')).toHaveCount(9,{timeout:20000});
 });
