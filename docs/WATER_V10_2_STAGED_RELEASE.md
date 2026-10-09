@@ -25,6 +25,8 @@ are now **V10.3 tasks** tracked at [issue #155](https://github.com/GeoGeekLab/Ge
 
 ## Release and rollback
 
+Shared full-site Pulse mobile touch-target fix [PR #153](https://github.com/GeoGeekLab/GeoGeekLab.github.io/pull/153) was merged to `main` as commit `81c36cd7f230ea51399ee6594f2438f52a7d1e23`; the V10.2 final integration CI and Pages deployment must run on top of this updated base, not the earlier Pulse-failing pre-merge base.
+
 Candidate integration: [PR #151](https://github.com/GeoGeekLab/GeoGeekLab.github.io/pull/151). Site URL: https://geogeeklab.github.io/lab.html?instrument=water&waterVersion=v102#l13
 
 V10.1 rollback entry: https://geogeeklab.github.io/lab.html?instrument=water&waterVersion=v101#l13
