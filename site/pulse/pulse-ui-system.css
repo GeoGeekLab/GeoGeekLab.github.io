@@ -296,6 +296,34 @@
   background:var(--pulse-ui-signal-soft);
 }
 .instrument-dialog[data-instrument-kind="pulse"] .pw-provenance{color:var(--pulse-ui-muted);font-size:11px!important}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-floating-tip{
+  background:var(--pulse-ui-panel-2);
+  border:1px solid var(--pulse-ui-line);
+  color:var(--pulse-ui-text);
+  border-radius:0;
+  box-shadow:0 6px 22px rgba(0,0,0,.4);
+  pointer-events:none;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-hover-detail a,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-selected a{
+  color:var(--pulse-ui-b);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-inference-chain :is(span,small),
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-r6-summary :is(span,small),
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-r6-aggregation dt{
+  color:var(--pulse-ui-muted);
+  font-size:10px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-inference-chain strong{font-size:11px}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-r6-summary strong{color:var(--pulse-ui-text)}
+.instrument-dialog[data-instrument-kind="pulse"] :is(.pw-chart-legend,.pw-chart-head small){
+  color:var(--pulse-ui-muted);
+  font-size:10px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-compare-status[data-error="true"]{
+  color:var(--pulse-ui-warning);
+}
+
 
 @media(max-width:1040px){
   .instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab.pulse-layout,
