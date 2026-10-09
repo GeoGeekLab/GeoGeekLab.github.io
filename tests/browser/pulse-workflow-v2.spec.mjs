@@ -260,4 +260,22 @@ test('ROI drawing, pointer-centred zoom and drag pan stay accurate with SVG lett
   expect(panned[1]).toBeCloseTo(expectedY,0);
   expect(panned[2]).toBeCloseTo(initial.view[2],3);
   expect(panned[3]).toBeCloseTo(initial.view[3],3);
+
+  // Draw again on the zoomed and panned map. Selection coordinates should
+  // remain geographic rather than inheriting the preceding screen offsets.
+  await work.locator('[data-pw="draw"]').click();
+  await map.scrollIntoViewIfNeeded();
+  const revisedStart=await toScreen(280,180);
+  const revisedEnd=await toScreen(350,245);
+  await page.mouse.move(revisedStart.x,revisedStart.y);
+  await page.mouse.down();
+  await page.mouse.move(revisedEnd.x,revisedEnd.y,{steps:8});
+  await page.mouse.up();
+  const lon=x=>(x/1000)*360-180;
+  const lat=y=>90-(y/500)*180;
+  expect(await roi('west')).toBeCloseTo(lon(280),1);
+  expect(await roi('east')).toBeCloseTo(lon(350),1);
+  expect(await roi('south')).toBeCloseTo(lat(245),1);
+  expect(await roi('north')).toBeCloseTo(lat(180),1);
+  await expect(work.locator('[data-pw="visible"]')).toHaveText('3');
 });
