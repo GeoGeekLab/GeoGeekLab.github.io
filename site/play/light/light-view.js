@@ -1,20 +1,34 @@
 (() => {
   'use strict';
 
-  function pathD(values,width,height,pad=12) {
+  function spectrumDomain(before,after) {
+    const values=[...(before||[]),...(after||[])];
+    if (values.some(value=>!Number.isFinite(value)||value<0)) {
+      throw new Error('Light spectra require finite, nonnegative values.');
+    }
+    const peak=Math.max(0,...values);
+    return peak>0?peak:1;
+  }
+
+  function pathD(values,width,height,domainMax,pad=12) {
     if (!values?.length) return '';
-    const max=Math.max(...values,1e-12);
+    if (!(Number.isFinite(domainMax)&&domainMax>0)) {
+      throw new Error('Light spectrum requires a positive shared Y domain.');
+    }
     const usableW=width-pad*2,usableH=height-pad*2;
     return values.map((value,index)=>{
+      if (!Number.isFinite(value)||value<0) {
+        throw new Error('Light spectra require finite, nonnegative values.');
+      }
       const x=pad+(index/Math.max(1,values.length-1))*usableW;
-      const y=height-pad-(value/max)*usableH;
+      const y=height-pad-(value/domainMax)*usableH;
       return `${index?'L':'M'}${x.toFixed(2)},${y.toFixed(2)}`;
     }).join(' ');
   }
 
   function formatValue(value,unit) {
     if (unit==='sr⁻¹') return Number(value).toExponential(2);
-    return Number(value).toFixed(2);
+    return Number(value).toFixed(3);
   }
 
   function create({shell,content,callbacks}={}) {
@@ -60,7 +74,7 @@
             <path class="light-spectrum-after"></path>
             <text x="12" y="137">400</text><text x="248" y="137">550</text><text x="482" y="137">700 nm</text>
           </svg>
-          <div class="light-spectrum-readout"><span>BEFORE <b class="light-before-value">—</b></span><span>AFTER <b class="light-after-value">—</b></span></div>
+          <div class="light-spectrum-readout"><span class="light-spectrum-probe">—</span><span>BEFORE <b class="light-before-value">—</b></span><span>AFTER <b class="light-after-value">—</b></span></div>
         </section>
       </div>`;
 
@@ -78,16 +92,28 @@
     const spectrumMode=root.querySelector('.light-spectrum-mode');
     const beforeValue=root.querySelector('.light-before-value');
     const afterValue=root.querySelector('.light-after-value');
+    const probeLabel=root.querySelector('.light-spectrum-probe');
+    const spectrumSvg=root.querySelector('.light-spectrum');
     const count=root.querySelector('.light-hud-count');
 
     function renderSpectrum(snapshot,scene) {
       const chart=scene.chart;
-      beforePath.setAttribute('d',pathD(chart.before,520,126));
-      afterPath.setAttribute('d',pathD(chart.after,520,126));
+      const domainMax=spectrumDomain(chart.before,chart.after);
+      // The baseline is y=126 in the 138-unit SVG viewBox. Both traces
+      // share the same Y domain, so removing a signal cannot rescale it.
+      beforePath.setAttribute('d',pathD(chart.before,520,138,domainMax));
+      afterPath.setAttribute('d',pathD(chart.after,520,138,domainMax));
+      spectrumSvg.dataset.yMax=String(domainMax);
       spectrumMode.textContent=snapshot.experiment?.chartLabel || '—';
-      const probeIndex=Math.max(0,Math.round((chart.before.length-1)/2));
-      beforeValue.textContent=formatValue(chart.before[probeIndex]||0,chart.unit);
-      afterValue.textContent=formatValue(chart.after[probeIndex]||0,chart.unit);
+      const wavelengths=chart.wavelengthNm || [];
+      const probeIndex=wavelengths.length
+        ? wavelengths.reduce((best,wavelength,index)=>
+          Math.abs(wavelength-550)<Math.abs(wavelengths[best]-550)?index:best,0)
+        : 0;
+      const probeNm=wavelengths[probeIndex]??550;
+      probeLabel.textContent=`${probeNm} NM · ${chart.unit==='sr⁻¹'?'Rrs / sr⁻¹':'RELATIVE'}`;
+      beforeValue.textContent=formatValue(chart.before[probeIndex]??0,chart.unit);
+      afterValue.textContent=formatValue(chart.after[probeIndex]??0,chart.unit);
     }
 
     function button(label,onClick,{secondary=false,disabled=false}={}) {
@@ -178,5 +204,6 @@
     return Object.freeze({render});
   }
 
-  window.GeoPlayLightView=Object.freeze({create});
+  // Pure spectrum geometry is shared with numerical regression checks.
+  window.GeoPlayLightView=Object.freeze({create,spectrumDomain,pathD});
 })();
