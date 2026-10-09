@@ -104,7 +104,14 @@
       <div><span>03 · FILTER</span><strong data-pulse-chain-filter>ALL EVENTS</strong><small>magnitude / depth / status</small></div>
       <div><span>04 · AGGREGATE</span><strong data-pulse-chain-aggregate>NONE</strong><small data-pulse-chain-unit>individual records</small></div>
       <div><span>05 · READ</span><strong data-pulse-chain-read>POINT PATTERN</strong><small data-pulse-chain-valid>event geography only</small></div>`;
-    mapFrame.after(chain);
+    // Keep the live interpretation chain available, but never let it shrink
+    // the fixed map. Its detailed meaning belongs in the L10 field record.
+    const chainDisclosure=document.createElement('details');
+    chainDisclosure.className='pulse-chain-disclosure';
+    const chainLabel=document.createElement('summary');
+    chainLabel.textContent='LIVE INTERPRETATION STEPS';
+    chainDisclosure.append(chainLabel,chain);
+    panel.appendChild(chainDisclosure);
 
     const measure = document.createElement('div');
     measure.className = 'pulse-measure-choice';
