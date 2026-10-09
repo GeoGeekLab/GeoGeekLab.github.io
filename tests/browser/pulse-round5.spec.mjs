@@ -254,6 +254,29 @@ test('Pulse mobile controls stay touch-sized and avoid horizontal overflow', asy
       overflow:document.documentElement.scrollWidth - document.documentElement.clientWidth
     };
   });
+  const styleDiagnostic = await page.evaluate(() => {
+    const button = document.querySelector('#pulsePlay');
+    const root = document.querySelector('.pulse-observation-lab');
+    const style = getComputedStyle(button);
+    const sheet = document.querySelector('link[data-pulse-round5]');
+    return {
+      renderedHeight:button.getBoundingClientRect().height,
+      computedHeight:style.height,
+      computedMinHeight:style.minHeight,
+      computedMaxHeight:style.maxHeight,
+      transform:style.transform,
+      className:button.className,
+      ancestorClass:root?.className,
+      viewportWidth:innerWidth,
+      mediaCoarse:matchMedia('(pointer:coarse)').matches,
+      media760:matchMedia('(max-width:760px)').matches,
+      round5SheetHref:sheet?.href||null,
+      round5SheetLoaded:sheet?.dataset.loaded||null,
+      round5SheetReadable:!!sheet?.sheet,
+      sheetList:[...document.styleSheets].map(x=>x.href).filter(Boolean).filter(x=>x.includes('pulse-observation'))
+    };
+  });
+  console.log('[Pulse 44px touch diagnosis]',JSON.stringify(styleDiagnostic));
   expect(sizes.button).toBeGreaterThanOrEqual(44);
   expect(sizes.select).toBeGreaterThanOrEqual(44);
   expect(sizes.timeline).toBeGreaterThanOrEqual(44);
