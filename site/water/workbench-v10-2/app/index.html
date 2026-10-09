@@ -435,6 +435,8 @@ html[data-geogeek-embedded="true"] .tab{padding-inline:11px}
 <link rel="stylesheet" href="../v102-rt.css?v=10.2.0-p4">
 <link rel="stylesheet" href="../v102-physics.css?v=10.2.0-p6a">
 <script data-geogeek-sync-dependency="water-v102-physics" src="../v102-physics-views.js?v=10.2.0-p6a"></script>
+<link rel="stylesheet" href="../v102-analysis.css?v=10.2.0-p7">
+<script data-geogeek-sync-dependency="water-v102-analysis" src="../v102-analysis-views.js?v=10.2.0-p7"></script>
 </head>
 <body>
 <div class="shell" id="shell" data-ui-phase="foundation">
@@ -1576,10 +1578,7 @@ return {sensorWorkspace,responseButtons};
 const {TABS, plots} = require("core/config.js");
 const {f} = require("core/numbers.js");
 const {makeSensorObservation}=require("model/geogeek-adapter.js");
-const acWorkspace={
- ...TABS[4],
- plots: plots.ac,
- renderChart({state,data,models,charts}){
+function renderAcLegacy({state,data,models,charts}){
  const {chartSvg,chartFrame,fmtShort}=charts;
 let content='';
 const p=state.params,idx=state.probe-400;
@@ -1587,6 +1586,15 @@ const p=state.params,idx=state.probe-400;
  const oc4=data.correction;const oc4True=oc4.truthOc4.valid?f(oc4.truthOc4.value,4):'—';const oc4Est=oc4.estimatedOc4.valid?f(oc4.estimatedOc4.value,4):'—';const oc4Bias=oc4.oc4RelativeBias!=null?f(oc4.oc4RelativeBias*100,2)+'%':'—';
  const errs=data.corrected.map((v,i)=>v-data.rrs[i]);const rmse=Math.sqrt(errs.reduce((s,x)=>s+x*x,0)/errs.length);const nNeg=data.corrected.filter(x=>x<0).length;if(state.plot==='error'){content=chartFrame('Δ Rrs(λ)','RECOVERED − REFERENCE · sr⁻¹',[{label:'RESIDUAL',values:errs}],'error',[{label:'Rrs RMSE',value:f(rmse,5),unit:'sr⁻¹'},{label:'NEGATIVE SAMPLES',value:nNeg,unit:'wavelength samples'},{label:'Δ AOT',value:f(p.corrAot-p.aot,3)},{label:'Δ α',value:f(p.corrAlpha-p.alpha,2)}],{unit:'sr⁻¹'})}else{content=chartFrame('Rrs_est / Rrs_reference','MANUAL ASSUMPTION · FIRST-ORDER INVERSE',[{label:'ESTIMATED',values:data.corrected},{label:'MODEL REFERENCE',values:data.rrs}],'correction',[{label:'Rrs RMSE',value:f(rmse,5),unit:'sr⁻¹'},{label:'NEGATIVE SAMPLES',value:nNeg,unit:'wavelength samples'},{label:'REFERENCE AOT',value:f(p.aot,3)},{label:'ASSUMED AOT',value:f(p.corrAot,3),accent:true}],{unit:'sr⁻¹'})}
  const obs=makeSensorObservation(data,state.sensor,'rrs',{responseMode:state.responseMode,srfPlatform:state.srfPlatform});const bandOC4=globalThis.GeoGeekV10Contract.olciBandOC4(obs);const bandNote=bandOC4.status==='valid'?'OLCI '+obs.responseModel+' · '+bandOC4.bandIds.join('/')+' · band OC4 '+f(bandOC4.value,4)+' mg/m³':'Band OC4 unavailable: '+bandOC4.reason;return content+charts.metricGrid([{label:'OC4 REFERENCE Rrs',value:oc4True,unit:'mg/m³ · wavelength-value diagnostic'},{label:'OC4 CORRECTED Rrs',value:oc4Est,unit:'mg/m³ · wavelength-value diagnostic'},{label:'OC4 RELATIVE BIAS',value:oc4Bias,unit:'relative to reference-Rrs OC4'}])+'<div class="hint-strip">V10 BAND-INTEGRATED OC4: '+bandNote+'. Not a validated Level-2 chlorophyll product.</div>';
+}
+
+const acWorkspace={
+ ...TABS[4],
+ plots: plots.ac,
+ renderChart({state,data,models,charts}){
+  const views=globalThis.GeoGeekV102AnalysisViews;
+  if(!views?.ac)throw new Error('V10.2 stage-7 analysis views unavailable');
+  return views.ac(state,data,renderAcLegacy({state,data,models,charts}));
  },
  renderControls({state,controls}){
   const {param,csection,adv,presets}=controls;
@@ -1603,16 +1611,22 @@ return {acWorkspace};
 "workspaces/compare.js": function(require){
 const {TABS, plots, initialParams} = require("core/config.js");
 const {f} = require("core/numbers.js");
-const compareWorkspace={
- ...TABS[5],
- plots: plots.compare,
- renderChart({state,data,models,charts}){
+function renderCompareLegacy({state,data,models,charts}){
  const {chartSvg,chartFrame,fmtShort}=charts;
 let content='';
 const p=state.params,idx=state.probe-400;
 
  const A=models.run(state.baseline?.params||initialParams);const B=state.compareBSource==='saved'&&state.snapshotB?models.run(state.snapshotB.params):data;const bp=state.compareBSource==='saved'&&state.snapshotB?state.snapshotB.params:p;const delta=B.rrs.map((v,i)=>v-A.rrs[i]);const rms=Math.sqrt(delta.reduce((s,x)=>s+x*x,0)/delta.length);if(state.plot==='delta'){content=chartFrame('Δ Rrs(λ)','SELECTED B − REFERENCE A',[{label:'Δ B − A',values:delta}],'delta',[{label:'RMSE (A vs B)',value:f(rms,5),unit:'sr⁻¹'},{label:'Chl · A',value:f(state.baseline?.params?.chl??1,2),unit:'mg/m³'},{label:'Chl · B',value:f(bp.chl,2),unit:'mg/m³'},{label:'λ',value:state.probe+' nm'}],{unit:'sr⁻¹'})}else{content=chartFrame('Rrs A/B overlay','IDENTICAL WAVELENGTH GRID · ONE Y AXIS',[{label:'A · BASELINE',values:A.rrs},{label:'B · SELECTED',values:B.rrs}],'overlay',[{label:'A · Rrs PROBE',value:f(A.rrs[idx],5),unit:'sr⁻¹'},{label:'B · Rrs PROBE',value:f(B.rrs[idx],5),unit:'sr⁻¹'},{label:'Δ Rrs PROBE',value:f(B.rrs[idx]-A.rrs[idx],5),unit:'sr⁻¹',accent:true},{label:'RMSE (A vs B)',value:f(rms,5),unit:'sr⁻¹'}],{unit:'sr⁻¹'})}
  return content;
+}
+
+const compareWorkspace={
+ ...TABS[5],
+ plots: plots.compare,
+ renderChart({state,data,models,charts}){
+  const views=globalThis.GeoGeekV102AnalysisViews;
+  if(!views?.compare)throw new Error('V10.2 stage-7 analysis views unavailable');
+  return views.compare(state,models,renderCompareLegacy({state,data,models,charts}));
  },
  renderControls({state,controls}){
   const {param,csection,adv,presets}=controls;
@@ -1708,9 +1722,7 @@ const {calculateSensitivity,SENSITIVITY_PARAMETERS,SENSITIVITY_STEPS} = require(
 const {calculateBandSensitivity} = require("analysis/band-sensitivity.js");
 const {responseButtons}=require("workspaces/sensor.js");
 const {DATA} = require("core/config.js");
-const sensitivityWorkspace={
- ...TABS[6], plots:plots.sensitivity,
- renderChart({state,data,models,charts}){
+function renderSensitivityLegacy({state,data,models,charts}){
   const r=calculateSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep});
   if(state.plot==='bands'){
    const b=calculateBandSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep,sensor:state.sensor,responseMode:state.responseMode,srfPlatform:state.srfPlatform});
@@ -1742,6 +1754,14 @@ const sensitivityWorkspace={
    {label:'NORMALIZED ELASTICITY · PROBE',value:e===null?'undefined':f(e,3),unit:'(p / Rrs) × ∂Rrs/∂p'},
    {label:'POSITIVE STEP ΔRrs · PROBE',value:f(r.delta[idx],7),unit:'sr⁻¹'}
   ],{unit:v.unit})+`<div class="hint-strip sensitivity-method" role="note"><strong>METHOD / MODEL DOMAIN</strong> ${caption}<br>Baseline ${r.parameter} = ${f(r.baseParameter,5)} ${param.unit}; lower = ${f(r.lowerParameter,5)}, upper = ${f(r.upperParameter,5)}. Requested step: ${r.stepPercent}%; actual bounds may truncate it.${r.baseParameter===0?' Relative elasticity is undefined at zero parameter value.':''}</div>`;
+}
+
+const sensitivityWorkspace={
+ ...TABS[6], plots:plots.sensitivity,
+ renderChart({state,data,models,charts}){
+  const views=globalThis.GeoGeekV102AnalysisViews;
+  if(!views?.sensitivity)throw new Error('V10.2 stage-7 analysis views unavailable');
+  return views.sensitivity(state,calculateSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep}),renderSensitivityLegacy({state,data,models,charts}));
  },
  renderControls({state,controls}){
   const {param,csection,adv}=controls;
@@ -1938,7 +1958,7 @@ function createExports({store,models,notify}){
 return {createExports};
 },
 "app/events.js": function(require){
-const {PSETS,CFG,DATA,plots} = require("core/config.js");
+const {PSETS,CFG,DATA,plots,initialParams} = require("core/config.js");
 const {clone,clamp,valueFromSlider} = require("core/numbers.js");
 const $=id=>document.getElementById(id);
 // Delegated interaction controller. Workspace files contain no event listeners.
@@ -2000,6 +2020,15 @@ function bindWorkbenchEvents({store,workbench,exports}){
   }
   if(t.dataset.sensitivityStep){
    if([1,5,10,20].includes(Number(t.dataset.sensitivityStep)))update(s=>{s.sensitivityStep=Number(t.dataset.sensitivityStep)});
+   return;
+  }
+  if(t.dataset.compareReset){
+   const action=t.dataset.compareReset;
+   if(action==='live')update(s=>{s.compareBSource='live'});
+   else if(action==='clear-b')update(s=>{s.snapshotB=null;s.compareBSource='live'});
+   else if(action==='defaults')update(s=>{s.baseline={name:'A · Reference scenario',params:clone(initialParams),sensor:'olci'}});
+   else return;
+   notify(action==='clear-b'?'Saved B snapshot cleared':action==='defaults'?'Reference A reset to original model defaults':'Live working B selected');
    return;
   }
   if(t.dataset.compareSource){
