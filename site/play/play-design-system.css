@@ -176,6 +176,12 @@
   border-color: var(--play-action-hover);
 }
 
+.play-v2-shell[data-play-kind="light"] .light-choice[aria-pressed="true"]:not(:disabled) {
+  border-color: var(--play-reference);
+  background: rgba(143, 181, 172, .18);
+  color: var(--play-reference-text);
+}
+
 .play-v2-shell[data-play-kind="project"] .project-v2-action:not(.is-secondary):hover:not(:disabled) {
   border-color: var(--play-action-hover);
   background: rgba(216, 121, 78, .18);
