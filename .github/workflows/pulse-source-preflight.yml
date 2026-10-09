@@ -1,0 +1,50 @@
+name: Earth Pulse Source Preflight
+
+# Fast independent browser checks on the authored source files. The production
+# build and full preview capture remain mandatory for final release acceptance.
+on:
+  pull_request:
+    paths:
+      - 'site/lab.html'
+      - 'site/lab-fullpage.js'
+      - 'site/pulse/**'
+      - 'tests/browser/pulse-workflow*.spec.mjs'
+      - '.github/workflows/pulse-source-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save @playwright/test@1.55.0 axe-core@4.11.3
+          npx playwright install --with-deps chromium
+      - name: Materialize unbuilt source for isolated browser preflight
+        run: |
+          mkdir -p dist
+          cp -a site/. dist/
+      - name: Pulse source browser smoke
+        run: |
+          npx playwright test -c playwright.config.mjs \
+            tests/browser/pulse-workflow.spec.mjs \
+            tests/browser/pulse-workflow-v2.spec.mjs \
+            --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Upload failed preflight traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pulse-source-preflight
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 5

@@ -107,13 +107,21 @@
       '<div class="pw-layout">',
         '<section class="pw-map-column">',
           '<div class="pw-banner" role="status" aria-live="polite">Open the workflow to load the verified 24-hour snapshot.</div>',
+          '<div class="pw-source-state" data-pw="source-state" role="status" aria-live="polite">NO CATALOGUE · Load the USGS source to inspect provenance and time coverage.</div>',
           '<div class="pw-map-container"><svg class="pw-map" viewBox="0 0 1000 500" role="img" aria-label="Global earthquake map with drag-to-select study area"></svg></div>',
           '<div class="pw-map-foot"><span data-pw="map-caption">Global event map · equirectangular lon/lat</span><span data-pw="roi-caption">ROI: WORLD</span></div>',
           '<div class="pw-selected" aria-live="polite">Select a mapped event to inspect its USGS record.</div>',
           '<p class="pw-limit">A selected area limits the displayed and exported set. Geographic event counts are not earthquake hazard or long-term occurrence rates.</p>',
         '</section>',
         '<aside class="pw-side">',
-          '<section class="pw-section">',
+          '<nav class="pw-section-nav" aria-label="Analysis sections">',
+            '<button type="button" data-pw-nav="data">DATA</button>',
+            '<button type="button" data-pw-nav="region">REGION</button>',
+            '<button type="button" data-pw-nav="filter">FILTER</button>',
+            '<button type="button" data-pw-nav="compare">COMPARE</button>',
+            '<button type="button" data-pw-nav="export">EXPORT</button>',
+          '</nav>',
+          '<section class="pw-section" data-pw-section="data">',
             '<h3>01 · DATA SOURCE</h3>',
             '<div class="pw-actions"><button type="button" data-pw="snapshot">LOAD 24 H SNAPSHOT</button></div>',
             '<p>Snapshot uses the GeoGeek same-origin USGS feed, including its stale-data policy.</p>',
@@ -125,7 +133,7 @@
             '<div class="pw-actions"><button type="button" data-pw="history">QUERY HISTORY</button><span>Up to 31 UTC dates · max 10,000 events</span></div>',
             '<p class="pw-provenance" data-pw="provenance">No data loaded.</p>',
           '</section>',
-          '<section class="pw-section">',
+          '<section class="pw-section" data-pw-section="region">',
             '<h3>02 · SPATIAL REGION (ROI)</h3>',
             '<div class="pw-actions"><button type="button" data-pw="draw" aria-pressed="false">DRAW RECTANGLE</button><button type="button" data-pw="reset-roi">WORLD</button></div>',
             '<div class="pw-fields pw-four">',
@@ -136,7 +144,7 @@
             '</div>',
             '<div class="pw-actions"><button type="button" data-pw="apply-roi">APPLY BOUNDS</button><span>West &gt; East crosses the date line.</span></div>',
           '</section>',
-          '<section class="pw-section">',
+          '<section class="pw-section" data-pw-section="filter">',
             '<h3>03 · FILTER + STATISTICS</h3>',
             '<div class="pw-fields pw-three">',
               '<label>VIEW MIN M<input data-pw="view-mag" type="number" step="0.1" placeholder="ALL"></label>',
@@ -151,7 +159,7 @@
             '</div>',
             '<p data-pw="stats-detail">Statistics update from the filtered event set, not the full catalogue.</p>',
           '</section>',
-          '<section class="pw-section">',
+          '<section class="pw-section" data-pw-section="export">',
             '<h3>04 · EXPORT</h3>',
             '<div class="pw-actions"><button type="button" data-pw="geojson" disabled>GEOJSON</button><button type="button" data-pw="csv" disabled>CSV</button><button type="button" data-pw="manifest" disabled>MANIFEST JSON</button></div>',
             '<p>Exports include the visible records only. The manifest records the source request, UTC dates, ROI, filters and fetch time. Save both the data and the manifest to reproduce the selection.</p>',
@@ -181,6 +189,7 @@
 
     const state = {
       open:false, busy:false, abort:null, source:null, url:null, fetchedAt:null,
+      generatedAt:null, snapshotStale:false, snapshotAgeHours:null,
       scope:null, events:[], visible:[], invalid:0, roi:null, drawing:false, drag:null,
       queryMin:null, loadedStart:null, loadedEnd:null, selectedId:null, catalogueRevision:0
     };
@@ -193,6 +202,31 @@
     function message(value, error) {
       banner.textContent = value;
       banner.dataset.error = error ? 'true' : 'false';
+    }
+
+    function sourceTimeState() {
+      const view = el('source-state');
+      if (!state.source) {
+        view.dataset.freshness='unknown';
+        view.textContent='NO CATALOGUE · Load the USGS source to inspect provenance and time coverage.';
+        return;
+      }
+      if(state.source==='history') {
+        view.dataset.freshness='history';
+        view.textContent='HISTORICAL QUERY · Requested UTC '+(state.loadedStart||'—')+
+          ' through '+(state.loadedEnd||'—')+
+          ' · Queried '+(state.fetchedAt||'time unknown')+
+          ' · Not a continuously updated feed.';
+        return;
+      }
+      const age=state.generatedAt == null ? null : Math.max(0,(Date.now()-state.generatedAt)/3600000);
+      state.snapshotAgeHours=age;
+      const ageLabel=age==null?'age unknown':age<1?'<1 h old':age.toFixed(1)+' h old';
+      view.dataset.freshness=state.snapshotStale?'stale':age==null?'unknown':'snapshot';
+      view.textContent=(state.snapshotStale?'STALE / LAST-KNOWN-GOOD · ':'ROLLING SNAPSHOT · ')+
+        'USGS feed generated '+(state.generatedAt==null?'unknown':iso(state.generatedAt))+
+        ' ('+ageLabel+') · GeoGeek fetched '+(state.fetchedAt||'unknown')+
+        ' · Times are UTC. Age is relative to feed generation, not event origin.';
     }
 
     function setBusy(busy) {
@@ -347,14 +381,20 @@
       state.source = provenance.mode;
       state.url = provenance.url;
       state.fetchedAt = provenance.fetchedAt;
+      state.generatedAt = provenance.mode === 'snapshot' &&
+        Number.isFinite(Number(data.metadata?.generated)) &&
+        Number(data.metadata.generated) > 0 ? Number(data.metadata.generated) : null;
+      state.snapshotStale = provenance.mode==='snapshot' && Boolean(provenance.stale);
       state.scope = provenance.scope;
       state.queryMin = provenance.queryMin;
       state.loadedStart = provenance.start;
       state.loadedEnd = provenance.end;
       el('view-mag').value = '';
       el('provenance').textContent = 'PROVIDER: USGS · MODE: ' + provenance.mode.toUpperCase() +
-        ' · FETCHED: ' + provenance.fetchedAt + ' · ' + provenance.scope +
-        ' · SOURCE: ' + provenance.url;
+        ' · GEOGEEK FETCHED: ' + (provenance.fetchedAt||'unknown')+
+        ' · FEED GENERATED: '+(state.generatedAt==null?'unknown':iso(state.generatedAt))+
+        ' · '+provenance.scope+' · SOURCE: '+provenance.url;
+      sourceTimeState();
       render();
       message(normalized.length + ' USGS records loaded. Adjust the filters, draw a study area, or export the visible set.',false);
     }
@@ -368,7 +408,8 @@
         const supply = window.GeoDataSupply && window.GeoDataSupply.describe('usgs-earthquakes-day');
         installData(data,{
           mode:'snapshot',url:FEED_ENDPOINT,
-          fetchedAt:supply && supply.metadata && supply.metadata.fetchedAt || new Date().toISOString(),
+          fetchedAt:supply?.metadata?.fetchedAt||null,
+          stale:Boolean(supply?.stale),
           scope:'Rolling USGS past-day feed. Source revisions and stale snapshot policy apply.',
           queryMin:null,start:null,end:null
         });
@@ -479,6 +520,8 @@
         schema:'geogeek-pulse-workflow/1',createdAt:new Date().toISOString(),
         provider:'USGS Earthquake Hazards Program',sourceMode:state.source,
         sourceUrl:state.url,sourceFetchTime:state.fetchedAt,
+        feedGeneratedUTC:state.generatedAt==null?null:iso(state.generatedAt),
+        snapshotStale:state.snapshotStale,
         sourceScope:state.scope,queryMinimumMagnitude:state.queryMin,
         queryDatesUTC:{start:state.loadedStart,end:state.loadedEnd},
         loadedValidRecords:state.events.length,discardedInvalidRecords:state.invalid,
@@ -527,12 +570,27 @@
       workspace.hidden=!analyze;
       if (analyze) base.dataset.workflowSuspended = 'true';
       else base.removeAttribute('data-workflow-suspended');
+      if(analyze && state.source) sourceTimeState();
       if(analyze && !state.source && !state.busy) void loadSnapshot();
     }
 
     const taskHandler=event=>selectTask(event.detail?.task);
     document.addEventListener('geogeek:pulse-task',taskHandler);
     selectTask(document.querySelector('#instrumentDialog')?.dataset.pulseTask);
+    const jumpTargets={
+      data:'data',region:'region',filter:'filter',compare:'compare',export:'export'
+    };
+    for(const button of workspace.querySelectorAll('[data-pw-nav]')) {
+      listen(button,'click',()=>{
+        const section=workspace.querySelector('[data-pw-section="'+jumpTargets[button.dataset.pwNav]+'"]');
+        section?.scrollIntoView({block:'start',behavior:'auto'});
+        const heading=section?.querySelector('h3');
+        if(heading) {
+          heading.tabIndex=-1;
+          heading.focus({preventScroll:true});
+        }
+      });
+    }
     listen(el('snapshot'),'click',() => void loadSnapshot());
     listen(el('history'),'click',() => void loadHistory());
     listen(el('draw'),'click',() => {

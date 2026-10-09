@@ -5,6 +5,7 @@ on:
     paths:
       - 'site/lab-fullpage.*'
       - 'site/lab.html'
+      - 'scripts/capture-lab-previews.mjs'
       - 'site/pulse/**'
       - 'site/pulse-observation-lab*'
       - 'tests/browser/pulse-*.spec.mjs'
@@ -47,6 +48,7 @@ jobs:
         run: |
           npx playwright test -c playwright.config.mjs \
             tests/browser/pulse-observation-lab.spec.mjs \
+            tests/browser/pulse-round5.spec.mjs \
             tests/browser/pulse-round6.spec.mjs \
             tests/browser/pulse-workflow.spec.mjs \
             tests/browser/pulse-workflow-v2.spec.mjs \

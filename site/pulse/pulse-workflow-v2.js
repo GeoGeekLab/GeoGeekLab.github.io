@@ -81,6 +81,7 @@
 
     const analysis = document.createElement('section');
     analysis.className='pw-section pw-analysis';
+    analysis.dataset.pwSection='compare';
     analysis.innerHTML = [
       '<h3>04 · COMPARE TWO UTC WINDOWS</h3>',
       '<p>A and B are half-open UTC intervals [start, end). Both use the existing source, ROI and view filters. Periods must not overlap.</p>',
@@ -96,7 +97,7 @@
         '<div><small>WINDOW A</small><strong data-pc="a-count">—</strong><span data-pc="a-detail">—</span></div>',
         '<div><small>WINDOW B</small><strong data-pc="b-count">—</strong><span data-pc="b-detail">—</span></div>',
       '</div>',
-      '<p>Counts and observed records/hour describe these filtered catalogue windows only. They are not completeness-corrected seismicity rates or hazard estimates.</p>',
+      '<p data-pc="comparison-note">Counts and observed records/hour describe only the filtered catalogue. They are not completeness-corrected seismicity rates or hazard estimates.</p>',
       '<h3>05 · TEMPORAL & DISTRIBUTION CHARTS</h3>',
       '<div class="pw-chart-wrap"><div class="pw-chart-head"><strong>TIME TREND</strong><small>12 RELATIVE ELAPSED-TIME BINS · A / B</small></div><svg class="pw-chart" data-pc="trend" viewBox="0 0 600 175" role="group" aria-label="A and B event counts by relative elapsed-time bin"></svg></div>',
       '<div class="pw-chart-wrap"><div class="pw-chart-head"><strong>MAGNITUDE DISTRIBUTION</strong><small>0.5 MAGNITUDE BINS · UNKNOWN INCLUDED</small></div><svg class="pw-chart" data-pc="magnitude" viewBox="0 0 600 175" role="group" aria-label="A and B earthquake magnitude histogram"></svg></div>',
@@ -126,6 +127,19 @@
       exportSection.before(analysis);
     } else side.appendChild(analysis);
 
+    // Keep the one set of map zoom controls beside the map, not buried beneath
+    // comparative charts in the long rail. This is especially useful on touch.
+    const zoomToolbar=$('[data-pc="zoom-in"]',analysis)?.closest('.pw-actions');
+    const mapFoot=$('.pw-map-foot',map);
+    if(zoomToolbar && mapFoot) {
+      zoomToolbar.classList.add('pw-map-tools');
+      mapFoot.after(zoomToolbar);
+    }
+    const mapHelp=document.createElement('p');
+    mapHelp.className='pw-map-help';
+    mapHelp.textContent='MAP CONTROL · Drag empty map to pan · Use zoom buttons to change scale · Choose DRAW RECTANGLE in REGION to select an area.';
+    (zoomToolbar?.isConnected?zoomToolbar:mapFoot)?.after(mapHelp);
+
     const detail = document.createElement('section');
     detail.className='pw-hover-detail';
     detail.setAttribute('aria-live','polite');
@@ -142,7 +156,7 @@
     const gridGroup=node('g',{'class':'pw-comparison-grid','aria-label':'Configurable earthquake grid'});
     svg.insertBefore(gridGroup,dots);
 
-    const el = key => $(select(key),analysis);
+    const el = key => $(select(key),workspace);
     const chartReadout=el('chart-readout');
     const gridLegend=el('grid-legend');
     const listeners=[];
@@ -152,6 +166,8 @@
     };
     let periods=null,latest={a:[],b:[]},currentGrid=new Map();
     let lastDatasetKey='',pinnedId=null,gridPin=null,hovered=null;
+    const defaultDetail='Select a visible event or occupied grid cell.';
+    let unpinnedDetail=defaultDetail;
     let maxShared=0, drag=null, chartBins={trend:[],magnitude:[],depth:[]};
     let drawQueued=false;
 
@@ -238,6 +254,12 @@
     function setStats() {
       const countA=periodStats(latest.a,periods?.a.end-periods?.a.start);
       const countB=periodStats(latest.b,periods?.b.end-periods?.b.start);
+      el('comparison-note').textContent=
+        'A: '+num(countA.count)+' events / '+num((periods.a.end-periods.a.start)/3600000)+' h; '+
+        'B: '+num(countB.count)+' events / '+num((periods.b.end-periods.b.start)/3600000)+
+        ' h. Rates shown as observed records/h = counts ÷ window hours, not detection-corrected seismicity rates. '+
+        'Both windows use the same '+state.visible.length+' ROI/filter records from a '+state.events.length+
+        '-record loaded catalogue. Hazard and completeness cannot be inferred.';
       [['a',countA],['b',countB]].forEach(([key,s])=>{
         el(key+'-count').textContent=num(s.count)+' EVENTS';
         el(key+'-detail').textContent='MAX '+(s.maxMagnitude==null?'—':'M'+s.maxMagnitude.toFixed(1))+
@@ -582,7 +604,7 @@
         if(event)detailEvent(event,true);
         else detail.textContent='Select a visible event or occupied grid cell.';
       }else if(gridPin&&currentGrid.has(gridPin))detailCell(currentGrid.get(gridPin),true);
-      else detail.textContent='Select a visible event or occupied grid cell.';
+      else detail.textContent=unpinnedDetail;
     }
 
     listen(svg,'pointerover',event=>{
@@ -676,10 +698,12 @@
       if(selected) {
         pinnedId=selected.id;
         gridPin=null;
+        unpinnedDetail=defaultDetail;
         detailEvent(selected,true);
       } else {
         pinnedId=null;
-        if(!gridPin) detail.textContent=event.detail?.reason||'Select a visible event or occupied grid cell.';
+        unpinnedDetail=event.detail?.reason||defaultDetail;
+        if(!gridPin) detail.textContent=unpinnedDetail;
         hideTooltip();
         hovered=null;
       }
@@ -702,7 +726,7 @@
     function cleanup(){
       listeners.forEach(off=>off());
       delete workspace._pulseAnalysisMetadata;
-      analysis.remove();detail.remove();floating.remove();gridGroup.remove();
+      analysis.remove();zoomToolbar?.remove();mapHelp.remove();detail.remove();floating.remove();gridGroup.remove();
       active.delete(workspace);
     }
     active.set(workspace,{cleanup});
