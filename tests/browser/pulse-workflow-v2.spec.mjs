@@ -54,8 +54,8 @@ async function open(page){
     status:200,contentType:'application/geo+json',body:JSON.stringify(land)
   }));
   await page.goto('/lab.html?instrument=pulse#l10',{waitUntil:'domcontentloaded'});
-  await expect(page.locator('.pulse-workflow-launch')).toBeVisible({timeout:20000});
-  await page.locator('.pulse-workflow-launch').click();
+  await expect(page.locator('.pulse-task-tabs [data-pulse-task="analyze"]')).toBeVisible({timeout:20000});
+  await page.locator('.pulse-task-tabs [data-pulse-task="analyze"]').click();
   await expect(page.locator('.pulse-workflow [data-pw="loaded"]')).toHaveText('5',{timeout:10000});
   await expect(page.locator('.pw-comparison')).toBeVisible();
   return {now,events};
@@ -140,7 +140,7 @@ test('original Pulse keeps one original land layer even when workflow map is mou
   await open(page);
   await expect(page.locator('.pulse-observation-lab .pulse-land path')).toHaveCount(1);
   await expect(page.locator('.pw-map .pw-land path')).toHaveCount(1);
-  await page.locator('.pulse-workflow [data-pw="return"]').click();
+  await page.locator('.pulse-task-tabs [data-pulse-task="observe"]').click();
   await expect(page.locator('.pulse-observation-lab')).toBeVisible();
 });
 
