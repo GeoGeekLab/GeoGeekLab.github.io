@@ -379,6 +379,8 @@ test('window scope constrains point markers and invalidates selections outside m
   await expect(b).toBeVisible();
   await expect(work.locator('.pw-selected')).toContainText('outside the current map data');
   await expect(work.locator('.pw-hover-detail')).toContainText('outside the current map data');
+  await work.locator('.pw-map-foot').hover();
+  await expect(work.locator('.pw-hover-detail')).toContainText('outside the current map data');
   await expect(work.locator('[data-pw="visible"]')).toHaveText('5');
   await expect(work.locator('[data-pc="grid-legend"]')).toContainText('2 shown of 5 filtered records');
 
