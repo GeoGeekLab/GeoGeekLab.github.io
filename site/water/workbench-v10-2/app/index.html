@@ -1106,6 +1106,111 @@ const WORKSPACES=Object.freeze({
 
 return {WORKSPACES};
 },
+"components/rt-science-views.js": function(require){
+/* Read-only SVG rendering. Reference arrays are immutable and never interpolated. */
+const escapeText=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;'}[c]));
+const fmt=(v,d=3)=>!Number.isFinite(v)?'—':v===0?'0':Math.abs(v)<1e-3||Math.abs(v)>=100?Number(v).toExponential(2):Number(v).toFixed(d);
+const fmtSigned=v=>(v>0?'+':'')+fmt(v,5);
+const COLOR=Object.freeze({ed:'#8edfc1',eu:'#e8b27d',kd:'#8eb9f1',rt:'#8edfc1',semi:'#e8b27d',delta:'#b1a5f5'});
+const WIDTH=740,HEIGHT=344,XLEFT=101,XRIGHT=28,YTOP=27,YBOTTOM=61;
+const px=(value,min,max,a,b)=>a+(value-min)/Math.max(1e-15,max-min)*(b-a);
+function svg({title,description,body,width=WIDTH,height=HEIGHT}){
+ return '<svg class="rt-svg rt-science-plot" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+escapeText(title)+'. '+escapeText(description)+'"><title>'+escapeText(title)+'</title><desc>'+escapeText(description)+'</desc>'+body+'</svg>';
+}
+const line=(x1,y1,x2,y2,stroke='#55796b',dash='')=>'<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="'+stroke+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>';
+function textNode(x,y,v,anchor='middle',color='#becfc6'){
+ return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+anchor+'" fill="'+color+'" class="rt-plot-label">'+escapeText(v)+'</text>';
+}
+function dot(x,y,color,label){return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4" fill="'+color+'" stroke="#111f1b" stroke-width="1.5"><title>'+escapeText(label)+'</title></circle>';}
+function legend(items){return '<div class="rt-science-legend">'+items.map(x=>'<span><i aria-hidden="true" style="--legend-color:'+x.color+'"></i>'+escapeText(x.label)+'</span>').join('')+'</div>';}
+function chartCard(title,description,content,legendItems=[]){
+ return '<section class="rt-science-card"><header class="rt-science-card-head"><h3>'+escapeText(title)+'</h3><p>'+escapeText(description)+'</p></header>'+legend(legendItems)+content+'</section>';
+}
+function depthProfile({depths,series,selectedDepth,title,desc,axisTitle,log=false}){
+ const xmin=XLEFT,xmax=WIDTH-XRIGHT,ymin=YTOP,ymax=HEIGHT-YBOTTOM,zmax=Math.max(...depths);
+ const values=series.flatMap(s=>s.data).filter(v=>Number.isFinite(v)&&(log?v>0:true));
+ if(!values.length)return svg({title,description:desc,body:textNode(340,180,'No positive numeric samples')});
+ let min,max;
+ if(log){const smallest=Math.min(...values),largest=Math.max(...values);min=Math.floor(Math.log10(smallest));max=Math.max(0,Math.ceil(Math.log10(largest)));if(max===min)max=min+1;}
+ else{min=0;max=Math.max(...values,0)*1.10||1;}
+ const xfun=v=>log?px(Math.log10(v),min,max,xmin,xmax):px(v,min,max,xmin,xmax);
+ const zfun=z=>px(z,0,zmax,ymin,ymax);
+ let body=line(xmin,ymin,xmin,ymax)+line(xmin,ymax,xmax,ymax);
+ const zticks=[0,5,10,15,20].filter(z=>z<=zmax);
+ for(const z of zticks){const y=zfun(z);body+=line(xmin,y,xmax,y,'#36584b','3 6')+textNode(xmin-12,y+4,z,'end');}
+ const xticks=log?Array.from({length:max-min+1},(_,i)=>min+i).filter((v,i,a)=>a.length<=7||i%Math.ceil(a.length/7)===0||i===a.length-1):
+  [0,.25,.5,.75,1].map(t=>min+t*(max-min));
+ for(const tick of xticks){const x=log?px(tick,min,max,xmin,xmax):xfun(tick);
+  body+=line(x,ymin,x,ymax,'#294438','3 6')+textNode(x,ymax+18,log?'10^'+tick:fmt(tick,3));}
+ const markY=zfun(selectedDepth);
+ body+=line(xmin,markY,xmax,markY,'#e5d7ac','5 5')+
+  textNode(xmax-5,Math.max(ymin+12,markY-7),'selected '+selectedDepth+' m','end','#f2d6a0');
+ for(const seriesDef of series){
+  const segments=[];let current=[];
+  for(let i=0;i<depths.length;i++){
+   const v=seriesDef.data[i];
+   if(!Number.isFinite(v)||(log&&v<=0)){if(current.length)segments.push(current);current=[];continue;}
+   current.push([xfun(v),zfun(depths[i]),depths[i],v]);
+  }if(current.length)segments.push(current);
+  for(const points of segments){
+   if(points.length>1)body+='<polyline points="'+points.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+'" fill="none" stroke="'+seriesDef.color+'" stroke-width="2.5" stroke-linecap="round"/>';
+   for(const p of points)body+=dot(p[0],p[1],seriesDef.color,seriesDef.label+' at '+p[2]+' m: '+fmt(p[3],5));
+  }
+ }
+ body+=textNode((xmin+xmax)/2,HEIGHT-18,axisTitle)+textNode(22,ymin+2,'Depth z (m)','start','#d5e3d8')+
+  textNode(xmin,ymin-10,'z increases downward','start','#b6cfc0');
+ return svg({title,description:desc,body});
+}
+function spectralChart({xs,series,title,desc,unit,selectedWavelength}){
+ const xmin=75,xmax=WIDTH-24,ymin=YTOP,ymax=HEIGHT-YBOTTOM;
+ const vals=series.flatMap(s=>s.data).filter(Number.isFinite);
+ const ymaxValue=Math.max(0,...vals)*1.13||1;
+ const X=nm=>px(nm,Math.min(...xs),Math.max(...xs),xmin,xmax),Y=v=>px(v,0,ymaxValue,ymax,ymin);
+ let body=line(xmin,ymin,xmin,ymax)+line(xmin,ymax,xmax,ymax);
+ for(const fraction of [0,.25,.5,.75,1]){
+  const v=fraction*ymaxValue,y=Y(v);body+=line(xmin,y,xmax,y,'#375649','3 6')+textNode(xmin-8,y+4,fmt(v),'end');
+ }
+ for(const nm of xs){
+  const x=X(nm);body+=line(x,ymin,x,ymax,nm===selectedWavelength?'#997a54':'#304b3e',nm===selectedWavelength?'5 4':'3 6')+
+   textNode(x,ymax+19,nm+'','middle',nm===selectedWavelength?'#e9c598':'#b8d1c1');
+ }
+ for(const s of series){
+  // Mark discrete nodes only. No continuous spectral RT curve is implied.
+  for(let i=0;i<xs.length;i++)if(Number.isFinite(s.data[i])){
+   const x=X(xs[i]),y=Y(s.data[i]);
+   body+=dot(x,y,s.color,s.label+' at '+xs[i]+' nm: '+fmt(s.data[i],6));
+   body+=line(x-4,y,x+4,y,s.color);
+  }
+ }
+ body+=textNode((xmin+xmax)/2,HEIGHT-17,'Wavelength (nm) · sampled nodes');
+ body+=textNode(xmin,ymin-10,unit,'start','#d0e0d5');
+ return svg({title,description:desc,body});
+}
+function residualChart({xs,values,title,desc}){
+ const xmin=75,xmax=WIDTH-25,ymin=YTOP,ymax=HEIGHT-YBOTTOM;
+ const positive=Math.max(1e-8,...values.map(v=>Math.abs(v)))*1.16;
+ const X=v=>px(v,Math.min(...xs),Math.max(...xs),xmin,xmax),Y=v=>px(v,-positive,positive,ymax,ymin);
+ let body=line(xmin,ymin,xmin,ymax)+line(xmin,ymax,xmax,ymax);
+ for(const ratio of [-1,-.5,0,.5,1]){
+  const y=Y(ratio*positive);body+=line(xmin,y,xmax,y,ratio===0?'#b4c4bc':'#38564a',ratio===0?'':'3 6')+
+   textNode(xmin-8,y+4,fmt(ratio*positive,5),'end');
+ }
+ for(let i=0;i<xs.length;i++){
+  const x=X(xs[i]),y=Y(values[i]);body+=line(x,Y(0),x,y,values[i]<0?'#e8b27d':'#b1a5f5')+
+   dot(x,y,values[i]<0?'#e8b27d':'#b1a5f5','semi-analytical minus RT at '+xs[i]+' nm: '+fmtSigned(values[i]));
+  body+=textNode(x,ymax+19,xs[i]+'');
+ }
+ body+=textNode((xmin+xmax)/2,HEIGHT-17,'Wavelength (nm) · sampled nodes')+
+  textNode(xmin,ymin-10,'Δr_rs (sr⁻¹) · semi − RT','start','#d0e0d5');
+ return svg({title,description:desc,body});
+}
+function dataTable({caption,headers,rows}){
+ return '<details class="rt-science-data"><summary>View exact sampled values</summary><div class="rt-science-table-scroll"><table><caption>'+escapeText(caption)+'</caption><thead><tr>'+headers.map(h=>'<th scope="col">'+escapeText(h)+'</th>').join('')+'</tr></thead><tbody>'+
+ rows.map(row=>'<tr>'+row.map(cell=>'<td>'+escapeText(cell)+'</td>').join('')+'</tr>').join('')+
+ '</tbody></table></div></details>';
+}
+return {esc:escapeText,fmt,fmtSigned,COLOR,chartCard,depthProfile,spectralChart,residualChart,dataTable};
+},
 "workspaces/rt.js": function(require){
 const {TABS,plots}=require("core/config.js");
 const {f}=require("core/numbers.js");
