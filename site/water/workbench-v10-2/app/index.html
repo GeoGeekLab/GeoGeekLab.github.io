@@ -1206,7 +1206,7 @@ function residualChart({xs,values,title,desc}){
  return svg({title,description:desc,body});
 }
 function dataTable({caption,headers,rows}){
- return '<details class="rt-science-data"><summary>View exact sampled values</summary><div class="rt-science-table-scroll"><table><caption>'+escapeText(caption)+'</caption><thead><tr>'+headers.map(h=>'<th scope="col">'+escapeText(h)+'</th>').join('')+'</tr></thead><tbody>'+
+ return '<details class="rt-science-data"><summary>View original sampled values</summary><div class="rt-science-table-scroll"><table><caption>'+escapeText(caption)+'</caption><thead><tr>'+headers.map(h=>'<th scope="col">'+escapeText(h)+'</th>').join('')+'</tr></thead><tbody>'+
  rows.map(row=>'<tr>'+row.map(cell=>'<td>'+escapeText(cell)+'</td>').join('')+'</tr>').join('')+
  '</tbody></table></div></details>';
 }
@@ -1265,7 +1265,7 @@ function renderDepth(r,state){
   '; E_u / E_d0 = '+fmt(eu,5)+'; estimated K_d = '+fmt(kd,5)+' m⁻¹. These values are from the selected fixed IOP and wavelength case, not from a new interactive RT calculation.</p></div>';
  const table=dataTable({caption:'Discrete irradiance and attenuation · '+r.nm+' nm, '+r.sza+'° in water',
   headers:['Depth (m)','E_d / E_d0','E_u / E_d0','K_d (m⁻¹)'],
-  rows:r.depths.map((z,i)=>[z,fmt(r.Ed[i],7),fmt(r.Eu[i],7),fmt(r.Kd[i],7)])});
+  rows:r.depths.map((z,i)=>[z,String(r.Ed[i]),String(r.Eu[i]),String(r.Kd[i])])});
  return insight+'<div class="rt-science-plot-grid">'+chart1+chart2+'</div>'+table;
 }
 function renderAngular(r,state,eng){
@@ -1285,7 +1285,7 @@ function renderAngular(r,state,eng){
   fmt(nearNadir.m,4)+' has L_u / E_d0 = '+fmt(nearNadir.value,6)+' sr⁻¹ at this depth. The solver reports a scalar azimuthal average, NOT a 2D sun-relative azimuthal field. The comparison view uses this near-nadir node at z = 0−, not exactly μ = −1.</p></div>';
  const table=dataTable({caption:'Azimuth-averaged upward radiance at '+state.rtDepth+' m · '+r.nm+' nm',
   headers:['μ (upward, negative)','|μ|','L_u / E_d0 (sr⁻¹)'],
-  rows:values.map(x=>[-x.m.toFixed(9),fmt(x.m,7),fmt(x.value,9)])});
+  rows:values.map(x=>[-x.m.toFixed(9),String(x.m),String(x.value)])});
  return explanation+'<div class="rt-science-plot-grid rt-science-one">'+chart+'</div>'+table;
 }
 function renderCompare(c,state,r){
@@ -1314,7 +1314,7 @@ function renderCompare(c,state,r){
   resultCard('PAIRWISE SPECTRAL RMSE',fmt(rmse,6)+' sr⁻¹','Internal model difference · NOT validation')+'</div>';
  const table=dataTable({caption:'Five-node matched subsurface r_rs (sr⁻¹), solar zenith '+state.rtSun+'° in water',
   headers:['Wavelength (nm)','Numerical RT r_rs (sr⁻¹)','Semi-analytical r_rs (sr⁻¹)','Semi − RT Δr_rs (sr⁻¹)'],
-  rows:records.map((x,i)=>[x.nm,fmt(x.rrs,9),fmt(x.semiRrs,9),fmtSigned(residual[i])])});
+  rows:records.map((x,i)=>[x.nm,String(x.rrs),String(x.semiRrs),String(residual[i])])});
  return s+stats+'<div class="rt-science-plot-grid">'+spectral+differences+'</div>'+table;
 }
 const rtWorkspace={
