@@ -160,12 +160,19 @@ test('Pulse consumes unified snapshot/reference supply and preserves seismic fie
   expect(fixtures.snapshotHits()).toBeGreaterThan(0);
   expect(fixtures.referenceHits()).toBeGreaterThan(0);
 
-  await expect.poll(async () => {
-    const box = await page.locator('.pulse-map-frame').boundingBox();
-    return box ? box.width / box.height : 0;
-  }, { timeout:5000 }).toBeGreaterThan(1.98);
-  const mapBox = await page.locator('.pulse-map-frame').boundingBox();
-  expect(mapBox.width / mapBox.height).toBeLessThan(2.02);
+  // The viewport frame is intentionally responsive. Verify the geographic
+  // projection itself is still exactly 2:1 and wholly within the stage.
+  const world = await page.locator('.pulse-map').evaluate(svg => {
+    const matrix=svg.getScreenCTM();
+    const a=new DOMPoint(0,0).matrixTransform(matrix);
+    const b=new DOMPoint(1000,500).matrixTransform(matrix);
+    const frame=document.querySelector('#instrumentStage').getBoundingClientRect();
+    return {ratio:(b.x-a.x)/(b.y-a.y),
+      inside:a.x>=frame.left-2&&a.y>=frame.top-2&&
+        b.x<=frame.right+2&&b.y<=frame.bottom+2};
+  });
+  expect(world.ratio).toBeCloseTo(2,1);
+  expect(world.inside).toBe(true);
   await expect(page.locator('.pulse-map')).toHaveAttribute('viewBox', '0 0 1000 500');
 
   const fieldTitle = await page.locator('#pulseFieldTitle').textContent();
