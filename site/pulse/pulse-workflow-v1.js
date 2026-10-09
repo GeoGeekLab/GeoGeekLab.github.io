@@ -525,7 +525,8 @@
       if (!analyze && state.abort) state.abort.abort();
       state.open=analyze;
       workspace.hidden=!analyze;
-      base.toggleAttribute('data-workflow-suspended',analyze);
+      if (analyze) base.dataset.workflowSuspended = 'true';
+      else base.removeAttribute('data-workflow-suspended');
       if(analyze && !state.source && !state.busy) void loadSnapshot();
     }
 
