@@ -120,3 +120,32 @@ test('all thirteen Lab instruments display the correct workspace group', async (
     }
   }
 });
+
+
+test('Lab delivers all thirteen instrument cards in first-response HTML without replacing them', async ({ page }) => {
+  const response = await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
+  const initialHtml = await response.text();
+
+  expect(initialHtml).toContain('data-static-lab-collection="v1"');
+  expect(initialHtml).toContain('class="project-card contour-target is-actionable"');
+  expect((initialHtml.match(/class="project-card contour-target is-actionable"/g) || [])).toHaveLength(13);
+  expect(initialHtml).toMatch(/id="l04"/);
+  expect(initialHtml).toMatch(/id="l10"/);
+  expect(initialHtml).toMatch(/id="l16"/);
+  expect(initialHtml).toMatch(/\/assets\/lab\/previews\/orbit\.jpg\?v=/);
+
+  const list = page.locator('#labList');
+  await expect(list).toHaveAttribute('data-static-lab-collection', 'v1');
+  await expect(list.locator('.project-card')).toHaveCount(13);
+  await expect(list.locator('> .lab-group-block')).toHaveCount(2);
+  await expect(list.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
+
+  // App bootstrap must not replace authored cards after the browser parses HTML.
+  const initialCard = page.locator('#l04');
+  await initialCard.evaluate(node => { node.dataset.firstPaintMarker = 'retained'; });
+  await page.waitForLoadState('load');
+  await expect(initialCard).toHaveAttribute('data-first-paint-marker', 'retained');
+
+  await expect(list.locator('.lab-group-observatory .project-card')).toHaveCount(7);
+  await expect(list.locator('.lab-group-play .project-card')).toHaveCount(6);
+});
