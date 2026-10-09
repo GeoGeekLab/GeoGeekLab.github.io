@@ -449,3 +449,93 @@ test('task navigation keeps loaded analyses and handles direct Analyze URLs',asy
   await expect(page.locator('[data-pw="loaded"]')).toHaveText('5',{timeout:20000});
   await expect(analyze).toHaveAttribute('aria-pressed','true');
 });
+
+test('Observe and Analyze use one semantic scientific visual system',async({page})=>{
+  await open(page);
+  await page.waitForFunction(()=>Boolean(document.querySelector('link[data-pulse-ui-system]')?.sheet));
+  const dialog=page.locator('#instrumentDialog');
+  const work=page.locator('.pulse-workflow');
+  const styleOf=async selector=>page.locator(selector).first().evaluate(node=>{
+    const css=getComputedStyle(node);
+    return {background:css.backgroundColor,color:css.color,fill:css.fill,
+      stroke:css.stroke,borderRadius:css.borderTopLeftRadius,
+      fontSize:parseFloat(css.fontSize),width:node.getBoundingClientRect().width};
+  });
+  const tokens=await dialog.evaluate(node=>{
+    const css=getComputedStyle(node);
+    return {
+      event:css.getPropertyValue('--pulse-ui-signal').trim(),
+      roi:css.getPropertyValue('--pulse-ui-roi').trim(),
+      panel:css.getPropertyValue('--pulse-ui-panel').trim(),
+      a:css.getPropertyValue('--pulse-ui-a').trim(),
+      b:css.getPropertyValue('--pulse-ui-b').trim()
+    };
+  });
+  expect(tokens.event).toBe('#d16339');
+  expect(tokens.roi).toBe('#8fc69b');
+  expect(tokens.a).not.toBe(tokens.b);
+
+  const analysisEvent=await styleOf('.pw-map .pw-event-marker');
+  const analysisLand=await styleOf('.pw-map .pw-land');
+  const analysisBackground=await styleOf('.pw-map .pw-world-background');
+  const analysisPanel=await styleOf('.pw-side');
+  const analysisMap=await styleOf('.pw-map');
+  const analysisInput=await styleOf('.pw-fields input');
+  expect(analysisInput.fontSize).toBeGreaterThanOrEqual(12);
+  expect(analysisMap.borderRadius).toBe('0px');
+
+  await work.locator('[data-pc="display"]').selectOption('grid');
+  const eventGrid=await styleOf('.pw-grid-cell');
+  const roi=await styleOf('.pw-roi-rect');
+  expect(eventGrid.fill).not.toBe(roi.fill);
+  const comparisonA=await styleOf('.pw-bar-a');
+  const comparisonB=await styleOf('.pw-bar-b');
+  expect(comparisonA.fill).not.toBe(comparisonB.fill);
+  await work.locator('[data-pc="display"]').selectOption('points');
+
+  await page.locator('.pulse-task-tabs [data-pulse-task="observe"]').click();
+  const observationEvent=await styleOf('.pulse-observation-lab .pulse-event-marker');
+  const observationLand=await styleOf('.pulse-observation-lab .pulse-land');
+  const observationBackground=await styleOf('.pulse-observation-lab .pulse-map-background');
+  const observationPanel=await styleOf('.pulse-observation-lab .pulse-panel');
+  const observationMap=await styleOf('.pulse-map-frame');
+  expect(analysisEvent.fill).toBe(observationEvent.fill);
+  expect(analysisLand.fill).toBe(observationLand.fill);
+  expect(analysisBackground.fill).toBe(observationBackground.fill);
+  expect(analysisPanel.background).toBe(observationPanel.background);
+  expect(observationMap.borderRadius).toBe('0px');
+  await expect(page.locator('.pulse-provenance')).toBeVisible();
+
+  if(page.viewportSize().width>1040){
+    expect(Math.abs(analysisPanel.width-observationPanel.width)).toBeLessThan(3);
+  }else{
+    expect(observationPanel.width).toBeGreaterThan(230);
+    expect(analysisPanel.width).toBeGreaterThan(230);
+  }
+  await page.locator('.pulse-task-tabs [data-pulse-task="analyze"]').click();
+  await expect(work.locator('[data-pw="loaded"]')).toHaveText('5');
+  await expect(work.locator('[data-pc="a-count"]')).toContainText('3 EVENTS');
+  await expect(work.locator('[data-pc="b-count"]')).toContainText('2 EVENTS');
+});
+
+test('Pulse ROI, field status and controls remain legible at narrow layouts',async({page})=>{
+  await open(page);
+  await page.waitForFunction(()=>Boolean(document.querySelector('link[data-pulse-ui-system]')?.sheet));
+  const work=page.locator('.pulse-workflow');
+  const button=work.locator('[data-pw="draw"]');
+  const before=await button.evaluate(node=>getComputedStyle(node).backgroundColor);
+  await button.click();
+  const after=await button.evaluate(node=>getComputedStyle(node).backgroundColor);
+  expect(after).not.toBe(before);
+  await expect(button).toHaveAttribute('aria-pressed','true');
+  await button.click();
+  await expect(button).toHaveAttribute('aria-pressed','false');
+  for(const field of ['west','east','south','north']){
+    const size=await work.locator('[data-pw="'+field+'"]').evaluate(node=>parseFloat(getComputedStyle(node).fontSize));
+    expect(size).toBeGreaterThanOrEqual(12);
+  }
+  const map=work.locator('.pw-map');
+  const mapRect=await map.boundingBox();
+  expect(mapRect.width).toBeGreaterThan(180);
+  expect(mapRect.height).toBeGreaterThan(90);
+});
