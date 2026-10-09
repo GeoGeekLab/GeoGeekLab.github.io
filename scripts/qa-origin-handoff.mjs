@@ -27,8 +27,31 @@ for (const relative of ['origin/index.html', 'origin/cn/index.html']) {
 }
 
 const zh = await fs.readFile(path.join(dist, 'origin/cn/index.html'), 'utf8');
-for (const copy of ['归途 / 已竟', '此刻为你', '行至水穷，坐看云起。', '开始GeoGeek']) {
+// Protect the approved Chinese narrative in the generated Pages HTML.
+for (const copy of [
+  '探问宇宙，是寻找来处，亦是叩问归途。',
+  '我们躯体里的碳、氧与铁，皆曾在恒星深处孕育。',
+  '当繁星陨落，它们便散作星际里的微尘。',
+  '不是物理公式里冰冷的算符，而是古人对万物生成的一次言说。',
+  '我们追问宇宙的起源，也在寻找意识的来处。',
+  '归途 / 已竟',
+  '你，在此处',
+  '万象归于一念。',
+  '开始GeoGeek',
+]) {
   assert(zh.includes(copy), `origin/cn/index.html: missing approved copy “${copy}”`);
 }
+for (const outdated of [
+  '此刻为你',
+  '行至水穷，坐看云起。',
+  '探问宇宙，是寻来处，亦是归途。',
+  '也在辨认自身的来处。',
+]) {
+  assert(!zh.includes(outdated), `origin/cn/index.html: outdated copy remains “${outdated}”`);
+}
+assert(
+  /<section class="origin-exit"[^>]*>[\s\S]*?<h2 class="origin-exit-title" id="originExitTitle">你，在此处<\/h2>[\s\S]*?<p class="origin-exit-body">万象归于一念。<\/p>/u.test(zh),
+  'origin/cn/index.html: final handoff must render the approved title and body in the exit section',
+);
 
 console.log('Origin handoff QA passed.');
