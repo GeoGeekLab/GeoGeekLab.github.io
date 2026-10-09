@@ -959,16 +959,34 @@ function renderScientificStatus(state,rt){
 return {GROUPS,renderGroupedNavigation,renderScientificStatus};
 },
 "components/parameter-controls.js": function(require){
-const {CFG,PSETS} = require("core/config.js");
-const {sliderVal} = require("core/numbers.js");
+const {CFG,PSETS,DATA}=require("core/config.js");
+const {sliderVal}=require("core/numbers.js");
 function createParameterComponents({state}){
-function param(key){const c=CFG[key],v=state.params[key];return `<div class="param"><div class="param-top"><label for="range-${key}">${c.label}<small>${c.tip}</small></label><div class="numeric"><input aria-label="${c.label} numerical input" id="num-${key}" type="number" data-num="${key}" min="${c.min}" max="${c.max}" step="${c.step}" value="${Number(v.toFixed(5))}"><span>${c.unit}</span></div></div><input aria-label="${c.label} slider" id="range-${key}" type="range" min="0" max="1000" step="1" data-range="${key}" value="${sliderVal(key,v)}" style="--fill:${sliderVal(key,v)/10}%"></div>`}
-function csection(title,sub,html){return `<section class="control-section"><div class="section-title"><h3>${title}</h3><span>${sub||''}</span></div>${html}</section>`}
-function adv(html){return `<details class="adv" id="advancedDetails" ${state.advanced?'open':''}><summary>ADVANCED PARAMETERS</summary><div class="adv-body">${html}</div></details>`}
-function presets(){return `<div class="preset-grid">${Object.entries(PSETS).map(([id,x])=>`<button type="button" class="preset-btn" data-preset="${id}" aria-pressed="${state.preset===id}">${x.label}</button>`).join('')}</div>`}
-return {param,csection,adv,presets};
+ let sectionId=0;
+ function param(key){
+  const c=CFG[key],v=state.params[key],range=sliderVal(key,v),hint='ui-param-help-'+key;
+  return `<div class="param ui-field"><div class="param-top"><label for="range-${key}">${c.label}<small id="${hint}">${c.tip}</small></label><div class="numeric"><input aria-label="${c.label} numerical input" aria-describedby="${hint}" id="num-${key}" type="number" data-num="${key}" min="${c.min}" max="${c.max}" step="${c.step}" value="${Number(v.toFixed(5))}"><span>${c.unit}</span></div></div><input aria-label="${c.label} slider" aria-describedby="${hint}" id="range-${key}" type="range" min="0" max="1000" step="1" data-range="${key}" value="${range}" style="--fill:${range/10}%"></div>`;
+ }
+ function csection(title,sub,html){
+  const id='ui-control-section-'+(++sectionId);
+  return `<section class="control-section ui-control-section" aria-labelledby="${id}"><div class="section-title"><h3 id="${id}">${title}</h3><span>${sub||''}</span></div>${html}</section>`;
+ }
+ function adv(html){return `<details class="adv" id="advancedDetails" ${state.advanced?'open':''}><summary>Advanced parameters</summary><div class="adv-body">${html}</div></details>`}
+ function presets(){return `<div class="preset-grid" role="group" aria-label="Choose an optical water reference state">${Object.entries(PSETS).map(([id,x])=>`<button type="button" class="preset-btn" data-preset="${id}" aria-pressed="${state.preset===id}">${x.label}</button>`).join('')}</div>`}
+ function panel(workspace,fields){
+  const rt=state.tab==='rt',uncertainty=state.tab==='uncertainty';
+  const title=rt?'Archived optical reference':uncertainty?'Observation assumptions':'Interactive forward model';
+  const detail=rt?'Fixed discrete water/angle/wavelength/depth grid; changing these selectors does not solve a new RT case.':
+    uncertainty?'Local Jacobian and hypothetical sensor-band noise; not a measured retrieval uncertainty.':
+    'Controls update the current modeled scenario. No field observation is implied.';
+  const sensor=DATA[state.sensor]?.label||state.sensor;
+  const current=rt?(state.rtCase+' · '+state.rtSun+'° · '+state.rtWl+' nm'):
+    uncertainty?(state.uncertaintyParameters.length+' parameters · '+state.sensor.toUpperCase()):
+    (sensor+' · '+state.responseMode+' response');
+  return `<div class="ui-setup-context" role="group" aria-label="Current experiment context"><strong>${title}</strong><p>${detail}</p><dl><div><dt>Current selection</dt><dd>${current}</dd></div><div><dt>Workspace</dt><dd>${workspace.no} / ${workspace.label}</dd></div></dl></div><div class="ui-setup-fields">${fields}</div>`;
+ }
+ return {param,csection,adv,presets,panel};
 }
-
 return {createParameterComponents};
 },
 "app/workbench.js": function(require){
