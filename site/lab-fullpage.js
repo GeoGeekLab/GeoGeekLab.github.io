@@ -29,7 +29,7 @@
     orbit:'orbital/orbit-round2.js?v=20261002a',
     earth:'earth-observation-v3/earth-round2.js?v=20261002a',
     flow:'flow/flow-round2.js?v=20261002d',
-    pulse:'pulse/pulse-round6.js?v=20261009fixed1'
+    pulse:'pulse/pulse-round6.js?v=20261009navfix1'
   };
   const refinementLoads = new Map();
   let activeKind = '';
@@ -137,7 +137,7 @@
     if (refinementLoads.has(src)) return refinementLoads.get(src);
     const promise = import(new URL(src, document.baseURI).href)
       .then(() => kind === 'pulse'
-        ? import(new URL('pulse/pulse-workflow-v1.js?v=20261009fixed1', document.baseURI).href)
+        ? import(new URL('pulse/pulse-workflow-v1.js?v=20261009navfix1', document.baseURI).href)
             .then(() => import(new URL('pulse/pulse-workflow-v2.js?v=20261009fixed1', document.baseURI).href))
             .then(loadPulseVisualSystem)
             .then(loadPulseMapViewport)
