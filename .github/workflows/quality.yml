@@ -122,6 +122,7 @@ jobs:
           node --test site/water/workbench-v10-2/tests/ui-foundation.test.mjs
           node --test site/water/workbench-v10-2/tests/ui-components.test.mjs
           node --test site/water/workbench-v10-2/tests/rt-ui.test.mjs
+          node --test site/water/workbench-v10-2/tests/atm-sensor-ui.test.mjs
           npm run qa
           node scripts/verify-play-live-release.mjs --local
 
@@ -138,6 +139,8 @@ jobs:
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-components.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate Water V10.2 phase 4 RT science UI (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-rt.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Validate Water V10.2 phase 6B atmosphere and sensor UI (desktop and mobile Chromium)
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-atm-sensor.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate ORIENT release browser suite
         run: npx playwright test -c playwright.orient-release.config.mjs --list
 
