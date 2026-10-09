@@ -173,3 +173,91 @@ test('event finder locates overlapping points; A/B aggregate CSV exports retain 
   expect(gridCsv).toContain('"count_per_million_km2_A"');
   expect(gridCsv.split('\r\n').length).toBeGreaterThan(3);
 });
+
+test('ROI drawing, pointer-centred zoom and drag pan stay accurate with SVG letterboxing',async({page})=>{
+  await open(page);
+  const work=page.locator('.pulse-workflow');
+  const map=work.locator('.pw-map');
+
+  // Force non-2:1 drawing space. The world viewBox must letterbox horizontally
+  // on wider viewports and vertically on narrower ones.
+  await page.addStyleTag({content:`
+    .pulse-workflow .pw-map {
+      aspect-ratio:auto!important;
+      height:230px!important;
+      max-height:none!important;
+      flex-shrink:0!important;
+    }
+  `});
+
+  const toScreen=async(x,y)=>map.evaluate((svg,point)=>{
+    const matrix=svg.getScreenCTM();
+    const projected=new DOMPoint(point.x,point.y).matrixTransform(matrix);
+    return {x:projected.x,y:projected.y};
+  },{x,y});
+
+  await work.locator('[data-pw="draw"]').click();
+  await map.scrollIntoViewIfNeeded();
+  const topLeft=await toScreen(((-85+180)/360)*1000,((90-25)/180)*500);
+  const bottomRight=await toScreen(((-55+180)/360)*1000,((90-0)/180)*500);
+
+  // The correct pointer positions must come from the SVG screen matrix.
+  // Using the element's bounding rectangle would be incorrect here.
+  const letterboxError=await map.evaluate(svg=>{
+    const box=svg.getBoundingClientRect();
+    const point=new DOMPoint(300,190).matrixTransform(svg.getScreenCTM());
+    const naiveX=box.left+300*box.width/1000;
+    const naiveY=box.top+190*box.height/500;
+    return Math.hypot(point.x-naiveX,point.y-naiveY);
+  });
+  expect(letterboxError).toBeGreaterThan(2);
+
+  await page.mouse.move(topLeft.x,topLeft.y);
+  await page.mouse.down();
+  await page.mouse.move(bottomRight.x,bottomRight.y,{steps:10});
+  await page.mouse.up();
+
+  const roi=async key=>Number(await work.locator('[data-pw="'+key+'"]').inputValue());
+  expect(await roi('west')).toBeCloseTo(-85,1);
+  expect(await roi('east')).toBeCloseTo(-55,1);
+  expect(await roi('south')).toBeCloseTo(0,1);
+  expect(await roi('north')).toBeCloseTo(25,1);
+  await expect(work.locator('[data-pw="visible"]')).toHaveText('3');
+
+  // Zooming at an off-centre pointer must keep that geographic point fixed.
+  await map.scrollIntoViewIfNeeded();
+  const anchor={x:570,y:280};
+  const pointer=await toScreen(anchor.x,anchor.y);
+  await page.mouse.move(pointer.x,pointer.y);
+  await page.mouse.wheel(0,-120);
+  await expect.poll(async()=>{
+    const v=(await map.getAttribute('viewBox')).split(' ').map(Number);
+    return v[2];
+  }).toBeLessThan(1000);
+  const afterAnchor=await map.evaluate((svg,pointer)=>{
+    const point=new DOMPoint(pointer.x,pointer.y).matrixTransform(svg.getScreenCTM().inverse());
+    return {x:point.x,y:point.y};
+  },pointer);
+  expect(afterAnchor.x).toBeCloseTo(anchor.x,0);
+  expect(afterAnchor.y).toBeCloseTo(anchor.y,0);
+
+  // Pan at a constant screen displacement. The starting CTM must stay fixed
+  // during the drag, even as the SVG viewBox updates.
+  const initial=await map.evaluate(svg=>({
+    view:[svg.viewBox.baseVal.x,svg.viewBox.baseVal.y,svg.viewBox.baseVal.width,svg.viewBox.baseVal.height],
+    matrixScale:svg.getScreenCTM().a
+  }));
+  const panStart=await toScreen(500,320);
+  const dx=-12,dy=-6;
+  await page.mouse.move(panStart.x,panStart.y);
+  await page.mouse.down();
+  await page.mouse.move(panStart.x+dx,panStart.y+dy,{steps:8});
+  await page.mouse.up();
+  const panned=(await map.getAttribute('viewBox')).split(' ').map(Number);
+  const expectedX=Math.max(0,Math.min(1000-initial.view[2],initial.view[0]-dx/initial.matrixScale));
+  const expectedY=Math.max(0,Math.min(500-initial.view[3],initial.view[1]-dy/initial.matrixScale));
+  expect(panned[0]).toBeCloseTo(expectedX,0);
+  expect(panned[1]).toBeCloseTo(expectedY,0);
+  expect(panned[2]).toBeCloseTo(initial.view[2],3);
+  expect(panned[3]).toBeCloseTo(initial.view[3],3);
+});
