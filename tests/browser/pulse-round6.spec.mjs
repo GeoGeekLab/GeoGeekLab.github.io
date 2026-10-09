@@ -206,3 +206,44 @@ test('Pulse Round 6 survives same-page close and reopen without duplicate infere
   await expect(page.locator('.pulse-r6-summary')).toHaveCount(1);
   await expect(page.locator('.pulse-inference-chain')).toHaveCount(1);
 });
+
+
+test('SOURCE navigation scrolls the controls rail only and never displaces the fixed world map', async ({ page }) => {
+  await openPulse(page);
+  const source = page.locator('[data-pulse-jump="source"]');
+  const panel = page.locator('.pulse-observation-lab .pulse-panel');
+  await expect(source).toBeVisible();
+
+  const layout = () => page.evaluate(() => {
+    const dialog = document.querySelector('#instrumentDialog');
+    const stage = document.querySelector('#instrumentStage');
+    const map = document.querySelector('.pulse-observation-lab .pulse-map-frame');
+    const footer = document.querySelector('.instrument-foot');
+    const rail = document.querySelector('.pulse-observation-lab .pulse-panel');
+    return {
+      pageY: window.scrollY,
+      dialogTop: dialog.getBoundingClientRect().top,
+      stageTop: stage.getBoundingClientRect().top,
+      mapTop: map.getBoundingClientRect().top,
+      mapBottom: map.getBoundingClientRect().bottom,
+      footerTop: footer.getBoundingClientRect().top,
+      railTop: rail.getBoundingClientRect().top,
+      railScroll: rail.scrollTop,
+      sourceTop: rail.querySelector('.pulse-provenance').getBoundingClientRect().top
+    };
+  });
+  const before = await layout();
+  // Playwright locator.click() scrolls all ancestors to bring an offscreen
+  // button into view on narrow mobile layouts. That auto-scroll is unrelated
+  // to the SOURCE handler; trigger the link directly to test its scroll scope.
+  await source.evaluate(link => link.click());
+  await expect.poll(async () => (await layout()).railScroll).toBeGreaterThan(before.railScroll + 30);
+  const after = await layout();
+
+  expect(after.pageY).toBe(before.pageY);
+  for (const key of ['dialogTop', 'stageTop', 'mapTop', 'mapBottom', 'footerTop']) {
+    expect(Math.abs(after[key] - before[key]), key).toBeLessThan(2);
+  }
+  expect(after.sourceTop).toBeGreaterThanOrEqual(after.railTop - 2);
+  await expect(panel).toBeVisible();
+});

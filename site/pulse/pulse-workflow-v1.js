@@ -601,7 +601,15 @@
     for(const button of workspace.querySelectorAll('[data-pw-nav]')) {
       listen(button,'click',()=>{
         const section=workspace.querySelector('[data-pw-section="'+jumpTargets[button.dataset.pwNav]+'"]');
-        section?.scrollIntoView({block:'start',behavior:'auto'});
+        if (!section || !rail.contains(section)) return;
+        // Keep the map, dialog and page stationary when navigating to EXPORT
+        // (or any other section). Only the analysis rail owns scrolling.
+        const sticky = rail.querySelector('.pw-section-nav');
+        const offset = section.getBoundingClientRect().top - rail.getBoundingClientRect().top;
+        rail.scrollTo({
+          top: Math.max(0, rail.scrollTop + offset - (sticky?.getBoundingClientRect().height || 0)),
+          behavior: 'instant'
+        });
         const heading=section?.querySelector('h3');
         if(heading) {
           heading.tabIndex=-1;

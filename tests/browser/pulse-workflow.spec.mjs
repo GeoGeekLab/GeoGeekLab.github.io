@@ -211,3 +211,41 @@ test('scientific workflow sections navigate by keyboard without changing instrum
   await work.locator('[data-pw-nav="region"]').click();
   await expect(work.locator('[data-pw-section="region"] h3')).toBeFocused();
 });
+
+
+test('EXPORT navigation scrolls only ANALYZE rail without moving the map or dialog', async ({ page }) => {
+  await fixtures(page);
+  const nav = page.locator('.pw-section-nav [data-pw-nav="export"]');
+  await expect(nav).toBeVisible();
+
+  const layout = () => page.evaluate(() => {
+    const dialog = document.querySelector('#instrumentDialog');
+    const stage = document.querySelector('#instrumentStage');
+    const map = document.querySelector('.pulse-workflow .pw-map-container');
+    const footer = document.querySelector('.instrument-foot');
+    const rail = document.querySelector('.pulse-workflow .pw-side');
+    const section = rail.querySelector('[data-pw-section="export"]');
+    return {
+      pageY: window.scrollY,
+      dialogTop: dialog.getBoundingClientRect().top,
+      stageTop: stage.getBoundingClientRect().top,
+      mapTop: map.getBoundingClientRect().top,
+      mapBottom: map.getBoundingClientRect().bottom,
+      footerTop: footer.getBoundingClientRect().top,
+      railTop: rail.getBoundingClientRect().top,
+      railScroll: rail.scrollTop,
+      exportTop: section.getBoundingClientRect().top
+    };
+  });
+  const before = await layout();
+  await nav.click();
+  await expect.poll(async () => (await layout()).railScroll).toBeGreaterThan(before.railScroll + 30);
+  const after = await layout();
+
+  expect(after.pageY).toBe(before.pageY);
+  for (const key of ['dialogTop', 'stageTop', 'mapTop', 'mapBottom', 'footerTop']) {
+    expect(Math.abs(after[key] - before[key]), key).toBeLessThan(2);
+  }
+  expect(after.exportTop).toBeGreaterThanOrEqual(after.railTop - 2);
+  await expect(page.locator('.pulse-workflow [data-pw-section="export"]')).toBeVisible();
+});
