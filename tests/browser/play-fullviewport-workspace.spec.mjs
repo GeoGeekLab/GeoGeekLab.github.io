@@ -55,6 +55,11 @@ async function expectViewport(page, dialog, shell, size) {
       radius:getComputedStyle(dialog).borderTopLeftRadius,
       shellRadius:getComputedStyle(shell).borderTopLeftRadius,
       overflow:getComputedStyle(dialog).overflow,
+      cssWidth:getComputedStyle(dialog).width,
+      cssHeight:getComputedStyle(dialog).height,
+      cssMaxWidth:getComputedStyle(dialog).maxWidth,
+      cssMaxHeight:getComputedStyle(dialog).maxHeight,
+      viewportStylesheet:[...document.styleSheets].some(sheet=>(sheet.href||'').includes('play-workspace.css')),
       docScroll:document.documentElement.scrollHeight
     };
   });
@@ -62,8 +67,11 @@ async function expectViewport(page, dialog, shell, size) {
   expect(dimensions.viewport.height).toBe(size.height);
   expect(Math.abs(dimensions.dialog.x)).toBeLessThanOrEqual(1);
   expect(Math.abs(dimensions.dialog.y)).toBeLessThanOrEqual(1);
-  expect(Math.abs(dimensions.dialog.width-size.width)).toBeLessThanOrEqual(2);
-  expect(Math.abs(dimensions.dialog.height-size.height)).toBeLessThanOrEqual(2);
+  expect(Math.abs(dimensions.dialog.width-size.width)).toBeLessThanOrEqual(2); // See computed-size diagnostics below
+  expect(Math.abs(dimensions.dialog.height-size.height)).toBeLessThanOrEqual(2); // See computed-size diagnostics below
+  expect(dimensions.viewportStylesheet).toBe(true);
+  expect(dimensions.cssMaxWidth).toBe('none');
+  expect(dimensions.cssMaxHeight).toBe('none');
   expect(dimensions.radius).toBe('0px');
   expect(dimensions.shellRadius).toBe('0px');
   expect(dimensions.overflow).toBe('hidden');
