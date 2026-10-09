@@ -346,17 +346,30 @@
       const scope=el('scope').value;
       const resolution=Number(el('resolution').value);
       const measure=el('measure').value;
+      const displayed=scope==='a'?latest.a:scope==='b'?latest.b:state.visible;
+      const visibleIds=new Set(displayed.map(event=>event.id));
       dots.style.display=enabled?'none':'';
+      $('.pw-event',dots).forEach(marker=>{
+        const visible=!enabled&&visibleIds.has(marker.dataset.eventId);
+        marker.style.display=visible?'':'none';
+        marker.setAttribute('aria-hidden',String(!visible));
+        marker.setAttribute('tabindex',visible?'0':'-1');
+      });
       gridGroup.replaceChildren();
       currentGrid.clear();
-      gridPin=null;
       if(!enabled){
-        gridLegend.textContent='POINT MODE · '+state.visible.length+' filtered records. Hover/focus or click points. Scroll to zoom, drag blank map to pan.';
+        if(gridPin) {
+          gridPin=null;
+          detail.textContent='Grid cell selection cleared. Select a visible event.';
+        }
+        gridLegend.textContent='POINT MODE · '+displayed.length+' shown of '+state.visible.length+
+          ' filtered records · '+(scope==='all'?'ALL FILTERED':'WINDOW '+scope.toUpperCase())+
+          '. Hover/focus or click points. Scroll to zoom, drag blank map to pan.';
         return;
       }
       const cellsA=groupGrid(latest.a,resolution);
       const cellsB=groupGrid(latest.b,resolution);
-      const cellsCurrent=groupGrid(scope==='a'?latest.a:scope==='b'?latest.b:state.visible,resolution);
+      const cellsCurrent=groupGrid(displayed,resolution);
       const comparable=scope==='all'?cellsCurrent:[...cellsA.values(),...cellsB.values()];
       const max=Math.max(1e-10,...(comparable instanceof Map?[...comparable.values()]:comparable).map(c=>gridValue(c,measure)));
       maxShared=max;
@@ -375,6 +388,14 @@
         r.append(node('title',{},cell.count+' events; '+num(value)+' '+(measure==='area'?'per million square kilometres':'count')));
         gridGroup.append(r);
         currentGrid.set(cell.key,cell);
+      }
+      if(gridPin) {
+        const cell=currentGrid.get(gridPin);
+        if(cell) detailCell(cell,true);
+        else {
+          gridPin=null;
+          detail.textContent='Selected cell is outside the current map subset.';
+        }
       }
       gridLegend.textContent='GRID '+resolution+'° · '+(scope==='all'?'ALL FILTERED':'WINDOW '+scope.toUpperCase())+
         ' · '+(measure==='area'?'events/10⁶ km²':'raw events')+
@@ -399,15 +420,27 @@
         const button=document.createElement('button');
         button.type='button';button.className='pw-cell-event';
         button.textContent=(event.mag==null?'M?':'M'+event.mag.toFixed(1))+' · '+event.place+' · '+utc(event.time);
-        button.addEventListener('click',()=>{pinnedId=event.id;detailEvent(event,true);});
+        button.addEventListener('click',()=>{
+          gridPin=null;
+          pinnedId=event.id;
+          context.inspect(event);
+          detailEvent(event,true);
+        });
         detail.append(button);
       }
     }
 
     function render() {
-      const key=state.url+'|'+state.fetchedAt+'|'+state.events.length;
+      // Catalogue identity is explicit. Equal record counts and URLs do not
+      // prove that a refreshed provider catalogue contains the same records.
+      const key=state.catalogueRevision;
       if(state.source && key!==lastDatasetKey){
         lastDatasetKey=key;
+        pinnedId=null;
+        gridPin=null;
+        hovered=null;
+        hideTooltip();
+        detail.textContent='Catalogue updated. Select a visible event or occupied grid cell.';
         autoWindows();
         tell('Two non-overlapping half-open UTC windows. Change their bounds and apply to compare.');
       }
@@ -418,12 +451,22 @@
       }
       latest=subset();
       setStats();
+      // Histogram bars are recreated on every render. A previously pinned
+      // chart description must not survive a change to the underlying counts.
+      chartReadout.textContent='Hover or focus a bar to read its count and interval.';
       charts();
       renderGrid();
       if(el('find').value) findEvents();
+      const scope=el('scope').value;
+      const displayed=scope==='a'?latest.a:scope==='b'?latest.b:state.visible;
       if(pinnedId){
-        const keep=state.visible.find(e=>e.id===pinnedId);
-        if(keep)detailEvent(keep,true); else {pinnedId=null;detail.textContent='The selected event is no longer in the visible set.';}
+        const keep=displayed.find(e=>e.id===pinnedId);
+        if(keep) detailEvent(keep,true);
+        else {
+          pinnedId=null;
+          context.clearInspection('The selected event is outside the current map data or filters.');
+          if(!gridPin) detail.textContent='The selected event is outside the current map data or filters.';
+        }
       }
     }
 
@@ -487,7 +530,13 @@
         button.addEventListener('click',()=>{
           pinnedId=event.id;gridPin=null;
           detailEvent(event,true);context.inspect(event);
-          el('display').value='points';renderGrid();
+          el('display').value='points';
+          // The finder searches the full filtered catalogue. Reveal its event
+          // if an A/B-only map subset would otherwise hide the selected point.
+          if(el('scope').value!=='all' && !(
+            el('scope').value==='a'?latest.a:latest.b
+          ).some(item=>item.id===event.id)) el('scope').value='all';
+          renderGrid();
           const width=Math.min(svg.viewBox.baseVal.width,250),height=width/2;
           const px=(event.lon+180)/360*1000;
           const py=(90-event.lat)/180*500;
@@ -531,7 +580,9 @@
       if(pinnedId) {
         const event=state.visible.find(e=>e.id===pinnedId);
         if(event)detailEvent(event,true);
+        else detail.textContent='Select a visible event or occupied grid cell.';
       }else if(gridPin&&currentGrid.has(gridPin))detailCell(currentGrid.get(gridPin),true);
+      else detail.textContent='Select a visible event or occupied grid cell.';
     }
 
     listen(svg,'pointerover',event=>{
@@ -561,6 +612,7 @@
         pinnedId=info.item.id;gridPin=null;detailEvent(info.item,true);
         context.inspect(info.item);
       } else {
+        context.clearInspection('An aggregate grid cell is selected.');
         gridPin=info.item.key;pinnedId=null;detailCell(info.item,true);
       }
       return true;
@@ -619,6 +671,19 @@
     listen(el('find'),'input',findEvents);
     listen(el('charts-csv'),'click',exportCharts);
     listen(el('grid-csv'),'click',exportGrid);
+    listen(workspace,'pulse:workflow-selection',event=>{
+      const selected=event.detail?.event;
+      if(selected) {
+        pinnedId=selected.id;
+        gridPin=null;
+        detailEvent(selected,true);
+      } else {
+        pinnedId=null;
+        if(!gridPin) detail.textContent=event.detail?.reason||'Select a visible event or occupied grid cell.';
+        hideTooltip();
+        hovered=null;
+      }
+    });
     listen(workspace,'pulse:workflow-render',render);
     workspace._pulseAnalysisMetadata=()=>({
       version:2,periodsUTC:periods?{

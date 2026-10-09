@@ -190,7 +190,7 @@
     const state = {
       open:false, busy:false, abort:null, source:null, url:null, fetchedAt:null,
       scope:null, events:[], visible:[], invalid:0, roi:null, drawing:false, drag:null,
-      queryMin:null, loadedStart:null, loadedEnd:null
+      queryMin:null, loadedStart:null, loadedEnd:null, selectedId:null, catalogueRevision:0
     };
     const today = Date.now();
     el('start').value = utcDate(today - 6*DAY);
@@ -244,8 +244,19 @@
         (el('status').value === 'all' || event.status === el('status').value));
     }
 
+    function clearInspection(reason = 'Select a visible event to inspect its USGS record.') {
+      state.selectedId = null;
+      selected.textContent = reason;
+      workspace.dispatchEvent(new CustomEvent('pulse:workflow-selection', {
+        detail:{event:null,reason}
+      }));
+    }
+
     function render() {
       state.visible = filtered();
+      if (state.selectedId && !state.visible.some(event => event.id === state.selectedId)) {
+        clearInspection('The selected event is outside the current ROI or filters.');
+      }
       el('loaded').textContent = state.source ? fmtNumber(state.events.length) : '—';
       el('visible').textContent = state.source ? fmtNumber(state.visible.length) : '—';
       const magnitudes = state.visible.map(event => event.mag).filter(Number.isFinite);
@@ -291,19 +302,26 @@
     }
 
     function inspect(event) {
+      // Reject selections from a prior catalogue or from a filtered-out area.
+      const current = event && state.visible.find(item => item.id === event.id);
+      if (!current) return clearInspection('This event is not in the current visible set.');
+      state.selectedId = current.id;
       selected.replaceChildren();
       const summary = document.createElement('span');
-      summary.textContent = event.place + ' · M ' + (event.mag == null ? '?' : event.mag.toFixed(1)) +
-        ' · depth ' + (event.depth == null ? '?' : event.depth) + ' km · ' + iso(event.time) + ' · ' + event.status;
+      summary.textContent = current.place + ' · M ' + (current.mag == null ? '?' : current.mag.toFixed(1)) +
+        ' · depth ' + (current.depth == null ? '?' : current.depth) + ' km · ' + iso(current.time) + ' · ' + current.status;
       selected.appendChild(summary);
-      if (event.url) {
+      if (current.url) {
         const link = document.createElement('a');
-        link.href = event.url;
+        link.href = current.url;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.textContent = 'USGS RECORD ↗';
         selected.appendChild(link);
       }
+      workspace.dispatchEvent(new CustomEvent('pulse:workflow-selection', {
+        detail:{event:current}
+      }));
     }
 
     async function request(url) {
@@ -332,6 +350,8 @@
       const normalized = features.map(normalize).filter(Boolean);
       state.invalid = features.length - normalized.length;
       state.events = normalized;
+      state.catalogueRevision += 1;
+      clearInspection('A new catalogue was loaded. Select an event to inspect it.');
       state.source = provenance.mode;
       state.url = provenance.url;
       state.fetchedAt = provenance.fetchedAt;
@@ -340,7 +360,6 @@
       state.loadedStart = provenance.start;
       state.loadedEnd = provenance.end;
       el('view-mag').value = '';
-      selected.textContent = 'Select a mapped event to inspect its USGS record.';
       el('provenance').textContent = 'PROVIDER: USGS · MODE: ' + provenance.mode.toUpperCase() +
         ' · FETCHED: ' + provenance.fetchedAt + ' · ' + provenance.scope +
         ' · SOURCE: ' + provenance.url;
@@ -503,7 +522,7 @@
       }
     }
 
-    workspace._pulseWorkflowContext = {state, render, inspect, svg, screenPoint, pointerLocation};
+    workspace._pulseWorkflowContext = {state, render, inspect, clearInspection, svg, screenPoint, pointerLocation};
     const listeners = [];
     const listen = (target,kind,handler,options) => {
       target.addEventListener(kind,handler,options);
