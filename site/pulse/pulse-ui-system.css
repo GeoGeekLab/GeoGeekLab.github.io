@@ -325,6 +325,74 @@
 }
 
 
+/* Sticky, keyboard-accessible analysis contents links.
+ * Keeps long comparison controls discoverable without changing the URL hash.
+ */
+.instrument-dialog[data-instrument-kind="pulse"] .pw-section-nav{
+  position:sticky;
+  top:0;
+  z-index:10;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:2px;
+  padding:6px;
+  background:var(--pulse-ui-panel);
+  border-bottom:1px solid var(--pulse-ui-line);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-section-nav button{
+  min-width:0;
+  min-height:36px;
+  padding:6px 2px;
+  font:700 10px/1.25 var(--mono,monospace);
+  letter-spacing:.015em;
+  background:var(--pulse-ui-panel-2);
+  color:var(--pulse-ui-body);
+  border:1px solid var(--pulse-ui-line);
+  border-radius:0;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-section-nav button:is(:hover,:focus-visible){
+  border-color:var(--pulse-ui-signal);
+  color:var(--pulse-ui-text);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-section-nav button:focus-visible{
+  outline:2px solid var(--pulse-ui-warning);
+  outline-offset:1px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] [data-pw-section]{
+  scroll-margin-top:54px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] [data-pw-section] h3:focus{
+  outline:2px solid var(--pulse-ui-warning);
+  outline-offset:2px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-source-state{
+  flex:0 0 auto;
+  padding:8px 10px;
+  color:var(--pulse-ui-muted);
+  background:var(--pulse-ui-panel-2);
+  border:1px solid var(--pulse-ui-line);
+  font:600 11px/1.5 var(--mono,monospace);
+  overflow-wrap:anywhere;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-source-state[data-freshness="stale"]{
+  color:var(--pulse-ui-warning);
+  border-color:rgba(232,184,111,.5);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-source-state[data-freshness="unknown"]{
+  color:var(--pulse-ui-warning);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-source-state[data-freshness="history"]{
+  color:var(--pulse-ui-b);
+}
+.instrument-dialog[data-instrument-kind="pulse"] [data-pc="comparison-note"]{
+  background:var(--pulse-ui-panel-2);
+  border-left:3px solid var(--pulse-ui-a);
+  padding:10px;
+  color:var(--pulse-ui-body);
+  font-size:11px;
+  line-height:1.55;
+}
+
 @media(max-width:1040px){
   .instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab.pulse-layout,
   .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
@@ -346,7 +414,19 @@
   .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-column{padding:10px}
   .instrument-dialog[data-instrument-kind="pulse"] :is(
     .pw-actions button,.pulse-control-button,.pulse-representation-group button,.pulse-measure-choice button
-  ){min-height:42px}
+  ){min-height:44px}
+  .instrument-dialog[data-instrument-kind="pulse"] :is(
+    .pulse-filter-grid select,.pw-fields input,.pw-fields select,.pw-search-label input,
+    .pulse-r6-nav a,.pw-section-nav button
+  ){min-height:44px}
+  .instrument-dialog[data-instrument-kind="pulse"] .pw-section-nav{
+    padding:4px;
+    gap:1px;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pw-section-nav button{
+    font-size:9px;
+    padding-inline:1px;
+  }
   .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
     grid-template-rows:minmax(540px,70vh) auto;
   }
