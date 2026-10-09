@@ -150,3 +150,49 @@ Scope: scientifically faithful spectral comparison and readout labeling. The Lig
 | Desktop 125% zoom and fully unobstructed scene | NOT RUN / DEFERRED | STEP 06 and STEP 12 |
 
 The single skipped case remains the unrelated Water prototype narrow-screen test. Screenshot inspection confirms that the removed-mechanism curves rest on the chart's actual zero baseline, the 550 nm readings and unit labels are visible, and scene mechanism states remain distinct. Full scene composition remains an open design issue for STEP 06, not a regression in STEP 02.
+
+
+## G. STEP 03 acceptance — Shared desktop design system
+
+Validated in [GeoGeek Quality run 37916400677](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37916400677), commit `88a87ca46dec063bac452169db9c4ebb42380321` — **PASS**. This run includes the selected-state CSS specificity correction from STEP 03, unchanged through the STEP 04 verification.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Shared tokens apply to V2 and legacy PLAY shells | PASS | `play-design-system.spec.mjs`: V2 Project and Light, legacy Orient |
+| Project desktop typography and keyboard focus | PASS | Desktop Playwright contract at 1920×1080, 1440×900, 1366×768 |
+| Light selection persists under hover and disabled action remains readable | PASS | Browser-selected state test; previous CSS priority failure resolved |
+| Scoped styles do not break existing instrument interactions | PASS | Full Playwright regression including PLAY pointer/entry tests and non-PLAY Lab suite |
+| Project / Light sample captures | PASS | `quality-reports` artifact 11611212639; `project-design-system-*` and `light-design-system-*` at 1920, 1440 and 1366 |
+| Complete visual redesign of all six instruments | DEFERRED | STEPS 05–10; STEP 03 finalizes reusable tokens and representative control rules only |
+
+STEP 03 **DONE** for its scoped design-system deliverable. The inherited panel arrangement and weak-contrast secondary annotations are not claimed fixed. The first STEP 03 browser run had a Light selected/hover conflict; the final success run demonstrates the corrected rule.
+
+## H. STEP 04 acceptance — Full-viewport PLAY Workspace
+
+**Validated implementation revision:** `88a87ca46dec063bac452169db9c4ebb42380321`  
+**GitHub Actions:** [GeoGeek Quality run 37916400677](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37916400677) — **COMPLETED / SUCCESS**.  
+**Quality artifact:** `quality-reports`, ID `11611212639`.  
+**Playwright report:** 498 total; **486 passed, 12 skipped, 0 failed, 0 flaky**. Twelve skipped cases include eight intentionally desktop-only STEP 04 cases on mobile, three STEP 03 desktop-only cases on mobile, and one unrelated pre-existing Water case.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| G01 — all six PLAY instruments open from cards and direct links | PASS | Existing `play-entry-pointer.spec.mjs` and six direct-link full-viewport checks |
+| G02 — PLAY Dialog reaches all viewport edges, no floating frame | PASS | `play-fullviewport-workspace.spec.mjs`, six kinds × 1920×1080, 1440×900, 1366×768, 1536×864 (24 viewport checks) |
+| G03 — Close and Escape return to Lab, no identity leakage | PASS | New focused Playwright test; independent browser-history navigation coverage is **NOT RUN** as part of STEP 04 |
+| G04 — no internal panel obstructs the scientific field | DEFERRED | Bound and Light still have legacy internal overlapping panels, STEPS 05–10 |
+| G05 — primary pointer and keyboard flows remain operable | PASS | Existing PLAY entry/pointer and Project/Light/Orient browser suites |
+| G06 — all labels and legends visually final | DEFERRED | Sample screenshots reviewed; detailed instrument hierarchy, contrast and occlusion are STEPS 05–10 |
+| G07 — three desktop viewport sizes | PASS | 1920×1080, 1440×900, 1366×768 geometry; 1920 and 1366 PNG captures for all six kinds |
+| G07 — 125% browser zoom | NOT RUN | A 1536×864 CSS viewport proxy was tested, but this does **not** verify native browser zoom; STEP 12 |
+| G09 — non-PLAY layout remains isolated | PASS | World isolation test plus `lab-fullpage-workspace.spec.mjs`: 14/14 cases, including Water and Observatory |
+| Build, static QA, links, Lighthouse | PASS | GitHub Quality run 37916400677 |
+| Playwright full suite | PASS | 498 total; 486 passed, 12 skipped, 0 failures |
+| Screenshots inspected | PASS | 12 labeled PNGs, six kinds at 1920×1080 and 1366×768 |
+| Identical-state before/after pixel-diff versus STEP 00 images | NOT RUN | STEP 00 screenshots used a different viewport size and scene state |
+| Final cross-instrument visual sign-off | DEFERRED | STEP 12 |
+
+The first STEP 04 CI run, [37913119305](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37913119305), failed six PLAY fullscreen width assertions: a 1920 px viewport exposed a 1600 px Dialog. The root was competition with legacy Dialog size constraints. `site/play/play-workspace.css` was corrected to enforce its scoped fixed-position viewport bounds with appropriate priority in commit `06d1e58b294cb512b67ede7a5a092913efbf4ff8`; the follow-up test commit `88a87ca46dec063bac452169db9c4ebb42380321` added computed-style and stylesheet checks. The final run passed all six previously failing tests.
+
+The same unsuccessful earlier run also contained a Pulse timing failure. Pulse code was untouched; the complete Pulse regression passed in the final successful run.
+
+**STEP 04 decision: DONE** for the outer edge-to-edge PLAY shell. No change to instrument physics, state machines or the existing Observatory fullpage mechanism. Internal task/evidence rail redesign remains the responsibility of STEPS 05–10.
