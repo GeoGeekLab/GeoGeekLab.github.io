@@ -7,7 +7,7 @@
     const byId=id=>world.countries.find(feature=>String(feature.id)===String(id));
     const choices=Object.fromEntries(experiment.choices.map(choice=>[choice.id,{...choice,feature:byId(choice.atlasId)}]));
 
-    shell.viewport.innerHTML=`<div class="project-v2-stage"><svg class="project-v2-map" viewBox="0 0 1000 640" role="img" aria-label="World map changing continuously between Mercator and Equal Earth projections"></svg></div>`;
+    shell.viewport.innerHTML=`<div class="project-v2-stage"><svg class="project-v2-map" viewBox="0 0 1000 640" role="img" aria-label="World map changing continuously between Mercator and Equal Earth projections"></svg><div class="project-v2-canvas-caption" aria-hidden="true"><span>01 / AREA</span><span>Representation changes · geography stays</span></div></div>`;
     const svg=d3.select(shell.viewport.querySelector('.project-v2-map'));
     const sphere=svg.append('path').datum({type:'Sphere'}).attr('class','project-v2-sphere');
     const graticule=svg.append('path').datum(d3.geoGraticule10()).attr('class','project-v2-graticule');
@@ -69,15 +69,46 @@
       return node;
     }
 
-    function setHud() {
-      shell.hud.innerHTML=`<div class="project-v2-hud-item"><span>EXPERIMENT</span><strong>AREA</strong></div><div class="project-v2-hud-item"><span>SURFACE</span><strong>UNCHANGED</strong></div>`;
+    function setHud(phase='predicting',selected='') {
+      const committed=phase!=='predicting';
+      const revealed=phase==='revealed';
+      shell.hud.innerHTML=`
+        <div class="project-v2-evidence-head"><span>FIELD NOTES / 01</span><strong>Area &amp; projection</strong></div>
+        <div class="project-v2-evidence-group">
+          <div class="project-v2-hud-item"><span>EXPERIMENT</span><strong>AREA</strong></div>
+          <div class="project-v2-hud-item"><span>PROJECTIONS</span><strong>MERCATOR → EQUAL EARTH</strong></div>
+        </div>
+        <div class="project-v2-evidence-group project-v2-key">
+          <span class="project-v2-evidence-label">MAP KEY</span>
+          <div><i class="project-v2-swatch is-greenland"></i>Greenland</div>
+          <div><i class="project-v2-swatch is-india"></i>India</div>
+        </div>
+        <div class="project-v2-evidence-group">
+          <div class="project-v2-hud-item"><span>SURFACE AREA</span><strong>UNCHANGED</strong></div>
+          <p>Only the map representation changes. The land areas remain fixed.</p>
+        </div>
+        ${committed?`<div class="project-v2-evidence-group project-v2-evidence-readout">
+          <span class="project-v2-evidence-label">APPARENT AREA ON MAP</span>
+          <strong class="project-v2-apparent-value" aria-live="polite">—</strong>
+          <small>SCREEN SPACE · REPRESENTATION ONLY</small>
+        </div>`:''}
+        ${selected?`<div class="project-v2-evidence-group"><span class="project-v2-evidence-label">YOUR PREDICTION</span><strong class="project-v2-evidence-choice">${choices[selected]?.label||''}</strong></div>`:''}
+        ${revealed?`<div class="project-v2-evidence-group project-v2-evidence-truth">
+          <span class="project-v2-evidence-label">ACTUAL SURFACE AREA</span>
+          <div class="project-v2-area-pair">
+            <div><span>INDIA</span><strong>≈ ${(choices.india.areaKm2/1e6).toFixed(2)}M km²</strong></div>
+            <div><span>GREENLAND</span><strong>≈ ${(choices.greenland.areaKm2/1e6).toFixed(2)}M km²</strong></div>
+          </div>
+        </div>`:''}
+        <div class="project-v2-evidence-limit">A map is a representation, not the Earth's surface.</div>`;
+      apparentValue=shell.hud.querySelector('.project-v2-apparent-value');
     }
 
     function showPrediction(onChoice) {
       slider=null; revealButton=null; progress=null; apparentValue=null;
       shell.setState('predicting');
       shell.setStatus(experiment.from.label);
-      setHud();
+      setHud('predicting');
       renderProjection(0);
       shell.overlay.innerHTML='';
       const panel=document.createElement('div');
@@ -93,7 +124,7 @@
     function addScrubber(panel,{value=0,onInput,onReveal,showReveal=true}={}) {
       const control=document.createElement('div');
       control.className='project-v2-scrub-control';
-      control.innerHTML=`<div class="project-v2-scrub-labels"><span>${experiment.from.label}</span><strong class="project-v2-progress">${Math.round(value*100)}%</strong><span>${experiment.to.label}</span></div><div class="project-v2-apparent"><span>APPARENT AREA ON MAP</span><strong class="project-v2-apparent-value">—</strong><small>SCREEN SPACE · REPRESENTATION ONLY</small></div>`;
+      control.innerHTML=`<div class="project-v2-scrub-labels"><span>${experiment.from.label}</span><strong class="project-v2-progress">${Math.round(value*100)}%</strong><span>${experiment.to.label}</span></div>`;
       slider=document.createElement('input');
       slider.type='range';
       slider.min='0';
@@ -109,7 +140,7 @@
       });
       control.appendChild(slider);
       progress=control.querySelector('.project-v2-progress');
-      apparentValue=control.querySelector('.project-v2-apparent-value');
+      apparentValue=shell.hud.querySelector('.project-v2-apparent-value');
       panel.appendChild(control);
       renderProjection(value);
       if(showReveal) {
@@ -120,6 +151,7 @@
 
     function showTransform({choice,value=0,onInput,onReveal}={}) {
       shell.setState('transforming');
+      setHud('transforming',choice);
       shell.overlay.innerHTML='';
       const selected=choices[choice];
       const panel=document.createElement('div');
@@ -133,12 +165,13 @@
 
     function showResult({choice,value=1,onInput,onRestart,onNext}={}) {
       shell.setState('revealed');
+      setHud('revealed',choice);
       shell.overlay.innerHTML='';
       const selected=choices[choice];
       const larger=experiment.choices.reduce((best,item)=>item.areaKm2>best.areaKm2?item:best,experiment.choices[0]);
       const panel=document.createElement('div');
       panel.className='project-v2-panel is-result';
-      panel.innerHTML=`<span>REVEAL</span><div class="project-v2-result">${larger.label}<small>IS LARGER</small></div><div class="project-v2-area-pair"><div><span>INDIA</span><strong>≈ ${(choices.india.areaKm2/1e6).toFixed(2)}M km²</strong></div><div><span>GREENLAND</span><strong>≈ ${(choices.greenland.areaKm2/1e6).toFixed(2)}M km²</strong></div></div><p>${selected?.id===larger.id?'YOUR PREDICTION HELD.':'YOUR PREDICTION DIDN\'T HOLD.'}<br>${experiment.insight[0]} ${experiment.insight[1]}</p>`;
+      panel.innerHTML=`<span>REVEAL</span><div class="project-v2-result">${larger.label}<small>IS LARGER</small></div><p>${selected?.id===larger.id?'YOUR PREDICTION HELD.':'YOUR PREDICTION DIDN\'T HOLD.'}<br>${experiment.insight[0]} ${experiment.insight[1]}</p>`;
       addScrubber(panel,{value,onInput,showReveal:false});
       const actions=document.createElement('div');
       actions.className='project-v2-actions';
