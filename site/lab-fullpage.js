@@ -97,7 +97,7 @@
   }
 
   function loadPulseVisualSystem() {
-    const src = new URL('pulse/pulse-ui-system.css?v=20261009r4', document.baseURI).href;
+    const src = new URL('pulse/pulse-ui-system.css?v=20261009r5', document.baseURI).href;
     const existing = document.querySelector('link[data-pulse-ui-system]');
     if (existing) return Promise.resolve();
     return new Promise((resolve, reject) => {
@@ -120,8 +120,8 @@
     if (refinementLoads.has(src)) return refinementLoads.get(src);
     const promise = import(new URL(src, document.baseURI).href)
       .then(() => kind === 'pulse'
-        ? import(new URL('pulse/pulse-workflow-v1.js?v=20261009r3b', document.baseURI).href)
-            .then(() => import(new URL('pulse/pulse-workflow-v2.js?v=20261009r3b', document.baseURI).href))
+        ? import(new URL('pulse/pulse-workflow-v1.js?v=20261009r5', document.baseURI).href)
+            .then(() => import(new URL('pulse/pulse-workflow-v2.js?v=20261009r5', document.baseURI).href))
             .then(loadPulseVisualSystem)
         : undefined)
       .catch(error => {
