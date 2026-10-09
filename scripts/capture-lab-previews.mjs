@@ -204,10 +204,14 @@ function updatePreviewCacheVersion(files) {
     hash.update(path.basename(file));
     hash.update(fs.readFileSync(file));
   }
-  const version = `capture-${hash.digest('hex').slice(0, 12)}`;
   const source = fs.readFileSync(previewRuntime, 'utf8');
   const versionPattern = /const VERSION = ['"][^'"]+['"];/;
   if (!versionPattern.test(source)) throw new Error('Lab preview runtime is missing the VERSION declaration.');
+  // The injected script URL uses this token too. Include runtime bytes so a
+  // script-only change cannot leave an unchanged, stale browser cache key.
+  // Normalize the previous token to keep repeated builds deterministic.
+  hash.update(source.replace(versionPattern, "const VERSION = 'cache-key-placeholder';"));
+  const version = `capture-${hash.digest('hex').slice(0, 12)}`;
   fs.writeFileSync(previewRuntime, source.replace(versionPattern, `const VERSION = '${version}';`));
   console.log(`Lab preview cache version: ${version}`);
 }
