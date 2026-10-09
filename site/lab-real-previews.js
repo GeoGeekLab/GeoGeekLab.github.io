@@ -24,15 +24,28 @@
   function replaceInstrumentCards() {
     // Only prioritize the first collection preview. Direct instrument links must
     // leave bandwidth available to the selected workspace and its data.
-    const firstCard = labList?.querySelector('.project-card');
+    // The Lab collection normalizes and can reorder cards after initial
+    // mounting. Select the first preview-eligible card, then update existing
+    // images when the order settles so the LCP image cannot remain lazy.
+    const firstCard = [...(labList?.querySelectorAll('.project-card') || [])].find(card => instrumentFromCard(card));
     const collectionEntry = !new URLSearchParams(location.search).has('instrument');
     document.querySelectorAll('#labList .project-card').forEach(card => {
       const kind = instrumentFromCard(card);
       if (!kind) return;
       const visual = card.querySelector('.project-visual');
-      if (!visual || visual.dataset.realPreview === kind) return;
+      if (!visual) return;
+      const critical = collectionEntry && card === firstCard;
+      if (visual.dataset.realPreview === kind) {
+        const img = visual.querySelector('img');
+        if (img) {
+          img.loading = critical ? 'eager' : 'lazy';
+          if (critical) img.fetchPriority = 'high';
+          else img.removeAttribute('fetchpriority');
+        }
+        return;
+      }
       const title = card.querySelector('h2,h3')?.textContent?.trim() || kind;
-      visual.replaceChildren(makeImage(kind, `${title} — real instrument output`, collectionEntry && card === firstCard));
+      visual.replaceChildren(makeImage(kind, `${title} — real instrument output`, critical));
       visual.dataset.realPreview = kind;
       visual.classList.add('is-real-output');
     });
