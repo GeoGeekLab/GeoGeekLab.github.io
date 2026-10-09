@@ -49,8 +49,8 @@ const copyByLocale = {
   },
   zh: {
     kicker: '归途 / 已竟',
-    title: '此刻为你',
-    body: '行至水穷，坐看云起。',
+    title: '你，在此处',
+    body: '万象归于一念。',
     cta: '开始GeoGeek',
     aria: '开始 GeoGeek，进入首页',
   },
