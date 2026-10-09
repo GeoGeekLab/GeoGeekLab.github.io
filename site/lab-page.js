@@ -145,15 +145,20 @@
     project: 'field'
   };
 
+  const playKinds = new Set(['locate', 'zone', 'path', 'project', 'light', 'swath']);
+
   function setInstrumentIdentity(kind = '') {
     if (!kind) {
       delete dialog.dataset.instrumentKind;
       delete dialog.dataset.instrumentFamily;
+      delete dialog.dataset.playWorkspace;
       delete stage.dataset.instrumentKind;
       return;
     }
     dialog.dataset.instrumentKind = kind;
     dialog.dataset.instrumentFamily = families[kind] || 'field';
+    if (playKinds.has(kind)) dialog.dataset.playWorkspace = 'true';
+    else delete dialog.dataset.playWorkspace;
     stage.dataset.instrumentKind = kind;
   }
 
