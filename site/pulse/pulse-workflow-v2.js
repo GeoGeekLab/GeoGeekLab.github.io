@@ -127,6 +127,19 @@
       exportSection.before(analysis);
     } else side.appendChild(analysis);
 
+    // Keep the one set of map zoom controls beside the map, not buried beneath
+    // comparative charts in the long rail. This is especially useful on touch.
+    const zoomToolbar=$('.pw-actions',analysis).find(group=>group.querySelector('[data-pc="zoom-in"]'));
+    const mapFoot=$('.pw-map-foot',map);
+    if(zoomToolbar && mapFoot) {
+      zoomToolbar.classList.add('pw-map-tools');
+      mapFoot.after(zoomToolbar);
+    }
+    const mapHelp=document.createElement('p');
+    mapHelp.className='pw-map-help';
+    mapHelp.textContent='MAP CONTROL · Drag empty map to pan · Use zoom buttons to change scale · Choose DRAW RECTANGLE in REGION to select an area.';
+    (zoomToolbar?.isConnected?zoomToolbar:mapFoot)?.after(mapHelp);
+
     const detail = document.createElement('section');
     detail.className='pw-hover-detail';
     detail.setAttribute('aria-live','polite');
@@ -143,7 +156,7 @@
     const gridGroup=node('g',{'class':'pw-comparison-grid','aria-label':'Configurable earthquake grid'});
     svg.insertBefore(gridGroup,dots);
 
-    const el = key => $(select(key),analysis);
+    const el = key => $(select(key),workspace);
     const chartReadout=el('chart-readout');
     const gridLegend=el('grid-legend');
     const listeners=[];
@@ -709,7 +722,7 @@
     function cleanup(){
       listeners.forEach(off=>off());
       delete workspace._pulseAnalysisMetadata;
-      analysis.remove();detail.remove();floating.remove();gridGroup.remove();
+      analysis.remove();zoomToolbar?.remove();mapHelp.remove();detail.remove();floating.remove();gridGroup.remove();
       active.delete(workspace);
     }
     active.set(workspace,{cleanup});
