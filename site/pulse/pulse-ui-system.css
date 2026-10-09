@@ -1,0 +1,329 @@
+/* Earth Pulse / shared visual language — Round 4.
+ * Both OBSERVE and ANALYZE are scientific views of the same instrument.
+ * Semantic colour: orange = seismic observations/aggregation,
+ * mint = spatial ROI, apricot/blue = A/B comparison, amber = caution.
+ * Scope every override to Pulse; other Lab instruments are unchanged.
+ */
+.instrument-dialog[data-instrument-kind="pulse"]{
+  --pulse-ui-background:#0b120e;
+  --pulse-ui-panel:#101913;
+  --pulse-ui-panel-2:#142019;
+  --pulse-ui-field:#0a100d;
+  --pulse-ui-text:#f1efe7;
+  --pulse-ui-body:#c9d0ca;
+  --pulse-ui-muted:#a9b9ad;
+  --pulse-ui-line:rgba(232,237,233,.16);
+  --pulse-ui-signal:#d16339;
+  --pulse-ui-signal-soft:rgba(209,99,57,.14);
+  --pulse-ui-roi:#8fc69b;
+  --pulse-ui-a:#e8a17b;
+  --pulse-ui-b:#86bade;
+  --pulse-ui-warning:#e8b86f;
+  --pulse-ui-land:rgba(131,148,132,.34);
+  --pulse-ui-graticule:rgba(241,239,231,.10);
+  --pulse-ui-rail:clamp(350px,27vw,426px);
+  color-scheme:dark;
+}
+
+/* One map field, reference geography and event encoding. */
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab{
+  --pulse-panel-bg:var(--pulse-ui-panel);
+  --pulse-map-bg:var(--pulse-ui-field);
+  --pulse-line:var(--pulse-ui-line);
+  --pulse-soft:var(--pulse-ui-body);
+  --pulse-muted:var(--pulse-ui-muted);
+  --pulse-signal:var(--pulse-ui-signal);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab.pulse-layout{
+  grid-template-columns:minmax(0,1fr) var(--pulse-ui-rail)!important;
+  gap:0;
+  background:var(--pulse-ui-background);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow{
+  background:var(--pulse-ui-background);
+  color:var(--pulse-ui-text);
+  font-family:var(--sans,system-ui,sans-serif);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
+  grid-template-columns:minmax(0,1fr) var(--pulse-ui-rail);
+  gap:0;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab .pulse-map-wrap,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-column{
+  border:0;
+  border-radius:0;
+  background:var(--pulse-ui-background);
+  padding:14px 16px;
+  box-shadow:none;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map-frame,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map{
+  border:1px solid var(--pulse-ui-line);
+  border-radius:0;
+  background:var(--pulse-ui-field);
+  box-shadow:none;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map-background,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-world-background{
+  fill:var(--pulse-ui-field);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map .pulse-land,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-map .pw-land{
+  fill:var(--pulse-ui-land);
+  stroke:var(--pulse-ui-line);
+  stroke-width:.65;
+  vector-effect:non-scaling-stroke;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map .pulse-graticule,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-map .pw-graticule{
+  stroke:var(--pulse-ui-graticule);
+  stroke-width:.8;
+  vector-effect:non-scaling-stroke;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-event-marker,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-event-marker{
+  fill:var(--pulse-ui-signal);
+  stroke:var(--pulse-ui-text);
+  stroke-width:.75;
+  vector-effect:non-scaling-stroke;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-event:hover .pulse-event-marker,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-event:hover .pw-event-marker,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-event:focus .pulse-event-marker,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-event:focus .pw-event-marker{
+  fill:var(--pulse-ui-warning);
+  stroke:var(--pulse-ui-text);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-density-cell{
+  fill:rgba(209,99,57,var(--pulse-density,.2));
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-grid-cell{
+  fill:var(--pulse-ui-signal);
+  stroke:rgba(241,239,231,.7);
+  stroke-width:.5;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-grid-cell:hover,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-grid-cell:focus-visible{
+  stroke:var(--pulse-ui-warning);
+  stroke-width:2;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-roi-rect{
+  fill:var(--pulse-ui-roi);
+  fill-opacity:.14;
+  stroke:var(--pulse-ui-roi);
+  stroke-width:2;
+  vector-effect:non-scaling-stroke;
+  pointer-events:none;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-map-foot,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map-note{
+  color:var(--pulse-ui-muted);
+  font:600 11px/1.45 var(--mono,monospace);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map-badge{
+  border-radius:0;
+  border-color:var(--pulse-ui-line);
+  background:rgba(11,18,14,.92);
+  color:var(--pulse-ui-body);
+  backdrop-filter:none;
+  font-size:10px;
+}
+
+/* A shared rail and information hierarchy; do not mask provenance. */
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-side{
+  background:var(--pulse-ui-panel)!important;
+  border-left:1px solid var(--pulse-ui-line)!important;
+  border-radius:0!important;
+  scrollbar-color:rgba(232,237,233,.25) transparent;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel-section,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-section{
+  background:transparent!important;
+  border:0!important;
+  border-bottom:1px solid var(--pulse-ui-line)!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  padding:16px!important;
+  gap:10px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-head{
+  padding:9px 16px;
+  min-height:52px;
+  background:var(--pulse-ui-panel-2);
+  border-bottom:1px solid var(--pulse-ui-line);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-head>div{gap:3px}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-head small,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-section h3,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-stats small{
+  color:var(--pulse-ui-muted);
+  font:700 10px/1.4 var(--mono,monospace);
+  letter-spacing:.055em;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-head strong{
+  color:var(--pulse-ui-text);
+  font:600 15px/1.25 var(--sans,system-ui,sans-serif);
+  letter-spacing:-.01em;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-section p,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-actions span,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-limit,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-analysis-state{
+  font-size:12px;
+  line-height:1.5;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-section p,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-actions span,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-limit{color:var(--pulse-ui-body)}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-banner,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-analysis-state{
+  background:var(--pulse-ui-panel-2);
+  border:1px solid var(--pulse-ui-line);
+  color:var(--pulse-ui-body);
+  border-radius:0;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-banner[data-error="true"],
+.instrument-dialog[data-instrument-kind="pulse"] .pw-analysis-state[data-error="true"]{
+  background:#33201b;
+  color:#ffe0d3;
+  border-color:#a86658;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-selected,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-hover-detail,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-chart-inspector,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-found{
+  background:var(--pulse-ui-panel-2);
+  border-color:var(--pulse-ui-line);
+  color:var(--pulse-ui-body);
+  border-radius:0;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-stats,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-comparison{gap:1px;background:var(--pulse-ui-line)}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-stats>div,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-comparison>div{
+  background:var(--pulse-ui-panel-2);
+  border:0;
+  border-radius:0;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-comparison small{color:var(--pulse-ui-muted)}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-comparison strong{color:var(--pulse-ui-text)}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-chart-wrap{
+  background:var(--pulse-ui-field);
+  border-color:var(--pulse-ui-line);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-chart-tick{fill:var(--pulse-ui-muted)}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-bar-a{fill:var(--pulse-ui-a)}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-bar-b{fill:var(--pulse-ui-b)}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-key-a{background:var(--pulse-ui-a)}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-key-b{background:var(--pulse-ui-b)}
+
+/* Consistent task controls with legible text and predictable focus states. */
+.instrument-dialog[data-instrument-kind="pulse"] :is(
+  .pw-fields label,.pw-search-label,.pulse-filter-grid label
+){color:var(--pulse-ui-muted);font-size:11px;line-height:1.3}
+.instrument-dialog[data-instrument-kind="pulse"] :is(
+  .pw-fields input,.pw-fields select,.pw-search-label input,.pulse-filter-grid select
+){
+  min-height:38px;
+  border:1px solid var(--pulse-ui-line);
+  border-radius:0;
+  background:var(--pulse-ui-field);
+  color:var(--pulse-ui-text);
+  font-size:12px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] :is(
+  .pulse-control-button,.pulse-representation-group button,.pulse-measure-choice button,
+  .pw-actions button,.pw-found button,.pw-cell-event
+){
+  min-height:36px;
+  padding:8px 12px;
+  border:1px solid var(--pulse-ui-line);
+  border-radius:0;
+  background:var(--pulse-ui-panel-2);
+  color:var(--pulse-ui-text);
+  font:700 10px/1.3 var(--mono,monospace);
+  letter-spacing:.035em;
+  cursor:pointer;
+}
+.instrument-dialog[data-instrument-kind="pulse"] :is(
+  .pulse-control-button,.pulse-representation-group button,.pulse-measure-choice button,
+  .pw-actions button,.pw-found button,.pw-cell-event
+):hover:not(:disabled){
+  border-color:var(--pulse-ui-signal);
+  background:var(--pulse-ui-signal-soft);
+}
+.instrument-dialog[data-instrument-kind="pulse"] :is(
+  .pulse-control-button,.pulse-representation-group button,.pulse-measure-choice button,
+  .pw-actions button,.pw-fields input,.pw-fields select,.pw-search-label input,
+  .pulse-filter-grid select,.pw-found button,.pw-cell-event
+):focus-visible{
+  outline:2px solid var(--pulse-ui-warning);
+  outline-offset:2px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] :is(
+  .pulse-control-button,.pulse-representation-group button,.pulse-measure-choice button
+)[aria-pressed="true"]{
+  background:var(--pulse-ui-signal-soft);
+  border-color:var(--pulse-ui-signal);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-actions [data-pw="draw"][aria-pressed="true"]{
+  border-color:var(--pulse-ui-roi);
+  background:rgba(143,198,155,.16);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-actions :is(
+  [data-pw="snapshot"],[data-pw="history"],[data-pw="apply-roi"],[data-pc="apply"]
+){
+  border-color:var(--pulse-ui-signal);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-r6-nav{
+  border-color:var(--pulse-ui-line);
+  background:var(--pulse-ui-panel);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-r6-nav a{
+  display:flex;align-items:center;justify-content:center;
+  min-height:36px;
+  border:1px solid var(--pulse-ui-line);
+  border-radius:0;
+  color:var(--pulse-ui-body);
+  font-size:10px;
+  text-decoration:none;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-r6-nav a:hover,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-r6-nav a:focus-visible{
+  color:var(--pulse-ui-text);
+  border-color:var(--pulse-ui-signal);
+  background:var(--pulse-ui-signal-soft);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-provenance{color:var(--pulse-ui-muted);font-size:11px!important}
+
+@media(max-width:1040px){
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab.pulse-layout,
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-panel,
+  .instrument-dialog[data-instrument-kind="pulse"] .pw-side{
+    border-left:0!important;
+    border-top:1px solid var(--pulse-ui-line)!important;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
+    grid-template-rows:minmax(540px,68vh) auto;
+    overflow:auto;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pw-side{overflow:visible}
+}
+@media(max-width:700px){
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab .pulse-map-wrap,
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-column{padding:10px}
+  .instrument-dialog[data-instrument-kind="pulse"] :is(
+    .pw-actions button,.pulse-control-button,.pulse-representation-group button,.pulse-measure-choice button
+  ){min-height:42px}
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
+    grid-template-rows:minmax(540px,70vh) auto;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pw-section{padding:14px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .instrument-dialog[data-instrument-kind="pulse"] :is(.pulse-event,.pw-event){transition:none}
+}
