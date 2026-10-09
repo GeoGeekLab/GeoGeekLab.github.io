@@ -42,6 +42,14 @@ async function labModel(dist) {
     description: 'One workbench compares continuous vector fields, aggregate origin–destination networks, timestamped trajectories, and Lagrangian releases without pretending they are the same geometry.',
     coord: 'field / OD / x(t)'
   });
+  if (model.ui.lab.conditions) {
+    model.ui.lab.conditions.flow = [
+      ['INPUT', 'Vector field · OD · timestamped paths'],
+      ['GEOMETRY', 'Field · network · trajectory · particles'],
+      ['TIME', 'Snapshot · aggregate · sequence'],
+      ['LIMIT', 'Representation ≠ phenomenon']
+    ];
+  }
   return model;
 }
 
