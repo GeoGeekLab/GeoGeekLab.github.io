@@ -433,6 +433,8 @@ html[data-geogeek-embedded="true"] .tab{padding-inline:11px}
 <link rel="stylesheet" href="../v102-layout.css?v=10.2.0-p2">
 <link rel="stylesheet" href="../v102-components.css?v=10.2.0-p3">
 <link rel="stylesheet" href="../v102-rt.css?v=10.2.0-p4">
+<link rel="stylesheet" href="../v102-atm-sensor.css?v=10.2.0-p6b">
+<script src="../v102-atm-sensor-views.js?v=10.2.0-p6b"></script>
 </head>
 <body>
 <div class="shell" id="shell" data-ui-phase="foundation">
@@ -1419,19 +1421,17 @@ const {f} = require("core/numbers.js");
 const atmWorkspace={
  ...TABS[2],
  plots: plots.atm,
- renderChart({state,data,models,charts}){
- const {chartSvg,chartFrame,fmtShort}=charts;
-let content='';
-const p=state.params,idx=state.probe-400;
-
- const key=state.plot;const main={toa:'toa',ray:'ray',aeros:'aeros',water:'water'}[key];const sp=key==='toa'?[{label:'ρTOA*',values:data.toa},{label:'RAYLEIGH',values:data.ray},{label:'AEROSOL',values:data.aeros},{label:'WATER TRANSMITTED',values:data.water}]:[{label:main.toUpperCase(),values:data[main]}];content=chartFrame(key==='toa'?'ρTOA*(λ)':(main.toUpperCase()+'(λ)'),'IDEALIZED FIRST-ORDER ATMOSPHERE',sp,main,[{label:'RAYLEIGH · PROBE',value:fmtShort(data.ray[idx])},{label:'AEROSOL · PROBE',value:fmtShort(data.aeros[idx])},{label:'WATER CONTRIBUTION',value:fmtShort(data.water[idx])},{label:'ρTOA* · PROBE',value:fmtShort(data.toa[idx])}],{unit:'reflectance'})
- return content;
+ renderChart({state,data,charts}){
+  const views=globalThis.GeoGeekV102AtmSensor;
+  if(!views?.atmosphere)throw new Error('V10.2 atmosphere presentation unavailable');
+  return views.atmosphere(state,data,charts);
  },
  renderControls({state,controls}){
-  const {param,csection,adv,presets}=controls;
-  let html='';
-  html=csection('AEROSOL','spectral shape',param('aot')+param('alpha'))+csection('GEOMETRY','sun / view',param('sza')+param('vza')+param('raz'))+adv(param('pressure')+'<p class="aside-note">The atmospheric forward model uses a first-order single-scattering approximation. Gas absorption, multiple scattering, and sun glint are excluded.</p>')
-  return html;
+  const {param,csection}=controls;
+  return csection('1 · AEROSOL','optical depth and spectral shape',param('aot')+param('alpha'))+
+   csection('2 · AIR PRESSURE','Rayleigh scattering boundary',param('pressure'))+
+   csection('3 · OBSERVATION GEOMETRY','solar / view / relative azimuth',param('sza')+param('vza')+param('raz'))+
+   '<p class="aside-note">These settings define an idealized first-order reflectance proxy. No gas absorption, multiple scattering, sunglint or real sensor calibration is modeled.</p>';
  }
 };
 
@@ -1544,23 +1544,12 @@ function profile(state){
 }
 const sensorWorkspace={...TABS[3],plots:plots.sensor,
  renderChart({state,data,charts}){
-  if(state.plot==='srfProfile')return profile(state);
-  const isRrs=state.plot==='rrsBands',mode=isRrs?'rrs':'toa';
+  const views=globalThis.GeoGeekV102AtmSensor;
+  if(!views?.sensor)throw new Error('V10.2 sensor presentation unavailable');
+  const mode=state.plot==='rrsBands'?'rrs':'toa';
   const current=makeSensorObservation(data,state.sensor,mode,responseOptions(state));
   const nominal=makeSensorObservation(data,state.sensor,mode,{responseMode:'nominal'});
-  const valid=current.bands.filter(b=>b.status==='full');
-  const nearest=valid.reduce((p,b)=>!p||Math.abs(b.centerNm-state.probe)<Math.abs(p.centerNm-state.probe)?b:p,null);
-  const nominalNearest=nominal.bands.find(b=>b.id===nearest?.id);
-  const delta=nearest&&nominalNearest?.status==='full'?nearest.value-nominalNearest.value:null;
-  const subtitle=state.responseMode==='measured'?'PUBLISHED 1 NM MEASURED SRF · NO EXTRAPOLATION':'NOMINAL TOP-HAT BAND INTEGRATION';
-  return charts.chartFrame(isRrs?'Band-averaged Rrs':'Band-averaged ρTOA*',
-    subtitle,[{label:isRrs?'Rrs':'ρTOA*',values:data[mode]}],mode,
-    [{label:'SENSOR',value:current.sensor.label,unit:current.platform||'Nominal'},
-     {label:'COMPLETE BANDS',value:valid.length+' / '+current.bands.length,unit:current.bands.filter(b=>b.status!=='full').map(b=>b.id+' '+b.status).join('; ')||'All complete'},
-     {label:'NEAREST VALID',value:nearest?nearest.id+' · '+f(nearest.centerNm,1)+' nm':'—',unit:nearest?.value===undefined?'':f(nearest.value,6)},
-     {label:'MEASURED − NOMINAL',value:delta===null?'—':f(delta,7),unit:isRrs?'sr⁻¹':'dimensionless'}],
-    {bands:current.bands.map(b=>({c:b.centerNm,w:b.widthNm,status:b.status})),samples:valid.map(b=>({c:b.centerNm,value:b.value})),unit:isRrs?'sr⁻¹':'dimensionless'})+
-    '<div class="hint-strip">Selected response: '+current.responseModel+' · '+(current.provenance?.sourceFile||'nominal rectangles')+' · '+(current.provenance?.gitBlobSHA||'no source table')+'. Undefined bands are not extrapolated.</div>';
+  return views.sensor(state,data,charts,current,nominal,profile(state));
  },
  renderControls({state,controls,models}){
   const {csection,adv}=controls,spectrum=models.run(state.params);
@@ -1572,9 +1561,9 @@ const sensorWorkspace={...TABS[3],plots:plots.sensor,
    const delta=b.status==='full'&&n?.status==='full'?b.value-n.value:null;
    return '<div class="srf-band-item"><button class="pill" type="button" data-srf-band="'+b.id+'" aria-pressed="'+(state.srfBand===b.id)+'">'+b.id+' · '+f(b.centerNm,1)+' nm</button><b data-srf-status="'+b.id+'">'+(b.status==='full'?f(b.value,7):b.status.toUpperCase())+'</b><small>'+((state.responseMode==='measured'&&delta!==null)?'Δ measured − nominal '+f(delta,7):b.status!=='full'?'No extrapolation':'Nominal integration')+'</small></div>';
   }).join('');
-  return csection('SENSOR','select instrument','<div class="switch-row">'+sensorButtons+'</div>')+
-    csection('SPECTRAL RESPONSE','select integration',responseButtons(state))+
-    csection('BAND SAMPLES','Rrs or TOA · complete bands only',rows)+
+  return csection('1 · SENSOR','select instrument','<div class="switch-row">'+sensorButtons+'</div>')+
+    csection('2 · SPECTRAL RESPONSE','select integration',responseButtons(state))+
+    csection('3 · BAND SAMPLES','Rrs or TOA · complete bands only',rows)+
     adv('<p class="aside-note">The measured tables are pinned to public Git blobs in jbferet/prosail and are reported as measured instrument responses by the publisher. Their underlying original agency SRF issue is not independently confirmed. This educational RT model remains unvalidated.</p><button type="button" class="ghost-btn" data-export="json">↓ Export Experiment + Sensor SRF JSON</button>');
  }
 };
