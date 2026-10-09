@@ -29,7 +29,7 @@ function chartSeries(registry,tab,plot,probe){
  const valid=[];
  registry.forEach((entry,i)=>{
   if(!entry||!Array.isArray(entry.series)||!entry.series.length)return;
-  const series=entry.series.filter(q=>Array.isArray(q.values)&&q.values.length===301&&q.values.every(x=>Number.isFinite(x)||x==null));
+  const series=entry.series.filter(q=>Array.isArray(q.values)&&q.values.length===301); // Preserve non-finite evidence explicitly as undefined, never silently drop the trace.
   if(!series.length)return;
   valid.push({chartIndex:i,mode:entry.mode,unit:entry.unit||'',tab,plot,probe,
    series:series.map(({label,values})=>({label:String(label),values:[...values]}))});
