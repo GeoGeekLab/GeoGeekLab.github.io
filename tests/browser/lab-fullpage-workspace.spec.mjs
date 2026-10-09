@@ -76,7 +76,7 @@ for (const [kind, fixture, railSelector] of instruments) {
     if (kind === 'pulse') {
       await page.locator('[data-pulse-task="analyze"]').click();
       await expect(dialog).toHaveAttribute('data-pulse-task','analyze');
-      await expect(page.locator('[data-pulse-task="analyze"]')).toHaveAttribute('aria-pressed','true');
+      await expect(page.locator('.pulse-task-tabs button[data-pulse-task="analyze"]')).toHaveAttribute('aria-pressed','true');
       await expect(rail).toBeVisible();
       await page.locator('[data-pulse-task="observe"]').click();
       await expect(dialog).toHaveAttribute('data-pulse-task','observe');
