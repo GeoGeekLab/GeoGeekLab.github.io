@@ -124,6 +124,8 @@ test('all thirteen Lab instruments display the correct workspace group', async (
 test('Lab loads only its leading preview eagerly; direct instruments retain lazy previews', async ({ page }) => {
   await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
   const previews = page.locator('#labList .project-visual.is-real-output img');
+  await expect(page.locator('script[data-round3-lab-preview-runtime]')).toHaveAttribute('defer', '');
+  await expect(page.locator('link[rel="preload"][as="image"][href*="/orbit.jpg"]')).toHaveAttribute('fetchpriority', 'high');
   await expect(previews.first()).toHaveAttribute('loading', 'eager');
   await expect(previews.first()).toHaveAttribute('fetchpriority', 'high');
   await expect(previews.nth(1)).toHaveAttribute('loading', 'lazy');
@@ -132,6 +134,7 @@ test('Lab loads only its leading preview eagerly; direct instruments retain lazy
   // Direct instrument entry must prioritize the selected instrument, not card thumbnails.
   await page.goto('/lab.html?instrument=pulse#l10', { waitUntil: 'domcontentloaded' });
   const first = page.locator('#labList .project-visual.is-real-output img').first();
+  await expect(page.locator('link[rel="preload"][as="image"][href*="/orbit.jpg"]')).toHaveCount(0);
   await expect(first).toHaveAttribute('loading', 'lazy');
   await expect(first).not.toHaveAttribute('fetchpriority', 'high');
 });
