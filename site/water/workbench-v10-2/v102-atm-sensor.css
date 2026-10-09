@@ -1,0 +1,56 @@
+/* Water V10.2 phase 6B: atmosphere and SRF interpretation, presentation only. */
+.p6b-atmosphere,.p6b-sensor{display:grid;gap:13px;padding:clamp(10px,1.5vw,20px);min-width:0;color:#e7f0e6;font:13px/1.6 system-ui,sans-serif}
+.p6b-section,.p6b-chart-section,.p6b-data{min-width:0;border:1px solid #4b6954;background:#182920;border-radius:7px;padding:clamp(11px,1.3vw,17px);overflow-wrap:anywhere}
+.p6b-hero{border-left:4px solid #99bda5;background:#192e23}
+.p6b-kicker{font:700 10px/1.45 system-ui,sans-serif;letter-spacing:.045em;color:#b8dec4}
+.p6b-section h3{font:500 clamp(20px,2.1vw,25px)/1.3 Georgia,serif;margin:5px 0 9px;color:#f6f9ef}
+.p6b-section h4{font:650 14px/1.5 system-ui,sans-serif;color:#ebf4e8;margin:2px 0 10px}
+.p6b-section p,.p6b-data p{font:12px/1.65 system-ui,sans-serif;color:#d1ded4;margin:8px 0}
+.p6b-warning{padding:10px 11px;background:#332b1e;border-left:3px solid #e2af81;color:#f0dcc3!important}
+.p6b-muted{font:12px/1.65 system-ui,sans-serif;color:#c0d4c4!important}
+.p6b-reading-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.p6b-reading{min-width:0;display:flex;flex-direction:column;gap:5px;border:1px solid #526e59;background:#203629;padding:11px;border-radius:5px}
+.p6b-reading>span{font:650 11px/1.5 system-ui,sans-serif;color:#d8e7d9}
+.p6b-reading strong{font:650 clamp(14px,1.45vw,18px)/1.4 ui-monospace,Consolas,monospace;color:#f5f9ec;overflow-wrap:anywhere}
+.p6b-reading strong+span{font:10px/1.3 system-ui,sans-serif;color:#c9dbcd}
+.p6b-reading small{font:11px/1.55 system-ui,sans-serif;color:#b9d3c4}
+.p6b-total{background:#2a4130;border-color:#a0bfa4}
+.p6b-equation{border-left:3px solid #88ae96;padding:8px 11px;background:#21362a;overflow-wrap:anywhere}
+.p6b-conditions{margin:8px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.p6b-conditions>div,.p6b-source>div{background:#223a2b;border:1px solid #4a6b52;padding:9px 11px;border-radius:5px;min-width:0}
+.p6b-conditions dt,.p6b-source dt{font:600 11px/1.4 system-ui,sans-serif;color:#c9dbcd}
+.p6b-conditions dd,.p6b-source dd{font:600 13px/1.5 ui-monospace,Consolas,monospace;color:#f1f7ed;margin:5px 0 0;overflow-wrap:anywhere}
+.p6b-chart-section{padding:10px}
+.p6b-chart-section>.hero-plot{margin:0;max-width:100%;min-width:0}
+.p6b-chart-section svg.graph{max-width:100%;width:100%;height:auto;max-height:390px}
+.p6b-chart-section .chart-footer{flex-wrap:wrap}
+.p6b-source{margin:12px 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.p6b-provenance{font:11px/1.55 ui-monospace,Consolas,monospace!important;color:#cee0d1!important;overflow-wrap:anywhere}
+.p6b-stages ol{margin:6px 0;padding-left:24px;display:grid;gap:5px}
+.p6b-stages li{font:12px/1.65 system-ui,sans-serif;color:#d6e5d7}
+.p6b-data{padding:0;max-width:100%;overflow:hidden}
+.p6b-data summary{cursor:pointer;padding:12px 15px;min-height:40px;color:#f1f7ed;font:650 12px/1.6 system-ui,sans-serif}
+.p6b-data[open] summary{border-bottom:1px solid #4f7059}
+.p6b-data>p{padding:0 15px}
+.p6b-table-scroll{max-width:100%;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#8fae9e #21382a}
+.p6b-table-scroll:focus-visible,.p6b-data summary:focus-visible{outline:3px solid #ffe2a5;outline-offset:2px}
+.p6b-table-scroll table{width:100%;min-width:710px;border-collapse:collapse;font:12px/1.5 ui-monospace,Consolas,monospace;color:#eef4ed}
+.p6b-table-scroll caption{text-align:left;font:12px/1.55 system-ui,sans-serif;color:#dae5da;padding:10px 13px;white-space:normal}
+.p6b-table-scroll th,.p6b-table-scroll td{border-bottom:1px solid #3c5e46;padding:9px 10px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.p6b-table-scroll th:first-child{text-align:left}
+.p6b-table-scroll thead th{background:#2b4534;font:650 11px/1.45 system-ui,sans-serif}
+.p6b-table-scroll tbody th{font-weight:600;color:#eef4ed}
+.p6b-table-scroll tbody tr.p6b-current-row{background:#314f39}
+.p6b-table-scroll tr[data-srf-status="out_of_model_domain"],.p6b-table-scroll tr[data-srf-status="partial"],.p6b-table-scroll tr[data-srf-status="unavailable"]{background:#302c22}
+.p6b-sensor .srf-profile{max-width:100%;overflow-x:auto}
+.p6b-sensor .srf-profile svg{width:100%;height:auto;max-width:800px}
+@media(max-width:1024px){.p6b-reading-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){
+ .p6b-conditions,.p6b-source{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .p6b-reading-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .p6b-atmosphere,.p6b-sensor{padding:10px}
+}
+@media(max-width:390px){
+ .p6b-reading-grid,.p6b-conditions,.p6b-source{grid-template-columns:1fr}
+ .p6b-atmosphere,.p6b-sensor{padding:8px}
+}
