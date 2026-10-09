@@ -137,7 +137,7 @@ test('Lab delivers all thirteen instrument cards in first-response HTML without 
   const list = page.locator('#labList');
   await expect(list).toHaveAttribute('data-static-lab-collection', 'v1');
   await expect(list.locator('.project-card')).toHaveCount(13);
-  await expect(list.locator('> .lab-group-block')).toHaveCount(2);
+  await expect(list.locator(':scope > .lab-group-block')).toHaveCount(2);
   await expect(list.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
 
   // App bootstrap must not replace authored cards after the browser parses HTML.
