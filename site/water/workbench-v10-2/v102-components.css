@@ -74,12 +74,12 @@
  .ui-action-group{justify-content:flex-start}
 }
 @media(max-width:480px){
- .ui-statusbar{grid-template-columns:minmax(0,1fr)}
- .ui-statusitem{padding:3px 0;border-right:0}
+ .ui-statusbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .ui-statusitem{padding:4px 6px;border-right:0;align-items:start;flex-direction:column;gap:2px}
  .ui-status-item strong{font-size:11px}
- .ui-status-help{grid-column:1;margin:0;min-height:32px}
+ .ui-status-help{grid-column:1/-1;margin:0;min-height:32px}
  .ui-action-group .tiny-btn{min-height:40px}
- .ui-toolmenu-panel{right:auto;left:0;width:min(80vw,255px)}
+ .ui-toolmenu-panel{right:0;left:auto;width:min(80vw,255px)}
  .ui-nav-group{gap:5px;padding-inline:9px}
  .ui-nav-links .tab{padding-inline:7px}
  .ui-setup-context dl>div{grid-template-columns:82px minmax(0,1fr)}
