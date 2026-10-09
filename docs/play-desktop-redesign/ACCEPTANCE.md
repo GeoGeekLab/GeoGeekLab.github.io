@@ -101,3 +101,27 @@ Each STATUS entry must include:
 | No runtime files changed | PASS | Documentation-only commits |
 
 STEP 00 is a planning and audit gate; the NOT RUN entries remain required before a release candidate can pass STEP 12.
+
+## E. STEP 01 acceptance — Project projection geometry
+
+Validated build commit: `f00b78c28e1baa7aeefbe6330c5f2a72d9563813`  
+GitHub Actions: [GeoGeek Quality run 37901771959](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37901771959) — **PASS**.  
+Scope: geometry and existing scientific/interaction behavior. Full-screen redesign is deferred to STEP 04; Project layout polish to STEP 05.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| P01 — legible world map, no narrow-strip collapse | PASS | 1920×1080 initial screenshot + 1366×768 desktop geometry assertions; world land/sphere bounding boxes exceed regression thresholds |
+| P02 — finite Mercator → Equal Earth → Tokyo-centered azimuthal morph | PASS | Browser checks at 0/25/50/75/100% for area and route; SVG coordinates finite; 1440×900 route screenshot |
+| P03 — Greenland and India visible; commit before reveal | PASS | 1920×1080 screenshot and existing area-state Playwright tests |
+| P04 — apparent-versus-actual area distinction maintained | PASS | Existing Project readout and result labels; area-state browser tests |
+| P05 — route judgment, geodesic reveal and projection scrub | PASS | Existing pointer/keyboard/regression tests plus new route test |
+| P06 — complete Project workspace free of panel obstruction | DEFERRED | Full workspace redesign is STEP 05, not the STEP 01 geometry acceptance gate |
+| Production build | PASS | GitHub Quality run build step |
+| Static QA and links | PASS | GitHub Quality run |
+| Playwright complete suite | PASS | 472 total / 471 passed / 1 unrelated skipped / 0 failed |
+| Project-specific Playwright cases | PASS | 14 of 14 passed across existing and new suites (7 desktop + 7 mobile) |
+| Post-fix screenshot inspection | PASS | Playwright artifact `quality-reports`, `area-mercator-1920` (1920×1080) and `route-azimuthal-1440` (1440×900) |
+| Same-size visual diff against STEP 00 screenshot | NOT RUN | STEP 00 provided a 1920×869 image; new capture is 1920×1080; visual comparison is qualitative |
+| 125% desktop zoom visual inspection | NOT RUN | Remains in global STEP 12 matrix |
+
+The single skipped test is a pre-existing Water prototype desktop narrow-screen case in `tests/browser/water-prototype.spec.mjs`, not a Project test. Completion of STEP 01 does not claim completion of P06, full-viewport support, typography/contrast refinement, or the final cross-viewport visual sign-off.
