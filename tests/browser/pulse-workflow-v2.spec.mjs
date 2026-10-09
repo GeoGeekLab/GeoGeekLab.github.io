@@ -569,6 +569,7 @@ test('comparison denominators track ROI-filter scope and never claim seismic haz
 test('mobile Observe and Analyze controls have 44px touch targets without horizontal page overflow',async({page})=>{
   await page.setViewportSize({width:390,height:844});
   await open(page);
+  const work=page.locator('.pulse-workflow');
   await page.waitForFunction(()=>Boolean(document.querySelector('link[data-pulse-ui-system]')?.sheet));
   const touch=async selector=>page.locator(selector).first().evaluate(node=>({
     width:node.getBoundingClientRect().width,
