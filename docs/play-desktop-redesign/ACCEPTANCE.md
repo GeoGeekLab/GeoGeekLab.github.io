@@ -196,3 +196,36 @@ The first STEP 04 CI run, [37913119305](https://github.com/GeoGeekLab/GeoGeekLab
 The same unsuccessful earlier run also contained a Pulse timing failure. Pulse code was untouched; the complete Pulse regression passed in the final successful run.
 
 **STEP 04 decision: DONE** for the outer edge-to-edge PLAY shell. No change to instrument physics, state machines or the existing Observatory fullpage mechanism. Internal task/evidence rail redesign remains the responsibility of STEPS 05–10.
+
+
+## I. STEP 05 acceptance — Project desktop visual redesign
+
+**Validated runtime/test commit:** `e4e2165817df051c34a61463cea55eba5b5b21e9`.  
+**CI run:** [GeoGeek Quality 37925719679](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37925719679) — **COMPLETED / SUCCESS**.  
+**Playwright report:** **504 total / 489 passed / 15 skipped / 0 failed / 0 flaky**.  
+**Quality artifact:** `quality-reports`, artifact ID `11614926246`, containing twelve Project desktop captures.  
+**Scope:** Project UI composition, scientific visual hierarchy, labels and controls only. Neither `project-morph.js` nor area values, geodesic calculations, trace logic or the prediction state machine changed.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| P01 — legible Mercator world, highlights remain identifiable | PASS | Original `project-projection-geometry.spec.mjs` and 1920×1080, 1440×900, 1366×768 Project captures |
+| P02 — projection transitions remain finite and continuous | PASS | Existing area/route geometry test probes throughout the scrub; untouched `project-morph.js` |
+| P03 — commit before revealing actual area | PASS | `project-desktop-redesign.spec.mjs`: actual-area pair absent from the DOM through prediction and transformation; appears only after REVEAL AREA |
+| P04 — apparent screen area distinct from actual km² area | PASS | Distinct `APPARENT AREA ON MAP` relative readout versus `ACTUAL SURFACE AREA` measured pair; first-order reveal hierarchy |
+| P05 — route judgment and geodesic remain distinct | PASS | Reference hidden in route-drawing stage, appears after REVEAL GEODESIC; solid copper great-circle path versus dashed judgment |
+| P06 — map canvas free of persistent task/evidence panel overlap | PASS | Grid geometry checked at all three desktop sizes; independent left rail, map and right rail |
+| Project desktop test cases | PASS | 3/3 desktop Chromium; three mobile counterparts skipped intentionally |
+| Desktop states recorded in screenshots | PASS | 12 captures: area prediction/result and route drawing/result × three desktop viewports |
+| 1366×768 revealed-area readings visible without scrolling | PASS | New bounding-box assertions for real and apparent area; final `project-area-result-1366` capture inspected |
+| Controls, focus and status progression | PASS | Existing Project tests and redesign contract; pointer/keyboard route preserved |
+| Build, static QA, links, Lighthouse | PASS | Final CI run 37925719679 |
+| Full browser regression | PASS | 504 total; 489 expected passes; 15 skips; 0 failures |
+| Real browser 125% zoom | NOT RUN | A smaller CSS viewport is not equivalent; keep for STEP 12 |
+| Identical state, identical viewport pixel diff to STEP 00 | NOT RUN | Initial manual reference was 1920×869 and predates STEP 04 viewport normalization |
+| Other five instrument-specific visual redesigns | DEFERRED | STEPS 06–10 |
+
+The original successful STEP 05 test commit `622fc14c9933de27d863e3d71b2e9435fcebd632` yielded 489 passes and 15 skips, with no failures. Visual inspection then identified an important issue that the initial assertions missed: at 1366×768, actual km² evidence was below the right rail fold. The subsequent amendment moved the actual-area and apparent-area blocks ahead of supporting notes and added viewport-visibility assertions. Final CI run 37925719679 validated the amendment. The final screenshot shows INDIA ≈3.29M km², GREENLAND ≈2.17M km², and the comparative projected-area statement in the visible rail without scrolling.
+
+The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks in the mobile project, two further desktop-only/unsupported browser cases as accounted for in the CI report, and one unrelated Water case. Skipped cases are not counted as passes.
+
+**STEP 05 decision: DONE** for the scoped Project visual and interaction design. No native browser zoom measurement or release-wide visual sign-off is implied. The complete Lab and other instrument regressions are kept as part of the upcoming STEP 06–12 quality gates.
