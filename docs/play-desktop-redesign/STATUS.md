@@ -11,7 +11,11 @@ Lab release marker: `20261009v102`
 
 **STEP 01 — DONE.** The Project projection geometry correction passed its browser and numerical checks.
 
-**STEP 02 — DONE.** Light's before/after curves share a Y-axis domain, zero rests on the plotted baseline, and the 550 nm readout declares units. All relevant Node, browser and screenshot checks passed. **STEP 03 — IN REVIEW.** Shared PLAY tokens, sampled Project/Light presentation, and desktop regression tests are committed. Browser acceptance is pending.
+**STEP 02 — DONE.** Light's before/after spectra share a Y-axis domain and retain their numerical signal relationships.
+
+**STEP 03 — DONE.** Shared visual tokens, representative Project/Light samples, and legacy Orient token injection passed the desktop design contract after the selected-hover correction.
+
+**STEP 04 — DONE.** All six PLAY instruments occupy the desktop browser viewport without outer modal margins. The edge-to-edge shell, navigation, close/Escape behavior, and non-PLAY isolation passed regression. **Next: STEP 05 — Project visual redesign.**
 
 ## Roadmap
 
@@ -20,8 +24,8 @@ Lab release marker: `20261009v102`
 | 00 | Project audit and baseline | DONE |
 | 01 | Project geometry correction | DONE |
 | 02 | Light spectrum comparison correction | DONE |
-| 03 | Desktop design tokens and components | IN REVIEW |
-| 04 | Edge-to-edge PLAY workspace | PLANNED |
+| 03 | Desktop design tokens and components | DONE |
+| 04 | Edge-to-edge PLAY workspace | DONE |
 | 05 | Project visual redesign | PLANNED |
 | 06 | Light visual redesign | PLANNED |
 | 07 | Bound visual redesign | PLANNED |
@@ -227,16 +231,77 @@ Runtime changes intentionally excluded: all six instrument algorithms, modal/ful
 - Another failure occurred in an unchanged Pulse observation test, which exceeded the 30-second test timeout. It is recorded as a distinct suite failure; the source was not changed. A fresh run must confirm whether it recurs.
 - Production build, static QA and preceding specialist browser suites completed successfully in that run.
 
-### Pending checks
+### Accepted in completed CI
 
-- The new design system contract at 1920×1080, 1440×900 and 1366×768.
-- Screenshot comparison for Project and Light, including post-click selected and focused states.
-- Existing Light/Project/Orient interactions after the new CSS is injected.
-- Clean or accurately qualified CI result. Do not mark STEP 03 DONE before evidence is recorded.
+- [GeoGeek Quality run 37916400677](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37916400677) **COMPLETED / SUCCESS** for tested revision `88a87ca46dec063bac452169db9c4ebb42380321`.
+- The `play-design-system.spec.mjs` desktop cases: **3/3 PASS**; three mobile cases intentionally skipped.
+- Project and Light captures at 1920×1080, 1440×900 and 1366×768 were generated. Shared tokens and focus/selection states passed the computed-style assertions.
+- The earlier Light selected-hover CSS specificity issue was fixed and was not reproduced. Pulse timing passed in the final full suite.
+- Scope boundary: final instrument-specific contrast, annotations, overlays and task rail layout remain STEPS 05–10. **STEP 03 decision: DONE.**
 
 ### Handoff
 
 STEP 04 will replace the outer modal presentation with a full-browser-viewport workspace. It must preserve the shared design token scope and existing Lab/Observatory behavior. Do not start until STEP 03 is accepted.
+
+
+## STEP 04 acceptance — 2026-10-09
+
+### Decision: DONE
+
+**Validated runtime/test commit:** `88a87ca46dec063bac452169db9c4ebb42380321`.  
+**Final CI:** [GeoGeek Quality run 37916400677](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37916400677), **COMPLETED / SUCCESS**.
+
+### Changes within the step
+
+- `site/lab-page.js` — mark the six PLAY instrument identities with `data-play-workspace="true"`; clear the attribute on exit, reusing the existing PLAY-kind declaration.
+- `site/play/play-workspace.css` — desktop-only, scoped edge-to-edge Dialog, header, description/conditions, canvas and footer; maintain 0px outer radius and no outside margin.
+- `site/lab.html` — load the scoped stylesheet without changing non-PLAY pages.
+- `tests/browser/play-fullviewport-workspace.spec.mjs` — six instruments, four desktop viewport sizes, exit/keyboard, non-PLAY isolation, actual bounding boxes and applied stylesheet.
+- `docs/play-desktop-redesign/ACCEPTANCE.md`, `STATUS.md` — actual evidence and handoff.
+
+The Workbench uses the CSS viewport rather than the browser Fullscreen API. At desktop sizes, the native Lab Dialog remains the overlay mechanism; only its outside frame becomes edge-to-edge. The six internal science modules, source declarations and experiment state machines are untouched.
+
+### Failure and correction history
+
+1. First complete STEP 04 run [37913119305](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37913119305) **FAILED**. Six desktop PLAY fullscreen tests exposed Dialog width = 1600px against 1920px viewport. A separate Pulse test exceeded its timeout.
+2. `site/play/play-workspace.css` received stronger, PLAY-scoped fixed viewport sizing to supersede legacy Dialog width limits (`06d1e58b294cb512b67ede7a5a092913efbf4ff8`).
+3. The new browser test now checks the computed `max-width`/`max-height` and active stylesheet, in addition to geometry (`88a87ca46dec063bac452169db9c4ebb42380321`).
+4. Final run 37916400677 passed the six viewport tests and the full browser suite, including Pulse. No Pulse code was changed.
+
+### Verified evidence
+
+- CI Build, Static QA, Links, specialist suites, full Browser/Accessibility suite and Lighthouse: **PASS**.
+- Playwright report: **498 total; 486 passed; 12 skipped; 0 failed; 0 flaky**.
+- `play-fullviewport-workspace.spec.mjs`: 8/8 desktop test cases passed, with six entry × four desktop viewport sizes (24 geometry checks), Close/Escape and World isolation; eight mobile cases intentionally skipped.
+- `play-design-system.spec.mjs`: 3/3 desktop passed, three mobile intentionally skipped.
+- `lab-fullpage-workspace.spec.mjs`: 14/14 passed across desktop/mobile, covering Observatory and Water.
+- `quality-reports` artifact ID **11611212639** contains Playwright HTML and twelve full-workspace screenshot attachments:
+  - `play-orient-workspace-1920`, `play-orient-workspace-1366`
+  - `play-bound-workspace-1920`, `play-bound-workspace-1366`
+  - `play-connect-workspace-1920`, `play-connect-workspace-1366`
+  - `play-project-workspace-1920`, `play-project-workspace-1366`
+  - `play-light-workspace-1920`, `play-light-workspace-1366`
+  - `play-swath-workspace-1920`, `play-swath-workspace-1366`
+- Desktop visual review confirms the outer floating frame no longer leaves margins. Project's corrected world map remains visible. Bound's internal decision panel still overlaps the field, and Orient's low-contrast details remain. These belong to STEP 07 and STEP 09.
+
+The skipped cases are eleven intentionally desktop-only STEP 03–04 browser cases in the mobile project and one pre-existing Water case. This does not imply a new mobile experience was completed.
+
+### Deferred or unverified
+
+- Real browser zoom at 125%: **NOT RUN**; the 1536×864 CSS viewport proxy is not a substitute for verified zoom. Carry to STEP 12.
+- Browser history back/forward after opening PLAY: **NOT RUN in the STEP 04 dedicated suite**; close and Escape tested. Carry explicitly into STEP 12.
+- 1440×900: **PASS geometry assertions, no dedicated screenshot attachment**.
+- Internal overlay occlusion, dedicated task/evidence rails and final visual polish: **DEFERRED to STEPS 05–10**.
+- State-by-state identical-viewport visual regression against original STEP 00 references: **NOT RUN**, and STEP 12 remains the global sign-off.
+
+### STEP 05 handoff — Project visual redesign
+
+1. Read all five project documents and current branch head.
+2. Preserve the verified STEP 01 map projection geometry and STEP 04 viewport bounds.
+3. Reorganize Project's area/route task, controls, map and evidence without persistent overlap.
+4. Verify desktop canvas geometry, prediction-before-reveal contract, geodesic rendering, keyboard/pointer behavior and scientific annotations.
+5. Capture Project entry, commitment, projection, route and reveal at declared desktop viewports.
+6. Update acceptance and this status with actual test evidence. Keep other five instruments unchanged unless a verified shared-shell issue requires an exception.
 
 ## Future log format
 
