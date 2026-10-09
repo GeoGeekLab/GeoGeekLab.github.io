@@ -365,6 +365,26 @@
   outline:2px solid var(--pulse-ui-warning);
   outline-offset:2px;
 }
+.instrument-dialog[data-instrument-kind="pulse"] .pw-map-tools{
+  display:flex;
+  flex:0 0 auto;
+  gap:6px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-map-tools button{
+  min-width:82px;
+  min-height:40px;
+  background:var(--pulse-ui-panel-2);
+  border:1px solid var(--pulse-ui-line);
+  color:var(--pulse-ui-text);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-map-help{
+  flex:0 0 auto;
+  margin:0;
+  color:var(--pulse-ui-muted);
+  font:600 11px/1.45 var(--mono,monospace);
+}
 .instrument-dialog[data-instrument-kind="pulse"] .pw-source-state{
   flex:0 0 auto;
   padding:8px 10px;
@@ -426,6 +446,10 @@
   .instrument-dialog[data-instrument-kind="pulse"] .pw-section-nav button{
     font-size:9px;
     padding-inline:1px;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pw-map-tools button{
+    min-width:74px;
+    min-height:44px;
   }
   .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
     grid-template-rows:minmax(540px,70vh) auto;
