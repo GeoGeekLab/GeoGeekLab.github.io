@@ -571,36 +571,45 @@
       if(activateMapFeature(event.target))event.preventDefault();
     });
 
-    function zoom(factor,relX=.5,relY=.5) {
+    // Anchor zoom to the projected pointer position, not the outer SVG box.
+    // A non-2:1 viewport can letterbox the actual map inside that box.
+    function zoom(factor,anchor) {
       const view=svg.viewBox.baseVal;
       const width=Math.max(125,Math.min(1000,view.width*factor));
       const height=width/2;
-      const x=Math.max(0,Math.min(1000-width,view.x+relX*(view.width-width)));
-      const y=Math.max(0,Math.min(500-height,view.y+relY*(view.height-height)));
+      const point=anchor||{x:view.x+view.width/2,y:view.y+view.height/2};
+      const ratio=width/view.width;
+      const x=Math.max(0,Math.min(1000-width,point.x-(point.x-view.x)*ratio));
+      const y=Math.max(0,Math.min(500-height,point.y-(point.y-view.y)*ratio));
       svg.setAttribute('viewBox',[x,y,width,height].join(' '));
     }
     listen(svg,'wheel',event=>{
       if(state.drawing)return;
       event.preventDefault();
-      const box=svg.getBoundingClientRect();
-      zoom(event.deltaY>0?1.18:1/1.18,
-        (event.clientX-box.left)/box.width,(event.clientY-box.top)/box.height);
+      const anchor=context.pointerLocation(event);
+      if(anchor)zoom(event.deltaY>0?1.18:1/1.18,anchor);
     },{passive:false});
     listen(svg,'pointerdown',event=>{
       if(state.drawing||event.button!==0||mapEventInfo(event.target))return;
-      const b=svg.getBoundingClientRect();
-      drag={x:event.clientX,y:event.clientY,v:[svg.viewBox.baseVal.x,svg.viewBox.baseVal.y,svg.viewBox.baseVal.width,svg.viewBox.baseVal.height],w:b.width,h:b.height};
+      const matrix=svg.getScreenCTM();
+      const start=context.screenPoint(event,matrix);
+      if(!start)return;
+      const view=svg.viewBox.baseVal;
+      // Keep the starting transform fixed as the viewBox moves.
+      drag={start,matrix,pointerId:event.pointerId,v:[view.x,view.y,view.width,view.height]};
       svg.setPointerCapture(event.pointerId);
     });
     listen(svg,'pointermove',event=>{
-      if(!drag)return;
+      if(!drag||event.pointerId!==drag.pointerId)return;
+      const point=context.screenPoint(event,drag.matrix);
+      if(!point)return;
       const [x,y,w,h]=drag.v;
-      const nx=Math.max(0,Math.min(1000-w,x-(event.clientX-drag.x)*w/drag.w));
-      const ny=Math.max(0,Math.min(500-h,y-(event.clientY-drag.y)*h/drag.h));
+      const nx=Math.max(0,Math.min(1000-w,x-(point.x-drag.start.x)));
+      const ny=Math.max(0,Math.min(500-h,y-(point.y-drag.start.y)));
       svg.setAttribute('viewBox',[nx,ny,w,h].join(' '));
     });
-    listen(svg,'pointerup',()=>{drag=null;});
-    listen(svg,'pointercancel',()=>{drag=null;});
+    listen(svg,'pointerup',event=>{if(drag?.pointerId===event.pointerId)drag=null;});
+    listen(svg,'pointercancel',event=>{if(drag?.pointerId===event.pointerId)drag=null;});
     listen(el('zoom-in'),'click',()=>zoom(.75));
     listen(el('zoom-out'),'click',()=>zoom(1/.75));
     listen(el('zoom-reset'),'click',()=>svg.setAttribute('viewBox','0 0 1000 500'));

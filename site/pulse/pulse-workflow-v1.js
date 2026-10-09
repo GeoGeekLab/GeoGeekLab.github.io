@@ -421,24 +421,39 @@
       render();
     }
 
+    // Convert viewport pointer coordinates through the actual SVG transform.
+    // getBoundingClientRect() cannot account for preserveAspectRatio letterboxing.
+    // The optional fixed matrix is also used by panning to avoid accumulating
+    // errors while the viewBox changes during a pointer drag.
+    function screenPoint(event, matrix = svg.getScreenCTM()) {
+      if (!matrix) return null;
+      const point = new DOMPoint(event.clientX, event.clientY)
+        .matrixTransform(matrix.inverse());
+      if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) return null;
+      return {x:point.x,y:point.y};
+    }
+
     function pointerLocation(event) {
-      const bounds = svg.getBoundingClientRect();
+      const point = screenPoint(event);
+      if (!point) return null;
       const view = svg.viewBox.baseVal;
       return {
-        x:Math.max(0,Math.min(1000, view.x+(event.clientX-bounds.left)*view.width/bounds.width)),
-        y:Math.max(0,Math.min(500, view.y+(event.clientY-bounds.top)*view.height/bounds.height))
+        x:Math.max(view.x,Math.min(view.x+view.width,point.x)),
+        y:Math.max(view.y,Math.min(view.y+view.height,point.y))
       };
     }
 
     function finishDrag(event) {
       if (!state.drag) return;
+      if (event.pointerId !== state.drag.pointerId) return;
       const initial = state.drag;
       const current = pointerLocation(event);
       state.drag = null;
       state.drawing = false;
       el('draw').setAttribute('aria-pressed','false');
       workspace.classList.remove('pw-drawing');
-      if (Math.abs(initial.x-current.x) < 3 || Math.abs(initial.y-current.y) < 3) {
+      if (!current || Math.abs(initial.clientX-event.clientX) < 4 ||
+          Math.abs(initial.clientY-event.clientY) < 4) {
         message('Draw a larger rectangle or enter precise ROI coordinates.',true);
         renderRoi();
         return;
@@ -488,7 +503,7 @@
       }
     }
 
-    workspace._pulseWorkflowContext = {state, render, inspect, svg};
+    workspace._pulseWorkflowContext = {state, render, inspect, svg, screenPoint, pointerLocation};
     const listeners = [];
     const listen = (target,kind,handler,options) => {
       target.addEventListener(kind,handler,options);
@@ -527,12 +542,15 @@
     listen(hit,'pointerdown',event => {
       if (!state.drawing || event.button !== 0) return;
       event.preventDefault();
-      state.drag = pointerLocation(event);
+      const start = pointerLocation(event);
+      if (!start) return;
+      state.drag = {...start,clientX:event.clientX,clientY:event.clientY,pointerId:event.pointerId};
       hit.setPointerCapture(event.pointerId);
     });
     listen(hit,'pointermove',event => {
-      if (!state.drag) return;
+      if (!state.drag || event.pointerId !== state.drag.pointerId) return;
       const point = pointerLocation(event);
+      if (!point) return;
       const low = toLonLat(Math.min(state.drag.x,point.x),Math.max(state.drag.y,point.y));
       const high = toLonLat(Math.max(state.drag.x,point.x),Math.min(state.drag.y,point.y));
       shapes.replaceChildren(buildSvg('rect',{
@@ -542,7 +560,11 @@
       roiCaption.textContent = 'DRAWING: ' + low[0].toFixed(1) + '° to ' + high[0].toFixed(1) + '°';
     });
     listen(hit,'pointerup',finishDrag);
-    listen(hit,'pointercancel',() => {state.drag=null;renderRoi();});
+    listen(hit,'pointercancel',event => {
+      if (state.drag?.pointerId !== event.pointerId) return;
+      state.drag=null;
+      renderRoi();
+    });
     syncBounds();
 
     const cleanup = () => {
