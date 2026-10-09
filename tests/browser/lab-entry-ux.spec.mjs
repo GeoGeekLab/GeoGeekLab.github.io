@@ -138,7 +138,9 @@ test('Lab delivers all thirteen instrument cards in first-response HTML without 
   await expect(list).toHaveAttribute('data-static-lab-collection', 'v1');
   await expect(list.locator('.project-card')).toHaveCount(13);
   await expect(list.locator(':scope > .lab-group-block')).toHaveCount(2);
-  await expect(list.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
+  await expect(list.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'eager');
+  await expect(list.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('fetchpriority', 'high');
+  await expect(list.locator('#l05 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
 
   // App bootstrap must not replace authored cards after the browser parses HTML.
   const initialCard = page.locator('#l04');
@@ -148,4 +150,13 @@ test('Lab delivers all thirteen instrument cards in first-response HTML without 
 
   await expect(list.locator('.lab-group-observatory .project-card')).toHaveCount(7);
   await expect(list.locator('.lab-group-play .project-card')).toHaveCount(6);
+});
+
+test('direct Earth Pulse entry never elevates first Lab thumbnail loading priority', async ({ page }) => {
+  const response = await page.goto('/lab.html?instrument=pulse#l10', { waitUntil: 'domcontentloaded' });
+  expect(await response.text()).toContain('data-lab-first-image-priority');
+  const image = page.locator('#l04 .project-visual.is-real-output img');
+  await expect(image).toHaveAttribute('loading', 'lazy');
+  await expect(image).not.toHaveAttribute('fetchpriority', 'high');
+  await expect(page.locator('#labList .project-card')).toHaveCount(13);
 });
