@@ -1,4 +1,7 @@
+import {createRequire} from 'node:module';
 import {test,expect} from '@playwright/test';
+const require=createRequire(import.meta.url);
+const axePath=require.resolve('axe-core/axe.min.js');
 async function open(page){
  await page.goto('/water/workbench-v10-2/app/index.html?embed=1',{waitUntil:'domcontentloaded'});
  await expect(page.locator('#mainNav [data-tab]')).toHaveCount(9,{timeout:20000});
@@ -84,4 +87,21 @@ test('UX-082 200% equivalent page zoom keeps core controls and glossary reachabl
  }
  await page.locator('#v102ScienceGlossary summary').click();
  await expect(page.locator('#v102ScienceGlossary')).toContainText('SRF');
+});
+
+test('UX-082 axe WCAG 2.2 A/AA critical/serious audit covers accessible chart and tabular science',async({page})=>{
+ await open(page);
+ await page.addScriptTag({path:axePath});
+ for(const tab of ['iop','atm','sensor','ac','compare','sensitivity','uncertainty','rt','path']){
+  await page.locator('#tab-'+tab).click();
+  const issues=await page.evaluate(async()=>{
+   const result=await window.axe.run(document.getElementById('mainContent'),{
+    runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']},
+    resultTypes:['violations']
+   });
+   return result.violations.filter(v=>['critical','serious'].includes(v.impact))
+    .map(v=>({id:v.id,impact:v.impact,count:v.nodes.length}));
+  });
+  expect(issues,tab+' WCAG 2.2 A/AA issues').toEqual([]);
+ }
 });
