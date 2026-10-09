@@ -11,6 +11,8 @@
 - **P0** = 下一开发阶段必须完成 / 风险最大；**P1** = 后续同版本建议完成；**P2** = 体验改善，允许拆到后续小版本。
 - 预期迭代：沿已批准的 V10.2 UI 重构计划继续阶段 5–10。**不要因为前四阶段已经部署，就把剩余工作标记为完成。**
 
+> **2026-10-09 集成验证记录（尚未发布）**：UX-051–054、UX-061–064、UX-071–073 已分别提交 [PR #137](https://github.com/GeoGeekLab/GeoGeekLab.github.io/pull/137)、[#145](https://github.com/GeoGeekLab/GeoGeekLab.github.io/pull/145)、[#147](https://github.com/GeoGeekLab/GeoGeekLab.github.io/pull/147)、[#150](https://github.com/GeoGeekLab/GeoGeekLab.github.io/pull/150)，并由 [Draft PR #151](https://github.com/GeoGeekLab/GeoGeekLab.github.io/pull/151) 组合。**均为候选实现，不代表 DONE 或已上线**。#148 的启动竞态通过专项测试，但完整 QA 仍受 [全站 Pulse 触控目标 #152](https://github.com/GeoGeekLab/GeoGeekLab.github.io/issues/152) 阻断，修复候选见 [PR #153](https://github.com/GeoGeekLab/GeoGeekLab.github.io/pull/153)。阶段 8–10 仍待实施；科学债 SCI-01–05 单独跟踪。
+
 ## 一、已完成的交付（防止重复开发）
 
 | ID | 状态 | 具体成果 | 代码 / 证据 |

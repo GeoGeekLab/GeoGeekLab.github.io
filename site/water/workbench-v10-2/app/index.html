@@ -433,6 +433,14 @@ html[data-geogeek-embedded="true"] .tab{padding-inline:11px}
 <link rel="stylesheet" href="../v102-layout.css?v=10.2.0-p2">
 <link rel="stylesheet" href="../v102-components.css?v=10.2.0-p3">
 <link rel="stylesheet" href="../v102-rt.css?v=10.2.0-p4">
+<link rel="stylesheet" href="../v102-physics.css?v=10.2.0-p6a">
+<script data-geogeek-sync-dependency="water-v102-physics" src="../v102-physics-views.js?v=10.2.0-p6a"></script>
+<link rel="stylesheet" href="../v102-analysis.css?v=10.2.0-p7">
+<script data-geogeek-sync-dependency="water-v102-analysis" src="../v102-analysis-views.js?v=10.2.0-p7"></script>
+<link rel="stylesheet" href="../v102-atm-sensor.css?v=10.2.0-p6b">
+<script data-geogeek-sync-dependency="water-v102-atm-sensor" src="../v102-atm-sensor-views.js?v=10.2.0-p6b"></script>
+<link rel="stylesheet" href="../v102-uncertainty.css?v=10.2.0-p5">
+<script data-geogeek-sync-dependency="water-v102-uncertainty" src="../v102-uncertainty-views.js?v=10.2.0-p5"></script>
 </head>
 <body>
 <div class="shell" id="shell" data-ui-phase="foundation">
@@ -1364,20 +1372,13 @@ return {rtWorkspace};
 },
 "workspaces/path.js": function(require){
 const {TABS, plots, stageData} = require("core/config.js");
-function overview(state){
- const stages=[['sun','01','SOLAR INPUT','☀'],['atm','02','ATMOSPHERE','∿'],['surface','03','INTERFACE','≈'],['water','04','WATER','◉'],['sat','05','SENSOR','▣']];
- const cards=stages.map(([id,no,label,icon])=>`<button type="button" class="path-stage-card" data-stage="${id}" aria-label="Inspect ${label}" aria-pressed="${state.stage===id}"><span class="path-stage-code">${no} / ${label}</span><span class="path-stage-symbol" aria-hidden="true">${icon}</span><span class="path-stage-action">${state.stage===id?'SELECTED':'SELECT TO INSPECT'}</span></button>`).join('');
- const info=stageData[state.stage];
- const related=state.stage==='atm'?'atm':state.stage==='sat'?'sensor':state.stage==='sun'?'atm':'rt';
- return `<div class="hero-plot path-hero"><div class="chart-label-row"><span class="plot-main-title">Radiative path</span><span class="eyebrow">SELECT A STAGE · ONE FOCUS</span></div><div class="stages"><div class="path-stage-grid" role="group" aria-label="Selectable radiative-transfer stages">${cards}</div><div class="stage-explain" role="status"><div><span class="eyebrow">${info.formula}</span><h3>${info.title}</h3><p>${info.text}</p></div><button type="button" class="ghost-btn" data-goto="${related}">Open related workspace →</button></div></div></div><div class="hint-strip path-hint"><b>HOW TO USE: </b>Select a pathway stage to inspect the relevant physical process and model assumptions. Open a dedicated workspace to examine parameters and spectra.</div>`;
-}
-
 const pathWorkspace={
  ...TABS[0],
  plots: plots.path,
- renderChart({state,data,models,charts}){
-
- return overview(state);
+ renderChart({state,data}){
+  const views=globalThis.GeoGeekV102PhysicsViews;
+  if(!views?.path)throw new Error('V10.2 physics presentation failed to load');
+  return views.path(state,data,stageData);
  },
  renderControls({state,controls}){
   const {csection,presets}=controls;
@@ -1395,13 +1396,10 @@ const {f} = require("core/numbers.js");
 const iopWorkspace={
  ...TABS[1],
  plots: plots.iop,
- renderChart({state,data,models,charts}){
- const {chartSvg,chartFrame,fmtShort}=charts;
-let content='';
-const p=state.params,idx=state.probe-400;
-
-  const keys=state.plot==='a'?['a']:state.plot==='bb'?['bb']:state.plot==='all'?['rrs','a','bb']:['rrs'];if(keys.length===3){content=`<div class="stack" style="flex:1;gap:9px">${keys.map((key)=>`<div class="hero-plot" style="min-height:165px;flex:1"><div class="chart-label-row" style="min-height:28px;padding-top:8px"><span class="plot-main-title" style="font-size:16px">${key==='rrs'?'Rrs':key==='a'?'a':'bb'}(λ)</span><span class="eyebrow">${key==='rrs'?'sr⁻¹':'m⁻¹'}</span></div>${chartSvg([{label:key.toUpperCase(),values:data[key]}],key,{height:190})}</div>`).join('')}</div>`;}else{const key=keys[0];const specs={rrs:['Rrs(λ)','ABOVE-WATER REMOTE-SENSING REFLECTANCE · sr⁻¹','sr⁻¹'],a:['a(λ)','ABSORPTION · m⁻¹','m⁻¹'],bb:['bb(λ)','BACKSCATTER · m⁻¹','m⁻¹']};const series=key==='a'?[{label:'TOTAL',values:data.a},{label:'PURE WATER',values:data.absorption.water},{label:'PHYTO',values:data.absorption.phytoplankton},{label:'CDOM',values:data.absorption.cdom},{label:'NAP',values:data.absorption.nap}]:key==='bb'?[{label:'TOTAL',values:data.bb},{label:'WATER',values:data.backscattering.water},{label:'PARTICLES',values:data.backscattering.particles}]:[{label:'CURRENT',values:data.rrs}];content=chartFrame(specs[key][0],specs[key][1],series,key,[{label:'WAVELENGTH PROBE',value:state.probe+' nm',unit:'Synchronized wavelength probe'},{label:'CHL STATE',value:f(p.chl,2),unit:'mg/m³'},{label:'CDOM · ag(440)',value:f(p.ag,3),unit:'m⁻¹'},{label:'bbp(443)',value:f(p.bbp,4),unit:'m⁻¹'}],{unit:specs[key][2]})}
- return content;
+ renderChart({state,data,charts}){
+  const views=globalThis.GeoGeekV102PhysicsViews;
+  if(!views?.optics)throw new Error('V10.2 water optics presentation failed to load');
+  return views.optics(state,data,charts);
  },
  renderControls({state,controls}){
   const {param,csection,adv,presets}=controls;
@@ -1419,19 +1417,17 @@ const {f} = require("core/numbers.js");
 const atmWorkspace={
  ...TABS[2],
  plots: plots.atm,
- renderChart({state,data,models,charts}){
- const {chartSvg,chartFrame,fmtShort}=charts;
-let content='';
-const p=state.params,idx=state.probe-400;
-
- const key=state.plot;const main={toa:'toa',ray:'ray',aeros:'aeros',water:'water'}[key];const sp=key==='toa'?[{label:'ρTOA*',values:data.toa},{label:'RAYLEIGH',values:data.ray},{label:'AEROSOL',values:data.aeros},{label:'WATER TRANSMITTED',values:data.water}]:[{label:main.toUpperCase(),values:data[main]}];content=chartFrame(key==='toa'?'ρTOA*(λ)':(main.toUpperCase()+'(λ)'),'IDEALIZED FIRST-ORDER ATMOSPHERE',sp,main,[{label:'RAYLEIGH · PROBE',value:fmtShort(data.ray[idx])},{label:'AEROSOL · PROBE',value:fmtShort(data.aeros[idx])},{label:'WATER CONTRIBUTION',value:fmtShort(data.water[idx])},{label:'ρTOA* · PROBE',value:fmtShort(data.toa[idx])}],{unit:'reflectance'})
- return content;
+ renderChart({state,data,charts}){
+  const views=globalThis.GeoGeekV102AtmSensor;
+  if(!views?.atmosphere)throw new Error('V10.2 atmosphere presentation unavailable');
+  return views.atmosphere(state,data,charts);
  },
  renderControls({state,controls}){
-  const {param,csection,adv,presets}=controls;
-  let html='';
-  html=csection('AEROSOL','spectral shape',param('aot')+param('alpha'))+csection('GEOMETRY','sun / view',param('sza')+param('vza')+param('raz'))+adv(param('pressure')+'<p class="aside-note">The atmospheric forward model uses a first-order single-scattering approximation. Gas absorption, multiple scattering, and sun glint are excluded.</p>')
-  return html;
+  const {param,csection}=controls;
+  return csection('1 · AEROSOL','optical depth and spectral shape',param('aot')+param('alpha'))+
+   csection('2 · AIR PRESSURE','Rayleigh scattering boundary',param('pressure'))+
+   csection('3 · OBSERVATION GEOMETRY','solar / view / relative azimuth',param('sza')+param('vza')+param('raz'))+
+   '<p class="aside-note">These settings define an idealized first-order reflectance proxy. No gas absorption, multiple scattering, sunglint or real sensor calibration is modeled.</p>';
  }
 };
 
@@ -1544,23 +1540,12 @@ function profile(state){
 }
 const sensorWorkspace={...TABS[3],plots:plots.sensor,
  renderChart({state,data,charts}){
-  if(state.plot==='srfProfile')return profile(state);
-  const isRrs=state.plot==='rrsBands',mode=isRrs?'rrs':'toa';
+  const views=globalThis.GeoGeekV102AtmSensor;
+  if(!views?.sensor)throw new Error('V10.2 sensor presentation unavailable');
+  const mode=state.plot==='rrsBands'?'rrs':'toa';
   const current=makeSensorObservation(data,state.sensor,mode,responseOptions(state));
   const nominal=makeSensorObservation(data,state.sensor,mode,{responseMode:'nominal'});
-  const valid=current.bands.filter(b=>b.status==='full');
-  const nearest=valid.reduce((p,b)=>!p||Math.abs(b.centerNm-state.probe)<Math.abs(p.centerNm-state.probe)?b:p,null);
-  const nominalNearest=nominal.bands.find(b=>b.id===nearest?.id);
-  const delta=nearest&&nominalNearest?.status==='full'?nearest.value-nominalNearest.value:null;
-  const subtitle=state.responseMode==='measured'?'PUBLISHED 1 NM MEASURED SRF · NO EXTRAPOLATION':'NOMINAL TOP-HAT BAND INTEGRATION';
-  return charts.chartFrame(isRrs?'Band-averaged Rrs':'Band-averaged ρTOA*',
-    subtitle,[{label:isRrs?'Rrs':'ρTOA*',values:data[mode]}],mode,
-    [{label:'SENSOR',value:current.sensor.label,unit:current.platform||'Nominal'},
-     {label:'COMPLETE BANDS',value:valid.length+' / '+current.bands.length,unit:current.bands.filter(b=>b.status!=='full').map(b=>b.id+' '+b.status).join('; ')||'All complete'},
-     {label:'NEAREST VALID',value:nearest?nearest.id+' · '+f(nearest.centerNm,1)+' nm':'—',unit:nearest?.value===undefined?'':f(nearest.value,6)},
-     {label:'MEASURED − NOMINAL',value:delta===null?'—':f(delta,7),unit:isRrs?'sr⁻¹':'dimensionless'}],
-    {bands:current.bands.map(b=>({c:b.centerNm,w:b.widthNm,status:b.status})),samples:valid.map(b=>({c:b.centerNm,value:b.value})),unit:isRrs?'sr⁻¹':'dimensionless'})+
-    '<div class="hint-strip">Selected response: '+current.responseModel+' · '+(current.provenance?.sourceFile||'nominal rectangles')+' · '+(current.provenance?.gitBlobSHA||'no source table')+'. Undefined bands are not extrapolated.</div>';
+  return views.sensor(state,data,charts,current,nominal,state.plot==='srfProfile'?profile(state):'');
  },
  renderControls({state,controls,models}){
   const {csection,adv}=controls,spectrum=models.run(state.params);
@@ -1572,9 +1557,9 @@ const sensorWorkspace={...TABS[3],plots:plots.sensor,
    const delta=b.status==='full'&&n?.status==='full'?b.value-n.value:null;
    return '<div class="srf-band-item"><button class="pill" type="button" data-srf-band="'+b.id+'" aria-pressed="'+(state.srfBand===b.id)+'">'+b.id+' · '+f(b.centerNm,1)+' nm</button><b data-srf-status="'+b.id+'">'+(b.status==='full'?f(b.value,7):b.status.toUpperCase())+'</b><small>'+((state.responseMode==='measured'&&delta!==null)?'Δ measured − nominal '+f(delta,7):b.status!=='full'?'No extrapolation':'Nominal integration')+'</small></div>';
   }).join('');
-  return csection('SENSOR','select instrument','<div class="switch-row">'+sensorButtons+'</div>')+
-    csection('SPECTRAL RESPONSE','select integration',responseButtons(state))+
-    csection('BAND SAMPLES','Rrs or TOA · complete bands only',rows)+
+  return csection('1 · SENSOR','select instrument','<div class="switch-row">'+sensorButtons+'</div>')+
+    csection('2 · SPECTRAL RESPONSE','select integration',responseButtons(state))+
+    csection('3 · BAND SAMPLES','Rrs or TOA · complete bands only',rows)+
     adv('<p class="aside-note">The measured tables are pinned to public Git blobs in jbferet/prosail and are reported as measured instrument responses by the publisher. Their underlying original agency SRF issue is not independently confirmed. This educational RT model remains unvalidated.</p><button type="button" class="ghost-btn" data-export="json">↓ Export Experiment + Sensor SRF JSON</button>');
  }
 };
@@ -1584,10 +1569,7 @@ return {sensorWorkspace,responseButtons};
 const {TABS, plots} = require("core/config.js");
 const {f} = require("core/numbers.js");
 const {makeSensorObservation}=require("model/geogeek-adapter.js");
-const acWorkspace={
- ...TABS[4],
- plots: plots.ac,
- renderChart({state,data,models,charts}){
+function renderAcLegacy({state,data,models,charts}){
  const {chartSvg,chartFrame,fmtShort}=charts;
 let content='';
 const p=state.params,idx=state.probe-400;
@@ -1595,6 +1577,15 @@ const p=state.params,idx=state.probe-400;
  const oc4=data.correction;const oc4True=oc4.truthOc4.valid?f(oc4.truthOc4.value,4):'—';const oc4Est=oc4.estimatedOc4.valid?f(oc4.estimatedOc4.value,4):'—';const oc4Bias=oc4.oc4RelativeBias!=null?f(oc4.oc4RelativeBias*100,2)+'%':'—';
  const errs=data.corrected.map((v,i)=>v-data.rrs[i]);const rmse=Math.sqrt(errs.reduce((s,x)=>s+x*x,0)/errs.length);const nNeg=data.corrected.filter(x=>x<0).length;if(state.plot==='error'){content=chartFrame('Δ Rrs(λ)','RECOVERED − REFERENCE · sr⁻¹',[{label:'RESIDUAL',values:errs}],'error',[{label:'Rrs RMSE',value:f(rmse,5),unit:'sr⁻¹'},{label:'NEGATIVE SAMPLES',value:nNeg,unit:'wavelength samples'},{label:'Δ AOT',value:f(p.corrAot-p.aot,3)},{label:'Δ α',value:f(p.corrAlpha-p.alpha,2)}],{unit:'sr⁻¹'})}else{content=chartFrame('Rrs_est / Rrs_reference','MANUAL ASSUMPTION · FIRST-ORDER INVERSE',[{label:'ESTIMATED',values:data.corrected},{label:'MODEL REFERENCE',values:data.rrs}],'correction',[{label:'Rrs RMSE',value:f(rmse,5),unit:'sr⁻¹'},{label:'NEGATIVE SAMPLES',value:nNeg,unit:'wavelength samples'},{label:'REFERENCE AOT',value:f(p.aot,3)},{label:'ASSUMED AOT',value:f(p.corrAot,3),accent:true}],{unit:'sr⁻¹'})}
  const obs=makeSensorObservation(data,state.sensor,'rrs',{responseMode:state.responseMode,srfPlatform:state.srfPlatform});const bandOC4=globalThis.GeoGeekV10Contract.olciBandOC4(obs);const bandNote=bandOC4.status==='valid'?'OLCI '+obs.responseModel+' · '+bandOC4.bandIds.join('/')+' · band OC4 '+f(bandOC4.value,4)+' mg/m³':'Band OC4 unavailable: '+bandOC4.reason;return content+charts.metricGrid([{label:'OC4 REFERENCE Rrs',value:oc4True,unit:'mg/m³ · wavelength-value diagnostic'},{label:'OC4 CORRECTED Rrs',value:oc4Est,unit:'mg/m³ · wavelength-value diagnostic'},{label:'OC4 RELATIVE BIAS',value:oc4Bias,unit:'relative to reference-Rrs OC4'}])+'<div class="hint-strip">V10 BAND-INTEGRATED OC4: '+bandNote+'. Not a validated Level-2 chlorophyll product.</div>';
+}
+
+const acWorkspace={
+ ...TABS[4],
+ plots: plots.ac,
+ renderChart({state,data,models,charts}){
+  const views=globalThis.GeoGeekV102AnalysisViews;
+  if(!views?.ac)throw new Error('V10.2 stage-7 analysis views unavailable');
+  return views.ac(state,data,renderAcLegacy({state,data,models,charts}));
  },
  renderControls({state,controls}){
   const {param,csection,adv,presets}=controls;
@@ -1611,16 +1602,22 @@ return {acWorkspace};
 "workspaces/compare.js": function(require){
 const {TABS, plots, initialParams} = require("core/config.js");
 const {f} = require("core/numbers.js");
-const compareWorkspace={
- ...TABS[5],
- plots: plots.compare,
- renderChart({state,data,models,charts}){
+function renderCompareLegacy({state,data,models,charts}){
  const {chartSvg,chartFrame,fmtShort}=charts;
 let content='';
 const p=state.params,idx=state.probe-400;
 
  const A=models.run(state.baseline?.params||initialParams);const B=state.compareBSource==='saved'&&state.snapshotB?models.run(state.snapshotB.params):data;const bp=state.compareBSource==='saved'&&state.snapshotB?state.snapshotB.params:p;const delta=B.rrs.map((v,i)=>v-A.rrs[i]);const rms=Math.sqrt(delta.reduce((s,x)=>s+x*x,0)/delta.length);if(state.plot==='delta'){content=chartFrame('Δ Rrs(λ)','SELECTED B − REFERENCE A',[{label:'Δ B − A',values:delta}],'delta',[{label:'RMSE (A vs B)',value:f(rms,5),unit:'sr⁻¹'},{label:'Chl · A',value:f(state.baseline?.params?.chl??1,2),unit:'mg/m³'},{label:'Chl · B',value:f(bp.chl,2),unit:'mg/m³'},{label:'λ',value:state.probe+' nm'}],{unit:'sr⁻¹'})}else{content=chartFrame('Rrs A/B overlay','IDENTICAL WAVELENGTH GRID · ONE Y AXIS',[{label:'A · BASELINE',values:A.rrs},{label:'B · SELECTED',values:B.rrs}],'overlay',[{label:'A · Rrs PROBE',value:f(A.rrs[idx],5),unit:'sr⁻¹'},{label:'B · Rrs PROBE',value:f(B.rrs[idx],5),unit:'sr⁻¹'},{label:'Δ Rrs PROBE',value:f(B.rrs[idx]-A.rrs[idx],5),unit:'sr⁻¹',accent:true},{label:'RMSE (A vs B)',value:f(rms,5),unit:'sr⁻¹'}],{unit:'sr⁻¹'})}
  return content;
+}
+
+const compareWorkspace={
+ ...TABS[5],
+ plots: plots.compare,
+ renderChart({state,data,models,charts}){
+  const views=globalThis.GeoGeekV102AnalysisViews;
+  if(!views?.compare)throw new Error('V10.2 stage-7 analysis views unavailable');
+  return views.compare(state,models,renderCompareLegacy({state,data,models,charts}));
  },
  renderControls({state,controls}){
   const {param,csection,adv,presets}=controls;
@@ -1646,62 +1643,29 @@ function run(state,models){
   noiseSigma:state.uncertaintySigma,stepPercent:state.uncertaintyStep,
   sample:d=>makeSensorObservation(d,state.sensor,'rrs',{responseMode:state.responseMode,srfPlatform:state.srfPlatform})});
 }
-function num(v,d=3){return v===null||!Number.isFinite(v)?'—':Math.abs(v)>0&&Math.abs(v)<.001?v.toExponential(d):v.toFixed(d);}
-function cell(text,extra=''){return '<div class="u9-cell '+extra+'">'+text+'</div>';}
-function badge(label,text){return '<div class="u9-stat"><small>'+label+'</small><strong>'+text+'</strong></div>';}
-function summary(a){
- const warning=a.identifiable?'<p class="u9-note">Full rank does not imply robust retrieval. Formal local σ uses a user-assumed independent Gaussian noise model, no aerosol uncertainty, and a local linear approximation.</p>':
-  '<p class="u9-alert" role="alert">RANK DEFICIENT — formal finite covariance is unavailable. '+a.numberOfMeasurements+' usable bands cannot resolve all '+a.numberOfParameters+' selected parameters, or their spectral response columns are dependent.</p>';
- const pair=a.pairwiseColumnCosine;
- const weakest=a.selected.map((id,i)=>id+': '+num(a.weakestDirection[i],3)).join(' · ');
- const formal=a.identifiable?'<div class="u9-uncertainty-grid">'+a.selected.map((id,i)=>
-  '<div class="u9-uncertainty-item"><span>'+id+'</span><strong>± '+num(a.uncertainties[i],4)+'</strong><small>'+a.definitions[i].unit+' · conditional 1σ</small></div>').join('')+'</div>':
-  '<p class="u9-null">No parameter uncertainties reported for a rank-deficient design.</p>';
- return '<div class="u9-summary"><h3>Local information diagnostics</h3><p class="u9-description">Whitened, scale-normalized Jacobian evaluated at the current simulated water state. Estimates refer to hypothetical independent noise in band-averaged Rrs, not measured sensor SNR.</p>'+
- '<div class="u9-metrics">'+badge('MATRIX RANK',a.rank+' / '+a.numberOfParameters)+badge('VALID BANDS',a.numberOfMeasurements+' bands')+badge('CONDITION OF J/σ',num(a.condition,2))+badge('ASSUMED σ(Rrs)',num(a.noise.sigmaRrsSr1,6)+' sr⁻¹')+'</div>'+warning+
- '<div class="u9-subsection"><h4>Formal 1σ parameter uncertainty</h4>'+formal+'</div>'+
- '<div class="u9-subsection"><h4>Most similar sensitivity columns</h4><p>'+ (pair.first?pair.first+' vs '+pair.second+' · cosine '+num(pair.cosine,4):'Requires at least two nonzero columns')+'</p>'+
- '<h4>Weakest eigenmode (scaled parameter coordinates)</h4><p class="u9-mono">'+weakest+'</p></div>'+
- '<div class="u9-note">Jacobian rank cutoff: max(1×10⁻¹², 10⁻⁹ × largest Fisher eigenvalue). High condition numbers indicate fragile estimates even if full rank.</div></div>';
+// V10.2 phase 5: all presentations are separate from the unchanged Fisher engine.
+function view(name,a){
+ const renderer=globalThis.GeoGeekV102UncertaintyViews;
+ if(!renderer||typeof renderer[name]!=='function')throw new Error('V10.2 uncertainty presentation unavailable; no scientific result is displayed');
+ return renderer[name](a);
 }
-function jacobian(a){
- const max=Math.max(1e-30,...a.observations.flatMap(o=>o.derivatives.map((d,i)=>Math.abs(d*a.definitions[i].scale/a.noise.sigmaRrsSr1))));
- const header='<div class="u9-matrix-row head">'+cell('BAND')+a.selected.map(id=>cell('∂Rrs/∂'+id)).join('')+'</div>';
- const rows=a.observations.map(o=>'<div class="u9-matrix-row">'+cell(o.bandId+'<small>'+num(o.centerNm,1)+' nm</small>')+o.derivatives.map((d,i)=>{
-  const scaled=Math.abs(d*a.definitions[i].scale/a.noise.sigmaRrsSr1);
-  const alpha=Math.min(.75,scaled/max*.75);
-  return cell(num(d,3),'u9-heat') .replace('class="u9-cell u9-heat"','class="u9-cell u9-heat" style="background:rgba(125,187,159,'+alpha.toFixed(3)+')"');
- }).join('')+'</div>').join('');
- return '<div class="u9-summary"><h3>Multi-parameter Jacobian · Rrs per parameter unit</h3><p class="u9-description">Rows are only FULL-coverage sensor bands. Physical-unit derivatives use bounded finite differences; shading is proportional to |scale × derivative / assumed σ|.</p><div class="u9-matrix" style="--u9-cols:'+a.selected.length+'">'+header+rows+'</div><p class="u9-note">Excluded bands: '+(a.dropped.length?a.dropped.map(x=>x.id+' ('+x.status+')').join(', '):'none')+'. No SRF extrapolation or silent nominal replacement.</p></div>';
-}
-function correlations(a){
- if(!a.identifiable)return '<div class="u9-summary"><h3>Covariance and parameter correlation</h3><p class="u9-alert" role="alert">Covariance withheld: the Jacobian has insufficient numerical rank for the selected parameter subset. Remove parameters or choose an observation configuration with more independent full-coverage bands.</p>'+spectrum(a)+'</div>';
- const cols=a.selected.length;
- const table='<div class="u9-matrix"><div class="u9-corr-row head">'+cell('PARAMETER')+a.selected.map(id=>cell(id)).join('')+'</div>'+
- a.selected.map((id,i)=>'<div class="u9-corr-row">'+cell(id)+a.correlation[i].map(value=>{
-  const abs=Math.abs(value),alpha=.12+.62*abs;
-  return cell(num(value,3)).replace('class="u9-cell "','"class="u9-cell " style="background:rgba('+(value<0?'213,133,113':'126,190,164')+','+alpha.toFixed(3)+')"');
- }).join('')+'</div>').join('')+'</div>';
- return '<div class="u9-summary"><h3>Local parameter correlation matrix</h3><p class="u9-description">Conditional covariance C = (JᵀΣ⁻¹J)⁻¹ exists only for full-rank parameter subsets. Off-diagonal ±1 indicates strongly coupled estimates; it is not a field-data correlation.</p><div class="u9-corr-table" style="--u9-cols:'+cols+'">'+table+'</div>'+spectrum(a)+'</div>';
-}
-function spectrum(a){return '<div class="u9-subsection"><h4>Fisher eigenvalues</h4><p class="u9-mono">'+a.eigenvalues.map((x,i)=>'λ'+(i+1)+'='+num(x,3)).join(' · ')+'</p></div>';}
 const uncertaintyWorkspace={
  ...TABS[7],plots:plots.uncertainty,
  renderChart({state,models}){
   const a=run(state,models);
-  const body=state.plot==='jacobian'?jacobian(a):state.plot==='correlation'?correlations(a):summary(a);
+  const body=state.plot==='jacobian'?view('jacobian',a):state.plot==='correlation'?view('correlations',a):view('summary',a);
   return '<div class="u9-container" role="region" aria-label="Uncertainty and identifiability analysis">'+body+'</div>';
  },
  renderControls({state,controls}){
   const {csection,adv,param}=controls;
-  const params=E.PARAMETERS.map(p=>'<button type="button" class="switch u9-select" data-u9-parameter="'+p.id+'" aria-pressed="'+state.uncertaintyParameters.includes(p.id)+'">'+p.label+'</button>').join('');
+  const params=E.PARAMETERS.map(p=>'<button type="button" class="switch u9-select" data-u9-parameter="'+p.id+'" aria-pressed="'+state.uncertaintyParameters.includes(p.id)+'" aria-label="Include '+p.label+' in Jacobian: '+(state.uncertaintyParameters.includes(p.id)?'yes':'no')+'">'+p.label+'</button>').join('');
   const sigma=E.SIGMAS.map(v=>'<button type="button" class="switch" data-u9-sigma="'+v+'" aria-pressed="'+(state.uncertaintySigma===v)+'">'+(v*1e6).toFixed(0)+' × 10⁻⁶ sr⁻¹</button>').join('');
   const steps=E.STEPS.map(v=>'<button type="button" class="switch" data-u9-step="'+v+'" aria-pressed="'+(state.uncertaintyStep===v)+'">'+v+'%</button>').join('');
   const sensors=Object.keys(DATA).map(id=>'<button type="button" class="switch" data-sensor="'+id+'" aria-pressed="'+(state.sensor===id)+'">'+id.toUpperCase()+'</button>').join('');
-  return csection('OBSERVATION MODEL','sensor and SRF','<div class="switch-row">'+sensors+'</div>'+responseButtons(state))+
-   csection('SELECT PARAMETERS',state.uncertaintyParameters.length+' / 5','<div class="u9-choice-list">'+params+'</div><p class="aside-note">Each selected parameter is independently perturbed within its physical bounds. The reference state is unchanged.</p>')+
-   csection('HYPOTHETICAL BAND NOISE','not a mission specification','<div class="switch-row">'+sigma+'</div><p class="aside-note">Assume independent equal-variance, zero-mean Gaussian errors on band-averaged Rrs. Real radiometric/AC errors are typically correlated and signal dependent.</p>')+
-   csection('JACOBIAN FINITE DIFFERENCE','bounded perturbation','<div class="switch-row">'+steps+'</div><p class="aside-note">Near parameter bounds, unequal or one-sided differences are identified explicitly.</p>')+
+  return csection('1 · OBSERVATION MODEL','sensor and SRF provenance','<div class="switch-row u102-control-group" role="group" aria-label="Sensor configuration">'+sensors+'</div>'+responseButtons(state)+'<p class="u102-controls-help">The selected sensor and response define the FULL-coverage Rrs bands used in the Jacobian. Published measured SRF and nominal rectangular-band response are different models.</p>')+
+   csection('2 · ESTIMATED PARAMETERS',state.uncertaintyParameters.length+' / 5','<div class="u9-choice-list" role="group" aria-label="Select parameters for local identifiability">'+params+'</div><p class="u102-controls-help">Select at least one parameter. Each column uses a physical-unit derivative and a declared scale. Changing a sensor or noise setting does not reset the selected parameters.</p>')+
+   csection('3 · ASSUMED BAND NOISE','Σ = σ²I, not an instrument specification','<div class="switch-row u102-control-group" role="group" aria-label="Hypothetical band Rrs noise standard deviation">'+sigma+'</div><p class="u102-controls-help">Assume independent, equal-variance Gaussian errors in band-averaged Rrs (sr⁻¹). Real atmospheric-correction and calibration errors can be correlated and signal-dependent.</p>')+
+   csection('4 · FINITE-DIFFERENCE STEP','bounded parameter perturbation','<div class="switch-row u102-control-group" role="group" aria-label="Select Jacobian finite-difference percentage">'+steps+'</div><p class="u102-controls-help">The step controls numerical differentiation, not observation uncertainty. Near parameter bounds, the engine uses asymmetric or one-sided differences.</p>')+
    csection('DIAGNOSTICS','science export','<button type="button" class="ghost-btn u9-export" data-export="u9jacobian">↓ Export Jacobian CSV</button><button type="button" class="ghost-btn u9-export" data-export="json">↓ Export Experiment + Fisher JSON</button>')+
    adv(param('chl')+param('ag')+param('anap')+param('bbp')+param('eta')+'<p class="aside-note">The displayed 1σ values are local linearized estimates under the chosen noise assumptions. They are not uncertainty budgets, inverse-model validation, or retrieval certification.</p>');
  }
@@ -1716,9 +1680,7 @@ const {calculateSensitivity,SENSITIVITY_PARAMETERS,SENSITIVITY_STEPS} = require(
 const {calculateBandSensitivity} = require("analysis/band-sensitivity.js");
 const {responseButtons}=require("workspaces/sensor.js");
 const {DATA} = require("core/config.js");
-const sensitivityWorkspace={
- ...TABS[6], plots:plots.sensitivity,
- renderChart({state,data,models,charts}){
+function renderSensitivityLegacy({state,data,models,charts}){
   const r=calculateSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep});
   if(state.plot==='bands'){
    const b=calculateBandSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep,sensor:state.sensor,responseMode:state.responseMode,srfPlatform:state.srfPlatform});
@@ -1750,6 +1712,14 @@ const sensitivityWorkspace={
    {label:'NORMALIZED ELASTICITY · PROBE',value:e===null?'undefined':f(e,3),unit:'(p / Rrs) × ∂Rrs/∂p'},
    {label:'POSITIVE STEP ΔRrs · PROBE',value:f(r.delta[idx],7),unit:'sr⁻¹'}
   ],{unit:v.unit})+`<div class="hint-strip sensitivity-method" role="note"><strong>METHOD / MODEL DOMAIN</strong> ${caption}<br>Baseline ${r.parameter} = ${f(r.baseParameter,5)} ${param.unit}; lower = ${f(r.lowerParameter,5)}, upper = ${f(r.upperParameter,5)}. Requested step: ${r.stepPercent}%; actual bounds may truncate it.${r.baseParameter===0?' Relative elasticity is undefined at zero parameter value.':''}</div>`;
+}
+
+const sensitivityWorkspace={
+ ...TABS[6], plots:plots.sensitivity,
+ renderChart({state,data,models,charts}){
+  const views=globalThis.GeoGeekV102AnalysisViews;
+  if(!views?.sensitivity)throw new Error('V10.2 stage-7 analysis views unavailable');
+  return views.sensitivity(state,calculateSensitivity({models,params:state.params,parameter:state.sensitivityParameter,stepPercent:state.sensitivityStep}),renderSensitivityLegacy({state,data,models,charts}));
  },
  renderControls({state,controls}){
   const {param,csection,adv}=controls;
@@ -1946,7 +1916,7 @@ function createExports({store,models,notify}){
 return {createExports};
 },
 "app/events.js": function(require){
-const {PSETS,CFG,DATA,plots} = require("core/config.js");
+const {PSETS,CFG,DATA,plots,initialParams} = require("core/config.js");
 const {clone,clamp,valueFromSlider} = require("core/numbers.js");
 const $=id=>document.getElementById(id);
 // Delegated interaction controller. Workspace files contain no event listeners.
@@ -1977,7 +1947,7 @@ function bindWorkbenchEvents({store,workbench,exports}){
   if(t.dataset.rtApply){const c=rt?.caseData(state.rtCase);if(!c){notify('RT reference unavailable; no parameters changed');return;}update(s=>{Object.assign(s.params,c.params,{sza:s.rtSun});s.preset='';});notify('Matched IOP and nominal in-water solar angle loaded');return;}
   if(t.dataset.tab){changeWorkspace(t.dataset.tab);return;}
   if(t.dataset.plot){if(plots[state.tab].some(([id])=>id===t.dataset.plot))update(s=>{s.plot=t.dataset.plot});return;}
-  if(t.dataset.stage){update(s=>{s.stage=t.dataset.stage},'chart');return;}
+  if(t.dataset.stage){const next=t.dataset.stage;if(!['sun','atm','surface','water','sat'].includes(next))return;update(s=>{s.stage=next},'chart');document.querySelector('[data-stage="'+next+'"]')?.focus({preventScroll:true});return;}
   if(t.dataset.goto){changeWorkspace(t.dataset.goto);return;}
   if(t.dataset.resetSlopes){update(s=>{s.params.sg=.0176;s.params.snap=.0123;s.preset=''});return;}
    if(t.dataset.preset){
@@ -2008,6 +1978,15 @@ function bindWorkbenchEvents({store,workbench,exports}){
   }
   if(t.dataset.sensitivityStep){
    if([1,5,10,20].includes(Number(t.dataset.sensitivityStep)))update(s=>{s.sensitivityStep=Number(t.dataset.sensitivityStep)});
+   return;
+  }
+  if(t.dataset.compareReset){
+   const action=t.dataset.compareReset;
+   if(action==='live')update(s=>{s.compareBSource='live'});
+   else if(action==='clear-b')update(s=>{s.snapshotB=null;s.compareBSource='live'});
+   else if(action==='defaults')update(s=>{s.baseline={name:'A · Reference scenario',params:clone(initialParams),sensor:'olci'}});
+   else return;
+   notify(action==='clear-b'?'Saved B snapshot cleared':action==='defaults'?'Reference A reset to original model defaults':'Live working B selected');
    return;
   }
   if(t.dataset.compareSource){
@@ -2061,7 +2040,7 @@ function bindWorkbenchEvents({store,workbench,exports}){
  });
  $('mainContent').addEventListener('keydown',event=>{
   const stage=event.target.closest?.('[data-stage]');
-  if(stage&&(event.key==='Enter'||event.key===' ')){event.preventDefault();update(s=>{s.stage=stage.dataset.stage},'chart');return;}
+  if(stage&&(event.key==='Enter'||event.key===' ')){event.preventDefault();const id=stage.dataset.stage;if(!['sun','atm','surface','water','sat'].includes(id))return;update(s=>{s.stage=id},'chart');document.querySelector('[data-stage="'+id+'"]')?.focus({preventScroll:true});return;}
   if(event.target.matches?.('svg[data-chart-click]')&&(event.key==='ArrowRight'||event.key==='ArrowLeft')){
    event.preventDefault();setProbe(state.probe+(event.key==='ArrowRight'?1:-1)*(event.shiftKey?10:1));
   }

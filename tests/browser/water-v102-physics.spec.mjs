@@ -1,0 +1,71 @@
+import {test,expect} from '@playwright/test';
+async function open(page,tab='path'){
+ await page.goto('/lab.html?instrument=water&waterVersion=v102#l13',{waitUntil:'domcontentloaded'});
+ await expect(page.locator('#instrumentDialog')).toHaveAttribute('data-water-ui-version','v102',{timeout:20000});
+ const app=page.frameLocator('#instrumentStage iframe.water-v102-frame');
+ await expect(app.locator('#mainNav [data-tab]')).toHaveCount(9,{timeout:20000});
+ await app.locator('#tab-'+tab).click();
+ return app;
+}
+test('UX-061 teaching schematic is separate from live computed forward-model readouts',async({page})=>{
+ const app=await open(page,'path');
+ await expect(app.locator('.p6-schematic')).toBeVisible();
+ await expect(app.locator('.p6-numeric')).toBeVisible();
+ await expect(app.locator('.p6-schematic')).toContainText('SCHEMATIC ONLY');
+ await expect(app.locator('.p6-numeric')).toContainText('ACTUAL COMPUTED MODEL VALUES');
+ await expect(app.locator('.p6-step')).toHaveCount(5);
+ const probe=await app.locator('#probeReadout').innerText();
+ await app.locator('[data-stage="atm"]').click();
+ await expect(app.locator('[data-stage="atm"]')).toHaveAttribute('aria-pressed','true');
+ await expect(app.locator('[data-stage="atm"]')).toBeFocused();
+ await expect(app.locator('.p6-stage-detail')).toContainText('A first-order path-reflectance approximation');
+ expect(await app.locator('#probeReadout').innerText()).toBe(probe);
+ await app.locator('.p6-stage-detail [data-goto="atm"]').click();
+ await expect(app.locator('#tab-atm')).toHaveAttribute('aria-selected','true');
+});
+test('UX-062 water optics shows independently labeled IOP/AOP charts and numerical component closure',async({page})=>{
+ const app=await open(page,'iop');
+ await expect(app.locator('.p6-optics')).toBeVisible();
+ await expect(app.locator('.p6-reading')).toHaveCount(3);
+ await expect(app.locator('.p6-reading-grid')).toContainText('not total scattering b');
+ await expect(app.locator('.p6-closure')).toContainText('Component sums agree');
+ await app.locator('#plotNav [data-plot="all"]').click();
+ await expect(app.locator('.p6-spectrum')).toHaveCount(3);
+ await expect(app.locator('.p6-optics-plots svg.graph')).toHaveCount(3);
+ await app.locator('#plotNav [data-plot="a"]').click();
+ await expect(app.locator('.p6-spectrum')).toHaveCount(1);
+ await expect(app.locator('.p6-spectrum')).toContainText('m⁻¹');
+ await app.locator('#plotNav [data-plot="bb"]').click();
+ await expect(app.locator('.p6-spectrum')).toContainText('bb(λ)');
+ await app.locator('#plotNav [data-plot="rrs"]').click();
+ await expect(app.locator('.p6-spectrum')).toContainText('sr⁻¹');
+});
+test('UX-062 numeric data table is keyboard accessible; slope variant can be reset',async({page})=>{
+ const app=await open(page,'iop');
+ const details=app.locator('#p6-optics-table');
+ await details.locator('summary').click();
+ await expect(details.locator('table caption')).toContainText('not field measurements');
+ await expect(details.locator('tbody tr')).toHaveCount(14);
+ await details.locator('.p6-table-scroll').focus();
+ await expect(details.locator('.p6-table-scroll')).toBeFocused();
+ await app.locator('#advancedDetails summary').click();
+ const sg=app.locator('#num-sg');
+ await expect(sg).toBeVisible();
+ await sg.fill('0.019');
+ await sg.dispatchEvent('change');
+ await expect(app.locator('.p6-variant')).toContainText('EXPLORATORY SLOPE VARIANT');
+ await app.locator('[data-reset-slopes]').click();
+ await expect(app.locator('.p6-baseline').first()).toContainText('BASELINE SLOPES');
+});
+test('UX-061/062 mobile viewport has no page-level horizontal overflow',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ const app=await open(page,'path');
+ await expect(app.locator('.p6-stage-grid')).toBeVisible();
+ let values=await app.locator('.p6-path').evaluate(el=>({page:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
+ expect(values.page).toBeLessThanOrEqual(values.client+2);
+ await app.locator('#tab-iop').click();
+ await app.locator('#plotNav [data-plot="all"]').click();
+ await app.locator('#p6-optics-table summary').click();
+ values=await app.locator('.p6-optics').evaluate(el=>({page:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
+ expect(values.page).toBeLessThanOrEqual(values.client+2);
+});
