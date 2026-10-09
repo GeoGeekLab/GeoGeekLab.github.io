@@ -610,3 +610,90 @@ test('mobile Observe and Analyze controls have 44px touch targets without horizo
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });
+
+async function fixedWorldGeometry(page, selector) {
+  return page.locator(selector).evaluate(svg => {
+    const stage=document.querySelector('#instrumentStage').getBoundingClientRect();
+    const matrix=svg.getScreenCTM();
+    const p1=new DOMPoint(0,0).matrixTransform(matrix);
+    const p2=new DOMPoint(1000,500).matrixTransform(matrix);
+    const rect=svg.getBoundingClientRect();
+    return {
+      left:p1.x,top:p1.y,right:p2.x,bottom:p2.y,
+      worldWidth:p2.x-p1.x,worldHeight:p2.y-p1.y,
+      svgWidth:rect.width,svgHeight:rect.height,
+      stageLeft:stage.left,stageTop:stage.top,
+      stageRight:stage.right,stageBottom:stage.bottom,
+      viewBox:svg.getAttribute('viewBox')
+    };
+  });
+}
+
+test('both complete world maps remain fixed and fully visible while the control rail scrolls',async({page})=>{
+  await open(page);
+  await page.waitForFunction(()=>Boolean(document.querySelector('link[data-pulse-map-viewport]')?.sheet));
+  const analyze=page.locator('.pulse-workflow');
+  const observation=page.locator('.pulse-observation-lab');
+  for(const [svgSelector,railSelector,task] of [
+    ['.pulse-workflow .pw-map','.pulse-workflow .pw-side','analyze'],
+    ['.pulse-observation-lab .pulse-map','.pulse-observation-lab .pulse-panel','observe']
+  ]){
+    if(task==='observe')await page.locator('.pulse-task-tabs [data-pulse-task="observe"]').click();
+    const svg=page.locator(svgSelector);
+    await expect(svg).toBeVisible();
+    const before=await fixedWorldGeometry(page,svgSelector);
+    expect(before.viewBox).toBe('0 0 1000 500');
+    expect(before.worldWidth).toBeGreaterThan(150);
+    expect(before.worldHeight).toBeGreaterThan(70);
+    expect(before.worldWidth/before.worldHeight).toBeCloseTo(2,1);
+    expect(before.left).toBeGreaterThanOrEqual(before.stageLeft-3);
+    expect(before.right).toBeLessThanOrEqual(before.stageRight+3);
+    expect(before.top).toBeGreaterThanOrEqual(before.stageTop-3);
+    expect(before.bottom).toBeLessThanOrEqual(before.stageBottom+3);
+    const rail=page.locator(railSelector);
+    await expect(rail).toBeVisible();
+    await rail.evaluate(node=>{node.scrollTop=node.scrollHeight;});
+    await expect.poll(()=>rail.evaluate(node=>node.scrollTop)).toBeGreaterThan(10);
+    const after=await fixedWorldGeometry(page,svgSelector);
+    expect(Math.abs(after.left-before.left)).toBeLessThan(2);
+    expect(Math.abs(after.top-before.top)).toBeLessThan(2);
+    expect(Math.abs(after.right-before.right)).toBeLessThan(2);
+    expect(Math.abs(after.bottom-before.bottom)).toBeLessThan(2);
+  }
+  await expect(analyze).toBeHidden();
+  await expect(observation).toBeVisible();
+  await expect(page.locator('.pulse-chain-disclosure')).toHaveCount(1);
+  await expect(page.locator('.pulse-method-link')).toHaveAttribute('href','/records/lab-l10.html');
+});
+
+test('full-world map fits without downward scrolling at short and narrow viewports',async({page})=>{
+  for(const size of [{width:1440,height:700},{width:390,height:844}]){
+    await page.setViewportSize(size);
+    await open(page);
+    await page.waitForFunction(()=>Boolean(document.querySelector('link[data-pulse-map-viewport]')?.sheet));
+    for(const [tab,svg] of [['analyze','.pulse-workflow .pw-map'],['observe','.pulse-observation-lab .pulse-map']]){
+      await page.locator('.pulse-task-tabs [data-pulse-task="'+tab+'"]').click();
+      await expect(page.locator(svg)).toBeVisible();
+      const box=await fixedWorldGeometry(page,svg);
+      expect(box.viewBox).toBe('0 0 1000 500');
+      expect(box.worldWidth).toBeGreaterThan(150);
+      expect(box.left).toBeGreaterThanOrEqual(box.stageLeft-3);
+      expect(box.right).toBeLessThanOrEqual(box.stageRight+3);
+      expect(box.top).toBeGreaterThanOrEqual(box.stageTop-3);
+      expect(box.bottom).toBeLessThanOrEqual(box.stageBottom+3);
+    }
+    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
+  }
+});
+
+test('L10 record contains moved scientific explanations and official sources',async({page})=>{
+  await page.goto('/records/lab-l10.html',{waitUntil:'domcontentloaded'});
+  const notes=page.locator('#recordBody');
+  await expect(notes).toContainText('UTC CLOCKS / SNAPSHOT PROVENANCE',{timeout:15000});
+  await expect(notes).toContainText('REGION / MAP TOOLS');
+  await expect(notes).toContainText('A / B COMPARISON / STATISTICS');
+  await expect(notes).toContainText('USGS feed generated');
+  await expect(notes).toContainText('not completeness-corrected');
+  await expect(notes.locator('a[href^="https://earthquake.usgs.gov/"]').first()).toBeVisible();
+});
