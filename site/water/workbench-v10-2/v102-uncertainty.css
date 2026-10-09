@@ -1,0 +1,57 @@
+/* Water V10.2 phase 5 — uncertainty/identifiability presentation.
+ * Scientific calculations and stored state remain in the unchanged V9 engine. */
+.u102-uncertainty{max-width:100%;overflow-wrap:anywhere}
+.u102-uncertainty h3{font-size:clamp(19px,2.1vw,25px);line-height:1.28}
+.u102-uncertainty h4{font:600 13px/1.5 var(--sans);color:#e8f2ec;margin:10px 0 7px}
+.u102-uncertainty :where(.u9-description,.u9-note){font-size:12px;line-height:1.65;color:#bed1c3}
+.u102-uncertainty :where(.u9-stat small,.u9-uncertainty-item small){font-size:11px;color:#c1d2c7}
+.u102-uncertainty .u9-uncertainty-item span{font:600 12px/1.45 var(--sans);color:#dae8dd}
+.u102-uncertainty .u9-uncertainty-item strong{font-size:17px}
+.u102-weakest{margin-top:14px;padding:12px;background:#192e22;border-left:3px solid #92bca4}
+.u102-weakest strong{display:block;font:600 12px/1.5 var(--sans)}
+.u102-weakest p{font:12px/1.65 var(--mono);margin:6px 0;overflow-wrap:anywhere}
+.u102-weakest small{display:block;font:11px/1.55 var(--sans);color:#c1d2c7}
+.u102-assumptions{margin-top:14px;border:1px solid #5c7b69;padding:12px;background:#182b20;border-radius:6px}
+.u102-assumptions>strong{font:600 13px/1.5 var(--sans);color:#f0f4ec}
+.u102-assumptions dl{display:grid;gap:8px;margin:10px 0}
+.u102-assumptions dl>div{display:grid;grid-template-columns:minmax(100px,20%) minmax(0,1fr);gap:10px}
+.u102-assumptions dt{font:600 11px/1.5 var(--sans);color:#bcd0c3}
+.u102-assumptions dd{margin:0;font:12px/1.55 var(--sans);color:#e0ece1;overflow-wrap:anywhere}
+.u102-assumptions p{margin:8px 0 0;font:12px/1.6 var(--sans);color:#c7d6cc}
+.u102-formula{font:12px/1.6 var(--mono);background:#22372a;padding:10px;border-radius:5px;overflow-wrap:anywhere;color:#e4eee7}
+.u102-matrix-scroll{max-width:100%;overflow-x:auto;overflow-y:hidden;border:1px solid #607a6a;border-radius:6px;margin:12px 0;
+ scrollbar-width:thin;scrollbar-color:#7ea390 #182b21}
+.u102-matrix-scroll:focus-visible{outline:3px solid #ffe2a5;outline-offset:3px}
+.u102-matrix-table{border-collapse:separate;border-spacing:0;min-width:100%;width:max-content;
+ background:#11231a;color:#edf2ed;font:12px/1.4 var(--mono)}
+.u102-matrix-table caption{text-align:left;caption-side:top;white-space:normal;padding:10px 12px;background:#20372a;
+ font:600 12px/1.5 var(--sans);color:#f1f5ee}
+.u102-matrix-table th,.u102-matrix-table td{min-width:130px;max-width:240px;padding:10px 12px;
+ border-right:1px solid #3b5547;border-bottom:1px solid #3b5547;vertical-align:top;text-align:left;white-space:normal;overflow-wrap:anywhere}
+.u102-matrix-table th:first-child{min-width:130px;max-width:210px}
+.u102-matrix-table thead th{position:sticky;top:0;background:#2c4736;font:600 11px/1.55 var(--sans)}
+.u102-matrix-table tbody th{background:#193125;font:600 11px/1.55 var(--sans)}
+.u102-matrix-table tbody tr:last-child td,.u102-matrix-table tbody tr:last-child th{border-bottom:0}
+.u102-matrix-table th:last-child,.u102-matrix-table td:last-child{border-right:0}
+.u102-numeric{display:block;white-space:nowrap;font:600 12px/1.5 var(--mono);color:#f0f5ed;font-variant-numeric:tabular-nums}
+.u102-heat-track{display:block;width:100%;height:6px;margin-top:7px;background:#34473b;border-radius:3px;overflow:hidden}
+.u102-heat-fill{display:block;height:100%;background:#a6c5b1}
+.u102-heat-fill.is-negative{background:#e2ac94}
+.u102-cell-note{display:block;margin-top:4px;font:10px/1.45 var(--sans);color:#c0d4c6}
+.u102-cov-details{margin-top:12px}
+.u102-cov-details summary{cursor:pointer;font:600 12px/1.5 var(--sans);padding:9px;
+ border:1px solid #668875;border-radius:5px;color:#eaf3eb}
+.u102-cov-details summary:focus-visible{outline:3px solid #ffe2a5;outline-offset:2px}
+.u102-controls-help{font:12px/1.55 var(--sans);color:#c5d4c8;margin:9px 0}
+.u102-control-group{display:flex;flex-wrap:wrap;gap:6px}
+.u102-control-group .switch{min-height:40px;white-space:normal}
+@media(max-width:700px){
+ .u102-uncertainty .u9-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .u102-assumptions dl>div{grid-template-columns:1fr;gap:2px}
+ .u102-matrix-table th,.u102-matrix-table td{min-width:125px;padding:9px}
+}
+@media(max-width:390px){
+ .u102-uncertainty .u9-metrics{grid-template-columns:1fr}
+ .u102-uncertainty{padding:12px}
+ .u102-matrix-scroll{margin:10px 0}
+}
