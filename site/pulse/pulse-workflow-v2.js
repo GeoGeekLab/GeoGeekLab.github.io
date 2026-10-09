@@ -135,16 +135,11 @@
       zoomToolbar.classList.add('pw-map-tools');
       mapFoot.after(zoomToolbar);
     }
-    const mapHelp=document.createElement('p');
-    mapHelp.className='pw-map-help';
-    mapHelp.textContent='MAP CONTROL · Drag empty map to pan · Use zoom buttons to change scale · Choose DRAW RECTANGLE in REGION to select an area.';
-    (zoomToolbar?.isConnected?zoomToolbar:mapFoot)?.after(mapHelp);
-
     const detail = document.createElement('section');
     detail.className='pw-hover-detail';
     detail.setAttribute('aria-live','polite');
     detail.textContent='Move the pointer over an earthquake point, or use Tab to focus one. Click to keep its full record visible.';
-    const selected = $('.pw-selected',map);
+    const selected = $('.pw-selected',workspace);
     (selected || map.lastElementChild)?.after(detail);
 
     const floating = document.createElement('div');
@@ -726,7 +721,7 @@
     function cleanup(){
       listeners.forEach(off=>off());
       delete workspace._pulseAnalysisMetadata;
-      analysis.remove();zoomToolbar?.remove();mapHelp.remove();detail.remove();floating.remove();gridGroup.remove();
+      analysis.remove();zoomToolbar?.remove();detail.remove();floating.remove();gridGroup.remove();
       active.delete(workspace);
     }
     active.set(workspace,{cleanup});
