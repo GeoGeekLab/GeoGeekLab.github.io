@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
@@ -15,6 +16,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const site = path.join(root, 'site');
 const output = path.join(site, 'assets', 'lab', 'previews');
 const previewRuntime = path.join(site, 'lab-real-previews.js');
+const previewWidth = 960;
+const previewQuality = 84;
 fs.mkdirSync(output, { recursive: true });
 
 const mime = {
@@ -185,14 +188,35 @@ async function captureInstrument(kind) {
     const box = await stage.boundingBox();
     if (!box || box.width < 300 || box.height < 180) throw new Error(`${kind}: invalid stage bounds`);
 
+    const previewPath = path.join(output, `${kind}.jpg`);
     await stage.screenshot({
-      path: path.join(output, `${kind}.jpg`),
+      path: previewPath,
       type: 'jpeg',
       quality: 86,
       animations: 'disabled',
       timeout: 20000
     });
-    console.log(`Captured Lab instrument: ${kind}`);
+
+    // The 1600px capture is displayed at ~400px on mobile cards. Deliver a
+    // 960px JPEG (~2x mobile CSS pixels) instead of shipping the entire stage
+    // bitmap to visitors. ImageMagick is installed in both Quality and Pages
+    // capture jobs. All visual elements and scientific sources remain intact.
+    const originalBytes = fs.statSync(previewPath).size;
+    execFileSync('convert', [
+      previewPath, '-resize', `${previewWidth}x>`, '-strip',
+      '-sampling-factor', '4:4:4', '-quality', String(previewQuality),
+      previewPath
+    ]);
+    const width = Number(execFileSync('identify',
+      ['-format', '%w', previewPath], { encoding: 'utf8' }).trim());
+    const compressedBytes = fs.statSync(previewPath).size;
+    if (!Number.isFinite(width) || width < 480 || width > previewWidth) {
+      throw new Error(`${kind}: preview size invalid after right-sizing (${width}px)`);
+    }
+    if (compressedBytes < 8000) {
+      throw new Error(`${kind}: preview lost significant visual content (${compressedBytes} bytes)`);
+    }
+    console.log(`Captured Lab instrument: ${kind} · ${width}px · ${Math.round(originalBytes / 1024)} → ${Math.round(compressedBytes / 1024)} KiB`);
   } finally {
     await page.close();
   }
