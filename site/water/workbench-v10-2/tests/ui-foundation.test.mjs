@@ -33,7 +33,7 @@ test('UX-BASE-03: RT reference asset is V10.1 pinned; no second scientific datas
 });
 test('UX-BASE-04: schema v8 remains unchanged, UI preview never claims a science version',()=>{
  assert.match(newer,/schemaVersion:8/);assert.match(newer,/appVersion:'10\.1\.0'/);
- assert.match(newer,/UI PREVIEW · V10\.2/);
+ assert.match(newer,/UI RELEASE · V10\.2/);
  assert.match(newer,/water_ui_geo_v102/);
  assert.match(newer,/V101_STORAGE_KEY='water_ui_geo_v101'/);
 });
@@ -43,11 +43,12 @@ test('UX-LAYOUT-01: preview owns document scroll and disables nested chart/contr
  assert.match(css,/overflow:visible!important/);assert.match(css,/overflow-y:auto!important/);
  assert.match(css,/data-geogeek-embedded/);
 });
-test('UX-ROUTE-01: preview opt-in with default V10.1 and independent frame CSS',()=>{
+test('UX-ROUTE-01: default V10.2, explicit V10.1 fallback and versioned frame CSS',()=>{
  const host=read(path.resolve(root,'../../'),'core/modules.js');
  const adapter=read(root,'instrument.js'),styles=read(root,'instrument.css');
  assert.match(host,/requestedWaterVersion==='v102'/);
- assert.match(host,/try \{ await loadModule\(WATER_WORKBENCH_V101\)/);
+ assert.match(host,/try \{ await loadModule\(WATER_WORKBENCH_V102\)/);
+ assert.match(host,/requestedWaterVersion==='v101'/);
  assert.match(adapter,/water-v102-frame/);assert.match(adapter,/GeoWaterWorkbenchV102/);
  assert.match(adapter,/GeoWaterWorkbenchV101\?\.mount/);
  assert.match(styles,/data-water-ui-version="v102"/);
