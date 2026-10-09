@@ -68,14 +68,6 @@ function renderCard(item, cacheVersion) {
       '" data-local-scale="1 : 2,500" data-local-level="RECORD" id="' + esc(item.id) + '">',
     '<div class="project-visual project-visual-' + esc(kind) + ' is-real-output" data-real-preview="' + esc(kind) + '">',
     '<img src="' + esc(preview) + '" alt="' + esc(title) + ' — real instrument output" loading="lazy" decoding="async">',
-    // A tiny parser-time hint improves only the first visible collection
-    // preview. It does not preload thumbnails for ?instrument=pulse deep links.
-    // With JS off, the screenshot remains a valid lazily-loaded static <img>.
-    item.id === 'l04' ? '<script data-lab-first-image-priority>(() => {' +
-      'const image = document.currentScript.previousElementSibling;' +
-      'if (image && !new URLSearchParams(location.search).has("instrument")) {' +
-      'image.loading = "eager"; image.fetchPriority = "high";' +
-      '}})();</script>' : '',
     '</div>',
     '<div class="project-copy">',
     '<div class="project-meta"><span>' + esc(item.status) + '</span><span>' + esc(tags) + '</span></div>',
