@@ -176,7 +176,7 @@
     const mapCaption = el('map-caption');
     const roiCaption = el('roi-caption');
 
-    const background = buildSvg('rect', {x:0,y:0,width:1000,height:500,fill:'#0c1613'});
+    const background = buildSvg('rect', {x:0,y:0,width:1000,height:500,fill:'#0c1613','class':'pw-world-background'});
     svg.appendChild(background);
     const originalGrid = select('.pulse-graticule', baseMap);
     const originalLand = select('.pulse-land', baseMap);
@@ -287,6 +287,7 @@
       mapCaption.textContent = (state.source === 'history' ? 'HISTORICAL QUERY' : '24 H SNAPSHOT') +
         ' · ' + state.visible.length.toLocaleString('en-US') + ' displayed records · EQUIRECTANGULAR';
       renderRoi();
+      workspace.dispatchEvent(new CustomEvent('pulse:workflow-render'));
     }
 
     function inspect(event) {
@@ -422,9 +423,10 @@
 
     function pointerLocation(event) {
       const bounds = svg.getBoundingClientRect();
+      const view = svg.viewBox.baseVal;
       return {
-        x:Math.max(0,Math.min(1000,(event.clientX-bounds.left)*1000/bounds.width)),
-        y:Math.max(0,Math.min(500,(event.clientY-bounds.top)*500/bounds.height))
+        x:Math.max(0,Math.min(1000, view.x+(event.clientX-bounds.left)*view.width/bounds.width)),
+        y:Math.max(0,Math.min(500, view.y+(event.clientY-bounds.top)*view.height/bounds.height))
       };
     }
 
@@ -455,7 +457,7 @@
         queryDatesUTC:{start:state.loadedStart,end:state.loadedEnd},
         loadedValidRecords:state.events.length,discardedInvalidRecords:state.invalid,
         visibleRecords:state.visible.length,
-        roi:state.roi,viewFilters:{
+        roi:state.roi,analysis:typeof workspace._pulseAnalysisMetadata === 'function' ? workspace._pulseAnalysisMetadata() : null,viewFilters:{
           minMagnitude:number(el('view-mag').value),
           depthClass:el('depth').value,status:el('status').value
         },
@@ -486,6 +488,7 @@
       }
     }
 
+    workspace._pulseWorkflowContext = {state, render, inspect, svg};
     const listeners = [];
     const listen = (target,kind,handler,options) => {
       target.addEventListener(kind,handler,options);

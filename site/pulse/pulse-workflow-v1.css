@@ -62,12 +62,11 @@
 }
 @media(prefers-reduced-motion:reduce){.pulse-workflow *{scroll-behavior:auto!important;transition:none!important}}
 
-/* Keep the cloned reference map separate from original Pulse selectors. */
-.pulse-workflow .pw-land{fill:rgba(131,148,132,.34);stroke:rgba(255,255,255,.13);stroke-width:.75;pointer-events:none}
-.pulse-workflow .pw-graticule{stroke:rgba(255,255,255,.1);pointer-events:none}
-
-/* Large transparent pointer hit areas preserve visible marker size. */
 .pulse-workflow .pw-event{cursor:pointer;outline:none}
 .pulse-workflow .pw-event-hit{fill:transparent;pointer-events:all}
 .pulse-workflow .pw-event-marker{fill:#f07e59;stroke:#fff4d3;stroke-width:.7;pointer-events:none}
 .pulse-workflow .pw-event:hover .pw-event-marker,.pulse-workflow .pw-event:focus .pw-event-marker{fill:#ffe09b;stroke:#fff;stroke-width:1.5}
+
+/* Preserve reference geography after separating the cloned map from base Pulse selectors. */
+.pulse-workflow .pw-land{fill:rgba(131,148,132,.34);stroke:rgba(255,255,255,.13);stroke-width:.75;pointer-events:none}
+.pulse-workflow .pw-graticule{stroke:rgba(255,255,255,.1);pointer-events:none}

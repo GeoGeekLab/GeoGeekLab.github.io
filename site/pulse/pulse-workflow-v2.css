@@ -1,0 +1,51 @@
+/* Earth Pulse comparative analysis and interactive map */
+.pulse-workflow .pw-land{fill:rgba(131,148,132,.34);stroke:rgba(255,255,255,.13);stroke-width:.75;pointer-events:none}
+.pulse-workflow .pw-graticule{stroke:rgba(255,255,255,.1);pointer-events:none}
+.pulse-workflow .pw-world-background{cursor:grab}
+.pulse-workflow .pw-land,.pulse-workflow .pw-graticule,.pulse-workflow .pw-roi-shapes{pointer-events:none}
+.pulse-workflow .pw-map{cursor:crosshair}
+.pulse-workflow .pw-event:focus-visible{stroke:#fff6a6;stroke-width:2;outline:none}
+.pulse-workflow .pw-grid-cell{fill:#82bf80;stroke:#d5f3cc;stroke-width:.35;cursor:pointer}
+.pulse-workflow .pw-grid-cell:hover,.pulse-workflow .pw-grid-cell:focus-visible{stroke:#fff9a8;stroke-width:2;outline:none}
+.pulse-workflow .pw-analysis{gap:12px}
+.pulse-workflow .pw-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pulse-workflow .pw-analysis-state{background:#1c3427;border:1px solid #385f45;color:#d4e7d6;padding:8px;border-radius:3px}
+.pulse-workflow .pw-analysis-state[data-error="true"]{background:#3a221e;border-color:#a86658;color:#f2c2b5}
+.pulse-workflow .pw-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.pulse-workflow .pw-comparison>div{background:#17271d;border:1px solid #344b39;border-radius:3px;padding:10px;display:grid;gap:6px}
+.pulse-workflow .pw-comparison small{font-size:10px;color:#b5d3b8;letter-spacing:.06em}
+.pulse-workflow .pw-comparison strong{font-size:16px;color:#eff5e9}
+.pulse-workflow .pw-comparison span{font-size:10px;line-height:1.5;color:#c0cbc0}
+.pulse-workflow .pw-chart-wrap{background:#0c1911;border:1px solid #2e4636;padding:9px 6px 4px}
+.pulse-workflow .pw-chart-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;padding:0 6px}
+.pulse-workflow .pw-chart-head strong{font-size:11px;color:#f0f5ef}
+.pulse-workflow .pw-chart-head small{font-size:9px;color:#b4c6b6}
+.pulse-workflow .pw-chart{width:100%;height:auto;max-height:185px;overflow:visible}
+.pulse-workflow .pw-chart-tick{font:11px var(--mono,monospace);fill:#a4b9a7}
+.pulse-workflow .pw-comparison-bar{cursor:pointer;outline:none}
+.pulse-workflow .pw-bar-a{fill:#e8a17b}
+.pulse-workflow .pw-bar-b{fill:#86bade}
+.pulse-workflow .pw-comparison-bar:hover,.pulse-workflow .pw-comparison-bar:focus-visible{stroke:#fff;stroke-width:2}
+.pulse-workflow .pw-chart-legend{display:flex;flex-wrap:wrap;gap:10px;color:#aebcad;font:600 10px var(--mono,monospace)}
+.pulse-workflow .pw-chart-legend span{display:inline-flex;align-items:center;gap:5px}
+.pulse-workflow .pw-chart-legend i{width:10px;height:10px;display:inline-block;border-radius:2px}
+.pulse-workflow .pw-key-a{background:#e8a17b}
+.pulse-workflow .pw-key-b{background:#86bade}
+.pulse-workflow .pw-chart-inspector{background:#14291d;border:1px solid #2e4636;padding:10px;min-height:36px;color:#d5e2d4;font:11px/1.6 var(--mono,monospace)}
+.pulse-workflow .pw-hover-detail{background:#16281e;border:1px solid #3d6748;display:grid;gap:4px;padding:11px 12px;color:#e4ecdf;font:11px/1.55 var(--mono,monospace)}
+.pulse-workflow .pw-hover-detail strong{font-size:12px;color:#fff1ce}
+.pulse-workflow .pw-hover-detail a{color:#a1d4e9;text-decoration:underline;max-width:max-content}
+.pulse-workflow .pw-cell-event{text-align:left;font-weight:500;white-space:normal;line-height:1.4}
+.pulse-workflow .pw-floating-tip{position:fixed;max-width:min(290px,calc(100vw - 30px));z-index:4000;padding:8px 10px;background:#f4f6df;border:1px solid #334835;color:#162319;box-shadow:0 6px 22px #0007;border-radius:4px;pointer-events:none;font:11px/1.4 var(--mono,monospace)}
+.pulse-workflow .pw-floating-tip[hidden]{display:none}
+@media(max-width:470px){
+ .pulse-workflow .pw-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pulse-workflow .pw-comparison strong{font-size:14px}
+}
+
+.pulse-workflow .pw-search-label{display:grid;gap:6px;font-size:10px;font-weight:650;color:#c5d6c9}
+.pulse-workflow .pw-search-label input{width:100%;border:1px solid #4d7458;border-radius:3px;background:#0d1d13;color:#f5f6e9;padding:9px;font-size:12px}
+.pulse-workflow .pw-found{display:grid;gap:5px;max-height:188px;overflow-y:auto;background:#111c15;border:1px solid #304837;padding:8px;color:#bdcfbf;font-size:11px}
+.pulse-workflow .pw-found button{text-align:left;font-weight:550;line-height:1.4;white-space:normal}
+
+.pulse-workflow .pw-event:focus-visible .pw-event-marker{stroke:#fff7af;stroke-width:2}
