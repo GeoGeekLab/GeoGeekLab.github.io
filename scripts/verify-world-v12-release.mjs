@@ -3,7 +3,8 @@ import { readFile } from 'node:fs/promises';
 const RELEASE='20261008v101w12',WORLD='20261009v12';
 const baseArg=process.argv.indexOf('--url');
 const live=baseArg>=0;
-const root=live?new URL((process.argv[baseArg+1]||'').replace(/\\/?$/,'/') ):null;
+const baseUrl=process.argv[baseArg+1]||'';
+const root=live?new URL(baseUrl.endsWith('/')?baseUrl:baseUrl+'/'):null;
 if(live&&(!root||!/^https:$/.test(root.protocol)))throw new Error('Provide an HTTPS --url base');
 async function load(path){
   if(!live)return readFile(new URL('../site/'+path,import.meta.url),'utf8');
