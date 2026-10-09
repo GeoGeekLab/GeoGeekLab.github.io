@@ -9,7 +9,9 @@ Lab release marker: `20261009v102`
 
 **STEP 00 — DONE (documentation and visual-reference baseline).** No PLAY runtime, stylesheet or test implementation was modified. The provided six screenshots have been catalogued; repeatable browser captures and baseline test results are not yet available.
 
-**STEP 01 — DONE.** The Project projection geometry correction passed its browser and numerical checks.\n\n**STEP 02 — DONE.** Light's before/after curves share a Y-axis domain, zero rests on the plotted baseline, and the 550 nm readout declares units. All relevant Node, browser and screenshot checks passed. **Next: STEP 03 — PLAY desktop design system.**
+**STEP 01 — DONE.** The Project projection geometry correction passed its browser and numerical checks.
+
+**STEP 02 — DONE.** Light's before/after curves share a Y-axis domain, zero rests on the plotted baseline, and the 550 nm readout declares units. All relevant Node, browser and screenshot checks passed. **STEP 03 — IN REVIEW.** Shared PLAY tokens, sampled Project/Light presentation, and desktop regression tests are committed. Browser acceptance is pending.
 
 ## Roadmap
 
@@ -18,7 +20,7 @@ Lab release marker: `20261009v102`
 | 00 | Project audit and baseline | DONE |
 | 01 | Project geometry correction | DONE |
 | 02 | Light spectrum comparison correction | DONE |
-| 03 | Desktop design tokens and components | PLANNED |
+| 03 | Desktop design tokens and components | IN REVIEW |
 | 04 | Edge-to-edge PLAY workspace | PLANNED |
 | 05 | Project visual redesign | PLANNED |
 | 06 | Light visual redesign | PLANNED |
@@ -206,6 +208,35 @@ The tested commit predates the documentation-only changes to `ACCEPTANCE.md` and
 3. Prototype tokens using Project and Light layouts; evaluate at 1920×1080, 1440×900 and 1366×768.
 4. Keep full-viewport shell changes for STEP 04, instrument-specific redesigns for STEPS 05–10, and global visual sign-off for STEP 12.
 5. Record changed paths, tests, screenshots and remaining limitations here.
+
+## STEP 03 implementation — 2026-10-09
+
+### Scope
+
+- `site/play/play-design-system.css` — one scoped token layer for all six PLAY shells, with Project and Light sample application.
+- `site/play/play-shell.js` — register the stylesheet from legacy and V2 constructors, without modifying the viewport structure.
+- `tests/browser/play-design-system.spec.mjs` — verify tokens, focus and states in Project/Light/Orient at desktop widths.
+- `docs/play-desktop-redesign/DESIGN_SYSTEM.md`, `STATUS.md` and `ACCEPTANCE.md` — specification and evidence.
+
+Runtime changes intentionally excluded: all six instrument algorithms, modal/fullpage integration, map geometry, and the other Lab sections.
+
+### First browser report and correction
+
+- [CI run 37907867826](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37907867826), tested commit `8030c9fbc556fd19fc40548f47e704c21c6bdabb`: browser suite **FAIL** (476 pass, 4 skip, 2 fail).
+- PLAY regression: Light's selected choice border was overridden by its hovered primary-button border. The selected rule received a more specific selector in commit `5d5aef7bcdc115853e36233d15c0a6d1d05c2a54`. Retest required.
+- Another failure occurred in an unchanged Pulse observation test, which exceeded the 30-second test timeout. It is recorded as a distinct suite failure; the source was not changed. A fresh run must confirm whether it recurs.
+- Production build, static QA and preceding specialist browser suites completed successfully in that run.
+
+### Pending checks
+
+- The new design system contract at 1920×1080, 1440×900 and 1366×768.
+- Screenshot comparison for Project and Light, including post-click selected and focused states.
+- Existing Light/Project/Orient interactions after the new CSS is injected.
+- Clean or accurately qualified CI result. Do not mark STEP 03 DONE before evidence is recorded.
+
+### Handoff
+
+STEP 04 will replace the outer modal presentation with a full-browser-viewport workspace. It must preserve the shared design token scope and existing Lab/Observatory behavior. Do not start until STEP 03 is accepted.
 
 ## Future log format
 
