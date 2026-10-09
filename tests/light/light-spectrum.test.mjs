@@ -11,7 +11,7 @@ async function geometry() {
 }
 
 function yCoordinates(d) {
-  return [...d.matchAll(/[ML][\\d.]+,([\\d.]+)/g)].map(match=>Number(match[1]));
+  return [...d.matchAll(/[ML][0-9.]+,([0-9.]+)/g)].map(match=>Number(match[1]));
 }
 
 test('Light spectrum uses one shared Y domain for relative before/after signals',async()=>{
