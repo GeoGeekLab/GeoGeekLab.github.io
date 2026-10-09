@@ -116,7 +116,13 @@ test('mouse and keyboard inspection show complete points; map zoom and configura
   await expect(work.locator('.pw-hover-detail')).toContainText('B Polar Two');
   await expect(work.locator('.pw-hover-detail')).toContainText('COORDINATES');
   await expect(work.locator('.pw-floating-tip')).toBeVisible();
-  await page.mouse.click(hit.x,hit.y);
+  // Updating the hover inspector must not move the map beneath the pointer.
+  const still=await circle.locator('.pw-event-hit').evaluate(node=>{
+    const box=node.getBoundingClientRect();
+    return {x:box.left+box.width/2,y:box.top+box.height/2};
+  });
+  expect(Math.hypot(still.x-hit.x,still.y-hit.y)).toBeLessThan(1);
+  await page.mouse.click(still.x,still.y);
   await expect(work.locator('.pw-hover-detail')).toContainText('PINNED');
 
   await work.locator('[data-pc="zoom-in"]').click();
