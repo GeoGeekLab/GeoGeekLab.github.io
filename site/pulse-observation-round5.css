@@ -8,7 +8,13 @@
 }
 
 @media (pointer:coarse){
-  .pulse-observation-lab .pulse-control-button,
+  /* The 44px CSS minimum measured as a 42px hit target in the built Lab shell.
+   * Provide a small touch-size margin for the actual interactive buttons. */
+  /* Base Round 4 CSS is mounted after this stylesheet; keep the hit target
+   * accessible regardless of asynchronous stylesheet insertion order. */
+  .pulse-observation-lab .pulse-control-button{
+    min-height:48px!important;
+  }
   .pulse-observation-lab .pulse-representation-group button,
   .pulse-observation-lab .pulse-filter-grid select{
     min-height:44px;
@@ -30,7 +36,13 @@
     width:100%;
   }
 
-  .pulse-observation-lab .pulse-control-button,
+  /* The 44px CSS minimum measured as a 42px hit target in the built Lab shell.
+   * Provide a small touch-size margin for the actual interactive buttons. */
+  /* Base Round 4 CSS is mounted after this stylesheet; keep the hit target
+   * accessible regardless of asynchronous stylesheet insertion order. */
+  .pulse-observation-lab .pulse-control-button{
+    min-height:48px!important;
+  }
   .pulse-observation-lab .pulse-representation-group button,
   .pulse-observation-lab .pulse-filter-grid select{
     min-height:44px;

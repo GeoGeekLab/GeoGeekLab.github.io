@@ -141,6 +141,8 @@ jobs:
       - name: Validate ORIENT release browser suite
         run: npx playwright test -c playwright.orient-release.config.mjs --list
 
+      - name: Validate Pulse Round 5 44px touch-target regression (desktop and mobile Chromium)
+        run: npx playwright test -c playwright.config.mjs tests/browser/pulse-round5.spec.mjs --grep 'Pulse mobile controls stay touch-sized' --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Browser and accessibility baseline
         run: npm run qa:browser
 
