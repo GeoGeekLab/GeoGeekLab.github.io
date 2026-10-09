@@ -10,7 +10,7 @@ const instruments = [
 ];
 
 for (const [kind, fixture, railSelector] of instruments) {
-  test(`${kind} uses the shared full-page Focus / Work / Inspect workspace`, async ({ page }) => {
+  test(`${kind} uses the appropriate full-page workspace controls`, async ({ page }) => {
     await page.goto('/lab.html', { waitUntil:'domcontentloaded' });
     await page.waitForFunction(() => Boolean(document.querySelector('link[data-lab-fullpage]')?.sheet));
     await page.waitForFunction(() => Boolean(document.querySelector('link[data-lab-close-control]')?.sheet));
@@ -31,8 +31,16 @@ for (const [kind, fixture, railSelector] of instruments) {
       document.body.classList.add('instrument-open');
     });
 
-    await expect(dialog).toHaveAttribute('data-workspace-mode', 'work');
-    await expect(page.locator('.instrument-workspace-modes')).toBeVisible();
+    if (kind === 'pulse') {
+      await expect(dialog).toHaveAttribute('data-pulse-task', 'observe');
+      await expect(page.locator('.pulse-task-tabs')).toBeVisible();
+      await expect(page.locator('.instrument-workspace-modes')).toBeHidden();
+      await expect(dialog).not.toHaveAttribute('data-workspace-mode', /.+/);
+    } else {
+      await expect(dialog).toHaveAttribute('data-workspace-mode', 'work');
+      await expect(page.locator('.instrument-workspace-modes')).toBeVisible();
+      await expect(page.locator('.pulse-task-tabs')).toBeHidden();
+    }
     await expect(page.locator('.instrument-meta')).toBeHidden();
 
     const close = page.locator('#instrumentClose');
@@ -65,15 +73,25 @@ for (const [kind, fixture, railSelector] of instruments) {
     const rail = page.locator(railSelector);
     await expect(rail).toBeVisible();
 
-    await page.locator('[data-workspace-mode="focus"]').click();
-    await expect(dialog).toHaveAttribute('data-workspace-mode', 'focus');
-    await expect(page.locator('.instrument-meta')).toBeHidden();
-    await expect(rail).toBeHidden();
+    if (kind === 'pulse') {
+      await page.locator('[data-pulse-task="analyze"]').click();
+      await expect(dialog).toHaveAttribute('data-pulse-task','analyze');
+      await expect(page.locator('[data-pulse-task="analyze"]')).toHaveAttribute('aria-pressed','true');
+      await expect(rail).toBeVisible();
+      await page.locator('[data-pulse-task="observe"]').click();
+      await expect(dialog).toHaveAttribute('data-pulse-task','observe');
+      await expect(rail).toBeVisible();
+    } else {
+      await page.locator('[data-workspace-mode="focus"]').click();
+      await expect(dialog).toHaveAttribute('data-workspace-mode', 'focus');
+      await expect(page.locator('.instrument-meta')).toBeHidden();
+      await expect(rail).toBeHidden();
 
-    await page.locator('[data-workspace-mode="inspect"]').click();
-    await expect(dialog).toHaveAttribute('data-workspace-mode', 'inspect');
-    await expect(page.locator('.instrument-meta')).toBeHidden();
-    await expect(rail).toBeVisible();
+      await page.locator('[data-workspace-mode="inspect"]').click();
+      await expect(dialog).toHaveAttribute('data-workspace-mode', 'inspect');
+      await expect(page.locator('.instrument-meta')).toBeHidden();
+      await expect(rail).toBeVisible();
+    }
 
     const titleSize = await page.locator('#instrumentTitle').evaluate(node => parseFloat(getComputedStyle(node).fontSize));
     expect(titleSize).toBeGreaterThanOrEqual(30);
