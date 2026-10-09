@@ -152,3 +152,62 @@ test('rejects incomplete provider results without silently replacing the loaded 
   await expect(work.locator('[data-pw="loaded"]')).toHaveText('3');
   await expect(work.locator('[data-pw="visible"]')).toHaveText('3');
 });
+
+test('snapshot generation and GeoGeek fetch times remain separate from historical query time',async({page})=>{
+  await fixtures(page);
+  const work=page.locator('.pulse-workflow');
+  const source=work.locator('[data-pw="source-state"]');
+  await expect(source).toHaveAttribute('data-freshness','snapshot');
+  await expect(source).toContainText('ROLLING SNAPSHOT');
+  await expect(source).toContainText('USGS feed generated');
+  await expect(source).toContainText('GeoGeek fetched');
+  await expect(source).toContainText('Age is relative to feed generation, not event origin');
+  await expect(work.locator('[data-pw="provenance"]')).toContainText('FEED GENERATED');
+
+  const exportSnapshot=page.waitForEvent('download');
+  await work.locator('[data-pw="manifest"]').click();
+  const snap=JSON.parse(await readFile(await (await exportSnapshot).path(),'utf8'));
+  expect(snap.feedGeneratedUTC).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  expect(snap.snapshotStale).toBe(false);
+  expect(snap.sourceFetchTime).toBeTruthy();
+  expect(snap.sourceFetchTime).not.toEqual(snap.feedGeneratedUTC);
+
+  const begin=new Date(Date.now()-3*86400000).toISOString().slice(0,10);
+  const end=new Date().toISOString().slice(0,10);
+  await work.locator('[data-pw="start"]').fill(begin);
+  await work.locator('[data-pw="end"]').fill(end);
+  await work.locator('[data-pw="history"]').click();
+  await expect(work.locator('[data-pw="loaded"]')).toHaveText('2');
+  await expect(source).toHaveAttribute('data-freshness','history');
+  await expect(source).toContainText('HISTORICAL QUERY');
+  await expect(source).toContainText(begin);
+  await expect(source).toContainText(end);
+  await expect(source).toContainText('Not a continuously updated feed');
+
+  const exportHistory=page.waitForEvent('download');
+  await work.locator('[data-pw="manifest"]').click();
+  const hist=JSON.parse(await readFile(await (await exportHistory).path(),'utf8'));
+  expect(hist.feedGeneratedUTC).toBe(null);
+  expect(hist.sourceMode).toBe('history');
+  expect(hist.snapshotStale).toBe(false);
+
+  await work.locator('[data-pw="snapshot"]').click();
+  await expect(work.locator('[data-pw="loaded"]')).toHaveText('3');
+  await expect(source).toHaveAttribute('data-freshness','snapshot');
+});
+
+test('scientific workflow sections navigate by keyboard without changing instrument fragment',async({page})=>{
+  await fixtures(page);
+  const work=page.locator('.pulse-workflow');
+  await expect(work.locator('[data-pw-nav]')).toHaveCount(5);
+  const before=new URL(page.url()).hash;
+  const nav=work.locator('[data-pw-nav="compare"]');
+  await nav.focus();
+  await nav.press('Enter');
+  await expect(work.locator('[data-pw-section="compare"] h3').first()).toBeFocused();
+  expect(new URL(page.url()).hash).toBe(before);
+  await work.locator('[data-pw-nav="export"]').click();
+  await expect(work.locator('[data-pw-section="export"] h3')).toBeFocused();
+  await work.locator('[data-pw-nav="region"]').click();
+  await expect(work.locator('[data-pw-section="region"] h3')).toBeFocused();
+});
