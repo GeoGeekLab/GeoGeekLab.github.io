@@ -96,6 +96,24 @@
     document.dispatchEvent(new CustomEvent('geogeek:workspace-mode', { detail:{ kind:activeKind, mode:next } }));
   }
 
+  function loadPulseVisualSystem() {
+    const src = new URL('pulse/pulse-ui-system.css?v=20261009r4', document.baseURI).href;
+    const existing = document.querySelector('link[data-pulse-ui-system]');
+    if (existing) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = src;
+      link.dataset.pulseUiSystem = '1';
+      link.onload = resolve;
+      link.onerror = () => {
+        link.remove();
+        reject(new Error('Earth Pulse shared visual system could not load'));
+      };
+      document.head.appendChild(link);
+    });
+  }
+
   function loadRefinement(kind) {
     const src = REFINEMENTS[kind];
     if (!src) return Promise.resolve();
@@ -104,6 +122,7 @@
       .then(() => kind === 'pulse'
         ? import(new URL('pulse/pulse-workflow-v1.js?v=20261009r3b', document.baseURI).href)
             .then(() => import(new URL('pulse/pulse-workflow-v2.js?v=20261009r3b', document.baseURI).href))
+            .then(loadPulseVisualSystem)
         : undefined)
       .catch(error => {
       refinementLoads.delete(src);
