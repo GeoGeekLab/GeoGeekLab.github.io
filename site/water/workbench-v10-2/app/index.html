@@ -437,6 +437,10 @@ html[data-geogeek-embedded="true"] .tab{padding-inline:11px}
 <script data-geogeek-sync-dependency="water-v102-physics" src="../v102-physics-views.js?v=10.2.0-p6a"></script>
 <link rel="stylesheet" href="../v102-analysis.css?v=10.2.0-p7">
 <script data-geogeek-sync-dependency="water-v102-analysis" src="../v102-analysis-views.js?v=10.2.0-p7"></script>
+<link rel="stylesheet" href="../v102-atm-sensor.css?v=10.2.0-p6b">
+<script data-geogeek-sync-dependency="water-v102-atm-sensor" src="../v102-atm-sensor-views.js?v=10.2.0-p6b"></script>
+<link rel="stylesheet" href="../v102-uncertainty.css?v=10.2.0-p5">
+<script data-geogeek-sync-dependency="water-v102-uncertainty" src="../v102-uncertainty-views.js?v=10.2.0-p5"></script>
 </head>
 <body>
 <div class="shell" id="shell" data-ui-phase="foundation">
@@ -1413,19 +1417,17 @@ const {f} = require("core/numbers.js");
 const atmWorkspace={
  ...TABS[2],
  plots: plots.atm,
- renderChart({state,data,models,charts}){
- const {chartSvg,chartFrame,fmtShort}=charts;
-let content='';
-const p=state.params,idx=state.probe-400;
-
- const key=state.plot;const main={toa:'toa',ray:'ray',aeros:'aeros',water:'water'}[key];const sp=key==='toa'?[{label:'ρTOA*',values:data.toa},{label:'RAYLEIGH',values:data.ray},{label:'AEROSOL',values:data.aeros},{label:'WATER TRANSMITTED',values:data.water}]:[{label:main.toUpperCase(),values:data[main]}];content=chartFrame(key==='toa'?'ρTOA*(λ)':(main.toUpperCase()+'(λ)'),'IDEALIZED FIRST-ORDER ATMOSPHERE',sp,main,[{label:'RAYLEIGH · PROBE',value:fmtShort(data.ray[idx])},{label:'AEROSOL · PROBE',value:fmtShort(data.aeros[idx])},{label:'WATER CONTRIBUTION',value:fmtShort(data.water[idx])},{label:'ρTOA* · PROBE',value:fmtShort(data.toa[idx])}],{unit:'reflectance'})
- return content;
+ renderChart({state,data,charts}){
+  const views=globalThis.GeoGeekV102AtmSensor;
+  if(!views?.atmosphere)throw new Error('V10.2 atmosphere presentation unavailable');
+  return views.atmosphere(state,data,charts);
  },
  renderControls({state,controls}){
-  const {param,csection,adv,presets}=controls;
-  let html='';
-  html=csection('AEROSOL','spectral shape',param('aot')+param('alpha'))+csection('GEOMETRY','sun / view',param('sza')+param('vza')+param('raz'))+adv(param('pressure')+'<p class="aside-note">The atmospheric forward model uses a first-order single-scattering approximation. Gas absorption, multiple scattering, and sun glint are excluded.</p>')
-  return html;
+  const {param,csection}=controls;
+  return csection('1 · AEROSOL','optical depth and spectral shape',param('aot')+param('alpha'))+
+   csection('2 · AIR PRESSURE','Rayleigh scattering boundary',param('pressure'))+
+   csection('3 · OBSERVATION GEOMETRY','solar / view / relative azimuth',param('sza')+param('vza')+param('raz'))+
+   '<p class="aside-note">These settings define an idealized first-order reflectance proxy. No gas absorption, multiple scattering, sunglint or real sensor calibration is modeled.</p>';
  }
 };
 
@@ -1538,23 +1540,12 @@ function profile(state){
 }
 const sensorWorkspace={...TABS[3],plots:plots.sensor,
  renderChart({state,data,charts}){
-  if(state.plot==='srfProfile')return profile(state);
-  const isRrs=state.plot==='rrsBands',mode=isRrs?'rrs':'toa';
+  const views=globalThis.GeoGeekV102AtmSensor;
+  if(!views?.sensor)throw new Error('V10.2 sensor presentation unavailable');
+  const mode=state.plot==='rrsBands'?'rrs':'toa';
   const current=makeSensorObservation(data,state.sensor,mode,responseOptions(state));
   const nominal=makeSensorObservation(data,state.sensor,mode,{responseMode:'nominal'});
-  const valid=current.bands.filter(b=>b.status==='full');
-  const nearest=valid.reduce((p,b)=>!p||Math.abs(b.centerNm-state.probe)<Math.abs(p.centerNm-state.probe)?b:p,null);
-  const nominalNearest=nominal.bands.find(b=>b.id===nearest?.id);
-  const delta=nearest&&nominalNearest?.status==='full'?nearest.value-nominalNearest.value:null;
-  const subtitle=state.responseMode==='measured'?'PUBLISHED 1 NM MEASURED SRF · NO EXTRAPOLATION':'NOMINAL TOP-HAT BAND INTEGRATION';
-  return charts.chartFrame(isRrs?'Band-averaged Rrs':'Band-averaged ρTOA*',
-    subtitle,[{label:isRrs?'Rrs':'ρTOA*',values:data[mode]}],mode,
-    [{label:'SENSOR',value:current.sensor.label,unit:current.platform||'Nominal'},
-     {label:'COMPLETE BANDS',value:valid.length+' / '+current.bands.length,unit:current.bands.filter(b=>b.status!=='full').map(b=>b.id+' '+b.status).join('; ')||'All complete'},
-     {label:'NEAREST VALID',value:nearest?nearest.id+' · '+f(nearest.centerNm,1)+' nm':'—',unit:nearest?.value===undefined?'':f(nearest.value,6)},
-     {label:'MEASURED − NOMINAL',value:delta===null?'—':f(delta,7),unit:isRrs?'sr⁻¹':'dimensionless'}],
-    {bands:current.bands.map(b=>({c:b.centerNm,w:b.widthNm,status:b.status})),samples:valid.map(b=>({c:b.centerNm,value:b.value})),unit:isRrs?'sr⁻¹':'dimensionless'})+
-    '<div class="hint-strip">Selected response: '+current.responseModel+' · '+(current.provenance?.sourceFile||'nominal rectangles')+' · '+(current.provenance?.gitBlobSHA||'no source table')+'. Undefined bands are not extrapolated.</div>';
+  return views.sensor(state,data,charts,current,nominal,state.plot==='srfProfile'?profile(state):'');
  },
  renderControls({state,controls,models}){
   const {csection,adv}=controls,spectrum=models.run(state.params);
@@ -1566,9 +1557,9 @@ const sensorWorkspace={...TABS[3],plots:plots.sensor,
    const delta=b.status==='full'&&n?.status==='full'?b.value-n.value:null;
    return '<div class="srf-band-item"><button class="pill" type="button" data-srf-band="'+b.id+'" aria-pressed="'+(state.srfBand===b.id)+'">'+b.id+' · '+f(b.centerNm,1)+' nm</button><b data-srf-status="'+b.id+'">'+(b.status==='full'?f(b.value,7):b.status.toUpperCase())+'</b><small>'+((state.responseMode==='measured'&&delta!==null)?'Δ measured − nominal '+f(delta,7):b.status!=='full'?'No extrapolation':'Nominal integration')+'</small></div>';
   }).join('');
-  return csection('SENSOR','select instrument','<div class="switch-row">'+sensorButtons+'</div>')+
-    csection('SPECTRAL RESPONSE','select integration',responseButtons(state))+
-    csection('BAND SAMPLES','Rrs or TOA · complete bands only',rows)+
+  return csection('1 · SENSOR','select instrument','<div class="switch-row">'+sensorButtons+'</div>')+
+    csection('2 · SPECTRAL RESPONSE','select integration',responseButtons(state))+
+    csection('3 · BAND SAMPLES','Rrs or TOA · complete bands only',rows)+
     adv('<p class="aside-note">The measured tables are pinned to public Git blobs in jbferet/prosail and are reported as measured instrument responses by the publisher. Their underlying original agency SRF issue is not independently confirmed. This educational RT model remains unvalidated.</p><button type="button" class="ghost-btn" data-export="json">↓ Export Experiment + Sensor SRF JSON</button>');
  }
 };
@@ -1652,62 +1643,29 @@ function run(state,models){
   noiseSigma:state.uncertaintySigma,stepPercent:state.uncertaintyStep,
   sample:d=>makeSensorObservation(d,state.sensor,'rrs',{responseMode:state.responseMode,srfPlatform:state.srfPlatform})});
 }
-function num(v,d=3){return v===null||!Number.isFinite(v)?'—':Math.abs(v)>0&&Math.abs(v)<.001?v.toExponential(d):v.toFixed(d);}
-function cell(text,extra=''){return '<div class="u9-cell '+extra+'">'+text+'</div>';}
-function badge(label,text){return '<div class="u9-stat"><small>'+label+'</small><strong>'+text+'</strong></div>';}
-function summary(a){
- const warning=a.identifiable?'<p class="u9-note">Full rank does not imply robust retrieval. Formal local σ uses a user-assumed independent Gaussian noise model, no aerosol uncertainty, and a local linear approximation.</p>':
-  '<p class="u9-alert" role="alert">RANK DEFICIENT — formal finite covariance is unavailable. '+a.numberOfMeasurements+' usable bands cannot resolve all '+a.numberOfParameters+' selected parameters, or their spectral response columns are dependent.</p>';
- const pair=a.pairwiseColumnCosine;
- const weakest=a.selected.map((id,i)=>id+': '+num(a.weakestDirection[i],3)).join(' · ');
- const formal=a.identifiable?'<div class="u9-uncertainty-grid">'+a.selected.map((id,i)=>
-  '<div class="u9-uncertainty-item"><span>'+id+'</span><strong>± '+num(a.uncertainties[i],4)+'</strong><small>'+a.definitions[i].unit+' · conditional 1σ</small></div>').join('')+'</div>':
-  '<p class="u9-null">No parameter uncertainties reported for a rank-deficient design.</p>';
- return '<div class="u9-summary"><h3>Local information diagnostics</h3><p class="u9-description">Whitened, scale-normalized Jacobian evaluated at the current simulated water state. Estimates refer to hypothetical independent noise in band-averaged Rrs, not measured sensor SNR.</p>'+
- '<div class="u9-metrics">'+badge('MATRIX RANK',a.rank+' / '+a.numberOfParameters)+badge('VALID BANDS',a.numberOfMeasurements+' bands')+badge('CONDITION OF J/σ',num(a.condition,2))+badge('ASSUMED σ(Rrs)',num(a.noise.sigmaRrsSr1,6)+' sr⁻¹')+'</div>'+warning+
- '<div class="u9-subsection"><h4>Formal 1σ parameter uncertainty</h4>'+formal+'</div>'+
- '<div class="u9-subsection"><h4>Most similar sensitivity columns</h4><p>'+ (pair.first?pair.first+' vs '+pair.second+' · cosine '+num(pair.cosine,4):'Requires at least two nonzero columns')+'</p>'+
- '<h4>Weakest eigenmode (scaled parameter coordinates)</h4><p class="u9-mono">'+weakest+'</p></div>'+
- '<div class="u9-note">Jacobian rank cutoff: max(1×10⁻¹², 10⁻⁹ × largest Fisher eigenvalue). High condition numbers indicate fragile estimates even if full rank.</div></div>';
+// V10.2 phase 5: all presentations are separate from the unchanged Fisher engine.
+function view(name,a){
+ const renderer=globalThis.GeoGeekV102UncertaintyViews;
+ if(!renderer||typeof renderer[name]!=='function')throw new Error('V10.2 uncertainty presentation unavailable; no scientific result is displayed');
+ return renderer[name](a);
 }
-function jacobian(a){
- const max=Math.max(1e-30,...a.observations.flatMap(o=>o.derivatives.map((d,i)=>Math.abs(d*a.definitions[i].scale/a.noise.sigmaRrsSr1))));
- const header='<div class="u9-matrix-row head">'+cell('BAND')+a.selected.map(id=>cell('∂Rrs/∂'+id)).join('')+'</div>';
- const rows=a.observations.map(o=>'<div class="u9-matrix-row">'+cell(o.bandId+'<small>'+num(o.centerNm,1)+' nm</small>')+o.derivatives.map((d,i)=>{
-  const scaled=Math.abs(d*a.definitions[i].scale/a.noise.sigmaRrsSr1);
-  const alpha=Math.min(.75,scaled/max*.75);
-  return cell(num(d,3),'u9-heat') .replace('class="u9-cell u9-heat"','class="u9-cell u9-heat" style="background:rgba(125,187,159,'+alpha.toFixed(3)+')"');
- }).join('')+'</div>').join('');
- return '<div class="u9-summary"><h3>Multi-parameter Jacobian · Rrs per parameter unit</h3><p class="u9-description">Rows are only FULL-coverage sensor bands. Physical-unit derivatives use bounded finite differences; shading is proportional to |scale × derivative / assumed σ|.</p><div class="u9-matrix" style="--u9-cols:'+a.selected.length+'">'+header+rows+'</div><p class="u9-note">Excluded bands: '+(a.dropped.length?a.dropped.map(x=>x.id+' ('+x.status+')').join(', '):'none')+'. No SRF extrapolation or silent nominal replacement.</p></div>';
-}
-function correlations(a){
- if(!a.identifiable)return '<div class="u9-summary"><h3>Covariance and parameter correlation</h3><p class="u9-alert" role="alert">Covariance withheld: the Jacobian has insufficient numerical rank for the selected parameter subset. Remove parameters or choose an observation configuration with more independent full-coverage bands.</p>'+spectrum(a)+'</div>';
- const cols=a.selected.length;
- const table='<div class="u9-matrix"><div class="u9-corr-row head">'+cell('PARAMETER')+a.selected.map(id=>cell(id)).join('')+'</div>'+
- a.selected.map((id,i)=>'<div class="u9-corr-row">'+cell(id)+a.correlation[i].map(value=>{
-  const abs=Math.abs(value),alpha=.12+.62*abs;
-  return cell(num(value,3)).replace('class="u9-cell "','"class="u9-cell " style="background:rgba('+(value<0?'213,133,113':'126,190,164')+','+alpha.toFixed(3)+')"');
- }).join('')+'</div>').join('')+'</div>';
- return '<div class="u9-summary"><h3>Local parameter correlation matrix</h3><p class="u9-description">Conditional covariance C = (JᵀΣ⁻¹J)⁻¹ exists only for full-rank parameter subsets. Off-diagonal ±1 indicates strongly coupled estimates; it is not a field-data correlation.</p><div class="u9-corr-table" style="--u9-cols:'+cols+'">'+table+'</div>'+spectrum(a)+'</div>';
-}
-function spectrum(a){return '<div class="u9-subsection"><h4>Fisher eigenvalues</h4><p class="u9-mono">'+a.eigenvalues.map((x,i)=>'λ'+(i+1)+'='+num(x,3)).join(' · ')+'</p></div>';}
 const uncertaintyWorkspace={
  ...TABS[7],plots:plots.uncertainty,
  renderChart({state,models}){
   const a=run(state,models);
-  const body=state.plot==='jacobian'?jacobian(a):state.plot==='correlation'?correlations(a):summary(a);
+  const body=state.plot==='jacobian'?view('jacobian',a):state.plot==='correlation'?view('correlations',a):view('summary',a);
   return '<div class="u9-container" role="region" aria-label="Uncertainty and identifiability analysis">'+body+'</div>';
  },
  renderControls({state,controls}){
   const {csection,adv,param}=controls;
-  const params=E.PARAMETERS.map(p=>'<button type="button" class="switch u9-select" data-u9-parameter="'+p.id+'" aria-pressed="'+state.uncertaintyParameters.includes(p.id)+'">'+p.label+'</button>').join('');
+  const params=E.PARAMETERS.map(p=>'<button type="button" class="switch u9-select" data-u9-parameter="'+p.id+'" aria-pressed="'+state.uncertaintyParameters.includes(p.id)+'" aria-label="Include '+p.label+' in Jacobian: '+(state.uncertaintyParameters.includes(p.id)?'yes':'no')+'">'+p.label+'</button>').join('');
   const sigma=E.SIGMAS.map(v=>'<button type="button" class="switch" data-u9-sigma="'+v+'" aria-pressed="'+(state.uncertaintySigma===v)+'">'+(v*1e6).toFixed(0)+' × 10⁻⁶ sr⁻¹</button>').join('');
   const steps=E.STEPS.map(v=>'<button type="button" class="switch" data-u9-step="'+v+'" aria-pressed="'+(state.uncertaintyStep===v)+'">'+v+'%</button>').join('');
   const sensors=Object.keys(DATA).map(id=>'<button type="button" class="switch" data-sensor="'+id+'" aria-pressed="'+(state.sensor===id)+'">'+id.toUpperCase()+'</button>').join('');
-  return csection('OBSERVATION MODEL','sensor and SRF','<div class="switch-row">'+sensors+'</div>'+responseButtons(state))+
-   csection('SELECT PARAMETERS',state.uncertaintyParameters.length+' / 5','<div class="u9-choice-list">'+params+'</div><p class="aside-note">Each selected parameter is independently perturbed within its physical bounds. The reference state is unchanged.</p>')+
-   csection('HYPOTHETICAL BAND NOISE','not a mission specification','<div class="switch-row">'+sigma+'</div><p class="aside-note">Assume independent equal-variance, zero-mean Gaussian errors on band-averaged Rrs. Real radiometric/AC errors are typically correlated and signal dependent.</p>')+
-   csection('JACOBIAN FINITE DIFFERENCE','bounded perturbation','<div class="switch-row">'+steps+'</div><p class="aside-note">Near parameter bounds, unequal or one-sided differences are identified explicitly.</p>')+
+  return csection('1 · OBSERVATION MODEL','sensor and SRF provenance','<div class="switch-row u102-control-group" role="group" aria-label="Sensor configuration">'+sensors+'</div>'+responseButtons(state)+'<p class="u102-controls-help">The selected sensor and response define the FULL-coverage Rrs bands used in the Jacobian. Published measured SRF and nominal rectangular-band response are different models.</p>')+
+   csection('2 · ESTIMATED PARAMETERS',state.uncertaintyParameters.length+' / 5','<div class="u9-choice-list" role="group" aria-label="Select parameters for local identifiability">'+params+'</div><p class="u102-controls-help">Select at least one parameter. Each column uses a physical-unit derivative and a declared scale. Changing a sensor or noise setting does not reset the selected parameters.</p>')+
+   csection('3 · ASSUMED BAND NOISE','Σ = σ²I, not an instrument specification','<div class="switch-row u102-control-group" role="group" aria-label="Hypothetical band Rrs noise standard deviation">'+sigma+'</div><p class="u102-controls-help">Assume independent, equal-variance Gaussian errors in band-averaged Rrs (sr⁻¹). Real atmospheric-correction and calibration errors can be correlated and signal-dependent.</p>')+
+   csection('4 · FINITE-DIFFERENCE STEP','bounded parameter perturbation','<div class="switch-row u102-control-group" role="group" aria-label="Select Jacobian finite-difference percentage">'+steps+'</div><p class="u102-controls-help">The step controls numerical differentiation, not observation uncertainty. Near parameter bounds, the engine uses asymmetric or one-sided differences.</p>')+
    csection('DIAGNOSTICS','science export','<button type="button" class="ghost-btn u9-export" data-export="u9jacobian">↓ Export Jacobian CSV</button><button type="button" class="ghost-btn u9-export" data-export="json">↓ Export Experiment + Fisher JSON</button>')+
    adv(param('chl')+param('ag')+param('anap')+param('bbp')+param('eta')+'<p class="aside-note">The displayed 1σ values are local linearized estimates under the chosen noise assumptions. They are not uncertainty budgets, inverse-model validation, or retrieval certification.</p>');
  }
