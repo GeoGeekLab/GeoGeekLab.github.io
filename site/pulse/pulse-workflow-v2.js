@@ -166,6 +166,8 @@
     };
     let periods=null,latest={a:[],b:[]},currentGrid=new Map();
     let lastDatasetKey='',pinnedId=null,gridPin=null,hovered=null;
+    const defaultDetail='Select a visible event or occupied grid cell.';
+    let unpinnedDetail=defaultDetail;
     let maxShared=0, drag=null, chartBins={trend:[],magnitude:[],depth:[]};
     let drawQueued=false;
 
@@ -602,7 +604,7 @@
         if(event)detailEvent(event,true);
         else detail.textContent='Select a visible event or occupied grid cell.';
       }else if(gridPin&&currentGrid.has(gridPin))detailCell(currentGrid.get(gridPin),true);
-      else detail.textContent='Select a visible event or occupied grid cell.';
+      else detail.textContent=unpinnedDetail;
     }
 
     listen(svg,'pointerover',event=>{
@@ -696,10 +698,12 @@
       if(selected) {
         pinnedId=selected.id;
         gridPin=null;
+        unpinnedDetail=defaultDetail;
         detailEvent(selected,true);
       } else {
         pinnedId=null;
-        if(!gridPin) detail.textContent=event.detail?.reason||'Select a visible event or occupied grid cell.';
+        unpinnedDetail=event.detail?.reason||defaultDetail;
+        if(!gridPin) detail.textContent=unpinnedDetail;
         hideTooltip();
         hovered=null;
       }
