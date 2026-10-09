@@ -15,14 +15,19 @@
 
     const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
     const sphere={type:'Sphere'};
-    // Mercator has a singularity at the poles. D3 can render sphere
-    // boundaries at exactly -90°, where raw Mercator returns Infinity.
-    // Interpolating that value produces NaN, even when t is zero.
-    const polarLimit=Math.PI/2-1e-6;
-    const finiteLatitude=phi=>Math.max(-polarLimit,Math.min(polarLimit,phi));
-    const finiteRaw=raw=>(lambda,phi)=>raw(lambda,finiteLatitude(phi));
-    const safeFromRaw=finiteRaw(fromRaw);
-    const safeToRaw=finiteRaw(toRaw);
+    // Mercator diverges at the poles. A near-90° clamp still makes
+    // fitExtent(Sphere) squeeze the entire world into a narrow strip.
+    // Bound only Mercator to its conventional square-world latitude.
+    // Equal Earth and azimuthal projections retain their own latitude domain.
+    const mercatorLimit=Math.atan(Math.sinh(Math.PI));
+    const boundedRaw=raw=>(lambda,phi)=>raw(
+      lambda,
+      raw===d3.geoMercatorRaw
+        ? Math.max(-mercatorLimit,Math.min(mercatorLimit,phi))
+        : phi
+    );
+    const safeFromRaw=boundedRaw(fromRaw);
+    const safeToRaw=boundedRaw(toRaw);
     if(typeof fromRaw.invert==='function') {
       safeFromRaw.invert=(x,y)=>fromRaw.invert(x,y);
     }
