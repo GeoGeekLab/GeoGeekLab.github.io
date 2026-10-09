@@ -32,7 +32,7 @@
 }
 *{box-sizing:border-box}
 html{background:var(--bg);scroll-behavior:auto}
-body{--ending:0;--ending-fade:1;--ending-text:1;--grain-opacity:.027;margin:0;background:var(--bg);color:var(--fg);font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;overflow-x:hidden}
+body{--ending:0;--ending-fade:1;--ending-text:1;--grain-opacity:.027;--final-copy-opacity:1;--epilogue-opacity:0;margin:0;background:var(--bg);color:var(--fg);font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;overflow-x:hidden}
 ::selection{background:var(--fg);color:var(--bg)}
 button{font:inherit;color:inherit}
 
@@ -100,6 +100,15 @@ h2{font-size:clamp(53px,7.9vw,118px)}
 .mark{margin-top:72px;font:650 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
 .music-credit{margin-top:18px;font:560 10px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;color:rgba(242,240,233,.48);text-transform:uppercase}
 #originScore{display:none}
+
+/* Independent last reading position: the story resolves after chapter 08. */
+.epilogue{position:fixed;z-index:6;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;pointer-events:none;opacity:var(--epilogue-opacity);text-align:center;text-shadow:0 1px 16px rgba(0,0,0,.86)}
+.epilogue-inner{width:min(960px,100%)}
+.epilogue .eyebrow{margin-bottom:26px}
+.epilogue h2{font-size:clamp(58px,7.5vw,118px)}
+.epilogue p{margin-top:44px;font-family:"Songti SC","STSong",serif;font-size:clamp(20px,1.85vw,29px);line-height:1.8;color:var(--soft);letter-spacing:.06em}
+.scene.final .copy{opacity:var(--final-copy-opacity)}
+@media(max-width:760px){.epilogue h2{font-size:clamp(47px,13vw,84px)}.epilogue p{margin-top:30px;font-size:20px}}
 
 /* refinement — the ending removes interface before it removes meaning */
 .brand,.origin-nav,.count,.rail,.dots,.sound{opacity:var(--ending-fade);transition:opacity .7s ease}
@@ -238,7 +247,7 @@ body[data-near="6"] .stage-word{opacity:1}
     <div class="copy">
       <div class="eyebrow">人与宇宙 / HUMAN × COSMOS</div>
       <h1 class="short-title">从星尘到<span style="font-style:italic">道</span></h1>
-      <div class="deck"><strong>我本就是星尘。</strong><br><span class="keep">探问宇宙，是寻来处，亦是归途。</span></div>
+      <div class="deck"><strong>我本就是星尘。</strong><br><span class="keep">探问宇宙，是寻找来处，亦是叩问归途。</span></div>
       <div class="seal">A GeoGeek ORIGIN STORY</div>
     </div>
   </section>
@@ -247,7 +256,7 @@ body[data-near="6"] .stage-word{opacity:1}
     <div class="copy">
       <div class="eyebrow">01 / 星</div>
       <h2><span class="title-line">最初，</span><span class="title-line">我们还不在这里</span></h2>
-      <p class="kicker"><span class="body-line">你身体里的碳、氧、铁，皆曾在恒星深处孕育。</span><span class="body-line">恒星陨落，它们便散作星际的微尘。</span></p>
+      <p class="kicker"><span class="body-line">我们躯体里的碳、氧与铁，皆曾在恒星深处孕育。</span><span class="body-line">当繁星陨落，它们便散作星际里的微尘。</span></p>
       <blockquote class="quote">“We are made of star-stuff”<span class="source">— CARL SAGAN</span></blockquote>
     </div>
   </section>
@@ -292,7 +301,7 @@ body[data-near="6"] .stage-word{opacity:1}
     <div class="copy">
       <div class="eyebrow">06 / 一</div>
       <h2 class="short-title">从一，到万物</h2>
-      <p class="kicker"><span class="body-line">“道生一，一生二，二生三，三生万物”——</span><span class="body-line">不是物理公式里冰冷的等号，而是古人对万物生成的一次言说。</span></p>
+      <p class="kicker"><span class="body-line">“道生一，一生二，二生三，三生万物”——</span><span class="body-line">不是物理公式里冰冷的算符，而是古人对万物生成的一次言说。</span></p>
       <div class="micro">轻触中央一点 / TOUCH TO UNFOLD</div>
     </div>
   </section>
@@ -301,7 +310,7 @@ body[data-near="6"] .stage-word{opacity:1}
     <div class="copy">
       <div class="eyebrow">07 / 归</div>
       <h2><span class="title-line">望向远处，</span><span class="title-line">也是回望来处</span></h2>
-      <p class="kicker"><span class="body-line">我们追问宇宙的起源，也在辨认自身的来处。</span><span class="body-line">仰望星空，不是离开地球，而是把来处看得更清楚。</span></p>
+      <p class="kicker"><span class="body-line">我们追问宇宙的起源，也在寻找意识的来处。</span><span class="body-line">仰望星空，不是离开地球，而是把来处看得更清楚。</span></p>
     </div>
   </section>
 
@@ -316,12 +325,21 @@ body[data-near="6"] .stage-word{opacity:1}
   </section>
 </main>
 
+<section class="epilogue" id="epilogue" aria-label="终章" aria-hidden="true">
+  <div class="epilogue-inner">
+    <div class="eyebrow">归途 / 已竟</div>
+    <h2>你，在此处</h2>
+    <p>万象归于一念。</p>
+  </div>
+</section>
+
 <script>
 (() => {
   'use strict';
   const canvas = document.getElementById('cosmos');
   const ctx = canvas.getContext('2d', { alpha:true, desynchronized:true });
   const sections = [...document.querySelectorAll('.scene')];
+  const epilogue = document.getElementById('epilogue');
   const sceneNo = document.getElementById('sceneNo');
   const railMark = document.getElementById('railMark');
   const hint = document.getElementById('hint');
@@ -359,12 +377,13 @@ body[data-near="6"] .stage-word{opacity:1}
     scroller.y=scrollY;scroller.startY=scrollY;scroller.target=scrollY;scroller.active=false;scroller.driving=false;
   }
   function sceneScrollY(index){
+    if(index>=sections.length) return maxScroll();
     const s=sections[clamp(index,0,sections.length-1)];
     return clamp(s.offsetTop+s.offsetHeight*.5-H*.5,0,maxScroll());
   }
   function nearestSceneByScroll(y=scrollY){
     let best=0,bestD=Infinity;
-    for(let i=0;i<sections.length;i++){const d=Math.abs(sceneScrollY(i)-y);if(d<bestD){bestD=d;best=i}}
+    for(let i=0;i<=sections.length;i++){const d=Math.abs(sceneScrollY(i)-y);if(d<bestD){bestD=d;best=i}}
     return best;
   }
   function magnetEase(t){return 1-Math.pow(1-t,5)}
@@ -374,7 +393,7 @@ body[data-near="6"] .stage-word{opacity:1}
     section.classList.remove('is-docked');void section.offsetWidth;section.classList.add('is-docked');
   }
   function glideToScene(index,boost=true){
-    index=clamp(index,0,sections.length-1);
+    index=clamp(index,0,sections.length);
     const dest=sceneScrollY(index);
     if(reduced){scrollTo(0,dest);syncScroller();updateScrollState(true);dockScene(index);return}
     const diff=Math.abs(dest-scrollY);
@@ -628,6 +647,11 @@ body[data-near="6"] .stage-word{opacity:1}
     endingProgress=endingFromScroll();
     const endingFade=1-endingProgress;
     const endingText=1-clamp(endingProgress*1.45,0,1);
+    const finalCopyOpacity=1-smooth(clamp((endingProgress-.56)/.26,0,1));
+    const epilogueOpacity=smooth(clamp((endingProgress-.72)/.28,0,1));
+    document.body.style.setProperty('--final-copy-opacity',finalCopyOpacity.toFixed(3));
+    document.body.style.setProperty('--epilogue-opacity',epilogueOpacity.toFixed(3));
+    epilogue.setAttribute('aria-hidden',epilogueOpacity>=.5?'false':'true');
     document.body.style.setProperty('--ending',endingProgress.toFixed(3));
     document.body.style.setProperty('--ending-fade',endingFade.toFixed(3));
     document.body.style.setProperty('--ending-text',endingText.toFixed(3));
@@ -691,7 +715,7 @@ body[data-near="6"] .stage-word{opacity:1}
     // Because wheel input is held while the gesture is classified, "nearest" remains
     // the chapter where this physical gesture began, so a single gesture cannot skip.
     const direction=Math.sign(wheelGesture.sum||raw);
-    const target=clamp(nearest+direction,0,sections.length-1);
+    const target=clamp(nearest+direction,0,sections.length);
     wheelGesture.locked=true;wheelGesture.sum=0;glideToScene(target,true);
   },{passive:false});
 
@@ -718,10 +742,10 @@ body[data-near="6"] .stage-word{opacity:1}
   touchpoint.addEventListener('keyup',()=>{hold=false});
 
   addEventListener('keydown',e=>{
-    if(['ArrowDown','PageDown'].includes(e.key)){e.preventDefault();glideToScene(Math.min(activeScene+1,8),true)}
-    else if(['ArrowUp','PageUp'].includes(e.key)){e.preventDefault();glideToScene(Math.max(activeScene-1,0),true)}
+    if(['ArrowDown','PageDown'].includes(e.key)){e.preventDefault();glideToScene(Math.min(nearestSceneByScroll()+1,sections.length),true)}
+    else if(['ArrowUp','PageUp'].includes(e.key)){e.preventDefault();glideToScene(Math.max(nearestSceneByScroll()-1,0),true)}
     else if(e.key==='Home'){e.preventDefault();glideToScene(0,true)}
-    else if(e.key==='End'){e.preventDefault();glideToScene(8,true)}
+    else if(e.key==='End'){e.preventDefault();glideToScene(sections.length,true)}
   });
 
   const soundEngine={
