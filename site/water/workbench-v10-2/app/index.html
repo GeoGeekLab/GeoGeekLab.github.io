@@ -433,6 +433,8 @@ html[data-geogeek-embedded="true"] .tab{padding-inline:11px}
 <link rel="stylesheet" href="../v102-layout.css?v=10.2.0-p2">
 <link rel="stylesheet" href="../v102-components.css?v=10.2.0-p3">
 <link rel="stylesheet" href="../v102-rt.css?v=10.2.0-p4">
+<link rel="stylesheet" href="../v102-physics.css?v=10.2.0-p6a">
+<script src="../v102-physics-views.js?v=10.2.0-p6a"></script>
 </head>
 <body>
 <div class="shell" id="shell" data-ui-phase="foundation">
@@ -1364,20 +1366,13 @@ return {rtWorkspace};
 },
 "workspaces/path.js": function(require){
 const {TABS, plots, stageData} = require("core/config.js");
-function overview(state){
- const stages=[['sun','01','SOLAR INPUT','☀'],['atm','02','ATMOSPHERE','∿'],['surface','03','INTERFACE','≈'],['water','04','WATER','◉'],['sat','05','SENSOR','▣']];
- const cards=stages.map(([id,no,label,icon])=>`<button type="button" class="path-stage-card" data-stage="${id}" aria-label="Inspect ${label}" aria-pressed="${state.stage===id}"><span class="path-stage-code">${no} / ${label}</span><span class="path-stage-symbol" aria-hidden="true">${icon}</span><span class="path-stage-action">${state.stage===id?'SELECTED':'SELECT TO INSPECT'}</span></button>`).join('');
- const info=stageData[state.stage];
- const related=state.stage==='atm'?'atm':state.stage==='sat'?'sensor':state.stage==='sun'?'atm':'rt';
- return `<div class="hero-plot path-hero"><div class="chart-label-row"><span class="plot-main-title">Radiative path</span><span class="eyebrow">SELECT A STAGE · ONE FOCUS</span></div><div class="stages"><div class="path-stage-grid" role="group" aria-label="Selectable radiative-transfer stages">${cards}</div><div class="stage-explain" role="status"><div><span class="eyebrow">${info.formula}</span><h3>${info.title}</h3><p>${info.text}</p></div><button type="button" class="ghost-btn" data-goto="${related}">Open related workspace →</button></div></div></div><div class="hint-strip path-hint"><b>HOW TO USE: </b>Select a pathway stage to inspect the relevant physical process and model assumptions. Open a dedicated workspace to examine parameters and spectra.</div>`;
-}
-
 const pathWorkspace={
  ...TABS[0],
  plots: plots.path,
- renderChart({state,data,models,charts}){
-
- return overview(state);
+ renderChart({state,data}){
+  const views=globalThis.GeoGeekV102PhysicsViews;
+  if(!views?.path)throw new Error('V10.2 physics presentation failed to load');
+  return views.path(state,data,stageData);
  },
  renderControls({state,controls}){
   const {csection,presets}=controls;
@@ -1395,13 +1390,10 @@ const {f} = require("core/numbers.js");
 const iopWorkspace={
  ...TABS[1],
  plots: plots.iop,
- renderChart({state,data,models,charts}){
- const {chartSvg,chartFrame,fmtShort}=charts;
-let content='';
-const p=state.params,idx=state.probe-400;
-
-  const keys=state.plot==='a'?['a']:state.plot==='bb'?['bb']:state.plot==='all'?['rrs','a','bb']:['rrs'];if(keys.length===3){content=`<div class="stack" style="flex:1;gap:9px">${keys.map((key)=>`<div class="hero-plot" style="min-height:165px;flex:1"><div class="chart-label-row" style="min-height:28px;padding-top:8px"><span class="plot-main-title" style="font-size:16px">${key==='rrs'?'Rrs':key==='a'?'a':'bb'}(λ)</span><span class="eyebrow">${key==='rrs'?'sr⁻¹':'m⁻¹'}</span></div>${chartSvg([{label:key.toUpperCase(),values:data[key]}],key,{height:190})}</div>`).join('')}</div>`;}else{const key=keys[0];const specs={rrs:['Rrs(λ)','ABOVE-WATER REMOTE-SENSING REFLECTANCE · sr⁻¹','sr⁻¹'],a:['a(λ)','ABSORPTION · m⁻¹','m⁻¹'],bb:['bb(λ)','BACKSCATTER · m⁻¹','m⁻¹']};const series=key==='a'?[{label:'TOTAL',values:data.a},{label:'PURE WATER',values:data.absorption.water},{label:'PHYTO',values:data.absorption.phytoplankton},{label:'CDOM',values:data.absorption.cdom},{label:'NAP',values:data.absorption.nap}]:key==='bb'?[{label:'TOTAL',values:data.bb},{label:'WATER',values:data.backscattering.water},{label:'PARTICLES',values:data.backscattering.particles}]:[{label:'CURRENT',values:data.rrs}];content=chartFrame(specs[key][0],specs[key][1],series,key,[{label:'WAVELENGTH PROBE',value:state.probe+' nm',unit:'Synchronized wavelength probe'},{label:'CHL STATE',value:f(p.chl,2),unit:'mg/m³'},{label:'CDOM · ag(440)',value:f(p.ag,3),unit:'m⁻¹'},{label:'bbp(443)',value:f(p.bbp,4),unit:'m⁻¹'}],{unit:specs[key][2]})}
- return content;
+ renderChart({state,data,charts}){
+  const views=globalThis.GeoGeekV102PhysicsViews;
+  if(!views?.optics)throw new Error('V10.2 water optics presentation failed to load');
+  return views.optics(state,data,charts);
  },
  renderControls({state,controls}){
   const {param,csection,adv,presets}=controls;
@@ -1977,7 +1969,7 @@ function bindWorkbenchEvents({store,workbench,exports}){
   if(t.dataset.rtApply){const c=rt?.caseData(state.rtCase);if(!c){notify('RT reference unavailable; no parameters changed');return;}update(s=>{Object.assign(s.params,c.params,{sza:s.rtSun});s.preset='';});notify('Matched IOP and nominal in-water solar angle loaded');return;}
   if(t.dataset.tab){changeWorkspace(t.dataset.tab);return;}
   if(t.dataset.plot){if(plots[state.tab].some(([id])=>id===t.dataset.plot))update(s=>{s.plot=t.dataset.plot});return;}
-  if(t.dataset.stage){update(s=>{s.stage=t.dataset.stage},'chart');return;}
+  if(t.dataset.stage){const next=t.dataset.stage;if(!['sun','atm','surface','water','sat'].includes(next))return;update(s=>{s.stage=next},'chart');document.querySelector('[data-stage="'+next+'"]')?.focus({preventScroll:true});return;}
   if(t.dataset.goto){changeWorkspace(t.dataset.goto);return;}
   if(t.dataset.resetSlopes){update(s=>{s.params.sg=.0176;s.params.snap=.0123;s.preset=''});return;}
    if(t.dataset.preset){
