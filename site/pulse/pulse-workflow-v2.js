@@ -7,7 +7,7 @@
   const NS = 'http://www.w3.org/2000/svg';
   const style = document.createElement('link');
   style.rel='stylesheet';
-  style.href=new URL('./pulse-workflow-v2.css?v=20261008b', import.meta.url).href;
+  style.href=new URL('./pulse-workflow-v2.css?v=20261009r3', import.meta.url).href;
   style.dataset.pulseWorkflowV2Style='1';
   if (!document.querySelector('link[data-pulse-workflow-v2-style]')) document.head.appendChild(style);
   const EARTH_R = 6371.0088;
