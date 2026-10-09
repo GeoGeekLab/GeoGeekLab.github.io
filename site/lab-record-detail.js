@@ -137,44 +137,63 @@
     },
 
     l10: {
-      detailLabel: 'INSTRUMENT NOTES',
+      detailLabel: 'INSTRUMENT NOTES / METHODS',
       recordConditions: [
-        ['feed', 'USGS all_day GeoJSON'],
-        ['window', 'Past 24 h'],
-        ['encoding', 'Magnitude · depth · recency'],
-        ['coordinates', 'Geographic lon / lat']
+        ['source', 'USGS all_day GeoJSON · verified GeoGeek same-origin snapshot'],
+        ['observation', 'Rolling 24 h · feed-generation time in UTC'],
+        ['analysis', '1–31 UTC date queries · explicit ROI and filters'],
+        ['projection', 'Equirectangular longitude / latitude · full 360° × 180°']
       ],
       bodyHtml: `
-        <article class="lab-record-detail" aria-label="Earth Pulse instrument notes">
+        <article class="lab-record-detail" aria-label="Earth Pulse methods, sources and scientific limitations">
           <section class="lab-record-block">
-            <div class="lab-record-block-label">PURPOSE</div>
+            <div class="lab-record-block-label">PURPOSE / NAVIGATION</div>
             <div class="lab-record-copy">
-              <h2>Read recent seismicity as a changing global event field.</h2>
-              <p>Earth Pulse transforms the USGS all-day earthquake feed into a map where magnitude, depth, and recency remain distinct variables rather than collapsing into one alert symbol.</p>
+              <h2>One fixed world map, two independent research tasks.</h2>
+              <p><strong>OBSERVE</strong> reads the latest delivered 24-hour seismic catalogue through a stable 2:1 equirectangular world field. Its playback controls change only the event-origin cutoff within the loaded snapshot. <strong>ANALYZE</strong> adds geographical ROI, a selectable catalogue, UTC comparison windows, point/grid representation and reproducible exports. The map remains completely visible; controls and event inspection live in independently scrollable rails.</p>
+              <p>On narrow viewports the map stays above its separately scrollable control region. Selecting a point reveals its source record in the inspector; zoom and selection controls are grouped with REGION rather than overlaying the map.</p>
             </div>
           </section>
           <section class="lab-record-block">
             <div class="lab-record-block-label">OBSERVATION CONTRACT</div>
             <div class="lab-record-facts">
-              <div><span>FEED</span><strong>USGS all_day GeoJSON</strong></div>
-              <div><span>WINDOW</span><strong>Past 24 hours</strong></div>
-              <div><span>POSITION</span><strong>Event longitude / latitude</strong></div>
-              <div><span>SIZE</span><strong>Magnitude encoding</strong></div>
-              <div><span>DEPTH</span><strong>Hypocentral depth</strong></div>
-              <div><span>TIME</span><strong>Recency relative to the current feed</strong></div>
+              <div><span>PROVIDER</span><strong>USGS Earthquake Hazards Program</strong></div>
+              <div><span>ROLLING FEED</span><strong>all_day GeoJSON · last 24 hours</strong></div>
+              <div><span>GEOGRAPHY</span><strong>Longitude / latitude · equirectangular 2:1 global frame</strong></div>
+              <div><span>MARKER SIZE</span><strong>Readable magnitude area index, not released energy</strong></div>
+              <div><span>RING</span><strong>Depth class: shallow, intermediate, deep, unknown</strong></div>
+              <div><span>RECENCY</span><strong>Event-origin time relative to USGS feed generation time</strong></div>
+              <div><span>LAND</span><strong>Version-pinned Natural Earth geographical reference</strong></div>
             </div>
           </section>
           <section class="lab-record-block">
-            <div class="lab-record-block-label">METHOD</div>
+            <div class="lab-record-block-label">UTC CLOCKS / SNAPSHOT PROVENANCE</div>
             <div class="lab-record-copy">
-              <p>The runtime reads the current feed, projects event coordinates into a self-owned world view, and exposes temporal density, magnitude, depth, and selected-event detail without delegating interpretation to a generic alert map.</p>
+              <p><strong>Event origin</strong> identifies when each event occurred. <strong>USGS feed generated</strong> is the source catalogue generation timestamp; feed age is measured against this time. <strong>GeoGeek fetched</strong> identifies when the same-origin source snapshot was retrieved. These three times are different and must not be treated interchangeably.</p>
+              <p>A <strong>stale / last-known-good</strong> label means the most recently available verified snapshot is being displayed, not that an event just occurred. Snapshot playback does not query the historical archive. The ANALYZE historical query uses a separate USGS FDSN search over user-specified UTC dates (1–31 dates, limited to 10,000 events per request); a historical response is not a live rolling snapshot.</p>
+              <p>Both the returned feature set and its provider metadata may change as seismic solutions are reviewed and revised. Always preserve the export manifest, its source URI, fetch time, feed-generation time, query dates, filters and ROI together with exported event data.</p>
             </div>
           </section>
           <section class="lab-record-block">
-            <div class="lab-record-block-label">LIMITS / SOURCE</div>
+            <div class="lab-record-block-label">REGION / MAP TOOLS</div>
+            <div class="lab-record-copy">
+              <p>Use <strong>DRAW RECTANGLE</strong> to select a geographic ROI with the pointer, or enter WEST / EAST / SOUTH / NORTH coordinates and apply bounds. The WORLD control clears the ROI. A west coordinate greater than east spans the antimeridian (±180°). In normal map mode, drag unoccupied geography to pan; the + / − / RESET VIEW controls change the visual extent without changing the selected geographical dataset.</p>
+              <p>Event point locations use the catalogue's geographic coordinates. A grid is a geographical aggregation, not a continuous seismic field. Raw 12° × 10° OBSERVE cells give event counts; ANALYZE offers adjustable grid resolution, raw counts and a spherical-area approximation in counts per million km². Cells are not uniformly sized in physical area, and area-normalized counts are not completeness-corrected earthquake rates.</p>
+            </div>
+          </section>
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">A / B COMPARISON / STATISTICS</div>
+            <div class="lab-record-copy">
+              <p>Comparison windows A and B are disjoint, half-open UTC intervals: [start, end). Both are evaluated over the currently loaded catalogue and the same geographic ROI, minimum magnitude, depth and review-status filters. <strong>Observed records per hour</strong> is exactly the count of matching events divided by each selected window's duration in hours; it is neither completeness-corrected seismicity nor a long-term earthquake-occurrence estimate.</p>
+              <p>Displayed totals, maximum magnitude and median depth describe the current filtered set. Historical catalogue changes, magnitude uncertainties, selection bias, uneven regional detection, event depth uncertainties and unknown depth/magnitude values matter. Do not read catalogue counts or map density as earthquake hazard, risk, physical shaking intensity or a forecast.</p>
+              <p>The time-trend chart uses relative elapsed-time bins. Magnitude and depth distributions show the current records, with unknown values retained as explicit categories where applicable. Exported GeoJSON / CSV contains the selected record set; comparison chart / grid CSVs contain numerical aggregates. Retain the manifest for a reproducible analysis.</p>
+            </div>
+          </section>
+          <section class="lab-record-block">
+            <div class="lab-record-block-label">SOURCES / LIMITATIONS</div>
             <div class="lab-record-copy lab-record-links">
-              <p>Earthquake solutions can be preliminary and revised. Feed completeness, detection thresholds, location uncertainty, and the chosen 24-hour window condition the visible pattern.</p>
-              <p><a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php" target="_blank" rel="noreferrer">USGS GeoJSON feeds ↗</a></p>
+              <p>Earthquake locations and magnitudes are preliminary or subject to revision. The USGS rolling feed is not a permanent historical archive. Completeness varies by region, monitoring network, magnitude and time. Longitude/latitude maps distort geographic area at high latitude. Scientific interpretation requires independent geological context.</p>
+              <p><a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php" target="_blank" rel="noreferrer">USGS GeoJSON feed documentation ↗</a> · <a href="https://earthquake.usgs.gov/fdsnws/event/1/" target="_blank" rel="noreferrer">USGS FDSN event service ↗</a> · <a href="https://www.naturalearthdata.com/" target="_blank" rel="noreferrer">Natural Earth geographic reference ↗</a></p>
             </div>
           </section>
         </article>`
