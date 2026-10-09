@@ -129,6 +129,12 @@ jobs:
           node --test site/water/workbench-v10-2/tests/ui-foundation.test.mjs
           node --test site/water/workbench-v10-2/tests/ui-components.test.mjs
           node --test site/water/workbench-v10-2/tests/rt-ui.test.mjs
+          node --test site/water/workbench-v10-2/tests/bootstrap-order.test.mjs
+          node --test site/water/workbench-v10-2/tests/uncertainty-ui.test.mjs
+          node --test site/water/workbench-v10-2/tests/physics-ui.test.mjs
+          node --test site/water/workbench-v10-2/tests/atm-sensor-ui.test.mjs
+          node --test site/water/workbench-v10-2/tests/analysis-ui.test.mjs
+          node --test site/water/workbench-v10-2/tests/integration-ui.test.mjs
           node scripts/qa.mjs
           node scripts/verify-play-live-release.mjs --local
       - name: Water V9 backward compatibility (desktop and mobile Chromium)
@@ -139,6 +145,8 @@ jobs:
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v101.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Water V10.2 UI release browsers (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-foundation.spec.mjs tests/browser/water-v102-components.spec.mjs tests/browser/water-v102-rt.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Water V10.2 Stages 5–7 release browsers (desktop and mobile Chromium)
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-uncertainty.spec.mjs tests/browser/water-v102-physics.spec.mjs tests/browser/water-v102-atm-sensor.spec.mjs tests/browser/water-v102-analysis.spec.mjs tests/browser/water-v102-integration.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: ORIENT release browsers
         run: npm run qa:orient:release-browser
       - name: Upload Pages artifact
@@ -306,7 +314,7 @@ jobs:
           set -euo pipefail
           base="${WATER_RELEASE_BASE_URL%/}"
           mkdir -p /tmp/geogeek-water-v102
-          for path in lab.html core/modules.js water/workbench-v10-2/instrument.js water/workbench-v10-2/app/index.html water/workbench-v10-2/rt-engine.js water/workbench-v10-2/v102-layout.css water/workbench-v10-2/v102-components.css water/workbench-v10-2/v102-rt.css; do
+          for path in lab.html core/modules.js water/workbench-v10-2/instrument.js water/workbench-v10-2/app/index.html water/workbench-v10-2/rt-engine.js water/workbench-v10-2/v102-layout.css water/workbench-v10-2/v102-components.css water/workbench-v10-2/v102-rt.css water/workbench-v10-2/v102-physics-views.js water/workbench-v10-2/v102-physics.css water/workbench-v10-2/v102-atm-sensor-views.js water/workbench-v10-2/v102-atm-sensor.css water/workbench-v10-2/v102-uncertainty-views.js water/workbench-v10-2/v102-uncertainty.css water/workbench-v10-2/v102-analysis-views.js water/workbench-v10-2/v102-analysis.css; do
             file="/tmp/geogeek-water-v102/$(basename "$path")"
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261009v102" -o "$file"
             test -s "$file"
@@ -320,6 +328,11 @@ jobs:
           grep -Fq 'depthProfile' /tmp/geogeek-water-v102/index.html
           grep -Fq 'workbench-v10-1/reference/rt-reference-v1.json' /tmp/geogeek-water-v102/rt-engine.js
           grep -Fq 'rt-science-workspace' /tmp/geogeek-water-v102/v102-rt.css
+          grep -Fq 'data-geogeek-sync-dependency="water-v102-physics"' /tmp/geogeek-water-v102/index.html
+          grep -Fq 'data-geogeek-sync-dependency="water-v102-atm-sensor"' /tmp/geogeek-water-v102/index.html
+          grep -Fq 'data-geogeek-sync-dependency="water-v102-uncertainty"' /tmp/geogeek-water-v102/index.html
+          grep -Fq 'data-geogeek-sync-dependency="water-v102-analysis"' /tmp/geogeek-water-v102/index.html
+          ! grep -Fq 'v102-accessibility-views.js' /tmp/geogeek-water-v102/index.html
           echo 'V10.2 public scientific UI and V10.1 reference pin smoke passed'
       - name: Verify public ORIENT release
         env:
