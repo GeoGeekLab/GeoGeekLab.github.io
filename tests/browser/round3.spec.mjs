@@ -84,7 +84,11 @@ test('Round 3 Lab keeps noncritical enhancement off the first-view path', async 
   expect(source).not.toMatch(/src=["'][^"']*ux-preinit\.js/);
   expect(source).toMatch(/geo-interactions\.css[^>]*media=["']print["'][^>]*onload=/);
   expect(source).toContain('data-round3-lab-postload');
-  expect(source).not.toMatch(/<script\b[^>]*src=["'][^"']*(?:geo-interactions|lab-real-previews)\.js/i);
+  // The LCP preview loads early; only the geo-interaction enhancement waits.
+  expect(source).not.toMatch(/<script\b[^>]*src=["'][^"']*geo-interactions\.js/i);
+  expect(source).toMatch(/<script\b[^>]*src=["']\/lab-real-previews\.js\?v=capture-[a-f0-9]{12}["'][^>]*\bdefer\b/i);
+  expect(source).toContain('data-round3-lab-preview-discovery');
+  expect(source).toContain("new URLSearchParams(location.search).has('instrument')");
   expect(source).toContain('requestIdleCallback');
   expect(source).toContain("addEventListener('load'");
 });
