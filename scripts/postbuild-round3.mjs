@@ -94,10 +94,9 @@ async function patchLab(html) {
     html = removeStylesheet(html, name);
   }
 
-  // Critical Lab styles are build-known, so the synchronous discovery bootstrap
-  // can leave the first-view path. Noncritical interaction runtimes are loaded
-  // only after window.load and an idle slot so they cannot contend with the LCP
-  // preview under a throttled network/CPU model.
+  // Critical Lab CSS is build-known. Discover the first visible preview
+  // before deferred Lab runtimes, instead of waiting until window.load + idle.
+  // Keep the geo-interaction enhancement in the idle path.
   html = removeScript(html, 'ux-preinit.js');
   html = removeScript(html, 'geo-interactions.js');
   html = removeScript(html, 'lab-real-previews.js');
@@ -113,19 +112,35 @@ async function patchLab(html) {
     html = html.replace(/<\/head>/i, `${asyncStyle}\n</head>`);
   }
 
+  // The collection's first card is Orbital Commons (orbit). Preload its
+  // exact versioned screenshot only for collection entry, not direct workspace
+  // URLs such as ?instrument=pulse. The runtime is small and parser-discovered;
+  // the heavy geo-interaction enhancement remains idle.
+  if (!/data-round3-lab-preview-runtime/i.test(html)) {
+    const previewHead = `<script data-round3-lab-preview-discovery>
+(() => {
+  if (new URLSearchParams(location.search).has('instrument')) return;
+  const preload = document.createElement('link');
+  preload.rel = 'preload';
+  preload.as = 'image';
+  preload.href = '/assets/lab/previews/orbit.jpg?v=${previewVersion}';
+  preload.fetchPriority = 'high';
+  document.head.appendChild(preload);
+})();
+</script>
+<script src="/lab-real-previews.js?v=${previewVersion}" defer data-round3-lab-preview-runtime></script>`;
+    html = html.replace(/<\/head>/i, `${previewHead}\n</head>`);
+  }
+
   if (!/data-round3-lab-postload/i.test(html)) {
     const postload = `<script data-round3-lab-postload>
 (() => {
   const start = () => {
-    const inject = (src, marker) => {
-      if (document.querySelector(\`script[data-round3-postload="\${marker}"]\`)) return;
-      const script = document.createElement('script');
-      script.src = src;
-      script.dataset.round3Postload = marker;
-      document.head.appendChild(script);
-    };
-    inject('/geo-interactions.js?v=20260930g', 'geo-interactions');
-    inject('/lab-real-previews.js?v=${previewVersion}', 'lab-previews');
+    if (document.querySelector('script[data-round3-postload="geo-interactions"]')) return;
+    const script = document.createElement('script');
+    script.src = '/geo-interactions.js?v=20260930g';
+    script.dataset.round3Postload = 'geo-interactions';
+    document.head.appendChild(script);
   };
   const idle = () => 'requestIdleCallback' in window
     ? requestIdleCallback(start, { timeout: 1600 })
