@@ -78,3 +78,14 @@ test('UX-063/064 data regions do not cause page-level horizontal overflow at 390
  await app.locator('#p6b-sensor-table .p6b-table-scroll').focus();
  await expect(app.locator('#p6b-sensor-table .p6b-table-scroll')).toBeFocused();
 });
+
+test('P0 #148 persisted atmosphere initial tab must not race a deferred view dependency',async({page})=>{
+ await page.addInitScript(()=>{
+  try{localStorage.setItem('water_ui_geo_v102',JSON.stringify({tab:'atm',plot:'toa'}));}catch{}
+ });
+ await page.goto('/lab.html?instrument=water&waterVersion=v102#l13',{waitUntil:'domcontentloaded'});
+ await expect(page.locator('#instrumentDialog')).toHaveAttribute('data-water-ui-version','v102',{timeout:25000});
+ const app=page.frameLocator('#instrumentStage iframe.water-v102-frame');
+ await expect(app.locator('.p6b-atmosphere')).toBeVisible({timeout:20000});
+ await expect(app.locator('.p6b-kicker')).toContainText('FIRST-ORDER SIMULATED TOA REFLECTANCE');
+});
