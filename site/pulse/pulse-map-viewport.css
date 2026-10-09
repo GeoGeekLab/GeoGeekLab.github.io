@@ -1,0 +1,240 @@
+/* Earth Pulse fixed-map viewport — independent controls, no map scrolling.
+ * Preserve the full 1000 × 500 world via SVG preserveAspectRatio meet.
+ * Map remains visible; only the CONTROL/ANALYZE rail scrolls.
+ */
+.instrument-dialog[data-instrument-kind="pulse"] .instrument-stage,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow {
+  min-height:0;
+  min-width:0;
+  overflow:hidden;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab.pulse-layout,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
+  display:grid;
+  height:100%;
+  min-height:0;
+  min-width:0;
+  grid-template-columns:minmax(0,1fr) var(--pulse-ui-rail);
+  grid-template-rows:minmax(0,1fr);
+  overflow:hidden!important;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab .pulse-map-wrap,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-column{
+  position:relative;
+  min-width:0;
+  min-height:0!important;
+  height:100%;
+  padding:8px!important;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:0;
+  overflow:hidden!important;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map-frame,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-map-container{
+  width:100%;
+  min-width:0;
+  min-height:0!important;
+  max-height:100%;
+  flex:1 1 auto!important;
+  overflow:hidden;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map-frame{
+  height:100%;
+  aspect-ratio:auto;
+  align-self:stretch;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-container{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-map-frame > svg.pulse-map,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow svg.pw-map{
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  min-width:0;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  aspect-ratio:auto!important;
+  flex:1 1 auto;
+  object-fit:contain;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-foot{
+  position:absolute;
+  z-index:3;
+  left:16px;
+  right:16px;
+  bottom:16px;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+  width:auto;
+  margin:0;
+  padding:6px 9px;
+  border:1px solid var(--pulse-ui-line);
+  background:rgba(8,15,11,.85);
+  pointer-events:none;
+  font-size:9px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-head{
+  /* Shared Earth Pulse header above already supplies the instrument identity. */
+  position:absolute;
+  width:1px;
+  height:1px;
+  min-height:0;
+  padding:0;
+  overflow:hidden;
+  clip-path:inset(50%);
+  border:0;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow{
+  grid-template-rows:minmax(0,1fr)!important;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-panel,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-side{
+  height:100%;
+  max-height:100%;
+  min-height:0;
+  min-width:0;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-inspection-section{
+  padding-block:12px!important;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-inspection-section .pw-selected,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-inspection-section .pw-hover-detail{
+  width:100%;
+  min-height:58px;
+  height:auto;
+  max-height:148px;
+  flex:none;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-banner,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-source-state{
+  width:100%;
+  margin:0;
+  border-left:0;
+  border-right:0;
+  border-top:0;
+  font-size:10px;
+  line-height:1.4;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-source-state{
+  max-height:82px;
+  overflow-y:auto;
+}
+/* Live state remains in the rail; the field is exclusively for geography. */
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-chain-disclosure{
+  border-top:1px solid var(--pulse-ui-line);
+  margin:0;
+  padding:12px 15px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-chain-disclosure summary{
+  cursor:pointer;
+  color:var(--pulse-ui-body);
+  font:700 11px/1.4 var(--mono,monospace);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-chain-disclosure summary:focus-visible{
+  outline:2px solid var(--pulse-ui-warning);
+  outline-offset:3px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-chain-disclosure .pulse-inference-chain{
+  margin-top:10px;
+  grid-template-columns:minmax(0,1fr);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-chain-disclosure .pulse-inference-chain > div{
+  border-right:0;
+  border-bottom:1px solid var(--pulse-ui-line);
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-chain-disclosure .pulse-inference-chain > div:last-child{
+  border-bottom:0;
+}
+/* Methods and interpretation details have a permanent, readable L10 record. */
+.instrument-dialog[data-instrument-kind="pulse"] :is(.pulse-method-link,.pw-method-link){
+  display:block;
+  padding:13px 16px;
+  color:var(--pulse-ui-b);
+  font:700 10px/1.5 var(--mono,monospace);
+  border-top:1px solid var(--pulse-ui-line);
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] :is(.pulse-method-link,.pw-method-link):focus-visible{
+  outline:2px solid var(--pulse-ui-warning);
+  outline-offset:-3px;
+}
+/* Keep screen-reader context (timeline description, measurement caveats),
+ * but do not consume visual workspace space with methodological prose. */
+.instrument-dialog[data-instrument-kind="pulse"] #pulseTimelineHelp,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-filter-controls > p,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-encoding > p,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-r6-summary > p,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-r6-summary > small,
+.instrument-dialog[data-instrument-kind="pulse"] .pw-section > p:not([data-pc]):not([data-pw]),
+.instrument-dialog[data-instrument-kind="pulse"] [data-pc="comparison-note"]{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  border:0!important;
+  overflow:hidden!important;
+  clip-path:inset(50%)!important;
+  white-space:nowrap!important;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pw-provenance{
+  display:none;
+}
+/* The rail (not the document or map) owns overflow at tablet and mobile widths. */
+@media(max-width:1040px){
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab.pulse-layout,
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:minmax(150px,45%) minmax(0,1fr)!important;
+    height:100%;
+    overflow:hidden!important;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab .pulse-map-wrap,
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-column{
+    height:100%;
+    min-height:0!important;
+    overflow:hidden!important;
+    padding:6px!important;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-panel,
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-side{
+    overflow-y:auto!important;
+    max-height:100%;
+    border-left:0!important;
+    border-top:1px solid var(--pulse-ui-line)!important;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-foot{
+    left:10px;
+    right:10px;
+    bottom:10px;
+  }
+}
+@media(max-width:600px){
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-observation-lab.pulse-layout,
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-layout{
+    grid-template-rows:minmax(150px,42%) minmax(0,1fr)!important;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-map-badge{
+    padding:4px 5px;
+    font-size:8px;
+  }
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-map-badge-right{display:none}
+  .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-foot{
+    font-size:8px;
+    padding:4px 5px;
+  }
+}
