@@ -5,6 +5,7 @@
 
   function create(stage, { kind, triad, taskLabel = 'FIELD' } = {}) {
     if (!stage) throw new Error('GeoPlay shell requires a stage.');
+    GeoPlay.core?.ensureStyle?.('play/play-design-system.css?v=20261009-step03a','play-design-system');
     stage.innerHTML = `
       <div class="play-shell" data-play-kind="${kind || ''}">
         <section class="play-field" aria-label="${kind || 'Spatial'} field">
@@ -70,6 +71,7 @@
   function createV2(stage, { kind, title = kind } = {}) {
     if (!stage) throw new Error('GeoPlay V2 shell requires a stage.');
     GeoPlay.core?.ensureStyle?.('play/play-v2.css?v=20261008e','play-v2');
+    GeoPlay.core?.ensureStyle?.('play/play-design-system.css?v=20261009-step03a','play-design-system');
     stage.innerHTML = `
       <div class="play-v2-shell" data-play-kind="${kind || ''}" data-play-state="loading">
         <header class="play-v2-header">
