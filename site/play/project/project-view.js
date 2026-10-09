@@ -72,8 +72,23 @@
     function setHud(phase='predicting',selected='') {
       const committed=phase!=='predicting';
       const revealed=phase==='revealed';
+      // Put the causal evidence first when it becomes available. The
+      // measurements remain absent from the DOM until the user's reveal.
       shell.hud.innerHTML=`
         <div class="project-v2-evidence-head"><span>FIELD NOTES / 01</span><strong>Area &amp; projection</strong></div>
+        ${revealed?`<div class="project-v2-evidence-group project-v2-evidence-truth">
+          <span class="project-v2-evidence-label">ACTUAL SURFACE AREA</span>
+          <div class="project-v2-area-pair">
+            <div><span>INDIA</span><strong>≈ ${(choices.india.areaKm2/1e6).toFixed(2)}M km²</strong></div>
+            <div><span>GREENLAND</span><strong>≈ ${(choices.greenland.areaKm2/1e6).toFixed(2)}M km²</strong></div>
+          </div>
+        </div>`:''}
+        ${committed?`<div class="project-v2-evidence-group project-v2-evidence-readout">
+          <span class="project-v2-evidence-label">APPARENT AREA ON MAP</span>
+          <strong class="project-v2-apparent-value" aria-live="polite">—</strong>
+          <small>SCREEN SPACE · REPRESENTATION ONLY</small>
+        </div>`:''}
+        ${selected?`<div class="project-v2-evidence-group"><span class="project-v2-evidence-label">YOUR PREDICTION</span><strong class="project-v2-evidence-choice">${choices[selected]?.label||''}</strong></div>`:''}
         <div class="project-v2-evidence-group">
           <div class="project-v2-hud-item"><span>EXPERIMENT</span><strong>AREA</strong></div>
           <div class="project-v2-hud-item"><span>PROJECTIONS</span><strong>MERCATOR → EQUAL EARTH</strong></div>
@@ -87,19 +102,6 @@
           <div class="project-v2-hud-item"><span>SURFACE AREA</span><strong>UNCHANGED</strong></div>
           <p>Only the map representation changes. The land areas remain fixed.</p>
         </div>
-        ${committed?`<div class="project-v2-evidence-group project-v2-evidence-readout">
-          <span class="project-v2-evidence-label">APPARENT AREA ON MAP</span>
-          <strong class="project-v2-apparent-value" aria-live="polite">—</strong>
-          <small>SCREEN SPACE · REPRESENTATION ONLY</small>
-        </div>`:''}
-        ${selected?`<div class="project-v2-evidence-group"><span class="project-v2-evidence-label">YOUR PREDICTION</span><strong class="project-v2-evidence-choice">${choices[selected]?.label||''}</strong></div>`:''}
-        ${revealed?`<div class="project-v2-evidence-group project-v2-evidence-truth">
-          <span class="project-v2-evidence-label">ACTUAL SURFACE AREA</span>
-          <div class="project-v2-area-pair">
-            <div><span>INDIA</span><strong>≈ ${(choices.india.areaKm2/1e6).toFixed(2)}M km²</strong></div>
-            <div><span>GREENLAND</span><strong>≈ ${(choices.greenland.areaKm2/1e6).toFixed(2)}M km²</strong></div>
-          </div>
-        </div>`:''}
         <div class="project-v2-evidence-limit">A map is a representation, not the Earth's surface.</div>`;
       apparentValue=shell.hud.querySelector('.project-v2-apparent-value');
     }
