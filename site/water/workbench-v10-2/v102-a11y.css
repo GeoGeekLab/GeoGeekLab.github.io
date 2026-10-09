@@ -1,0 +1,46 @@
+/* V10.2 Stage 8: responsive/readable scientific evidence.
+ * The 1-nm model data and chart rendering algorithms are unchanged. */
+.v102-chart-access,.v102-current-view-actions,.v102-sci-glossary{min-width:0;max-width:100%}
+.v102-chart-access{margin:6px 0 15px}
+.v102-chart-help{font:12px/1.6 system-ui,sans-serif;color:#c9dbcf;margin:8px 0}
+.v102-chart-equivalent,.v102-sci-glossary{background:#17281e;border:1px solid #58705f;border-radius:7px;overflow:hidden}
+.v102-chart-equivalent summary,.v102-sci-glossary summary{min-height:44px;padding:12px 14px;cursor:pointer;color:#f4f7ef;
+ font:600 13px/1.5 system-ui,sans-serif}
+.v102-chart-equivalent summary:focus-visible,.v102-sci-glossary summary:focus-visible,
+.v102-table-scroll:focus-visible,.v102-current-view-actions button:focus-visible{
+ outline:3px solid #ffd8a1;outline-offset:-3px}
+.v102-chart-equivalent>p{font:12px/1.65 system-ui,sans-serif;color:#d0e0d4;margin:10px 13px}
+.v102-table-scroll{min-width:0;width:100%;max-width:100%;overflow:auto;overscroll-behavior-x:contain;scrollbar-width:thin;
+ scrollbar-color:#90b6a1 #213629}
+.v102-table-scroll table{width:100%;min-width:680px;border-collapse:collapse;color:#e5f1e5;font:12px/1.5 ui-monospace,Consolas,monospace;
+ font-variant-numeric:tabular-nums}
+.v102-table-scroll caption{text-align:left;padding:10px;white-space:normal;color:#e0e9de}
+.v102-table-scroll th,.v102-table-scroll td{border-bottom:1px solid #43604a;padding:10px 11px;white-space:nowrap;text-align:right}
+.v102-table-scroll th:first-child{text-align:left}
+.v102-table-scroll thead th{background:#254232;font:600 11px/1.45 system-ui,sans-serif;color:#f0f6e9}
+.v102-table-scroll tbody .v102-probe-row{background:#36533e}
+.v102-current-view-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px;padding:11px 12px;
+ border:1px solid #56735e;background:#20382a;border-radius:7px}
+.v102-current-view-actions>span{font:12px/1.5 system-ui,sans-serif;color:#d9e9dc;flex:1 1 190px}
+.v102-current-view-actions .ghost-btn{min-height:44px;height:auto;white-space:normal;font:600 12px/1.4 system-ui,sans-serif}
+.v102-sci-glossary{margin:12px 0 20px}
+.v102-glossary-body{padding:4px 14px 15px}
+.v102-glossary-body>p{font:12px/1.6 system-ui,sans-serif;color:#d3e4d7}
+.v102-glossary-body dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.v102-glossary-body dl>div{padding:10px;border:1px solid #486651;border-radius:5px;min-width:0}
+.v102-glossary-body dt{font:700 12px/1.4 system-ui,sans-serif;color:#eef5ea}
+.v102-glossary-body dd{margin:5px 0 0;font:12px/1.6 system-ui,sans-serif;color:#d3e2d6}
+@media(max-width:800px){.v102-glossary-body dl{grid-template-columns:1fr}}
+@media(max-width:420px){
+ html,body,.shell,.workspace,.main-space,.chart-main,.side-rail{min-width:0!important}
+ html[data-geogeek-embedded="true"] .shell{min-width:0!important}
+ .nav-scroll,.plot-scroll{min-width:0;max-width:100%;overflow-x:auto;scrollbar-width:thin}
+ .workspace-head,.chart-main,.controls,.control-scroll{min-width:0}
+ .tab,.plot-tab,.switch,.rt-choice,.ghost-btn,.action-btn{min-height:44px}
+ .v102-current-view-actions{padding:9px}
+ .v102-current-view-actions .ghost-btn{flex:1 1 125px}
+}
+@media(max-width:340px){.v102-current-view-actions .ghost-btn{flex:1 1 100%}}
+@media(prefers-reduced-motion:reduce){
+ .v102-chart-equivalent,.v102-sci-glossary,.v102-current-view-actions{transition:none}
+}
