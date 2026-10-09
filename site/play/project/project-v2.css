@@ -421,6 +421,11 @@
   .play-v2-shell[data-play-kind="project"] .project-v2-legend-line.is-geodesic {
     border-color: var(--play-action,#d8794e);
   }
+  .play-v2-shell[data-play-kind="project"][data-play-state="routeTransforming"] .project-v2-legend-line.is-judgment,
+  .play-v2-shell[data-play-kind="project"][data-play-state="routeResult"] .project-v2-legend-line.is-judgment {
+    border-top-style: dashed;
+    border-color: rgba(237,236,229,.56);
+  }
   .play-v2-shell[data-play-kind="project"] .project-v2-evidence-choice {
     color: var(--play-fg,#edece5);
     font: 670 15px/1.35 var(--play-font-interface,sans-serif);
