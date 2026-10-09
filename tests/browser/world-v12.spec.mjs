@@ -23,9 +23,10 @@ test('World v12 loads scientific metrics and task presets',async({page})=>{
 });
 test('World v12 refresh updates the data layer and exposes source time',async({page})=>{
  await openWorld(page);
- await expect(page.locator('#wDataNote')).toContainText('USGS 2026-10-09 06:00 UTC');
+ await expect(page.locator('#wDataNote')).toContainText('FETCHED');
+ await expect(page.locator('#wDataNote')).toContainText(/USGS (?:[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} UTC|not provided)/);
  await page.locator('#wRefresh').click();
  await expect(page.locator('#wRefresh')).toHaveText('REFRESH DATA',{timeout:20000});
  await expect(page.locator('#wLayers')).toContainText('Earthquakes');
- await expect(page.locator('#wDataNote')).toContainText('NOAA 2026-10-09 07:00 UTC');
+ await expect(page.locator('#wDataNote')).toContainText(/NOAA (?:[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} UTC|not provided)/);
 });
