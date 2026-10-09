@@ -1,6 +1,6 @@
 # PLAY Desktop V2 — Design System
 
-Status: baseline direction, pending final token implementation in STEP 03. Values below are design targets, not currently deployed styles.
+Status: shared tokens and representative Project / Light styles implemented in STEP 03. Full-viewport composition remains STEP 04; instrument-specific redesigns remain STEPS 05–10.
 
 ## Product character
 
@@ -34,7 +34,7 @@ Reference dimensions, subject to verified content fit:
 - At reduced desktop heights, prioritize canvas height and make auxiliary rail content scroll, never shrink interactive target areas below usable sizes.
 - Use CSS grid/flex; avoid layout based on fixed image-space percentages alone.
 
-## Provisional palette
+## Implemented palette
 
 | Token | Hex | Use |
 | --- | --- | --- |
@@ -44,6 +44,10 @@ Reference dimensions, subject to verified content fit:
 | `--play-action` | `#D8794E` | Committed judgment and primary interactions |
 | `--play-reference` | `#8FB5AC` | Reference, verified relation, before/after evidence |
 | `--play-error` | `#C76055` | Invalid connection or error, with text explanation |
+| `--play-focus` | `#E9C99A` | Visible focus ring |
+| `--play-muted` | `#AEBBB2` | Supporting text |
+| `--play-subtle` | `#87978B` | Secondary annotations |
+| `--play-panel-raised` | `#202B24` | Raised panels |
 
 Secondary text, grid lines and background tints must be adjusted against actual instrument artwork. Never encode state by color alone. Preserve distinguishable dash patterns or labels for judgment, baseline, reference and invalid states.
 
@@ -91,6 +95,44 @@ Secondary text, grid lines and background tints must be adjusted against actual 
 
 No decorative leaderboards, badges, gradient-heavy cards, gratuitous animated backgrounds, high-gloss reflections, or fabricated numeric precision. Avoid importing an unrelated visual component library.
 
-## Approval at STEP 03
+## Implementation contract — STEP 03
 
-Finalize tokens only after side-by-side samples of a map-dominant instrument (Project) and a multiscale scene (Light). Record any change to this document and the reasons in `STATUS.md`.
+Canonical tokens live in `site/play/play-design-system.css`. Both `create()` and `createV2()` in `site/play/play-shell.js` register this stylesheet through `GeoPlay.core.ensureStyle()` with the key `play-design-system`.
+
+The stylesheet scopes all rules under `.play-shell` or `.play-v2-shell`. It does not modify `:root`, `body`, the Lab collection or Observatory. Do not extend these selectors to non-PLAY surfaces.
+
+| Token group | Implemented names | Values / purpose |
+| --- | --- | --- |
+| Typography | `--play-font-display`, `--play-font-interface`, `--play-font-data` | Serif heading; sans UI; monospace scientific values |
+| Type scale | `--play-font-body-size`, `--play-font-label-size` | 14px body; 11px instrument labels |
+| Spacing | `--play-space-1` through `--play-space-6` | 4, 8, 12, 16, 24, 32px |
+| Geometry | `--play-radius-control`, `--play-radius-panel` | 8px, 12px |
+| Linework | `--play-line`, `--play-line-strong` | 18% / 32% ivory lines |
+| Motion | `--play-motion-fast`, `--play-motion-standard`, `--play-ease` | 160ms, 280ms, ease curve |
+| Semantics | `--play-action-hover`, `--play-reference-text`, `--play-action-text` | Readable state colors |
+
+Existing V2 variables (`--play-v2-bg`, `--play-v2-fg`, `--play-v2-muted`, `--play-v2-line`, `--play-v2-action`, `--play-v2-reference`, `--play-v2-invalid`) are temporary aliases. The legacy shell uses `--play-signal` as an alias. New instrument styles should use canonical `--play-*` names.
+
+## Component contracts
+
+1. Primary actions use copper; hover increases emphasis without changing meaning.
+2. Secondary actions stay neutral. Competing decisions must not imply a recommended answer.
+3. Prediction choices use a teal selected state. Hover must never erase the selected state.
+4. Disabled buttons keep their semantic `disabled` attribute, reduced emphasis and a blocked cursor.
+5. Buttons, interactive SVG nodes and range inputs show a 2px warm-ivory `:focus-visible` ring with a 3px offset.
+6. Numerical readouts retain explicit units. Never mix relative teaching paths with quantitative Rrs.
+7. Graph states remain distinguishable by labels or line patterns, not color alone.
+
+## Motion and contrast
+
+PLAY respects `prefers-reduced-motion: reduce` without affecting other modules. Project and Light demonstrate the new text tiers and control states. Map/canvas drawing accuracy, fixed panel positions and legacy layout are unchanged in this step.
+
+## Representative visual checks
+
+The design contract is exercised in `tests/browser/play-design-system.spec.mjs`. Capture Project and Light at 1920×1080, 1440×900 and 1366×768. Check the original Orient shell receives the same base tokens. Review screenshots side by side before concluding that the sample styles are ready for the full-viewport shell.
+
+Full-page chrome, rail geometry, task-panel relocation, map linework, Light scene composition and other instrument-specific changes are reserved for STEPS 04–10. Browser zoom at 125% and final full-suite accessibility sign-off remain STEP 12.
+
+## Acceptance
+
+Report actual pass/fail results, screenshot evidence and known remaining work in `ACCEPTANCE.md` and `STATUS.md`. Design tokens alone do not constitute full visual sign-off.
