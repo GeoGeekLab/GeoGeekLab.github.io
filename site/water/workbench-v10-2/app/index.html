@@ -489,7 +489,7 @@ const controls=createParameterComponents({state:store.state});
 const workbench=createWorkbench({store,models,charts,controls});
 const exports=createExports({store,models,notify:workbench.notify});
 store.subscribe(scope=>{
- if(scope==='chart')workbench.chart();
+ if(scope==='chart'){workbench.chart();workbench.status();}
  else if(scope==='full')workbench.render();
 });
 bindWorkbenchEvents({store,workbench,exports});
@@ -974,6 +974,7 @@ return {createParameterComponents};
 "app/workbench.js": function(require){
 const {WORKSPACES} = require("workspaces/index.js");
 const {f} = require("core/numbers.js");
+const {renderGroupedNavigation,renderScientificStatus}=require("components/workbench-shell.js");
 const $=id=>document.getElementById(id);
 // DOM presentation only. State transitions live in the event controller.
 function createWorkbench({store,models,charts,controls}){
@@ -983,8 +984,19 @@ function createWorkbench({store,models,charts,controls}){
  const active=()=>WORKSPACES[state.tab]||WORKSPACES.iop;
  function navigation(){
   const nav=$('mainNav');
-  if(nav.querySelectorAll('[data-tab]').length!==Object.keys(WORKSPACES).length){nav.innerHTML=Object.values(WORKSPACES).map(w=>`<button type="button" class="tab" role="tab" id="tab-${w.id}" data-tab="${w.id}" aria-selected="${state.tab===w.id}" aria-controls="mainContent"><span class="no">${w.no}</span>${w.label}</button>`).join('');}
-  else nav.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(state.tab===b.dataset.tab)));
+  if(nav.querySelectorAll('[data-tab]').length!==Object.keys(WORKSPACES).length)nav.innerHTML=renderGroupedNavigation(state.tab,Object.values(WORKSPACES));
+  else nav.querySelectorAll('[data-tab]').forEach(button=>{
+   const selected=state.tab===button.dataset.tab;
+   button.setAttribute('aria-selected',String(selected));
+   button.tabIndex=selected?0:-1;
+   button.closest('.ui-nav-group')?.classList.toggle('is-current',selected);
+  });
+  $('mainContent').setAttribute('role','tabpanel');
+  $('mainContent').setAttribute('aria-labelledby','tab-'+state.tab);
+ }
+ function status(){
+  const values=renderScientificStatus(state,globalThis.GeoGeekRT101);
+  for(const [id,value] of Object.entries(values)){const el=$(id);if(el&&el.textContent!==value)el.textContent=value;}
  }
  function header(){
   const w=active();
@@ -1004,7 +1016,9 @@ function createWorkbench({store,models,charts,controls}){
   $('lockAxisBtn').textContent=state.axisLocked?'◆ Y-axis Locked':'◇ Lock Current Y-axis';
   $('panelBtn').textContent=state.showPanel?'▤ Hide Controls':'▤ Show Controls';
   $('panelBtn').setAttribute('aria-pressed',String(state.showPanel));
+  $('panelBtn').setAttribute('aria-expanded',String(state.showPanel));
   $('workspace').classList.toggle('no-rail',!state.showPanel);
+  status();
  }
  function plotNav(){
   const nav=$('plotNav'),current=[...nav.querySelectorAll('[data-plot]')].map(el=>el.dataset.plot).join('|'),needed=active().plots.map(([id])=>id).join('|');
@@ -1025,7 +1039,7 @@ function createWorkbench({store,models,charts,controls}){
  function side(){
   const node=$('controls');
   const oldScroll=node.scrollTop;
-  node.innerHTML=active().renderControls({state,controls,models,data:models.run(state.params)});
+  node.innerHTML=controls.panel(active(),active().renderControls({state,controls,models,data:models.run(state.params)}));
   node.scrollTop=lastControlsTab===state.tab?oldScroll:0;
   lastControlsTab=state.tab;
  }
@@ -1044,7 +1058,7 @@ function createWorkbench({store,models,charts,controls}){
   const el=$('toast');el.textContent=message;el.classList.add('visible');
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),2400);
  }
- return Object.freeze({render,chart,notify});
+ return Object.freeze({render,chart,status,notify});
 }
 
 return {createWorkbench};
@@ -1820,6 +1834,16 @@ function bindWorkbenchEvents({store,workbench,exports}){
   if(t.dataset.export==='bands'){exports.exportBandCSV();return;}
  }
  document.addEventListener('click',click);
+ $('mainNav').addEventListener('keydown',event=>{
+  if(!['ArrowRight','ArrowLeft','Home','End'].includes(event.key)||!event.target.closest?.('[data-tab]'))return;
+  const tabs=[...$('mainNav').querySelectorAll('[data-tab]')];
+  const index=tabs.indexOf(event.target);if(index<0)return;
+  const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:
+   event.key==='ArrowRight'?(index+1)%tabs.length:(index+tabs.length-1)%tabs.length;
+  event.preventDefault();const id=tabs[next].dataset.tab;
+  changeWorkspace(id);
+  document.getElementById('tab-'+id)?.focus({preventScroll:true});
+ });
  document.addEventListener('input',event=>{
   const t=event.target;if(!(t instanceof HTMLInputElement))return;
   if(t.dataset.range){
@@ -1881,7 +1905,18 @@ function bindWorkbenchEvents({store,workbench,exports}){
    notify('Experiment imported; model parameters and A/B scenarios restored');
   }catch(error){notify('Import rejected: '+String(error.message||error).slice(0,110));}
  });
- $('inspectBtn').addEventListener('click',()=>$('inspectorDialog').showModal());
+ const closeTools=()=>{const menu=$('toolsMenu');if(menu)menu.open=false;};
+ $('inspectBtn').addEventListener('click',()=>{closeTools();$('inspectorDialog').showModal();});
+ $('statusScopeBtn').addEventListener('click',()=>$('inspectorDialog').showModal());
+ $('exportBtn').addEventListener('click',closeTools);
+ $('importBtn').addEventListener('click',closeTools);
+ document.addEventListener('click',event=>{if(!event.target.closest?.('#toolsMenu'))closeTools();});
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&$('toolsMenu')?.open){
+   event.preventDefault();event.stopImmediatePropagation();closeTools();
+   $('toolsMenu').querySelector('summary')?.focus();
+  }
+ },true);
  $('closeInspector').addEventListener('click',()=>$('inspectorDialog').close());
  $('inspectorDialog').addEventListener('click',e=>{if(e.target===$('inspectorDialog'))$('inspectorDialog').close()});
 }
