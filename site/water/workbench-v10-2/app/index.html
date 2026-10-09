@@ -1109,7 +1109,7 @@ return {WORKSPACES};
 },
 "components/rt-science-views.js": function(require){
 /* Read-only SVG rendering. Reference arrays are immutable and never interpolated. */
-const escapeText=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;'}[c]));
+const escapeText=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=(v,d=3)=>!Number.isFinite(v)?'—':v===0?'0':Math.abs(v)<1e-3||Math.abs(v)>=100?Number(v).toExponential(2):Number(v).toFixed(d);
 const fmtSigned=v=>(v>0?'+':'')+fmt(v,5);
 const COLOR=Object.freeze({ed:'#8edfc1',eu:'#e8b27d',kd:'#8eb9f1',rt:'#8edfc1',semi:'#e8b27d',delta:'#b1a5f5'});
