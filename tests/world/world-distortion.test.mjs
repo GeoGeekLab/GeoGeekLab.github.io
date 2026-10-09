@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import '../../site/world-distortion-v12.js';
+const {local,ellipse,path}=globalThis.GeoWorldDistortion;
+const R=Math.PI/180;
+const projection=(formula,scale=100)=>Object.assign(([lon,lat])=>formula(lon*R,lat*R).map(x=>x*scale),{scale:()=>scale});
+const plate=projection((l,p)=>[l,-p]);
+const merc=projection((l,p)=>[l,-Math.log(Math.tan(Math.PI/4+p/2))]);
+const sinusoidal=projection((l,p)=>[l*Math.cos(p),-p]);
+const near=(a,b,tol=0.002)=>assert.ok(Math.abs(a-b)<tol,`expected ${a} ≈ ${b}`);
+test('equirectangular equator has local unit scales',()=>{const x=local(plate,0,0);near(x.area,1);near(x.major,1);near(x.minor,1);near(x.angleError,0)});
+test('equirectangular latitude 60 distorts east scale and area by sec(phi)',()=>{const x=local(plate,20,60);near(x.area,2);near(x.major,2);near(x.minor,1)});
+test('Mercator remains conformal and has sec^2 area inflation',()=>{const x=local(merc,20,60);near(x.area,4);near(x.major,2);near(x.minor,2);near(x.angleError,0)});
+test('sinusoidal is equal-area away from equator',()=>{for(const lat of [-65,-25,0,35,65])near(local(sinusoidal,25,lat).area,1)});
+test('limits invalid and singular projections',()=>{assert.equal(local(merc,0,90),null);assert.equal(local(null,0,0),null);assert.equal(local(projection(()=>[NaN,0]),0,0),null)});
+test('ellipse path is closed and has finite vertices',()=>{const x=ellipse(merc,12,35);assert.equal(x.points.length,49);assert.ok(path(x.points).startsWith('M'));near(x.points[0][0],x.points[48][0],0.001)});

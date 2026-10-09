@@ -83,6 +83,8 @@ jobs:
           grep -E "const VERSION = 'capture-[0-9a-f]{12}';" site/lab-real-previews.js
       - name: Build
         run: node scripts/build.mjs
+      - name: Verify World v12 release cache contract
+        run: node scripts/verify-world-v12-release.mjs
       - name: Verify ORIENT release assets
         run: |
           test -s dist/play/orient/data/places.v1.json
@@ -190,6 +192,10 @@ jobs:
           curl --fail --silent --show-error --location "$base/core/provider-stability.js" | grep -F "const RELEASE = '20261004b'"
           curl --fail --silent --show-error --location "$base/core/observatory-entry.js" | grep -F "const RELEASE = '20261004b'"
           curl --fail --silent --show-error --location "$base/orbital/orbit-catalog-source.js" | grep -F 'unified-supply-v2'
+      - name: Verify public World v12 projection workbench
+        env:
+          WORLD_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: node scripts/verify-world-v12-release.mjs --url "$WORLD_RELEASE_BASE_URL"
       - name: Verify public Water V8 measured SRF assets
         env:
           WATER_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}

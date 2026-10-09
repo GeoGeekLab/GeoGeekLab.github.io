@@ -145,7 +145,7 @@
       await loadModule(ORBIT_CATALOG_SOURCE);
       await loadModule(ORBIT_ENHANCEMENT);
     }
-    if (kind === 'world' && !window.GeoProjectionLab) await loadScript('world-projection-lab.js?v=20261008v11');
+    if (kind === 'world' && !window.GeoProjectionLab) await loadScript('world-projection-lab.js?v=20261009v12');
     if (kind === 'earth' && !window.GeoEarthTemporalLab) {
       await loadModule(EARTH_OBSERVATION_LAB);
       if (!window.GeoEarthTemporalLab) throw new Error('Earth observation Lab failed to bind the unified data-supply contract.');
