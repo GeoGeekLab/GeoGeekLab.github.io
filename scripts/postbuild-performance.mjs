@@ -44,6 +44,10 @@ function addDeferToClassicLocalScripts(html) {
     const source = attrs.match(/(?:^|\s)src\s*=\s*(['"])([^'"]+)\1/i);
     if (!source) return match;
     const src = source[2];
+    // Critical non-module scripts that export globals consumed by a subsequent
+    // inline boot entrypoint must execute in parser order, not after parsing.
+    // This escape hatch is explicit; all other classic local scripts stay deferred.
+    if (/\bdata-geogeek-sync-dependency(?:\s|=|$)/i.test(attrs)) return match;
     if (/\bdata-idle-src\s*=/i.test(attrs)) return match;
     if (/\b(?:defer|async)\b/i.test(attrs) || /\btype\s*=\s*(['"])module\1/i.test(attrs)) return match;
     if (/^(?:https?:)?\/\//i.test(src)) return match;
