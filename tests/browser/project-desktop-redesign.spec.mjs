@@ -70,6 +70,20 @@ async function areaResult(shell) {
   await expect(shell).toHaveAttribute('data-play-state','revealed');
   await expect(shell.locator('.play-v2-hud .project-v2-area-pair')).toBeVisible();
   await expect(shell.locator('.project-v2-area-pair')).toContainText('INDIA');
+  // The scientific answer must be readable without scrolling the evidence
+  // rail, including the 1366x768 desktop viewport.
+  const visible=await shell.locator('.play-v2-hud').evaluate(rail=>{
+    const rr=rail.getBoundingClientRect();
+    const selectors=['.project-v2-evidence-truth','.project-v2-evidence-readout'];
+    return selectors.map(selector=>{
+      const r=rail.querySelector(selector).getBoundingClientRect();
+      return {selector,top:r.top,bottom:r.bottom,railTop:rr.top,railBottom:rr.bottom};
+    });
+  });
+  for(const box of visible) {
+    expect(box.top,box.selector).toBeGreaterThanOrEqual(box.railTop-2);
+    expect(box.bottom,box.selector).toBeLessThanOrEqual(box.railBottom+2);
+  }
 }
 
 test('PROJECT workspace separates task, map and evidence across desktop sizes',async({page},info)=>{
