@@ -65,14 +65,14 @@ function jacobian(a){
   const percent=Math.min(100,normalized*100);
   return '<span class="u102-numeric">'+num(v,5)+'</span>'+
    '<span class="u102-heat-track" aria-hidden="true"><span class="u102-heat-fill '+(v<0?'is-negative':'is-positive')+
-   '" style="width:'+percent.toFixed(1)+'%"></span></span>'+
+   '" style="width:'+(percent/2).toFixed(1)+'%"></span></span>'+
    '<small class="u102-cell-note">column strength '+num(normalized,2)+' / 1</small>';
  });
  const steps=a.perturbations.map(p=>esc(p.parameter)+': '+esc(p.mode)+' ('+num(p.lower,4)+' → '+num(p.upper,4)+' '+esc(a.definitions.find(d=>d.id===p.parameter)?.unit||'')+')').join('; ');
  return '<section class="u9-summary u102-uncertainty"><h3>Jacobian · actual values and column-normalized intensity</h3>'+
  '<p class="u9-description">Each row is a FULL-coverage sensor band. Values are signed physical derivatives ∂Rrs/∂parameter. The header gives the unit for each column; colors are supplementary to the values.</p>'+
  '<p class="u102-formula">For each column j: intensity = |Jᵢⱼ × scaleⱼ / σ| ÷ maxᵢ |Jᵢⱼ × scaleⱼ / σ|. The denominator is computed separately for each parameter. Zero columns have intensity 0.</p>'+
- matrix+'<p class="u9-note">Reference parameter scales: '+a.definitions.map(d=>esc(d.id)+' = '+num(d.scale,3)+' '+esc(d.unit)).join('; ')+
+ '<p class="u102-heat-legend">Signed intensity scale: negative derivatives extend left in warm color; positive derivatives extend right in cool color; the center line is zero. Each side spans 0 to 1 in column-normalized magnitude. The signed number remains authoritative.</p>'+matrix+'<p class="u9-note">Reference parameter scales: '+a.definitions.map(d=>esc(d.id)+' = '+num(d.scale,3)+' '+esc(d.unit)).join('; ')+
  '. Hypothetical σ = '+num(a.noise.sigmaRrsSr1,6)+' sr⁻¹. The displayed derivatives remain in physical units, not normalized units.</p>'+
  '<p class="u9-description">Bounded finite differences: '+steps+'.</p>'+
  '<p class="u9-note">Excluded non-full-coverage bands: '+(a.dropped.length?a.dropped.map(x=>esc(x.id)+' ('+esc(x.status)+')').join(', '):'none')+'. There is no silent SRF extrapolation.</p>'+
