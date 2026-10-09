@@ -122,6 +122,7 @@ jobs:
           node --test site/water/workbench-v10-2/tests/ui-foundation.test.mjs
           node --test site/water/workbench-v10-2/tests/ui-components.test.mjs
           node --test site/water/workbench-v10-2/tests/rt-ui.test.mjs
+          node --test site/water/workbench-v10-2/tests/bootstrap-order.test.mjs
           node --test site/water/workbench-v10-2/tests/physics-ui.test.mjs
           npm run qa
           node scripts/verify-play-live-release.mjs --local
