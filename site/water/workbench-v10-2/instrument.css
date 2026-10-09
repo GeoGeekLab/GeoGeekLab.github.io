@@ -1,3 +1,8 @@
+/* Water has its own result/control switch. Host Focus/Work/Inspect density tabs
+ * add an unintended second header row below 1040px: keep them hidden. */
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-workspace-modes{
+ display:none!important;
+}
 /* v10.2 stage-2 preview: compact host chrome only for waterVersion=v102.
  * All other Lab instruments, V9, V10.0 and V10.1 retain their existing layout.
  */
