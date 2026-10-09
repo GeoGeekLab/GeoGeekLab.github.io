@@ -1213,81 +1213,150 @@ return {esc:escapeText,fmt,fmtSigned,COLOR,chartCard,depthProfile,spectralChart,
 },
 "workspaces/rt.js": function(require){
 const {TABS,plots}=require("core/config.js");
-const {f}=require("core/numbers.js");
-function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
-function linePlot({heading,desc,series,xLabel,yLabel,xs,labels,height=230}){
- const W=720,H=height,L=66,R=22,T=30,B=42;
- const all=series.flatMap(s=>s.ys).filter(Number.isFinite);
- const max=Math.max(...all,0)*1.12||1;
- const left=Math.min(...xs),right=Math.max(...xs);
- const X=x=>L+(x-left)/Math.max(1,right-left)*(W-L-R);
- const Y=y=>H-B-Math.max(0,y)/max*(H-T-B);
- const grid=[0,.25,.5,.75,1].map(t=>'<line x1="'+L+'" y1="'+Y(t*max)+'" x2="'+(W-R)+'" y2="'+Y(t*max)+'" stroke="#395446" stroke-dasharray="3 6"/><text x="'+(L-7)+'" y="'+(Y(t*max)+4)+'" text-anchor="end" class="rt-axis">'+(t*max).toPrecision(3)+'</text>').join('');
- const xticks=xs.filter((v,i)=>i===0||i===xs.length-1||i===Math.floor((xs.length-1)/2)).map(v=>'<text class="rt-axis" x="'+X(v)+'" y="'+(H-18)+'" text-anchor="middle">'+esc(v)+'</text>').join('');
- const lines=series.map((s,si)=>{
-  const color=s.color||["#a3d9bf","#e8bb83","#86b7e4"][si%3];
-  const poly=xs.map((v,i)=>Number.isFinite(s.ys[i])?X(v).toFixed(1)+','+Y(s.ys[i]).toFixed(1):null).filter(Boolean).join(' ');
-  const dots=xs.map((x,i)=>Number.isFinite(s.ys[i])?'<circle cx="'+X(x)+'" cy="'+Y(s.ys[i])+'" r="3.2" fill="'+color+'"><title>'+esc(s.name)+' · '+x+': '+s.ys[i].toPrecision(5)+'</title></circle>':'').join('');
-  return '<polyline points="'+poly+'" fill="none" stroke="'+color+'" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'+dots;
- }).join('');
- const legend=series.map((s,i)=>'<span class="rt-key"><i style="background:'+(s.color||["#a3d9bf","#e8bb83","#86b7e4"][i%3])+'"></i>'+esc(s.name)+'</span>').join('');
- return '<section class="rt-card"><header class="rt-card-head"><div><h3>'+esc(heading)+'</h3><p>'+esc(desc)+'</p></div></header><div class="rt-legend">'+legend+'</div><svg viewBox="0 0 '+W+' '+H+'" class="rt-svg" role="img" aria-label="'+esc(heading+'. '+yLabel+' versus '+xLabel)+'"><title>'+esc(heading)+'</title><desc>'+esc(desc)+'</desc>'+grid+'<path d="M'+L+' '+T+'V'+(H-B)+'H'+(W-R)+'" stroke="#78998a" fill="none"/>'+xticks+lines+'<text class="rt-axis" x="'+(W/2)+'" y="'+(H-2)+'" text-anchor="middle">'+esc(xLabel)+'</text><text class="rt-axis" x="'+L+'" y="17">'+esc(yLabel)+'</text></svg></section>';
+const {esc,fmt,fmtSigned,COLOR,chartCard,depthProfile,spectralChart,residualChart,dataTable}=require("components/rt-science-views.js");
+const refNote='Internal scalar DOM reference · NOT EXTERNALLY BENCHMARKED';
+function controlGroup(label,items,name,current){
+ return '<fieldset class="rt-choice-fieldset"><legend>'+esc(label)+'</legend><div class="rt-buttons" role="group" aria-label="'+esc(label)+'">'+items.map(v=>
+  '<button class="rt-choice" type="button" data-'+name+'="'+esc(v.value)+'" aria-pressed="'+(current===v.value)+'">'+esc(v.label)+'</button>'
+ ).join('')+'</div></fieldset>';
 }
-function flags(engine,state,c){
- const matched=engine.matches(state.params,state.rtCase,state.rtSun);
- return '<div class="rt-state-row"><span class="rt-status '+(matched?'rt-ok':'rt-warn')+'">'+(matched?'CURRENT WATER IOP / SUN: MATCHED':'CURRENT WORKBENCH STATE: DIFFERENT')+'</span><span class="rt-status">REFERENCE: SELF-GENERATED · NOT EXTERNALLY BENCHMARKED</span></div>'+
- '<p class="rt-prose">'+(matched?'Current semi-analytical rrs is evaluated at the same parameter vector and nominal in-water sun angle as the reference.':'Plots always compare archived reference and semi-analytical outputs for the same stored IOP case. Current Water Optics sliders are not being compared. Use “Load matched case” to synchronize them.')+'</p>';
+function resultCard(label,value,note){
+ return '<div class="rt-science-result"><span>'+esc(label)+'</span><strong>'+esc(value)+'</strong><small>'+esc(note)+'</small></div>';
 }
-function controlsGroup(label,items,dataKey,current){
- return '<div class="rt-select-grid"><span class="rt-control-name">'+esc(label)+'</span><div class="rt-buttons">'+items.map(x=>'<button type="button" class="rt-choice" data-'+dataKey+'="'+esc(x.value)+'" aria-pressed="'+(current===x.value)+'">'+esc(x.label)+'</button>').join('')+'</div></div>';
+function summary(eng,state,c,r,k){
+ const matched=eng.matches(state.params,state.rtCase,state.rtSun);
+ return '<section class="rt-science-status '+(matched?'rt-science-matched':'rt-science-unmatched')+'" aria-label="Comparison input status">'+
+  '<div><strong>'+(matched?'✓ Current IOP state matches this reference':'ⓘ Current IOP state differs from the reference')+'</strong><p>'+
+  (matched?'The current workbench parameters equal the archived optical scenario and nominal in-water sun angle.':
+   'All graphs below use the same archived IOP case for BOTH models, not the current Water Optics sliders. No mismatched comparison is performed.')+
+  '</p></div>'+(matched?'<span class="rt-science-status-detail">MATCHED</span>':
+  '<button type="button" class="rt-science-sync" data-rt-apply="1">Load matched case <span aria-hidden="true">→</span></button>')+'</section>'+
+  '<div class="rt-science-conditions" aria-label="Current reference sample">'+
+   resultCard('WATER CLASS',c.label,'Archived IOP state')+
+   resultCard('SOLAR ZENITH',r.sza+'°','Prescribed in water · no refraction')+
+   resultCard('WAVELENGTH',r.nm+' nm','One of five solver nodes')+
+   resultCard('DEPTH',state.rtDepth+' m','One of ten reported samples')+'</div>'+
+  '<div class="rt-science-results" aria-label="Depth-sampled optical quantities">'+
+   resultCard('DOWNWELLING E_d / E_d0',fmt(r.Ed[k],5),'Normalized plane irradiance')+
+   resultCard('UPWELLING E_u / E_d0',fmt(r.Eu[k],5),'Normalized plane irradiance')+
+   resultCard('DIFFUSE ATTENUATION K_d',fmt(r.Kd[k],5)+' m⁻¹','Finite-difference estimate')+'</div>';
+}
+function viewContext(state){
+ if(state.plot==='angular')return {heading:'How does upward radiance depend on direction?',desc:'Sample the eight upward zenith nodes at the selected water depth. These are azimuth-averaged numerical outputs.'};
+ if(state.plot==='compare')return {heading:'How do the two subsurface models differ?',desc:'Compare five paired IOP-matched spectral nodes and inspect signed residuals. Difference is not an accuracy score.'};
+ return {heading:'How does light vary through the water column?',desc:'Depth increases downward. Irradiance is shown on a logarithmic horizontal scale; attenuation is a separate coefficient.'};
+}
+function renderDepth(r,state){
+ const selected=state.rtDepth;const index=r.depths.indexOf(selected);
+ const ed=r.Ed[index],eu=r.Eu[index],kd=r.Kd[index];
+ const chart1=chartCard('Downwelling and upwelling irradiance',
+  'Horizontal axis: log10 of Ed or Eu normalized to incident Ed-direct(0−)=1. Vertical axis: depth increasing downward. Zero values are not shown on the log axis.',
+  depthProfile({depths:r.depths,series:[{label:'E_d',data:r.Ed,color:COLOR.ed},{label:'E_u',data:r.Eu,color:COLOR.eu}],
+   selectedDepth:selected,title:'Irradiance depth profiles',desc:'Semilog horizontal normalized irradiance, depth increasing downward; plotted at the ten solved output depths.',
+   axisTitle:'Normalized plane irradiance · log10 scale',log:true}),
+  [{label:'Downwelling E_d',color:COLOR.ed},{label:'Upwelling E_u',color:COLOR.eu}]);
+ const chart2=chartCard('Diffuse attenuation coefficient',
+  'K_d is calculated as −d ln E_d / dz from discrete depths; it is not an independent field measurement.',
+  depthProfile({depths:r.depths,series:[{label:'K_d',data:r.Kd,color:COLOR.kd}],selectedDepth:selected,
+   title:'Diffuse attenuation depth profile',desc:'K_d varies with depth and is estimated from finite differences. Vertical depth increases downward.',
+   axisTitle:'K_d (m⁻¹)'}),[{label:'Local K_d',color:COLOR.kd}]);
+ const insight='<div class="rt-science-reading"><strong>At '+selected+' m</strong><p>E_d / E_d0 = '+fmt(ed,5)+
+  '; E_u / E_d0 = '+fmt(eu,5)+'; estimated K_d = '+fmt(kd,5)+' m⁻¹. These values are from the selected fixed IOP and wavelength case, not from a new interactive RT calculation.</p></div>';
+ const table=dataTable({caption:'Discrete irradiance and attenuation · '+r.nm+' nm, '+r.sza+'° in water',
+  headers:['Depth (m)','E_d / E_d0','E_u / E_d0','K_d (m⁻¹)'],
+  rows:r.depths.map((z,i)=>[z,fmt(r.Ed[i],7),fmt(r.Eu[i],7),fmt(r.Kd[i],7)])});
+ return insight+'<div class="rt-science-plot-grid">'+chart1+chart2+'</div>'+table;
+}
+function renderAngular(r,state,eng){
+ const mu=eng.dataset.grid.upwardMu;
+ const values=mu.map((m,i)=>({m:Math.abs(m),value:r.Lu[r.depths.indexOf(state.rtDepth)][i]}))
+  .sort((a,b)=>a.m-b.m);
+ const x=values.map(v=>v.m),y=values.map(v=>v.value);
+ const nearNadir=values.at(-1);
+ const svgChart=spectralChart({xs:x,series:[{label:'Azimuth-averaged L_u',data:y,color:COLOR.rt}],
+  title:'Upward radiance across eight direction nodes',
+  desc:'Eight upward zenith Gauss nodes. Horizontal coordinate is absolute directional cosine; no sun-relative azimuth is resolved.',
+  selectedWavelength:-1,unit:'L_u / E_d0 (sr⁻¹)'});
+ const chart=chartCard('Upward radiance at z = '+state.rtDepth+' m',
+  '|μ| = 0 indicates the upward horizon and |μ| = 1 is exactly upward nadir. Points are solved quadrature nodes, not an interpolated viewing-angle field.',
+  svgChart,[{label:'Azimuth-averaged L_u',color:COLOR.rt}]);
+ const explanation='<div class="rt-science-reading"><strong>Interpretation</strong><p>Near-nadir node |μ| = '+
+  fmt(nearNadir.m,4)+' has L_u / E_d0 = '+fmt(nearNadir.value,6)+' sr⁻¹ at this depth. The solver reports a scalar azimuthal average, NOT a 2D sun-relative azimuthal field. The comparison view uses this near-nadir node at z = 0−, not exactly μ = −1.</p></div>';
+ const table=dataTable({caption:'Azimuth-averaged upward radiance at '+state.rtDepth+' m · '+r.nm+' nm',
+  headers:['μ (upward, negative)','|μ|','L_u / E_d0 (sr⁻¹)'],
+  rows:values.map(x=>[-x.m.toFixed(9),fmt(x.m,7),fmt(x.value,9)])});
+ return explanation+'<div class="rt-science-plot-grid rt-science-one">'+chart+'</div>'+table;
+}
+function renderCompare(c,state,r){
+ const records=c.records.filter(x=>x.sza===state.rtSun).sort((a,b)=>a.nm-b.nm);
+ const wavelengths=records.map(x=>x.nm),reference=records.map(x=>x.rrs),semi=records.map(x=>x.semiRrs);
+ const residual=records.map(x=>x.semiRrs-x.rrs);
+ const bias=residual.reduce((sum,v)=>sum+v,0)/residual.length;
+ const rmse=Math.sqrt(residual.reduce((sum,v)=>sum+v*v,0)/residual.length);
+ const spectral=chartCard('Below-surface reflectance at matched IOPs',
+  'Five fixed spectral nodes only. Discrete markers are not a continuous sensor spectrum. Both products are subsurface r_rs in sr⁻¹.',
+  spectralChart({xs:wavelengths,series:[{label:'Numerical scalar DOM (near nadir)',data:reference,color:COLOR.rt},
+  {label:'Semi-analytical r_rs',data:semi,color:COLOR.semi}],
+   title:'Five matched subsurface reflectance values',desc:'Paired numerical and semi-analytical subsurface r_rs on exactly the same archived IOP case. No above-water Rrs.',
+   selectedWavelength:state.rtWl,unit:'Subsurface r_rs (sr⁻¹)'}),
+  [{label:'Numerical RT near nadir',color:COLOR.rt},{label:'Semi-analytical',color:COLOR.semi}]);
+ const differences=chartCard('Signed model discrepancy · semi-analytical − RT',
+  'Residual above zero means the semi-analytical value is larger at that node. This is model discrepancy, not observational error.',
+  residualChart({xs:wavelengths,values:residual,title:'Signed differences between subsurface model predictions',
+  desc:'Δr_rs equals semi-analytical r_rs minus near-nadir numerical RT r_rs at each fixed wavelength; signed about zero.'}),
+  [{label:'Signed Δr_rs',color:COLOR.delta}]);
+ const s='<div class="rt-science-reading"><strong>Interpretation</strong><p>Five-node mean signed difference = '+
+  fmtSigned(bias)+' sr⁻¹; RMSE = '+fmt(rmse,6)+' sr⁻¹. '+
+  'Both series use archived matching IOPs, but their scattering and viewing assumptions differ. A smaller RMSE is not evidence of accuracy without an external reference.</p></div>';
+ const stats='<div class="rt-science-results rt-science-compare-stats">'+
+  resultCard('MEAN BIAS · SEMI − RT',fmtSigned(bias)+' sr⁻¹','Five sampled wavelengths; signed discrepancy')+
+  resultCard('PAIRWISE SPECTRAL RMSE',fmt(rmse,6)+' sr⁻¹','Internal model difference · NOT validation')+'</div>';
+ const table=dataTable({caption:'Five-node matched subsurface r_rs (sr⁻¹), solar zenith '+state.rtSun+'° in water',
+  headers:['Wavelength (nm)','Numerical RT r_rs (sr⁻¹)','Semi-analytical r_rs (sr⁻¹)','Semi − RT Δr_rs (sr⁻¹)'],
+  rows:records.map((x,i)=>[x.nm,fmt(x.rrs,9),fmt(x.semiRrs,9),fmtSigned(residual[i])])});
+ return s+stats+'<div class="rt-science-plot-grid">'+spectral+differences+'</div>'+table;
 }
 const rtWorkspace={
  ...TABS.at(-1),plots:plots.rt,
  renderControls({state,controls}){
-  const eng=globalThis.GeoGeekRT101,meta=eng?.caseData(state.rtCase);
-  let h=controlsGroup('WATER CLASS',[
-   {value:'clear',label:'CLEAR OCEAN'},{value:'phyto',label:'PHYTO-RICH'},{value:'cdom',label:'CDOM-RICH'}],'rt-case',state.rtCase);
-  h+=controlsGroup('SUN ZENITH IN WATER',eng?.suns.map(n=>({value:n,label:n+'°'}))||[],'rt-sun',state.rtSun);
-  h+=controlsGroup('WAVELENGTH · SAMPLED',eng?.wavelengths.map(n=>({value:n,label:n+' nm'}))||[],'rt-wl',state.rtWl);
-  h+=controlsGroup('DEPTH · SAMPLED',eng?.depths.map(n=>({value:n,label:n+' m'}))||[],'rt-depth',state.rtDepth);
-  h+='<button type="button" class="rt-primary" data-rt-apply="1" '+(meta?'':'disabled')+'>Load matched water IOP &amp; nominal sun state →</button>';
-  h+='<p class="rt-side-warning">Discrete reference grid only. Solar angle is imposed IN WATER without refraction. No wavelength/angle extrapolation. No interpolation is used between water classes.</p>';
-  return controls.csection('RT REFERENCE CASE','3 optical waters · fixed IOPs',h);
+  const eng=globalThis.GeoGeekRT101;
+  let form=controlGroup('Water type · fixed optical class',[
+   {value:'clear',label:'Clear ocean'},{value:'phyto',label:'Phytoplankton-rich'},{value:'cdom',label:'CDOM-rich'}],'rt-case',state.rtCase);
+  form+=controlGroup('In-water solar zenith',eng?.suns.map(n=>({value:n,label:n+'°'}))||[],'rt-sun',state.rtSun);
+  form+=controlGroup('Wavelength · five sampled nodes',eng?.wavelengths.map(n=>({value:n,label:n+' nm'}))||[],'rt-wl',state.rtWl);
+  form+=controlGroup('Sampled depth',eng?.depths.map(n=>({value:n,label:n+' m'}))||[],'rt-depth',state.rtDepth);
+  form+='<p class="rt-science-control-note">This is a fixed numerical reference grid. Buttons select precomputed data; no arbitrary wavelength, phase function or sun-angle forward model is solved in the browser.</p>';
+  return controls.csection('Choose reference conditions','Discrete, prescribed IOP and geometry nodes',form);
  },
- renderChart({state,data,charts}){
+ renderChart({state}){
   const eng=globalThis.GeoGeekRT101;
   if(!eng||eng.status!=='ready'){
-   return '<div class="rt-shell"><div class="rt-eyebrow">NUMERICAL REFERENCE / '+esc(eng?.status||'missing')+'</div><section class="rt-card rt-empty"><h3>Reference dataset unavailable</h3><p>'+esc(eng?.error||'Loading the fixed DOM reference slices…')+'</p><p>No simulated light-field values will be invented while loading fails.</p><button type="button" class="rt-primary" data-rt-retry="1">Retry reference loading</button></section></div>';
+   return '<section class="rt-shell rt-science-workspace"><div class="rt-science-hero"><span class="rt-science-kicker">WORKSPACE 09 / WATER RT</span><h2>Underwater light, resolved by depth and direction</h2></div>'+
+    '<section class="rt-card rt-empty" role="status"><h3>Reference dataset unavailable</h3><p>'+esc(eng?.error||'Loading the fixed DOM reference slices…')+'</p>'+
+    '<p>No simulated light-field values will be invented while loading fails.</p><button type="button" class="rt-primary" data-rt-retry="1">Retry reference loading</button></section></section>';
   }
   const c=eng.caseData(state.rtCase),r=eng.record(state.rtCase,state.rtSun,state.rtWl);
-  if(!c||!r)return '<div class="rt-shell"><p role="alert">No matching discrete reference node. No extrapolation.</p></div>';
-  const k=r.depths.indexOf(state.rtDepth);
-  const num=n=>Number.isFinite(n)?(Math.abs(n)<.001?n.toExponential(2):n.toFixed(5)):'—';
-  const compare=c.records.filter(x=>x.sza===state.rtSun).sort((x,y)=>x.nm-y.nm);
-  const rmse=Math.sqrt(compare.reduce((s,v)=>s+Math.pow(v.semiRrs-v.rrs,2),0)/compare.length);
-  const bias=compare.reduce((s,v)=>s+v.semiRrs-v.rrs,0)/compare.length;
-  let content='<div class="rt-shell"><div class="rt-intro"><div><div class="rt-eyebrow">WORKSPACE 09 · WATER RADIATIVE TRANSFER</div><h2>Depth, direction &amp; model discrepancy</h2><p>Scalar plane-parallel discrete ordinates · azimuth-averaged HG phase · clear no-interface boundary</p></div><div class="rt-symbol" aria-hidden="true">μ<sub>↑</sub> · z ↓</div></div>';
-  content+=flags(eng,state,c);
-  content+='<div class="rt-metrics">'+[
-   ['CASE',c.label,'fixed IOP scenario'],['PROBE',r.nm+' nm · '+r.sza+'°','discrete spectral / solar node'],
-   ['Ed('+state.rtDepth+'m) / Ed(0−)',num(r.Ed[k]),'normalized irradiance'],
-   ['Eu('+state.rtDepth+'m) / Ed(0−)',num(r.Eu[k]),'normalized irradiance'],
-   ['Kd('+state.rtDepth+'m)',num(r.Kd[k])+' m⁻¹','local finite-depth estimate']
-  ].map(v=>'<div class="rt-metric"><small>'+esc(v[0])+'</small><strong>'+esc(v[1])+'</strong><span>'+esc(v[2])+'</span></div>').join('')+'</div>';
-  if(state.plot==='depth'){
-   content+='<div class="rt-grid">'+linePlot({heading:'Plane irradiance with depth',desc:'Ed includes collimated beam plus diffuse downwelling; Eu is diffuse upwelling.',series:[{name:'Ed / incident Ed',ys:r.Ed,color:'#a3d9bf'},{name:'Eu / incident Ed',ys:r.Eu,color:'#e8bb83'}],xs:r.depths,xLabel:'Depth z · m',yLabel:'Normalized irradiance',height:230})+
-    linePlot({heading:'Diffuse attenuation · Kd(z)',desc:'Finite differences of −d ln[Ed]/dz at the sampled depths; not an independently measured Kd.',series:[{name:'Kd(z)',ys:r.Kd,color:'#86b7e4'}],xs:r.depths,xLabel:'Depth z · m',yLabel:'Kd · m⁻¹',height:230})+'</div>';
-  }else if(state.plot==='angular'){
-   const values=r.Lu[k].slice(0,eng.dataset.grid.upwardMu.length);
-   const absMu=eng.dataset.grid.upwardMu.map(m=>Math.abs(m));
-   content+=linePlot({heading:'Upward angular radiance · z = '+state.rtDepth+' m',desc:'Azimuth-averaged radiance at eight upward Gauss–Legendre zenith nodes; NOT a 2D sun-relative azimuthal field.',series:[{name:'Lu / incident Ed',ys:values,color:'#a3d9bf'}],xs:absMu,xLabel:'|μ| = cos(upward zenith) · 0=horizon, 1=nadir',yLabel:'Lu / Ed(0−) · sr⁻¹',height:265});
-   content+='<p class="rt-prose">Viewing angles are quadrature nodes. Near-nadir comparison uses the most vertical available upward node (|μ|='+Math.abs(eng.dataset.grid.upwardMu[0]).toFixed(3)+'); it is not exactly μ=−1.</p>';
-  }else{
-   content+=linePlot({heading:'Matched below-surface rrs',desc:'Reference numerically integrates the scalar RTE. The legacy Gordon/GIOP-style relation is evaluated on the SAME IOP case. Both are subsurface quantities in sr⁻¹.',series:[{name:'Discrete-ordinate RT (near nadir)',ys:compare.map(x=>x.rrs),color:'#a3d9bf'},{name:'V9/V10 semi-analytical rrs',ys:compare.map(x=>x.semiRrs),color:'#e8bb83'}],xs:compare.map(x=>x.nm),xLabel:'Wavelength · nm (five discrete nodes)',yLabel:'Subsurface rrs · sr⁻¹',height:265});
-   content+='<div class="rt-metrics rt-two"><div class="rt-metric"><small>MEAN SEMI − RT BIAS</small><strong>'+num(bias)+' sr⁻¹</strong><span>Five wavelengths; not an accuracy validation</span></div><div class="rt-metric"><small>PAIRWISE SPECTRAL RMSE</small><strong>'+num(rmse)+' sr⁻¹</strong><span>Same optical inputs, distinct scattering assumptions</span></div></div>';
+  if(!c||!r||!r.depths.includes(state.rtDepth)){
+   return '<section class="rt-shell rt-science-workspace"><p role="alert">No matching discrete reference node. No extrapolation.</p></section>';
   }
-  content+='<div class="rt-bottom"><strong>Scientific scope</strong><p>Elastic-only, homogeneous optically deep ocean; HG g=0.8 and b=bb/fb; sun direction imposed within water; no Fresnel/refraction, azimuthal anisotropy, waves, atmosphere, bottom, Raman or fluorescence. Self-generated solver has internal residual and quadrature checks, but no external HydroLight/DISORT validation.</p><span>Solver '+esc(eng.dataset.referenceEngine)+' · residual '+esc(r.residual)+' · '+r.iterations+' iterations · normalized Ed-direct(0−)=1</span></div></div>';
-  return content;
+  const index=r.depths.indexOf(state.rtDepth),context=viewContext(state);
+  let page='<div class="rt-shell rt-science-workspace">'+
+   '<header class="rt-science-hero"><span class="rt-science-kicker">WORKSPACE 09 · DISCRETE NUMERICAL REFERENCE</span>'+
+   '<h2>Underwater light, resolved by depth and direction</h2>'+
+   '<p>Explore a self-generated scalar RT calculation, then compare its subsurface output with the existing semi-analytical model.</p></header>';
+  page+=summary(eng,state,c,r,index);
+  page+='<section class="rt-science-view" aria-labelledby="rt-view-title"><header class="rt-science-view-head"><span>ACTIVE ANALYSIS / '+esc(state.plot.toUpperCase())+'</span>'+
+   '<h3 id="rt-view-title">'+esc(context.heading)+'</h3><p>'+esc(context.desc)+'</p></header>';
+  if(state.plot==='angular')page+=renderAngular(r,state,eng);
+  else if(state.plot==='compare')page+=renderCompare(c,state,r);
+  else page+=renderDepth(r,state);
+  page+='</section><details class="rt-science-method"><summary>Numerical method, normalization and scientific limitations</summary>'+
+   '<p>Solver '+esc(eng.dataset.referenceEngine)+'; current node source-iteration residual '+esc(r.residual)+' after '+r.iterations+' iterations. '+
+   'The reference assumes a homogeneous, optically deep, elastic-only water column; an azimuth-averaged scalar 16-stream solver; a prescribed HG scattering phase (g = 0.8) with b = b_b/f_b. '+
+   'Incident direct downwelling E_d(0−)=1; the solar angle is imposed inside water. No water–air Fresnel/refraction, true azimuthal field, atmosphere, seabed, Raman scattering or fluorescence. '+
+   'Internal numerical consistency is not independent HydroLight/DISORT or field validation. Outputs are discrete precomputed samples, not measured ocean data.</p></details>'+
+   '<p class="rt-science-provenance">REFERENCE: SELF-GENERATED · NOT EXTERNALLY BENCHMARKED · Five spectral nodes / ten reported depths / eight upward directions</p></div>';
+  return page;
  }
 };
 return {rtWorkspace};
