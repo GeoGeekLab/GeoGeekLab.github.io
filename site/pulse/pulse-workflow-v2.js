@@ -130,10 +130,10 @@
     // Keep the one set of map zoom controls beside the map, not buried beneath
     // comparative charts in the long rail. This is especially useful on touch.
     const zoomToolbar=$('[data-pc="zoom-in"]',analysis)?.closest('.pw-actions');
-    const mapFoot=$('.pw-map-foot',map);
-    if(zoomToolbar && mapFoot) {
+    const regionSection=$('[data-pw-section="region"]',side);
+    if(zoomToolbar && regionSection) {
       zoomToolbar.classList.add('pw-map-tools');
-      mapFoot.after(zoomToolbar);
+      regionSection.querySelector('h3')?.after(zoomToolbar);
     }
     const detail = document.createElement('section');
     detail.className='pw-hover-detail';
