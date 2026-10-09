@@ -1,0 +1,43 @@
+/* Water has its own result/control switch. Host Focus/Work/Inspect density tabs
+ * add an unintended second header row below 1040px: keep them hidden. */
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-workspace-modes{
+ display:none!important;
+}
+/* v10.2 stage-2 preview: compact host chrome only for waterVersion=v102.
+ * All other Lab instruments, V9, V10.0 and V10.1 retain their existing layout.
+ */
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"][data-lab-workspace="true"] .instrument-shell{
+ grid-template-rows:auto minmax(0,1fr) !important;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-meta,
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-foot{
+ display:none!important;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-head{
+ min-height:56px!important;height:auto!important;padding:8px clamp(14px,2vw,25px)!important;
+ align-items:center!important;gap:10px!important;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-head h2{
+ font-size:clamp(20px,2.1vw,29px)!important;line-height:1.15!important;
+ margin:0!important;letter-spacing:-.025em!important;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-kicker{
+ display:none!important;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-close{
+ min-height:37px!important;min-width:42px!important;font-size:17px!important;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-stage{
+ min-height:0!important;overflow:hidden!important;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] iframe.water-v102-frame{
+ display:block;width:100%;height:100%;min-height:0;border:0;background:#0b130f;
+}
+@media(max-width:600px){
+ .instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-head{
+  min-height:48px!important;padding:6px 12px!important;
+ }
+ .instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-head h2{
+  font-size:21px!important;
+ }
+}

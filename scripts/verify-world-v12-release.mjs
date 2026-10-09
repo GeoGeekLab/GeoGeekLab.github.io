@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFile } from 'node:fs/promises';
-const RELEASE='20261008v101w12',WORLD='20261009v12';
+const RELEASE='20261009v102',WORLD='20261009v12';
 const baseArg=process.argv.indexOf('--url');
 const live=baseArg>=0;
 const baseUrl=process.argv[baseArg+1]||'';

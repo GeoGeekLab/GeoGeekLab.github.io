@@ -16,6 +16,7 @@
   const WATER_WORKBENCH_V9 = 'water/workbench-v9/instrument.js?v=9.1.0';
   const WATER_WORKBENCH_V10 = 'water/workbench-v10/instrument.js?v=10.0.0';
   const WATER_WORKBENCH_V101 = 'water/workbench-v10-1/instrument.js?v=10.1.0';
+  const WATER_WORKBENCH_V102 = 'water/workbench-v10-2/instrument.js?v=10.2.0-p4';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
@@ -164,12 +165,19 @@
         const requestedWaterVersion=new URLSearchParams(location.search).get('waterVersion');
         if(requestedWaterVersion==='v9')await loadModule(WATER_WORKBENCH_V9);
         else if(requestedWaterVersion==='v10')await loadModule(WATER_WORKBENCH_V10);
+        else if(requestedWaterVersion==='v101')await loadModule(WATER_WORKBENCH_V101);
         else {
-          try { await loadModule(WATER_WORKBENCH_V101); }
-          catch (v101Error){
-            console.warn('[GeoGeek] V10.1 module unavailable; restoring V10.0.',v101Error);
-            try { await loadModule(WATER_WORKBENCH_V10); }
-            catch (v10Error){console.warn('[GeoGeek] V10.0 unavailable; restoring V9.',v10Error);await loadModule(WATER_WORKBENCH_V9);}
+          // V10.2 stages 1–4: the new UI is the default. Revert without changing
+          // any scientific calculation by explicitly requesting waterVersion=v101.
+          try { await loadModule(WATER_WORKBENCH_V102); }
+          catch (v102Error){
+            console.warn('[GeoGeek] V10.2 UI unavailable; restoring validated V10.1.',v102Error);
+            try { await loadModule(WATER_WORKBENCH_V101); }
+            catch (v101Error){
+              console.warn('[GeoGeek] V10.1 module unavailable; restoring V10.0.',v101Error);
+              try { await loadModule(WATER_WORKBENCH_V10); }
+              catch (v10Error){console.warn('[GeoGeek] V10.0 unavailable; restoring V9.',v10Error);await loadModule(WATER_WORKBENCH_V9);}
+            }
           }
         }
       } catch (v9Error) {
