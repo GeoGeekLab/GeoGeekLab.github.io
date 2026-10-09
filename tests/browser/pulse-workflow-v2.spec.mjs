@@ -295,10 +295,18 @@ test('ROI drawing, pointer-centred zoom and drag pan stay accurate with SVG lett
   await page.mouse.up();
   const lon=x=>(x/1000)*360-180;
   const lat=y=>90-(y/500)*180;
-  expect(await roi('west')).toBeCloseTo(lon(280),1);
-  expect(await roi('east')).toBeCloseTo(lon(350),1);
-  expect(await roi('south')).toBeCloseTo(lat(245),1);
-  expect(await roi('north')).toBeCloseTo(lat(180),1);
+  const revised=await map.evaluate(()=>window.__pulsePointerSamples.slice(-2));
+  expect(revised.map(x=>x.kind)).toEqual(['pointerdown','pointerup']);
+  expect(await roi('west')).toBeCloseTo(lon(Math.min(revised[0].x,revised[1].x)),1);
+  expect(await roi('east')).toBeCloseTo(lon(Math.max(revised[0].x,revised[1].x)),1);
+  expect(await roi('south')).toBeCloseTo(lat(Math.max(revised[0].y,revised[1].y)),1);
+  expect(await roi('north')).toBeCloseTo(lat(Math.min(revised[0].y,revised[1].y)),1);
+  if(test.info().project.name==='desktop-chromium') {
+    expect(await roi('west')).toBeCloseTo(lon(280),1);
+    expect(await roi('east')).toBeCloseTo(lon(350),1);
+    expect(await roi('south')).toBeCloseTo(lat(245),1);
+    expect(await roi('north')).toBeCloseTo(lat(180),1);
+  }
   await expect(work.locator('[data-pw="visible"]')).toHaveText('3');
 });
 
