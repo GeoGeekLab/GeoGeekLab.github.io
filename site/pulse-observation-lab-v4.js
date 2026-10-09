@@ -2,7 +2,7 @@
   'use strict';
 
   const VERSION = '20261002e';
-  const BASE_SRC = 'pulse-observation-lab-v3.js?v=20261002c';
+  const BASE_SRC = 'pulse-observation-lab-v3.js?v=20261009fixed1';
   const EVENT_ATTACH_BATCH = 160;
   const previous = window.GeoPulseObservationLab;
   let basePromise = null;
