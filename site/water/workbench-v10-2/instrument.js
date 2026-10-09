@@ -6,7 +6,7 @@
 (() => {
   'use strict';
   const rootUrl = new URL('water/workbench-v10-2/', document.baseURI);
-  const stylesheet = new URL('instrument.css?v=10.2.0-p2', rootUrl).href;
+  const stylesheet = new URL('instrument.css?v=10.2.0-p4', rootUrl).href;
   const frameUrl = new URL('app/index.html', rootUrl);
   const mounts = window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};
   let sequence = 0;
@@ -27,7 +27,7 @@
     if (dialog) dialog.dataset.waterUiVersion = 'v102';
     const token = 'w' + (++sequence) + '-' + Math.random().toString(36).slice(2, 14);
     const url = new URL(frameUrl);
-    url.searchParams.set('chartfix', '10.2.0-p2');
+    url.searchParams.set('chartfix', '10.2.0-p4');
     url.searchParams.set('embed', '1');
     url.searchParams.set('instance', token);
 
@@ -56,7 +56,7 @@
         if(!settled){
           settled=true;
           clearTimeout(timeout);
-          rejectReady(new Error('Water V10.2 UI preview startup failure: '+String(event.data.message||'unknown').slice(0,180)));
+          rejectReady(new Error('Water V10.2 UI stages 1–4 startup failure: '+String(event.data.message||'unknown').slice(0,180)));
         }
       } else if (event.data.type === 'geogeek:water-v5:escape') {
         if (document.getElementById('instrumentDialog')?.open &&
@@ -85,7 +85,7 @@
     timeout = setTimeout(() => {
       if (settled) return;
       settled = true;
-      rejectReady(new Error('Water V10.2 UI preview did not initialize within 15 seconds'));
+      rejectReady(new Error('Water V10.2 UI stages 1–4 did not initialize within 15 seconds'));
     }, 15000);
     frame.src = url.href;
 
@@ -98,8 +98,8 @@
       return cleanup;
     } catch (error) {
       cleanup();
-      console.error('[GeoGeek] Water V10.2 UI preview startup failed; attempting V10.1 recovery:',error);
-      // V10.0 remains a complete independent instrument. Never present it as the V10.1 RT dataset workspace.
+      console.error('[GeoGeek] Water V10.2 UI stages 1–4 startup failed; attempting V10.1 recovery:',error);
+      // V10.1 is the complete numerical RT fallback; do not label it as V10.2.
       const old=mounts.water;
       try{
         if(!window.GeoWaterWorkbenchV101?.mount){
@@ -117,18 +117,18 @@
         mounts.water=old;
         const notice=document.createElement('div');
         notice.setAttribute('role','status');
-        notice.textContent='V10.1 RT unavailable · showing V10.0 (the previous stable numerical RT workspace)';
+        notice.textContent='V10.2 UI unavailable · showing stable V10.1 scientific workspace';
         notice.style.cssText='position:absolute;top:0;left:12px;z-index:12;padding:5px 9px;color:#f3ddc2;background:#493226;border:1px solid #bd8b5f;border-radius:0 0 5px 5px;font:11px monospace';
         stage.appendChild(notice);
         return ()=>{notice.remove();if(typeof close==='function')close();};
       }catch(fallbackError){
         mounts.water=old;
-        console.error('[GeoGeek] Water V10.0 recovery also failed:',fallbackError);
-        throw new Error('Water V10.2 UI preview and V10.0 could not initialize',{cause:error});
+        console.error('[GeoGeek] Water V10.1 recovery also failed:',fallbackError);
+        throw new Error('Water V10.2 UI stages 1–4 and V10.1 could not initialize',{cause:error});
       }
     }
   }
 
   mounts.water = mount;
-  window.GeoWaterWorkbenchV102 = { version: '10.2.0-p2', mount };
+  window.GeoWaterWorkbenchV102 = { version: '10.2.0-p4', mount };
 })();
