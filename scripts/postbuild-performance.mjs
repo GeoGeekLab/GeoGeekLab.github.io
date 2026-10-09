@@ -44,6 +44,8 @@ function addDeferToClassicLocalScripts(html) {
     const source = attrs.match(/(?:^|\s)src\s*=\s*(['"])([^'"]+)\1/i);
     if (!source) return match;
     const src = source[2];
+    // Startup dependencies consumed by inline entrypoints must retain parser order.
+    if (/\bdata-geogeek-sync-dependency(?:\s|=|$)/i.test(attrs)) return match;
     if (/\bdata-idle-src\s*=/i.test(attrs)) return match;
     if (/\b(?:defer|async)\b/i.test(attrs) || /\btype\s*=\s*(['"])module\1/i.test(attrs)) return match;
     if (/^(?:https?:)?\/\//i.test(src)) return match;
