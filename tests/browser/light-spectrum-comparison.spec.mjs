@@ -9,7 +9,7 @@ async function openLight(page) {
 
 async function chartGeometry(shell) {
   return shell.locator('.light-spectrum').evaluate(svg=>{
-    const curve=selector=>[...(svg.querySelector(selector)?.getAttribute('d')||'').matchAll(/[ML][\\d.]+,([\\d.]+)/g)]
+    const curve=selector=>[...(svg.querySelector(selector)?.getAttribute('d')||'').matchAll(/[ML][0-9.]+,([0-9.]+)/g)]
       .map(match=>Number(match[1]));
     return {
       before:curve('.light-spectrum-before'),
