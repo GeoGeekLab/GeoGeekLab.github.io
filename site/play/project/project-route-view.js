@@ -4,7 +4,7 @@
   function create({ shell, d3, world, experiment, morph } = {}) {
     if (!shell?.viewport || !d3 || !world || !experiment || !morph) throw new Error('Project route view requires shell, D3, world data, experiment, and morph engine.');
 
-    shell.viewport.innerHTML=`<div class="project-v2-stage"><svg class="project-v2-map" viewBox="0 0 1000 640" role="application" aria-label="Route projection experiment"></svg></div>`;
+    shell.viewport.innerHTML=`<div class="project-v2-stage"><svg class="project-v2-map" viewBox="0 0 1000 640" role="application" aria-label="Route projection experiment"></svg><div class="project-v2-canvas-caption" aria-hidden="true"><span>02 / ROUTE</span><span>The sphere's shortest path remains unchanged</span></div></div>`;
     const svg=d3.select(shell.viewport.querySelector('.project-v2-map'));
     const sphere=svg.append('path').datum({type:'Sphere'}).attr('class','project-v2-sphere');
     const graticule=svg.append('path').datum(d3.geoGraticule10()).attr('class','project-v2-graticule');
@@ -69,8 +69,29 @@
       return node;
     }
 
-    function setHud() {
-      shell.hud.innerHTML=`<div class="project-v2-hud-item"><span>EXPERIMENT</span><strong>ROUTE</strong></div><div class="project-v2-hud-item"><span>RELATION</span><strong>SHORTEST ON SPHERE</strong></div>`;
+    function setHud(phase='drawing') {
+      const revealed=phase!=='drawing';
+      shell.hud.innerHTML=`
+        <div class="project-v2-evidence-head"><span>FIELD NOTES / 02</span><strong>Route &amp; projection</strong></div>
+        <div class="project-v2-evidence-group">
+          <div class="project-v2-hud-item"><span>EXPERIMENT</span><strong>ROUTE</strong></div>
+          <div class="project-v2-hud-item"><span>FROM → TO</span><strong>TOKYO → VANCOUVER</strong></div>
+        </div>
+        <div class="project-v2-evidence-group">
+          <span class="project-v2-evidence-label">MAP KEY</span>
+          <div class="project-v2-route-legend"><i class="project-v2-legend-line is-judgment"></i>Your drawn route</div>
+          ${revealed?'<div class="project-v2-route-legend"><i class="project-v2-legend-line is-geodesic"></i>Great-circle route</div>':'<div class="project-v2-route-legend is-muted">Reference hidden until reveal</div>'}
+        </div>
+        <div class="project-v2-evidence-group">
+          <div class="project-v2-hud-item"><span>RELATION</span><strong>SHORTEST ON SPHERE</strong></div>
+          <p>The same path can look curved or straight under different projections.</p>
+        </div>
+        <div class="project-v2-evidence-group">
+          <span class="project-v2-evidence-label">OBSERVATION</span>
+          <strong class="project-v2-evidence-choice">${revealed?'GEODESIC REVEALED':'DRAW BEFORE REVEAL'}</strong>
+          <small>${revealed?'Compare the route under both projections.':'Use the pointer or arrow keys on the map.'}</small>
+        </div>
+        <div class="project-v2-evidence-limit">The shortest surface path is a geodesic, not necessarily a line on the map.</div>`;
     }
 
     function updateRevealState() {
@@ -178,7 +199,7 @@
       judgment.classed('is-ghost',false);
       resetRoute();
       shell.setState('routeDrawing');
-      setHud();
+      setHud('drawing');
       renderProjection(0);
       shell.overlay.innerHTML='';
       const panel=document.createElement('div');
@@ -201,6 +222,7 @@
       geodesic.attr('opacity',1);
       judgment.classed('is-ghost',true);
       shell.setState('routeTransforming');
+      setHud('transforming');
       renderProjection(0);
       shell.overlay.innerHTML='';
       const panel=document.createElement('div');
@@ -214,6 +236,7 @@
       mode='result';
       finishButton=null; progress=null;
       shell.setState('routeResult');
+      setHud('result');
       shell.overlay.innerHTML='';
       const panel=document.createElement('div');
       panel.className='project-v2-panel is-result';
