@@ -124,6 +124,9 @@ jobs:
           node --test site/water/workbench-v10/tests/v10-scientific-contract.test.mjs
           node scripts/verify-water-rt-reference.mjs
           node --test site/water/workbench-v10-1/tests/rt-reference.test.mjs
+          node --test site/water/workbench-v10-2/tests/ui-foundation.test.mjs
+          node --test site/water/workbench-v10-2/tests/ui-components.test.mjs
+          node --test site/water/workbench-v10-2/tests/rt-ui.test.mjs
           node scripts/qa.mjs
           node scripts/verify-play-live-release.mjs --local
       - name: Water V9 backward compatibility (desktop and mobile Chromium)
@@ -132,6 +135,8 @@ jobs:
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v10.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Water V10.1 numerical RT browser integration (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v101.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Water V10.2 UI release browsers (desktop and mobile Chromium)
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-foundation.spec.mjs tests/browser/water-v102-components.spec.mjs tests/browser/water-v102-rt.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: ORIENT release browsers
         run: npm run qa:orient:release-browser
       - name: Upload Pages artifact
@@ -208,7 +213,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?v=20261008v8" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261008v101' /tmp/geogeek-water-v8/lab.html
+          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v8/lab.html
           grep -Fq 'WATER_WORKBENCH_V8' /tmp/geogeek-water-v8/modules.js
           grep -Fq 'water/workbench-v8/' /tmp/geogeek-water-v8/instrument.js
           grep -Fq "'app/index.html'" /tmp/geogeek-water-v8/instrument.js
@@ -239,7 +244,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?v=20261008v9" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261008v101' /tmp/geogeek-water-v9/lab.html
+          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v9/lab.html
           grep -Fq 'WATER_WORKBENCH_V9' /tmp/geogeek-water-v9/modules.js
           grep -Fq 'water/workbench-v9/' /tmp/geogeek-water-v9/instrument.js
           grep -Fq 'uncertainty-engine.js?v=9.0.0' /tmp/geogeek-water-v9/index.html
@@ -263,7 +268,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261008v10" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261008v101' /tmp/geogeek-water-v10/lab.html
+          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v10/lab.html
           grep -Fq 'WATER_WORKBENCH_V10' /tmp/geogeek-water-v10/modules.js
           grep -Fq 'water/workbench-v10/' /tmp/geogeek-water-v10/instrument.js
           grep -Fq 'schemaVersion:7' /tmp/geogeek-water-v10/index.html
@@ -281,13 +286,35 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261008v101" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261008v101' /tmp/geogeek-water-v101/lab.html
+          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v101/lab.html
           grep -Fq 'WATER_WORKBENCH_V101' /tmp/geogeek-water-v101/modules.js
           grep -Fq 'water-v101-frame' /tmp/geogeek-water-v101/instrument.js
           grep -Fq 'schemaVersion:8' /tmp/geogeek-water-v101/index.html
           grep -Fq 'GeoGeekRT101' /tmp/geogeek-water-v101/rt-engine.js
           node --input-type=module -e "import fs from 'node:fs';const d=JSON.parse(fs.readFileSync('/tmp/geogeek-water-v101/rt-reference-v1.json','utf8'));if(d.cases.length!==3||d.cases.some(c=>c.records.length!==15)||d.status!=='internally-generated-unvalidated')process.exit(1)"
           echo 'Water V10.1 published numerical RT reference asset smoke passed'
+      - name: Verify public Water V10.2 scientific UI and versioned fallback
+        env:
+          WATER_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${WATER_RELEASE_BASE_URL%/}"
+          mkdir -p /tmp/geogeek-water-v102
+          for path in lab.html core/modules.js water/workbench-v10-2/instrument.js water/workbench-v10-2/app/index.html water/workbench-v10-2/rt-engine.js water/workbench-v10-2/v102-layout.css water/workbench-v10-2/v102-components.css water/workbench-v10-2/v102-rt.css; do
+            file="/tmp/geogeek-water-v102/$(basename "$path")"
+            curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261009v102" -o "$file"
+            test -s "$file"
+          done
+          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v102/lab.html
+          grep -Fq "try { await loadModule(WATER_WORKBENCH_V102); }" /tmp/geogeek-water-v102/modules.js
+          grep -Fq "requestedWaterVersion==='v101'" /tmp/geogeek-water-v102/modules.js
+          grep -Fq 'water-v102-frame' /tmp/geogeek-water-v102/instrument.js
+          grep -Fq 'schemaVersion:8' /tmp/geogeek-water-v102/index.html
+          grep -Fq 'Signed model discrepancy' /tmp/geogeek-water-v102/index.html
+          grep -Fq 'depthProfile' /tmp/geogeek-water-v102/index.html
+          grep -Fq 'workbench-v10-1/reference/rt-reference-v1.json' /tmp/geogeek-water-v102/rt-engine.js
+          grep -Fq 'rt-science-workspace' /tmp/geogeek-water-v102/v102-rt.css
+          echo 'V10.2 public scientific UI and V10.1 reference pin smoke passed'
       - name: Verify public ORIENT release
         env:
           ORIENT_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
