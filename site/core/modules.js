@@ -16,6 +16,7 @@
   const WATER_WORKBENCH_V9 = 'water/workbench-v9/instrument.js?v=9.1.0';
   const WATER_WORKBENCH_V10 = 'water/workbench-v10/instrument.js?v=10.0.0';
   const WATER_WORKBENCH_V101 = 'water/workbench-v10-1/instrument.js?v=10.1.0';
+  const WATER_WORKBENCH_V102_PREVIEW = 'water/workbench-v10-2/instrument.js?v=10.2.0-p2';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
@@ -164,6 +165,7 @@
         const requestedWaterVersion=new URLSearchParams(location.search).get('waterVersion');
         if(requestedWaterVersion==='v9')await loadModule(WATER_WORKBENCH_V9);
         else if(requestedWaterVersion==='v10')await loadModule(WATER_WORKBENCH_V10);
+        else if(requestedWaterVersion==='v102')await loadModule(WATER_WORKBENCH_V102_PREVIEW);
         else {
           try { await loadModule(WATER_WORKBENCH_V101); }
           catch (v101Error){
