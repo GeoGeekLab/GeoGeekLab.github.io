@@ -5,6 +5,7 @@ on:
     paths:
       - 'site/lab-fullpage.*'
       - 'site/lab.html'
+      - 'scripts/capture-lab-previews.mjs'
       - 'site/pulse/**'
       - 'site/pulse-observation-lab*'
       - 'tests/browser/pulse-*.spec.mjs'
