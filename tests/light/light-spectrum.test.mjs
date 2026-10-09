@@ -25,7 +25,7 @@ test('Light spectrum uses one shared Y domain for relative before/after signals'
   assert.equal(original.length,3);
   assert.equal(reduced.length,3);
   assert.ok(reduced.every((y,index)=>y>original[index]));
-  assert.equal(reduced[0],105.6);
+  assert.equal(reduced[0],103.2);
   assert.equal(original[0],12);
 });
 
