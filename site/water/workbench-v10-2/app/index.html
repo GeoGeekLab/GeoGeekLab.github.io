@@ -436,16 +436,33 @@ html[data-geogeek-embedded="true"] .tab{padding-inline:11px}
 <div class="shell" id="shell" data-ui-phase="foundation">
  <header class="topbar">
   <div class="masthead"><div class="micro">LAB / OBSERVATORY <span>　•　 WATER / LIGHT / SPECTRUM</span></div><h1>Water as Spectrum</h1></div>
-  <div class="top-info"><span class="buildtag" title="GeoGeek semi-analytical water model and independently computed unvalidated scalar DOM RT slices">GEOGEEK UI · v10.2 preview</span><div class="header-actions"><button type="button" class="ghost-btn" id="exportBtn">↓ Export CSV</button><button type="button" class="ghost-btn" id="importBtn">↑ Import JSON</button><input type="file" id="importFile" accept=".json,application/json" hidden aria-label="Import saved experiment JSON"><button type="button" class="ghost-btn" id="inspectBtn">ⓘ Model Scope</button></div></div>
+  <div class="top-info"><span class="buildtag" title="UI-only preview using unchanged V10.1 science">UI PREVIEW · V10.2</span><div class="header-actions" id="globalActions">
+ <details class="ui-toolmenu" id="toolsMenu"><summary>Tools <span aria-hidden="true">▾</span></summary><div class="ui-toolmenu-panel" role="group" aria-label="Experiment tools">
+ <button type="button" class="ui-toolentry" id="exportBtn">Export chart CSV</button>
+ <button type="button" class="ui-toolentry" id="importBtn">Import experiment JSON</button>
+ <button type="button" class="ui-toolentry" id="inspectBtn">Model formulation &amp; limits</button>
+ </div></details>
+ <input type="file" id="importFile" accept=".json,application/json" hidden aria-label="Import saved experiment JSON">
+ </div></div>
  </header>
- <nav class="appnav" aria-label="Ocean-color analysis workspaces"><div class="nav-scroll" role="tablist" id="mainNav"></div><div class="appnav-end">MODEL STATE <em>● LOCAL / GEOGEEK</em>　 |　 SINGLE SESSION</div></nav>
+ <nav class="appnav" aria-label="Ocean-color analysis workspaces"><div class="nav-scroll ui-grouped-nav" role="tablist" aria-label="Nine analysis workspaces" aria-orientation="horizontal" id="mainNav"></div></nav>
+ <section class="ui-statusbar" id="uiStatusBar" role="group" aria-label="Scientific model and session status">
+  <span class="ui-statusitem"><span class="ui-status-label">Model</span><strong id="uiModelStatus">Semi-analytical</strong></span>
+  <span class="ui-statusitem"><span class="ui-status-label">Session</span><strong id="uiSessionStatus">Local · Browser</strong></span>
+  <span class="ui-statusitem"><span class="ui-status-label">Validation</span><strong id="uiValidationStatus">Teaching / not externally validated</strong></span>
+  <span class="ui-statusitem"><span class="ui-status-label">Reference</span><strong id="uiReferenceStatus">V10.1 RT slices · internal solver</strong></span>
+  <button class="ui-status-help" id="statusScopeBtn" type="button">Method &amp; limits ↗</button>
+ </section>
  <details id="v10Science" style="margin:4px 20px;padding:7px 10px;border:1px solid #42604f;color:#b9d3c4;font:11px system-ui;border-radius:5px"><summary>MODEL / ASSUMPTIONS / VALIDITY · SEMI_ANALYTICAL · 400–700 nm · NOT RESEARCH-VALIDATED</summary><p id="v10ScienceState">V9-compatible baseline; fixed optical slopes.</p><p>Legacy IOP→Rrs remains Gordon/GIOP and Lee approximation. Separate WATER RT uses a finite, self-generated azimuth-averaged numerical scalar DOM reference, with NO air–water interface or external validation. Full directional/azimuth RT, fluorescence, bottom reflectance and operational satellite retrieval are NOT calculated.</p></details><div class="workspace" id="workspace">
   <main class="main-space" aria-label="Primary analysis workspace">
-   <header class="workspace-head"><div><span class="eyebrow" id="spaceEyebrow">WORKSPACE / 02</span><h2 class="space-title" id="spaceTitle">Water Optics · IOP → Rrs</h2><p class="space-subtitle" id="spaceSubtitle">Adjust water constituent parameters and examine their spectral effects.</p></div><div class="head-controls"><button class="tiny-btn" id="lockAxisBtn" type="button" aria-pressed="false">◇ Lock Y-axis</button><button class="tiny-btn" id="panelBtn" type="button" aria-pressed="true">▤ Hide Controls</button></div></header>
+   <header class="workspace-head"><div class="ui-workspace-identity"><span class="eyebrow" id="spaceEyebrow">WORKSPACE / 02</span><h2 class="space-title" id="spaceTitle">Water Optics · IOP → Rrs</h2><p class="space-subtitle" id="spaceSubtitle">Adjust water constituent parameters and examine their spectral effects.</p></div><div class="head-controls"><div class="ui-action-group" role="group" aria-label="Visualization and parameter controls">
+ <button class="tiny-btn" id="lockAxisBtn" type="button" aria-pressed="false">◇ Lock Y-axis</button>
+ <button class="tiny-btn ui-primary-action" id="panelBtn" type="button" aria-pressed="true" aria-controls="sideRail" aria-expanded="true">▤ Hide Controls</button>
+ </div></div></header>
    <div class="chart-area"><div class="chart-top"><div class="plot-switches" role="group" aria-label="Spectral analysis views" id="plotNav"></div><div class="plot-flag">400–700 nm · FIRST-ORDER OPTICAL MODEL</div></div><div class="chart-main" id="mainContent" aria-live="polite"></div></div>
    <div class="probe-bar"><label for="probeRange">PROBE / λ</label><input class="probe-range" type="range" id="probeRange" min="400" max="700" value="443" step="1"><strong id="probeValue">443 nm</strong><span class="probe-readout" id="probeReadout">Rrs <b>—</b> sr⁻¹</span></div>
   </main>
-  <aside class="side-rail" id="sideRail" aria-label="Parameters for the active workspace"><div class="side-head"><div><span class="eyebrow">CONTEXT / PARAMETERS</span><h2 id="sideTitle">Water Optical State</h2><small id="sideSubtitle">Workspace-specific controls</small></div><span class="dot" title="Parameter state and displayed results are synchronized"></span></div><div class="control-scroll" id="controls"></div></aside>
+  <aside class="side-rail" id="sideRail" aria-label="Experiment setup for the active workspace"><div class="side-head"><div><span class="eyebrow">EXPERIMENT SETUP</span><h2 id="sideTitle">Water Optical State</h2><small id="sideSubtitle">Workspace-specific controls</small></div><span class="dot" title="Experiment state synchronized with displayed model"></span></div><div class="control-scroll" id="controls"></div></aside>
  </div>
  <footer class="foot"><span>WATER AS SPECTRUM　 /　 WORKBENCH · V10.2 UI FOUNDATION</span><span><b>GeoGeek semi-analytical + sampled scalar DOM reference · Not externally cross-validated</b>　｜　GeoGeek integrated workbench · scientific provenance exposed</span></footer>
 </div>
