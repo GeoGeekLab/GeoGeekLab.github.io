@@ -34,9 +34,11 @@
 .u102-matrix-table tbody tr:last-child td,.u102-matrix-table tbody tr:last-child th{border-bottom:0}
 .u102-matrix-table th:last-child,.u102-matrix-table td:last-child{border-right:0}
 .u102-numeric{display:block;white-space:nowrap;font:600 12px/1.5 var(--mono);color:#f0f5ed;font-variant-numeric:tabular-nums}
-.u102-heat-track{display:block;width:100%;height:6px;margin-top:7px;background:#34473b;border-radius:3px;overflow:hidden}
-.u102-heat-fill{display:block;height:100%;background:#a6c5b1}
-.u102-heat-fill.is-negative{background:#e2ac94}
+.u102-heat-legend{font:12px/1.6 var(--sans);color:#d3e1d6;padding:8px 10px;border-left:3px solid #adc8b2}
+.u102-heat-track{display:block;position:relative;width:100%;height:8px;margin-top:7px;background:#34473b;border-radius:3px;overflow:hidden}
+.u102-heat-track::after{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:2px solid #fff7dd;z-index:2}
+.u102-heat-fill{position:absolute;left:50%;top:0;display:block;height:100%;background:#a6c5b1}
+.u102-heat-fill.is-negative{left:auto;right:50%;background:#e2ac94}
 .u102-cell-note{display:block;margin-top:4px;font:10px/1.45 var(--sans);color:#c0d4c6}
 .u102-cov-details{margin-top:12px}
 .u102-cov-details summary{cursor:pointer;font:600 12px/1.5 var(--sans);padding:9px;
