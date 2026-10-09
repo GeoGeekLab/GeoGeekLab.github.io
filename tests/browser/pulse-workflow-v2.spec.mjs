@@ -590,14 +590,15 @@ test('mobile Observe and Analyze controls have 44px touch targets without horizo
     expect(size.width,selector).toBeGreaterThan(20);
   }
   await expect(page.locator('.pulse-workflow')).toBeVisible();
-  await expect(work.locator('.pw-map-column .pw-map-tools [data-pc="zoom-in"]')).toBeVisible();
-  await expect(work.locator('.pw-map-column .pw-map-help')).toContainText('Drag empty map to pan');
+  await expect(work.locator('[data-pw-section="region"] .pw-map-tools [data-pc="zoom-in"]')).toBeVisible();
+  await expect(work.locator('.pw-map-column .pw-map-help')).toHaveCount(0);
+  await expect(work.locator('.pw-method-link')).toHaveAttribute('href','/records/lab-l10.html');
   const box=work.locator('.pw-map');
   const original=Number((await box.getAttribute('viewBox')).split(' ')[2]);
-  await work.locator('.pw-map-column [data-pc="zoom-in"]').click();
+  await work.locator('[data-pw-section="region"] [data-pc="zoom-in"]').click();
   const changed=Number((await box.getAttribute('viewBox')).split(' ')[2]);
   expect(changed).toBeLessThan(original);
-  await work.locator('.pw-map-column [data-pc="zoom-reset"]').click();
+  await work.locator('[data-pw-section="region"] [data-pc="zoom-reset"]').click();
   await expect(box).toHaveAttribute('viewBox','0 0 1000 500');
   const source=page.locator('[data-pw="source-state"]');
   await expect(source).toContainText('USGS feed generated');
