@@ -151,7 +151,7 @@ async function captureInstrument(kind) {
 
     if (kind === 'pulse') {
       await page.waitForFunction(() => !!window.GeoPulseObservationLab && window.GeoGeekInstrumentMounts?.pulse === window.GeoPulseObservationLab.mount, null, { timeout: 10000 });
-      await page.waitForSelector('.pulse-observation-lab[data-state="ready"]', { state: 'visible', timeout: 10000 })
+      await page.waitForSelector('.pulse-observation-lab[data-state="ready"]', { state: 'visible', timeout: 25000 })
         .catch(async error=>{
           const diagnostic=await page.evaluate(()=>{
             const stage=document.querySelector('#instrumentStage');
