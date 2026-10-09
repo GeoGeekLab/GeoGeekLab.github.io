@@ -161,7 +161,7 @@ test('snapshot generation and GeoGeek fetch times remain separate from historica
   await expect(source).toContainText('ROLLING SNAPSHOT');
   await expect(source).toContainText('USGS feed generated');
   await expect(source).toContainText('GeoGeek fetched');
-  await expect(source).toContainText('Age is relative to feed generation, not event origin');
+  await expect(source).toContainText('GeoGeek fetched');
   await expect(work.locator('[data-pw="provenance"]')).toContainText('FEED GENERATED');
 
   const exportSnapshot=page.waitForEvent('download');
@@ -182,7 +182,7 @@ test('snapshot generation and GeoGeek fetch times remain separate from historica
   await expect(source).toContainText('HISTORICAL QUERY');
   await expect(source).toContainText(begin);
   await expect(source).toContainText(end);
-  await expect(source).toContainText('Not a continuously updated feed');
+  await expect(source).toContainText('HISTORICAL QUERY');
 
   const exportHistory=page.waitForEvent('download');
   await work.locator('[data-pw="manifest"]').click();

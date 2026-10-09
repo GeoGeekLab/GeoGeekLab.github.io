@@ -168,6 +168,25 @@
       '</div>'
     ].join('');
     stage.appendChild(workspace);
+    // Keep the seismic map as a fixed viewport. All prose, provenance and
+    // selection details belong to the independently scrollable control rail.
+    const rail = workspace.querySelector('.pw-side');
+    const firstControl = rail.querySelector('[data-pw-section="data"]');
+    for (const cls of ['.pw-banner', '.pw-source-state']) {
+      rail.insertBefore(workspace.querySelector(cls), firstControl);
+    }
+    const inspectionSection = document.createElement('section');
+    inspectionSection.className = 'pw-section pw-inspection-section';
+    inspectionSection.dataset.pwSection = 'inspect';
+    inspectionSection.innerHTML = '<h3>EVENT INSPECT</h3>';
+    inspectionSection.appendChild(workspace.querySelector('.pw-selected'));
+    rail.appendChild(inspectionSection);
+    workspace.querySelector('.pw-limit')?.remove();
+    const methodLink = document.createElement('a');
+    methodLink.className = 'pw-method-link';
+    methodLink.href = '/records/lab-l10.html';
+    methodLink.textContent = 'METHOD, SOURCE & LIMITS ↗';
+    rail.appendChild(methodLink);
     const el = key => select('[data-pw="' + key + '"]', workspace);
     const svg = select('.pw-map', workspace);
     const mapColumn = select('.pw-map-column', workspace);
@@ -216,7 +235,7 @@
         view.textContent='HISTORICAL QUERY · Requested UTC '+(state.loadedStart||'—')+
           ' through '+(state.loadedEnd||'—')+
           ' · Queried '+(state.fetchedAt||'time unknown')+
-          ' · Not a continuously updated feed.';
+          '.';
         return;
       }
       const age=state.generatedAt == null ? null : Math.max(0,(Date.now()-state.generatedAt)/3600000);
@@ -226,7 +245,7 @@
       view.textContent=(state.snapshotStale?'STALE / LAST-KNOWN-GOOD · ':'ROLLING SNAPSHOT · ')+
         'USGS feed generated '+(state.generatedAt==null?'unknown':iso(state.generatedAt))+
         ' ('+ageLabel+') · GeoGeek fetched '+(state.fetchedAt||'unknown')+
-        ' · Times are UTC. Age is relative to feed generation, not event origin.';
+        ' · UTC.';
     }
 
     function setBusy(busy) {
@@ -390,10 +409,9 @@
       state.loadedStart = provenance.start;
       state.loadedEnd = provenance.end;
       el('view-mag').value = '';
-      el('provenance').textContent = 'PROVIDER: USGS · MODE: ' + provenance.mode.toUpperCase() +
-        ' · GEOGEEK FETCHED: ' + (provenance.fetchedAt||'unknown')+
-        ' · FEED GENERATED: '+(state.generatedAt==null?'unknown':iso(state.generatedAt))+
-        ' · '+provenance.scope+' · SOURCE: '+provenance.url;
+      el('provenance').textContent = 'USGS · '+provenance.mode.toUpperCase()+
+        ' · GEOGEEK FETCHED: '+(provenance.fetchedAt||'unknown')+
+        ' · FEED GENERATED: '+(state.generatedAt==null?'unknown':iso(state.generatedAt));
       sourceTimeState();
       render();
       message(normalized.length + ' USGS records loaded. Adjust the filters, draw a study area, or export the visible set.',false);

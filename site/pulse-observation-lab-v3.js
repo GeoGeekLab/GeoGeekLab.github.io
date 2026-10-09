@@ -2,7 +2,7 @@
   'use strict';
 
   const VERSION = '20261002c';
-  const BASE_SRC = 'pulse-observation-lab-v2.js?v=20261002b';
+  const BASE_SRC = 'pulse-observation-lab-v2.js?v=20261009fixed1';
   const PARAMS = {
     cutoff:'pulseCutoff',
     magnitude:'pulseMag',
