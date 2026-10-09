@@ -9,14 +9,14 @@ Lab release marker: `20261009v102`
 
 **STEP 00 — DONE (documentation and visual-reference baseline).** No PLAY runtime, stylesheet or test implementation was modified. The provided six screenshots have been catalogued; repeatable browser captures and baseline test results are not yet available.
 
-**Next:** STEP 01 — fix Project's world projection geometry. Do not proceed to general UI redesign before validating Project's map extent and projection interpolation.
+**STEP 01 — IN REVIEW.** The Mercator latitude-bound correction and targeted Project browser regression have been committed. Actual browser geometry, interaction states, and screenshots are not yet verified. STEP 02 must not start until STEP 01 passes its acceptance gate.
 
 ## Roadmap
 
 | Step | Task | State |
 | --- | --- | --- |
 | 00 | Project audit and baseline | DONE |
-| 01 | Project geometry correction | PLANNED |
+| 01 | Project geometry correction | IN REVIEW |
 | 02 | Light spectrum comparison correction | PLANNED |
 | 03 | Desktop design tokens and components | PLANNED |
 | 04 | Edge-to-edge PLAY workspace | PLANNED |
@@ -82,6 +82,52 @@ Lab release marker: `20261009v102`
 5. Fix root geometry, not just CSS scale. Preserve area calculation, projection annotation, area/route state and true-geodesic logic.
 6. Run Project-related Node/browser checks and capture before/after screenshots at desktop widths. If runtime execution is unavailable, leave STEP 01 IN REVIEW.
 7. Update `ACCEPTANCE.md` results if the acceptance policy changes, and append actual execution results here.
+
+
+## STEP 01 implementation — 2026-10-09
+
+### Commits and modified paths
+
+- `5b94072f76cd7b9dba09d8cabd04236c97edf83f` — `site/play/project/project-morph.js`.
+- `02cd6e98e155ca2b76281b7577495bec4c609303` — `tests/browser/project-projection-geometry.spec.mjs`.
+- `docs/play-desktop-redesign/STATUS.md` — execution log only.
+
+### Fix
+
+The existing pole clamp used `π/2 − 10⁻⁶` radians for both raw projections. The Mercator Y value at that latitude is approximately 14.5087, so fitting its entire sphere into a 500-unit height leaves the world's theoretical width at approximately 108.3 units. The updated Mercator bound uses `atan(sinh(π))`, approximately ±85.05113°, with finite Y extents of ±π. At the same 500-unit fit height the world width is approximately 500 units. This is a numerical root-cause check, not a screenshot test.
+
+The change targets the Mercator raw projection only. Equal Earth and azimuthal inputs are not artificially clipped at Mercator's latitude limit. Existing projection interpolation, spherical area values, route sampling, geodesic drawing, user predictions and trace states were not modified.
+
+### Regression coverage introduced
+
+`tests/browser/project-projection-geometry.spec.mjs` asserts:
+- Area scene at 1920×1080 and 1366×768, including morph positions 0, 25, 50, 75 and 100 percent.
+- Finite SVG paths, non-collapsed land and sphere bounding boxes, visible area result and a populated apparent-area readout.
+- Route scene at 1440×900, including keyboard-drawn route, revealed geodesic, Tokyo-centered morph positions and final route state.
+- PNG attachments for the 1920-wide initial Mercator view and 1440-wide final azimuthal route view, generated only when the test runs.
+
+### Verification status
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Project source and state-flow review | PASS | Source comparison against documented STEP 00 baseline |
+| Independent Mercator projection-span calculation | PASS | Old width ≈108.3; bounded width ≈500.0 at identical vertical fit |
+| Scoped code and browser test commits | PASS | Commits recorded above |
+| No non-Project runtime or styling change | PASS | No changes outside Project source, Project test and STATUS |
+| `npm run build` | NOT RUN | Awaiting GitHub quality workflow |
+| `npm run qa` | NOT RUN | Awaiting GitHub quality workflow |
+| New Project Playwright regression | NOT RUN | Workflow not yet reached browser suite at logging time |
+| Existing Project area/route browser regressions | NOT RUN | Same dependency |
+| Post-fix desktop screenshots and visual comparison | NOT RUN | Test attachments pending workflow execution |
+| Non-PLAY browser regressions | NOT RUN | Awaiting CI |
+
+GitHub Actions quality workflow triggered for commit `02cd6e98e155ca2b76281b7577495bec4c609303`: [run 37900961659](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37900961659). At the time of this log, the workflow had not reached Project browser tests. A subsequent STATUS commit may supersede that run because branch quality CI uses `cancel-in-progress`. Inspect the latest branch run before recording any test outcome.
+
+### Outstanding acceptance gate
+
+P01 and P02 are **IN REVIEW**, not PASS. Confirm the true SVG land/sphere extent and finite shape at Mercator, intermediate projection states, Equal Earth and Tokyo-centered azimuthal. Confirm P03–P05 against existing interaction tests. P06's full workspace layout belongs to STEP 05 and is not claimed complete here.
+
+Do not start STEP 02 until the required Project browser test and screenshots have been evaluated. If CI fails due an unrelated dependency, record the blocker and rerun the targeted Project test in a suitable environment before closing STEP 01.
 
 ## Future log format
 
