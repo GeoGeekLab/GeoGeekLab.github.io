@@ -11,7 +11,7 @@
   const FEED_ENDPOINT = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = new URL('./pulse-workflow-v1.css?v=20261008a', import.meta.url).href;
+  style.href = new URL('./pulse-workflow-v1.css?v=20261009r3', import.meta.url).href;
   style.setAttribute('data-pulse-workflow-style', '1');
   if (!document.querySelector('link[data-pulse-workflow-style]')) document.head.appendChild(style);
 
@@ -96,13 +96,6 @@
     const baseMap = select('.pulse-map', base);
     if (!panel || !baseMap) return;
 
-    const toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = 'pulse-workflow-launch';
-    toggle.textContent = 'OPEN DATA WORKFLOW ↗';
-    toggle.setAttribute('aria-label', 'Open professional data workflow for Earth Pulse');
-    panel.prepend(toggle);
-
     const workspace = document.createElement('section');
     workspace.className = 'pulse-workflow';
     workspace.hidden = true;
@@ -110,7 +103,6 @@
     workspace.innerHTML = [
       '<div class="pw-head">',
         '<div><small>EARTH PULSE / RESEARCH WORKFLOW</small><strong>DATA · ROI · ANALYSIS · EXPORT</strong></div>',
-        '<button type="button" data-pw="return">RETURN TO PULSE</button>',
       '</div>',
       '<div class="pw-layout">',
         '<section class="pw-map-column">',
@@ -528,21 +520,18 @@
       target.addEventListener(kind,handler,options);
       listeners.push(() => target.removeEventListener(kind,handler,options));
     };
-    function close() {
-      if (state.abort) state.abort.abort();
-      state.open = false;
-      workspace.hidden = true;
-      base.removeAttribute('data-workflow-suspended');
-      toggle.focus();
+    function selectTask(task) {
+      const analyze=task === 'analyze';
+      if (!analyze && state.abort) state.abort.abort();
+      state.open=analyze;
+      workspace.hidden=!analyze;
+      base.toggleAttribute('data-workflow-suspended',analyze);
+      if(analyze && !state.source && !state.busy) void loadSnapshot();
     }
 
-    listen(toggle,'click',() => {
-      state.open = true;
-      workspace.hidden = false;
-      base.dataset.workflowSuspended = 'true';
-      if (!state.source && !state.busy) void loadSnapshot();
-    });
-    listen(el('return'),'click',close);
+    const taskHandler=event=>selectTask(event.detail?.task);
+    document.addEventListener('geogeek:pulse-task',taskHandler);
+    selectTask(document.querySelector('#instrumentDialog')?.dataset.pulseTask);
     listen(el('snapshot'),'click',() => void loadSnapshot());
     listen(el('history'),'click',() => void loadHistory());
     listen(el('draw'),'click',() => {
@@ -590,8 +579,8 @@
       if (state.abort) state.abort.abort();
       listeners.forEach(stop=>stop());
       workspace.remove();
-      toggle.remove();
       base.removeAttribute('data-workflow-suspended');
+      document.removeEventListener('geogeek:pulse-task',taskHandler);
       active.delete(stage);
     };
     active.set(stage,{cleanup,base});
