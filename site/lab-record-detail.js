@@ -137,7 +137,7 @@
     },
 
     l10: {
-      detailLabel: 'INSTRUMENT NOTES / METHODS',
+      detailLabel: 'INSTRUMENT NOTES',
       recordConditions: [
         ['source', 'USGS all_day GeoJSON · verified GeoGeek same-origin snapshot'],
         ['observation', 'Rolling 24 h · feed-generation time in UTC'],
