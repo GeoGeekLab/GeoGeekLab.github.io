@@ -572,6 +572,16 @@
   function renderLab() {
     const list = $('#labList');
     if (!list || !data.lab) return;
+    // The first HTML response contains 13 real cards. Preserve their nodes
+    // instead of replacing them after JavaScript bootstrap and delaying LCP.
+    if (list.dataset.staticLabCollection === 'v1') {
+      const cards = list.querySelectorAll('.project-card');
+      const required = ['l04', 'l05', 'l06', 'l10', 'l11', 'l12', 'l13',
+        'l07', 'l08', 'l09', 'l14', 'l15', 'l16'];
+      if (cards.length === 13 && required.every(id => list.querySelector('#' + id))) return;
+      // Malformed static markup falls back to the existing JS renderer.
+      list.removeAttribute('data-static-lab-collection');
+    }
     const groups = ['studies', 'observatory', 'play'];
     list.innerHTML = groups.map(group => {
       const items = data.lab.filter(item => (item.group || 'studies') === group);
