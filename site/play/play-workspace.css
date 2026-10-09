@@ -1,0 +1,240 @@
+/*
+ * PLAY / spatial reasoning — viewport workspace
+ * This layer only changes the outer Lab frame. Individual instruments keep
+ * their own fields, panels, state transitions and measurements.
+ */
+.instrument-dialog[data-play-workspace="true"] {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #0b100e;
+  color: #edece5;
+  box-shadow: none;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.instrument-dialog[data-play-workspace="true"]::backdrop {
+  background: #0b100e;
+  backdrop-filter: none;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-shell {
+  display: grid;
+  grid-template-rows: 76px minmax(68px, auto) minmax(0, 1fr) 40px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #0b100e;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: 20px;
+  align-items: center;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 10px clamp(18px, 2vw, 32px);
+  border-bottom: 1px solid rgba(237, 236, 229, .14);
+  background: #121c17;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-head > div {
+  min-width: 0;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-breadcrumb {
+  margin: 0 0 4px;
+  color: #9cad9f;
+  font: 700 10px/1.1 var(--mono, monospace);
+  letter-spacing: .07em;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-kicker {
+  display: none;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-head h2 {
+  margin: 0;
+  color: #edece5;
+  font: 400 clamp(30px, 2.45vw, 44px)/1 var(--serif, Georgia, serif);
+  letter-spacing: -.035em;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-close {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid rgba(237, 236, 229, .22);
+  border-radius: 8px;
+  background: transparent;
+  color: #c7d0c8;
+  font: 400 25px/1 var(--sans, system-ui, sans-serif);
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, color .16s ease;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-close:hover {
+  border-color: #d8794e;
+  background: rgba(216, 121, 78, .12);
+  color: #edece5;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-close:focus-visible {
+  outline: 2px solid #e9c99a;
+  outline-offset: 3px;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-meta {
+  display: grid;
+  grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr);
+  gap: clamp(16px, 2vw, 32px);
+  align-items: center;
+  min-width: 0;
+  min-height: 68px;
+  margin: 0;
+  padding: 10px clamp(18px, 2vw, 32px);
+  border-bottom: 1px solid rgba(237, 236, 229, .10);
+  background: #121c17;
+}
+
+.instrument-dialog[data-play-workspace="true"] #instrumentDescription {
+  margin: 0;
+  max-width: 82ch;
+  color: #c2cec5;
+  font: 450 13px/1.45 var(--sans, system-ui, sans-serif);
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-conditions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-width: 0;
+  margin: 0;
+  border-left: 1px solid rgba(237, 236, 229, .10);
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-conditions div {
+  min-width: 0;
+  padding: 0 11px;
+  border-right: 1px solid rgba(237, 236, 229, .09);
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-conditions div:last-child {
+  border-right: 0;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-conditions dt {
+  color: #8da195;
+  font: 700 9px/1.15 var(--mono, monospace);
+  letter-spacing: .06em;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-conditions dd {
+  margin: 5px 0 0;
+  color: #d9e0d9;
+  font: 600 11px/1.35 var(--mono, monospace);
+  overflow-wrap: anywhere;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-stage {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: #0b100e;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-stage > :is(.play-shell, .play-v2-shell) {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.instrument-dialog[data-play-workspace="true"] .play-shell[data-play-kind="orient"] .play-field {
+  border-radius: 0;
+}
+
+.instrument-dialog[data-play-workspace="true"] .play-shell[data-play-kind="orient"] .play-field-surface {
+  min-height: 0;
+}
+
+.instrument-dialog[data-play-workspace="true"] .instrument-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(12px, 1.5vw, 24px);
+  min-width: 0;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 clamp(18px, 2vw, 32px);
+  border-top: 1px solid rgba(237, 236, 229, .12);
+  background: #121c17;
+  color: #a1b1a6;
+  font: 700 10px/1.15 var(--mono, monospace);
+  letter-spacing: .04em;
+}
+
+.instrument-dialog[data-play-workspace="true"] #instrumentBoundary {
+  text-align: right;
+}
+
+/* The workbench adapts to smaller desktop windows without creating
+ * a second mobile interaction system or hiding scientific conditions.
+ */
+@media (max-width: 1450px) {
+  .instrument-dialog[data-play-workspace="true"] .instrument-meta {
+    grid-template-columns: minmax(230px, .72fr) minmax(0, 1.28fr);
+    gap: 15px;
+  }
+  .instrument-dialog[data-play-workspace="true"] .instrument-conditions div {
+    padding: 0 7px;
+  }
+}
+
+@media (max-height: 790px) {
+  .instrument-dialog[data-play-workspace="true"] .instrument-shell {
+    grid-template-rows: 66px minmax(60px, auto) minmax(0, 1fr) 36px;
+  }
+  .instrument-dialog[data-play-workspace="true"] .instrument-head h2 {
+    font-size: clamp(27px, 2.15vw, 37px);
+  }
+  .instrument-dialog[data-play-workspace="true"] .instrument-meta {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    min-height: 60px;
+  }
+  .instrument-dialog[data-play-workspace="true"] .instrument-foot {
+    min-height: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .instrument-dialog[data-play-workspace="true"] .instrument-close {
+    transition: none;
+  }
+}
