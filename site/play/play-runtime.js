@@ -36,8 +36,8 @@
     project: [
       'play/project/project-content.js?v=20261005c',
       'play/project/project-morph.js?v=20261008p1',
-      'play/project/project-view.js?v=20261005c',
-      'play/project/project-route-view.js?v=20261005b'
+      'play/project/project-view.js?v=20261009-step05a',
+      'play/project/project-route-view.js?v=20261009-step05a'
     ],
     light: [
       'play/light/light-content.js?v=20261007a',
@@ -63,7 +63,7 @@
     locate: 'play/orient/orient.js?v=20261003f',
     zone: 'play/bound/bound.js?v=20261005c',
     path: 'play/connect/connect.js?v=20261005c',
-    project: 'play/project/project.js?v=20261005e',
+    project: 'play/project/project.js?v=20261009-step05a',
     light: 'play/light/light.js?v=20261007a',
     swath: 'play/swath/swath.js?v=20261007a'
   };
