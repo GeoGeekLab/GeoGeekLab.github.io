@@ -193,7 +193,7 @@
             <div class="lab-record-block-label">SOURCES / LIMITATIONS</div>
             <div class="lab-record-copy lab-record-links">
               <p>Earthquake locations and magnitudes are preliminary or subject to revision. The USGS rolling feed is not a permanent historical archive. Completeness varies by region, monitoring network, magnitude and time. Longitude/latitude maps distort geographic area at high latitude. Scientific interpretation requires independent geological context.</p>
-              <p><a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php" target="_blank" rel="noreferrer">USGS GeoJSON feed documentation ↗</a> · <a href="https://earthquake.usgs.gov/fdsnws/event/1/" target="_blank" rel="noreferrer">USGS FDSN event service ↗</a> · <a href="https://www.naturalearthdata.com/" target="_blank" rel="noreferrer">Natural Earth geographic reference ↗</a></p>
+              <p><a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php" target="_blank" rel="noreferrer">USGS GeoJSON feeds documentation ↗</a> · <a href="https://earthquake.usgs.gov/fdsnws/event/1/" target="_blank" rel="noreferrer">USGS FDSN event service ↗</a> · <a href="https://www.naturalearthdata.com/" target="_blank" rel="noreferrer">Natural Earth geographic reference ↗</a></p>
             </div>
           </section>
         </article>`
