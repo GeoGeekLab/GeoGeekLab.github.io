@@ -25,6 +25,62 @@
 <link href="lab-optimization.css?v=20261004b" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20260930g"></script>
 <script>
+// Never allow an early direct USGS past-day request to bypass the validated
+// same-origin snapshot. The data-supply module replaces fetch during startup;
+// requests issued before that installation must wait for its routing contract.
+(() => {
+  const upstreamHost = 'earthquake.usgs.gov';
+  const upstreamPath = '/earthquakes/feed/v1.0/summary/all_day.geojson';
+  const nativeFetch = window.fetch.bind(window);
+  const hrefOf = input => {
+    try {
+      const raw = typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url;
+      return new URL(raw, document.baseURI);
+    } catch { return null; }
+  };
+  function guardedFetch(input, init) {
+    const url = hrefOf(input);
+    if (!url || url.hostname !== upstreamHost || url.pathname !== upstreamPath) {
+      return nativeFetch(input, init);
+    }
+    if (window.GeoDataSupply?.installed && window.fetch !== guardedFetch) {
+      return window.fetch(input, init);
+    }
+    return new Promise((resolve, reject) => {
+      const signal = init?.signal || (input instanceof Request ? input.signal : null);
+      let elapsed = 0;
+      let timer = 0;
+      const stop = () => {
+        if (timer) clearTimeout(timer);
+        signal?.removeEventListener?.('abort', onAbort);
+      };
+      const onAbort = () => {
+        stop();
+        reject(new DOMException('The operation was aborted.', 'AbortError'));
+      };
+      const probe = () => {
+        if (signal?.aborted) return onAbort();
+        if (window.GeoDataSupply?.installed && window.fetch !== guardedFetch) {
+          stop();
+          Promise.resolve().then(() => window.fetch(input, init)).then(resolve, reject);
+          return;
+        }
+        if (elapsed >= 8000) {
+          stop();
+          reject(new Error('USGS snapshot routing unavailable; direct provider fallback disabled.'));
+          return;
+        }
+        elapsed += 25;
+        timer = setTimeout(probe, 25);
+      };
+      signal?.addEventListener?.('abort', onAbort, { once: true });
+      probe();
+    });
+  }
+  window.fetch = guardedFetch;
+})();
+</script>
+<script>
 (() => {
   const current = document.querySelector('meta[name="geogeek-lab-release"]')?.content || '';
   if (!current) return;
