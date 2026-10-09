@@ -24,7 +24,7 @@ function executableScripts(html) {
 }
 
 function isDeclaredWaterV102SyncDependency(attrs, src) {
-  const declared=attrs.match(/\bdata-geogeek-sync-dependency\s*=\s*(['"])water-v102-(physics|atm-sensor|analysis)\1/i);
+  const declared=attrs.match(/\bdata-geogeek-sync-dependency\s*=\s*(['"])water-v102-(physics|atm-sensor|analysis|uncertainty)\1/i);
   return Boolean(declared && new RegExp('(?:^|/)v102-'+declared[2]+'-views\\.js(?:[?#].*)?$','i').test(src));
 }
 
