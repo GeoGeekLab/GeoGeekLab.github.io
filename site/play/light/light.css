@@ -35,6 +35,7 @@
 .light-spectrum-after{stroke:#87aaa5;stroke-width:2.2;filter:drop-shadow(0 0 5px rgba(135,170,165,.16));transition:d .5s ease}
 .light-spectrum-readout{display:flex;justify-content:flex-end;gap:18px;color:rgba(242,240,232,.36);font:700 7px/1 var(--mono,monospace);letter-spacing:.1em}
 .light-spectrum-readout b{color:rgba(242,240,232,.8);font-weight:700}
+.light-spectrum-probe{margin-right:auto;color:rgba(242,240,232,.62);white-space:nowrap}
 .light-hud-block{display:grid;gap:4px}
 .light-hud-block span{color:rgba(242,240,232,.38);font:700 7px/1 var(--mono,monospace);letter-spacing:.14em}
 .light-hud-block strong{color:rgba(242,240,232,.82);font:700 10px/1 var(--mono,monospace);letter-spacing:.08em}
