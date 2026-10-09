@@ -43,7 +43,7 @@
       'play/light/light-content.js?v=20261007a',
       'play/light/light-physics.js?v=20261007a',
       'play/light/light-experiments.js?v=20261007a',
-      'play/light/light-view.js?v=20261007a'
+      'play/light/light-view.js?v=20261009-step06a'
     ],
     swath: [
       'play/swath/swath-content.js?v=20261007a',
@@ -64,7 +64,7 @@
     zone: 'play/bound/bound.js?v=20261005c',
     path: 'play/connect/connect.js?v=20261005c',
     project: 'play/project/project.js?v=20261009-step05a',
-    light: 'play/light/light.js?v=20261007a',
+    light: 'play/light/light.js?v=20261009-step06a',
     swath: 'play/swath/swath.js?v=20261007a'
   };
   const OPTIONAL_POST_SCRIPTS = {

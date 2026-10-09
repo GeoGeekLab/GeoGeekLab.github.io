@@ -58,7 +58,8 @@
             <path class="light-ray light-ray-surface" d="M540 282 C645 220 735 205 835 176"></path>
             <path class="light-ray light-ray-water" d="M540 286 C520 362 500 410 465 455 C535 423 620 370 704 306"></path>
           </svg>
-          <div class="light-path-legend">
+          <div class="light-scene-caption">ILLUSTRATIVE LIGHT PATHS <span>NOT TO SCALE</span></div>
+          <div class="light-path-legend" aria-label="Light path status">
             <span data-path="atmosphere">SCATTERED SKY</span>
             <span data-path="surface">SURFACE REFLECTION</span>
             <span data-path="water">WATER-LEAVING</span>
@@ -79,8 +80,15 @@
       </div>`;
 
     shell.hud.innerHTML=`
-      <div class="light-hud-block"><span>EXPERIMENT</span><strong class="light-hud-count">01 / 03</strong></div>
-      <div class="light-hud-block"><span>MODEL</span><strong>PATH ABLATION</strong></div>`;
+      <div class="light-evidence-head"><small>LIGHT / OPTICAL EVIDENCE</small><strong>Three optical mechanisms</strong></div>
+      <div class="light-evidence-meta">
+        <div class="light-hud-block"><span>EXPERIMENT</span><strong class="light-hud-count">01 / 03</strong></div>
+        <div class="light-hud-block"><span>MODEL</span><strong>PATH ABLATION</strong></div>
+      </div>
+      <div class="light-evidence-legend-title">PATH STATUS / CONCEPTUAL</div>
+      <div class="light-evidence-legend"></div>
+      <div class="light-evidence-spectrum"></div>
+      <p class="light-evidence-limit">Scene geometry and color are illustrative. Sky and surface curves are relative teaching models. Only the water experiment shows modeled Rrs (sr⁻¹). TOA radiance is not modeled.</p>`;
 
     const root=shell.root;
     const sky=root.querySelector('.light-sky');
@@ -95,6 +103,22 @@
     const probeLabel=root.querySelector('.light-spectrum-probe');
     const spectrumSvg=root.querySelector('.light-spectrum');
     const count=root.querySelector('.light-hud-count');
+    const desktopQuery=window.matchMedia('(min-width:1024px)');
+    // Move existing presentation elements, not data or experiment logic.
+    // The narrow-screen composition remains unchanged.
+    function positionEvidence() {
+      const legend=root.querySelector('.light-path-legend');
+      const spectrum=root.querySelector('.light-spectrum-card');
+      if (desktopQuery.matches) {
+        shell.hud.querySelector('.light-evidence-legend').append(legend);
+        shell.hud.querySelector('.light-evidence-spectrum').append(spectrum);
+      } else {
+        shell.viewport.querySelector('.light-world').append(legend);
+        shell.viewport.querySelector('.light-stage').append(spectrum);
+      }
+    }
+    desktopQuery.addEventListener('change',positionEvidence);
+    positionEvidence();
 
     function renderSpectrum(snapshot,scene) {
       const chart=scene.chart;
@@ -193,15 +217,24 @@
       root.querySelector('.light-ray-atmosphere').classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
       root.querySelector('.light-ray-surface').classList.toggle('is-off',!surfaceContribution);
       root.querySelector('.light-ray-water').classList.toggle('is-off',!scene.mechanisms.waterBackscatter);
-      root.querySelector('[data-path="atmosphere"]').classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
-      root.querySelector('[data-path="surface"]').classList.toggle('is-off',!surfaceContribution);
-      root.querySelector('[data-path="water"]').classList.toggle('is-off',!scene.mechanisms.waterBackscatter);
+      [
+        ['atmosphere','SCATTERED SKY',scene.mechanisms.atmosphericScattering],
+        ['surface','SURFACE REFLECTION',surfaceContribution],
+        ['water','WATER-LEAVING',scene.mechanisms.waterBackscatter]
+      ].forEach(([id,label,active])=>{
+        const item=root.querySelector(`[data-path="${id}"]`);
+        item.classList.toggle('is-off',!active);
+        item.textContent=`${label} · ${active?'PRESENT':'REMOVED'}`;
+      });
 
       if (snapshot.experiment) renderSpectrum(snapshot,scene);
       renderPanel(snapshot);
     }
 
-    return Object.freeze({render});
+    return Object.freeze({
+      render,
+      dispose() { desktopQuery.removeEventListener('change',positionEvidence); }
+    });
   }
 
   // Pure spectrum geometry is shared with numerical regression checks.

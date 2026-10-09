@@ -13,6 +13,7 @@
     if (!content || !physics || !experiments || !viewApi) throw new Error('Light Play modules incomplete.');
 
     GeoPlay.core.ensureStyle('play/light/light.css?v=20261007a','light-play');
+    GeoPlay.core.ensureStyle('play/light/light-desktop.css?v=20261009-step06a','light-desktop');
     const water=await window.GeoModules.loadModule('water/water-model.js?v=20261007a');
     if (signal?.aborted) return()=>{};
     const waterOutput=water.computeWaterOptics(content.WATER_STATE);
@@ -64,6 +65,7 @@
     render(game.snapshot,{type:'init'});
 
     return()=>{
+      view.dispose();
       stage.innerHTML='';
     };
   }
