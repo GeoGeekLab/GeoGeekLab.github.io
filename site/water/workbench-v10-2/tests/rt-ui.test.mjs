@@ -24,7 +24,7 @@ test('UX-RT4-01 profile axes are physically explicit, downward depth and logarit
  for(const x of ['z increases downward','Depth z (m)','log10 scale','10^-','Finite-difference estimate','not an independent field measurement'])assert.ok(html.includes(x),x);
  assert.match(html,/rt-science-conditions/);
  assert.match(html,/rt-science-results/);
- assert.match(html,/View exact sampled values/);
+ assert.match(html,/View original sampled values/);
  const caption='Discrete irradiance and attenuation';
  assert.ok(html.includes(caption));
  assert.equal((html.match(/<tr>/g)||[]).length,11);
