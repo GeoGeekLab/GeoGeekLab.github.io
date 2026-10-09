@@ -56,6 +56,24 @@
   padding:14px 16px;
   box-shadow:none;
 }
+/* The inspector, snapshot-age strip and map toolbar must not take the
+ * remaining height away from the SVG. Preserve map geometry and permit
+ * the left column to scroll on short and touch viewports. */
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-column{
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  min-height:0;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map-container{
+  flex:0 0 auto;
+  min-height:220px;
+}
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map{
+  max-height:none;
+  min-height:190px;
+  height:auto;
+  flex-shrink:0;
+}
 .instrument-dialog[data-instrument-kind="pulse"] .pulse-map-frame,
 .instrument-dialog[data-instrument-kind="pulse"] .pulse-workflow .pw-map{
   border:1px solid var(--pulse-ui-line);
