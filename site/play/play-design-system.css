@@ -1,0 +1,205 @@
+/*
+ * PLAY Desktop V2 — shared instrument design language
+ * Scope: PLAY shells only. The viewport/workspace grid is reserved for STEP 04.
+ */
+
+.play-shell,
+.play-v2-shell {
+  --play-bg: #0b100e;
+  --play-panel: #17211c;
+  --play-panel-raised: #202b24;
+  --play-fg: #edece5;
+  --play-muted: #aebbb2;
+  --play-subtle: #87978b;
+  --play-line: rgba(237, 236, 229, .18);
+  --play-line-strong: rgba(237, 236, 229, .32);
+  --play-action: #d8794e;
+  --play-action-hover: #e89a72;
+  --play-action-text: #190e08;
+  --play-reference: #8fb5ac;
+  --play-reference-text: #c4e0d9;
+  --play-error: #c76055;
+  --play-focus: #e9c99a;
+  --play-font-display: var(--serif, Georgia, serif);
+  --play-font-interface: var(--sans, system-ui, sans-serif);
+  --play-font-data: var(--mono, ui-monospace, monospace);
+  --play-font-body-size: 14px;
+  --play-font-label-size: 11px;
+  --play-radius-control: 8px;
+  --play-radius-panel: 12px;
+  --play-space-1: 4px;
+  --play-space-2: 8px;
+  --play-space-3: 12px;
+  --play-space-4: 16px;
+  --play-space-5: 24px;
+  --play-space-6: 32px;
+  --play-motion-fast: 160ms;
+  --play-motion-standard: 280ms;
+  --play-ease: cubic-bezier(.2,.8,.2,1);
+
+  /* Match existing shell contracts without changing their markup. */
+  --play-signal: var(--play-action);
+  --play-v2-bg: var(--play-bg);
+  --play-v2-surface: var(--play-panel);
+  --play-v2-fg: var(--play-fg);
+  --play-v2-muted: var(--play-muted);
+  --play-v2-line: var(--play-line);
+  --play-v2-action: var(--play-action);
+  --play-v2-reference: var(--play-reference);
+  --play-v2-invalid: var(--play-error);
+  color: var(--play-fg);
+  font-family: var(--play-font-interface);
+  -webkit-font-smoothing: antialiased;
+}
+
+.play-shell *,
+.play-v2-shell * {
+  box-sizing: border-box;
+}
+
+/* Labels and readouts form one consistent typographic tier. */
+.play-v2-shell .play-v2-title,
+.play-v2-shell .play-v2-status,
+.play-shell .play-console-head,
+.play-v2-shell :is(.project-v2-hud-item, .light-hud-block) strong {
+  font-family: var(--play-font-data);
+  font-variant-numeric: tabular-nums;
+}
+
+.play-v2-shell .play-v2-title {
+  color: var(--play-fg);
+  font-size: var(--play-font-label-size);
+  letter-spacing: .12em;
+}
+
+.play-v2-shell .play-v2-status {
+  color: var(--play-reference);
+  font-size: var(--play-font-label-size);
+  letter-spacing: .06em;
+}
+
+.play-v2-shell :is(.project-v2-panel, .light-panel) p,
+.play-shell :is(.play-task, .play-readout) p {
+  color: var(--play-muted);
+  font-family: var(--play-font-interface);
+  font-size: var(--play-font-body-size);
+  line-height: 1.55;
+}
+
+.play-v2-shell :is(.project-v2-panel, .light-panel) h2 {
+  color: var(--play-fg);
+  font-family: var(--play-font-interface);
+  letter-spacing: -.035em;
+}
+
+/* Sample instrumentation: Project and Light demonstrate the tokens first.
+ * Task and canvas positions are deliberately unchanged in STEP 03.
+ */
+.play-v2-shell[data-play-kind="project"] .project-v2-panel {
+  border-radius: var(--play-radius-panel);
+  border-color: var(--play-line);
+}
+
+.play-v2-shell[data-play-kind="project"] .project-v2-panel h2 {
+  font-size: clamp(28px, 2.5vw, 40px);
+  line-height: 1.04;
+}
+
+.play-v2-shell[data-play-kind="project"] .project-v2-action,
+.play-v2-shell[data-play-kind="light"] .light-action {
+  border-radius: var(--play-radius-control);
+  font-family: var(--play-font-data);
+}
+
+.play-v2-shell[data-play-kind="light"] .light-panel {
+  border-radius: var(--play-radius-panel);
+  border-color: var(--play-line);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .20);
+}
+
+.play-v2-shell[data-play-kind="light"] .light-panel h2 {
+  font-size: clamp(22px, 1.7vw, 28px);
+  line-height: 1.12;
+}
+
+.play-v2-shell[data-play-kind="light"] :is(.light-spectrum-mode, .light-spectrum-readout, .light-limit) {
+  font-size: 10px;
+  letter-spacing: .04em;
+}
+
+.play-v2-shell[data-play-kind="light"] :is(.light-spectrum-probe, .light-spectrum-readout b) {
+  color: var(--play-fg);
+}
+
+.play-v2-shell[data-play-kind="light"] :is(.light-panel>span, .light-spectrum-mode) {
+  color: var(--play-reference);
+}
+
+.play-v2-shell[data-play-kind="light"] .light-spectrum-before {
+  stroke: rgba(237,236,229,.52);
+}
+
+.play-v2-shell[data-play-kind="light"] .light-spectrum-after {
+  stroke: var(--play-reference);
+}
+
+/* Shared keyboard, hover, selected and disabled states. A visible outline
+ * remains intact for native HTML and interactive SVG controls.
+ */
+.play-shell :is(button, [role="button"], input[type="range"]):focus-visible,
+.play-v2-shell :is(button, [role="button"], input[type="range"], [role="application"][tabindex]):focus-visible {
+  outline: 2px solid var(--play-focus);
+  outline-offset: 3px;
+}
+
+.play-shell button:disabled,
+.play-v2-shell button:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
+.play-shell :is(button, [role="button"])[aria-pressed="true"],
+.play-v2-shell :is(button, [role="button"])[aria-pressed="true"] {
+  border-color: var(--play-reference);
+  color: var(--play-reference-text);
+  background-color: rgba(143, 181, 172, .16);
+}
+
+.play-v2-shell[data-play-kind="light"] .light-action:not(.is-secondary):not(:disabled) {
+  background: var(--play-action);
+  border-color: var(--play-action);
+  color: var(--play-action-text);
+}
+
+.play-v2-shell[data-play-kind="light"] .light-action:not(.is-secondary):hover:not(:disabled) {
+  background: var(--play-action-hover);
+  border-color: var(--play-action-hover);
+}
+
+.play-v2-shell[data-play-kind="project"] .project-v2-action:not(.is-secondary):hover:not(:disabled) {
+  border-color: var(--play-action-hover);
+  background: rgba(216, 121, 78, .18);
+}
+
+.play-shell input[type="range"],
+.play-v2-shell input[type="range"] {
+  accent-color: var(--play-action);
+}
+
+/* Preserve visible feedback without needless motion in reduced-motion mode. */
+@media (prefers-reduced-motion: reduce) {
+  .play-shell *,
+  .play-v2-shell * {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .play-shell :is(button, [role="button"], input[type="range"]):focus-visible,
+  .play-v2-shell :is(button, [role="button"], input[type="range"], [role="application"][tabindex]):focus-visible {
+    outline-color: Highlight;
+  }
+}
