@@ -48,8 +48,9 @@ test('UX-062 numeric data table is keyboard accessible; slope variant can be res
  await expect(details.locator('tbody tr')).toHaveCount(14);
  await details.locator('.p6-table-scroll').focus();
  await expect(details.locator('.p6-table-scroll')).toBeFocused();
+ await app.locator('#advancedDetails summary').click();
  const sg=app.locator('#num-sg');
- await expect(sg).toBeAttached();
+ await expect(sg).toBeVisible();
  await sg.fill('0.019');
  await sg.dispatchEvent('change');
  await expect(app.locator('.p6-variant')).toContainText('EXPLORATORY SLOPE VARIANT');
