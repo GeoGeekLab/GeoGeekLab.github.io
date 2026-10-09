@@ -349,7 +349,7 @@
       const displayed=scope==='a'?latest.a:scope==='b'?latest.b:state.visible;
       const visibleIds=new Set(displayed.map(event=>event.id));
       dots.style.display=enabled?'none':'';
-      $('.pw-event',dots).forEach(marker=>{
+      dots.querySelectorAll('.pw-event').forEach(marker=>{
         const visible=!enabled&&visibleIds.has(marker.dataset.eventId);
         marker.style.display=visible?'':'none';
         marker.setAttribute('aria-hidden',String(!visible));
