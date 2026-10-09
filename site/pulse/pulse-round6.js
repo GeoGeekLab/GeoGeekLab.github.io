@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '20261002a';
+  const VERSION = '20261009r3';
   const R_EARTH_KM = 6371.0088;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
