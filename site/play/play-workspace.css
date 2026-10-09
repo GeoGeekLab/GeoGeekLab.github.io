@@ -3,6 +3,7 @@
  * This layer only changes the outer Lab frame. Individual instruments keep
  * their own fields, panels, state transitions and measurements.
  */
+@media (min-width: 1024px) {
 .instrument-dialog[data-play-workspace="true"] {
   position: fixed;
   inset: 0;
@@ -237,4 +238,6 @@
   .instrument-dialog[data-play-workspace="true"] .instrument-close {
     transition: none;
   }
+}
+
 }
