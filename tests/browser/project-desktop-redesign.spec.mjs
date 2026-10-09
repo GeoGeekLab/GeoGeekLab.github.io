@@ -118,6 +118,7 @@ test('PROJECT route keeps geodesic hidden until reveal and displays it in the ma
     await expect(shell).toHaveAttribute('data-play-state','routeTransforming');
     await expect(shell.locator('.project-v2-geodesic')).toHaveAttribute('opacity','1');
     await expect(shell.locator('.project-v2-legend-line.is-geodesic')).toBeVisible();
+    await expect(shell.locator('.project-v2-legend-line.is-judgment')).toHaveCSS('border-top-style','dashed');
     const slider=shell.getByRole('slider',{name:'Route projection transformation from Mercator to azimuthal equidistant'});
     for(const value of [0,50,100]) await scrub(slider,value);
     await shell.getByRole('button',{name:'FINISH'}).click();
