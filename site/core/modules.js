@@ -7,7 +7,7 @@
   const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
   const PROVIDER_STABILITY_RUNTIME = 'core/provider-stability.js?v=20261004b';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002e';
-  const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261002e';
+  const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261009fixed1';
   const WATER_INSTRUMENT = 'water/water-instrument.js?v=20261007o';
   const WATER_WORKBENCH_V5 = 'water/workbench-v5/instrument.js?v=5.0.0';
   const WATER_WORKBENCH_V6 = 'water/workbench-v6/instrument.js?v=6.0.0';
