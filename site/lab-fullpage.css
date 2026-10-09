@@ -97,7 +97,37 @@
   text-wrap: balance;
 }
 
-.instrument-workspace-modes[hidden] { display: none !important; }
+.instrument-workspace-modes[hidden],
+.pulse-task-tabs[hidden] { display: none !important; }
+
+.pulse-task-tabs {
+  align-self: center;
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--lab-workspace-line);
+  background: rgba(255,255,255,.018);
+}
+.pulse-task-tabs button {
+  min-height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--lab-workspace-muted);
+  font: 700 10px/1 var(--mono);
+  letter-spacing: .09em;
+  cursor: pointer;
+}
+.pulse-task-tabs button[aria-pressed="true"] {
+  color: var(--lab-workspace-fg);
+  background: rgba(209,99,57,.13);
+  box-shadow: inset 0 -2px 0 var(--lab-workspace-signal);
+}
+.pulse-task-tabs button:focus-visible {
+  outline: 2px solid var(--lab-workspace-signal);
+  outline-offset: -2px;
+}
 
 .instrument-workspace-modes {
   align-self: center;
@@ -397,13 +427,11 @@
 .instrument-dialog[data-instrument-kind="pulse"] .pulse-panel-section > strong,
 .instrument-dialog[data-instrument-kind="pulse"] .pulse-control-heading strong { font-size: 14px !important; line-height: 1.28 !important; }
 .instrument-dialog[data-instrument-kind="pulse"] .pulse-panel-section p { color: var(--lab-workspace-body) !important; font-size: 11px !important; line-height: 1.5 !important; }
-.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="work"] .pulse-encoding,
-.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="work"] .pulse-provenance { display: none !important; }
-.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="inspect"] .pulse-observation-lab {
-  grid-template-columns: minmax(0, 1fr) var(--lab-workspace-rail-inspect) !important;
+/* Pulse uses a consistent map + provenance rail in both research tasks. */
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-encoding,
+.instrument-dialog[data-instrument-kind="pulse"] .pulse-provenance {
+  display: block !important;
 }
-.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="focus"] .pulse-observation-lab { grid-template-columns: minmax(0, 1fr) !important; }
-.instrument-dialog[data-instrument-kind="pulse"][data-workspace-mode="focus"] .pulse-panel { display: none !important; }
 
 /* FIGURE — source image and derived field form one visual argument. */
 .instrument-dialog[data-instrument-kind="figure"] .figure-workbench,
@@ -530,7 +558,8 @@
     grid-template-columns: minmax(0,1fr) auto;
     min-height: 86px;
   }
-  .instrument-workspace-modes { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+  .instrument-workspace-modes,
+  .pulse-task-tabs { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
   .instrument-dialog[data-lab-workspace="true"] .instrument-meta {
     grid-template-columns: 1fr;
     gap: 9px;
@@ -589,7 +618,8 @@
     font-size: clamp(30px, 10vw, 42px);
   }
   .instrument-dialog[data-lab-workspace="true"] .instrument-meta { display: none; }
-  .instrument-workspace-modes { overflow-x: auto; max-width: calc(100vw - 28px); }
+  .instrument-workspace-modes,
+  .pulse-task-tabs { overflow-x: auto; max-width: calc(100vw - 28px); }
   .instrument-workspace-modes button { min-height: 34px; padding-inline: 9px; }
   .instrument-dialog[data-lab-workspace="true"] .instrument-close {
     min-width: 42px;
