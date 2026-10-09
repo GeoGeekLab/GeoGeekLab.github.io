@@ -47,6 +47,7 @@ jobs:
         run: |
           npx playwright test -c playwright.config.mjs \
             tests/browser/pulse-observation-lab.spec.mjs \
+            tests/browser/pulse-round5.spec.mjs \
             tests/browser/pulse-round6.spec.mjs \
             tests/browser/pulse-workflow.spec.mjs \
             tests/browser/pulse-workflow-v2.spec.mjs \
