@@ -175,6 +175,15 @@
     if (records.some(record => record.attributeName === 'data-instrument-kind' || record.attributeName === 'open')) syncIdentity();
   });
   observer.observe(dialog, { attributes:true, attributeFilter:['data-instrument-kind', 'open'] });
-  dialog.addEventListener('close', syncIdentity);
+  dialog.addEventListener('close', () => {
+    if (activeKind === 'pulse') {
+      // Leaving the instrument must not leak Analyze into another Lab record.
+      const url = new URL(location.href);
+      url.searchParams.delete('pulseTask');
+      history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+      delete dialog.dataset.pulseTask;
+    }
+    syncIdentity();
+  });
   syncIdentity();
 })();
