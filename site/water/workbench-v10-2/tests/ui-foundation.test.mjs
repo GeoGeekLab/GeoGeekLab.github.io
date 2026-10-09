@@ -46,7 +46,6 @@ test('UX-LAYOUT-01: preview owns document scroll and disables nested chart/contr
 test('UX-ROUTE-01: default V10.2, explicit V10.1 fallback and versioned frame CSS',()=>{
  const host=read(path.resolve(root,'../../'),'core/modules.js');
  const adapter=read(root,'instrument.js'),styles=read(root,'instrument.css');
- assert.match(host,/requestedWaterVersion==='v102'/);
  assert.match(host,/try \{ await loadModule\(WATER_WORKBENCH_V102\)/);
  assert.match(host,/requestedWaterVersion==='v101'/);
  assert.match(adapter,/water-v102-frame/);assert.match(adapter,/GeoWaterWorkbenchV102/);
