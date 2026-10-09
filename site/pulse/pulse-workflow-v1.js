@@ -570,6 +570,7 @@
       workspace.hidden=!analyze;
       if (analyze) base.dataset.workflowSuspended = 'true';
       else base.removeAttribute('data-workflow-suspended');
+      if(analyze && state.source) sourceTimeState();
       if(analyze && !state.source && !state.busy) void loadSnapshot();
     }
 
@@ -583,7 +584,11 @@
       listen(button,'click',()=>{
         const section=workspace.querySelector('[data-pw-section="'+jumpTargets[button.dataset.pwNav]+'"]');
         section?.scrollIntoView({block:'start',behavior:'auto'});
-        section?.querySelector('h3')?.focus({preventScroll:true});
+        const heading=section?.querySelector('h3');
+        if(heading) {
+          heading.tabIndex=-1;
+          heading.focus({preventScroll:true});
+        }
       });
     }
     listen(el('snapshot'),'click',() => void loadSnapshot());
