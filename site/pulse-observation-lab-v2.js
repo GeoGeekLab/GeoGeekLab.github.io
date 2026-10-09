@@ -261,7 +261,6 @@
             <div class="pulse-map-badge pulse-map-badge-right" id="pulseReferenceBadge">${land ? 'LAND · NATURAL EARTH 1:110m · VERSION-PINNED' : 'LAND REFERENCE · UNAVAILABLE'}</div>
             <div class="pulse-map-badge pulse-map-view-badge" id="pulseViewBadge">EVENTS · FULL SNAPSHOT</div>
           </div>
-          <div class="pulse-map-note">Recency opacity is measured against the USGS feed generation time. Timeline playback only reveals events already present in this one snapshot.</div>
         </section>
 
         <aside class="pulse-panel" tabindex="0" role="complementary" aria-label="Earth Pulse controls and event details">
@@ -376,6 +375,7 @@
               <div><dt>LIMIT</dt><dd>${esc(quakeDataset.limit)}</dd></div>
               <div><dt>REFERENCE</dt><dd>${land ? `${esc(landDataset.provider)} · ${esc(landState?.freshnessLabel || 'VERSION-PINNED')}` : 'UNAVAILABLE · geographic frame retained'}</dd></div>
             </dl>
+            <a class="pulse-method-link" href="/records/lab-l10.html">METHOD, SOURCE &amp; LIMITS ↗</a>
           </section>
         </aside>
       </div>`;
