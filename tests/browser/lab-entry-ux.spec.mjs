@@ -149,3 +149,17 @@ test('Lab delivers all thirteen instrument cards in first-response HTML without 
   await expect(list.locator('.lab-group-observatory .project-card')).toHaveCount(7);
   await expect(list.locator('.lab-group-play .project-card')).toHaveCount(6);
 });
+
+
+test('first Lab preview uses a right-sized screenshot without priority escalation', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
+  const image = page.locator('#l04 .project-visual.is-real-output img');
+  await expect(image).toHaveAttribute('loading', 'lazy');
+  await expect(image).not.toHaveAttribute('fetchpriority', 'high');
+  await image.scrollIntoViewIfNeeded();
+  await expect.poll(async () => image.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
+  const dimensions = await image.evaluate(img => ({ width: img.naturalWidth, height: img.naturalHeight }));
+  expect(dimensions.width).toBeGreaterThanOrEqual(480);
+  expect(dimensions.width).toBeLessThanOrEqual(960);
+  expect(dimensions.height).toBeGreaterThan(180);
+});
