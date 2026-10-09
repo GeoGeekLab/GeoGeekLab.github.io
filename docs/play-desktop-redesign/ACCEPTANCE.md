@@ -125,3 +125,28 @@ Scope: geometry and existing scientific/interaction behavior. Full-screen redesi
 | 125% desktop zoom visual inspection | NOT RUN | Remains in global STEP 12 matrix |
 
 The single skipped test is a pre-existing Water prototype desktop narrow-screen case in `tests/browser/water-prototype.spec.mjs`, not a Project test. Completion of STEP 01 does not claim completion of P06, full-viewport support, typography/contrast refinement, or the final cross-viewport visual sign-off.
+
+
+## F. STEP 02 acceptance — Light spectral comparison
+
+Validated implementation revision: `118d5311cba93f08a25eaca196e753a47a523733`  
+GitHub Actions: [GeoGeek Quality run 37904642575](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37904642575) — **COMPLETED / SUCCESS**.  
+Scope: scientifically faithful spectral comparison and readout labeling. The Light workspace restyle is STEP 06.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| L01 — shared within-experiment Y axis | PASS | `tests/light/light-spectrum.test.mjs`: a nonzero after spectrum stays proportionally below the baseline; `tests/browser/light-spectrum-comparison.spec.mjs` |
+| L02 — zero and near-zero signals accurately displayed | PASS | Zero after-spectrum traces at SVG baseline y=126, including negative/nonfinite input guards and small nonzero Rrs case |
+| L03 — independent mechanism removal | PASS | Original Light experiment/state tests, full three-scene browser sequence and screenshots |
+| L04 — quantitative Rrs separate from illustrative paths | PASS | Spectrum mode and `550 NM · Rrs / sr⁻¹` readout for water; `550 NM · RELATIVE` for conceptual atmosphere/surface |
+| L05 — final scene/control legibility | DEFERRED | Layout, occlusion and hierarchy belong to STEP 06; the current overlay still masks part of the scene/spectrum |
+| L06 — readout identifies wavelength and units | PASS | Nearest 550 nm sample, labeled `Rrs / sr⁻¹` or `RELATIVE`, before/after readings |
+| New numerical Node tests | PASS | Four unit tests in `tests/light/light-spectrum.test.mjs`, covered by `npm run qa` |
+| Existing Light Node tests | PASS | `npm run qa:light`, included in CI Static QA |
+| Light browser tests | PASS | 8/8 across desktop and mobile Chromium; 4 original + 4 new |
+| Full browser suite | PASS | 476 total / 475 expected passes / 1 unrelated skipped / 0 failures / 0 flaky |
+| Production build, static QA, links, Lighthouse | PASS | GitHub Quality run 37904642575 |
+| Desktop screenshot evidence | PASS | Report captures `light-sky-removed-1920` (1920×1080), `light-water-removed-1920` (1920×1080), `light-surface-removed-1440` (1440×900) |
+| Desktop 125% zoom and fully unobstructed scene | NOT RUN / DEFERRED | STEP 06 and STEP 12 |
+
+The single skipped case remains the unrelated Water prototype narrow-screen test. Screenshot inspection confirms that the removed-mechanism curves rest on the chart's actual zero baseline, the 550 nm readings and unit labels are visible, and scene mechanism states remain distinct. Full scene composition remains an open design issue for STEP 06, not a regression in STEP 02.
