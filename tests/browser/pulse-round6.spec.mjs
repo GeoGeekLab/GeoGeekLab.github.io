@@ -117,15 +117,14 @@ test('Pulse Round 6 makes the event-to-inference chain explicit and progressive'
   await expect(page.locator('[data-pulse-chain-aggregate]')).toContainText('12° × 10° COUNT');
   await expect(page.locator('[data-pulse-chain-read]')).toContainText('CELL COUNTS');
 
-  // Work keeps full provenance progressive rather than permanently occupying the rail.
-  await expect(dialog).toHaveAttribute('data-workspace-mode', 'work');
-  await expect(page.locator('.pulse-provenance')).toBeHidden();
-  await page.locator('[data-pulse-jump="source"]').click();
-  await expect(dialog).toHaveAttribute('data-workspace-mode', 'inspect');
+  // Provenance is always available without a workspace-density mode.
+  await expect(dialog).toHaveAttribute('data-pulse-task', 'observe');
   await expect(page.locator('.pulse-provenance')).toBeVisible();
+  await page.locator('[data-pulse-jump="source"]').click();
+  await expect(page.locator('.pulse-provenance')).toBeVisible();
+  await expect(page.locator('.instrument-workspace-modes')).toBeHidden();
 
   // Changing the visible set updates the explicit inference chain.
-  await page.locator('.instrument-workspace-modes button[data-workspace-mode="work"]').click();
   await page.locator('#pulseMagnitudeFilter').selectOption('4');
   await expect(page.locator('[data-pulse-chain-filter]')).toContainText('M≥4');
 

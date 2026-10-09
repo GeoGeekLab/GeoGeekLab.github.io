@@ -7,7 +7,7 @@
   const NS = 'http://www.w3.org/2000/svg';
   const style = document.createElement('link');
   style.rel='stylesheet';
-  style.href=new URL('./pulse-workflow-v2.css?v=20261008b', import.meta.url).href;
+  style.href=new URL('./pulse-workflow-v2.css?v=20261009r3b', import.meta.url).href;
   style.dataset.pulseWorkflowV2Style='1';
   if (!document.querySelector('link[data-pulse-workflow-v2-style]')) document.head.appendChild(style);
   const EARTH_R = 6371.0088;
@@ -349,7 +349,7 @@
       const displayed=scope==='a'?latest.a:scope==='b'?latest.b:state.visible;
       const visibleIds=new Set(displayed.map(event=>event.id));
       dots.style.display=enabled?'none':'';
-      $('.pw-event',dots).forEach(marker=>{
+      dots.querySelectorAll('.pw-event').forEach(marker=>{
         const visible=!enabled&&visibleIds.has(marker.dataset.eventId);
         marker.style.display=visible?'':'none';
         marker.setAttribute('aria-hidden',String(!visible));

@@ -61,8 +61,8 @@ async function fixtures(page) {
     status:200,contentType:'application/geo+json',body:JSON.stringify(geojson(historical))
   }));
   await page.goto('/lab.html?instrument=pulse#l10',{waitUntil:'domcontentloaded'});
-  await expect(page.locator('.pulse-workflow-launch')).toBeVisible({timeout:15000});
-  await page.locator('.pulse-workflow-launch').click();
+  await expect(page.locator('.pulse-task-tabs [data-pulse-task="analyze"]')).toBeVisible({timeout:15000});
+  await page.locator('.pulse-task-tabs [data-pulse-task="analyze"]').click();
   await expect(page.locator('[data-pw="loaded"]')).toHaveText('3',{timeout:15000});
 }
 
@@ -134,7 +134,7 @@ test('history query uses date-scoped FDSN request without replacing snapshot fal
   await work.locator('[data-pw="north"]').fill('30');
   await work.locator('[data-pw="apply-roi"]').click();
   await expect(work.locator('[data-pw="visible"]')).toHaveText('1');
-  await work.locator('[data-pw="return"]').click();
+  await page.locator('.pulse-task-tabs [data-pulse-task="observe"]').click();
   await expect(page.locator('.pulse-observation-lab')).toBeVisible();
   await expect(page.locator('.pulse-workflow')).toBeHidden();
 });

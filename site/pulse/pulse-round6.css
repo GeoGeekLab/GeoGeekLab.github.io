@@ -30,7 +30,7 @@
   background:rgba(9,13,10,.92);
   backdrop-filter:blur(12px);
 }
-.pulse-r6-nav button{
+.pulse-r6-nav a{
   min-height:34px;
   border:1px solid rgba(241,239,231,.08);
   border-radius:8px;
@@ -40,12 +40,12 @@
   letter-spacing:.085em;
   cursor:pointer;
 }
-.pulse-r6-nav button[aria-pressed="true"]{
+.pulse-r6-nav a:hover{
   border-color:rgba(196,93,52,.42);
   background:rgba(196,93,52,.095);
   color:#f1efe7;
 }
-.pulse-r6-nav button:focus-visible{
+.pulse-r6-nav a:focus-visible{
   outline:2px solid rgba(196,93,52,.72);
   outline-offset:1px;
 }

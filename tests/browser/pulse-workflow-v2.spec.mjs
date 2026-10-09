@@ -54,8 +54,8 @@ async function open(page){
     status:200,contentType:'application/geo+json',body:JSON.stringify(land)
   }));
   await page.goto('/lab.html?instrument=pulse#l10',{waitUntil:'domcontentloaded'});
-  await expect(page.locator('.pulse-workflow-launch')).toBeVisible({timeout:20000});
-  await page.locator('.pulse-workflow-launch').click();
+  await expect(page.locator('.pulse-task-tabs [data-pulse-task="analyze"]')).toBeVisible({timeout:20000});
+  await page.locator('.pulse-task-tabs [data-pulse-task="analyze"]').click();
   await expect(page.locator('.pulse-workflow [data-pw="loaded"]')).toHaveText('5',{timeout:10000});
   await expect(page.locator('.pw-comparison')).toBeVisible();
   return {now,events};
@@ -105,11 +105,24 @@ test('mouse and keyboard inspection show complete points; map zoom and configura
   // This isolated point tests physical pointer hit testing. Overlapping points are
   // intentionally reached through the event finder instead of forced hover.
   const circle=work.locator('.pw-event[data-event-id="B Polar Two"]');
-  await circle.hover();
+  // SVG <g> bounds are not necessarily the painted hit surface. Move the
+  // mouse to the real circle's screen coordinates and verify event delivery.
+  await circle.scrollIntoViewIfNeeded();
+  const hit=await circle.locator('.pw-event-hit').evaluate(node=>{
+    const box=node.getBoundingClientRect();
+    return {x:box.left+box.width/2,y:box.top+box.height/2};
+  });
+  await page.mouse.move(hit.x,hit.y);
   await expect(work.locator('.pw-hover-detail')).toContainText('B Polar Two');
   await expect(work.locator('.pw-hover-detail')).toContainText('COORDINATES');
   await expect(work.locator('.pw-floating-tip')).toBeVisible();
-  await circle.click();
+  // Updating the hover inspector must not move the map beneath the pointer.
+  const still=await circle.locator('.pw-event-hit').evaluate(node=>{
+    const box=node.getBoundingClientRect();
+    return {x:box.left+box.width/2,y:box.top+box.height/2};
+  });
+  expect(Math.hypot(still.x-hit.x,still.y-hit.y)).toBeLessThan(1);
+  await page.mouse.click(still.x,still.y);
   await expect(work.locator('.pw-hover-detail')).toContainText('PINNED');
 
   await work.locator('[data-pc="zoom-in"]').click();
@@ -133,14 +146,16 @@ test('mouse and keyboard inspection show complete points; map zoom and configura
   await work.locator('[data-pc="scope"]').selectOption('b');
   await expect(work.locator('[data-pc="grid-legend"]')).toContainText('WINDOW B');
   await work.locator('[data-pc="display"]').selectOption('points');
-  await expect(work.locator('.pw-event').first()).toBeVisible();
+  // Window B intentionally hides points outside its comparison period.
+  await expect(work.locator('.pw-event[data-event-id="A Pacific"]')).toBeHidden();
+  await expect(work.locator('.pw-event[data-event-id="B Polar"]')).toBeVisible();
 });
 
 test('original Pulse keeps one original land layer even when workflow map is mounted',async({page})=>{
   await open(page);
   await expect(page.locator('.pulse-observation-lab .pulse-land path')).toHaveCount(1);
   await expect(page.locator('.pw-map .pw-land path')).toHaveCount(1);
-  await page.locator('.pulse-workflow [data-pw="return"]').click();
+  await page.locator('.pulse-task-tabs [data-pulse-task="observe"]').click();
   await expect(page.locator('.pulse-observation-lab')).toBeVisible();
 });
 
@@ -212,16 +227,38 @@ test('ROI drawing, pointer-centred zoom and drag pan stay accurate with SVG lett
   });
   expect(letterboxError).toBeGreaterThan(2);
 
+  // Capture the coordinates actually delivered to SVG pointer handlers.
+  // Mobile emulation may scroll the document while the pointer travels.
+  await map.evaluate(svg=>{
+    window.__pulsePointerSamples=[];
+    const hit=svg.querySelector('.pw-draw-hit');
+    for(const kind of ['pointerdown','pointerup']) {
+      hit.addEventListener(kind,event=>{
+        const p=new DOMPoint(event.clientX,event.clientY).matrixTransform(svg.getScreenCTM().inverse());
+        window.__pulsePointerSamples.push({kind,x:p.x,y:p.y});
+      },{capture:true});
+    }
+  });
   await page.mouse.move(topLeft.x,topLeft.y);
   await page.mouse.down();
   await page.mouse.move(bottomRight.x,bottomRight.y,{steps:10});
   await page.mouse.up();
 
   const roi=async key=>Number(await work.locator('[data-pw="'+key+'"]').inputValue());
-  expect(await roi('west')).toBeCloseTo(-85,1);
-  expect(await roi('east')).toBeCloseTo(-55,1);
-  expect(await roi('south')).toBeCloseTo(0,1);
-  expect(await roi('north')).toBeCloseTo(25,1);
+  const delivered=await map.evaluate(()=>window.__pulsePointerSamples);
+  expect(delivered.map(x=>x.kind)).toEqual(['pointerdown','pointerup']);
+  const start=delivered[0],end=delivered[1];
+  const expectedLon=x=>x/1000*360-180,expectedLat=y=>90-y/500*180;
+  expect(await roi('west')).toBeCloseTo(expectedLon(Math.min(start.x,end.x)),1);
+  expect(await roi('east')).toBeCloseTo(expectedLon(Math.max(start.x,end.x)),1);
+  expect(await roi('south')).toBeCloseTo(expectedLat(Math.max(start.y,end.y)),1);
+  expect(await roi('north')).toBeCloseTo(expectedLat(Math.min(start.y,end.y)),1);
+  if(test.info().project.name==='desktop-chromium') {
+    expect(await roi('west')).toBeCloseTo(-85,1);
+    expect(await roi('east')).toBeCloseTo(-55,1);
+    expect(await roi('south')).toBeCloseTo(0,1);
+    expect(await roi('north')).toBeCloseTo(25,1);
+  }
   await expect(work.locator('[data-pw="visible"]')).toHaveText('3');
 
   // Zooming at an off-centre pointer must keep that geographic point fixed.
@@ -273,10 +310,18 @@ test('ROI drawing, pointer-centred zoom and drag pan stay accurate with SVG lett
   await page.mouse.up();
   const lon=x=>(x/1000)*360-180;
   const lat=y=>90-(y/500)*180;
-  expect(await roi('west')).toBeCloseTo(lon(280),1);
-  expect(await roi('east')).toBeCloseTo(lon(350),1);
-  expect(await roi('south')).toBeCloseTo(lat(245),1);
-  expect(await roi('north')).toBeCloseTo(lat(180),1);
+  const revised=await map.evaluate(()=>window.__pulsePointerSamples.slice(-2));
+  expect(revised.map(x=>x.kind)).toEqual(['pointerdown','pointerup']);
+  expect(await roi('west')).toBeCloseTo(lon(Math.min(revised[0].x,revised[1].x)),1);
+  expect(await roi('east')).toBeCloseTo(lon(Math.max(revised[0].x,revised[1].x)),1);
+  expect(await roi('south')).toBeCloseTo(lat(Math.max(revised[0].y,revised[1].y)),1);
+  expect(await roi('north')).toBeCloseTo(lat(Math.min(revised[0].y,revised[1].y)),1);
+  if(test.info().project.name==='desktop-chromium') {
+    expect(await roi('west')).toBeCloseTo(lon(280),1);
+    expect(await roi('east')).toBeCloseTo(lon(350),1);
+    expect(await roi('south')).toBeCloseTo(lat(245),1);
+    expect(await roi('north')).toBeCloseTo(lat(180),1);
+  }
   await expect(work.locator('[data-pw="visible"]')).toHaveText('3');
 });
 
@@ -366,4 +411,41 @@ test('catalogue reload invalidates event and comparison pins even when record co
   await expect(work.locator('.pw-hover-detail')).toContainText('Catalogue updated');
   await expect(work.locator('[data-pc="a-count"]')).toContainText('3 EVENTS');
   await expect(work.locator('[data-pc="b-count"]')).toContainText('2 EVENTS');
+});
+
+test('task navigation keeps loaded analyses and handles direct Analyze URLs',async({page})=>{
+  await open(page);
+  const dialog=page.locator('#instrumentDialog');
+  const analyze=page.locator('.pulse-task-tabs [data-pulse-task="analyze"]');
+  const observe=page.locator('.pulse-task-tabs [data-pulse-task="observe"]');
+  await expect(dialog).toHaveAttribute('data-pulse-task','analyze');
+  await expect(page.locator('.instrument-workspace-modes')).toBeHidden();
+  await expect(analyze).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('.pulse-workflow')).toBeVisible();
+  await expect(page.locator('.pulse-observation-lab')).toBeHidden();
+  await expect(page).toHaveURL(/pulseTask=analyze/);
+
+  await page.locator('[data-pw="west"]').fill('-80');
+  await page.locator('[data-pw="east"]').fill('-60');
+  await page.locator('[data-pw="south"]').fill('5');
+  await page.locator('[data-pw="north"]').fill('20');
+  await page.locator('[data-pw="apply-roi"]').click();
+  await expect(page.locator('[data-pw="visible"]')).toHaveText('3');
+
+  await observe.click();
+  await expect(dialog).toHaveAttribute('data-pulse-task','observe');
+  await expect(page.locator('.pulse-observation-lab')).toBeVisible();
+  await expect(page.locator('.pulse-workflow')).toBeHidden();
+  await expect(page.locator('.pulse-provenance')).toBeVisible();
+  await expect(page).not.toHaveURL(/pulseTask=analyze/);
+
+  await analyze.click();
+  await expect(page.locator('[data-pw="visible"]')).toHaveText('3');
+  await expect(page.locator('[data-pw="west"]')).toHaveValue('-80.00');
+  await expect(page.locator('.pulse-workflow')).toBeVisible();
+
+  await page.goto('/lab.html?instrument=pulse&pulseTask=analyze#l10',{waitUntil:'domcontentloaded'});
+  await expect(dialog).toHaveAttribute('data-pulse-task','analyze',{timeout:20000});
+  await expect(page.locator('[data-pw="loaded"]')).toHaveText('5',{timeout:20000});
+  await expect(analyze).toHaveAttribute('aria-pressed','true');
 });

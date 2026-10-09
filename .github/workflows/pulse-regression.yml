@@ -1,0 +1,64 @@
+name: Earth Pulse Regression
+
+on:
+  pull_request:
+    paths:
+      - 'site/lab-fullpage.*'
+      - 'site/lab.html'
+      - 'site/pulse/**'
+      - 'site/pulse-observation-lab*'
+      - 'tests/browser/pulse-*.spec.mjs'
+      - 'tests/browser/lab-fullpage-workspace.spec.mjs'
+      - '.github/workflows/pulse-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pulse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare declared data sources
+        env:
+          DATA_SUPPLY_ALLOW_STALE: '1'
+        run: |
+          node scripts/prime-data-supply-from-live.mjs
+          node scripts/prepare-data-references.mjs
+          node scripts/update-data-supply.mjs
+          mkdir -p site/assets/lab
+          curl --fail --location --retry 3 --output site/assets/lab/sentinel2.jpg https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
+      - name: Install Chromium and tooling
+        run: |
+          npm install --no-save @playwright/test@1.55.0 axe-core@4.11.3
+          npx playwright install --with-deps chromium
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends imagemagick
+      - name: Build Lab preview assets
+        run: |
+          node scripts/capture-lab-previews.mjs
+          npm run build
+      - name: Browser regressions
+        run: |
+          npx playwright test -c playwright.config.mjs \
+            tests/browser/pulse-observation-lab.spec.mjs \
+            tests/browser/pulse-round6.spec.mjs \
+            tests/browser/pulse-workflow.spec.mjs \
+            tests/browser/pulse-workflow-v2.spec.mjs \
+            tests/browser/lab-fullpage-workspace.spec.mjs \
+            --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pulse-regression-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 5

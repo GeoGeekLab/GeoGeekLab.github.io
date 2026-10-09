@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '20261002a';
+  const VERSION = '20261009r3';
   const R_EARTH_KM = 6371.0088;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -25,12 +25,6 @@
       else url.searchParams.set(key, String(value));
     });
     history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
-  }
-
-  function activateWorkspaceMode(mode) {
-    const dialog = $('#instrumentDialog');
-    const button = $(`.instrument-workspace-modes button[data-workspace-mode="${mode}"]`, dialog || document);
-    if (button && button.getAttribute('aria-pressed') !== 'true') button.click();
   }
 
   function cellGeometry(rect) {
@@ -64,6 +58,8 @@
     const visibleCount = $('#pulseVisibleCount', root);
     const representationState = $('#pulseRepresentationState', root);
     const provenance = $('.pulse-provenance', root);
+    const sourceTitle = provenance?.querySelector('.orbit-panel-label');
+    if (sourceTitle) sourceTitle.id = 'pulseSourceTitle';
     const inspector = $('.pulse-inspector', root);
     const encoding = $('.pulse-encoding', root);
     const temporal = $('.pulse-temporal-controls', root);
@@ -84,9 +80,9 @@
     nav.className = 'pulse-r6-nav';
     nav.setAttribute('aria-label', 'Pulse workspace sections');
     nav.innerHTML = `
-      <button type="button" data-pulse-jump="control" aria-pressed="true">CONTROL</button>
-      <button type="button" data-pulse-jump="read" aria-pressed="false">READ</button>
-      <button type="button" data-pulse-jump="source" aria-pressed="false">SOURCE</button>`;
+      <a href="#pulseTimelineTitle" data-pulse-jump="control">CONTROL</a>
+      <a href="#pulseR6AggregationTitle" data-pulse-jump="read">READ</a>
+      <a href="#pulseSourceTitle" data-pulse-jump="source">SOURCE</a>`;
     panel.prepend(nav);
 
     const summary = document.createElement('section');
@@ -288,12 +284,8 @@
       resetCellReadout();
     }
 
-    function syncWorkspace() {
-      const dialog = root.closest('.instrument-dialog');
-      const workspace = dialog?.dataset.workspaceMode || 'work';
-      root.dataset.pulseDensity = workspace;
-      provenance?.toggleAttribute('aria-hidden', workspace !== 'inspect');
-    }
+    // Data provenance is scientific content, never hidden by a layout mode.
+    provenance?.removeAttribute('aria-hidden');
 
     function scheduleSync() {
       if (scheduled) return;
@@ -304,13 +296,12 @@
     }
 
     nav.addEventListener('click', event => {
-      const button = event.target.closest('[data-pulse-jump]');
-      if (!button) return;
-      const name = button.dataset.pulseJump;
-      $$('[data-pulse-jump]', nav).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-      if (name === 'source') activateWorkspaceMode('inspect');
+      const link = event.target.closest('[data-pulse-jump]');
+      if (!link) return;
+      event.preventDefault();
+      const name = link.dataset.pulseJump;
       const target = name === 'control' ? temporal || filters : name === 'read' ? aggregation : provenance;
-      setTimeout(() => target?.scrollIntoView({ block:'start', behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }), name === 'source' ? 80 : 0);
+      target?.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
     });
 
     measure.addEventListener('click', event => {
@@ -351,11 +342,6 @@
     representationObserver.observe(root, { attributes:true, attributeFilter:['data-representation'] });
     const visibleObserver = visibleCount ? new MutationObserver(scheduleSync) : null;
     if (visibleCount) visibleObserver.observe(visibleCount, { childList:true, subtree:true, characterData:true });
-    const dialog = root.closest('.instrument-dialog');
-    const workspaceObserver = new MutationObserver(syncWorkspace);
-    if (dialog) workspaceObserver.observe(dialog, { attributes:true, attributeFilter:['data-workspace-mode'] });
-
-    syncWorkspace();
     syncInference();
 
     stage._pulseRound6Cleanup = () => {
@@ -363,7 +349,6 @@
       densityObserver.disconnect();
       representationObserver.disconnect();
       visibleObserver?.disconnect();
-      workspaceObserver.disconnect();
       timeline.removeEventListener('input', controlHandler);
       magnitude?.removeEventListener('change', controlHandler);
       depth?.removeEventListener('change', controlHandler);

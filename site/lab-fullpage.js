@@ -4,7 +4,7 @@
   if (!document.querySelector('link[data-lab-fullpage]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'lab-fullpage.css?v=20261008e';
+    link.href = 'lab-fullpage.css?v=20261009r3';
     link.dataset.labFullpage = '1';
     document.head.appendChild(link);
   }
@@ -29,7 +29,7 @@
     orbit:'orbital/orbit-round2.js?v=20261002a',
     earth:'earth-observation-v3/earth-round2.js?v=20261002a',
     flow:'flow/flow-round2.js?v=20261002d',
-    pulse:'pulse/pulse-round6.js?v=20261002a'
+    pulse:'pulse/pulse-round6.js?v=20261009r3'
   };
   const refinementLoads = new Map();
   let activeKind = '';
@@ -43,6 +43,37 @@
     `<button type="button" data-workspace-mode="${mode}" aria-pressed="${mode === 'work'}" title="${mode === 'focus' ? 'Visualization only' : mode === 'inspect' ? 'Show full context and provenance' : 'Visualization with primary controls'}">${mode.toUpperCase()}</button>`
   )).join('');
   close.before(toolbar);
+
+  // Earth Pulse has two research tasks, not three visualization-density modes.
+  // The other Lab instruments retain the existing shared workspace toolbar.
+  const pulseTabs = document.createElement('nav');
+  pulseTabs.className = 'pulse-task-tabs';
+  pulseTabs.setAttribute('aria-label', 'Earth Pulse tasks');
+  pulseTabs.hidden = true;
+  pulseTabs.innerHTML = ['observe','analyze'].map(task =>
+    `<button type="button" data-pulse-task="${task}" aria-pressed="${task === 'observe'}">${task.toUpperCase()}</button>`
+  ).join('');
+  close.before(pulseTabs);
+
+  function setPulseTask(task, {emit=true} = {}) {
+    const next = task === 'analyze' ? 'analyze' : 'observe';
+    dialog.dataset.pulseTask = next;
+    pulseTabs.querySelectorAll('[data-pulse-task]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.pulseTask === next));
+    });
+    if (emit) {
+      const url = new URL(location.href);
+      if (next === 'analyze') url.searchParams.set('pulseTask','analyze');
+      else url.searchParams.delete('pulseTask');
+      history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+      document.dispatchEvent(new CustomEvent('geogeek:pulse-task',{detail:{task:next}}));
+    }
+  }
+
+  pulseTabs.addEventListener('click',event => {
+    const button=event.target.closest('[data-pulse-task]');
+    if (button && dialog.dataset.instrumentKind === 'pulse') setPulseTask(button.dataset.pulseTask);
+  });
 
   const buttons = [...toolbar.querySelectorAll('[data-workspace-mode]')];
 
@@ -71,8 +102,8 @@
     if (refinementLoads.has(src)) return refinementLoads.get(src);
     const promise = import(new URL(src, document.baseURI).href)
       .then(() => kind === 'pulse'
-        ? import(new URL('pulse/pulse-workflow-v1.js?v=20261008b', document.baseURI).href)
-            .then(() => import(new URL('pulse/pulse-workflow-v2.js?v=20261008b', document.baseURI).href))
+        ? import(new URL('pulse/pulse-workflow-v1.js?v=20261009r3b', document.baseURI).href)
+            .then(() => import(new URL('pulse/pulse-workflow-v2.js?v=20261009r3b', document.baseURI).href))
         : undefined)
       .catch(error => {
       refinementLoads.delete(src);
@@ -106,22 +137,31 @@
     const isCore = CORE.has(kind);
     activeKind = isCore ? kind : '';
     dialog.dataset.labWorkspace = isCore ? 'true' : 'false';
-    toolbar.hidden = !isCore;
+    toolbar.hidden = !isCore || kind === 'pulse';
+    pulseTabs.hidden = kind !== 'pulse';
     syncCloseControl(isCore);
 
     if (!isCore) {
       delete dialog.dataset.workspaceMode;
+      delete dialog.dataset.pulseTask;
       return;
     }
 
-    setMode(dialog.dataset.workspaceMode || storedMode(), { persist:false });
+    if (kind === 'pulse') {
+      delete dialog.dataset.workspaceMode;
+      const queryTask = new URL(location.href).searchParams.get('pulseTask');
+      setPulseTask(dialog.dataset.pulseTask || queryTask, {emit:false});
+    } else {
+      delete dialog.dataset.pulseTask;
+      setMode(dialog.dataset.workspaceMode || storedMode(), { persist:false });
+    }
     loadRefinement(kind).catch(error => console.warn(`[GeoGeek] ${kind} refinement failed to load; base instrument remains available.`, error));
   }
 
   buttons.forEach(button => button.addEventListener('click', () => setMode(button.dataset.workspaceMode)));
 
   document.addEventListener('keydown', event => {
-    if (!dialog.open || !activeKind) return;
+    if (!dialog.open || !activeKind || activeKind === 'pulse') return;
     const target = event.target;
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement || target?.isContentEditable) return;
     if (!event.altKey) return;
@@ -135,6 +175,15 @@
     if (records.some(record => record.attributeName === 'data-instrument-kind' || record.attributeName === 'open')) syncIdentity();
   });
   observer.observe(dialog, { attributes:true, attributeFilter:['data-instrument-kind', 'open'] });
-  dialog.addEventListener('close', syncIdentity);
+  dialog.addEventListener('close', () => {
+    if (activeKind === 'pulse') {
+      // Leaving the instrument must not leak Analyze into another Lab record.
+      const url = new URL(location.href);
+      url.searchParams.delete('pulseTask');
+      history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+      delete dialog.dataset.pulseTask;
+    }
+    syncIdentity();
+  });
   syncIdentity();
 })();

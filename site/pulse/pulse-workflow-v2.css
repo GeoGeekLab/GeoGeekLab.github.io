@@ -32,7 +32,7 @@
 .pulse-workflow .pw-key-a{background:#e8a17b}
 .pulse-workflow .pw-key-b{background:#86bade}
 .pulse-workflow .pw-chart-inspector{background:#14291d;border:1px solid #2e4636;padding:10px;min-height:36px;color:#d5e2d4;font:11px/1.6 var(--mono,monospace)}
-.pulse-workflow .pw-hover-detail{background:#16281e;border:1px solid #3d6748;display:grid;gap:4px;padding:11px 12px;color:#e4ecdf;font:11px/1.55 var(--mono,monospace)}
+.pulse-workflow .pw-hover-detail{background:#16281e;border:1px solid #3d6748;display:grid;align-content:start;gap:4px;padding:11px 12px;color:#e4ecdf;font:11px/1.55 var(--mono,monospace);height:142px;min-height:142px;max-height:142px;overflow:auto;box-sizing:border-box}
 .pulse-workflow .pw-hover-detail strong{font-size:12px;color:#fff1ce}
 .pulse-workflow .pw-hover-detail a{color:#a1d4e9;text-decoration:underline;max-width:max-content}
 .pulse-workflow .pw-cell-event{text-align:left;font-weight:500;white-space:normal;line-height:1.4}

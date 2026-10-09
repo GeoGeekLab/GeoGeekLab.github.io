@@ -27,7 +27,7 @@
 .pw-draw-hit{fill:transparent;pointer-events:none;cursor:crosshair}
 .pw-drawing .pw-draw-hit{pointer-events:all}
 .pw-map-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font:600 10px/1.5 var(--mono,monospace);color:#b6c6b9}
-.pw-selected{display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-size:12px;line-height:1.5;padding:10px;background:#12221b;border:1px solid rgba(255,255,255,.1)}
+.pw-selected{display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-size:12px;line-height:1.5;padding:10px;background:#12221b;border:1px solid rgba(255,255,255,.1);flex:0 0 64px;height:64px;max-height:64px;overflow:auto}
 .pw-selected a{color:#bdf1c3;text-decoration:underline}
 .pw-limit{font-size:11px;line-height:1.5;color:#a8b5a9;margin:0}
 .pw-side{min-height:0;overflow-y:auto;overscroll-behavior:contain;border-left:1px solid rgba(255,255,255,.15)}
@@ -49,9 +49,9 @@
 .pulse-workflow-launch{display:block;width:100%;background:#23402d;border:1px solid #709c76;border-radius:4px;padding:10px 12px;color:#eaffdf;text-align:left;font:700 11px/1.4 var(--mono,monospace);cursor:pointer}
 .pulse-workflow-launch:hover{background:#34573a}
 @media(max-width:900px){
- .pw-layout{grid-template-columns:1fr;grid-template-rows:minmax(310px,50vh) minmax(0,1fr);overflow:auto}
+ .pw-layout{grid-template-columns:1fr;grid-template-rows:minmax(540px,68vh) minmax(0,1fr);overflow:auto}
  .pw-side{overflow:visible;border-left:0;border-top:1px solid rgba(255,255,255,.15)}
- .pw-map-column{min-height:310px}
+ .pw-map-column{min-height:540px}
 }
 @media(max-width:470px){
  .pw-head{padding:10px}
