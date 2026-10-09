@@ -45,8 +45,8 @@ test('UX-P2 390px: mobile settings appear below RT results without horizontal pa
  expect(g.width).toBeLessThanOrEqual(g.viewport+2);
  expect(await d.locator('.instrument-head').evaluate(el=>el.getBoundingClientRect().height)).toBeLessThanOrEqual(76);
 });
-test('UX-P2 default production route remains stable V10.1',async({page})=>{
- await page.goto('/lab.html?instrument=water#l13',{waitUntil:'domcontentloaded'});
+test('UX-P2 explicit waterVersion=v101 preserves stable science fallback',async({page})=>{
+ await page.goto('/lab.html?instrument=water&waterVersion=v101#l13',{waitUntil:'domcontentloaded'});
  await expect(page.locator('#instrumentStage iframe.water-v101-frame')).toBeVisible({timeout:20000});
  await expect(page.locator('#instrumentStage iframe.water-v102-frame')).toHaveCount(0);
 });
