@@ -129,7 +129,7 @@
 
     // Keep the one set of map zoom controls beside the map, not buried beneath
     // comparative charts in the long rail. This is especially useful on touch.
-    const zoomToolbar=$('.pw-actions',analysis).find(group=>group.querySelector('[data-pc="zoom-in"]'));
+    const zoomToolbar=$('[data-pc="zoom-in"]',analysis)?.closest('.pw-actions');
     const mapFoot=$('.pw-map-foot',map);
     if(zoomToolbar && mapFoot) {
       zoomToolbar.classList.add('pw-map-tools');
