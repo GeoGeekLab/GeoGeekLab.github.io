@@ -43,6 +43,7 @@ test('UX-052: Jacobian uses a semantic keyboard-scroll table and displays signed
  assert.match(html,/sr⁻¹ \/ m⁻¹/);
  assert.match(html,/column j: intensity =/);
  assert.match(html,/separately for each parameter/);
+ assert.match(html,/the center line is zero/);
  assert.match(html,/column strength 1\.00 \/ 1/);
  assert.match(html,/Bounded finite differences/);
  assert.match(html,/class="u102-numeric"/);
