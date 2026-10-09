@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 
 async function openRT(page){
- await page.goto('/lab.html?instrument=water#l13',{waitUntil:'domcontentloaded'});
+ await page.goto('/lab.html?instrument=water&waterVersion=v101#l13',{waitUntil:'domcontentloaded'});
  await expect(page.locator('#instrumentDialog')).toBeVisible({timeout:20000});
  const frame=page.locator('#instrumentStage iframe.water-v101-frame');
  await expect(frame).toBeVisible({timeout:20000});
@@ -40,7 +40,7 @@ test('V10.1 enforces discrete water, spectral and depth selections',async({page}
 });
 test('V10.1 unavailable reference never fabricates numerical curves',async({page})=>{
  await page.route('**/reference/rt-reference-v1.json',route=>route.abort());
- await page.goto('/lab.html?instrument=water#l13',{waitUntil:'domcontentloaded'});
+ await page.goto('/lab.html?instrument=water&waterVersion=v101#l13',{waitUntil:'domcontentloaded'});
  const app=page.frameLocator('#instrumentStage iframe.water-v101-frame');
  await expect(app.locator('[data-tab="rt"]')).toBeVisible({timeout:20000});
  await app.locator('[data-tab="rt"]').click();
