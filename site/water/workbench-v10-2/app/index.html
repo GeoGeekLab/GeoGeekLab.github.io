@@ -1549,7 +1549,7 @@ const sensorWorkspace={...TABS[3],plots:plots.sensor,
   const mode=state.plot==='rrsBands'?'rrs':'toa';
   const current=makeSensorObservation(data,state.sensor,mode,responseOptions(state));
   const nominal=makeSensorObservation(data,state.sensor,mode,{responseMode:'nominal'});
-  return views.sensor(state,data,charts,current,nominal,profile(state));
+  return views.sensor(state,data,charts,current,nominal,state.plot==='srfProfile'?profile(state):'');
  },
  renderControls({state,controls,models}){
   const {csection,adv}=controls,spectrum=models.run(state.params);
