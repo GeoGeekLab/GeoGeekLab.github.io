@@ -33,7 +33,7 @@ test('UX-BASE-03: RT reference asset is V10.1 pinned; no second scientific datas
 });
 test('UX-BASE-04: schema v8 remains unchanged, UI preview never claims a science version',()=>{
  assert.match(newer,/schemaVersion:8/);assert.match(newer,/appVersion:'10\.1\.0'/);
- assert.match(newer,/GEOGEEK UI · v10\.2 preview/);
+ assert.match(newer,/UI PREVIEW · V10\.2/);
  assert.match(newer,/water_ui_geo_v102/);
  assert.match(newer,/V101_STORAGE_KEY='water_ui_geo_v101'/);
 });
