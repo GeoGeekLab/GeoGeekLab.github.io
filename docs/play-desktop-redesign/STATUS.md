@@ -9,7 +9,7 @@ Lab release marker: `20261009v102`
 
 **STEP 00 — DONE (documentation and visual-reference baseline).** No PLAY runtime, stylesheet or test implementation was modified. The provided six screenshots have been catalogued; repeatable browser captures and baseline test results are not yet available.
 
-**STEP 01 — DONE.** The Project projection geometry correction passed full GitHub Quality, dedicated browser geometry regressions, area/route interaction tests, and post-fix desktop screenshot inspection. **Next: STEP 02 — Light spectral comparison correction.**
+**STEP 01 — DONE.** The Project projection geometry correction passed its browser and numerical checks.\n\n**STEP 02 — DONE.** Light's before/after curves share a Y-axis domain, zero rests on the plotted baseline, and the 550 nm readout declares units. All relevant Node, browser and screenshot checks passed. **Next: STEP 03 — PLAY desktop design system.**
 
 ## Roadmap
 
@@ -17,7 +17,7 @@ Lab release marker: `20261009v102`
 | --- | --- | --- |
 | 00 | Project audit and baseline | DONE |
 | 01 | Project geometry correction | DONE |
-| 02 | Light spectrum comparison correction | PLANNED |
+| 02 | Light spectrum comparison correction | DONE |
 | 03 | Desktop design tokens and components | PLANNED |
 | 04 | Edge-to-edge PLAY workspace | PLANNED |
 | 05 | Project visual redesign | PLANNED |
@@ -160,6 +160,52 @@ The reports and screenshots originate from the tested implementation revision ab
 3. Replace independent before/after curve normalization with a shared domain within each trial.
 4. Confirm zero-signal handling, units, mechanism dependencies, and readout descriptions.
 5. Run Light browser and numerical tests. Record screenshot evidence and test status without assuming success.
+
+
+## STEP 02 acceptance — 2026-10-09
+
+### Decision: DONE
+
+**Validated implementation commit:** `118d5311cba93f08a25eaca196e753a47a523733`.  
+**CI verification:** [GeoGeek Quality run 37904642575](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37904642575) — completed successfully.
+
+### Paths changed
+
+- `site/play/light/light-view.js` — shared chart domain; align curve's zero to SVG axis; sample nearest 550 nm; format units.
+- `site/play/light/light.css` — compact sample/unit label in readout.
+- `tests/light/light-spectrum.test.mjs` — shared-domain, fractional-signal, zero and invalid-input checks (four Node tests).
+- `tests/browser/light-spectrum-comparison.spec.mjs` — all three mechanisms, zero baseline and unit labeling; screenshot attachments.
+- `docs/play-desktop-redesign/ACCEPTANCE.md`, `STATUS.md` — acceptance and handoff only.
+
+The Light physics formulas, water model, experiment machine, other PLAY instruments and shared layout scripts were not changed.
+
+### Evidence
+
+- `npm run build`, `npm run qa`, `npm run qa:links`, Lighthouse: **PASS** via GitHub Quality.
+- New numerical tests: **4 PASS**, included in Static QA. Existing Light physics and state tests also pass.
+- Complete Playwright report: **476 total; 475 expected passes; 1 skipped; 0 failed; 0 flaky**.
+- Light Playwright tests: **8/8 PASS**, including existing and new cases across two browser projects.
+- Post-fix desktop screenshots, inspected:
+  - `light-sky-removed-1920` (1920×1080), `playwright-report/data/cd58582334e7bdd065ad7332520a9ae4e02687bf.png`.
+  - `light-water-removed-1920` (1920×1080), `playwright-report/data/67f4bb46084c74111433ef45a01717a4915533e4.png`.
+  - `light-surface-removed-1440` (1440×900), `playwright-report/data/4a6383e027e5b852be9b46c38f8114de84799de3.png`.
+- These screenshots and the full Playwright report are bundled in GitHub Actions `quality-reports` artifact **11605031857**.
+- P0 comparison issue closed: both curves use a common peak and nonzero attenuation remains accurately visible. Removed-path signals plot at the y=126 axis baseline rather than floating above it.
+- The only skipped browser test is a pre-existing Water prototype narrow-screen case unrelated to Light.
+
+### Remaining boundaries
+
+L01–L04 and L06: **PASS**. L05 (panel occlusion, contrast, and layout refinement) stays **DEFERRED to STEP 06**. A 125% desktop zoom capture and global visual sign-off remain for STEP 12. STEP 02 does not assert that all scene composition issues are resolved.
+
+The tested commit predates the documentation-only changes to `ACCEPTANCE.md` and `STATUS.md`. No additional Light runtime changes were made after the successful test run.
+
+### STEP 03 handoff
+
+1. Read the five project documents on `design/play-desktop-v2`.
+2. Establish desktop tokens for typography, colors, spacing, scientific graphics, buttons and states without changing scientific calculations.
+3. Prototype tokens using Project and Light layouts; evaluate at 1920×1080, 1440×900 and 1366×768.
+4. Keep full-viewport shell changes for STEP 04, instrument-specific redesigns for STEPS 05–10, and global visual sign-off for STEP 12.
+5. Record changed paths, tests, screenshots and remaining limitations here.
 
 ## Future log format
 
