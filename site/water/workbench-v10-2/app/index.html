@@ -2053,7 +2053,7 @@ function bindWorkbenchEvents({store,workbench,exports}){
  });
  $('mainContent').addEventListener('keydown',event=>{
   const stage=event.target.closest?.('[data-stage]');
-  if(stage&&(event.key==='Enter'||event.key===' ')){event.preventDefault();update(s=>{s.stage=stage.dataset.stage},'chart');return;}
+  if(stage&&(event.key==='Enter'||event.key===' ')){event.preventDefault();const id=stage.dataset.stage;if(!['sun','atm','surface','water','sat'].includes(id))return;update(s=>{s.stage=id},'chart');document.querySelector('[data-stage="'+id+'"]')?.focus({preventScroll:true});return;}
   if(event.target.matches?.('svg[data-chart-click]')&&(event.key==='ArrowRight'||event.key==='ArrowLeft')){
    event.preventDefault();setProbe(state.probe+(event.key==='ArrowRight'?1:-1)*(event.shiftKey?10:1));
   }
