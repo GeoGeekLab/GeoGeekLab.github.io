@@ -101,14 +101,25 @@ export async function staticLabCollection(html, dist, cacheVersion) {
       '</p><div class="project-grid">' + cards + '</div></section>';
   }).join('\n');
 
-  const marker = '<section class="lab-list" id="labList" aria-label="Interactive geographic instruments"></section>';
-  if (!html.includes(marker)) throw new Error('Lab first-paint: expected empty collection shell not found.');
-  if (html.includes('data-static-lab-collection')) throw new Error('Lab first-paint: duplicate collection injection.');
-  // First paint is independent of app.js execution. The app enhances this
-  // stable 13-card DOM rather than replacing it and restarting image decode.
-  const result = html.replace(marker,
-    '<section class="lab-list" id="labList" aria-label="Interactive geographic instruments" data-static-lab-collection="v1">\n' +
-    collection + '\n</section>');
+  // runtime-stability.mjs has already injected a fallback inside the original
+  // collection section. Replace that shell, not an assumed empty section.
+  const section = /(<section\b(?=[^>]*\bclass=["'][^"']*\blab-list\b[^"']*["'])(?=[^>]*\bid=["']labList["'])[^>]*>)([\s\S]*?)<\/section>/i;
+  const existing = section.exec(html);
+  if (!existing || !existing[2].includes('lab-static-fallback')) {
+    throw new Error('Lab first-paint: expected Lab fallback collection shell not found.');
+  }
+  if (html.includes('data-static-lab-collection')) {
+    throw new Error('Lab first-paint: duplicate collection injection.');
+  }
+  const fallback = existing[2].trim().replace(
+    '<div class="runtime-fallback lab-static-fallback"',
+    '<div hidden aria-hidden="true" class="runtime-fallback lab-static-fallback"'
+  );
+  // First paint is independent of app.js execution. Preserve the original
+  // runtime-fallback marker for static QA, but hide its obsolete copy because
+  // the entire 13-card collection now works without JavaScript.
+  const opening = existing[1].replace(/>$/, ' data-static-lab-collection="v1">');
+  const result = html.replace(section, opening + '\n' + collection + '\n' + fallback + '\n</section>');
   if ((result.match(/class="project-card contour-target is-actionable"/g) || []).length !== 13) {
     throw new Error('Lab first-paint: expected exactly 13 instrument cards.');
   }
