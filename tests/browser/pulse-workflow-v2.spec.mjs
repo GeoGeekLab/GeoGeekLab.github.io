@@ -146,7 +146,9 @@ test('mouse and keyboard inspection show complete points; map zoom and configura
   await work.locator('[data-pc="scope"]').selectOption('b');
   await expect(work.locator('[data-pc="grid-legend"]')).toContainText('WINDOW B');
   await work.locator('[data-pc="display"]').selectOption('points');
-  await expect(work.locator('.pw-event').first()).toBeVisible();
+  // Window B intentionally hides points outside its comparison period.
+  await expect(work.locator('.pw-event[data-event-id="A Pacific"]')).toBeHidden();
+  await expect(work.locator('.pw-event[data-event-id="B Polar"]')).toBeVisible();
 });
 
 test('original Pulse keeps one original land layer even when workflow map is mounted',async({page})=>{
