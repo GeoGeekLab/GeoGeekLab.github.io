@@ -53,3 +53,19 @@ test('all six PLAY Lab cards keep genuine, loaded instrument screenshots after b
     });
   }
 });
+
+
+test('primary navigation across site sections uses the current PLAY Lab release', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
+  const expectedRelease = await page.locator('meta[name="geogeek-lab-release"]')
+    .getAttribute('content');
+  expect(expectedRelease).toBe('20261010v103play3');
+
+  for (const route of ['/index.html', '/field-notes.html', '/atlas.html', '/elsewhere.html']) {
+    await page.goto(route, { waitUntil: 'domcontentloaded' });
+    const href = await page.locator('#primaryNav a[href*="/lab.html"]').first()
+      .getAttribute('href');
+    expect(new URL(href, 'https://example.invalid').searchParams.get('release'))
+      .toBe(expectedRelease);
+  }
+});
