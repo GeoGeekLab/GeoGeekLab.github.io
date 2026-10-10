@@ -143,8 +143,8 @@ test('Lab delivers all thirteen instrument cards in first-response HTML without 
   // a real JPEG fallback for browsers lacking WebP support.
   const orbitPicture = list.locator('#l04 .lab-orbit-picture');
   await expect(orbitPicture).toHaveCount(1);
-  await expect(orbitPicture.locator('source[type="image/webp"]')).toHaveAttribute('srcset', /\\/assets\\/lab\\/previews\\/orbit\\.webp\\?v=capture-/);
-  await expect(orbitPicture.locator('img')).toHaveAttribute('src', /\\/assets\\/lab\\/previews\\/orbit\\.jpg\\?v=capture-/);
+  await expect(orbitPicture.locator('source[type="image/webp"]')).toHaveAttribute('srcset', /orbit[.]webp[?]v=capture-/);
+  await expect(orbitPicture.locator('img')).toHaveAttribute('src', /orbit[.]jpg[?]v=capture-/);
 
   // App bootstrap must not replace authored cards after the browser parses HTML.
   const initialCard = page.locator('#l04');
