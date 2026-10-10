@@ -87,7 +87,7 @@
     background:radial-gradient(circle at 50% 50%,#132018 0%,#060a07 70%);
   }
   .play-v2-shell[data-play-kind="bound"] .bound-v2-stage {
-    position:relative;width:min(calc(100% - 36px),calc(100dvh - 266px));
+    position:relative;width:min(calc(100% - 36px),calc(100dvh - 306px));
     height:auto;min-height:0;aspect-ratio:1;overflow:hidden;
     border:1px solid rgba(237,236,229,.26);border-radius:3px;
     box-shadow:0 0 0 7px rgba(237,236,229,.02),0 20px 70px rgba(0,0,0,.28);
@@ -200,12 +200,18 @@
     color:#cddbd0;
   }
 }
-@media (min-width:1024px) and (max-height:750px) {
-  .play-v2-shell[data-play-kind="bound"] .play-v2-hud {gap:14px;padding:14px 18px;}
+@media (min-width:1024px) and (max-height:790px) {
+  .play-v2-shell[data-play-kind="bound"] .play-v2-hud {gap:12px;padding:13px 18px;}
   .play-v2-shell[data-play-kind="bound"] .play-v2-overlay {padding:16px 18px;}
   .play-v2-shell[data-play-kind="bound"] .bound-v2-panel {gap:11px;}
   .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-heading {gap:5px;}
-  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-values>.bound-v2-metrics {gap:8px;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-heading p {font-size:11px;line-height:1.4;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-observation {gap:6px;padding:9px 0;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-section {gap:7px;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-values>.bound-v2-metrics {gap:7px;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-values .bound-v2-metric {gap:5px;padding-top:9px;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-legend {gap:6px;padding-top:8px;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-legend p {font-size:11px;line-height:1.4;}
 }
 @media (min-width:1024px) and (max-width:1250px) {
   .play-v2-shell[data-play-kind="bound"] {grid-template-columns:290px minmax(0,1fr) 280px;}

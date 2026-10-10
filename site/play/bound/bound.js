@@ -42,7 +42,7 @@
     if(!fieldApi?.sample || !viewApi?.create) throw new Error('Bound V2 modules incomplete.');
 
     GeoPlay.core.ensureStyle('play/bound/bound-v2.css?v=20261005b','bound-v2');
-    GeoPlay.core.ensureStyle('play/bound/bound-desktop.css?v=20261010-step07a','bound-desktop');
+    GeoPlay.core.ensureStyle('play/bound/bound-desktop.css?v=20261010-step07b','bound-desktop');
 
     const shell=GeoPlay.shell.createV2(stage,{kind:'bound',title:'BOUND'});
     const states=['drawing','ready','committed','disturbing','decision','redrawing','result'];
