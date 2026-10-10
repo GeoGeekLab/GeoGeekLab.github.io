@@ -657,7 +657,7 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 
 ### Decision: IN REVIEW — release quality and native zoom validation pending
 
-**Candidate branch:** `release/play-desktop-v2-rc`. It is isolated from production `main`.  
+**Candidate branch:** `release/play-desktop-v2-final` (integration predecessor: `release/play-desktop-v2-rc`). It is isolated from production `main`.  
 **Candidate merge commit:** `a9e25a6ca242988cb2f7046ffcf80b1d84414526` (parents: design `d4acf196d3fb5af37e84373b75d080f0bc22d3f7` and main `c3e4f1e58707b759441a5a6f8319504755894663`).  
 **Versioned navigation fix commits:** `98dd773` in `site/instruments.js`, `4c78790` in `site/core/modules.js`.  
 **Browser history / desktop visual tests:** `tests/browser/play-release-regression.spec.mjs` (`d4acf19`): six Back/Forward flows plus all six instruments at 1920×1080, 1440×900, 1366×768, with screenshot attachments.  
@@ -677,3 +677,11 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 - **Visual inspection: NOT RUN.** Download the final quality artifact and inspect six-instrument desktop/native zoom screenshots for legibility, overlap and geometry, especially at 1366×768.
 - **Production deployment and post-deploy smoke: NOT RUN.** Require explicit authorization to merge to `main`; release acceptance must not be confused with a live deployment.
 - **Historical same-state pixel diff: NOT RUN.** STEP 00 reference screenshots are 1920×869 early states with different conditions, so pixel-identical comparison is not an honest assertion.
+
+
+### Final release-asset version pin — 2026-10-10
+
+- Final predeployment candidate branch: `release/play-desktop-v2-final`.
+- `site/lab.html`: release metadata and Lab navigation query bumped to `20261010v103play2`; external `core/modules.js` query pinned to this same release, so previously cached module loader files cannot silently mask the new `instruments.js?v=20261010-step12a` history fix.
+- `.github/workflows/pages.yml`: all five pinned postdeploy `core/modules.js` checks updated to the same release; main's Chinese Origin live-HTML verification and latest Orient asset version remain intact.
+- `scripts/verify-play-live-release.mjs` derives release metadata dynamically and accepts the new alphanumeric marker. Final CI on the exact final candidate is required before STEP 12 completion; do not claim Pages deployment without a successful actual deploy.
