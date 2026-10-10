@@ -214,6 +214,9 @@ test('Pulse keeps stale last-known-good visible and labels it stale without prov
 });
 
 test('Pulse Round 4 scrubs snapshot time, filters events, plays forward, and aggregates dense views without changing supply semantics', async ({ page }) => {
+  // The full 420-event DOM + axe WCAG sweep can exceed the global 30s budget
+  // under concurrent CI. Keep every accessibility assertion; bound at 90s.
+  test.setTimeout(90_000);
   const fixtures = await installPulseSupplyFixtures(page, { count:420, spacingMinutes:3 });
   await page.goto('/lab.html?instrument=pulse#l10', { waitUntil:'domcontentloaded' });
 
