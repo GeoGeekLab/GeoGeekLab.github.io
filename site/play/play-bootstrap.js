@@ -68,6 +68,21 @@
   function setPreview(card, kind) {
     const visual = card?.querySelector('.project-visual');
     if (!visual) return;
+
+    // Production prerenders a real screenshot for every PLAY instrument.
+    // The old SVG preview must not delete that <img> or remove is-real-output:
+    // doing so replaced five of six genuine screenshots with illustrations.
+    // Only use the conceptual SVG in source-only/legacy pages without an image.
+    const image = visual.querySelector('img');
+    if (visual.dataset.realPreview === kind && image &&
+        new URL(image.getAttribute('src') || image.src, document.baseURI).pathname ===
+          `/assets/lab/previews/${kind}.jpg`) {
+      const title = card.querySelector('h2,h3')?.textContent?.trim() || kind;
+      image.alt = `${title} — real instrument output`;
+      visual.classList.remove('play-preview', `play-preview-${kind}`);
+      return;
+    }
+
     visual.className = `project-visual play-preview play-preview-${kind}`;
     visual.innerHTML = `${previewMarkup(kind)}<span class="preview-stamp">${kind === 'locate' ? 'SPATIAL INSTINCT' : kind === 'zone' ? 'DECISION / CONSEQUENCE' : kind === 'path' ? 'PLAN / RULE / ADAPT' : kind === 'light' ? 'SOURCE / PATH / OBSERVER' : 'TRANSFORM / INVARIANT'}</span>`;
   }
