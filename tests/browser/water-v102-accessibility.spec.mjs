@@ -94,12 +94,16 @@ test('UX-082 axe WCAG 2.2 A/AA critical/serious audit covers accessible chart an
  await page.addScriptTag({path:axePath});
  for(const tab of ['iop','atm','sensor','ac','compare','sensitivity','uncertainty','rt','path']){
   await page.locator('#tab-'+tab).click();
-  if(tab==='sensor'){
-   const scienceLabels=page.locator('.p6b-sensor .metric small');
-   await expect(scienceLabels).toHaveCount(3);
-   for(const label of await scienceLabels.all())await expect(label).toHaveCSS('color','rgb(179, 203, 189)');
-   await expect(page.locator('.p6b-sensor .plot-subtitle')).toHaveCSS('color','rgb(179, 203, 189)');
+  // All condensed modeled-chart captions must remain readable, not just
+  // the original three failing SENSOR metrics. Preserve strict axe below.
+  const expectedMetrics={sensor:3,ac:7,compare:4,sensitivity:4};
+  if(tab in expectedMetrics){
+   const labels=page.locator('#mainContent .metric small');
+   await expect(labels).toHaveCount(expectedMetrics[tab]);
+   for(const label of await labels.all())await expect(label).toHaveCSS('color','rgb(179, 203, 189)');
   }
+  const subtitle=page.locator('#mainContent .plot-subtitle');
+  if(await subtitle.count())await expect(subtitle).toHaveCSS('color','rgb(179, 203, 189)');
   const issues=await page.evaluate(async()=>{
    const result=await window.axe.run(document.getElementById('mainContent'),{
     runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']},
