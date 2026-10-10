@@ -466,7 +466,10 @@
     }
   }
 
-  function closeInstrument() {
+  const playHistoryKinds = new Set(['locate', 'zone', 'path', 'project', 'light', 'swath']);
+  let historyNavigation = 0;
+
+  function closeInstrument({ preserveUrl = false } = {}) {
     instrumentSession += 1;
     activeController?.abort();
     activeController = null;
@@ -478,11 +481,13 @@
     document.body.classList.remove('instrument-open');
     window.GeoField?.resume?.();
     window.GeoScale?.restore?.();
-    try {
-      const url = new URL(location.href);
-      url.searchParams.delete('instrument');
-      history.replaceState(null, '', `${url.pathname.split('/').pop()}${url.search}${url.hash}`);
-    } catch {}
+    if (!preserveUrl) {
+      try {
+        const url = new URL(location.href);
+        url.searchParams.delete('instrument');
+        history.replaceState(history.state, '', `${url.pathname.split('/').pop()}${url.search}${url.hash}`);
+      } catch {}
+    }
   }
 
   function openByKind(kind, options = {}) {
@@ -494,11 +499,41 @@
         const url = new URL(location.href);
         url.searchParams.set('instrument', kind);
         url.hash = item.id;
-        history.replaceState(null, '', `${url.pathname.split('/').pop()}${url.search}${url.hash}`);
+        const next = `${url.pathname.split('/').pop()}${url.search}${url.hash}`;
+        // An in-Lab PLAY selection should create a navigable history entry.
+        // Direct-link startup passes updateUrl=false and does not add an entry.
+        if (playHistoryKinds.has(kind) && !options.replaceHistory) {
+          history.pushState(history.state, '', next);
+        } else {
+          history.replaceState(history.state, '', next);
+        }
       } catch {}
     }
     return openInstrument(kind, item);
   }
+
+  window.addEventListener('popstate', async () => {
+    const navigation = ++historyNavigation;
+    const kind = new URL(location.href).searchParams.get('instrument');
+    if (!kind || !playHistoryKinds.has(kind)) {
+      if (activeInstrument && playHistoryKinds.has(activeInstrument)) {
+        closeInstrument({ preserveUrl: true });
+      }
+      return;
+    }
+    if (activeInstrument === kind && dialog.open) return;
+    if (activeInstrument) closeInstrument({ preserveUrl: true });
+    try {
+      // Play loaders register the mount before openByKind can create the dialog.
+      await window.GeoModules?.loadInstrument?.(kind);
+      if (navigation !== historyNavigation ||
+          new URL(location.href).searchParams.get('instrument') !== kind) return;
+      openByKind(kind, { updateUrl: false });
+    } catch (error) {
+      if (navigation !== historyNavigation) return;
+      console.warn('[GeoGeek] Browser history could not restore PLAY instrument.', error);
+    }
+  });
 
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-instrument]');
