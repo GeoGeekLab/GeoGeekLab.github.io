@@ -405,14 +405,19 @@ The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks
 | Source branch synchronized with tested main | PASS | Two-parent merge commit, `main...RC` comparison has zero commits behind; main-only source/test changes retained |
 | Preserve shared PLAY workspace and Lab/main navigation fixes | IN REVIEW | Source merge preserves both sets; full candidate QA still required |
 | Preserve updated Pages release workflow and Chinese Origin smoke | PASS | Exact Pages workflow reviewed: latest Orient asset guard and main's Chinese Origin verification both present |
-| Release marker and asset cache-busting | PASS | `site/lab.html` release `20261010v103play2`, module-loader URL updated; five Pages smoke guards updated; verified in source, requires final build/CI |\n| Six instruments, native card navigation and browser Back/Forward | IN REVIEW | Dedicated six-case browser tests submitted; requires latest passing CI |
-| Three desktop viewport matrix and 18 primary screenshots | IN REVIEW | Dedicated 1920×1080, 1440×900, 1366×768 browser matrix; inspect actual PNGs |
-| True Chromium browser zoom 125% | IN REVIEW | Temporary MV3 Chrome extension sets tab zoom via `chrome.tabs.setZoom`; assert actual CSS viewport reduction and capture six × three screenshots |
+| Release marker and asset cache-busting | PASS | `site/lab.html` release `20261010v103play2`, module-loader URL updated; five Pages smoke guards updated; verified in source, requires final build/CI |
+| Six instruments, native card navigation and browser Back/Forward | PASS | All six desktop cases passed in RC browser run 38047938164; six screenshot attachments show restored workspaces; final integrated CI pending |
+| Three desktop viewport matrix and 18 primary screenshots | PASS | Six instruments × 1920×1080, 1440×900, 1366×768 passed geometry assertions; 18 entry PNGs reviewed from RC artifact 11668697555 |
+| True Chromium browser zoom 125% | PASS | Native `chrome.tabs.setZoom(1.25)` and `getZoom()` verified; six instruments × three physical viewports = 18 PNGs and responsive geometry assertions passed in RC 38047938164; latest final CI still pending |
 | Scientific calculations and prediction-before-reveal contract | IN REVIEW | Original instrument regressions and numerical Node checks in full CI |
 | Shared Spatial Trace isolation, persistence and schema | IN REVIEW | STEP 11 accepted on earlier SHA; rerun on integrated RC |
 | Build, Node/static/link QA, accessibility, browser suite, Lighthouse | IN REVIEW | Final candidate GitHub Actions result pending |
-| Final screenshot visual inspection, risk closeout, exact QA source SHA | NOT RUN | Download and review final quality artifact from successful RC run |
+| Final screenshot visual inspection, risk closeout, exact QA source SHA | IN REVIEW | All 42 RC STEP 12 screenshots downloaded/verified; native 1366/1440/1920, entry and history sheets reviewed, plus full-size Connect and Project at native 1366; final candidate report still pending |
 | Same-state pixel-exact STEP 00 reference comparison | NOT RUN | Original 1920×869 early-stage screenshots do not match new state/viewport; only qualitative comparison valid |
 | Production main merge, GitHub Pages deployment, live six-PLAY smoke | NOT RUN | Separate production action; do not perform without user authorization |
+
+### RC evidence and final-CI distinction
+
+RC run [38047938164](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164) reported **580 total / 533 passed / 46 skipped / one failed**. The sole failure was an intermittent non-PLAY Pulse Round 4 axe evaluation timeout; every STEP 12 navigation/viewport/native-zoom test passed. The 42 named screenshots were verified in [artifact 11668697555](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164/artifacts/11668697555). The final branch also fixes legacy Water V7/V9 version-pin tests; final full QA [38048956580](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38048956580) is still pending. **Do not infer overall acceptance from the successful scoped tests.**
 
 **Release decision: IN REVIEW.** Do not mark DONE until all required pre-deployment gates actually pass. A successful source merge alone does not constitute visual, zoom or deployment acceptance.
