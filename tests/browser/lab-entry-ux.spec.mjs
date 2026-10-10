@@ -138,7 +138,8 @@ test('Lab delivers all thirteen instrument cards in first-response HTML without 
   await expect(list).toHaveAttribute('data-static-lab-collection', 'v1');
   await expect(list.locator('.project-card')).toHaveCount(13);
   await expect(list.locator(':scope > .lab-group-block')).toHaveCount(2);
-  await expect(list.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
+  await expect(list.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'eager');
+  await expect(list.locator('#l05 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
 
   // App bootstrap must not replace authored cards after the browser parses HTML.
   const initialCard = page.locator('#l04');
@@ -151,10 +152,10 @@ test('Lab delivers all thirteen instrument cards in first-response HTML without 
 });
 
 
-test('first Lab preview uses a right-sized screenshot without priority escalation', async ({ page }) => {
+test('first Lab preview uses a right-sized eager screenshot without high fetchpriority', async ({ page }) => {
   await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
   const image = page.locator('#l04 .project-visual.is-real-output img');
-  await expect(image).toHaveAttribute('loading', 'lazy');
+  await expect(image).toHaveAttribute('loading', 'eager');
   await expect(image).not.toHaveAttribute('fetchpriority', 'high');
   await image.scrollIntoViewIfNeeded();
   await expect.poll(async () => image.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
