@@ -76,13 +76,11 @@ jobs:
       - name: Capture real Lab previews
         run: node scripts/capture-lab-previews.mjs
       - name: Verify real Lab previews
-        run: |
-          for name in orbit earth flow pulse figure world water locate zone path project light; do
-            test -s "site/assets/lab/previews/${name}.jpg"
-          done
-          grep -E "const VERSION = 'capture-[0-9a-f]{12}';" site/lab-real-previews.js
+        run: node scripts/verify-lab-previews.mjs
       - name: Build
         run: node scripts/build.mjs
+      - name: Verify published Lab preview assets
+        run: node scripts/verify-lab-previews.mjs --dist
       - name: Verify World v12 release cache contract
         run: node scripts/verify-world-v12-release.mjs
       - name: Verify ORIENT release assets
