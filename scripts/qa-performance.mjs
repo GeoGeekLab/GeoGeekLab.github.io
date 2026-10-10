@@ -86,13 +86,13 @@ check(!/earth-lab-preview|earth-observatory-heading|earth-observatory\.jpg/i.tes
 
 // LCP-specific loading policy: static HTML exposes the first Observatory image
 // eagerly without preloading thumbnails for every direct instrument entry.
-const labPreviewTags = [...lab.matchAll(/<img\\b[^>]*\\bsrc="\\/assets\\/lab\\/previews\\/([a-z]+)\\.jpg\\?v=capture-[0-9a-f]{12}"[^>]*>/gi)];
+const labPreviewTags = [...lab.matchAll(/<img\b[^>]*\bsrc="\/assets\/lab\/previews\/([a-z]+)\.jpg\?v=capture-[0-9a-f]{12}"[^>]*>/gi)];
 check(labPreviewTags.length === 13, 'PERF-04 Lab publishes exactly 13 static instrument previews');
-check(labPreviewTags[0]?.[1] === 'orbit' && /\\bloading="eager"/.test(labPreviewTags[0][0]),
+check(labPreviewTags[0]?.[1] === 'orbit' && /\bloading="eager"/.test(labPreviewTags[0][0]),
   'PERF-04 above-the-fold Orbit LCP image loads eagerly');
-check(labPreviewTags.slice(1).every(([, , ...rest], index) => /\\bloading="lazy"/.test(labPreviewTags[index + 1][0])),
+check(labPreviewTags.slice(1).every(match => /\bloading="lazy"/.test(match[0])),
   'PERF-04 the other 12 instrument previews remain lazy');
-check(!/<link\\b[^>]*rel="preload"[^>]*href="\\/assets\\/lab\\/previews\\//i.test(lab),
+check(!/<link\b[^>]*rel="preload"[^>]*href="\/assets\/lab\/previews\//i.test(lab),
   'PERF-04 no global instrument-image preload on deep links');
 
 check(/\/commons\/loader\.js\?v=20261001a/.test(home), 'PERF-05 Home uses the viewport-driven Commons loader');
