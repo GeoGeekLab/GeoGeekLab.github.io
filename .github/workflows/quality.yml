@@ -100,7 +100,7 @@ jobs:
           grep -F 'orient-storage.js?v=20261003f' dist/play/play-runtime.js
           grep -F 'orient-session.js?v=20261003f' dist/play/play-runtime.js
           grep -F 'orient-adaptation-guard.js?v=20261003f' dist/play/play-runtime.js
-          grep -F 'orient.js?v=20261003f' dist/play/play-runtime.js
+          grep -F 'orient.js?v=20261010-step09a' dist/play/play-runtime.js
           grep -F 'orient-feedback.js?v=20261003g' dist/play/play-runtime.js
           grep -F 'orient-trace-view.js?v=20261003h' dist/play/play-runtime.js
           grep -F 'orient-trace-enhancer.js?v=20261003h' dist/play/play-runtime.js
