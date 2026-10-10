@@ -6,6 +6,14 @@
   const NATURAL_EARTH = 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m/cultural/ne_110m_admin_0_countries.json';
   const NS = 'http://www.w3.org/2000/svg';
 
+  // Production Lab now ships complete, instrument-captured previews in its
+  // first HTML response. The legacy conceptual preview renderer has no visible
+  // target there: it still fetches Natural Earth, USGS and NASA and builds
+  // elements behind the screenshots. Do not start that obsolete network work.
+  // Direct ?instrument= workspaces load their own validated sources separately.
+  // Keep conceptual previews on non-static pages and in source-only dev mode.
+  if (document.querySelector('#labList[data-static-lab-collection="v1"]')) return;
+
   function bindProjectProbe() {
     $$('.project-card').forEach(card => {
       let probe = $('.project-probe', card);
