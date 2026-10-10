@@ -61,13 +61,17 @@ function renderCard(item, cacheVersion) {
   const detail = 'lab.html?instrument=' + encodeURIComponent(kind) + '#' + item.id;
   const title = item.title || kind;
   const preview = '/assets/lab/previews/' + kind + '.jpg?v=' + cacheVersion;
+  // Only the initial, above-the-fold Observatory preview can become the LCP.
+  // Keep every subsequent image lazy and avoid a document-level preload so
+  // direct ?instrument= entries do not compete with their workspace assets.
+  const imageLoading = item.id === 'l04' ? 'eager' : 'lazy';
   const tags = (item.tags || []).slice(0, 3).join(' · ');
   return [
     '<article class="project-card contour-target is-actionable" data-record-ref="' + esc(ref) +
       '" data-detail-href="' + esc(detail) +
       '" data-local-scale="1 : 2,500" data-local-level="RECORD" id="' + esc(item.id) + '">',
     '<div class="project-visual project-visual-' + esc(kind) + ' is-real-output" data-real-preview="' + esc(kind) + '">',
-    '<img src="' + esc(preview) + '" alt="' + esc(title) + ' — real instrument output" loading="lazy" decoding="async">',
+    '<img src="' + esc(preview) + '" alt="' + esc(title) + ' — real instrument output" loading="' + imageLoading + '" decoding="async">',
     '</div>',
     '<div class="project-copy">',
     '<div class="project-meta"><span>' + esc(item.status) + '</span><span>' + esc(tags) + '</span></div>',
