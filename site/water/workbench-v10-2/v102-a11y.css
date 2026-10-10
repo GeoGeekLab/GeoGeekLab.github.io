@@ -45,7 +45,10 @@
  .v102-chart-equivalent,.v102-sci-glossary,.v102-current-view-actions{transition:none}
 }
 
-/* SENSOR source chart labels were using --faint (#6d887b), falling below
- * WCAG AA 4.5:1 for normal text on #132119 / #182920 backgrounds.
- * Preserve scientific legend values; brighten only sensor text labels. */
-.p6b-sensor .metric small,.p6b-sensor .plot-subtitle{color:#b3cbbd}
+/* Water chart captions and compact metric labels inherited --faint (#6d887b)
+ * in SENSOR / AC / COMPARE / SENSITIVITY and other plots. On #132119 cards
+ * this is 4.33:1, below WCAG AA's 4.5:1 normal-text requirement; titles
+ * on #182920 surfaces are 3.96:1. Preserve all plotted science and legend
+ * names; lift only these chart text labels (9.68:1 and 8.86:1 respectively).
+ * Scope to the Water chart, never site-wide or to semantic status colors. */
+.chart-main .metric small,.chart-main .plot-subtitle{color:#b3cbbd}
