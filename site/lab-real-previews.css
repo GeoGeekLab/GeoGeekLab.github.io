@@ -89,3 +89,51 @@
     font-size: 7px;
   }
 }
+
+
+/* A missing capture is an explicit unavailable state, never real output. */
+.lab-list .project-visual.is-preview-fallback {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 8.6;
+  background: #122019;
+}
+
+.lab-list .project-visual.is-preview-fallback::before,
+.lab-list .project-visual.is-preview-fallback::after {
+  content: none;
+}
+
+.lab-preview-unavailable {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(ellipse at 48% 40%, #233b31, #111b16 76%);
+  color: #e3e9e0;
+}
+
+.lab-preview-unavailable-grid {
+  position: absolute;
+  inset: -40%;
+  opacity: .3;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 37px, #6b9682 38px, transparent 39px),
+    repeating-linear-gradient(90deg, transparent 0 37px, #6b9682 38px, transparent 39px);
+  transform: rotate(-14deg) scale(.85);
+}
+
+.lab-preview-unavailable-label {
+  position: relative;
+  z-index: 1;
+  padding: 9px 12px;
+  border: 1px solid rgba(227, 233, 224, .27);
+  background: rgba(10, 18, 14, .8);
+  font: 650 10px/1.4 var(--mono, monospace);
+  letter-spacing: .1em;
+  text-align: center;
+}

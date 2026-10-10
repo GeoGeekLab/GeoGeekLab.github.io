@@ -2,6 +2,7 @@
 // archive and Lab preinit data transforms that the browser uses; do not maintain
 // a separate hand-edited set of card descriptions.
 import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 
@@ -52,7 +53,15 @@ async function labModel(dist) {
   return model;
 }
 
-function renderCard(item, cacheVersion) {
+function missingPreviewMarkup(title) {
+  return '<div class="lab-preview-unavailable" role="img" aria-label="' +
+    esc(title) + ' preview unavailable">' +
+    '<span class="lab-preview-unavailable-grid" aria-hidden="true"></span>' +
+    '<span class="lab-preview-unavailable-label">PREVIEW UNAVAILABLE</span>' +
+    '</div>';
+}
+
+function renderCard(item, cacheVersion, dist) {
   const kind = String(item.instrument || '');
   if (!kind || !/^[a-z]+$/.test(kind)) {
     throw new Error('Lab first-paint: invalid instrument in ' + item.id);
@@ -61,18 +70,24 @@ function renderCard(item, cacheVersion) {
   const detail = 'lab.html?instrument=' + encodeURIComponent(kind) + '#' + item.id;
   const title = item.title || kind;
   const preview = '/assets/lab/previews/' + kind + '.jpg?v=' + cacheVersion;
+  const previewDir = path.join(dist, 'assets', 'lab', 'previews');
+  const hasJpg = existsSync(path.join(previewDir, kind + '.jpg'));
+  const hasWebp = kind === 'orbit' && existsSync(path.join(previewDir, 'orbit.webp'));
   const tags = (item.tags || []).slice(0, 3).join(' · ');
   return [
     '<article class="project-card contour-target is-actionable" data-record-ref="' + esc(ref) +
       '" data-detail-href="' + esc(detail) +
       '" data-local-scale="1 : 2,500" data-local-level="RECORD" id="' + esc(item.id) + '">',
-    '<div class="project-visual project-visual-' + esc(kind) + ' is-real-output" data-real-preview="' + esc(kind) + '">',
-    ...(kind === 'orbit' ? [
-      '<picture class="lab-orbit-picture">',
-      '<source type="image/webp" srcset="/assets/lab/previews/orbit.webp?v=' + esc(cacheVersion) + '">'
-    ] : []),
-    '<img src="' + esc(preview) + '" alt="' + esc(title) + ' — real instrument output" loading="lazy" decoding="async">',
-    ...(kind === 'orbit' ? ['</picture>'] : []),
+    '<div class="project-visual project-visual-' + esc(kind) +
+      (hasJpg ? ' is-real-output" data-real-preview="' : ' is-preview-fallback" data-preview-fallback="') + esc(kind) + '">',
+    ...(hasJpg ? [
+      ...(hasWebp ? [
+        '<picture class="lab-orbit-picture">',
+        '<source type="image/webp" srcset="/assets/lab/previews/orbit.webp?v=' + esc(cacheVersion) + '">'
+      ] : []),
+      '<img src="' + esc(preview) + '" alt="' + esc(title) + ' — real instrument output" loading="lazy" decoding="async">',
+      ...(hasWebp ? ['</picture>'] : [])
+    ] : [missingPreviewMarkup(title)]),
     '</div>',
     '<div class="project-copy">',
     '<div class="project-meta"><span>' + esc(item.status) + '</span><span>' + esc(tags) + '</span></div>',
@@ -99,7 +114,7 @@ export async function staticLabCollection(html, dist, cacheVersion) {
     if (!byId.has(id)) throw new Error('Lab first-paint: missing instrument ' + id);
   }
   const collection = GROUPS.map(([key, label, purpose, ids]) => {
-    const cards = ids.map(id => renderCard(byId.get(id), cacheVersion)).join('\n');
+    const cards = ids.map(id => renderCard(byId.get(id), cacheVersion, dist)).join('\n');
     return '<section class="lab-group-block lab-group-' + key +
       '" data-group-key="' + key + '"><div class="lab-group-label"><span>' + label +
       '</span><i></i></div><p class="lab-group-purpose">' + esc(purpose) +

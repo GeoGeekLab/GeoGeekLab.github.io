@@ -76,13 +76,11 @@ jobs:
       - name: Capture real Lab previews
         run: node scripts/capture-lab-previews.mjs
       - name: Verify real Lab previews
-        run: |
-          for name in orbit earth flow pulse figure world water locate zone path project light; do
-            test -s "site/assets/lab/previews/${name}.jpg"
-          done
-          grep -E "const VERSION = 'capture-[0-9a-f]{12}';" site/lab-real-previews.js
+        run: node scripts/verify-lab-previews.mjs
       - name: Build
         run: node scripts/build.mjs
+      - name: Verify published Lab preview assets
+        run: node scripts/verify-lab-previews.mjs --dist
       - name: Verify World v12 release cache contract
         run: node scripts/verify-world-v12-release.mjs
       - name: Verify ORIENT release assets
@@ -180,6 +178,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Verify public Lab preview images
+        env:
+          BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${BASE_URL%/}"
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          for name in orbit earth flow pulse figure world water locate zone path project light swath; do
+            mime="$(curl --fail --silent --show-error --location --retry 3 --retry-all-errors --max-time 30 --output "$tmp/$name.jpg" --write-out '%{content_type}' "$base/assets/lab/previews/$name.jpg?verify=${GITHUB_SHA}")"
+            test "$mime" = 'image/jpeg'
+            test "$(wc -c < "$tmp/$name.jpg")" -ge 8000
+          done
+          mime="$(curl --fail --silent --show-error --location --retry 3 --retry-all-errors --max-time 30 --output "$tmp/orbit.webp" --write-out '%{content_type}' "$base/assets/lab/previews/orbit.webp?verify=${GITHUB_SHA}")"
+          test "$mime" = 'image/webp'
+          test "$(wc -c < "$tmp/orbit.webp")" -ge 8000
+          echo 'All 14 public Lab images are valid and accessible'
       - name: Verify published Origin Chinese narrative
         env:
           BASE_URL: ${{ needs.deploy.outputs.page_url }}

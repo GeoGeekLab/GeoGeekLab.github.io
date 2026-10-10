@@ -132,9 +132,16 @@ function stabilizeAtlas(html) {
   return primeMobilePageState(html, 'atlas');
 }
 
-function prioritizeLabPreview(html) {
+async function prioritizeLabPreview(html) {
   if (!/class=(['"])[^'"]*earth-lab-preview/.test(html)) return html;
-  const href = '/assets/lab/previews/earth-observatory.jpg?v=20260930i';
+
+  // Reuse the captured Earth instrument. The old earth-observatory.jpg
+  // was never emitted by capture-lab-previews.mjs.
+  if (!(await exists(path.join(dist, 'assets/lab/previews/earth.jpg')))) return html;
+  const runtime = await fs.readFile(path.join(dist, 'lab-real-previews.js'), 'utf8');
+  const version = runtime.match(/const VERSION = ['"]([^'"]+)['"];/)?.[1];
+  if (!version) throw new Error('Earth preview: missing capture cache version.');
+  const href = '/assets/lab/previews/earth.jpg?v=' + version;
   if (!html.includes(`rel="preload" as="image" href="${href}"`)) {
     html = html.replace(/<\/head>/i, `<link rel="preload" as="image" href="${href}" fetchpriority="high">\n</head>`);
   }
@@ -181,7 +188,7 @@ async function patchHtml(file, seriesKeys) {
   html = addAsyncFonts(html);
   const relative = path.relative(dist, file).replaceAll('\\', '/');
   if (relative === 'field-notes.html') html = stabilizeFieldNotes(html, seriesKeys);
-  if (relative === 'lab.html') html = prioritizeLabPreview(html);
+  if (relative === 'lab.html') html = await prioritizeLabPreview(html);
   if (relative === 'atlas.html') html = stabilizeAtlas(html);
   if (relative === 'index.html') html = lazyHomeCommons(html);
   if (relative === 'earth/index.html') html = progressiveEarth(html);
