@@ -45,7 +45,7 @@ Lab release marker: `20261009v102`
 | 09 | Orient visual redesign | DONE |
 | 10 | Connect visual redesign | DONE |
 | 11 | Shared interaction and Spatial Trace | DONE |
-| 12 | Release regression and visual sign-off | PLANNED |
+| 12 | Release regression and visual sign-off | IN REVIEW |
 
 ## STEP 00 handoff
 
@@ -651,3 +651,29 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 - `site/instruments.js` currently uses `history.replaceState` for card entry and close and has no dedicated `popstate` handler. Dedicated browser back/forward tests are still **NOT RUN**. Do not assume that browser Back returns from an instrument to the Lab collection.
 - Native desktop 125% browser zoom has **NOT RUN**. A CSS-sized viewport proxy cannot close this acceptance gate.
 - No merge, rebase, deployment, production asset change, or release tag was performed in this preflight.
+
+
+## STEP 12 release candidate — 2026-10-10
+
+### Decision: IN REVIEW — release quality and native zoom validation pending
+
+**Candidate branch:** `release/play-desktop-v2-rc`. It is isolated from production `main`.  
+**Candidate merge commit:** `a9e25a6ca242988cb2f7046ffcf80b1d84414526` (parents: design `d4acf196d3fb5af37e84373b75d080f0bc22d3f7` and main `c3e4f1e58707b759441a5a6f8319504755894663`).  
+**Versioned navigation fix commits:** `98dd773` in `site/instruments.js`, `4c78790` in `site/core/modules.js`.  
+**Browser history / desktop visual tests:** `tests/browser/play-release-regression.spec.mjs` (`d4acf19`): six Back/Forward flows plus all six instruments at 1920×1080, 1440×900, 1366×768, with screenshot attachments.  
+**Native 125% page zoom test:** `tests/browser/play-native-zoom-release.spec.mjs` (RC branch): uses a temporary Chrome extension and `chrome.tabs.setZoom(1.25)` in a separate Chromium persistent context; requires an actual browser zoom measurement and verifies six workspaces × three physical desktop viewports. It does not substitute CSS zoom or a smaller CSS viewport.
+
+### Main branch reconciliation
+
+- Branch merge records both source parents; compare of `main...release/play-desktop-v2-rc` returned `behind_by=0` after integration.
+- Included all 16 main-only changed source/test files without discarding PLAY branch changes.
+- `site/lab.html`: preserved PLAY viewport stylesheet and versioned PLAY entry plus main `app.js?v=20261009static1` and `lab-fullpage.js?v=20261009navfix1` fixes.
+- `.github/workflows/pages.yml`: preserved main's deployed Chinese Origin narrative verification together with the latest Orient asset-version guard.
+- No `main` write, no release/deployment, no production mutation, no PR merge.
+
+### Outstanding release gate
+
+- **CI: IN REVIEW.** Run the full candidate build, static QA, link checks, specialist scientific regressions, browser/accessibility suite, native zoom assertions and Lighthouse on the final RC commit. Record exact run SHA and all failure/skipped cases.
+- **Visual inspection: NOT RUN.** Download the final quality artifact and inspect six-instrument desktop/native zoom screenshots for legibility, overlap and geometry, especially at 1366×768.
+- **Production deployment and post-deploy smoke: NOT RUN.** Require explicit authorization to merge to `main`; release acceptance must not be confused with a live deployment.
+- **Historical same-state pixel diff: NOT RUN.** STEP 00 reference screenshots are 1920×869 early states with different conditions, so pixel-identical comparison is not an honest assertion.
