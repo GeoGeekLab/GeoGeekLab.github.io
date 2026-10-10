@@ -57,6 +57,11 @@ for (const [instrument, kind] of cases) {
       await expect(shell).toBeVisible({ timeout: 20_000 });
       await expect(shell).toHaveCount(1);
       await expect(dialog).toHaveAttribute('data-play-workspace', 'true');
+      // Browser close events are queued. A late event from the previous modal
+      // must never erase the identity of the now-open forward-restored shell.
+      await dialog.evaluate(node => node.dispatchEvent(new Event('close')));
+      await expect(dialog).toHaveAttribute('data-play-workspace', 'true');
+      await expect(shell).toHaveCount(1);
       await info.attach(`step12-history-forward-${kind}-1366`, {
         body: await page.screenshot({ animations: 'disabled' }),
         contentType: 'image/png'

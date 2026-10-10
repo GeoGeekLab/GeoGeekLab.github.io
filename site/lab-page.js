@@ -308,6 +308,14 @@
   });
   scaleObserver.observe(dialog, { attributes: true, attributeFilter: ['open'] });
 
-  dialog.addEventListener('close', () => setInstrumentIdentity(''));
+  dialog.addEventListener('close', () => {
+    // A pending close event can arrive after history Forward has reopened PLAY.
+    // Re-synchronize the live shell instead of clearing its workspace identity.
+    if (dialog.open) {
+      syncInstrumentShell();
+      return;
+    }
+    setInstrumentIdentity('');
+  });
   syncInstrumentShell();
 })();
