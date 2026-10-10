@@ -715,3 +715,10 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 - **Navigation and science:** all six Lab card → browser Back → browser Forward cases passed with clean stage lifecycle and correct workspace identity. Existing per-instrument numerics, prediction/commit-before-reveal and shared Spatial Trace regressions also passed in the same full suite.
 - **Assets and branch integration:** Lab release marker and `core/modules.js` version `20261010v103play2` align; PLAY runtime and workspace CSS remain versioned, main-side Lab app/navigation fixes are preserved, and the Pages workflow retains its Chinese Origin post-deploy verification. Legacy Water V7/V9 version guards were updated without modifying science modules.
 - **Not included in predeployment DONE:** merging to `main`, triggering the Pages deployment, live six-module smoke, live Origin verification, and rollback decision. All remain **NOT RUN** and require a separate production go/no-go. STEP 00 source screenshots use different viewport/state and do not support a pixel-identical baseline comparison.
+
+
+### Production publication — 2026-10-10
+
+- The predeployment-approved release candidate was fast-forwarded to `main` at `ebf37f509701e937a31480611c43083ce5a6ab97` after confirming `main` was an ancestor, without force or history rewrite.
+- This commit records and initiates the GitHub Pages production publication attempt for Lab release `20261010v103play2`. Publication and external six-PLAY smoke are **PENDING VERIFICATION**; a successful branch update is not itself a successful Pages deployment.
+- Validate the `Deploy GeoGeek` workflow and its post-deploy Chinese Origin and six public PLAY checks before changing these to PASS.
