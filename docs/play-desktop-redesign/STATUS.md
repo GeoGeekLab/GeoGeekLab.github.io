@@ -685,3 +685,17 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 - `site/lab.html`: release metadata and Lab navigation query bumped to `20261010v103play2`; external `core/modules.js` query pinned to this same release, so previously cached module loader files cannot silently mask the new `instruments.js?v=20261010-step12a` history fix.
 - `.github/workflows/pages.yml`: all five pinned postdeploy `core/modules.js` checks updated to the same release; main's Chinese Origin live-HTML verification and latest Orient asset version remain intact.
 - `scripts/verify-play-live-release.mjs` derives release metadata dynamically and accepts the new alphanumeric marker. Final CI on the exact final candidate is required before STEP 12 completion; do not claim Pages deployment without a successful actual deploy.
+
+
+### STEP 12 RC measured browser/visual evidence
+
+**Candidate validation in progress; not a production GO.**
+
+- **RC run:** [38047938164](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164), commit `31bc4fe403000ea16ed9902bd7ee18743b665079`, **overall FAIL** only because the previously intermittent non-PLAY Pulse Round 4 AXE run timed out on `pulse-observation-lab.spec.mjs:270`. Browser report: **580 total, 533 passed, 46 skipped, 1 failed**. No new STEP 12 tests failed.
+- **Release browser navigation:** all six real in-page Lab entry, browser Back, browser Forward restoration flows passed, confirming one shell, clean close and correct workspace identity.
+- **Native 125% zoom:** the dedicated desktop test passed using Chromium `chrome.tabs.setZoom(1.25)`, checking the browser's reported tab zoom and actual CSS viewport contraction. **18 screenshot attachments** cover six instruments at physical 1920×1080, 1440×900 and 1366×768.
+- **Layout matrix:** all six instrument workspace bounding-box checks across the three desktop viewport sizes passed; **18 entry screenshots**. Browser history tests attached **6 forward-restoration screenshots**. All **42 named STEP 12 PNGs** were verified in the RC Playwright report from [quality artifact 11668697555](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164/artifacts/11668697555).
+- **Visual inspection:** six-up contact sheets for the 1366, 1440, 1920 native-zoom states and the 1366 entry/history states were inspected. Full-size native 1366 Project and Connect screenshots were also inspected. No obvious canvas obstruction, duplicate shell, unexpected viewport margin, or body horizontal spill was observed. Aux/evidence rails intentionally scroll at reduced heights.
+- **Release cache:** the separate `release/play-desktop-v2-final` branch sets Lab marker and `core/modules.js` URL to `20261010v103play2`. It preserves the PLAY workspace version and the main-side Origin Chinese deployment check. Two legacy Water V7 and V9 static tests initially rejected the new cache version; their exact-version contracts were extended via `ae072e3` and `3db0b0a`. Scientific code was unchanged.
+- **Latest final candidate CI:** [38048956580](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38048956580), code/test commit `3db0b0a11f18b4ba8d0c47fe65ac74cd6db47937`, **IN PROGRESS** at this entry. Do not claim release approval until full run and exact-SHA artifact review complete.
+- **Not run:** production `main` merge, Pages deployment, and external live smoke. They remain separate gated actions. Historical STEP 00 early screenshots do not support a same-state pixel-exact diff.
