@@ -396,16 +396,16 @@ The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks
 
 ## P. STEP 12 release regression and visual sign-off — IN REVIEW
 
-**Release-candidate branch:** `release/play-desktop-v2-rc`.  
+**Release-candidate branch:** `release/play-desktop-v2-final` (integrated predecessor: `release/play-desktop-v2-rc`).  
 **Integrated main commit:** `c3e4f1e58707b759441a5a6f8319504755894663`; merge commit `a9e25a6ca242988cb2f7046ffcf80b1d84414526`.  
 **Quality source under test:** release branch including `tests/browser/play-release-regression.spec.mjs` and `tests/browser/play-native-zoom-release.spec.mjs`.
 
 | Gate | Result | Evidence / remaining action |
 | --- | --- | --- |
 | Source branch synchronized with tested main | PASS | Two-parent merge commit, `main...RC` comparison has zero commits behind; main-only source/test changes retained |
-| Preserve shared PLAY workspace and Lab/main navigation fixes | IN REVIEW | Resolved `site/lab.html` merges preserve both sets; full QA still required |
+| Preserve shared PLAY workspace and Lab/main navigation fixes | IN REVIEW | Source merge preserves both sets; full candidate QA still required |
 | Preserve updated Pages release workflow and Chinese Origin smoke | PASS | Exact Pages workflow reviewed: latest Orient asset guard and main's Chinese Origin verification both present |
-| Six instruments, native card navigation and browser Back/Forward | IN REVIEW | Dedicated six-case browser tests submitted; requires latest passing CI |
+| Release marker and asset cache-busting | PASS | `site/lab.html` release `20261010v103play2`, module-loader URL updated; five Pages smoke guards updated; verified in source, requires final build/CI |\n| Six instruments, native card navigation and browser Back/Forward | IN REVIEW | Dedicated six-case browser tests submitted; requires latest passing CI |
 | Three desktop viewport matrix and 18 primary screenshots | IN REVIEW | Dedicated 1920×1080, 1440×900, 1366×768 browser matrix; inspect actual PNGs |
 | True Chromium browser zoom 125% | IN REVIEW | Temporary MV3 Chrome extension sets tab zoom via `chrome.tabs.setZoom`; assert actual CSS viewport reduction and capture six × three screenshots |
 | Scientific calculations and prediction-before-reveal contract | IN REVIEW | Original instrument regressions and numerical Node checks in full CI |
