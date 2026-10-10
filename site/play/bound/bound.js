@@ -42,6 +42,7 @@
     if(!fieldApi?.sample || !viewApi?.create) throw new Error('Bound V2 modules incomplete.');
 
     GeoPlay.core.ensureStyle('play/bound/bound-v2.css?v=20261005b','bound-v2');
+    GeoPlay.core.ensureStyle('play/bound/bound-desktop.css?v=20261010-step07a','bound-desktop');
 
     const shell=GeoPlay.shell.createV2(stage,{kind:'bound',title:'BOUND'});
     const states=['drawing','ready','committed','disturbing','decision','redrawing','result'];
@@ -79,7 +80,16 @@
     }
 
     function setHud(resolution=SCENARIO.initialResolution) {
-      shell.hud.innerHTML=`<div class="bound-v2-hud-item"><span>SCENARIO</span><strong>FLOOD RISK</strong></div><div class="bound-v2-hud-item"><span>OBSERVATION</span><strong>${resolution} × ${resolution}</strong></div><div class="bound-v2-hud-item"><span>RULE</span><strong>RISK ≥ ${(SCENARIO.riskThreshold).toFixed(2)}</strong></div>`;
+      shell.hud.innerHTML=`<div class="bound-v2-evidence-heading"><span>FIELD EVIDENCE</span><h2>BOUNDARY CONDITIONS</h2><p>Risk and population are modelled fields. Resolution changes the observation, not its source.</p></div><div class="bound-v2-observation"><div class="bound-v2-hud-item"><span>SCENARIO</span><strong>FLOOD RISK</strong></div><div class="bound-v2-hud-item"><span>OBSERVATION</span><strong>${resolution} × ${resolution}</strong></div><div class="bound-v2-hud-item"><span>RULE</span><strong>RISK ≥ ${(SCENARIO.riskThreshold).toFixed(2)}</strong></div></div><div class="bound-v2-evidence-section"><span>YOUR REGION · COMPETING CONSTRAINTS</span><div class="bound-v2-evidence-values" aria-live="polite"></div></div><div class="bound-v2-evidence-legend" aria-label="Boundary line legend"><span>BOUNDARY NOTATION</span><div><i class="bound-v2-key-current" aria-hidden="true"></i>ACTIVE LINE · SOLID</div><div><i class="bound-v2-key-original" aria-hidden="true"></i>PREVIOUS LINE · DASHED</div><p>Coverage is a share of modelled at-risk population; area closed is a share of the field. They are targets, not a score.</p></div>`;
+    }
+
+    // Reuse the task readouts as the single source for the desktop evidence view.
+    // The task retains the original readouts for smaller CSS viewports.
+    function presentPanel(panel) {
+      shell.overlay.replaceChildren(panel);
+      const evidence=shell.hud.querySelector('.bound-v2-evidence-values');
+      const metrics=panel.querySelector('.bound-v2-metrics');
+      if(evidence) evidence.replaceChildren(...(metrics?[metrics.cloneNode(true)]:[]));
     }
 
     function evaluateCurrent(grid=beforeGrid) {
@@ -121,8 +131,7 @@
       actions.appendChild(button('GUIDED REGION',guided,{secondary:true}));
       actions.appendChild(button(isRedraw?'COMMIT NEW LINE':'COMMIT REGION',isRedraw?commitRedraw:commitInitial,{disabled:!metrics}));
       panel.appendChild(actions);
-      shell.overlay.innerHTML='';
-      shell.overlay.appendChild(panel);
+      presentPanel(panel);
     }
 
     function onBoundary(points) {
@@ -150,8 +159,7 @@
       actions.className='bound-v2-actions';
       actions.appendChild(button('CHANGE OBSERVATION',disturb));
       panel.appendChild(actions);
-      shell.overlay.innerHTML='';
-      shell.overlay.appendChild(panel);
+      presentPanel(panel);
     }
 
     function disturb() {
@@ -164,8 +172,7 @@
       const panel=document.createElement('div');
       panel.className='bound-v2-panel';
       panel.innerHTML=`<span>OBSERVATION CHANGE</span><h2>${SCENARIO.initialResolution} → ${SCENARIO.disturbedResolution}</h2><p>The field source stays the same. Only sampling resolution changes.</p>`;
-      shell.overlay.innerHTML='';
-      shell.overlay.appendChild(panel);
+      presentPanel(panel);
       const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
       window.clearTimeout(disturbanceTimer);
       disturbanceTimer=window.setTimeout(()=>{
@@ -188,8 +195,7 @@
       actions.appendChild(button('KEEP LINE',keepLine,{secondary:true}));
       actions.appendChild(button('REDRAW',beginRedraw));
       panel.appendChild(actions);
-      shell.overlay.innerHTML='';
-      shell.overlay.appendChild(panel);
+      presentPanel(panel);
     }
 
     function keepLine() {
@@ -247,8 +253,7 @@
       actions.className='bound-v2-actions';
       actions.appendChild(button('PLAY AGAIN',restart,{secondary:true}));
       panel.appendChild(actions);
-      shell.overlay.innerHTML='';
-      shell.overlay.appendChild(panel);
+      presentPanel(panel);
     }
 
     function restart() {
@@ -277,6 +282,8 @@
       fieldApi,
       callbacks:{onBoundary,onGuided:guided,onNudge:nudge}
     });
+    shell.viewport.insertAdjacentHTML('beforeend',
+      '<div class="bound-v2-scene-heading" aria-hidden="true"><span>SYNTHETIC FLOOD-RISK FIELD</span><strong>DRAW / EVALUATE / RESAMPLE</strong></div><div class="bound-v2-scene-foot" aria-hidden="true">POINTER: DRAW REGION &nbsp;·&nbsp; G: GUIDED REGION &nbsp;·&nbsp; ARROWS: MOVE</div>');
     setHud(SCENARIO.initialResolution);
     view.renderGrid(beforeGrid);
     view.setDrawing(true);

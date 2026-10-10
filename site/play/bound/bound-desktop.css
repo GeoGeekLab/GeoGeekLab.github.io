@@ -1,0 +1,220 @@
+/* STEP 07 — Bound desktop layout only. Scientific grids, geometry and decisions
+   continue to come from bound-field.js and the unmodified experiment sequence. */
+@media (min-width: 1024px) {
+  .play-v2-shell[data-play-kind="bound"] {
+    display:grid;
+    grid-template-columns:clamp(290px,23.5vw,350px) minmax(0,1fr) clamp(280px,22vw,324px);
+    grid-template-rows:52px minmax(0,1fr);
+    background:#0b100e;
+  }
+  .play-v2-shell[data-play-kind="bound"] .play-v2-header {
+    position:relative;inset:auto;grid-column:1/-1;grid-row:1;z-index:5;
+    display:flex;align-items:center;padding:0 22px;
+    border-bottom:1px solid rgba(237,236,229,.16);
+    background:#111a15;pointer-events:none;
+  }
+  .play-v2-shell[data-play-kind="bound"] .play-v2-title {
+    color:#edece5;font:700 12px/1 var(--play-font-data,monospace);
+    letter-spacing:.18em;
+  }
+  .play-v2-shell[data-play-kind="bound"] .play-v2-status {
+    color:#8fb5ac;font:700 11px/1 var(--play-font-data,monospace);
+  }
+  .play-v2-shell[data-play-kind="bound"] .play-v2-overlay {
+    position:relative;inset:auto;grid-column:1;grid-row:2;z-index:3;
+    display:block;width:100%;min-width:0;min-height:0;max-height:none;
+    overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+    padding:24px 20px;border-right:1px solid rgba(237,236,229,.16);
+    background:#131e18;pointer-events:auto;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-panel {
+    width:100%;min-width:0;max-width:none;display:flex;flex-direction:column;
+    align-items:stretch;gap:17px;padding:0;margin:0;border:0;border-radius:0;
+    background:none;box-shadow:none;backdrop-filter:none;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-panel>span {
+    font:700 11px/1.3 var(--play-font-data,monospace);
+    color:#e0a17e;letter-spacing:.12em;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-panel h2 {
+    font:650 clamp(27px,2.5vw,39px)/1.07 var(--play-font-interface,system-ui);
+    color:#edece5;letter-spacing:-.04em;overflow-wrap:break-word;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-panel p {
+    color:#c3d2c5;font:450 14px/1.6 var(--play-font-interface,system-ui);
+    max-width:35ch;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-panel>.bound-v2-metrics {
+    display:none;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-actions {
+    display:grid;grid-template-columns:1fr;gap:10px;width:100%;margin-top:6px;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-action {
+    display:flex;align-items:center;justify-content:center;
+    min-height:44px;width:100%;padding:10px 12px;
+    font:700 11px/1.3 var(--play-font-data,monospace);
+    text-align:center;letter-spacing:.04em;white-space:normal;
+    border-radius:8px;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-action:hover:not(:disabled) {
+    transform:none;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-action.is-secondary {
+    color:#d2ded3;border-color:rgba(237,236,229,.34);background:rgba(237,236,229,.04);
+  }
+  .play-v2-shell[data-play-kind="bound"][data-play-state="decision"] .bound-v2-actions {
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  }
+  .play-v2-shell[data-play-kind="bound"][data-play-state="decision"] .bound-v2-actions .bound-v2-action {
+    border-color:#a3beb2;background:rgba(143,181,172,.12);color:#d9ebe1;
+    min-width:0;
+  }
+  .play-v2-shell[data-play-kind="bound"][data-play-state="decision"] .bound-v2-actions .bound-v2-action:hover {
+    background:rgba(143,181,172,.23);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-result {
+    font:650 clamp(27px,2.3vw,39px)/1.08 var(--play-font-interface,system-ui);
+    color:#edece5;letter-spacing:-.045em;overflow-wrap:break-word;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-result small {
+    font:700 11px/1.45 var(--play-font-data,monospace);color:#bdded0;
+    letter-spacing:.07em;
+  }
+  .play-v2-shell[data-play-kind="bound"] .play-v2-viewport {
+    position:relative;inset:auto;grid-column:2;grid-row:2;min-width:0;min-height:0;
+    width:100%;height:100%;display:grid;place-items:center;overflow:hidden;
+    background:radial-gradient(circle at 50% 50%,#132018 0%,#060a07 70%);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-stage {
+    position:relative;width:min(calc(100% - 36px),calc(100dvh - 266px));
+    height:auto;min-height:0;aspect-ratio:1;overflow:hidden;
+    border:1px solid rgba(237,236,229,.26);border-radius:3px;
+    box-shadow:0 0 0 7px rgba(237,236,229,.02),0 20px 70px rgba(0,0,0,.28);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-stage::after {
+    background:radial-gradient(circle at 50% 50%,transparent 60%,rgba(0,0,0,.16) 100%);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-field {
+    transform:none;filter:saturate(1.0) contrast(1.1) brightness(1.06);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-stage.is-disturbing .bound-v2-field {
+    transform:none;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-line {
+    stroke:#f19a68;stroke-width:3.6;fill:rgba(224,107,63,.055);
+    filter:drop-shadow(0 0 4px rgba(0,0,0,.7));
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-old-line {
+    stroke:#d7ece0;stroke-width:2.9;stroke-dasharray:7 7;
+    opacity:.9;filter:drop-shadow(0 0 2px rgba(0,0,0,.85));
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-hit:focus-visible {
+    stroke:#e9c99a;stroke-width:2;stroke-dasharray:6 8;
+  }
+  .play-v2-shell[data-play-kind="bound"] :is(.bound-v2-scene-heading,.bound-v2-scene-foot) {
+    display:flex;position:absolute;left:22px;right:22px;z-index:6;
+    pointer-events:none;font:700 10px/1.3 var(--play-font-data,monospace);
+    letter-spacing:.05em;color:#c6dbcb;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-scene-heading {
+    top:13px;justify-content:space-between;gap:12px;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-scene-heading strong {
+    color:#91b8aa;font-weight:700;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-scene-foot {
+    bottom:12px;justify-content:center;text-align:center;
+    color:#93b3a2;font-size:9px;
+  }
+  .play-v2-shell[data-play-kind="bound"] .play-v2-hud {
+    position:relative;inset:auto;grid-column:3;grid-row:2;z-index:3;
+    display:flex;flex-direction:column;align-items:stretch;gap:22px;
+    min-width:0;min-height:0;width:100%;max-height:none;padding:23px 20px;
+    overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+    opacity:1;border-left:1px solid rgba(237,236,229,.16);
+    background:#121b16;pointer-events:auto;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-heading {
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .play-v2-shell[data-play-kind="bound"] :is(.bound-v2-evidence-heading>span,.bound-v2-evidence-section>span,.bound-v2-evidence-legend>span) {
+    color:#e2a17a;font:700 10px/1.3 var(--play-font-data,monospace);
+    letter-spacing:.12em;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-heading h2 {
+    margin:0;color:#e4eee5;font:650 22px/1.15 var(--play-font-interface,system-ui);
+    letter-spacing:-.03em;
+  }
+  .play-v2-shell[data-play-kind="bound"] :is(.bound-v2-evidence-heading p,.bound-v2-evidence-legend p) {
+    margin:0;color:#b7c7ba;font:450 12px/1.55 var(--play-font-interface,system-ui);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-observation {
+    display:grid;grid-template-columns:1fr;gap:10px;
+    padding:14px 0;border-top:1px solid rgba(237,236,229,.15);
+    border-bottom:1px solid rgba(237,236,229,.15);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-hud-item {
+    grid-template-columns:1fr auto;align-items:baseline;gap:8px;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-hud-item span {
+    color:#acbfaf;font-size:10px;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-hud-item strong {
+    color:#ecf0e9;font-size:12px;white-space:nowrap;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-section {
+    display:flex;flex-direction:column;gap:11px;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-values>.bound-v2-metrics {
+    display:grid;grid-template-columns:1fr;gap:13px;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-values .bound-v2-metric {
+    display:grid;gap:7px;margin:0;padding:12px 0 0;
+    border-top:1px solid rgba(237,236,229,.2);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-values .bound-v2-metric span {
+    color:#b7c9b9;font-size:10px;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-values .bound-v2-metric strong {
+    color:#f0f3e9;font:650 clamp(23px,1.8vw,30px)/1.1 var(--play-font-interface,system-ui);
+    letter-spacing:-.035em;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-values .bound-v2-metric em {
+    color:#afd3ba;font-size:10px;letter-spacing:.055em;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-legend {
+    display:grid;gap:10px;padding-top:13px;border-top:1px solid rgba(237,236,229,.15);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-legend>div {
+    display:flex;align-items:center;gap:12px;color:#cddbd0;
+    font:700 10px/1.3 var(--play-font-data,monospace);
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-legend i {
+    flex:0 0 32px;width:32px;border-top:3px solid #f19a68;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-legend .bound-v2-key-original {
+    border-top:3px dashed #d7ece0;
+  }
+  .play-v2-shell[data-play-kind="bound"][data-play-state="disturbing"] .bound-v2-evidence-heading p {
+    color:#cddbd0;
+  }
+}
+@media (min-width:1024px) and (max-height:750px) {
+  .play-v2-shell[data-play-kind="bound"] .play-v2-hud {gap:14px;padding:14px 18px;}
+  .play-v2-shell[data-play-kind="bound"] .play-v2-overlay {padding:16px 18px;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-panel {gap:11px;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-heading {gap:5px;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-evidence-values>.bound-v2-metrics {gap:8px;}
+}
+@media (min-width:1024px) and (max-width:1250px) {
+  .play-v2-shell[data-play-kind="bound"] {grid-template-columns:290px minmax(0,1fr) 280px;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-scene-heading strong {display:none;}
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-scene-foot {font-size:8px;}
+}
+@media (max-width:1023px) {
+  .play-v2-shell[data-play-kind="bound"] :is(.bound-v2-evidence-heading,.bound-v2-evidence-section,.bound-v2-evidence-legend,.bound-v2-scene-heading,.bound-v2-scene-foot) {
+    display:none;
+  }
+  .play-v2-shell[data-play-kind="bound"] .bound-v2-observation {display:contents;}
+}
