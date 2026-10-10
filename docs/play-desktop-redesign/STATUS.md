@@ -29,6 +29,8 @@ Lab release marker: `20261009v102`
 
 **STEP 10 — DONE.** Connect now has task, geographic network, and numerical evidence rails. The border→1,200 km rule shift keeps old/new routes and edge differences distinguishable, preserves invalid-edge feedback and exact optimal hop counts; three desktop viewports, responsive fallback and full CI passed. **STEP 11 — DONE.** Shared six-instrument lifecycle and real Light/Swath cross-instrument Spatial Trace evidence, persistence and storage boundaries passed the browser suite. All six reopened desktop captures were inspected; full Quality CI passed. **Next: STEP 12 — Release regression and visual sign-off.**
 
+**STEP 12 — DONE (predeployment release regression and visual sign-off).** Final merged release candidate `4c4f9fa` passed the full GeoGeek Quality workflow [38050717187](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38050717187). Six PLAY Back/Forward flows, native 125% tab zoom, three-size 18-workspace geometry, 42 screenshots and scientific regression coverage were verified. The browser suite recorded 533 first-pass expected tests, 46 intentional skips, 1 Light viewport test that passed on retry, and 0 unrecovered failures. **Production merge/deployment/live smoke remain separate and NOT RUN.**
+
 ## Roadmap
 
 | Step | Task | State |
@@ -45,7 +47,7 @@ Lab release marker: `20261009v102`
 | 09 | Orient visual redesign | DONE |
 | 10 | Connect visual redesign | DONE |
 | 11 | Shared interaction and Spatial Trace | DONE |
-| 12 | Release regression and visual sign-off | IN REVIEW |
+| 12 | Release regression and visual sign-off | DONE |
 
 ## STEP 00 handoff
 
@@ -655,7 +657,7 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 
 ## STEP 12 release candidate — 2026-10-10
 
-### Decision: IN REVIEW — release quality and native zoom validation pending
+### Decision: DONE — predeployment release QA and visual sign-off
 
 **Candidate branch:** `release/play-desktop-v2-final` (integration predecessor: `release/play-desktop-v2-rc`). It is isolated from production `main`.  
 **Candidate merge commit:** `a9e25a6ca242988cb2f7046ffcf80b1d84414526` (parents: design `d4acf196d3fb5af37e84373b75d080f0bc22d3f7` and main `c3e4f1e58707b759441a5a6f8319504755894663`).  
@@ -689,7 +691,7 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 
 ### STEP 12 RC measured browser/visual evidence
 
-**Candidate validation in progress; not a production GO.**
+**Historical RC validation; RC failure was superseded by the final candidate CI. Production deployment remains separate.**
 
 - **RC run:** [38047938164](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164), commit `31bc4fe403000ea16ed9902bd7ee18743b665079`, **overall FAIL** only because the previously intermittent non-PLAY Pulse Round 4 AXE run timed out on `pulse-observation-lab.spec.mjs:270`. Browser report: **580 total, 533 passed, 46 skipped, 1 failed**. No new STEP 12 tests failed.
 - **Release browser navigation:** all six real in-page Lab entry, browser Back, browser Forward restoration flows passed, confirming one shell, clean close and correct workspace identity.
@@ -697,5 +699,19 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 - **Layout matrix:** all six instrument workspace bounding-box checks across the three desktop viewport sizes passed; **18 entry screenshots**. Browser history tests attached **6 forward-restoration screenshots**. All **42 named STEP 12 PNGs** were verified in the RC Playwright report from [quality artifact 11668697555](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164/artifacts/11668697555).
 - **Visual inspection:** six-up contact sheets for the 1366, 1440, 1920 native-zoom states and the 1366 entry/history states were inspected. Full-size native 1366 Project and Connect screenshots were also inspected. No obvious canvas obstruction, duplicate shell, unexpected viewport margin, or body horizontal spill was observed. Aux/evidence rails intentionally scroll at reduced heights.
 - **Release cache:** the separate `release/play-desktop-v2-final` branch sets Lab marker and `core/modules.js` URL to `20261010v103play2`. It preserves the PLAY workspace version and the main-side Origin Chinese deployment check. Two legacy Water V7 and V9 static tests initially rejected the new cache version; their exact-version contracts were extended via `ae072e3` and `3db0b0a`. Scientific code was unchanged.
-- **Latest final candidate CI:** [38048956580](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38048956580), code/test commit `3db0b0a11f18b4ba8d0c47fe65ac74cd6db47937`, **IN PROGRESS** at this entry. Do not claim release approval until full run and exact-SHA artifact review complete.
+- **Superseded final-candidate CI:** [38048956580](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38048956580) did not pass; subsequent fixes and exact-SHA passing evidence are recorded in the final sign-off below.
 - **Not run:** production `main` merge, Pages deployment, and external live smoke. They remain separate gated actions. Historical STEP 00 early screenshots do not support a same-state pixel-exact diff.
+
+
+### Final STEP 12 sign-off — validated 4c4f9fa
+
+**Decision: DONE for predeployment release regression and visual sign-off.** Do **not** interpret this as production deployment approval or a claim that Pages already serves PLAY V2.
+
+- **Source:** `release/play-desktop-v2-final`, validated code/test commit `4c4f9fa33b0211b1edcf40edafe12c3da94abdde`. The repository's `main` ancestor is `c3e4f1e58707b759441a5a6f8319504755894663`, with no `main` commits missing from this candidate at review time.
+- **Full CI:** [GeoGeek Quality 38050717187](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38050717187), COMPLETED / **SUCCESS** on the exact source SHA. Build, ORIENT assets, static/Node scientific QA, link/assets, all specialist Water/Orient/Pulse phases, browser/accessibility suite and Lighthouse all ended successfully.
+- **Complete browser report:** **580 total; 533 expected first-pass successes, 46 intentional skips, 1 flaky case that passed on retry, 0 unrecovered failures.** These are distinct categories and must not be conflated. The single flaky case is `LIGHT restores the legacy narrow composition when a viewport crosses the desktop threshold`: the first attempt observed `legendInEvidence=false` immediately after the viewport crossed 920→1366; the retry passed. This is a residual transition-timing risk, not evidence of a persistent render failure. Keep it on the post-release watchlist.
+- **Final artifact:** [quality-reports 11669489494](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38050717187/artifacts/11669489494) downloaded and inspected. The embedded Playwright report matches the run: 42 named STEP 12 PNGs mapped to actual binaries, each `expected` on desktop Chromium. **18** native Chrome tab-zoom captures (`chrome.tabs.setZoom(1.25)`, browser-reported actual zoom), **18** initial desktop 1920/1440/1366 captures and **6** browser-Forward recovery captures. Intentional mobile-only skips are not counted as passes.
+- **Visual inspection:** all six instruments reviewed in final native-zoom contact sheets for 1920×1080, 1440×900 and 1366×768; all six also reviewed in final entry-state sheets, with full-size 1366 Project and Connect examined. Task, primary map/field/light path and evidence regions remain distinct; no blocking floating dialog margin, duplicate shell, central overlay or body horizontal spill was seen. Tall evidence rails scroll independently in shorter physical viewports.
+- **Navigation and science:** all six Lab card → browser Back → browser Forward cases passed with clean stage lifecycle and correct workspace identity. Existing per-instrument numerics, prediction/commit-before-reveal and shared Spatial Trace regressions also passed in the same full suite.
+- **Assets and branch integration:** Lab release marker and `core/modules.js` version `20261010v103play2` align; PLAY runtime and workspace CSS remain versioned, main-side Lab app/navigation fixes are preserved, and the Pages workflow retains its Chinese Origin post-deploy verification. Legacy Water V7/V9 version guards were updated without modifying science modules.
+- **Not included in predeployment DONE:** merging to `main`, triggering the Pages deployment, live six-module smoke, live Origin verification, and rollback decision. All remain **NOT RUN** and require a separate production go/no-go. STEP 00 source screenshots use different viewport/state and do not support a pixel-identical baseline comparison.
