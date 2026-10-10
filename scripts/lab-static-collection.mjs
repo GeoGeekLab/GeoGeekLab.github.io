@@ -67,7 +67,12 @@ function renderCard(item, cacheVersion) {
       '" data-detail-href="' + esc(detail) +
       '" data-local-scale="1 : 2,500" data-local-level="RECORD" id="' + esc(item.id) + '">',
     '<div class="project-visual project-visual-' + esc(kind) + ' is-real-output" data-real-preview="' + esc(kind) + '">',
+    ...(kind === 'orbit' ? [
+      '<picture class="lab-orbit-picture">',
+      '<source type="image/webp" srcset="/assets/lab/previews/orbit.webp?v=' + esc(cacheVersion) + '">'
+    ] : []),
     '<img src="' + esc(preview) + '" alt="' + esc(title) + ' — real instrument output" loading="lazy" decoding="async">',
+    ...(kind === 'orbit' ? ['</picture>'] : []),
     '</div>',
     '<div class="project-copy">',
     '<div class="project-meta"><span>' + esc(item.status) + '</span><span>' + esc(tags) + '</span></div>',

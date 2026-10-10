@@ -139,6 +139,12 @@ test('Lab delivers all thirteen instrument cards in first-response HTML without 
   await expect(list.locator('.project-card')).toHaveCount(13);
   await expect(list.locator(':scope > .lab-group-block')).toHaveCount(2);
   await expect(list.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
+  // The above-fold Orbit LCP image may use an identically sized WebP, with
+  // a real JPEG fallback for browsers lacking WebP support.
+  const orbitPicture = list.locator('#l04 .lab-orbit-picture');
+  await expect(orbitPicture).toHaveCount(1);
+  await expect(orbitPicture.locator('source[type="image/webp"]')).toHaveAttribute('srcset', /orbit[.]webp[?]v=capture-/);
+  await expect(orbitPicture.locator('img')).toHaveAttribute('src', /orbit[.]jpg[?]v=capture-/);
 
   // App bootstrap must not replace authored cards after the browser parses HTML.
   const initialCard = page.locator('#l04');
@@ -162,6 +168,10 @@ test('first Lab preview uses a right-sized screenshot without priority escalatio
   expect(dimensions.width).toBeGreaterThanOrEqual(480);
   expect(dimensions.width).toBeLessThanOrEqual(960);
   expect(dimensions.height).toBeGreaterThan(180);
+  // Chromium should actually choose the WebP source, not silently fetch the
+  // larger fallback. This follows the same lazy-load and resolution checks.
+  const currentSrc = await image.evaluate(img => new URL(img.currentSrc).pathname);
+  expect(currentSrc).toBe('/assets/lab/previews/orbit.webp');
 });
 
 

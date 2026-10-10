@@ -7,6 +7,14 @@
   background: #111812;
 }
 
+/* Keep the picture format-selection wrapper geometrically transparent to
+ * existing Lab card sizing and cover rules. */
+.lab-list .project-visual.is-real-output .lab-orbit-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .lab-list .project-visual.is-real-output img,
 .earth-preview-screen.is-real-output img {
   display: block;

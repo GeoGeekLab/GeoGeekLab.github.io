@@ -240,6 +240,19 @@ async function captureInstrument(kind) {
     if (compressedBytes < 8000) {
       throw new Error(`${kind}: preview lost significant visual content (${compressedBytes} bytes)`);
     }
+    // The first above-fold Orbit preview is the mobile Lab LCP element.
+    // Retain its unchanged JPEG as a fallback, and emit a smaller WebP
+    // encoding from the same actual instrument screenshot for modern browsers.
+    if (kind === 'orbit') {
+      const webpPath = path.join(output, 'orbit.webp');
+      execFileSync('convert', [previewPath, '-quality', '84', '-define', 'webp:method=6', webpPath]);
+      const webpWidth = Number(execFileSync('identify', ['-format', '%w', webpPath], { encoding: 'utf8' }).trim());
+      const webpBytes = fs.statSync(webpPath).size;
+      if (webpWidth !== width || webpBytes < 8000 || webpBytes >= compressedBytes) {
+        throw new Error(`orbit: WebP must retain 960px visual data and be smaller than JPEG (${webpWidth}px, ${webpBytes} bytes)`);
+      }
+      console.log(`Orbit WebP LCP candidate: ${Math.round(compressedBytes / 1024)} → ${Math.round(webpBytes / 1024)} KiB, JPEG fallback retained`);
+    }
     console.log(`Captured Lab instrument: ${kind} · ${width}px · ${Math.round(originalBytes / 1024)} → ${Math.round(compressedBytes / 1024)} KiB`);
   } finally {
     await page.close();
@@ -279,5 +292,11 @@ if (failures.length || missing.length) {
   process.exit(1);
 }
 
-updatePreviewCacheVersion(expected);
-console.log(`Generated ${expected.length} real Lab preview images.`);
+// Both representations share one version key. Include the selected WebP bytes
+// so a future encoder adjustment cannot leave a stale cached first image.
+const orbitWebp = path.join(output, 'orbit.webp');
+if (!fs.existsSync(orbitWebp) || fs.statSync(orbitWebp).size < 8000) {
+  throw new Error('Missing Orbit WebP after preview capture');
+}
+updatePreviewCacheVersion([...expected, orbitWebp]);
+console.log(`Generated ${expected.length} real Lab preview images plus the Orbit WebP alternate.`);
