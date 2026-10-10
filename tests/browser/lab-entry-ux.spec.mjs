@@ -168,6 +168,10 @@ test('first Lab preview uses a right-sized screenshot without priority escalatio
   expect(dimensions.width).toBeGreaterThanOrEqual(480);
   expect(dimensions.width).toBeLessThanOrEqual(960);
   expect(dimensions.height).toBeGreaterThan(180);
+  // Chromium should actually choose the WebP source, not silently fetch the
+  // larger fallback. This follows the same lazy-load and resolution checks.
+  const currentSrc = await image.evaluate(img => new URL(img.currentSrc).pathname);
+  expect(currentSrc).toBe('/assets/lab/previews/orbit.webp');
 });
 
 
