@@ -637,3 +637,13 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 - The previous repeated Pulse Round 4 timeout is intermittent; a single passing run will not prove a permanent fix.
 - A final six-instrument signoff and separate Pages deployment are not claimed. The design branch remains isolated from `main`.
 - Current STEP 11 tests cover live Light/Swath evidence and shared lifetime across all six; full module-specific Trace values remain protected by prior dedicated regressions, not by this new cross-module test alone.
+
+
+### STEP 12 read-only preflight risks discovered during STEP 11
+
+- Remote compare: `main...design/play-desktop-v2` has **73 branch-only commits and 14 main-only commits** as checked on 2026-10-10. Merge base is `f453201c1fbae979b2f3369fedb01c4894653067`. These counts are point-in-time, not a merge approval.
+- Both sides modified `site/lab.html` and `.github/workflows/pages.yml`. In particular, current `main` includes `app.js?v=20261009static1` and `lab-fullpage.js?v=20261009navfix1`, while the design branch includes earlier versions along with `play-runtime.js?v=20261010-step10c` and the PLAY workspace stylesheet. A release reconciliation must retain both newer base fixes and the PLAY additions.
+- The current `main` Pages workflow adds a post-deploy Chinese Origin narrative verification block that is absent from the design branch. Preserve that block when reconciling the Pages workflow; do not replace production's workflow with the older branch file.
+- `site/instruments.js` currently uses `history.replaceState` for card entry and close and has no dedicated `popstate` handler. Dedicated browser back/forward tests are still **NOT RUN**. Do not assume that browser Back returns from an instrument to the Lab collection.
+- Native desktop 125% browser zoom has **NOT RUN**. A CSS-sized viewport proxy cannot close this acceptance gate.
+- No merge, rebase, deployment, production asset change, or release tag was performed in this preflight.
