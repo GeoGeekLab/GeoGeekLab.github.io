@@ -163,3 +163,26 @@ test('first Lab preview uses a right-sized screenshot without priority escalatio
   expect(dimensions.width).toBeLessThanOrEqual(960);
   expect(dimensions.height).toBeGreaterThan(180);
 });
+
+
+test('static Lab preview collection does not request obsolete map or sensor providers', async ({ page }) => {
+  const obsoleteRequests = [];
+  page.on('request', request => {
+    const url = request.url();
+    const parsed = new URL(url);
+    const legacyWorld = parsed.hostname === 'raw.githubusercontent.com' && parsed.pathname.includes('/martynafford/natural-earth-geojson/');
+    const legacyNASA = parsed.hostname === 'gibs.earthdata.nasa.gov' && parsed.pathname.includes('/wms/');
+    const legacyUSGS = parsed.hostname === 'earthquake.usgs.gov' && parsed.pathname.endsWith('/earthquakes/feed/v1.0/summary/all_day.geojson');
+    if (legacyWorld || legacyNASA || legacyUSGS) {
+      obsoleteRequests.push(url);
+    }
+  });
+
+  await page.goto('/lab.html', { waitUntil: 'load' });
+  await expect(page.locator('#labList[data-static-lab-collection="v1"] .project-card')).toHaveCount(13);
+  await expect(page.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
+  // A deferred preview script must have executed by the load event; allow
+  // asynchronous fetch initiation to surface instead of checking too early.
+  await page.waitForTimeout(350);
+  expect(obsoleteRequests).toEqual([]);
+});
