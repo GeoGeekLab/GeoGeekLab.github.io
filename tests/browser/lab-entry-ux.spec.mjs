@@ -186,3 +186,25 @@ test('static Lab preview collection does not request obsolete map or sensor prov
   await page.waitForTimeout(350);
   expect(obsoleteRequests).toEqual([]);
 });
+
+test('static Lab collection does not fetch Play-only feedback CSS', async ({ page }) => {
+  const feedbackRequests = [];
+  page.on('request', request => {
+    if (new URL(request.url()).pathname === '/play/play-feedback.css') feedbackRequests.push(request.url());
+  });
+  const response = await page.goto('/lab.html', { waitUntil: 'load' });
+  const html = await response.text();
+  expect(html).not.toMatch(/<link[^>]+href="play\\/play-feedback\\.css[^"]*"[^>]*rel="stylesheet"/);
+  await expect(page.locator('#labList[data-static-lab-collection="v1"] .project-card')).toHaveCount(13);
+  await expect(page.locator('link[href*="play-feedback.css"]')).toHaveCount(0);
+  await page.waitForTimeout(350);
+  expect(feedbackRequests).toEqual([]);
+});
+
+test('direct Project Play loads feedback CSS before showing the Play workspace', async ({ page }) => {
+  await page.goto('/lab.html?instrument=project#l14', { waitUntil: 'domcontentloaded' });
+  const feedback = page.locator('link[data-play-feedback-style="on-demand"]');
+  await expect(feedback).toHaveCount(1, { timeout: 20000 });
+  await expect.poll(() => feedback.evaluate(link => Boolean(link.sheet)), { timeout: 20000 }).toBe(true);
+  await expect(page.locator('#instrumentStage .play-v2-shell[data-play-kind="project"]')).toBeVisible({ timeout: 20000 });
+});
