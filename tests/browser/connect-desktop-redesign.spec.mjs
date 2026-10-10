@@ -47,14 +47,14 @@ test('CONNECT old route, new network and hop evidence remain spatially separated
     await expect(root).toHaveAttribute('data-connect-rule','shared-border');
     await expect(root).toHaveAttribute('data-connect-comparison','false');
     await expect(root.locator('.connect-v2-evidence')).toContainText('SHARED LAND BORDER');
-    await expect(root.locator('.connect-v2-stat')).toContainText('0 / 5');
+    await expect(root.locator('.connect-v2-stat:not(.connect-v2-rule-stat)')).toContainText('0 / 5');
     await expect(root.locator('.connect-v2-route-line')).toHaveCount(0);
     await expect(root.locator('.key-original-wrap')).toBeHidden();
     await photo(page,info,`connect-initial-${size.width}`);
 
     await route(root,['ES','FR','DE','PL']);
     await expect(root).toHaveAttribute('data-play-state','routeReady');
-    await expect(root.locator('.connect-v2-stat')).toContainText('4 / 5');
+    await expect(root.locator('.connect-v2-stat:not(.connect-v2-rule-stat)')).toContainText('4 / 5');
     await photo(page,info,`connect-ready-${size.width}`);
     await root.getByRole('button',{name:'LOCK ROUTE'}).click();
     await expect(root).toHaveAttribute('data-play-state','locked');
@@ -104,11 +104,11 @@ test('CONNECT invalid edge retains the route; SVG keyboard navigation, Undo, loc
   await photo(page,info,'connect-invalid-1366');
   await node(root,'ES').focus();
   await page.keyboard.press('Enter');
-  await expect(root.locator('.connect-v2-stat')).toContainText('1 / 5');
+  await expect(root.locator('.connect-v2-stat:not(.connect-v2-rule-stat)')).toContainText('1 / 5');
   await expect(node(root,'ES')).toHaveClass(/is-current/);
   await node(root,'FR').click();
   await root.getByRole('button',{name:'UNDO'}).click();
-  await expect(root.locator('.connect-v2-stat')).toContainText('1 / 5');
+  await expect(root.locator('.connect-v2-stat:not(.connect-v2-rule-stat)')).toContainText('1 / 5');
   await node(root,'FR').click();
   await node(root,'DE').click();
   await node(root,'PL').click();
@@ -139,8 +139,8 @@ test('CONNECT narrow fallback hides desktop annotations while retaining keyboard
   await expect(root.locator('.connect-v2-map')).toBeVisible();
   await node(root,'ES').focus();
   await page.keyboard.press('Enter');
-  await expect(root.locator('.connect-v2-stat')).toContainText('1 / 5');
+  await expect(root.locator('.connect-v2-stat:not(.connect-v2-rule-stat)')).toContainText('1 / 5');
   await page.setViewportSize({width:1366,height:768});
   await zones(root);
-  await expect(root.locator('.connect-v2-stat')).toContainText('1 / 5');
+  await expect(root.locator('.connect-v2-stat:not(.connect-v2-rule-stat)')).toContainText('1 / 5');
 });
