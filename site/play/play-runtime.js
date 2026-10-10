@@ -49,7 +49,7 @@
       'play/swath/swath-content.js?v=20261007a',
       'play/swath/swath-physics.js?v=20261007a',
       'play/swath/swath-experiments.js?v=20261007a',
-      'play/swath/swath-view.js?v=20261010-step08a'
+      'play/swath/swath-view.js?v=20261010-step08b'
     ]
   };
   const OPTIONAL_PRE_SCRIPTS = {
@@ -65,7 +65,7 @@
     path: 'play/connect/connect.js?v=20261005c',
     project: 'play/project/project.js?v=20261009-step05a',
     light: 'play/light/light.js?v=20261010-step06b',
-    swath: 'play/swath/swath.js?v=20261010-step08a'
+    swath: 'play/swath/swath.js?v=20261010-step08b'
   };
   const OPTIONAL_POST_SCRIPTS = {
     locate: [

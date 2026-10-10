@@ -140,6 +140,21 @@
   z-index:4;top:48px;left:20px;right:20px;display:flex;gap:14px;
   pointer-events:none;
 }
+.play-v2-shell[data-play-kind="swath"] .swath-comparison-key{
+  display:none;position:absolute;top:75px;left:20px;right:20px;
+  z-index:5;align-items:center;gap:18px;pointer-events:none;
+}
+.play-v2-shell[data-play-kind="swath"][data-compare="on"] .swath-comparison-key{display:flex}
+.play-v2-shell[data-play-kind="swath"] .swath-comparison-key span{
+  display:flex;align-items:center;gap:7px;
+  color:#d4e6d8;font:700 9px/1.4 var(--play-font-data,monospace);letter-spacing:.04em;
+}
+.play-v2-shell[data-play-kind="swath"] .swath-comparison-key i{
+  flex:0 0 21px;width:21px;border-top:3px solid #f39a68;
+}
+.play-v2-shell[data-play-kind="swath"] .swath-comparison-key i.is-before{
+  border-top:3px dashed #d3e7db;
+}
 .play-v2-shell[data-play-kind="swath"] .swath-scene-meta span{
   color:#a4c1af;font:700 10px/1.5 var(--play-font-data,monospace);
   letter-spacing:.045em;
@@ -285,7 +300,15 @@
 .play-v2-shell[data-play-kind="swath"] .swath-evidence-heading{padding-top:7px}
 .play-v2-shell[data-play-kind="swath"] .swath-evidence-heading p{font-size:10px}
 .play-v2-shell[data-play-kind="swath"] .swath-evidence-compare-row strong{font-size:12px}
-.play-v2-shell[data-play-kind="swath"] .swath-evidence-trial p{font-size:10px}
+.play-v2-shell[data-play-kind="swath"] .swath-evidence-heading p,
+.play-v2-shell[data-play-kind="swath"] .swath-evidence-trial>p,
+.play-v2-shell[data-play-kind="swath"] .swath-evidence-legend p:first-of-type{display:none}
+.play-v2-shell[data-play-kind="swath"] .swath-evidence-legend p:last-of-type{
+  font-size:10px;line-height:1.35;
+}
+.play-v2-shell[data-play-kind="swath"] .swath-evidence-metrics-anchor .swath-metrics>div{
+  padding:6px 7px;
+}
 }
 @media (min-width:1024px) and (max-width:1250px) {
 .play-v2-shell[data-play-kind="swath"]{grid-template-columns:300px minmax(0,1fr) 294px}
@@ -294,5 +317,5 @@
 .play-v2-shell[data-play-kind="swath"] .swath-scene-meta span{font-size:9px}
 }
 @media (max-width:1023px) {
-.play-v2-shell[data-play-kind="swath"] :is(.swath-evidence-heading,.swath-evidence-metrics-anchor,.swath-evidence-trial,.swath-evidence-legend,.swath-scene-heading){display:none}
+.play-v2-shell[data-play-kind="swath"] :is(.swath-evidence-heading,.swath-evidence-metrics-anchor,.swath-evidence-trial,.swath-evidence-legend,.swath-scene-heading,.swath-comparison-key){display:none}
 }

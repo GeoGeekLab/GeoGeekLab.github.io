@@ -57,6 +57,8 @@ test('SWATH task, geometry and numerical evidence stay separated across three de
     await root.getByRole('button',{name:'WIDEN FOV'}).click();
     await expect(root).toHaveAttribute('data-play-state','revealed');
     await expect(root).toHaveAttribute('data-compare','on');
+    await expect(root.locator('.swath-comparison-key')).toBeVisible();
+    await expect(root.locator('.swath-comparison-key')).toContainText('PREVIOUS · DASHED');
     await expect(root.locator('.swath-evidence-trial')).toContainText('BEFORE / AFTER');
     await expect(root.locator('.swath-evidence-trial')).toContainText('GROUND SWATH / COVERAGE WIDTH');
     await expect(root.locator('.swath-evidence-trial')).toContainText('NADIR GSD / GROUND SAMPLING');
@@ -106,9 +108,9 @@ test('SWATH three single-variable changes and free design preserve geometry, foc
   await alt.evaluate(input=>{input.value='700';input.dispatchEvent(new Event('input',{bubbles:true}));});
   await expect(root).toHaveAttribute('data-altitude','700');
   const pix=root.locator('[data-free="detectorPixels"]');
-  await pix.evaluate(input=>{input.value='12000';input.dispatchEvent(new Event('input',{bubbles:true}));});
-  await expect(root).toHaveAttribute('data-detector-pixels','12000');
-  await expect(root.locator('.swath-pixels')).toHaveAttribute('data-detector-pixels','12000');
+  await pix.evaluate(input=>{input.value='12032';input.dispatchEvent(new Event('input',{bubbles:true}));});
+  await expect(root).toHaveAttribute('data-detector-pixels','12032');
+  await expect(root.locator('.swath-pixels')).toHaveAttribute('data-detector-pixels','12032');
   await photo(page,info,'swath-design-changed-1366');
   await root.getByRole('button',{name:'RESET SENSOR'}).click();
   await expect(root).toHaveAttribute('data-fov','20');

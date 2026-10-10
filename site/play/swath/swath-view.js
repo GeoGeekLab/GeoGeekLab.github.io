@@ -78,6 +78,10 @@
             <span>SAMPLES <b data-scene="samples">—</b></span>
           </div>
           <div class="swath-scene-heading" aria-hidden="true"><span>SENSOR / GROUND INTERSECTION</span><strong>SCHEMATIC, NOT AN OPTICAL IMAGE</strong></div>
+          <div class="swath-comparison-key" aria-label="Footprint line styles">
+            <span><i class="is-current" aria-hidden="true"></i>CURRENT · SOLID</span>
+            <span><i class="is-before" aria-hidden="true"></i>PREVIOUS · DASHED</span>
+          </div>
           <span class="swath-not-scale">CURVATURE-AWARE SCHEMATIC / ALTITUDE NOT TO SCALE</span>
         </section>
       </div>`;

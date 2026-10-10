@@ -6,7 +6,7 @@
     if(!GeoPlay?.core||!GeoPlay?.shell?.createV2||!GeoPlay?.trace) throw new Error('GeoPlay V2 runtime incomplete.');
     if(!content||!physics||!experiments||!viewApi) throw new Error('SWATH modules incomplete.');
     GeoPlay.core.ensureStyle('play/swath/swath.css?v=20261007a','swath-play');
-    GeoPlay.core.ensureStyle('play/swath/swath-desktop.css?v=20261010-step08a','swath-desktop');
+    GeoPlay.core.ensureStyle('play/swath/swath-desktop.css?v=20261010-step08b','swath-desktop');
     const shell=GeoPlay.shell.createV2(stage,{kind:'swath',title:'SWATH'});
     let game=null;const traced=new Set();
     const callbacks={onSelect:id=>game?.select(id),onCommit:()=>game?.commit(),onPerturb:()=>game?.perturb(),onNext:()=>game?.next(),onFree:(key,value)=>game?.setFree(key,value),onResetFree:()=>game?.resetFree(),onRestart:()=>{traced.clear();game?.restart();}};
