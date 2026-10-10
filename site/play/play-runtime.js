@@ -60,7 +60,7 @@
     ]
   };
   const SCRIPT = {
-    locate: 'play/orient/orient.js?v=20261003f',
+    locate: 'play/orient/orient.js?v=20261010-step09a',
     zone: 'play/bound/bound.js?v=20261010-step07b',
     path: 'play/connect/connect.js?v=20261005c',
     project: 'play/project/project.js?v=20261009-step05a',

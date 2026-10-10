@@ -155,8 +155,21 @@
     if (!GeoPlay?.core || !GeoPlay?.shell || !GeoPlay?.trace) throw new Error('GeoPlay runtime incomplete.');
     GeoPlay.core.ensureStyle('play/play.css?v=20261002a', 'play');
     GeoPlay.core.ensureStyle('play/orient/orient.css?v=20261003f', 'orient');
+    GeoPlay.core.ensureStyle('play/orient/orient-desktop.css?v=20261010-step09a', 'orient-desktop');
 
     const shell = GeoPlay.shell.create(stage, { kind: 'orient', triad: 'POINT / REFERENCE / ERROR' });
+    // Presentation-only landmarks; the existing projection, estimate controls and
+    // residual/Trace rendering continue to write into their original nodes.
+    const deskHead = document.createElement('div');
+    deskHead.className = 'orient-desktop-head';
+    deskHead.setAttribute('aria-hidden', 'true');
+    deskHead.innerHTML = '<strong>ORIENT / REFERENCE FIELD</strong><span>AZIMUTHAL EQUIDISTANT · BEARING / DISTANCE</span>';
+    shell.root.prepend(deskHead);
+    const deskLegend = document.createElement('div');
+    deskLegend.className = 'orient-desktop-legend';
+    deskLegend.setAttribute('aria-label', 'Map vector legend');
+    deskLegend.innerHTML = '<span class="orient-legend-judgment">YOUR ESTIMATE · PALE SOLID</span><span class="orient-legend-truth">ACTUAL RELATION · ORANGE</span><span class="orient-legend-residual">RESIDUAL · DASHED</span>';
+    shell.root.querySelector('.play-field').appendChild(deskLegend);
     const machine = stateModel.createMachine({ totalTrials: 0, requireConfidence: true });
     const phaseToShellState = phase => {
       if ([PHASES.JUDGE_EMPTY, PHASES.JUDGE_ACTIVE, PHASES.READY].includes(phase)) return 'judge';
