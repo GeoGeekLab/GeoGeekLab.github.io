@@ -292,5 +292,11 @@ if (failures.length || missing.length) {
   process.exit(1);
 }
 
-updatePreviewCacheVersion(expected);
-console.log(`Generated ${expected.length} real Lab preview images.`);
+// Both representations share one version key. Include the selected WebP bytes
+// so a future encoder adjustment cannot leave a stale cached first image.
+const orbitWebp = path.join(output, 'orbit.webp');
+if (!fs.existsSync(orbitWebp) || fs.statSync(orbitWebp).size < 8000) {
+  throw new Error('Missing Orbit WebP after preview capture');
+}
+updatePreviewCacheVersion([...expected, orbitWebp]);
+console.log(`Generated ${expected.length} real Lab preview images plus the Orbit WebP alternate.`);
