@@ -27,7 +27,7 @@ Lab release marker: `20261009v102`
 
 **STEP 09 — DONE.** Orient now uses independent desktop estimation, reference-centered globe, and conditions/residual rails; confidence-gated truth, Primer, pointer/keyboard, responsive fallback, five-relation Trace and full quality CI passed.
 
-**STEP 10 — DONE.** Connect now has task, geographic network, and numerical evidence rails. The border→1,200 km rule shift keeps old/new routes and edge differences distinguishable, preserves invalid-edge feedback and exact optimal hop counts; three desktop viewports, responsive fallback and full CI passed. **Next: STEP 11 — Shared interaction and Spatial Trace.**
+**STEP 10 — DONE.** Connect now has task, geographic network, and numerical evidence rails. The border→1,200 km rule shift keeps old/new routes and edge differences distinguishable, preserves invalid-edge feedback and exact optimal hop counts; three desktop viewports, responsive fallback and full CI passed. **STEP 11 — IN REVIEW.** Shared lifecycle and real cross-instrument Spatial Trace tests are submitted; full CI has not yet completed.
 
 ## Roadmap
 
@@ -44,7 +44,7 @@ Lab release marker: `20261009v102`
 | 08 | Swath visual redesign | DONE |
 | 09 | Orient visual redesign | DONE |
 | 10 | Connect visual redesign | DONE |
-| 11 | Shared interaction and Spatial Trace | PLANNED |
+| 11 | Shared interaction and Spatial Trace | IN REVIEW |
 | 12 | Release regression and visual sign-off | PLANNED |
 
 ## STEP 00 handoff
@@ -616,3 +616,24 @@ Read the five redesign docs and current branch. Separate geographic adjacency ma
 ### STEP 11 handoff — Shared interaction and Spatial Trace
 
 Read the five redesign documents and updated acceptance record. Validate coherent progression across all six instruments, common escape/close/reopen behavior, deterministic state cleanup, keyboard/visible-focus accessibility, dark high-contrast numeric evidence, residual/trace semantics and the shared Spatial Trace schema. Maintain domain-layer numerical correctness and completed STEP 05–10 desktop layouts. Add targeted browser scenarios for release-level navigation and Trace aggregation, capture actual screenshots, run full CI and reserve native 125% zoom and final multi-instrument acceptance for STEP 12. Do not merge into `main` without explicit user direction.
+
+
+## STEP 11 implementation — 2026-10-10
+
+### Decision: IN REVIEW — automated quality gate pending
+
+**Runtime behavior:** no production code changed. The shared Trace store and six instrument state machines are preserved.
+
+**Tests added:** `tests/browser/play-shared-lifecycle-trace.spec.mjs`.
+
+- `98c3745e0c78d0bcd572516073b8fd036cb6ea49`: six desktop 1366×768 close/Escape/reopen contracts; screenshot attachment per reopened instrument; shared Trace API's ordering, per-play filtering and clear operation.
+- `2c569f2418ff6bf7ed50ee2bcb8a04cc292eb0cd`: actual Light and Swath reveal flows across the same Lab page; no outcome record before changing the condition; distinct live evidence records after reveal; persistence across reload; recovery from corrupted storage; 120-record retention and filtering boundaries.
+
+**Planned verification:** [GeoGeek Quality 38043443219](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38043443219) for implementation SHA `2c569f2`. Run is pending/in progress at documentation time. Build, Node/static/link QA, desktop/mobile browser, accessibility, Lighthouse and screenshot inspection: **NOT YET VERIFIED**. Do not mark this step DONE until the exact implementation SHA has passed and screenshot evidence has been examined.
+
+**Risks and boundaries:**
+
+- Browser history back/forward and native 125% zoom remain STEP 12. CSS viewport emulation is not equivalent to native zoom.
+- The previous repeated Pulse Round 4 timeout is intermittent; a single passing run will not prove a permanent fix.
+- A final six-instrument signoff and separate Pages deployment are not claimed. The design branch remains isolated from `main`.
+- Current STEP 11 tests cover live Light/Swath evidence and shared lifetime across all six; full module-specific Trace values remain protected by prior dedicated regressions, not by this new cross-module test alone.
