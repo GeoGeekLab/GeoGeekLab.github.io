@@ -154,6 +154,10 @@
         <section class="connect-v2-evidence" aria-label="Connection rule and route evidence">
           <span class="connect-v2-evidence-label">NETWORK RULE</span>
           <h2>${snapshot.rule.label}</h2>
+          ${changed && snapshot.state==='result' ? `<div class="connect-v2-evidence-pair is-result"><span>BEFORE → AFTER / HOPS</span><strong>${originalHops} → ${snapshot.finalHops}</strong></div>
+              <div class="connect-v2-evidence-pair is-result"><span>OPTIMAL / MINIMUM HOPS</span><strong>${optimal===null?'UNAVAILABLE':optimal}</strong></div>
+              <p class="connect-v2-comparison-note">${optimal===snapshot.finalHops?'Current route achieves the shortest possible number of hops.':'Current route is valid but not the shortest possible.'}</p>`
+            : ''}
           <p>${snapshot.rule.type==='shared-border'
             ? 'Only land-border adjacency makes a legal step; touching country boundaries form the graph.'
             : 'A legal step connects places with great-circle separation at most 1,200 km. This does not mean the drawn line is a flight route.'}</p>
@@ -163,10 +167,6 @@
               <div class="connect-v2-edge-deltas"><div><span>NEW CONNECTIONS</span><strong>+${added}</strong></div><div><span>REMOVED CONNECTIONS</span><strong>−${removed}</strong></div></div>
               <div class="connect-v2-evidence-pair"><span>OLD ROUTE UNDER NEW RULE</span><strong>${snapshot.oldRouteValid?'STILL VALID':'BROKEN'}</strong></div>`
             : '<div class="connect-v2-evidence-pair"><span>ORIGINAL ROUTE</span><strong>NOT YET LOCKED</strong></div>'}
-          ${changed && snapshot.state==='result' ? `<div class="connect-v2-evidence-pair is-result"><span>BEFORE → AFTER / HOPS</span><strong>${originalHops} → ${snapshot.finalHops}</strong></div>
-              <div class="connect-v2-evidence-pair is-result"><span>OPTIMAL / MINIMUM HOPS</span><strong>${optimal===null?'UNAVAILABLE':optimal}</strong></div>
-              <p class="connect-v2-comparison-note">${optimal===snapshot.finalHops?'Current route achieves the shortest possible number of hops.':'Current route is valid but not the shortest possible.'}</p>`
-            : ''}
           <p class="connect-v2-method-note">The geographical background locates nodes; line segments show graph edges, not measured travel paths.</p>
         </section>
         <section class="connect-v2-node-legend" aria-label="Network node states"><span>NODE STATES</span><div><i class="is-start"></i>START · RING</div><div><i class="is-current"></i>CURRENT · FILLED</div><div><i class="is-next"></i>AVAILABLE · DASHED</div><div><i class="is-goal"></i>GOAL · TARGET RING</div></section>`;

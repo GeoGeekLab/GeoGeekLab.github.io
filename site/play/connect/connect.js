@@ -31,7 +31,7 @@
     if(!content?.PUZZLES?.length || !graphApi || !gameApi || !viewApi) throw new Error('Connect V2 modules incomplete.');
 
     GeoPlay.core.ensureStyle('play/connect/connect-v2.css?v=20261005b','connect-v2');
-    GeoPlay.core.ensureStyle('play/connect/connect-desktop.css?v=20261010-step10a','connect-desktop');
+    GeoPlay.core.ensureStyle('play/connect/connect-desktop.css?v=20261010-step10b','connect-desktop');
     GeoPlay.core.ensureStyle('play/play-signature.css?v=20261005a','play-signature');
 
     let world;

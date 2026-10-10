@@ -306,3 +306,12 @@
 .play-v2-shell[data-play-kind="connect"] .connect-v2-evidence,
 .play-v2-shell[data-play-kind="connect"] .connect-v2-node-legend{display:none}
 }
+
+/* Reduced-motion accessibility: the shared route-draw keyframe is disabled,
+   so its initial 1200px dash offset must not hide actual route geometry. */
+@media (prefers-reduced-motion: reduce) {
+  .play-v2-shell[data-play-kind="connect"] .connect-v2-route-line:not(.is-ghost) {
+    stroke-dasharray:none!important;
+    stroke-dashoffset:0!important;
+  }
+}

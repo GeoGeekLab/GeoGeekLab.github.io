@@ -55,6 +55,14 @@ test('CONNECT old route, new network and hop evidence remain spatially separated
     await route(root,['ES','FR','DE','PL']);
     await expect(root).toHaveAttribute('data-play-state','routeReady');
     await expect(root.locator('.connect-v2-stat:not(.connect-v2-rule-stat)')).toContainText('4 / 5');
+    // A reduced-motion user still sees actual orange path segments, not only nodes.
+    const routePaint=await root.locator('.connect-v2-route-line:not(.is-ghost)').first().evaluate(el=>{
+      const css=getComputedStyle(el);
+      return {dash:css.strokeDasharray,offset:Number.parseFloat(css.strokeDashoffset),stroke:css.stroke};
+    });
+    expect(routePaint.dash).toBe('none');
+    expect(routePaint.offset).toBe(0);
+    expect(routePaint.stroke).toBe('rgb(238, 150, 107)');
     await photo(page,info,`connect-ready-${size.width}`);
     await root.getByRole('button',{name:'LOCK ROUTE'}).click();
     await expect(root).toHaveAttribute('data-play-state','locked');
@@ -83,6 +91,14 @@ test('CONNECT old route, new network and hop evidence remain spatially separated
     await expect(root).toHaveAttribute('data-play-state','result');
     await expect(root.locator('.connect-v2-evidence')).toContainText('BEFORE → AFTER / HOPS');
     await expect(root.locator('.connect-v2-evidence')).toContainText('4 → 3');
+    // The primary before/after result must fit above the rail scroll boundary
+    // even at 1366 × 768; supplementary route details may scroll.
+    const comparisonInSight=await root.locator('.connect-v2-evidence-pair.is-result').first().evaluate(el=>{
+      const readout=el.closest('.play-v2-hud').getBoundingClientRect();
+      const result=el.getBoundingClientRect();
+      return result.bottom <= readout.bottom - 10 && result.top >= readout.top;
+    });
+    expect(comparisonInSight).toBe(true);
     await expect(root.locator('.connect-v2-evidence')).toContainText('OPTIMAL / MINIMUM HOPS');
     await expect(root.locator('.connect-v2-evidence')).toContainText('Current route achieves the shortest');
     await expect(root.locator('.connect-v2-route-line.is-ghost')).toHaveCount(4);
