@@ -370,22 +370,25 @@ The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks
 **STEP 10 decision: DONE.** No merge to production. **Next: STEP 11 — Shared interaction and Spatial Trace.**
 
 
-## O. STEP 11 shared lifecycle and Spatial Trace — IN REVIEW
+## O. STEP 11 shared lifecycle and Spatial Trace — DONE
 
 **Implementation/test SHAs:** `98c3745e0c78d0bcd572516073b8fd036cb6ea49`, `2c569f2418ff6bf7ed50ee2bcb8a04cc292eb0cd`.  
-**Latest quality run:** [38043443219](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38043443219) — awaiting final test conclusion.  
+**Final Quality run:** [38043443219](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38043443219) — COMPLETED / SUCCESS on implementation/test commit `2c569f2418ff6bf7ed50ee2bcb8a04cc292eb0cd`.  
+**Complete Playwright report:** 552 total / **515 passed** / **37 skipped** / 0 failed / 0 flaky.  
+**Dedicated STEP 11 browser cases:** 18 total / **11 passed** / 7 intentionally skipped on mobile / 0 failed.  
+**Screenshot artifact:** [quality-reports 11666841773](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38043443219/artifacts/11666841773), including six reviewed desktop reopen PNGs at 1366×768.  
 **Scope:** shared six-instrument lifecycle and cross-instrument evidence retention; no production source changes.
 
-| Check | Current status | Evidence needed |
+| Check | Result | Verified evidence |
 | --- | --- | --- |
-| Six instruments close with Escape and X; clear the shell and workspace identity | IN REVIEW | Six new browser cases and screenshots at 1366×768 |
-| Six instruments reopen without duplicate shell or stale workspace mode | IN REVIEW | Six new browser cases |
-| Shared Trace append, ordering, per-play filtering and selective clear | IN REVIEW | API integration test |
-| Real Light and Swath only write revealed outcome evidence | IN REVIEW | Live instrument transitions and storage assertions |
-| Records stay distinct across instruments and persist after page reload | IN REVIEW | Live cross-module Trace integration test |
-| Corrupt storage fallback and bounded 120-record retention | IN REVIEW | 123-record storage test |
-| All previously accepted physics and interaction contracts remain intact | IN REVIEW | Full Node/browser/accessibility CI |
-| Six reopened-workspace screenshots visually inspected | NOT RUN | Latest `quality-reports` artifact |
+| Six instruments close with Escape and X; clear the shell and workspace identity | PASS | Six desktop test cases verified Escape, shell count 0 and workspace attribute cleanup; also close button after reopening |
+| Six instruments reopen without duplicate shell or stale workspace mode | PASS | Six real-card reopen cases, exactly one shell and correct workspace identity |
+| Shared Trace append, ordering, per-play filtering and selective clear | PASS | New browser Trace API integration test passed in desktop and mobile projects |
+| Real Light and Swath only write revealed outcome evidence | PASS | Real desktop Light REMOVE SCATTERING and Swath WIDEN FOV flows; zero new outcome record before reveal; separate records after reveal |
+| Records stay distinct across instruments and persist after page reload | PASS | Cross-instrument browser test confirms Light/Swath record order and byte-equivalent decoded records after reload |
+| Corrupt storage fallback and bounded 120-record retention | PASS | Malformed JSON returns empty list; append 123 retains latest 120; per-play filters each select 60 |
+| All previously accepted physics and interaction contracts remain intact | PASS | Whole Quality CI success: production build, static/links, relevant Node/specialist checks, 515 browser passes, browser accessibility and Lighthouse; no instrument runtime edits |
+| Six reopened-workspace screenshots visually inspected | PASS | Six real PNGs verified from artifact 11666841773, desktop Chromium 1366×768, six-up contact sheet inspected; no obvious central-field obstruction or shell duplication |
 | Native 125% browser zoom, dedicated history navigation, full release signoff | NOT RUN | STEP 12 release matrix |
 
-**Decision: IN REVIEW.** A pushed test without a complete passing CI result is not acceptance. All other STEP 11 claims remain conditional until the evidence is reviewed.
+**Decision: DONE.** The full CI, actual six-image browser artifact and the targeted lifecycle/Trace cases were checked on the exact implementation SHA. The seven dedicated mobile skips reflect intentionally desktop-only coverage; they are not counted as passes. No scientific formulas, instrument state machines, shared Trace storage implementation or production pages were changed. **Next: STEP 12 release regression and visual sign-off**; 125% native zoom, browser back/forward, multi-state final visual approval and `main` branch reconciliation remain NOT RUN, and no deployment or merge is implied.
