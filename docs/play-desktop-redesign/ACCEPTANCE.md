@@ -229,3 +229,31 @@ The original successful STEP 05 test commit `622fc14c9933de27d863e3d71b2e9435fce
 The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks in the mobile project, two further desktop-only/unsupported browser cases as accounted for in the CI report, and one unrelated Water case. Skipped cases are not counted as passes.
 
 **STEP 05 decision: DONE** for the scoped Project visual and interaction design. No native browser zoom measurement or release-wide visual sign-off is implied. The complete Lab and other instrument regressions are kept as part of the upcoming STEP 06–12 quality gates.
+
+## J. STEP 06 acceptance — Light desktop visual redesign
+
+**Validated code commit:** `626c80b109bbca0d6e79e00e229b404b3a0e50ea`  
+**CI:** [GeoGeek Quality 38012588526](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38012588526) — **COMPLETED / SUCCESS**.  
+**Browser suite:** **510 total / 492 passed / 18 skipped / 0 failures**.  
+**Quality artifact:** [quality-reports 11655492421](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38012588526/artifacts/11655492421).  
+**Scope:** Light-only desktop composition, optical-path legend, typography and evidence hierarchy; no change to Light physics, Water Rrs computation or experiment state machine.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| L01 — shared Y-scale for before/after spectra | PASS | Existing Light spectrum geometry tests; `spectrumDomain` / `pathD` unchanged |
+| L02 — actual zero baseline and removed-signal distinction | PASS | `light-spectrum-comparison.spec.mjs` and removed mechanism captures |
+| L03 — three mechanisms remain independent | PASS | `light-play.spec.mjs` plus desktop prediction, sky, water and surface reveals |
+| L04 — quantitative Rrs distinct from teaching paths | PASS | Visible RELATIVE versus `550 NM · Rrs / sr⁻¹` labels; explanation and limits in evidence rail |
+| L05 — unobstructed scene, legend, spectrum and prediction controls | PASS | `light-desktop-redesign.spec.mjs`, 3/3 desktop cases, grid geometry and desktop captures at 1920×1080, 1440×900, 1366×768 |
+| L06 — readout wavelength and unit visibility | PASS | Chart labels / measurement readout assertions; inspected 1366×768 result screenshot |
+| Selected/disabled control style and mouse stability | PASS | Existing `play-design-system.spec.mjs` regression; new hover/click/focus assertion |
+| Narrow-width breakpoint compatibility | PASS | Dedicated desktop test resizes through 920px and returns to 1366px |
+| Build, Static QA, links, Lighthouse, non-Light regressions | PASS | Final GitHub Actions run 38012588526 |
+| Desktop screenshot captures and visual review | PASS | Initial prediction, sky-off and water-off × three viewports, plus 1366px surface-off, in artifact 11655492421 |
+| Native 125% browser zoom | NOT RUN | Reserved for STEP 12 |
+| Browser history back/forward, global final visual signoff | NOT RUN | Reserved for STEP 12 |
+| Same-state pixel diff against original 1920×869 manual baseline | NOT RUN | Different captured sizes and states |
+
+**Failure history:** The first STEP 06 CI [37943335609](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37943335609) reported **491 passed, 18 skipped, one failure**. The failure was the legacy Light `BLACK` choice Playwright click timing out because the hover-shifted target was not stable. The corrected implementation `626c80b109bbca0d6e79e00e229b404b3a0e50ea` passed the full browser suite, including the previously failing case and all three redesign cases.
+
+**STEP 06 decision: DONE** within its Light UI scope. No change to the scientific model or Observatory/Water runtime; final release-wide zoom, history and visual checks stay in STEP 12. **Next: STEP 07 — Bound Visual Redesign.**

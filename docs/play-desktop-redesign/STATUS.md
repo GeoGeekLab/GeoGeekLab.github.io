@@ -1,6 +1,6 @@
 # PLAY Desktop V2 — Status
 
-Updated: 2026-10-09  
+Updated: 2026-10-10  
 Working branch: `design/play-desktop-v2`  
 Baseline source: `main@f453201c1fbae979b2f3369fedb01c4894653067`  
 Lab release marker: `20261009v102`
@@ -17,7 +17,9 @@ Lab release marker: `20261009v102`
 
 **STEP 04 — DONE.** All six PLAY instruments occupy the desktop browser viewport without outer modal margins. The edge-to-edge shell, navigation, close/Escape behavior, and non-PLAY isolation passed regression.
 
-**STEP 05 — DONE.** Project uses a desktop three-column task / map / evidence workbench. The area and route contracts passed desktop geometry, interaction and visual acceptance. **Next: STEP 06 — Light visual redesign.**
+**STEP 05 — DONE.** Project uses a desktop three-column task / map / evidence workbench. The area and route contracts passed desktop geometry, interaction and visual acceptance.
+
+**STEP 06 — DONE.** Light uses separate task, conceptual light scene and spectral-evidence rails. Desktop pointer/keyboard and the existing scientific contracts passed full CI and screenshot acceptance. **Next: STEP 07 — Bound visual redesign.**
 
 ## Roadmap
 
@@ -29,7 +31,7 @@ Lab release marker: `20261009v102`
 | 03 | Desktop design tokens and components | DONE |
 | 04 | Edge-to-edge PLAY workspace | DONE |
 | 05 | Project visual redesign | DONE |
-| 06 | Light visual redesign | PLANNED |
+| 06 | Light visual redesign | DONE |
 | 07 | Bound visual redesign | PLANNED |
 | 08 | Swath visual redesign | PLANNED |
 | 09 | Orient visual redesign | PLANNED |
@@ -370,3 +372,50 @@ Next:
 ```
 
 Do not silently convert a missing test or screenshot into PASS.
+
+## STEP 06 acceptance — 2026-10-10
+
+### Decision: DONE
+
+**Validated runtime/test commit:** `626c80b109bbca0d6e79e00e229b404b3a0e50ea`  
+**Passing CI:** [GeoGeek Quality 38012588526](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38012588526) — COMPLETED / SUCCESS.  
+**Artifact:** [quality-reports 11655492421](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38012588526/artifacts/11655492421).
+
+### Implemented changes
+
+- `site/play/light/light-view.js`: reuse the existing conceptual scene and chart nodes; place the path legend and spectral chart into the independent evidence rail at desktop widths. Restore the legacy placement below 1024 CSS px. Give path states explicit PRESENT/REMOVED text; detach the responsive listener on unmount.
+- `site/play/light/light-desktop.css`: desktop-only three-column task / central scene / evidence composition; ensure no panel covers the scene. Set clear reading hierarchy for labels, chart, status and model limits.
+- `site/play/light/light.js`, `site/play/play-runtime.js`, `site/lab.html`: register/version the Light presentation files and perform view cleanup.
+- `tests/browser/light-desktop-redesign.spec.mjs`: three focused desktop cases for evidence separation, complete three-mechanism progression, keyboard/mouse controls, hover stability, and desktop/narrow breakpoint movement.
+- First implementation commit `f9ad588aa0b2085657b88cc163a1a02beebaf9c2` exposed a compatibility regression in the existing Light selected-choice browser test at 1366×768: the BLACK button's hover translation destabilized Playwright mouse clicks. Corrected the Light-scoped desktop hover transform and added a repeatable mouse-hover/click assertion in `626c80b109bbca0d6e79e00e229b404b3a0e50ea`. No global or non-PLAY style was changed.
+
+### Scientific and interaction boundaries
+
+`light-physics.js`, `light-experiments.js`, `light-content.js`, the Water optical model, numerical spectral domain, fixed zero baseline, mechanism order, prediction-before-reveal, Trace and source declarations remain unchanged. Scene paths are illustrative; atmospheric and surface spectral curves are teaching signals. The water experiment retains model-derived Rrs with `sr⁻¹` units.
+
+### Verification
+
+- Final CI: **510 Playwright cases; 492 passed, 18 skipped, 0 failed**. The 18 skips are not passes; desktop-only cases are excluded from the mobile project and an existing Water skip remains.
+- Dedicated Light redesign cases: **3/3 desktop PASS**; dedicated mobile counterparts skipped by design.
+- Previous existing `play-design-system.spec.mjs` Light choice mouse-click regression: **PASS** on final CI. Keyboard selection, commit, reveal, next experiment, and replay also passed.
+- Build, Static QA, internal links, Lighthouse, Water, Orient, Pulse and browser accessibility: **PASS** on the final CI.
+- Screenshots: 1920×1080, 1440×900 and 1366×768; Light initial prediction, removed sky-scattering and removed water backscatter for each viewport; 1366×768 surface-reflection reveal. Captures inspected; task, scene and evidence zones remain mutually unobstructed, with the 550 nm readings and model limits visible in the 1366×768 result.
+- GitHub `quality-reports` artifact 11655492421 contains the reproducible attachments. This documentation-only closure commit intentionally does not alter the validated runtime commit.
+
+### Known deferrals and risk
+
+- Actual **125% native browser zoom: NOT RUN**; a CSS viewport does not prove browser zoom. Keep for STEP 12.
+- Browser history back/forward after PLAY activation: **NOT RUN as a dedicated STEP 06 case**; STEP 12.
+- Pixel-identical comparison to STEP 00's different-resolution manual reference: **NOT RUN**.
+- Past intermittent World dialog-close failure at `dad4c7d`: not reproduced in the successful final run. Do not claim it can never recur; cross-instrument reliability remains an explicit STEP 12 regression target.
+- Other instruments' internal visual redesigns remain STEPS 07–10; no release/merge to `main` has occurred.
+
+### STEP 07 handoff — Bound visual redesign
+
+1. Read the five redesign documents and check the latest branch head and actual CI SHA.
+2. Preserve Bound risk sampling, field source, polygon validation, target coverage/area constraints, KEEP/REDRAW semantics and Spatial Trace.
+3. Give the risk field an unobstructed dominant center canvas, with a task/decision rail and a separate numerical evidence/constraints rail.
+4. Verify full polygon and sampled field visibility before/after the 96×96 → 24×24 observation change; differentiate original/revised lines without relying on color alone.
+5. Run targeted Node/browser tests, regression and 1920×1080 / 1440×900 / 1366×768 screenshot checks. Explicitly record unavailable tests.
+6. Update ACCEPTANCE and STATUS after evidence verification; do not modify other PLAY scientific models.
+
