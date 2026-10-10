@@ -25,7 +25,9 @@ Lab release marker: `20261009v102`
 
 **STEP 08 — DONE.** Swath separates predictions/design controls, sensor geometry and quantitative evidence. All three one-variable experiments, original/current footprints, geometric sampling distinctions, free-design controls and full browser quality suite passed.
 
-**STEP 09 — DONE.** Orient now uses independent desktop estimation, reference-centered globe, and conditions/residual rails; confidence-gated truth, Primer, pointer/keyboard, responsive fallback, five-relation Trace and full quality CI passed. **Next: STEP 10 — Connect visual redesign.**
+**STEP 09 — DONE.** Orient now uses independent desktop estimation, reference-centered globe, and conditions/residual rails; confidence-gated truth, Primer, pointer/keyboard, responsive fallback, five-relation Trace and full quality CI passed.
+
+**STEP 10 — DONE.** Connect now has task, geographic network, and numerical evidence rails. The border→1,200 km rule shift keeps old/new routes and edge differences distinguishable, preserves invalid-edge feedback and exact optimal hop counts; three desktop viewports, responsive fallback and full CI passed. **Next: STEP 11 — Shared interaction and Spatial Trace.**
 
 ## Roadmap
 
@@ -41,7 +43,7 @@ Lab release marker: `20261009v102`
 | 07 | Bound visual redesign | DONE |
 | 08 | Swath visual redesign | DONE |
 | 09 | Orient visual redesign | DONE |
-| 10 | Connect visual redesign | PLANNED |
+| 10 | Connect visual redesign | DONE |
 | 11 | Shared interaction and Spatial Trace | PLANNED |
 | 12 | Release regression and visual sign-off | PLANNED |
 
@@ -560,3 +562,57 @@ Read the five master redesign documents and this log; inspect current branch, Or
 ### STEP 10 handoff — Connect visual redesign
 
 Read the five redesign docs and current branch. Separate geographic adjacency map from task and rule-specific numerical evidence. Preserve shared-border vs 1200 km rules, start/current/goal/neighbor/locked route states, invalid-edge explanations, adaptive scenarios, old/new route comparison, exact hop counts, optimal-hop assessment and Spatial Trace. Do not alter graph topology or routing algorithms for visual effect. Validate 1920×1080, 1440×900, 1366×768, pointer/keyboard controls, narrow fallback, full CI and screenshot evidence. Record unrun 125% native zoom and cross-instrument release checks for STEP 12.
+
+## STEP 10 acceptance — 2026-10-10
+
+### Decision: DONE
+
+**Validated implementation/test commit:** `272a11a43531b2c84b78be57a15841fa2afee8ef`.  
+**Final GitHub Actions run:** [GeoGeek Quality 38040281656](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38040281656) — **COMPLETED / SUCCESS** for the exact validated SHA.  
+**Final quality and screenshot artifact:** [quality-reports 11666246118](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38040281656/artifacts/11666246118).  
+**Playwright browser total:** **534 cases / 504 passed / 30 skipped / 0 failed**. Skipped cases are not counted as passed. Build, static/link QA, Water/Orient/Pulse/other module checks, browser accessibility and Lighthouse passed.
+
+### Changed paths and ownership boundary
+
+- `site/play/connect/connect-view.js`: adds noninteractive map heading, line-type legend and a right-side evidence rail derived solely from the existing Connect snapshot and graph API. The old locked path is visible as a dashed ghost throughout rule transformation, adaptation and final result; the new path is solid, with new edges distinguished from removed edges by line style. Displays original/current route codes, current rule explanation, old-route validity, exact network edge additions/removals, before→after hops and graph-derived optimal hops. The primary numerical conclusion appears near the top of the evidence rail. Invalid edges produce an explicit, accessible reason and explicitly state that the route is unchanged.
+- `site/play/connect/connect-desktop.css`: scoped three-column workspace, geographic network and node-state styling, link/route legends, independently scrollable instruction and evidence rails. An explicit reduced-motion override prevents shared route-draw dash offsets from hiding actual route geometry.
+- `site/play/connect/connect.js`: registers Connect-only desktop stylesheet and versioned asset; no changes to graph computation or game state.
+- `site/play/play-runtime.js`, `site/lab.html`: versioned Connect view and runtime URLs to avoid stale client caching.
+- `tests/browser/connect-desktop-redesign.spec.mjs`: three focused suites for desktop 1920×1080, 1440×900, 1366×768; valid route choice, 4-hop lock, rule shift, persistent dashed original, new graph connections, three-hop adaptation, exact minimum-hop result, invalid-edge state preservation, keyboard node selection, Undo/Replay and 920px responsive fallback. Added checks that reduced-motion users still see a painted current route and that the before/after result is visible at 1366×768.
+- `site/play/connect/connect-content.js`, `connect-graph.js`, `connect-game.js`, `site/play/play-trace.js`: **unchanged**. The Portugal-to-Poland scenario and shortest path algorithms remain owned by these modules.
+
+### Scientific meaning and observed values
+
+- Shared-land-border graph vs great-circle distance **≤1,200 km** remain distinct. The map is a schematic geospatial network, not a claim about navigable travel routes.
+- Original valid path `PT → ES → FR → DE → PL` has **4 hops**. After the distance rule, a route `PT → FR → DE → PL` has **3 hops**, and the existing breadth-first shortest-path evaluator independently reports **3 optimal hops**. Both paths are retained with solid/dashed coding after final commitment.
+- In this authored Europe scenario, all original shared land-border edges remain allowed by the 1,200 km distance threshold, so **there are added links and zero removed links**. The UI reports the actual `+`/ `−` counts from the original and changed graph edge sets; it does not invent removed connections to satisfy a visual narrative.
+- Source, destination, route member, current country and available next neighbors have differentiated shape/ring/fill/dash states; keyboard focus remains visible.
+- An invalid `PT → DE` first step under the land-border rule yields an invalid dashed segment and accessible text explaining that the route remains unchanged. Hover, pointer and Enter/Space graph navigation preserve original route state semantics.
+- Original `RULE` and `HOPS` HUD contracts are retained to avoid silently invalidating the pre-existing Connect spatial reasoning tests and users' numerical expectations.
+- The final result shows 4→3 hops above the 1366px evidence-rail fold; supporting edge/route details can scroll independently, leaving the network unobstructed.
+
+### Verification and screenshot inspection
+
+- Browser run [38040281656](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38040281656) passed **all 504 non-skipped browser tests** and all other quality steps, including Lighthouse. All three new Connect desktop tests and the prior Connect spatial-reasoning/keyboard/pointer tests passed.
+- Artifact **11666246118** was downloaded and unpacked. The nested Playwright report identifies **13 Connect PNG attachments** with verified binary paths: four states (`connect-initial`, `connect-ready`, `connect-rule-shift`, `connect-result`) at 1920×1080, 1440×900 and 1366×768 (**12 total**) plus `connect-invalid-1366`. All 13 were reviewed in a contact sheet, and the full-size 1366 result screenshot was inspected for readable primary comparison, unobstructed map, old ghost versus new route and nontrivial current rule network.
+- The same final SHA includes automatic visible-color/line-style CSS assertions that the reduced-motion current path is painted and that before/after hop comparison is in the visible portion of the right rail at 1366×768.
+- Responsive 920px fallback, keyboard focus, invalid input, Undo, route lock, adaptive route, replay and Trace integration remain covered. The 920px breakpoint was automatically checked, not given a new standalone screenshot.
+
+### CI history and regression interpretation
+
+1. [`db4c541`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/db4c54180e555850b4fa724e1cb9f266e2b76c73) introduced the desktop workbench; its preliminary CI was cancelled when the next commit superseded it.
+2. [`896121a`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/896121aa59ca58535e887da530aedf987bd7d406) restored the original RULE/HOPS visible contract. [CI 38037510492](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38037510492) reported **500 passed / 30 skipped / 3 failed**, all three failures being *new* Connect tests using the no-longer-unique `.connect-v2-stat` locator. Existing Connect graph/pointer/keyboard tests passed.
+3. [`9085647`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/9085647637bf501c189d0e021a3a8729cc45bbcb) corrected new test selectors to the specific HOPS item. [CI 38038546187](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38038546187) succeeded with **504 passed / 30 skipped / zero failed**.
+4. [`272a11a`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/272a11a43531b2c84b78be57a15841fa2afee8ef) improved reduced-motion route paint and elevated the result's numerical evidence. It added strict visual checks instead of relaxing assertions. [CI 38040281656](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38040281656) again succeeded with **504 passed / 30 skipped / zero failed**; final screenshots were inspected from that exact code version.
+
+### Explicit remaining risks and unrun checks
+
+- Native browser **125% zoom: NOT RUN** (must be checked in STEP 12; CSS viewport scaling is not a substitute).
+- Dedicated browser history navigation and integrated six-instrument signoff: **NOT RUN**, deferred to STEP 12.
+- Pixel-for-pixel reference diff against STEP 00 screenshot 1920×869: **NOT RUN**; state and viewport differ. Geometry and information hierarchy were reviewed visually instead.
+- Separate GitHub Pages design-branch deployment: **NOT RUN**. Branch remains isolated from `main`.
+- Historical intermittent Pulse Round 4 timeout: final STEP 10 run passed, but the prior timeout is not proven permanently fixed.
+
+### STEP 11 handoff — Shared interaction and Spatial Trace
+
+Read the five redesign documents and updated acceptance record. Validate coherent progression across all six instruments, common escape/close/reopen behavior, deterministic state cleanup, keyboard/visible-focus accessibility, dark high-contrast numeric evidence, residual/trace semantics and the shared Spatial Trace schema. Maintain domain-layer numerical correctness and completed STEP 05–10 desktop layouts. Add targeted browser scenarios for release-level navigation and Trace aggregation, capture actual screenshots, run full CI and reserve native 125% zoom and final multi-instrument acceptance for STEP 12. Do not merge into `main` without explicit user direction.

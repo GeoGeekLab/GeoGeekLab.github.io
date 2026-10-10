@@ -339,3 +339,32 @@ The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks
 **Failure history:** `08f552f` initially failed a hardcoded Orient asset version check before browsers ran. `d525301` corrected both Quality and Pages version checks; that workflow then had 499 passes, 27 skips and two failures: a superseded full-bleed presentation test and intermittent unrelated Pulse Round 4 accessibility timeout. `fcc6592` replaced the old geometry expectation with actual STEP 09 acceptance rules. Final CI 38035318338 passed all 501 non-skipped browser cases, including Pulse, plus Lighthouse. The intermittent Pulse timeout should remain on the STEP 12 watchlist.
 
 **STEP 09 decision: DONE** for Orient visual and interaction presentation. No merge to production. **Next: STEP 10 — Connect Visual Redesign.**
+
+## N. STEP 10 acceptance — Connect desktop visual redesign
+
+**Validated code/test SHA:** `272a11a43531b2c84b78be57a15841fa2afee8ef`.  
+**Final CI:** [GeoGeek Quality 38040281656](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38040281656) — **SUCCESS**, **534 browser cases: 504 passed / 30 skipped / zero failed**.  
+**Final screenshot & quality artifact:** [11666246118](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38040281656/artifacts/11666246118), with 13 verified new Connect screenshots.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| C01 — source, target, current, neighbor and route distinct | PASS | Ring/fill/dashed state distinctions in 1920/1440/1366 screenshots, state class assertions and keyboard-focused node test |
+| C02 — border vs ≤1,200 km great-circle rules identified | PASS | Persistent RULE HUD, edge condition and explanatory evidence rail before/after, scenario tests |
+| C03 — invalid connection explains and does not mutate route | PASS | PT→DE denied under shared border; accessible text “NO VALID CONNECTION … Route unchanged”, temporary dashed invalid geometry and dedicated 1366 screenshot |
+| C04 — locked route stays visible as graph changes | PASS | Four-segment dashed original path through adaptation/result; preserved `previousGraph` after `transforming`; three sizes and prior Connect flow |
+| C05 — new/removed edges and original/new routes non-color distinctions | PASS | Added solid vs removed dashed graph segments; old dashed vs new solid route; all four line-style labels. Authored scenario correctly reports zero removals, not fabricated deleted links |
+| C06 — hops, locking, adaptation, optimal path exact | PASS | 4-hop original, 3-hop adapted route, shortest-path evaluator 3; result 4→3 plus optimal 3; replay, Undo and existing graph unit tests |
+| Three desktop viewports 1920×1080, 1440×900, 1366×768 | PASS | 12 state screenshots and test bounding-box assertions requiring nonoverlap of task/map/evidence rails |
+| Reduced-motion current route is painted | PASS | CSS override, computed dash/offset/stroke browser assertions and three ready-state screenshots |
+| Primary before/after evidence above 1366px right-rail fold | PASS | Bounding-box assertion on result pair against evidence rail, full-size screenshot |
+| Keyboard node selection, pointer and responsive 920px fallback | PASS | SVG Enter navigation, pointer clicks, undo/lock/replay and breakpoint test; inherited mobile checks |
+| Domain graph, route state machine, Spatial Trace preserved | PASS | `connect-graph.js`, `connect-game.js`, `connect-content.js`, `play-trace.js` unmodified; full Node/browser regressions passed |
+| Whole-suite browser/accessibility + Lighthouse | PASS | CI 38040281656, all steps successful; **504 passed / 30 skipped / 0 failed** |
+| Actual desktop screenshot artifact | PASS | 13 new Connect PNGs extracted from 11666246118; contact sheet and full-size 1366 result reviewed |
+| Native desktop 125% browser zoom | NOT RUN | STEP 12 |
+| Dedicated history back/forward and six-instrument release signoff | NOT RUN | STEP 12 |
+| Separate Pages deployment and pixel-identical STEP 00 baseline diff | NOT RUN | Remain out of STEP 10 scope |
+
+**Regression history:** Initial `db4c541` CI was cancelled on superseding commit. `896121a` succeeded in preserving old RULE/HOPS readouts but its run had three new-test selector failures (`500/30/3`). `9085647` made the new HOPS selector precise; CI passed `504/30/0`. `272a11a` fixed reduced-motion stroke rendering and moved primary comparison higher; its CI also passed `504/30/0`. All CI counts are for non-skipped actual tests, with no disabled assertions.
+
+**STEP 10 decision: DONE.** No merge to production. **Next: STEP 11 — Shared interaction and Spatial Trace.**
