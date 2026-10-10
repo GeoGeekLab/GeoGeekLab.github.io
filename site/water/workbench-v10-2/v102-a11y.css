@@ -44,3 +44,8 @@
 @media(prefers-reduced-motion:reduce){
  .v102-chart-equivalent,.v102-sci-glossary,.v102-current-view-actions{transition:none}
 }
+
+/* SENSOR source chart labels were using --faint (#6d887b), falling below
+ * WCAG AA 4.5:1 for normal text on #132119 / #182920 backgrounds.
+ * Preserve scientific legend values; brighten only sensor text labels. */
+.p6b-sensor .metric small,.p6b-sensor .plot-subtitle{color:#b3cbbd}
