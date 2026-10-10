@@ -283,3 +283,30 @@ The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks
 **CI failure history:** The first Bound implementation `19d6323` failed all three new cases on a strict but real field-to-caption clearance defect (0.3–2.7 CSS px); a separate Pulse test timed out. Compact viewport screenshots also exposed bottom legend crowding. Commit `de24b1fc6f0ebfa77141d84cc9304fa4b6e42911` corrected the actual field size and short-height evidence spacing **without weakening the tests**. Final [CI 38016447057](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38016447057) passed the Bound tests and Pulse regression, 495 passed, 21 skipped, zero failures.
 
 **STEP 07 decision: DONE** within the Bound presentation scope. All science and state-machine contracts are preserved. **Next: STEP 08 — Swath visual redesign.**
+
+## L. STEP 08 acceptance — Swath desktop visual redesign
+
+**Validated implementation:** `fd3ee3cd41f7b76757336d1bf8613ce04004a6e5`.  
+**Final CI:** [GeoGeek Quality 38020517684 / attempt 2](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38020517684/attempts/2) — **SUCCESS**, 522 browser cases: **498 passed / 24 skipped / 0 failed / 0 flaky**.  
+**Final quality artifact:** [11660914376](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38020517684/artifacts/11660914376), containing 11 Swath redesign screenshots.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| S01 — ground swath and nadir GSD dominate comparison evidence | PASS | Independent right rail, current/previous metric text with km/m, three desktop sizes, new spec |
+| S02 — footprint coverage vs GSD vs optics clearly distinct | PASS | Explicit `GROUND SWATH / COVERAGE WIDTH`, `NADIR GSD / GROUND SAMPLING`, detector count and optical-not-modeled notes; 1366px screenshot |
+| S03 — three guided, one-variable experiments retain geometry effects | PASS | Three transitions in `swath-desktop-redesign.spec.mjs` and existing `swath-play.spec.mjs`; scientific content/state modules unchanged |
+| S04 — previous/current geometry and numbers distinguishable on reveal | PASS | Solid-orange current and pale dashed previous footprint, central line-type labels only when comparison revealed, `data-compare=on`, before/after ratios and screenshots |
+| S05 — free altitude, FOV, detector changes and reset | PASS | Keyboard ArrowRight, valid 12032-sample native slider step, 700km altitude, reset to reference, replay guided; screenshot and spec |
+| S06 — Earth geometry clearly labeled not altitude-to-scale | PASS | Curvature-aware schematic caption at bottom of center viewport, all three sizes |
+| Desktop geometry 1920×1080 / 1440×900 / 1366×768 | PASS | Dedicated test asserts task/scenario/evidence separation with live metrics inside evidence rail |
+| 920px narrow layout and desktop return | PASS | Single metric DOM node moved to/from original surface without duplication; dedicated browser test |
+| Original Swath model, Trace and semantics unchanged | PASS | `swath-physics.js`, `swath-content.js`, `swath-experiments.js` and `play-trace.js` untouched; Node/Playwright regressions passed |
+| Build, static/link checks, browser/accessibility and Lighthouse | PASS | CI 38020517684 attempt 2, all steps successful; **498 passes**, **24 skips** |
+| Screenshot artifact and visual review | PASS | 11 screenshot binary paths verified from final artifact; same-SHA captures inspected, including 1366px reveal and free design |
+| Native browser 125% zoom | NOT RUN | STEP 12 |
+| Dedicated browser history and six-instrument final signoff | NOT RUN | STEP 12 |
+| Same-state pixel baseline against STEP 00 | NOT RUN | Reference image was 1920×869; states differ |
+
+**Failure history and fix:** `c7fab34` failed the new test's off-step detector slider value and an unrelated Pulse Round 4 axe timeout (CI 38018960417: 496 passed, 24 skipped, 2 failed). `fd3ee3c` corrected the *test input* to native step 12032 and improved short-height geometry notation; the physics remained unchanged. CI 38020517684 attempt 1 then had 497 passed, 24 skipped, one Pulse timeout. **Attempt 2** on the exact same SHA passed all 498 non-skipped tests, including Pulse, and Lighthouse. Pulse reliability should still be watched in STEP 12.
+
+**STEP 08 decision: DONE** for Swath presentation and interaction. No merge to production; **next STEP 09 — Orient Visual Redesign.**

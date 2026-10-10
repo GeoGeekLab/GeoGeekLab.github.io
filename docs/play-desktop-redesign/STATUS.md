@@ -21,7 +21,9 @@ Lab release marker: `20261009v102`
 
 **STEP 06 — DONE.** Light uses separate task, conceptual light scene and spectral-evidence rails. Desktop pointer/keyboard and the existing scientific contracts passed full CI and screenshot acceptance.
 
-**STEP 07 — DONE.** Bound uses separate task, square risk field, and numeric constraint/evidence rails. Geometry, drawing, observation-change, KEEP/REDRAW, desktop screenshots and full quality suite passed. **Next: STEP 08 — Swath visual redesign.**
+**STEP 07 — DONE.** Bound uses separate task, square risk field, and numeric constraint/evidence rails. Geometry, drawing, observation-change, KEEP/REDRAW, desktop screenshots and full quality suite passed.
+
+**STEP 08 — DONE.** Swath separates predictions/design controls, sensor geometry and quantitative evidence. All three one-variable experiments, original/current footprints, geometric sampling distinctions, free-design controls and full browser quality suite passed. **Next: STEP 09 — Orient visual redesign.**
 
 ## Roadmap
 
@@ -35,7 +37,7 @@ Lab release marker: `20261009v102`
 | 05 | Project visual redesign | DONE |
 | 06 | Light visual redesign | DONE |
 | 07 | Bound visual redesign | DONE |
-| 08 | Swath visual redesign | PLANNED |
+| 08 | Swath visual redesign | DONE |
 | 09 | Orient visual redesign | PLANNED |
 | 10 | Connect visual redesign | PLANNED |
 | 11 | Shared interaction and Spatial Trace | PLANNED |
@@ -461,3 +463,51 @@ Do not silently convert a missing test or screenshot into PASS.
 ### STEP 08 handoff — Swath visual redesign
 
 Read the five STEP 00 documents and current branch. Preserve swath geometry, sensor model, three one-variable experiment states, previous/current metrics, limits and Trace. Give the sensor geometry central priority with separate task and numeric comparison/legend rails. Distinguish swath coverage, ground sampling, detector samples and optical resolution; keep the Earth illustration explicitly not altitude-to-scale. Validate desktop 1920×1080, 1440×900, 1366×768 and mouse/keyboard interactions with screenshots and actual CI; update acceptance documents only after evidence review.
+
+## STEP 08 acceptance — 2026-10-10
+
+### Decision: DONE
+
+**Validated runtime/test commit:** `fd3ee3cd41f7b76757336d1bf8613ce04004a6e5`.  
+**Final GitHub Actions quality run:** [38020517684, attempt 2](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38020517684/attempts/2) — **COMPLETED / SUCCESS** on the same code SHA.  
+**Reproducible final screenshot/test artifact:** [quality-reports 11660914376](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38020517684/artifacts/11660914376).  
+**Full browser suite:** **522 total; 498 passed, 24 skipped, zero failures, zero flaky**. Skipped cases are not counted as passed.
+
+### Scope and files changed
+
+- `site/play/swath/swath-view.js`: added a desktop evidence summary sourced directly from the existing physics comparison, only after the user has committed and revealed the change. Current scalar measurements are moved as actual DOM nodes between the desktop evidence rail and narrow-screen original position. Added independent SVG-geometry captions and a comparison line-style key. Responsive listener is removed on unmount. No changes to sensor calculations or the three guided experiment state transitions.
+- `site/play/swath/swath-desktop.css`: scoped three-column task, schematic sensor geometry and numerical evidence layout; stronger previous dashed vs current solid footprint, visible ground sample notations and the curvature-aware/not-to-scale model annotation. Small desktop sizes allow auxiliary rail scrolling rather than covering geometry.
+- `site/play/swath/swath.js`, `site/play/play-runtime.js`, `site/lab.html`: Swath stylesheet registration, view listener cleanup and versioned lazy-loading URLs.
+- `tests/browser/swath-desktop-redesign.spec.mjs`: three desktop-focused cases cover 1920×1080 / 1440×900 / 1366×768, baseline-first commitment, FOV/altitude/sample-count perturbations, previous/current geometry and quantitative comparisons, free-design keyboard focus/slider changes, reset/replay and 920px breakpoint restoration.
+
+### Scientific and interaction preservation
+
+- No changes to `swath-physics.js`, `swath-experiments.js`, `swath-content.js` or `play-trace.js`. The before/after swath and nadir GSD ratios come from `physics.compare()`; `physics.compute()` remains the source for the current four metrics.
+- All three one-variable experiments retain their authored conditions; the third detector-only experiment shows unchanged swath width while nadir GSD decreases. Numeric future values stay concealed in question/committed states; previous/current comparison appears after reveal.
+- The screen states that the Earth and sensor height are schematic/not altitude-to-scale, that displayed sample cells are illustrative, and that GSD is a geometric footprint rather than full optical resolution (MTF, SNR and revisit not modeled). No scoreboard or unsupported optical inference was added.
+
+### CI history / regression disposition
+
+1. [`c7fab34`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/c7fab348e2f044dbc85959599f035eec0e041dce) — [CI 38018960417](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38018960417): **496 passed / 24 skipped / 2 failed**. One failure was the new free-design test requesting detector slider `12000` even though its native `min=512, step=128` snaps to `12032`; one unrelated Pulse Round 4 axe scan timed out.
+2. [`fd3ee3c`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/fd3ee3cd41f7b76757336d1bf8613ce04004a6e5) corrected the test to use the valid native slider increment and used screenshot evidence to add current-solid/previous-dashed labels directly in the central geometry. Short-height duplicate explanations in the evidence rail were condensed; physics and experiment logic were not changed.
+3. [CI 38020517684, attempt 1](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38020517684/attempts/1): **497 passed / 24 skipped / 1 failed**. All Swath-focused and pre-existing Swath tests passed; the only failure was the same unmodified Pulse Round 4 accessibility scan timeout. Do not call this attempt a pass.
+4. [CI 38020517684, attempt 2](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38020517684/attempts/2): **498 passed / 24 skipped / 0 failed**, GitHub job/workflow **SUCCESS**. The previously failing Pulse case passed without any Pulse code changes. Build, Static QA, link checks, independent Water/Orient/Pulse suites, desktop/mobile browser/accessibility and Lighthouse all passed.
+
+### Desktop screenshot inspection
+
+- Final attempt 2 artifact **11660914376** contains **11 Swath redesign PNG attachments**. Screenshot names are `swath-question-` and `swath-revealed-` at 1920, 1440 and 1366 (6), plus `swath-experiment-[1-3]-1366` (3), `swath-design-1366` and `swath-design-changed-1366` (2). All 11 image paths were checked in the final artifact; same-SHA first-attempt captures were extracted and inspected in a contact sheet and full-resolution 1366px reveal, detector-only and free-design states.
+- Sensor cone, Earth surface and both footprints stay unobstructed by task/measurement rails at all three desktop viewports. The reveal state shows old dashed/new solid geometry and explicit `BEFORE / AFTER` measurements with units. The 1366px result shows the core swath/GSD deltas and central footprint key without scrolling; auxiliary rail explanations and free-design RESET/REPLAY may require their permitted rail scroll at reduced desktop heights.
+- The narrow 920px view retains the original metric overlay; resizing back to desktop moves the *same DOM node* to the evidence rail and keeps measurements current. Mouse/pointer buttons, keyboard sliders, reset and replay passed automated assertions.
+- Captures are responsive visual tests, not a pixel-identical baseline comparison. No true browser-zoom test was performed.
+
+### Explicit remaining risks / unrun checks
+
+- Native **125% browser zoom: NOT RUN**; required at STEP 12, not inferred from CSS viewport sizes.
+- Dedicated browser history forward/back and six-instrument final visual signoff: **NOT RUN**; STEP 12.
+- Same-state pixel-diff against the original 1920×869 Swath screenshot: **NOT RUN**, because the original size/state differs.
+- An intermittent **Pulse Round 4 accessibility scan timeout** occurred during earlier runs but did not reproduce in passing final attempt 2; do not infer a permanent reliability fix. Continue observing this in STEP 12.
+- Swath science models, instrument collection metadata, non-PLAY CSS and shared algorithms untouched. No merge to `main` or production release.
+
+### STEP 09 handoff — Orient visual redesign
+
+Read the five master redesign documents and this log; inspect current branch, Orient implementation and test contracts. Make the reference-centered globe dominant while separating estimation/commit controls and numerical conditions/residual evidence; preserve primer, confidence gating, pointer/keyboard bearing-distance estimates, skipped unfamiliar relations, session recovery, Spatial Trace and truth hidden before commitment. Verify 1920×1080, 1440×900, 1366×768 desktop geometry, interactions, readable reference/residual notation, full CI, and screenshots before closing STEP 09. Do not change the Orient geometry or scientific metric semantics merely for visual appearance.
