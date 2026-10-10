@@ -77,6 +77,7 @@
             <span>FOV <b data-scene="fov">—</b></span>
             <span>SAMPLES <b data-scene="samples">—</b></span>
           </div>
+          <div class="swath-scene-heading" aria-hidden="true"><span>SENSOR / GROUND INTERSECTION</span><strong>SCHEMATIC, NOT AN OPTICAL IMAGE</strong></div>
           <span class="swath-not-scale">CURVATURE-AWARE SCHEMATIC / ALTITUDE NOT TO SCALE</span>
         </section>
       </div>`;
@@ -84,7 +85,17 @@
     shell.hud.innerHTML=`
       <div class="swath-hud"><span>MODE</span><strong class="swath-mode">GUIDED</strong></div>
       <div class="swath-hud"><span>EXPERIMENT</span><strong class="swath-count">01 / 03</strong></div>
-      <div class="swath-hud"><span>MODEL</span><strong>SPHERICAL EARTH</strong></div>`;
+      <div class="swath-hud"><span>MODEL</span><strong>SPHERICAL EARTH</strong></div>
+      <section class="swath-evidence-heading"><span>MEASUREMENT EVIDENCE</span><h2>WIDTH ≠ DETAIL</h2><p>Ground footprint and geometric sampling are separate measurements.</p></section>
+      <div class="swath-evidence-metrics-anchor"></div>
+      <section class="swath-evidence-trial" aria-live="polite"></section>
+      <section class="swath-evidence-legend" aria-label="Swath comparison legend">
+        <span>GEOMETRY LEGEND</span>
+        <div><i class="swath-key-current" aria-hidden="true"></i>CURRENT FOOTPRINT · SOLID</div>
+        <div><i class="swath-key-before" aria-hidden="true"></i>PREVIOUS FOOTPRINT · DASHED</div>
+        <p>Representative ground cells are drawn for clarity. Their drawn count is not the actual detector count.</p>
+        <p>GSD is a geometric ground sample footprint, <strong>not optical resolution</strong>. Optics, SNR and MTF are not modeled.</p>
+      </section>`;
 
     const root=shell.root;
     const svg=root.querySelector('.swath-svg');
@@ -103,6 +114,17 @@
     const pixels=root.querySelector('.swath-pixels');
     const count=root.querySelector('.swath-count');
     const mode=root.querySelector('.swath-mode');
+    const geometry=root.querySelector('.swath-geometry');
+    const metrics=root.querySelector('.swath-metrics');
+    const metricsAnchor=root.querySelector('.swath-evidence-metrics-anchor');
+    const trialEvidence=root.querySelector('.swath-evidence-trial');
+    const desktopQuery=window.matchMedia?.('(min-width:1024px)');
+    function locateMetrics(){
+      if(desktopQuery?.matches) metricsAnchor.appendChild(metrics);
+      else geometry.appendChild(metrics);
+    }
+    locateMetrics();
+    desktopQuery?.addEventListener?.('change',locateMetrics);
 
     const earthCurve=surfacePath(-80,1080,48);
     earthLine.setAttribute('d',earthCurve);
@@ -351,7 +373,33 @@
       updateFreePanel(panel,result);
     }
 
+    // Evidence is deliberately derived only from the snapshot currently visible.
+    // Future values stay concealed throughout QUESTION and COMMITTED.
+    function renderEvidence(snapshot,model){
+      if(snapshot.phase==='free'){
+        const result=model.current;
+        trialEvidence.innerHTML=`<span>SENSOR DESIGN / CURRENT VS REFERENCE</span>
+          <div class="swath-evidence-compare-row"><span>REFERENCE CONFIG</span><strong>${baseline.config.altitudeKm} km · ${baseline.config.fovDeg}° · ${baseline.config.detectorPixels.toLocaleString()} samples</strong></div>
+          <div class="swath-evidence-compare-row"><span>SWATH / REFERENCE</span><strong>${relationText(result.swathKm,baseline.swathKm,{higher:'WIDER',lower:'NARROWER',same:'SAME'})}</strong></div>
+          <div class="swath-evidence-compare-row"><span>NADIR GSD / REFERENCE</span><strong>${relationText(result.nadirGsdM,baseline.nadirGsdM,{higher:'COARSER',lower:'FINER',same:'SAME'})}</strong></div>
+          <p>Changing detector samples refines the geometric ground sampling, but does not establish optical resolving power.</p>`;
+        return;
+      }
+      if(snapshot.phase!=='revealed'){
+        trialEvidence.innerHTML='<span>COMPARISON</span><p>The initial geometry is shown. Commit your prediction and apply the single sensor change to reveal the new footprint and sampling values.</p>';
+        return;
+      }
+      const c=model.comparison;
+      const formatDelta=(before,after,unit)=>`${unit==='km'?fmtKm(before):fmtM(before)} → ${unit==='km'?fmtKm(after):fmtM(after)} ${unit}`;
+      trialEvidence.innerHTML=`<span>BEFORE / AFTER · REVEALED</span>
+        <div class="swath-evidence-compare-row"><span>GROUND SWATH / COVERAGE WIDTH</span><strong>${formatDelta(c.before.swathKm,c.after.swathKm,'km')}</strong><small>${fmtRatio(c.swathRatio)} of previous width</small></div>
+        <div class="swath-evidence-compare-row"><span>NADIR GSD / GROUND SAMPLING</span><strong>${formatDelta(c.before.nadirGsdM,c.after.nadirGsdM,'m')}</strong><small>${fmtRatio(c.gsdRatio)} of previous sample size</small></div>
+        <div class="swath-evidence-compare-row"><span>CROSS-TRACK DETECTOR SAMPLES</span><strong>${c.before.config.detectorPixels.toLocaleString()} → ${c.after.config.detectorPixels.toLocaleString()}</strong></div>
+        <p>Dashed geometry is the previous observation; solid geometry is the current observation. Neither specifies optical resolution.</p>`;
+    }
+
     function render(snapshot,model){
+      renderEvidence(snapshot,model);
       shell.setState(snapshot.phase);
       mode.textContent=snapshot.phase==='free'?'DESIGN':'GUIDED';
       count.textContent=snapshot.phase==='free'?'—':`${String(snapshot.index+1).padStart(2,'0')} / ${String(snapshot.total).padStart(2,'0')}`;
@@ -371,7 +419,7 @@
       renderGuided(snapshot,model.comparison);
     }
 
-    return Object.freeze({render});
+    return Object.freeze({render,dispose(){desktopQuery?.removeEventListener?.('change',locateMetrics);}});
   }
 
   window.GeoPlaySwathView=Object.freeze({create});
