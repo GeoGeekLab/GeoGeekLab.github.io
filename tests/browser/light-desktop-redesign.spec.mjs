@@ -64,6 +64,11 @@ test('LIGHT keeps task, optical scene, legend, chart and readouts in separate de
     expect(await black.evaluate(el=>getComputedStyle(el).outlineWidth)).toBe('2px');
     await page.keyboard.press('Enter');
     await expect(black).toHaveAttribute('aria-pressed','true');
+    // The mouse target must not oscillate under hover in the narrowest desktop layout.
+    await black.hover();
+    await expect(black).toHaveCSS('transform','none');
+    await black.click();
+    await expect(black).toHaveAttribute('aria-pressed','true');
     await shell.getByRole('button',{name:'COMMIT PREDICTION'}).click();
     await expect(shell.locator('[data-path="atmosphere"]')).toContainText('PRESENT');
     await shell.getByRole('button',{name:'REMOVE SCATTERING'}).click();

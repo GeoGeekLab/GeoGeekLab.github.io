@@ -164,3 +164,10 @@
 .play-v2-shell[data-play-kind="light"] .light-scene-caption{display:none;}
 .play-v2-shell[data-play-kind="light"] .light-evidence-meta{display:contents;}
 }
+
+/* An animated hover translation can repeatedly shift the hit target under the mouse. */
+@media(min-width:1024px){
+  .play-v2-shell[data-play-kind="light"] .light-action:hover:not(:disabled){
+    transform:none;
+  }
+}

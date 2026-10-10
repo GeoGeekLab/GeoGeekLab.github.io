@@ -64,7 +64,7 @@
     zone: 'play/bound/bound.js?v=20261005c',
     path: 'play/connect/connect.js?v=20261005c',
     project: 'play/project/project.js?v=20261009-step05a',
-    light: 'play/light/light.js?v=20261009-step06a',
+    light: 'play/light/light.js?v=20261010-step06b',
     swath: 'play/swath/swath.js?v=20261007a'
   };
   const OPTIONAL_POST_SCRIPTS = {
