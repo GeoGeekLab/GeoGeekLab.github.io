@@ -106,9 +106,43 @@
     return warmPromise;
   }
 
+  // These transition/keyframe styles affect mounted Plays only, not the
+  // SSR Lab collection. Keep the 12 KB stylesheet out of the first-paint
+  // network and render-blocking CSS graph. Load it before mounting any Play.
+  // A missing optional feedback layer must never prevent core gameplay.
+  let playFeedbackStylePromise = null;
+  function ensurePlayFeedbackStyle() {
+    if (playFeedbackStylePromise) return playFeedbackStylePromise;
+    playFeedbackStylePromise = new Promise(resolve => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'play/play-feedback.css?v=20261005a';
+      link.dataset.playFeedbackStyle = 'on-demand';
+      let settled = false;
+      const finish = loaded => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        if (!loaded) {
+          link.remove();
+          playFeedbackStylePromise = null;
+          console.warn('[GeoGeek] Optional Play feedback styles unavailable. Core Play remains usable.');
+        }
+        resolve(loaded);
+      };
+      const timeout = setTimeout(() => finish(false), 4000);
+      link.addEventListener('load', () => finish(true), { once: true });
+      link.addEventListener('error', () => finish(false), { once: true });
+      document.head.appendChild(link);
+    });
+    return playFeedbackStylePromise;
+  }
+
   async function loadPlay(kind) {
+    const feedbackReady = PLAY_KINDS.has(kind) ? ensurePlayFeedbackStyle() : null;
     const instruments = await baseLoadInstrument(kind);
-    if (!PLAY_KINDS.has(kind)) return instruments;
+    if (!feedbackReady) return instruments;
+    await feedbackReady;
     for (const src of COMMON) await modules.loadScript(src);
     for (const src of PRE_SCRIPTS[kind] || []) await modules.loadScript(src);
     for (const src of OPTIONAL_PRE_SCRIPTS[kind] || []) {
