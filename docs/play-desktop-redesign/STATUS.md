@@ -27,7 +27,7 @@ Lab release marker: `20261009v102`
 
 **STEP 09 — DONE.** Orient now uses independent desktop estimation, reference-centered globe, and conditions/residual rails; confidence-gated truth, Primer, pointer/keyboard, responsive fallback, five-relation Trace and full quality CI passed.
 
-**STEP 10 — DONE.** Connect now has task, geographic network, and numerical evidence rails. The border→1,200 km rule shift keeps old/new routes and edge differences distinguishable, preserves invalid-edge feedback and exact optimal hop counts; three desktop viewports, responsive fallback and full CI passed. **STEP 11 — IN REVIEW.** Shared lifecycle and real cross-instrument Spatial Trace tests are submitted; full CI has not yet completed.
+**STEP 10 — DONE.** Connect now has task, geographic network, and numerical evidence rails. The border→1,200 km rule shift keeps old/new routes and edge differences distinguishable, preserves invalid-edge feedback and exact optimal hop counts; three desktop viewports, responsive fallback and full CI passed. **STEP 11 — DONE.** Shared six-instrument lifecycle and real Light/Swath cross-instrument Spatial Trace evidence, persistence and storage boundaries passed the browser suite. All six reopened desktop captures were inspected; full Quality CI passed. **Next: STEP 12 — Release regression and visual sign-off.**
 
 ## Roadmap
 
@@ -44,7 +44,7 @@ Lab release marker: `20261009v102`
 | 08 | Swath visual redesign | DONE |
 | 09 | Orient visual redesign | DONE |
 | 10 | Connect visual redesign | DONE |
-| 11 | Shared interaction and Spatial Trace | IN REVIEW |
+| 11 | Shared interaction and Spatial Trace | DONE |
 | 12 | Release regression and visual sign-off | PLANNED |
 
 ## STEP 00 handoff
@@ -620,7 +620,7 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 
 ## STEP 11 implementation — 2026-10-10
 
-### Decision: IN REVIEW — automated quality gate pending
+### Decision: DONE — CI and screenshot acceptance verified
 
 **Runtime behavior:** no production code changed. The shared Trace store and six instrument state machines are preserved.
 
@@ -629,7 +629,9 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 - `98c3745e0c78d0bcd572516073b8fd036cb6ea49`: six desktop 1366×768 close/Escape/reopen contracts; screenshot attachment per reopened instrument; shared Trace API's ordering, per-play filtering and clear operation.
 - `2c569f2418ff6bf7ed50ee2bcb8a04cc292eb0cd`: actual Light and Swath reveal flows across the same Lab page; no outcome record before changing the condition; distinct live evidence records after reveal; persistence across reload; recovery from corrupted storage; 120-record retention and filtering boundaries.
 
-**Planned verification:** [GeoGeek Quality 38043443219](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38043443219) for implementation SHA `2c569f2`. Run is pending/in progress at documentation time. Build, Node/static/link QA, desktop/mobile browser, accessibility, Lighthouse and screenshot inspection: **NOT YET VERIFIED**. Do not mark this step DONE until the exact implementation SHA has passed and screenshot evidence has been examined.
+**Verified implementation/test SHA:** `2c569f2418ff6bf7ed50ee2bcb8a04cc292eb0cd`. **Final CI:** [GeoGeek Quality 38043443219](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38043443219) — COMPLETED / SUCCESS. The quality job completed every required build, static QA, internal links, specialist Water/Orient/Pulse, complete desktop/mobile browser, accessibility and Lighthouse step successfully. The embedded Playwright report records **552 total / 515 passed / 37 skipped / zero failed / zero flaky** (skips are not passes). Dedicated `play-shared-lifecycle-trace.spec.mjs`: **18 total / 11 passed / 7 intentionally skipped on mobile / zero failed**. The `test-results/.last-run.json` status is `passed`, with no failed tests.
+
+**Visual evidence:** [quality-reports artifact 11666841773](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38043443219/artifacts/11666841773) was downloaded; its embedded report maps **six 1366×768 screenshots** to `step11-{orient,bound,connect,project,light,swath}-reopen-1366`. Their actual PNG binaries and dimensions were verified. A six-up contact sheet was inspected: all six reopened workspaces present separate task / spatial field / evidence regions where intended, readable major headings and controls, and no apparent persistent overlay obscuring the central field. The six images are specifically reopen states, not substitutes for final all-state visual sign-off.
 
 **Risks and boundaries:**
 
@@ -638,6 +640,8 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 - A final six-instrument signoff and separate Pages deployment are not claimed. The design branch remains isolated from `main`.
 - Current STEP 11 tests cover live Light/Swath evidence and shared lifetime across all six; full module-specific Trace values remain protected by prior dedicated regressions, not by this new cross-module test alone.
 
+
+**STEP 11 handoff to STEP 12:** Validate native 125% desktop browser zoom, dedicated browser history back/forward behavior, the final cross-instrument state/visual matrix, and reconciliation of `main` with the design branch. Preserve main-side `site/lab.html` fixes and the published Origin Chinese narrative check in `.github/workflows/pages.yml`. No merge, deploy or production release was performed during STEP 11.
 
 ### STEP 12 read-only preflight risks discovered during STEP 11
 
