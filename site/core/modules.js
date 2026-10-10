@@ -136,7 +136,7 @@
     if (observatoryKinds.has(kind)) await loadModule(PROVIDER_STABILITY_RUNTIME);
     if (!window.GeoInstruments) {
       if (gameKinds.has(kind)) await loadScript('games.js');
-      await loadScript('instruments.js?v=20261008a');
+      await loadScript('instruments.js?v=20261010-step12a');
       quarantineLegacyPulseMount();
       await loadScript('figure-instrument.js?v=20261001a');
     } else {
