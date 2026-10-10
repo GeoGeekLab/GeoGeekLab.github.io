@@ -31,6 +31,7 @@ test('STEP 12: native Chromium 125% zoom preserves six PLAY workspaces', async (
       channel: 'chromium',
       headless: true,
       viewport: { width: 1920, height: 1080 },
+      baseURL: 'http://127.0.0.1:4173',
       args: [
         `--disable-extensions-except=${extension}`,
         `--load-extension=${extension}`
