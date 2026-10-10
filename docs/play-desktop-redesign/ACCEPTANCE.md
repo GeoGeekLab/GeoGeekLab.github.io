@@ -257,3 +257,29 @@ The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks
 **Failure history:** The first STEP 06 CI [37943335609](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/37943335609) reported **491 passed, 18 skipped, one failure**. The failure was the legacy Light `BLACK` choice Playwright click timing out because the hover-shifted target was not stable. The corrected implementation `626c80b109bbca0d6e79e00e229b404b3a0e50ea` passed the full browser suite, including the previously failing case and all three redesign cases.
 
 **STEP 06 decision: DONE** within its Light UI scope. No change to the scientific model or Observatory/Water runtime; final release-wide zoom, history and visual checks stay in STEP 12. **Next: STEP 07 — Bound Visual Redesign.**
+
+## K. STEP 07 acceptance — Bound desktop visual redesign
+
+**Validated code commit:** `de24b1fc6f0ebfa77141d84cc9304fa4b6e42911`.  
+**Final CI:** [GeoGeek Quality 38016447057](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38016447057) — **COMPLETED / SUCCESS**.  
+**Browser suite:** 516 cases; **495 passed / 21 skipped / 0 failed**.  
+**Quality artifact:** [11656803261](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38016447057/artifacts/11656803261), including 13 screenshot attachments from the Bound redesign tests.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| B01 — entire risk field and polygon visible during drawing | PASS | Unobstructed square field, tested at 1920×1080, 1440×900, 1366×768; screenshot review and `checkWorkspace` geometry |
+| B02 — ≥70% coverage and ≤30% area as competing targets | PASS | Clear separate evidence rail; target text, field model explanation and `bound-v2-evidence-values` assertions |
+| B03 — 96×96 → 24×24 observation change; same source | PASS | Resolution/threshold readouts, changed-class mask and coverage comparison in decision state; unchanged `bound-field.js` |
+| B04 — original/revised boundaries distinguishable | PASS | Solid orange current line and dashed pale original line; `bound-v2-old-line` and `bound-v2-line` attributes, SVG CSS and 1366 redraw screenshot |
+| B05 — balanced KEEP and REDRAW choices | PASS | Equal-sized buttons, separate tested KEEP and REDRAW outcomes, screenshot inspection |
+| B06 — pointer and keyboard/guided polygon creation | PASS | True pointer-drawn boundary; guided `G` and ArrowRight nudge; valid commit in both cases |
+| Full desktop visual matrix and screenshot review | PASS | 13 generated/inspected PNG captures (nine 3-state×viewport, four 1366px interaction/result) |
+| Narrow viewport restored correctly | PASS | Resize 1366→920→1366, task metric visibility and return of desktop evidence rail |
+| Node/CI build/static/links and non-Bound regression | PASS | All GitHub Quality 38016447057 steps, Lighthouse and 495 browser passes |
+| 125% native browser zoom | NOT RUN | STEP 12 |
+| Dedicated history back/forward and final six-instrument signoff | NOT RUN | STEP 12 |
+| Same-state same-size pixel diff against STEP 00 manual reference | NOT RUN | The original 1920×869 image used a different viewport and state |
+
+**CI failure history:** The first Bound implementation `19d6323` failed all three new cases on a strict but real field-to-caption clearance defect (0.3–2.7 CSS px); a separate Pulse test timed out. Compact viewport screenshots also exposed bottom legend crowding. Commit `de24b1fc6f0ebfa77141d84cc9304fa4b6e42911` corrected the actual field size and short-height evidence spacing **without weakening the tests**. Final [CI 38016447057](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38016447057) passed the Bound tests and Pulse regression, 495 passed, 21 skipped, zero failures.
+
+**STEP 07 decision: DONE** within the Bound presentation scope. All science and state-machine contracts are preserved. **Next: STEP 08 — Swath visual redesign.**

@@ -19,7 +19,9 @@ Lab release marker: `20261009v102`
 
 **STEP 05 — DONE.** Project uses a desktop three-column task / map / evidence workbench. The area and route contracts passed desktop geometry, interaction and visual acceptance.
 
-**STEP 06 — DONE.** Light uses separate task, conceptual light scene and spectral-evidence rails. Desktop pointer/keyboard and the existing scientific contracts passed full CI and screenshot acceptance. **Next: STEP 07 — Bound visual redesign.**
+**STEP 06 — DONE.** Light uses separate task, conceptual light scene and spectral-evidence rails. Desktop pointer/keyboard and the existing scientific contracts passed full CI and screenshot acceptance.
+
+**STEP 07 — DONE.** Bound uses separate task, square risk field, and numeric constraint/evidence rails. Geometry, drawing, observation-change, KEEP/REDRAW, desktop screenshots and full quality suite passed. **Next: STEP 08 — Swath visual redesign.**
 
 ## Roadmap
 
@@ -32,7 +34,7 @@ Lab release marker: `20261009v102`
 | 04 | Edge-to-edge PLAY workspace | DONE |
 | 05 | Project visual redesign | DONE |
 | 06 | Light visual redesign | DONE |
-| 07 | Bound visual redesign | PLANNED |
+| 07 | Bound visual redesign | DONE |
 | 08 | Swath visual redesign | PLANNED |
 | 09 | Orient visual redesign | PLANNED |
 | 10 | Connect visual redesign | PLANNED |
@@ -419,3 +421,43 @@ Do not silently convert a missing test or screenshot into PASS.
 5. Run targeted Node/browser tests, regression and 1920×1080 / 1440×900 / 1366×768 screenshot checks. Explicitly record unavailable tests.
 6. Update ACCEPTANCE and STATUS after evidence verification; do not modify other PLAY scientific models.
 
+
+## STEP 07 acceptance — 2026-10-10
+
+### Decision: DONE
+
+**Validated implementation commit:** `de24b1fc6f0ebfa77141d84cc9304fa4b6e42911`.  
+**Final CI:** [GeoGeek Quality 38016447057](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38016447057) — COMPLETED / SUCCESS.  
+**Quality report and screenshots:** [artifact 11656803261](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38016447057/artifacts/11656803261).  
+**Browser suite:** 516 cases; **495 passed / 21 skipped / 0 failures**. The 21 skips are not passes.
+
+### Delivered
+
+- `site/play/bound/bound-desktop.css`: separate desktop task rail, dominant unobstructed square risk field, evidence/constraints rail and balanced KEEP/REDRAW buttons. Distinct orange solid active polygon and pale dashed original polygon; high-contrast labels for observation, threshold, metrics and model limits.
+- `site/play/bound/bound.js`: presentation-only replication of current coverage/area measurements from the existing panel into the desktop evidence rail; responsive narrow display keeps the original measurements. No risk, population, polygon, boundary evaluation or Trace model changes. Stage annotations clarify that risk is synthetic/modelled and the keyboard/pointer affordances.
+- `site/play/play-runtime.js` and `site/lab.html`: versioned Bound presentation resources.
+- `tests/browser/bound-desktop-redesign.spec.mjs`: three dedicated desktop browser tests at 1920×1080, 1440×900, 1366×768, including no-overlap geometry, coverage/area constraints, 96×96 → 24×24 resampling, KEEP, REDRAW, old/new line styles, pointer polygon, guided keyboard region, arrow nudge and narrow-width recovery.
+
+### CI history and visual correction
+
+- Initial implementation [`19d6323`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/19d6323e3f1ea7fef85ffa67ed933efbcaacf307): [CI 38014889839](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38014889839), **491 passed / 21 skipped / 4 failed**. All three new Bound tests failed a real, narrowly missed top-clearance requirement (0.3–2.7 CSS px). Another failure was an unrelated Pulse Round 4 timeout. Screenshots also showed the compact evidence legend near the fold.
+- Corrected in [`de24b1f`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/de24b1fc6f0ebfa77141d84cc9304fa4b6e42911): reduced the square field dimension to leave meaningful vertical clearance; condensed short-viewport evidence spacing. Did **not** relax the geometry tests or change the scientific semantics.
+- Final CI [38016447057](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38016447057) passed all three Bound tests and the prior Pulse test; build, Static QA, internal links, Water, Orient, Pulse, accessibility and Lighthouse all passed. Total: 495 passed, 21 intentionally skipped, 0 failed.
+
+### Screenshots and review
+
+- CI evidence includes **13 Bound desktop PNGs**: initial drawing, guided polygon and observation-change decision × 1920×1080, 1440×900, 1366×768 (9); plus 1366×768 keep result, two-line redraw, redraw result, and actual mouse-drawn polygon (4).
+- All 13 were extracted and visually checked, particularly the 1366×768 decision and two-line redraw states. The stage and full polygon do not overlap either rail; the right-hand coverage, target thresholds, changed-class readout and solid/dashed legend remain visible without downward scrolling at 1366×768. Drawing, KEEP and REDRAW controls remain readable and in the task rail.
+- The tested code commit is `de24b1fc6f0ebfa77141d84cc9304fa4b6e42911`. A subsequent documentation-only closure commit does not replace that verified SHA or imply a new runtime CI.
+
+### Explicitly deferred
+
+- Native **125% browser zoom: NOT RUN**; CSS viewport resizing is not equivalent. STEP 12.
+- Same-state identical-viewport pixel diff to the original 1920×869 manual reference: **NOT RUN**. The original image was taken before the full-workspace shell and has a different view/state.
+- Dedicated history back/forward and final release-wide cross-instrument signoff: **NOT RUN**; STEP 12.
+- Changes to `bound-field.js`, sampling, threshold, metrics, source-model claims, risk classification, polygon geometry and Spatial Trace: **NONE**.
+- No merge to `main` or production release was made.
+
+### STEP 08 handoff — Swath visual redesign
+
+Read the five STEP 00 documents and current branch. Preserve swath geometry, sensor model, three one-variable experiment states, previous/current metrics, limits and Trace. Give the sensor geometry central priority with separate task and numeric comparison/legend rails. Distinguish swath coverage, ground sampling, detector samples and optical resolution; keep the Earth illustration explicitly not altitude-to-scale. Validate desktop 1920×1080, 1440×900, 1366×768 and mouse/keyboard interactions with screenshots and actual CI; update acceptance documents only after evidence review.
