@@ -169,7 +169,11 @@ test('static Lab preview collection does not request obsolete map or sensor prov
   const obsoleteRequests = [];
   page.on('request', request => {
     const url = request.url();
-    if (/raw\\.githubusercontent\\.com\\/martynafford\\/natural-earth-geojson\\/|gibs\\.earthdata\\.nasa\\.gov\\/wms\\/|earthquake\\.usgs\\.gov\\/earthquakes\\/feed\\/v1\\.0\\/summary\\/all_day\\.geojson/i.test(url)) {
+    const parsed = new URL(url);
+    const legacyWorld = parsed.hostname === 'raw.githubusercontent.com' && parsed.pathname.includes('/martynafford/natural-earth-geojson/');
+    const legacyNASA = parsed.hostname === 'gibs.earthdata.nasa.gov' && parsed.pathname.includes('/wms/');
+    const legacyUSGS = parsed.hostname === 'earthquake.usgs.gov' && parsed.pathname.endsWith('/earthquakes/feed/v1.0/summary/all_day.geojson');
+    if (legacyWorld || legacyNASA || legacyUSGS) {
       obsoleteRequests.push(url);
     }
   });
