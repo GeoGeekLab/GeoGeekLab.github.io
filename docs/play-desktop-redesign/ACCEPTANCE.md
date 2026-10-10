@@ -394,30 +394,38 @@ The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks
 **Decision: DONE.** The full CI, actual six-image browser artifact and the targeted lifecycle/Trace cases were checked on the exact implementation SHA. The seven dedicated mobile skips reflect intentionally desktop-only coverage; they are not counted as passes. No scientific formulas, instrument state machines, shared Trace storage implementation or production pages were changed. **Next: STEP 12 release regression and visual sign-off**; 125% native zoom, browser back/forward, multi-state final visual approval and `main` branch reconciliation remain NOT RUN, and no deployment or merge is implied.
 
 
-## P. STEP 12 release regression and visual sign-off — IN REVIEW
+## P. STEP 12 release regression and visual sign-off — DONE (predeployment)
 
 **Release-candidate branch:** `release/play-desktop-v2-final` (integrated predecessor: `release/play-desktop-v2-rc`).  
 **Integrated main commit:** `c3e4f1e58707b759441a5a6f8319504755894663`; merge commit `a9e25a6ca242988cb2f7046ffcf80b1d84414526`.  
-**Quality source under test:** release branch including `tests/browser/play-release-regression.spec.mjs` and `tests/browser/play-native-zoom-release.spec.mjs`.
+**Validated exact code/test SHA:** `4c4f9fa33b0211b1edcf40edafe12c3da94abdde` on `release/play-desktop-v2-final`.  
+**Final quality run:** [38050717187](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38050717187) — **COMPLETED / SUCCESS**; every CI job step, including Lighthouse and the full browser/accessibility suite, succeeded.  
+**Final screenshot and quality artifact:** [11669489494](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38050717187/artifacts/11669489494).
 
 | Gate | Result | Evidence / remaining action |
 | --- | --- | --- |
-| Source branch synchronized with tested main | PASS | Two-parent merge commit, `main...RC` comparison has zero commits behind; main-only source/test changes retained |
-| Preserve shared PLAY workspace and Lab/main navigation fixes | IN REVIEW | Source merge preserves both sets; full candidate QA still required |
+| Source branch synchronized with tested main | PASS | Final branch ahead of current `main`, zero commits behind, merge base `c3e4f1e`; verified from commit comparison after docs sign-off |
+| Preserve shared PLAY workspace and Lab/main navigation fixes | PASS | Both Lab versions reconciled, full final Quality CI success at `4c4f9fa` |
 | Preserve updated Pages release workflow and Chinese Origin smoke | PASS | Exact Pages workflow reviewed: latest Orient asset guard and main's Chinese Origin verification both present |
-| Release marker and asset cache-busting | PASS | `site/lab.html` release `20261010v103play2`, module-loader URL updated; five Pages smoke guards updated; verified in source, requires final build/CI |
-| Six instruments, native card navigation and browser Back/Forward | PASS | All six desktop cases passed in RC browser run 38047938164; six screenshot attachments show restored workspaces; final integrated CI pending |
-| Three desktop viewport matrix and 18 primary screenshots | PASS | Six instruments × 1920×1080, 1440×900, 1366×768 passed geometry assertions; 18 entry PNGs reviewed from RC artifact 11668697555 |
-| True Chromium browser zoom 125% | PASS | Native `chrome.tabs.setZoom(1.25)` and `getZoom()` verified; six instruments × three physical viewports = 18 PNGs and responsive geometry assertions passed in RC 38047938164; latest final CI still pending |
-| Scientific calculations and prediction-before-reveal contract | IN REVIEW | Original instrument regressions and numerical Node checks in full CI |
-| Shared Spatial Trace isolation, persistence and schema | IN REVIEW | STEP 11 accepted on earlier SHA; rerun on integrated RC |
-| Build, Node/static/link QA, accessibility, browser suite, Lighthouse | IN REVIEW | Final candidate GitHub Actions result pending |
-| Final screenshot visual inspection, risk closeout, exact QA source SHA | IN REVIEW | All 42 RC STEP 12 screenshots downloaded/verified; native 1366/1440/1920, entry and history sheets reviewed, plus full-size Connect and Project at native 1366; final candidate report still pending |
+| Release marker and asset cache-busting | PASS | Lab marker, `core/modules.js` and five Pages checks agree on `20261010v103play2`; final production build and static QA passed |
+| Six instruments, native card navigation and browser Back/Forward | PASS | Six desktop tests on exact final CI 38050717187 plus six Forward-restoration PNGs in artifact 11669489494 |
+| Three desktop viewport matrix and 18 primary screenshots | PASS | 18 final source entry PNGs inspected at 1920×1080, 1440×900 and 1366×768; six-instrument shell geometry assertions passed |
+| True Chromium browser zoom 125% | PASS | Real Chrome tab zoom set/read at 1.25; 18 final screenshots across six instruments × three physical desktop viewports, plus CSS viewport contraction/layout assertions |
+| Scientific calculations and prediction-before-reveal contract | PASS | Instrument-specific Node and browser scientific regressions all passed in final Quality CI 38050717187 |
+| Shared Spatial Trace isolation, persistence and schema | PASS | Full final Chromium suite includes STEP 11 Trace cases on integrated code, no unrecovered browser failures |
+| Build, Node/static/link QA, accessibility, browser suite, Lighthouse | PASS | CI 38050717187 SUCCESS: 580 browser tests = 533 expected first-pass passes + 1 retry pass (flaky) + 46 skipped; zero unrecovered failures; all other job steps passed |
+| Final screenshot visual inspection, risk closeout, exact QA source SHA | PASS | Final artifact 11669489494: 42 verified screenshots, native 125% and initial states at three sizes, six history restores; contact sheets reviewed and 1366 Project/Connect full-size inspected |
 | Same-state pixel-exact STEP 00 reference comparison | NOT RUN | Original 1920×869 early-stage screenshots do not match new state/viewport; only qualitative comparison valid |
 | Production main merge, GitHub Pages deployment, live six-PLAY smoke | NOT RUN | Separate production action; do not perform without user authorization |
 
 ### RC evidence and final-CI distinction
 
-RC run [38047938164](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164) reported **580 total / 533 passed / 46 skipped / one failed**. The sole failure was an intermittent non-PLAY Pulse Round 4 axe evaluation timeout; every STEP 12 navigation/viewport/native-zoom test passed. The 42 named screenshots were verified in [artifact 11668697555](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164/artifacts/11668697555). The final branch also fixes legacy Water V7/V9 version-pin tests; final full QA [38048956580](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38048956580) is still pending. **Do not infer overall acceptance from the successful scoped tests.**
+RC run [38047938164](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164) reported **580 total / 533 passed / 46 skipped / one failed**. The sole failure was an intermittent non-PLAY Pulse Round 4 axe evaluation timeout; every STEP 12 navigation/viewport/native-zoom test passed. The 42 named screenshots were verified in [artifact 11668697555](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38047938164/artifacts/11668697555). The final branch also fixes legacy Water V7/V9 version-pin tests. Final exact-SHA quality run [38050717187](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38050717187) is **SUCCESS**. The RC report is historical, not the acceptance source.
 
-**Release decision: IN REVIEW.** Do not mark DONE until all required pre-deployment gates actually pass. A successful source merge alone does not constitute visual, zoom or deployment acceptance.
+### Final candidate verification and remaining risk
+
+**Full final browser report:** 580 total = 533 expected first-pass passes + 1 flaky (passed on retry) + 46 intentional skips; zero unrecovered failures. The single flaky case is Light's desktop-to-narrow-to-desktop responsive layout transition. On the first attempt the light-path legend had not yet returned to the evidence rail immediately after resizing; retry passed. **Risk remains:** transition timing can temporarily delay rail restoration after an abrupt viewport change; follow up after release. No failing scientific computation was observed.
+
+**Final visual evidence:** [quality-reports 11669489494](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38050717187/artifacts/11669489494): 18 native 125% captures, 18 regular desktop entry captures, six Forward-state captures; all 42 verified and inspected at three sizes, including full-size 1366 Connect/Project. No persistent blocking overlay, unexpected dialog margin or body horizontal spill observed; independent evidence scrolling is intentional.
+
+**Release decision: DONE for predeployment regression and visual sign-off** on exact SHA `4c4f9fa33b0211b1edcf40edafe12c3da94abdde`. This does not authorize or assert `main` merge, Pages deployment or live six-PLAY smoke. Those remain NOT RUN and require a separate production go/no-go.
