@@ -253,7 +253,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?v=20261008v8" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v8/lab.html
+          grep -Fq 'core/modules.js?v=20261010v103play2' /tmp/geogeek-water-v8/lab.html
           grep -Fq 'WATER_WORKBENCH_V8' /tmp/geogeek-water-v8/modules.js
           grep -Fq 'water/workbench-v8/' /tmp/geogeek-water-v8/instrument.js
           grep -Fq "'app/index.html'" /tmp/geogeek-water-v8/instrument.js
@@ -284,7 +284,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?v=20261008v9" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v9/lab.html
+          grep -Fq 'core/modules.js?v=20261010v103play2' /tmp/geogeek-water-v9/lab.html
           grep -Fq 'WATER_WORKBENCH_V9' /tmp/geogeek-water-v9/modules.js
           grep -Fq 'water/workbench-v9/' /tmp/geogeek-water-v9/instrument.js
           grep -Fq 'uncertainty-engine.js?v=9.0.0' /tmp/geogeek-water-v9/index.html
@@ -308,7 +308,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261008v10" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v10/lab.html
+          grep -Fq 'core/modules.js?v=20261010v103play2' /tmp/geogeek-water-v10/lab.html
           grep -Fq 'WATER_WORKBENCH_V10' /tmp/geogeek-water-v10/modules.js
           grep -Fq 'water/workbench-v10/' /tmp/geogeek-water-v10/instrument.js
           grep -Fq 'schemaVersion:7' /tmp/geogeek-water-v10/index.html
@@ -326,7 +326,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261008v101" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v101/lab.html
+          grep -Fq 'core/modules.js?v=20261010v103play2' /tmp/geogeek-water-v101/lab.html
           grep -Fq 'WATER_WORKBENCH_V101' /tmp/geogeek-water-v101/modules.js
           grep -Fq 'water-v101-frame' /tmp/geogeek-water-v101/instrument.js
           grep -Fq 'schemaVersion:8' /tmp/geogeek-water-v101/index.html
@@ -345,7 +345,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261009v102" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261009v102' /tmp/geogeek-water-v102/lab.html
+          grep -Fq 'core/modules.js?v=20261010v103play2' /tmp/geogeek-water-v102/lab.html
           grep -Fq "try { await loadModule(WATER_WORKBENCH_V102); }" /tmp/geogeek-water-v102/modules.js
           grep -Fq "requestedWaterVersion==='v101'" /tmp/geogeek-water-v102/modules.js
           grep -Fq 'water-v102-frame' /tmp/geogeek-water-v102/instrument.js
