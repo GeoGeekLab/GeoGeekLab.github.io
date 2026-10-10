@@ -310,3 +310,32 @@ The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks
 **Failure history and fix:** `c7fab34` failed the new test's off-step detector slider value and an unrelated Pulse Round 4 axe timeout (CI 38018960417: 496 passed, 24 skipped, 2 failed). `fd3ee3c` corrected the *test input* to native step 12032 and improved short-height geometry notation; the physics remained unchanged. CI 38020517684 attempt 1 then had 497 passed, 24 skipped, one Pulse timeout. **Attempt 2** on the exact same SHA passed all 498 non-skipped tests, including Pulse, and Lighthouse. Pulse reliability should still be watched in STEP 12.
 
 **STEP 08 decision: DONE** for Swath presentation and interaction. No merge to production; **next STEP 09 — Orient Visual Redesign.**
+
+## M. STEP 09 acceptance — Orient desktop visual redesign
+
+**Validated implementation/test SHA:** `fcc65925eeaa486eedbcb3f7f26fc9a45a16a4b4`.  
+**Final CI:** [GeoGeek Quality 38035318338](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38035318338) — **SUCCESS**, **528 browser cases: 501 passed / 27 skipped / 0 failed**.  
+**Screenshot and quality artifact:** [11664282541](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38035318338/artifacts/11664282541), with 12 new Orient captures verified from the artifact and visually reviewed.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| O01 — reference-centered globe dominates and is legible | PASS | Dedicated three-viewport Playwright geometry assertions, final judge/ready/reveal screenshots, center unobstructed |
+| O02 — bearing/distance estimation by pointer and keyboard | PASS | Real pointer drag, ArrowRight and accessible focus, existing release/browser tests |
+| O03 — confidence required after a spatial estimate | PASS | COMMIT disabled before estimate/selected confidence and enabled after both; key 1/2/3 or pointer confidence |
+| O04 — no truth/target/residual before commitment | PASS | `orient-truth`, `orient-target`, `orient-feedback-layer` and actual/reveal legend absent until commit; existing tests and new screenshots |
+| O05 — distance/bearing residuals and confidence distinguishable | PASS | Right evidence rail uses percentage, bearing degrees and angle/radial legend, truth vs estimate lines by style and label; screenshot and existing metrics |
+| O06 — Primer, unfamiliar replacement, recovery and Trace | PASS | Primer practice+start, unfamiliar action retained, existing full Orient session/recovery/Trace tests, five-relation new screenshot |
+| 1920×1080, 1440×900, 1366×768 geometric/visual matrix | PASS | 9 initial/ready/revealed screenshot attachments and bounding-rectangle assertions |
+| Pointer, focused keyboard, confidence and 1366px primer | PASS | 2 additional dedicated 1366px captures, interaction tests |
+| Five-relation Trace and 920px legacy-responsive return | PASS | 1366px Trace capture, browser state/DOM assertions |
+| Prior desktop presentation contract updated rather than disabled | PASS | `play-v2-presentation.spec.mjs` now enforces rail nonoverlap, sphere fully inside center, precommit hiding, mobile fallback |
+| Existing Orient science and data contracts | PASS | Unmodified geometry/metrics/session/state/storage/Trace modules and passing full browser/Node CI |
+| Whole-suite browser/accessibility + Lighthouse | PASS | CI 38035318338, all jobs/steps successful; **501 pass / 27 skip / zero fail** |
+| Native 125% desktop zoom | NOT RUN | STEP 12 |
+| Dedicated browser back/forward and final six-instrument signoff | NOT RUN | STEP 12 |
+| Standalone Pages publication on the branch | NOT RUN | Only the exact Pages asset-version guard was updated; no deployment |
+| Same-state pixel-diff versus STEP 00 manual reference | NOT RUN | Original reference was 1920×869, different state/viewport |
+
+**Failure history:** `08f552f` initially failed a hardcoded Orient asset version check before browsers ran. `d525301` corrected both Quality and Pages version checks; that workflow then had 499 passes, 27 skips and two failures: a superseded full-bleed presentation test and intermittent unrelated Pulse Round 4 accessibility timeout. `fcc6592` replaced the old geometry expectation with actual STEP 09 acceptance rules. Final CI 38035318338 passed all 501 non-skipped browser cases, including Pulse, plus Lighthouse. The intermittent Pulse timeout should remain on the STEP 12 watchlist.
+
+**STEP 09 decision: DONE** for Orient visual and interaction presentation. No merge to production. **Next: STEP 10 — Connect Visual Redesign.**

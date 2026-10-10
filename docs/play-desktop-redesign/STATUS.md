@@ -23,7 +23,9 @@ Lab release marker: `20261009v102`
 
 **STEP 07 — DONE.** Bound uses separate task, square risk field, and numeric constraint/evidence rails. Geometry, drawing, observation-change, KEEP/REDRAW, desktop screenshots and full quality suite passed.
 
-**STEP 08 — DONE.** Swath separates predictions/design controls, sensor geometry and quantitative evidence. All three one-variable experiments, original/current footprints, geometric sampling distinctions, free-design controls and full browser quality suite passed. **Next: STEP 09 — Orient visual redesign.**
+**STEP 08 — DONE.** Swath separates predictions/design controls, sensor geometry and quantitative evidence. All three one-variable experiments, original/current footprints, geometric sampling distinctions, free-design controls and full browser quality suite passed.
+
+**STEP 09 — DONE.** Orient now uses independent desktop estimation, reference-centered globe, and conditions/residual rails; confidence-gated truth, Primer, pointer/keyboard, responsive fallback, five-relation Trace and full quality CI passed. **Next: STEP 10 — Connect visual redesign.**
 
 ## Roadmap
 
@@ -38,7 +40,7 @@ Lab release marker: `20261009v102`
 | 06 | Light visual redesign | DONE |
 | 07 | Bound visual redesign | DONE |
 | 08 | Swath visual redesign | DONE |
-| 09 | Orient visual redesign | PLANNED |
+| 09 | Orient visual redesign | DONE |
 | 10 | Connect visual redesign | PLANNED |
 | 11 | Shared interaction and Spatial Trace | PLANNED |
 | 12 | Release regression and visual sign-off | PLANNED |
@@ -511,3 +513,50 @@ Read the five STEP 00 documents and current branch. Preserve swath geometry, sen
 ### STEP 09 handoff — Orient visual redesign
 
 Read the five master redesign documents and this log; inspect current branch, Orient implementation and test contracts. Make the reference-centered globe dominant while separating estimation/commit controls and numerical conditions/residual evidence; preserve primer, confidence gating, pointer/keyboard bearing-distance estimates, skipped unfamiliar relations, session recovery, Spatial Trace and truth hidden before commitment. Verify 1920×1080, 1440×900, 1366×768 desktop geometry, interactions, readable reference/residual notation, full CI, and screenshots before closing STEP 09. Do not change the Orient geometry or scientific metric semantics merely for visual appearance.
+
+## STEP 09 acceptance — 2026-10-10
+
+### Decision: DONE
+
+**Validated commit:** `fcc65925eeaa486eedbcb3f7f26fc9a45a16a4b4` (Orient runtime change first committed at `08f552f`; `d525301` updates exact asset-version gates; final `fcc6592` only updates the superseded presentation test).  
+**Final full CI:** [GeoGeek Quality 38035318338](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38035318338) — **COMPLETED / SUCCESS** on `fcc65925eeaa486eedbcb3f7f26fc9a45a16a4b4`.  
+**Final Playwright/Lighthouse evidence artifact:** [quality-reports 11664282541](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38035318338/artifacts/11664282541).  
+**Browser suite:** **528 total, 501 passed, 27 skipped, 0 failed**; skips are not passes.
+
+### Scope
+
+- `site/play/orient/orient.js`: registers `orient-desktop.css`, adds a noninteractive header and phase-gated field legend. No estimation, geodesy, projection, residual, session-composer, storage or Trace logic changed.
+- `site/play/orient/orient-desktop.css`: independent left estimation/confidence/actions rail; unobstructed, reference-centered azimuthal equidistant globe; right conditions and residual-evidence rail. Enhanced coast/rings, reference markers, labels and spatial error styling. Dashed radial residual, pale judgment vector and warm truth vector are distinguishable by both line style and text. Keyboard focus keeps a visible outline. The existing narrow view is preserved below 1024px; the five-relation Trace retains its separate full-map-plus-sidebar report.
+- `site/play/play-runtime.js`, `site/lab.html`: versioned Orient lazy entry and runtime URL, with no shared algorithm changes.
+- `.github/workflows/quality.yml` and `.github/workflows/pages.yml`: updated only the exact `orient.js` cache-version assertion to `20261010-step09a`; the remaining release-asset checks remain unchanged. Quality checked; an independent Pages deployment was **not run** on this design branch.
+- `tests/browser/orient-desktop-redesign.spec.mjs`: three desktop-specific automated suites for initial/ready/revealed × 1920×1080, 1440×900, 1366×768, pointer and keyboard input, confidence gate, primer, five committed relations and Trace, and 920px responsive fallback.
+- `tests/browser/play-v2-presentation.spec.mjs`: replaces the superseded full-shell/absolute-overlay demand with stricter unoccluded three-column geometry, hidden precommit truth and narrow-screen legacy behavior. No scientific tests were weakened.
+
+### Verified behavior and visual evidence
+
+- O01: the entire globe remains between the side rails at all three desktop viewports; reference point, graticule/rings where enabled and shoreline stay legible. The keyboard-focused SVG outline is intentional accessibility feedback, not an annotation on the map.
+- O02: true pointer dragging, keyboard arrows, active fine controls and focus work without changing the underlying projection and bearing/distance computation.
+- O03: COMMIT remains disabled until a spatial estimate is made **and** confidence LOW / MEDIUM / HIGH is selected.
+- O04: before commit no target, truth line, feedback geometry or corresponding true/residual legend is exposed; after commit the real relation and estimated relation are distinguishable.
+- O05: distance percentage and bearing degrees are distinct, with radial/angle residual geometry; confidence was already chosen before reveal; no score or unsupported precision was introduced.
+- O06: Primer unrecorded input, unfamiliar-relation replacement, reloaded/saved session behavior and five-relation Spatial Trace remain covered by existing regression suites plus STEP 09 browser tests. Trace report stays readable and is explicitly not a leaderboard.
+- The **final artifact 11664282541** includes **12 new Orient PNG captures**, extracted and checked: `orient-judge-1920`, `orient-ready-1920`, `orient-reveal-1920`, equivalent three states at 1440 and 1366 (9 total), `orient-primer-1366`, `orient-pointer-compare-1366`, `orient-trace-1366`. The final report also contains two `play-orient-workspace-` PNG attachments from other tests. All 12 new screenshots were inspected together in a contact sheet; the full-size 1366 judge/reveal images were examined for readable numerical and geographic annotation and nonoverlap.
+
+### CI history / isolated failures
+
+1. [`08f552f`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/08f552ff499287debf3862ae1a94afd713ea5fad), [Quality 38032838385](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38032838385): failed **before browser tests** because a workflow grep required the former Orient URL cache marker `20261003f`; the build itself completed.
+2. [`d525301`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/d525301d40e6ad3a6d35332c3993779502f57e6f), [Quality 38033119551](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38033119551): **499 passed / 27 skipped / 2 failed**. All three new Orient tests passed. The old `play-v2-presentation.spec.mjs` required a now-invalid absolute console and a map at 90% of the shell, contrary to the accepted STEP 09 three-column geometry; the unrelated, pre-existing Pulse Round 4 accessibility scan also timed out.
+3. [`fcc6592`](https://github.com/GeoGeekLab/GeoGeekLab.github.io/commit/fcc65925eeaa486eedbcb3f7f26fc9a45a16a4b4) updated the superseded layout test to assert separate rails, a fully contained sphere, no pre-commit truth, and mobile fallback. [Quality 38035318338](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38035318338): **501 passed / 27 skipped / 0 failed**. Old-and-new Orient tests and the previously flaky Pulse case passed without modifying Pulse; Lighthouse and all CI gates passed. A passing Pulse run is not proof that the intermittent timeout is permanently fixed.
+
+### Explicitly NOT RUN / deferred
+
+- Native **125% browser zoom** at desktop viewport sizes: **NOT RUN**, STEP 12 (CSS resizing is not equivalent).
+- Dedicated back/forward browser history and final cross-instrument visual signoff: **NOT RUN**, STEP 12. Ordinary reload/session recovery **was tested**.
+- Pixel-exact before/after match with original 1920×869 manual reference: **NOT RUN**, different app state and viewport.
+- A standalone Pages workflow/deployment of the design branch: **NOT RUN**. Workflow version guard was updated, but production release is out of scope.
+- Changes to `orient-geometry.js`, `orient-metrics.js`, `orient-state.js`, `orient-session.js`, `orient-storage.js`, `orient-content.js`, feedback semantics, Trace schema or geographical algorithms: **NONE**.
+- No merge to `main`.
+
+### STEP 10 handoff — Connect visual redesign
+
+Read the five redesign docs and current branch. Separate geographic adjacency map from task and rule-specific numerical evidence. Preserve shared-border vs 1200 km rules, start/current/goal/neighbor/locked route states, invalid-edge explanations, adaptive scenarios, old/new route comparison, exact hop counts, optimal-hop assessment and Spatial Trace. Do not alter graph topology or routing algorithms for visual effect. Validate 1920×1080, 1440×900, 1366×768, pointer/keyboard controls, narrow fallback, full CI and screenshot evidence. Record unrun 125% native zoom and cross-instrument release checks for STEP 12.
