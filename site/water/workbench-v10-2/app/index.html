@@ -441,6 +441,8 @@ html[data-geogeek-embedded="true"] .tab{padding-inline:11px}
 <script data-geogeek-sync-dependency="water-v102-atm-sensor" src="../v102-atm-sensor-views.js?v=10.2.0-p6b"></script>
 <link rel="stylesheet" href="../v102-uncertainty.css?v=10.2.0-p5">
 <script data-geogeek-sync-dependency="water-v102-uncertainty" src="../v102-uncertainty-views.js?v=10.2.0-p5"></script>
+<link rel="stylesheet" href="../v102-a11y.css?v=10.2.0-p8">
+<script data-geogeek-sync-dependency="water-v102-accessibility" src="../v102-accessibility-views.js?v=10.2.0-p8"></script>
 </head>
 <body>
 <div class="shell" id="shell" data-ui-phase="foundation">
@@ -1059,6 +1061,7 @@ function createWorkbench({store,models,charts,controls}){
   $('mainContent').classList.toggle('path-workbench',state.tab==='path');
   $('mainContent').classList.toggle('band-workbench',state.tab==='sensitivity'&&state.plot==='bands');
   $('mainContent').innerHTML=active().renderChart({state,data,models,charts});
+  globalThis.GeoGeekV102A11y?.enhance($('mainContent'),window.__geoChartFixRegistry,state);
   $('probeValue').textContent=state.probe+' nm';
   $('probeReadout').innerHTML=`Rrs <b>${f(data.rrs[state.probe-400],5)}</b> sr⁻¹`;
   $('probeRange').value=String(state.probe);
@@ -2003,6 +2006,16 @@ function bindWorkbenchEvents({store,workbench,exports}){
   if(t.dataset.u9Sigma){const v=Number(t.dataset.u9Sigma);if(globalThis.GeoGeekV9Engine.SIGMAS.includes(v))update(s=>{s.uncertaintySigma=v});return;}
   if(t.dataset.u9Step){const v=Number(t.dataset.u9Step);if(globalThis.GeoGeekV9Engine.STEPS.includes(v))update(s=>{s.uncertaintyStep=v});return;}
   if(t.dataset.export==='u9jacobian'){exports.exportJacobianCSV();return;}
+  if(t.dataset.exportView){
+   const output=globalThis.GeoGeekV102A11y?.exportView(window.__geoChartFixRegistry,state,t.dataset.exportView,
+    {modelVersion:globalThis.GeoGeekV10Contract?.model?.version});
+   if(!output){notify('No 301-sample spectral traces are available for this view');return;}
+   const url=URL.createObjectURL(new Blob([output.content],{type:output.mime}));
+   const anchor=document.createElement('a');anchor.href=url;anchor.download=output.filename;
+   anchor.click();URL.revokeObjectURL(url);
+   notify('Exported exact plotted samples: '+output.filename);
+   return;
+  }
   if(t.dataset.export==='json'){exports.exportJSON();return;}
   if(t.dataset.export==='bands'){exports.exportBandCSV();return;}
  }

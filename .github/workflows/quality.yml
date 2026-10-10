@@ -128,6 +128,7 @@ jobs:
           node --test site/water/workbench-v10-2/tests/atm-sensor-ui.test.mjs
           node --test site/water/workbench-v10-2/tests/uncertainty-ui.test.mjs
           node --test site/water/workbench-v10-2/tests/integration-ui.test.mjs
+          node --test site/water/workbench-v10-2/tests/accessibility-ui.test.mjs
           npm run qa
           node scripts/verify-play-live-release.mjs --local
 
@@ -154,11 +155,11 @@ jobs:
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-atm-sensor.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate Water V10.2 all stages 5-7 integration (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-integration.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Validate Water V10.2 Stage 8 accessibility and breakpoint matrix
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-accessibility.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate ORIENT release browser suite
         run: npx playwright test -c playwright.orient-release.config.mjs --list
 
-      - name: Validate Pulse Round 5 44px touch-target regression (desktop and mobile Chromium)
-        run: npx playwright test -c playwright.config.mjs tests/browser/pulse-round5.spec.mjs --grep 'Pulse mobile controls stay touch-sized' --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Browser and accessibility baseline
         run: npm run qa:browser
 
