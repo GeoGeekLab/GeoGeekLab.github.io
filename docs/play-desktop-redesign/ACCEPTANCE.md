@@ -368,3 +368,24 @@ The browser suite's 15 skipped cases are the 12 desktop-only STEP 03–05 checks
 **Regression history:** Initial `db4c541` CI was cancelled on superseding commit. `896121a` succeeded in preserving old RULE/HOPS readouts but its run had three new-test selector failures (`500/30/3`). `9085647` made the new HOPS selector precise; CI passed `504/30/0`. `272a11a` fixed reduced-motion stroke rendering and moved primary comparison higher; its CI also passed `504/30/0`. All CI counts are for non-skipped actual tests, with no disabled assertions.
 
 **STEP 10 decision: DONE.** No merge to production. **Next: STEP 11 — Shared interaction and Spatial Trace.**
+
+
+## O. STEP 11 shared lifecycle and Spatial Trace — IN REVIEW
+
+**Implementation/test SHAs:** `98c3745e0c78d0bcd572516073b8fd036cb6ea49`, `2c569f2418ff6bf7ed50ee2bcb8a04cc292eb0cd`.  
+**Latest quality run:** [38043443219](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38043443219) — awaiting final test conclusion.  
+**Scope:** shared six-instrument lifecycle and cross-instrument evidence retention; no production source changes.
+
+| Check | Current status | Evidence needed |
+| --- | --- | --- |
+| Six instruments close with Escape and X; clear the shell and workspace identity | IN REVIEW | Six new browser cases and screenshots at 1366×768 |
+| Six instruments reopen without duplicate shell or stale workspace mode | IN REVIEW | Six new browser cases |
+| Shared Trace append, ordering, per-play filtering and selective clear | IN REVIEW | API integration test |
+| Real Light and Swath only write revealed outcome evidence | IN REVIEW | Live instrument transitions and storage assertions |
+| Records stay distinct across instruments and persist after page reload | IN REVIEW | Live cross-module Trace integration test |
+| Corrupt storage fallback and bounded 120-record retention | IN REVIEW | 123-record storage test |
+| All previously accepted physics and interaction contracts remain intact | IN REVIEW | Full Node/browser/accessibility CI |
+| Six reopened-workspace screenshots visually inspected | NOT RUN | Latest `quality-reports` artifact |
+| Native 125% browser zoom, dedicated history navigation, full release signoff | NOT RUN | STEP 12 release matrix |
+
+**Decision: IN REVIEW.** A pushed test without a complete passing CI result is not acceptance. All other STEP 11 claims remain conditional until the evidence is reviewed.
