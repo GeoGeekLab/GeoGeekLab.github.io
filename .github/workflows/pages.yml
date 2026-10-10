@@ -180,6 +180,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Verify published Origin Chinese narrative
+        env:
+          BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          url="${BASE_URL%/}/origin/cn/"
+          html="$(mktemp)"
+          for attempt in $(seq 1 12); do
+            if curl --fail --silent --show-error --location --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' "$url?check=${GITHUB_SHA}" -o "$html" \
+              && grep -Fq '探问宇宙，是寻找来处，亦是叩问归途。' "$html" \
+              && grep -Fq '我们躯体里的碳、氧与铁，皆曾在恒星深处孕育。' "$html" \
+              && grep -Fq '当繁星陨落，它们便散作星际里的微尘。' "$html" \
+              && grep -Fq '不是物理公式里冰冷的算符' "$html" \
+              && grep -Fq '我们追问宇宙的起源，也在寻找意识的来处。' "$html" \
+              && grep -Fq 'id="originExitTitle">你，在此处</h2>' "$html" \
+              && grep -Fq '<p class="origin-exit-body">万象归于一念。</p>' "$html" \
+              && ! grep -Fq '行至水穷，坐看云起。' "$html" \
+              && ! grep -Fq '此刻为你' "$html"; then
+              echo "Live Origin Chinese copy verified against deployed Pages HTML."
+              exit 0
+            fi
+            echo "Origin Chinese live HTML not current (attempt $attempt/12)."
+            sleep 10
+          done
+          echo "::error::Live Origin Chinese HTML does not match approved copy."
+          exit 1
       - name: Verify public Observatory release
         env:
           BASE_URL: ${{ needs.deploy.outputs.page_url }}

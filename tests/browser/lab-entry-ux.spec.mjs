@@ -120,3 +120,79 @@ test('all thirteen Lab instruments display the correct workspace group', async (
     }
   }
 });
+
+
+test('Lab delivers all thirteen instrument cards in first-response HTML without replacing them', async ({ page }) => {
+  const response = await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
+  const initialHtml = await response.text();
+
+  expect(initialHtml).toContain('data-static-lab-collection="v1"');
+  expect(initialHtml).toContain('class="project-card contour-target is-actionable"');
+  expect((initialHtml.match(/class="project-card contour-target is-actionable"/g) || [])).toHaveLength(13);
+  expect(initialHtml).toMatch(/id="l04"/);
+  expect(initialHtml).toMatch(/id="l10"/);
+  expect(initialHtml).toMatch(/id="l16"/);
+  expect(initialHtml).toMatch(/\/assets\/lab\/previews\/orbit\.jpg\?v=/);
+
+  const list = page.locator('#labList');
+  await expect(list).toHaveAttribute('data-static-lab-collection', 'v1');
+  await expect(list.locator('.project-card')).toHaveCount(13);
+  await expect(list.locator(':scope > .lab-group-block')).toHaveCount(2);
+  await expect(list.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
+  // The above-fold Orbit LCP image may use an identically sized WebP, with
+  // a real JPEG fallback for browsers lacking WebP support.
+  const orbitPicture = list.locator('#l04 .lab-orbit-picture');
+  await expect(orbitPicture).toHaveCount(1);
+  await expect(orbitPicture.locator('source[type="image/webp"]')).toHaveAttribute('srcset', /orbit[.]webp[?]v=capture-/);
+  await expect(orbitPicture.locator('img')).toHaveAttribute('src', /orbit[.]jpg[?]v=capture-/);
+
+  // App bootstrap must not replace authored cards after the browser parses HTML.
+  const initialCard = page.locator('#l04');
+  await initialCard.evaluate(node => { node.dataset.firstPaintMarker = 'retained'; });
+  await page.waitForLoadState('load');
+  await expect(initialCard).toHaveAttribute('data-first-paint-marker', 'retained');
+
+  await expect(list.locator('.lab-group-observatory .project-card')).toHaveCount(7);
+  await expect(list.locator('.lab-group-play .project-card')).toHaveCount(6);
+});
+
+
+test('first Lab preview uses a right-sized screenshot without priority escalation', async ({ page }) => {
+  await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
+  const image = page.locator('#l04 .project-visual.is-real-output img');
+  await expect(image).toHaveAttribute('loading', 'lazy');
+  await expect(image).not.toHaveAttribute('fetchpriority', 'high');
+  await image.scrollIntoViewIfNeeded();
+  await expect.poll(async () => image.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
+  const dimensions = await image.evaluate(img => ({ width: img.naturalWidth, height: img.naturalHeight }));
+  expect(dimensions.width).toBeGreaterThanOrEqual(480);
+  expect(dimensions.width).toBeLessThanOrEqual(960);
+  expect(dimensions.height).toBeGreaterThan(180);
+  // Chromium should actually choose the WebP source, not silently fetch the
+  // larger fallback. This follows the same lazy-load and resolution checks.
+  const currentSrc = await image.evaluate(img => new URL(img.currentSrc).pathname);
+  expect(currentSrc).toBe('/assets/lab/previews/orbit.webp');
+});
+
+
+test('static Lab preview collection does not request obsolete map or sensor providers', async ({ page }) => {
+  const obsoleteRequests = [];
+  page.on('request', request => {
+    const url = request.url();
+    const parsed = new URL(url);
+    const legacyWorld = parsed.hostname === 'raw.githubusercontent.com' && parsed.pathname.includes('/martynafford/natural-earth-geojson/');
+    const legacyNASA = parsed.hostname === 'gibs.earthdata.nasa.gov' && parsed.pathname.includes('/wms/');
+    const legacyUSGS = parsed.hostname === 'earthquake.usgs.gov' && parsed.pathname.endsWith('/earthquakes/feed/v1.0/summary/all_day.geojson');
+    if (legacyWorld || legacyNASA || legacyUSGS) {
+      obsoleteRequests.push(url);
+    }
+  });
+
+  await page.goto('/lab.html', { waitUntil: 'load' });
+  await expect(page.locator('#labList[data-static-lab-collection="v1"] .project-card')).toHaveCount(13);
+  await expect(page.locator('#l04 .project-visual.is-real-output img')).toHaveAttribute('loading', 'lazy');
+  // A deferred preview script must have executed by the load event; allow
+  // asynchronous fetch initiation to surface instead of checking too early.
+  await page.waitForTimeout(350);
+  expect(obsoleteRequests).toEqual([]);
+});

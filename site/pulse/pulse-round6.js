@@ -308,7 +308,16 @@
       event.preventDefault();
       const name = link.dataset.pulseJump;
       const target = name === 'control' ? temporal || filters : name === 'read' ? aggregation : provenance;
-      target?.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+      if (!target || !panel.contains(target)) return;
+      // scrollIntoView() also scrolls the dialog/document ancestors, shifting
+      // the fixed world map and leaving an empty band below the workspace.
+      // Only the independently scrollable controls rail may move.
+      const offset = target.getBoundingClientRect().top - panel.getBoundingClientRect().top;
+      const stickyHeight = nav.getBoundingClientRect().height;
+      panel.scrollTo({
+        top: Math.max(0, panel.scrollTop + offset - stickyHeight),
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+      });
     });
 
     measure.addEventListener('click', event => {

@@ -2,6 +2,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { staticLabCollection } from './lab-static-collection.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
@@ -137,7 +138,7 @@ async function patchLab(html) {
     html = html.replace(/<\/body>/i, `${postload}\n</body>`);
   }
 
-  return html;
+  return staticLabCollection(html, dist, previewVersion);
 }
 
 async function main() {

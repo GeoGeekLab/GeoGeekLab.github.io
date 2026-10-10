@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
@@ -15,6 +16,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const site = path.join(root, 'site');
 const output = path.join(site, 'assets', 'lab', 'previews');
 const previewRuntime = path.join(site, 'lab-real-previews.js');
+const previewWidth = 960;
+const previewQuality = 84;
 fs.mkdirSync(output, { recursive: true });
 
 const mime = {
@@ -172,6 +175,25 @@ async function captureInstrument(kind) {
         });
     }
 
+    if (kind === 'world') {
+      // World mounts a loading placeholder before its external projection
+      // libraries and geometry arrive. Never publish that placeholder as a
+      // real instrument preview (the generic stage selector also matches it).
+      const readiness = await page.waitForFunction(() => {
+        const stage = document.getElementById('instrumentStage');
+        if (stage?.querySelector('.instrument-error')) return 'error';
+        const countryPaths = stage?.querySelectorAll('.world-projection-lab .world-map .countries path[d]').length || 0;
+        return countryPaths >= 10 ? 'ready' : false;
+      }, null, { timeout: 45000 }).catch(async error => {
+        const snapshot = await page.locator('#instrumentStage').innerText().catch(() => 'unavailable');
+        throw new Error(`world: projection did not render before preview capture: ${snapshot.slice(0, 300)}`, { cause: error });
+      });
+      if (await readiness.jsonValue() !== 'ready') {
+        const snapshot = await page.locator('#instrumentStage').innerText().catch(() => 'unavailable');
+        throw new Error(`world: projection returned an error before preview capture: ${snapshot.slice(0, 300)}`);
+      }
+    }
+
     if (kind === 'flow') await exerciseFlowLab(page);
 
     const settle = kind === 'flow' || kind === 'orbit' ? 6500 : 2800;
@@ -185,14 +207,53 @@ async function captureInstrument(kind) {
     const box = await stage.boundingBox();
     if (!box || box.width < 300 || box.height < 180) throw new Error(`${kind}: invalid stage bounds`);
 
+    const previewPath = path.join(output, `${kind}.jpg`);
     await stage.screenshot({
-      path: path.join(output, `${kind}.jpg`),
+      path: previewPath,
       type: 'jpeg',
       quality: 86,
       animations: 'disabled',
       timeout: 20000
     });
-    console.log(`Captured Lab instrument: ${kind}`);
+
+    // The 1600px capture is displayed at ~400px on mobile cards. Deliver a
+    // 960px JPEG (~2x mobile CSS pixels) instead of shipping the entire stage
+    // bitmap to visitors. ImageMagick is installed in both Quality and Pages
+    // capture jobs. All visual elements and scientific sources remain intact.
+    const originalBytes = fs.statSync(previewPath).size;
+    execFileSync('convert', [
+      previewPath, '-resize', `${previewWidth}x>`, '-strip',
+      '-sampling-factor', '4:4:4', '-quality', String(previewQuality),
+      previewPath
+    ]);
+    const width = Number(execFileSync('identify',
+      ['-format', '%w', previewPath], { encoding: 'utf8' }).trim());
+    const compressedBytes = fs.statSync(previewPath).size;
+    if (!Number.isFinite(width) || width < 480 || width > previewWidth) {
+      throw new Error(`${kind}: preview size invalid after right-sizing (${width}px)`);
+    }
+    // A blank World loading frame compressed to ~9 KiB in a Pages release.
+    // A rendered country map must contain far more detail than that frame.
+    if (kind === 'world' && compressedBytes < 20000) {
+      throw new Error(`world: rendered preview is suspiciously small (${compressedBytes} bytes)`);
+    }
+    if (compressedBytes < 8000) {
+      throw new Error(`${kind}: preview lost significant visual content (${compressedBytes} bytes)`);
+    }
+    // The first above-fold Orbit preview is the mobile Lab LCP element.
+    // Retain its unchanged JPEG as a fallback, and emit a smaller WebP
+    // encoding from the same actual instrument screenshot for modern browsers.
+    if (kind === 'orbit') {
+      const webpPath = path.join(output, 'orbit.webp');
+      execFileSync('convert', [previewPath, '-quality', '84', '-define', 'webp:method=6', webpPath]);
+      const webpWidth = Number(execFileSync('identify', ['-format', '%w', webpPath], { encoding: 'utf8' }).trim());
+      const webpBytes = fs.statSync(webpPath).size;
+      if (webpWidth !== width || webpBytes < 8000 || webpBytes >= compressedBytes) {
+        throw new Error(`orbit: WebP must retain 960px visual data and be smaller than JPEG (${webpWidth}px, ${webpBytes} bytes)`);
+      }
+      console.log(`Orbit WebP LCP candidate: ${Math.round(compressedBytes / 1024)} → ${Math.round(webpBytes / 1024)} KiB, JPEG fallback retained`);
+    }
+    console.log(`Captured Lab instrument: ${kind} · ${width}px · ${Math.round(originalBytes / 1024)} → ${Math.round(compressedBytes / 1024)} KiB`);
   } finally {
     await page.close();
   }
@@ -231,5 +292,11 @@ if (failures.length || missing.length) {
   process.exit(1);
 }
 
-updatePreviewCacheVersion(expected);
-console.log(`Generated ${expected.length} real Lab preview images.`);
+// Both representations share one version key. Include the selected WebP bytes
+// so a future encoder adjustment cannot leave a stale cached first image.
+const orbitWebp = path.join(output, 'orbit.webp');
+if (!fs.existsSync(orbitWebp) || fs.statSync(orbitWebp).size < 8000) {
+  throw new Error('Missing Orbit WebP after preview capture');
+}
+updatePreviewCacheVersion([...expected, orbitWebp]);
+console.log(`Generated ${expected.length} real Lab preview images plus the Orbit WebP alternate.`);
