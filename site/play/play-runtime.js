@@ -31,7 +31,7 @@
       'play/connect/connect-content.js?v=20261005a',
       'play/connect/connect-graph.js?v=20261005a',
       'play/connect/connect-game.js?v=20261005a',
-      'play/connect/connect-view.js?v=20261010-step10a'
+      'play/connect/connect-view.js?v=20261010-step10b'
     ],
     project: [
       'play/project/project-content.js?v=20261005c',

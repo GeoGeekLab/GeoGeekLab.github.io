@@ -150,6 +150,7 @@
       shell.hud.innerHTML = `
         <div class="connect-v2-goal"><span>ROUTE / MISSION</span><strong>${nodes[puzzle.source].label.toUpperCase()} → ${nodes[puzzle.target].label.toUpperCase()}</strong></div>
         <div class="connect-v2-stat"><span>HOPS / LIMIT</span><strong>${hops} / ${puzzle.maxHops}</strong></div>
+        <div class="connect-v2-stat connect-v2-rule-stat"><span>RULE</span><strong>${snapshot.rule.label}</strong></div>
         <section class="connect-v2-evidence" aria-label="Connection rule and route evidence">
           <span class="connect-v2-evidence-label">NETWORK RULE</span>
           <h2>${snapshot.rule.label}</h2>
@@ -184,7 +185,7 @@
         if(snapshot.state==='routeReady') actions.appendChild(actionButton('LOCK ROUTE',callbacks.onLock));
         panel.appendChild(actions);
       } else if (snapshot.state === 'locked') {
-        panel.innerHTML=`<span class="connect-v2-task-kicker">ROUTE 01 / LOCKED</span><h2>${snapshot.firstHops} hops recorded</h2><p>Your original route will remain visible when the connection rule changes.</p>`;
+        panel.innerHTML=`<span class="connect-v2-task-kicker">ROUTE 01 / LOCKED</span><h2>${snapshot.firstHops} HOPS LOCKED</h2><p>Your original route will remain visible when the connection rule changes.</p>`;
         panel.appendChild(actionButton('CHANGE THE RULE',callbacks.onRuleChange));
       } else if (snapshot.state === 'transforming') {
         panel.classList.add('is-center','is-rule-change');

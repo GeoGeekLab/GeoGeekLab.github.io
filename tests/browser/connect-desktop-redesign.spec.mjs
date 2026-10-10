@@ -58,7 +58,7 @@ test('CONNECT old route, new network and hop evidence remain spatially separated
     await photo(page,info,`connect-ready-${size.width}`);
     await root.getByRole('button',{name:'LOCK ROUTE'}).click();
     await expect(root).toHaveAttribute('data-play-state','locked');
-    await expect(root.locator('.connect-v2-overlay-panel')).toContainText('4 hops recorded');
+    await expect(root.locator('.connect-v2-overlay-panel')).toContainText('4 HOPS LOCKED');
     await root.getByRole('button',{name:'CHANGE THE RULE'}).click();
     await expect(root).toHaveAttribute('data-connect-comparison','true');
     await expect(root.locator('.connect-v2-evidence')).toContainText('≤ 1,200 KM GREAT CIRCLE');
