@@ -175,6 +175,25 @@ async function captureInstrument(kind) {
         });
     }
 
+    if (kind === 'world') {
+      // World mounts a loading placeholder before its external projection
+      // libraries and geometry arrive. Never publish that placeholder as a
+      // real instrument preview (the generic stage selector also matches it).
+      const readiness = await page.waitForFunction(() => {
+        const stage = document.getElementById('instrumentStage');
+        if (stage?.querySelector('.instrument-error')) return 'error';
+        const countryPaths = stage?.querySelectorAll('.world-projection-lab .world-map .countries path[d]').length || 0;
+        return countryPaths >= 10 ? 'ready' : false;
+      }, null, { timeout: 45000 }).catch(async error => {
+        const snapshot = await page.locator('#instrumentStage').innerText().catch(() => 'unavailable');
+        throw new Error(`world: projection did not render before preview capture: ${snapshot.slice(0, 300)}`, { cause: error });
+      });
+      if (await readiness.jsonValue() !== 'ready') {
+        const snapshot = await page.locator('#instrumentStage').innerText().catch(() => 'unavailable');
+        throw new Error(`world: projection returned an error before preview capture: ${snapshot.slice(0, 300)}`);
+      }
+    }
+
     if (kind === 'flow') await exerciseFlowLab(page);
 
     const settle = kind === 'flow' || kind === 'orbit' ? 6500 : 2800;
@@ -212,6 +231,11 @@ async function captureInstrument(kind) {
     const compressedBytes = fs.statSync(previewPath).size;
     if (!Number.isFinite(width) || width < 480 || width > previewWidth) {
       throw new Error(`${kind}: preview size invalid after right-sizing (${width}px)`);
+    }
+    // A blank World loading frame compressed to ~9 KiB in a Pages release.
+    // A rendered country map must contain far more detail than that frame.
+    if (kind === 'world' && compressedBytes < 20000) {
+      throw new Error(`world: rendered preview is suspiciously small (${compressedBytes} bytes)`);
     }
     if (compressedBytes < 8000) {
       throw new Error(`${kind}: preview lost significant visual content (${compressedBytes} bytes)`);
