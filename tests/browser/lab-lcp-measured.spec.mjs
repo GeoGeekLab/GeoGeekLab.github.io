@@ -52,7 +52,11 @@ test('Lab records throttled browser LCP, boot reveal and Orbit request evidence'
   const evidence = await page.evaluate(() => {
     const paint = performance.getEntriesByType('paint');
     const res = performance.getEntriesByType('resource');
-    const orbit = res.find(e => new URL(e.name).pathname.endsWith('/assets/lab/previews/orbit.jpg'));
+    const orbit = res.find(e => {
+      const url = new URL(e.name).pathname;
+      return url.endsWith('/assets/lab/previews/orbit.jpg') ||
+        url.endsWith('/assets/lab/previews/orbit.webp');
+    });
     const nav = performance.getEntriesByType('navigation')[0];
     const state = window.__geogeekLabLcpDiagnostic;
     return {
@@ -67,6 +71,8 @@ test('Lab records throttled browser LCP, boot reveal and Orbit request evidence'
       orbitRequestStartMs: orbit?.startTime ?? null,
       orbitResponseEndMs: orbit?.responseEnd ?? null,
       orbitTransferBytes: orbit?.transferSize ?? null,
+      orbitImageFormat: orbit ? new URL(orbit.name).pathname.split('.').at(-1) : null,
+      orbitDisplayedSrc: document.querySelector('#l04 img')?.currentSrc ?? null,
       staticCardCount: document.querySelectorAll('#labList .project-card').length,
       firstPreviewNaturalWidth: document.querySelector('#l04 img')?.naturalWidth ?? null,
       bootState: document.documentElement.dataset.geogeekBoot
