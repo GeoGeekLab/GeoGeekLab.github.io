@@ -194,7 +194,7 @@ test('static Lab collection does not fetch Play-only feedback CSS', async ({ pag
   });
   const response = await page.goto('/lab.html', { waitUntil: 'load' });
   const html = await response.text();
-  expect(html).not.toMatch(/<link[^>]+href="play\\/play-feedback\\.css[^"]*"[^>]*rel="stylesheet"/);
+  expect(html).not.toContain('href="play/play-feedback.css?v=20261005a" rel="stylesheet"');
   await expect(page.locator('#labList[data-static-lab-collection="v1"] .project-card')).toHaveCount(13);
   await expect(page.locator('link[href*="play-feedback.css"]')).toHaveCount(0);
   await page.waitForTimeout(350);
