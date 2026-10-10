@@ -720,5 +720,6 @@ Read the five redesign documents and updated acceptance record. Validate coheren
 ### Production publication — 2026-10-10
 
 - The predeployment-approved release candidate was fast-forwarded to `main` at `ebf37f509701e937a31480611c43083ce5a6ab97` after confirming `main` was an ancestor, without force or history rewrite.
-- This commit records and initiates the GitHub Pages production publication attempt for Lab release `20261010v103play2`. Publication and external six-PLAY smoke are **PENDING VERIFICATION**; a successful branch update is not itself a successful Pages deployment.
-- Validate the `Deploy GeoGeek` workflow and its post-deploy Chinese Origin and six public PLAY checks before changing these to PASS.
+- **PUBLISHED / VERIFIED:** GitHub Pages workflow [38055123208](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38055123208) completed **SUCCESS** on source commit `3abae65c1bdfddf401c4d96dc2a64ef25cbe7016`. Build, deploy and online smoke jobs all passed. Live Lab release: `20261010v103play2` at https://geogeeklab.github.io/lab.html.
+- Post-deploy logs explicitly verified live Chinese Origin content, World v12 (`Lab@20261010v103play2`), Water V8–V10.2, Observatory, ORIENT and **all six PLAY modules / 38 public files**. This is a deployed-resource and smoke validation, not a fresh post-deploy human playthrough on arbitrary browsers.
+- The first production Pages run [38054869914](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/38054869914) failed its World v12 cache version guard because the script still expected `20261009v102`; fixed in `3abae65` without changing World scientific logic, after which the second run passed.
