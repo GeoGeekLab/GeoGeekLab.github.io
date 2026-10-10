@@ -31,7 +31,7 @@
       'play/connect/connect-content.js?v=20261005a',
       'play/connect/connect-graph.js?v=20261005a',
       'play/connect/connect-game.js?v=20261005a',
-      'play/connect/connect-view.js?v=20261005a'
+      'play/connect/connect-view.js?v=20261010-step10a'
     ],
     project: [
       'play/project/project-content.js?v=20261005c',
@@ -62,7 +62,7 @@
   const SCRIPT = {
     locate: 'play/orient/orient.js?v=20261010-step09a',
     zone: 'play/bound/bound.js?v=20261010-step07b',
-    path: 'play/connect/connect.js?v=20261005c',
+    path: 'play/connect/connect.js?v=20261010-step10a',
     project: 'play/project/project.js?v=20261009-step05a',
     light: 'play/light/light.js?v=20261010-step06b',
     swath: 'play/swath/swath.js?v=20261010-step08b'
