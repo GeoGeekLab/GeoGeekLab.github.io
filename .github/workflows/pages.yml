@@ -145,7 +145,7 @@ jobs:
       - name: Water V10.1 numerical RT browser integration (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v101.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Water V10.2 UI release browsers (desktop and mobile Chromium)
-        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-foundation.spec.mjs tests/browser/water-v102-components.spec.mjs tests/browser/water-v102-rt.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-foundation.spec.mjs tests/browser/water-v102-components.spec.mjs tests/browser/water-quiet-workspace.spec.mjs tests/browser/water-v102-rt.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Water V10.2 Stages 5–7 release browsers (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-uncertainty.spec.mjs tests/browser/water-v102-physics.spec.mjs tests/browser/water-v102-atm-sensor.spec.mjs tests/browser/water-v102-analysis.spec.mjs tests/browser/water-v102-integration.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: ORIENT release browsers
