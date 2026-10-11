@@ -60,10 +60,12 @@ test('Orbit exposes advanced controls and forwards wheel zoom across the field',
   const orbit = page.locator('.orbit-v2');
   await expect(orbit).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.orbit-enhancement-tools')).toBeVisible();
-  await expect(page.locator('.orbit-station-editor')).toBeVisible();
-  await expect(page.locator('.orbit-rail-nav')).toBeVisible();
+  await expect(page.locator('.orbit-extras > summary')).toBeVisible();
   await expect(page.locator('.orbit-panel > .orbit-enhancement-card')).toHaveCount(0);
-  await expect(page.locator('#orbit-section-view > .orbit-enhancement-card.orbit-view-advanced')).toBeVisible();
+  await page.locator('.orbit-extras > summary').click();
+  await expect(page.locator('.orbit-station-editor')).toBeVisible();
+  await page.locator('.orbit-view-more > summary').click();
+  await expect(page.locator('.orbit-view-more > .orbit-enhancement-card.orbit-view-advanced')).toBeVisible();
 
   const status = page.locator('.instrument-status');
   await expect(status).toContainText(/SNAPSHOT/i);
@@ -109,10 +111,9 @@ test('Orbit deep links a selected catalog object using the same-origin snapshot'
 test('Orbit round-two rail keeps object tasks primary and provenance progressive', async ({ page }) => {
   await page.goto('/lab.html?instrument=orbit#l04', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.orbit-v2')).toBeVisible({ timeout: 30000 });
-  await expect(page.locator('.orbit-rail-nav')).toBeVisible();
-  await expect(page.locator('.instrument-dialog')).toHaveAttribute('data-workspace-mode', /work|focus|inspect/);
-
-  await page.locator('.instrument-workspace-modes button[data-workspace-mode="work"]').click();
+  await expect(page.locator('.orbit-extras > summary')).toBeVisible();
+  await expect(page.locator('.instrument-workspace-modes')).toBeHidden();
+  await expect(page.locator('.instrument-dialog')).not.toHaveAttribute('data-workspace-mode', /.+/);
   await expect(page.locator('.orbit-provenance')).toBeHidden();
 
   const search = page.locator('#orbitSearch');
@@ -124,10 +125,9 @@ test('Orbit round-two rail keeps object tasks primary and provenance progressive
 
   await expect(page.locator('#orbitNorad')).toContainText('25544');
   await expect(page.locator('.orbit-selection-bar')).toBeVisible();
-  await expect(page.locator('[data-orbit-jump="object"]')).toHaveClass(/has-selection/);
+  await expect(page.locator('[data-selection-details]')).toBeVisible();
 
-  await page.locator('[data-orbit-jump="source"]').click();
-  await expect(page.locator('.instrument-dialog')).toHaveAttribute('data-workspace-mode', 'inspect');
+  await page.locator('.orbit-extras > summary').click();
   await expect(page.locator('.orbit-provenance')).toBeVisible();
 
   await page.locator('[data-selection-clear]').click();
