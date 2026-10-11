@@ -42,6 +42,7 @@ test('UX-054: sensor, noise and step selections preserve selected parameters and
  const initial=await app.locator('#num-chl').inputValue();
  await app.locator('[data-u9-sigma="0.000005"]').click();
  await expect(app.locator('[data-u9-sigma="0.000005"]')).toHaveAttribute('aria-pressed','true');
+ await app.locator('#controls details[data-quiet-disclosure="uncertainty:diagnostics"] > summary').click();
  await app.locator('[data-u9-step="10"]').click();
  await expect(app.locator('[data-u9-step="10"]')).toHaveAttribute('aria-pressed','true');
  await app.locator('[data-sensor="msi"]').click();
