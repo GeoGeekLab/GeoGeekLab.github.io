@@ -42,7 +42,15 @@
     // Keep the original enhancement card intact so its delegated click handler
     // for presets and time steps moves with it. CSS removes the nested card chrome.
     extra.classList.add('orbit-view-advanced');
-    sections.view.appendChild(extra);
+    if (!sections.view.querySelector('.orbit-view-more')) {
+      const disclosure = document.createElement('details');
+      disclosure.className = 'orbit-view-more';
+      const summary = document.createElement('summary');
+      summary.textContent = 'MORE VIEW TOOLS';
+      disclosure.appendChild(summary);
+      sections.view.appendChild(disclosure);
+    }
+    sections.view.querySelector('.orbit-view-more').appendChild(extra);
   }
 
   function scrollSection(card) {
