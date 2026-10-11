@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 import { readFile } from 'node:fs/promises';
-const RELEASE='20261010v103play3',WORLD='20261009v12';
+const WORLD = '20261009v12';
+// The authored Lab HTML is the source of truth. Do not pin its release token
+// here: every unrelated Lab release must still pass the World v12 contract.
+const authoredLab = await readFile(new URL('../site/lab.html', import.meta.url), 'utf8');
+const RELEASE = authoredLab.match(/<meta content="([^"]+)" name="geogeek-lab-release"\s*\/>/)?.[1];
+if (!RELEASE || !/^20\d{6}[a-z0-9]+$/i.test(RELEASE)) {
+  throw new Error('Invalid authored Lab release token');
+}
 const baseArg=process.argv.indexOf('--url');
 const live=baseArg>=0;
 const baseUrl=process.argv[baseArg+1]||'';
