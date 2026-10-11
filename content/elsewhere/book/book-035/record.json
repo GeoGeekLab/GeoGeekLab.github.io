@@ -1,0 +1,45 @@
+{
+  "ref": "elsewhere:book-035",
+  "kind": "elsewhere",
+  "id": "book-035",
+  "data": {
+    "unit": "book",
+    "status": "open",
+    "scaffold": false,
+    "order": 35,
+    "parentRef": "elsewhere:e02",
+    "firstPublished": "1912",
+    "languageRead": "中文",
+    "defaultReadingLanguage": "zh"
+  },
+  "text": {
+    "en": {
+      "kind": "Book",
+      "title": "厚黑学",
+      "author": "李宗吾",
+      "subtitle": "读后札记 · “新厚黑学”：课题组的14种勾心斗角行为",
+      "meta": "close reading / social psychology / organization",
+      "before": "初读《厚黑学》，最容易误把它看成圆滑处世的秘诀。",
+      "shift": {
+        "type": "frame",
+        "text": "重读才发现，李宗吾以戏谑解剖道德面具与现实利益之间的裂缝；真正值得思考的，是权谋如何被正当性话语掩饰。"
+      },
+      "after": "从关系网络、道德表演到声誉反击，十四种行为是现代组织情境下的分析类型，不是对特定个人的事实判定。",
+      "return": "读《厚黑学》，不是学着算计别人，而是识别算计如何运作，同时守住信任、边界与事实。"
+    }
+  },
+  "relations": {
+    "trace": []
+  },
+  "atlas": {
+    "type": "book",
+    "year": 1912,
+    "text": {
+      "en": {
+        "topic": "Reading",
+        "place": "Non-spatial",
+        "spatialField": "reading field"
+      }
+    }
+  }
+}
