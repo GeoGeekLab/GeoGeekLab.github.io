@@ -101,7 +101,8 @@
     } else if (tab === 'sensor') {
       extra('Band samples & detailed values', sections.slice(2, 3), 'samples');
     } else if (tab === 'sensitivity') {
-      extra('Sensor response & working state', sections.slice(2), 'sensor');
+      // Working-state parameter inputs must stay directly actionable.
+      extra('Sensor response options', sections.slice(2, 3), 'sensor');
     } else if (tab === 'uncertainty') {
       // Sensor/selected parameters/noise stay visible; numerical diagnostics are secondary.
       extra('Finite-difference & export settings', sections.slice(3), 'diagnostics');
