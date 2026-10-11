@@ -127,6 +127,33 @@
   transform: rotate(-14deg) scale(.85);
 }
 
+.lab-preview-retry {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 132px;
+  min-height: 44px;
+  margin-top: 9px;
+  padding: 10px 16px;
+  border: 1px solid #88ad96;
+  border-radius: 4px;
+  background: #1b3829;
+  color: #edf6ed;
+  font: 650 11px/1.4 var(--mono, monospace);
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+.lab-preview-retry:hover { background: #274c36; }
+.lab-preview-retry:focus-visible { outline: 3px solid #efb87c; outline-offset: 3px; }
+.lab-preview-unavailable {
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  padding: 16px;
+}
+
 .lab-preview-unavailable-label {
   position: relative;
   z-index: 1;
