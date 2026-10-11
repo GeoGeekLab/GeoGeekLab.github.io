@@ -81,6 +81,7 @@ jobs:
 
       - name: Verify ORIENT release assets
         run: |
+          node scripts/verify-lab-previews.mjs --dist
           test -s dist/play/orient/data/places.v1.json
           test -s dist/play/orient/data/relations.v1.json
           test -s dist/play/orient/orient-content.js
