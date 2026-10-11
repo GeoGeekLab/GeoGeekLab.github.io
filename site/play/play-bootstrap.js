@@ -73,6 +73,9 @@
     // The old SVG preview must not delete that <img> or remove is-real-output:
     // doing so replaced five of six genuine screenshots with illustrations.
     // Only use the conceptual SVG in source-only/legacy pages without an image.
+    // Preserve a truthful failed-image state; a fake conceptual SVG would
+    // misrepresent unavailable real instrument output.
+    if (visual.dataset.previewFallback === kind) return;
     const image = visual.querySelector('img');
     if (visual.dataset.realPreview === kind && image &&
         new URL(image.getAttribute('src') || image.src, document.baseURI).pathname ===
