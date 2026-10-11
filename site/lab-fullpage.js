@@ -26,7 +26,7 @@
   const MODES = ['focus', 'work', 'inspect'];
   const STORAGE = 'geogeek.lab.workspaceMode';
   const REFINEMENTS = {
-    orbit:'orbital/orbit-round2.js?v=20261002a',
+    orbit:'orbital/orbit-round2.js?v=20261011a',
     earth:'earth-observation-v3/earth-round2.js?v=20261002a',
     flow:'flow/flow-round2.js?v=20261002d',
     pulse:'pulse/pulse-round6.js?v=20261009navfix1'
@@ -174,7 +174,7 @@
     const isCore = CORE.has(kind);
     activeKind = isCore ? kind : '';
     dialog.dataset.labWorkspace = isCore ? 'true' : 'false';
-    toolbar.hidden = !isCore || kind === 'pulse';
+    toolbar.hidden = !isCore || kind === 'pulse' || kind === 'orbit';
     pulseTabs.hidden = kind !== 'pulse';
     syncCloseControl(isCore);
 
@@ -184,7 +184,11 @@
       return;
     }
 
-    if (kind === 'pulse') {
+    if (kind === 'orbit') {
+      // Orbital Commons has one continuous workspace, with no density mode.
+      delete dialog.dataset.workspaceMode;
+      delete dialog.dataset.pulseTask;
+    } else if (kind === 'pulse') {
       delete dialog.dataset.workspaceMode;
       const queryTask = new URL(location.href).searchParams.get('pulseTask');
       setPulseTask(dialog.dataset.pulseTask || queryTask, {emit:false});
@@ -198,7 +202,7 @@
   buttons.forEach(button => button.addEventListener('click', () => setMode(button.dataset.workspaceMode)));
 
   document.addEventListener('keydown', event => {
-    if (!dialog.open || !activeKind || activeKind === 'pulse') return;
+    if (!dialog.open || !activeKind || activeKind === 'pulse' || activeKind === 'orbit') return;
     const target = event.target;
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement || target?.isContentEditable) return;
     if (!event.altKey) return;
