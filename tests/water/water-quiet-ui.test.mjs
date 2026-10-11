@@ -7,8 +7,8 @@ const prefix = 'site/water/workbench-v10-2/';
 
 test('Water quiet layer loads after all science styles', () => {
   const html = read(prefix + 'app/index.html');
-  const cssAt = html.indexOf('water-quiet.css?v=20261011-quiet1');
-  const jsAt = html.indexOf('water-quiet.js?v=20261011-quiet1');
+  const cssAt = html.indexOf('water-quiet.css?v=20261011-quiet2');
+  const jsAt = html.indexOf('water-quiet.js?v=20261011-quiet2');
   const uncertaintyAt = html.indexOf('v102-uncertainty.css');
   assert.ok(cssAt > uncertaintyAt && uncertaintyAt > 0);
   assert.ok(jsAt > cssAt && jsAt < html.indexOf('</head>'));
@@ -39,7 +39,7 @@ test('Water quiet layer cannot replace computation, scientific modules, or exper
 
 test('Embedding refreshes Water UI only', () => {
   const adapter = read(prefix + 'instrument.js');
-  assert.match(adapter, /chartfix', '10\.2\.0-quiet1'/);
+  assert.match(adapter, /chartfix', '10\.2\.0-quiet2'/);
   assert.match(adapter, /const frameUrl = new URL\('app\/index\.html', rootUrl\)/);
 });
 
@@ -52,4 +52,14 @@ test('Default Water Optics puts the spectrum before numerical cards without remo
   assert.match(css, /\.p6-optics > \.p6-optics-plots \{ order: 1;/);
   assert.match(css, /\.p6-optics > \.p6-reading-grid \{ order: 2;/);
   assert.match(css, /\.p6-optics > \.p6-closure \{ order: 3;/);
+});
+
+test('Lab entry imports a cache-busted Water adapter', () => {
+  const html = read('site/lab.html');
+  const modules = read('site/core/modules.js');
+  const adapter = read(prefix + 'instrument.js');
+  assert.ok(html.includes('meta content="20261011v107watercache1" name="geogeek-lab-release"'));
+  assert.ok(html.includes('core/modules.js?v=20261011v107watercache1'));
+  assert.ok(modules.includes('workbench-v10-2/instrument.js?v=10.2.0-quiet2'));
+  assert.ok(adapter.includes("version: '10.2.0-quiet2'"));
 });

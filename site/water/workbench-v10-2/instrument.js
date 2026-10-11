@@ -6,7 +6,7 @@
 (() => {
   'use strict';
   const rootUrl = new URL('water/workbench-v10-2/', document.baseURI);
-  const stylesheet = new URL('instrument.css?v=10.2.0-p4', rootUrl).href;
+  const stylesheet = new URL('instrument.css?v=10.2.0-quiet2', rootUrl).href;
   const frameUrl = new URL('app/index.html', rootUrl);
   const mounts = window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};
   let sequence = 0;
@@ -27,7 +27,7 @@
     if (dialog) dialog.dataset.waterUiVersion = 'v102';
     const token = 'w' + (++sequence) + '-' + Math.random().toString(36).slice(2, 14);
     const url = new URL(frameUrl);
-    url.searchParams.set('chartfix', '10.2.0-quiet1');
+    url.searchParams.set('chartfix', '10.2.0-quiet2');
     url.searchParams.set('embed', '1');
     url.searchParams.set('instance', token);
 
@@ -130,5 +130,5 @@
   }
 
   mounts.water = mount;
-  window.GeoWaterWorkbenchV102 = { version: '10.2.0-p4', mount };
+  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2', mount };
 })();
