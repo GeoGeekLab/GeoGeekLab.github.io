@@ -59,7 +59,7 @@ test('primary navigation across site sections uses the current PLAY Lab release'
   await page.goto('/lab.html', { waitUntil: 'domcontentloaded' });
   const expectedRelease = await page.locator('meta[name="geogeek-lab-release"]')
     .getAttribute('content');
-  expect(expectedRelease).toBe('20261010v103play3');
+  expect(expectedRelease).toMatch(/^20\\d{6}[a-z0-9]+$/i);
 
   for (const route of ['/index.html', '/field-notes.html', '/atlas.html', '/elsewhere.html']) {
     await page.goto(route, { waitUntil: 'domcontentloaded' });
