@@ -130,6 +130,7 @@ jobs:
           node --test site/water/workbench-v10-2/tests/uncertainty-ui.test.mjs
           node --test site/water/workbench-v10-2/tests/integration-ui.test.mjs
           node --test tests/water/water-quiet-ui.test.mjs
+          node scripts/verify-water-quiet-release.mjs --local
           npm run qa
           node scripts/verify-play-live-release.mjs --local
 

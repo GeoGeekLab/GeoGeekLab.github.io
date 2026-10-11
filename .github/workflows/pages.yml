@@ -80,7 +80,9 @@ jobs:
       - name: Build
         run: node scripts/build.mjs
       - name: Verify published Lab preview assets
-        run: node scripts/verify-lab-previews.mjs --dist
+        run: |
+          node scripts/verify-lab-previews.mjs --dist
+          node scripts/verify-water-quiet-release.mjs --local
       - name: Verify World v12 release cache contract
         run: node scripts/verify-world-v12-release.mjs
       - name: Verify ORIENT release assets
@@ -143,7 +145,7 @@ jobs:
       - name: Water V10.1 numerical RT browser integration (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v101.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Water V10.2 UI release browsers (desktop and mobile Chromium)
-        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-foundation.spec.mjs tests/browser/water-v102-components.spec.mjs tests/browser/water-v102-rt.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-foundation.spec.mjs tests/browser/water-v102-components.spec.mjs tests/browser/water-quiet-workspace.spec.mjs tests/browser/water-v102-rt.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Water V10.2 Stages 5–7 release browsers (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-uncertainty.spec.mjs tests/browser/water-v102-physics.spec.mjs tests/browser/water-v102-atm-sensor.spec.mjs tests/browser/water-v102-analysis.spec.mjs tests/browser/water-v102-integration.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: ORIENT release browsers
@@ -269,7 +271,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?v=20261008v8" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261011v104orbit1' /tmp/geogeek-water-v8/lab.html
+          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v8/lab.html
           grep -Fq 'WATER_WORKBENCH_V8' /tmp/geogeek-water-v8/modules.js
           grep -Fq 'water/workbench-v8/' /tmp/geogeek-water-v8/instrument.js
           grep -Fq "'app/index.html'" /tmp/geogeek-water-v8/instrument.js
@@ -300,7 +302,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?v=20261008v9" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261011v104orbit1' /tmp/geogeek-water-v9/lab.html
+          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v9/lab.html
           grep -Fq 'WATER_WORKBENCH_V9' /tmp/geogeek-water-v9/modules.js
           grep -Fq 'water/workbench-v9/' /tmp/geogeek-water-v9/instrument.js
           grep -Fq 'uncertainty-engine.js?v=9.0.0' /tmp/geogeek-water-v9/index.html
@@ -324,7 +326,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261008v10" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261011v104orbit1' /tmp/geogeek-water-v10/lab.html
+          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v10/lab.html
           grep -Fq 'WATER_WORKBENCH_V10' /tmp/geogeek-water-v10/modules.js
           grep -Fq 'water/workbench-v10/' /tmp/geogeek-water-v10/instrument.js
           grep -Fq 'schemaVersion:7' /tmp/geogeek-water-v10/index.html
@@ -342,7 +344,7 @@ jobs:
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261008v101" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261011v104orbit1' /tmp/geogeek-water-v101/lab.html
+          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v101/lab.html
           grep -Fq 'WATER_WORKBENCH_V101' /tmp/geogeek-water-v101/modules.js
           grep -Fq 'water-v101-frame' /tmp/geogeek-water-v101/instrument.js
           grep -Fq 'schemaVersion:8' /tmp/geogeek-water-v101/index.html
@@ -356,12 +358,12 @@ jobs:
           set -euo pipefail
           base="${WATER_RELEASE_BASE_URL%/}"
           mkdir -p /tmp/geogeek-water-v102
-          for path in lab.html core/modules.js water/workbench-v10-2/instrument.js water/workbench-v10-2/app/index.html water/workbench-v10-2/rt-engine.js water/workbench-v10-2/v102-layout.css water/workbench-v10-2/v102-components.css water/workbench-v10-2/v102-rt.css water/workbench-v10-2/v102-physics-views.js water/workbench-v10-2/v102-physics.css water/workbench-v10-2/v102-atm-sensor-views.js water/workbench-v10-2/v102-atm-sensor.css water/workbench-v10-2/v102-uncertainty-views.js water/workbench-v10-2/v102-uncertainty.css water/workbench-v10-2/v102-analysis-views.js water/workbench-v10-2/v102-analysis.css; do
+          for path in lab.html core/modules.js water/workbench-v10-2/instrument.js water/workbench-v10-2/app/index.html water/workbench-v10-2/rt-engine.js water/workbench-v10-2/v102-layout.css water/workbench-v10-2/v102-components.css water/workbench-v10-2/v102-rt.css water/workbench-v10-2/v102-physics-views.js water/workbench-v10-2/v102-physics.css water/workbench-v10-2/v102-atm-sensor-views.js water/workbench-v10-2/v102-atm-sensor.css water/workbench-v10-2/v102-uncertainty-views.js water/workbench-v10-2/v102-uncertainty.css water/workbench-v10-2/v102-analysis-views.js water/workbench-v10-2/v102-analysis.css water/workbench-v10-2/water-quiet.css water/workbench-v10-2/water-quiet.js; do
             file="/tmp/geogeek-water-v102/$(basename "$path")"
             curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261009v102" -o "$file"
             test -s "$file"
           done
-          grep -Fq 'core/modules.js?v=20261011v104orbit1' /tmp/geogeek-water-v102/lab.html
+          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v102/lab.html
           grep -Fq "try { await loadModule(WATER_WORKBENCH_V102); }" /tmp/geogeek-water-v102/modules.js
           grep -Fq "requestedWaterVersion==='v101'" /tmp/geogeek-water-v102/modules.js
           grep -Fq 'water-v102-frame' /tmp/geogeek-water-v102/instrument.js
@@ -375,7 +377,8 @@ jobs:
           grep -Fq 'data-geogeek-sync-dependency="water-v102-uncertainty"' /tmp/geogeek-water-v102/index.html
           grep -Fq 'data-geogeek-sync-dependency="water-v102-analysis"' /tmp/geogeek-water-v102/index.html
           ! grep -Fq 'v102-accessibility-views.js' /tmp/geogeek-water-v102/index.html
-          echo 'V10.2 public scientific UI and V10.1 reference pin smoke passed'
+          node scripts/verify-water-quiet-release.mjs --url "$base"
+          echo 'V10.2 public scientific UI, quiet adapter and V10.1 reference pin smoke passed'
       - name: Verify public ORIENT release
         env:
           ORIENT_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
