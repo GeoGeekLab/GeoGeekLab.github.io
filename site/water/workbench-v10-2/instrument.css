@@ -41,3 +41,59 @@
   font-size:21px!important;
  }
 }
+
+
+/* A loading state belongs to the host, so it remains visible while the iframe boots. */
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-stage {
+  position: relative;
+}
+.instrument-dialog[data-instrument-kind="water"] .water-v102-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(10px, 1.8vw, 18px);
+  padding: clamp(24px, 7vw, 110px);
+  color: #f0f1e8;
+  background: #0b130f;
+}
+.water-v102-loading-kicker {
+  font: 650 11px/1.5 var(--mono, ui-monospace, monospace);
+  letter-spacing: .13em;
+  color: #b7cfbd;
+}
+.water-v102-loading strong {
+  display: block;
+  max-width: 21ch;
+  font: 400 clamp(32px, 4vw, 64px)/1.08 var(--serif, Georgia, serif);
+  letter-spacing: -.035em;
+}
+.water-v102-loading-copy {
+  font: 400 clamp(13px, 1.25vw, 16px)/1.55 var(--sans, system-ui, sans-serif);
+  color: #bdd1c2;
+}
+.water-v102-loading-track {
+  display: block;
+  width: min(270px, 65vw);
+  height: 2px;
+  overflow: hidden;
+  margin-top: 10px;
+  background: #365343;
+}
+.water-v102-loading-track i {
+  display: block;
+  width: 38%;
+  height: 100%;
+  background: #e9ac83;
+  animation: water-loading-progress 1.8s ease-in-out infinite alternate;
+}
+@keyframes water-loading-progress {
+  from { transform: translateX(0); }
+  to { transform: translateX(165%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .water-v102-loading-track i { animation: none; }
+}
