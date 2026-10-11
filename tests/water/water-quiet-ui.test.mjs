@@ -42,3 +42,14 @@ test('Embedding refreshes Water UI only', () => {
   assert.match(adapter, /chartfix', '10\.2\.0-quiet1'/);
   assert.match(adapter, /const frameUrl = new URL\('app\/index\.html', rootUrl\)/);
 });
+
+test('Default Water Optics puts the spectrum before numerical cards without removing data', () => {
+  const js = read(prefix + 'water-quiet.js');
+  const css = read(prefix + 'water-quiet.css');
+  assert.match(js, /compactWaterOpticsChart/);
+  assert.match(js, /chartExplanationExpanded = details\.open/);
+  assert.match(js, /p:not\(\.p6-baseline\):not\(\.p6-variant\)/);
+  assert.match(css, /\.p6-optics > \.p6-optics-plots \{ order: 1;/);
+  assert.match(css, /\.p6-optics > \.p6-reading-grid \{ order: 2;/);
+  assert.match(css, /\.p6-optics > \.p6-closure \{ order: 3;/);
+});
