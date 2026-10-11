@@ -54,3 +54,20 @@ test('Secondary atmosphere settings remain reachable, including keyboard navigat
   await expect(frame.locator('#range-sza')).toBeVisible();
   await expect(frame.locator('#mainContent')).not.toContainText('Workspace unavailable');
 });
+
+test('Water Optics places the spectrum before secondary metric cards', async ({page}) => {
+  const frame = await openQuietWater(page);
+  const details = frame.locator('.water-chart-method');
+  await expect(details).toBeVisible();
+  await expect(frame.locator('.p6-limit')).toBeHidden();
+
+  const chart = await frame.locator('.p6-optics-plots').boundingBox();
+  const readings = await frame.locator('.p6-reading-grid').boundingBox();
+  expect(chart).not.toBeNull();
+  expect(readings).not.toBeNull();
+  expect(chart.y).toBeLessThan(readings.y);
+
+  await details.locator('summary').click();
+  await expect(frame.locator('.p6-limit')).toBeVisible();
+  await expect(frame.locator('.p6-reading')).toHaveCount(3);
+});
