@@ -65,9 +65,10 @@ INSTRUMENT / 选择观察任务
 1. `instrument.js` 增加宿主加载状态，预备工作区建立、出错回退和取消时都可正确清除。
 2. `instrument.css` 增加独立加载视觉和 Reduced Motion 规则。
 3. `v102-quality.css` 优化导航保持、触控目标、状态标签和图表注释对比度。
-4. `app/index.html` 在科学视图样式之后加载品质修正层。
-5. `core/modules.js`、`lab.html` 更新版本引用，防止旧 JavaScript 缓存继续使用。
-6. `tests/water/workbench-v102-quality.test.mjs` 增加源码契约测试。
+4. `v102-quality.js` 仅在横向存在隐藏工作区时显示右侧渐隐提示，避免虚假的可滚动暗示。
+5. `app/index.html` 在科学视图样式之后加载品质修正层。
+6. `core/modules.js`、`lab.html` 更新版本引用，防止旧 JavaScript 缓存继续使用。
+7. `tests/water/workbench-v102-quality.test.mjs` 增加源码契约测试。
 
 以上只是一轮**可靠性与交互可用性修补**，不是完成整个 Lab 的奖项级重设计。本轮不修改水色遥感科学模型、数值方法或数据含义。
 
