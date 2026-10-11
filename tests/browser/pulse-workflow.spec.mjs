@@ -238,6 +238,8 @@ test('EXPORT navigation scrolls only ANALYZE rail without moving the map or dial
     };
   });
   const before = await layout();
+  // A full-screen Pulse must lock the Lab page, but not the analysis rail.
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).position)).toBe('fixed');
   await nav.click();
   await expect.poll(async () => (await layout()).railScroll).toBeGreaterThan(before.railScroll + 30);
   const after = await layout();
