@@ -507,6 +507,10 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
 
   const resize = () => {const r=stage.getBoundingClientRect();if(!r.width||!r.height)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();drawGroundMap(groundCanvas,state,state.coastRings);};
   const observer = new ResizeObserver(resize);observer.observe(stage);resize();
+  // The sidebar discloses the ground map on demand. It needs a new raster
+  // whenever its CSS size changes from 0 to the visible dimensions.
+  const groundResizeObserver = new ResizeObserver(() => drawGroundMap(groundCanvas,state,state.coastRings));
+  groundResizeObserver.observe(groundCanvas);
 
   let raf=0;
   function animate(){if(innerSignal.aborted)return;raf=requestAnimationFrame(animate);updateTimeUi();requestPositions();if(state.time.rate>1)requestTrace();updateSelectedLabel();renderer.render(scene,camera);}
@@ -641,7 +645,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   graticule.visible=true;renderPass();drawGroundMap(groundCanvas,state,state.coastRings);
   return () => {
     if (hoverFrame) cancelAnimationFrame(hoverFrame);
-    controller.abort();signal?.removeEventListener?.('abort',abort);cancelAnimationFrame(raf);observer.disconnect();worker.terminate();
+    controller.abort();signal?.removeEventListener?.('abort',abort);cancelAnimationFrame(raf);observer.disconnect();groundResizeObserver.disconnect();worker.terminate();
     scene.traverse(object=>{object.geometry?.dispose?.();if(Array.isArray(object.material))object.material.forEach(m=>m?.dispose?.());else object.material?.dispose?.();});renderer.dispose();container.innerHTML='';
   };
 }
