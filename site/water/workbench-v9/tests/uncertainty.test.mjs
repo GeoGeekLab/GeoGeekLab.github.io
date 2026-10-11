@@ -75,7 +75,10 @@ test('Bundled V9 has 8 tabs, 3 matrix modes, schema 6 and persistent noise contr
  for(const text of ['UNCERTAINTY','data-u9-parameter','data-u9-sigma','data-u9-step',
  'workspaces/uncertainty.js','uncertaintyAndIdentifiability','schemaVersion:6',
  'water_ui_geo_v9','chart-fix.js','measured-response-data.js'])assert.ok(app.includes(text),text);
- assert.match(lab,/core\/modules\.js\?v=202610(?:08v(?:9|1[0-9])|09v102|10v103play[23])/);
+ const release=lab.match(/<meta content="([^"]+)" name="geogeek-lab-release"\s*\/>/)?.[1];
+ assert.ok(release,'Expected current Lab release metadata');
+ assert.match(release,/^20\d{6}[a-z0-9]+$/i);
+ assert.ok(lab.includes('core/modules.js?v='+release+'"'),'Lab loader must use the authored release token');
  assert.match(loader,/WATER_WORKBENCH_V9/);
  assert.match(srf,/be6c8291507aadfb75d9abcef6689be1600144dd/);
 });
