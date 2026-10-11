@@ -8,6 +8,12 @@ const app=fs.readFileSync(path.join(root,'app/index.html'),'utf8');
 const bridge=fs.readFileSync(path.join(root,'instrument.js'),'utf8');
 const loader=fs.readFileSync(path.join(root,'../../core/modules.js'),'utf8');
 const lab=fs.readFileSync(path.join(root,'../../lab.html'),'utf8');
+function assertLabLoaderVersion() {
+ const release=lab.match(/<meta content="([^"]+)" name="geogeek-lab-release"\s*\/>/)?.[1];
+ assert.ok(release,'The Lab release metadata must exist');
+ assert.match(release,/^20\d{6}[a-z0-9]+$/i);
+ assert.ok(lab.includes('core/modules.js?v='+release+'"'),'The Lab loader cache token must match the release');
+}
 test('V7 offline workbench provides seven workspaces and sensor-band integration',()=>{
  assert.match(app,/GEOGEEK MODEL · v7/);
  assert.match(app,/band-response-panel/);
@@ -30,7 +36,7 @@ test('V7 production loader has three imports available as fallbacks',()=>{
  assert.match(loader,/loadModule\(WATER_WORKBENCH_V6\)/);
  assert.match(loader,/loadModule\(WATER_WORKBENCH_V5\)/);
  assert.match(loader,/loadModule\(WATER_INSTRUMENT\)/);
- assert.match(lab,/core\/modules\.js\?v=202610(?:08v(?:[7-9]|1[0-9])|09v102|10v103play[23])[a-z0-9]*/);
+ assertLabLoaderVersion();
 });
 
 
@@ -45,5 +51,5 @@ test('V7.1 spectral chart hotfix is versioned and keeps multiseries geometry acc
  assert.match(chartFix,/pointermove/);
  assert.match(chartFix,/data-water-markers/);
  assert.match(chartFix,/data\.series\.map/);
- assert.match(lab,/core\/modules\.js\?v=202610(?:08v(?:[7-9]|1[0-9])|09v102|10v103play[23])[a-z0-9]*/);
+ assertLabLoaderVersion();
 });
