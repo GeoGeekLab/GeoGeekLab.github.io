@@ -38,7 +38,7 @@
 
   function consolidateView(root, sections) {
     const extra = $('.orbit-enhancement-card', root);
-    if (!extra || !sections.view || extra === sections.view || extra.parentElement === sections.view) return;
+    if (!extra || !sections.view || extra === sections.view || sections.view.contains(extra)) return;
     // Keep the original enhancement card intact so its delegated click handler
     // for presets and time steps moves with it. CSS removes the nested card chrome.
     extra.classList.add('orbit-view-advanced');
