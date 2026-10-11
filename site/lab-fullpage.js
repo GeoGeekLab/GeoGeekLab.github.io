@@ -34,6 +34,33 @@
   const refinementLoads = new Map();
   let activeKind = '';
 
+  // Pulse has an independently scrollable analysis rail. Lock the background
+  // document while its full-screen dialog is open. Otherwise browser-assisted
+  // focus/click scrolling can move the hidden Lab page on mobile Chromium.
+  // Keep and restore the exact previous page offset on exit.
+  let pulseBodyLock = null;
+  function syncPulseBodyLock(isActive) {
+    if (isActive) {
+      if (pulseBodyLock) return;
+      const body = document.body;
+      const saved = {};
+      for (const prop of ['position','top','left','right','width']) saved[prop] = body.style[prop];
+      pulseBodyLock = {x:window.scrollX,y:window.scrollY,saved};
+      body.style.position = 'fixed';
+      body.style.top = '-' + pulseBodyLock.y + 'px';
+      body.style.left = '0';
+      body.style.right = '0';
+      body.style.width = '100%';
+      return;
+    }
+    if (!pulseBodyLock) return;
+    const {x,y,saved} = pulseBodyLock;
+    pulseBodyLock = null;
+    const body = document.body;
+    for (const [prop,value] of Object.entries(saved)) body.style[prop] = value;
+    window.scrollTo(x,y);
+  }
+
   const toolbar = document.createElement('div');
   toolbar.className = 'instrument-workspace-modes';
   toolbar.setAttribute('role', 'group');
@@ -173,6 +200,7 @@
     const kind = dialog.dataset.instrumentKind || '';
     const isCore = CORE.has(kind);
     activeKind = isCore ? kind : '';
+    syncPulseBodyLock(kind === 'pulse' && dialog.open);
     dialog.dataset.labWorkspace = isCore ? 'true' : 'false';
     toolbar.hidden = !isCore || kind === 'pulse' || kind === 'orbit';
     pulseTabs.hidden = kind !== 'pulse';
