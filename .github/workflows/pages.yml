@@ -134,6 +134,7 @@ jobs:
           node --test site/water/workbench-v10-2/tests/analysis-ui.test.mjs
           node --test site/water/workbench-v10-2/tests/integration-ui.test.mjs
           node scripts/qa.mjs
+          node --test tests/orbit/orbit-ui-contract.test.mjs
           node scripts/verify-play-live-release.mjs --local
       - name: Water V9 backward compatibility (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-instrument.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
