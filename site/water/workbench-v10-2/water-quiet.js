@@ -100,9 +100,6 @@
       extra('Pressure & observation geometry', sections.slice(1), 'geometry');
     } else if (tab === 'sensor') {
       extra('Band samples & detailed values', sections.slice(2, 3), 'samples');
-    } else if (tab === 'sensitivity') {
-      // Working-state parameter inputs must stay directly actionable.
-      extra('Sensor response options', sections.slice(2, 3), 'sensor');
     } else if (tab === 'uncertainty') {
       // Sensor/selected parameters/noise stay visible; numerical diagnostics are secondary.
       extra('Finite-difference & export settings', sections.slice(3), 'diagnostics');
