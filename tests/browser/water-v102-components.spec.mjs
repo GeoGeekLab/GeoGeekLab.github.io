@@ -34,6 +34,7 @@ test('UX-P3 status uses RT provenance and responds to parameter matching',async(
  await expect(app.locator('#uiReferenceStatus')).toContainText('matched');
  await app.locator('[data-rt-case="cdom"]').click();
  await expect(app.locator('#uiReferenceStatus')).toContainText('differs');
+ await app.locator('.water-scope-more > summary').click();
  await app.locator('#statusScopeBtn').click();
  await expect(app.locator('#inspectorDialog')).toBeVisible();
  await expect(app.locator('#inspectorDialog')).toContainText('no HydroLight/DISORT cross-check');
@@ -58,6 +59,8 @@ test('UX-P3 tools are discoverable and CSV / JSON / model inspector actions rema
 });
 test('UX-P3 reusable setup panel and show-hide controls retain existing scientific sliders',async({page})=>{
  const app=await openStage3(page,'iop');
+ await expect(app.locator('.ui-setup-context')).toBeHidden();
+ await app.locator('#controls .water-detail-group--context > summary').click();
  await expect(app.locator('.ui-setup-context')).toBeVisible();
  await expect(app.locator('.ui-control-section')).not.toHaveCount(0);
  await expect(app.locator('#range-chl')).toBeAttached();
