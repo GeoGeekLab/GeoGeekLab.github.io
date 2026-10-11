@@ -72,9 +72,11 @@ function renderCard(item, cacheVersion, dist) {
   const preview = '/assets/lab/previews/' + kind + '.jpg?v=' + cacheVersion;
   const previewDir = path.join(dist, 'assets', 'lab', 'previews');
   const hasJpg = existsSync(path.join(previewDir, kind + '.jpg'));
-  // A production release must never silently ship placeholder cards for either
-  // OBSERVATORY or PLAY. Let the build fail rather than publishing 13 missing previews.
-  if (!hasJpg) throw new Error(`Lab first-paint: missing captured ${kind}.jpg; abort release`);
+  // CI/production releases must fail closed; local source-only development may
+  // retain the existing explicit fallback while screenshots are not generated.
+  if (!hasJpg && process.env.CI === 'true') {
+    throw new Error(`Lab first-paint: missing captured ${kind}.jpg; abort release`);
+  }
   const hasWebp = kind === 'orbit' && existsSync(path.join(previewDir, 'orbit.webp'));
   const tags = (item.tags || []).slice(0, 3).join(' · ');
   return [
