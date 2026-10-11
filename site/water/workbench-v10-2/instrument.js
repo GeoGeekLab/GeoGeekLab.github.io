@@ -6,7 +6,7 @@
 (() => {
   'use strict';
   const rootUrl = new URL('water/workbench-v10-2/', document.baseURI);
-  const stylesheet = new URL('instrument.css?v=10.2.0-p4', rootUrl).href;
+  const stylesheet = new URL('instrument.css?v=10.2.0-ux1', rootUrl).href;
   const frameUrl = new URL('app/index.html', rootUrl);
   const mounts = window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};
   let sequence = 0;
@@ -27,7 +27,7 @@
     if (dialog) dialog.dataset.waterUiVersion = 'v102';
     const token = 'w' + (++sequence) + '-' + Math.random().toString(36).slice(2, 14);
     const url = new URL(frameUrl);
-    url.searchParams.set('chartfix', '10.2.0-p4');
+    url.searchParams.set('chartfix', '10.2.0-ux1');
     url.searchParams.set('embed', '1');
     url.searchParams.set('instance', token);
 
@@ -39,6 +39,16 @@
     frame.setAttribute('referrerpolicy', 'same-origin');
     // Trusted same-origin application. Top-level navigation is not permitted.
     frame.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-downloads allow-modals');
+
+    const loading = document.createElement('div');
+    loading.className = 'water-v102-loading';
+    loading.setAttribute('role', 'status');
+    loading.setAttribute('aria-label', 'Initializing Water as Spectrum');
+    loading.innerHTML = `
+      <span class="water-v102-loading-kicker">GEO GEEK / OBSERVATORY</span>
+      <strong>Preparing the spectral workbench</strong>
+      <span class="water-v102-loading-copy">Loading the interactive views and scientific model.</span>
+      <span class="water-v102-loading-track" aria-hidden="true"><i></i></span>`;
 
     let settled = false, timeout = null, resolveReady, rejectReady;
     let cleanup = () => {};
@@ -76,12 +86,13 @@
       signal?.removeEventListener('abort', onAbort);
       clearTimeout(timeout);
       frame.remove();
+      loading.remove();
       if(dialog?.dataset.waterUiVersion==='v102') delete dialog.dataset.waterUiVersion;
     };
 
     window.addEventListener('message', onMessage);
     signal?.addEventListener('abort', onAbort, { once: true });
-    stage.replaceChildren(frame);
+    stage.replaceChildren(frame, loading);
     timeout = setTimeout(() => {
       if (settled) return;
       settled = true;
@@ -95,6 +106,7 @@
         cleanup();
         return () => {};
       }
+      loading.remove();
       return cleanup;
     } catch (error) {
       cleanup();
@@ -130,5 +142,5 @@
   }
 
   mounts.water = mount;
-  window.GeoWaterWorkbenchV102 = { version: '10.2.0-p4', mount };
+  window.GeoWaterWorkbenchV102 = { version: '10.2.0-ux1', mount };
 })();
