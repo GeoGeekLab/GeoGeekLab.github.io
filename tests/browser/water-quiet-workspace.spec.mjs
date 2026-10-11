@@ -71,3 +71,13 @@ test('Water Optics places the spectrum before secondary metric cards', async ({p
   await expect(frame.locator('.p6-limit')).toBeVisible();
   await expect(frame.locator('.p6-reading')).toHaveCount(3);
 });
+
+test('Sensitivity keeps the working parameter editor immediately actionable', async ({page}) => {
+  const frame = await openQuietWater(page);
+  await frame.locator('#mainNav [data-tab="sensitivity"]').click();
+  await expect(frame.locator('#num-chl')).toBeVisible();
+  await frame.locator('#num-chl').fill('0.02');
+  await frame.locator('#num-chl').dispatchEvent('change');
+  await expect(frame.locator('#mainContent')).toContainText('ONE-SIDED BOUNDARY');
+  await expect(frame.locator('#num-chl')).toHaveValue('0.02');
+});
