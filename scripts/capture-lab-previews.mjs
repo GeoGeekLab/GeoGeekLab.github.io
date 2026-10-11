@@ -196,6 +196,34 @@ async function captureInstrument(kind) {
 
     if (kind === 'flow') await exerciseFlowLab(page);
 
+    // A visible stage is not enough: it can still be a loading or transition
+    // frame. All six PLAY cards must show their actual mounted workbench.
+    const playKind = {
+      locate: 'orient', zone: 'bound', path: 'connect',
+      project: 'project', light: 'light', swath: 'swath'
+    }[kind];
+    if (playKind) {
+      const selector = [
+        `#instrumentStage .play-shell[data-play-kind="${playKind}"]`,
+        `#instrumentStage .play-v2-shell[data-play-kind="${playKind}"]`
+      ].join(', ');
+      await page.waitForSelector(selector, {state:'visible',timeout:30000});
+      await page.waitForFunction(query => {
+        const shell = document.querySelector(query);
+        return !!shell && !!shell.querySelector('button, a[href], [role="button"]');
+      }, selector, {timeout:15000});
+    }
+
+    // Do not photograph the embedded Water loading stage. Preview the model
+    // workbench only when navigation and scientific content are initialized.
+    if (kind === 'water') {
+      const frame = page.frameLocator('#instrumentStage iframe.water-v102-frame');
+      await frame.locator('#mainNav [data-tab]').first().waitFor({state:'visible',timeout:30000});
+      if (await frame.locator('#mainContent .water-render-error').count()) {
+        throw new Error('water: scientific workbench failed before preview capture');
+      }
+    }
+
     const settle = kind === 'flow' || kind === 'orbit' ? 6500 : 2800;
     await page.waitForTimeout(settle);
 
