@@ -585,7 +585,8 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     if (hoverFrame) { cancelAnimationFrame(hoverFrame); hoverFrame = 0; }
     dragPointer = { id:e.pointerId, x:e.clientX, y:e.clientY, lastX:e.clientX, lastY:e.clientY, moved:false };
     state.pointerMoved = false;
-    canvas.setPointerCapture?.(e.pointerId);
+    // Keyboard camera controls dispatch synthetic pointers without capture eligibility.
+    try { canvas.setPointerCapture?.(e.pointerId); } catch {}
   });
   canvas.addEventListener('pointermove', e => {
     if (dragPointer) {
@@ -631,7 +632,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
       : null;
     dragPointer = null;
     stage.classList.remove('is-dragging');
-    if (canvas.hasPointerCapture?.(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+    try { if (canvas.hasPointerCapture?.(e.pointerId)) canvas.releasePointerCapture(e.pointerId); } catch {}
     clearHover();
     if (index != null) selectByIndex(index);
   };
