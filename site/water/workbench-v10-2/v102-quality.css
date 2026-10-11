@@ -76,7 +76,7 @@ html[data-geogeek-embedded="true"] .appnav {
 
 @media (max-width: 1100px) {
   /* The clipped edge is a visible sign that more workspaces exist to the right. */
-  html[data-geogeek-embedded="true"] .appnav::after {
+  html[data-geogeek-embedded="true"] .appnav.has-more-right::after {
     content: "";
     pointer-events: none;
     position: absolute;
