@@ -9,7 +9,7 @@
     if (document.querySelector('link[data-orbit-round2]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = new URL('./orbit-round2.css?v=20261002a', import.meta.url).href;
+    link.href = new URL('./orbit-round2.css?v=20261011a', import.meta.url).href;
     link.dataset.orbitRound2 = '1';
     document.head.appendChild(link);
   }
@@ -45,70 +45,32 @@
     sections.view.appendChild(extra);
   }
 
-  function activateWorkspaceMode(mode) {
-    const dialog = $('#instrumentDialog');
-    const button = $(`.instrument-workspace-modes button[data-workspace-mode="${mode}"]`, dialog || document);
-    if (button && button.getAttribute('aria-pressed') !== 'true') button.click();
+  function scrollSection(card) {
+    if (!card) return;
+    card.scrollIntoView({ block:'nearest', behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
 
-  function scrollSection(card, panel) {
-    if (!card || !panel) return;
-    card.scrollIntoView({ block:'start', behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-  }
+  function installCompactSidebar(root, sections) {
+    const { panel, catalog, view, ground, object, source } = sections;
+    if (!panel || panel.dataset.orbitSidebar === 'unified') return;
+    panel.dataset.orbitSidebar = 'unified';
 
-  function installRailNav(root, sections) {
-    const { panel } = sections;
-    if (!panel || $('.orbit-rail-nav', panel)) return;
-    const nav = document.createElement('nav');
-    nav.className = 'orbit-rail-nav';
-    nav.setAttribute('aria-label', 'Orbit workspace sections');
-    nav.innerHTML = `
-      <button type="button" data-orbit-jump="catalog" aria-pressed="true">CATALOG</button>
-      <button type="button" data-orbit-jump="view" aria-pressed="false">VIEW</button>
-      <button type="button" data-orbit-jump="ground" aria-pressed="false">GROUND</button>
-      <button type="button" data-orbit-jump="object" aria-pressed="false">OBJECT</button>
-      <button type="button" data-orbit-jump="source" aria-pressed="false">SOURCE</button>`;
-    panel.prepend(nav);
-
-    const map = {
-      catalog:sections.catalog,
-      view:sections.view,
-      ground:sections.ground,
-      object:sections.object,
-      source:sections.source,
-    };
-
-    const setActive = name => {
-      $$('[data-orbit-jump]', nav).forEach(button => button.setAttribute('aria-pressed', String(button.dataset.orbitJump === name)));
-    };
-
-    nav.addEventListener('click', event => {
-      const button = event.target.closest('[data-orbit-jump]');
-      if (!button) return;
-      const name = button.dataset.orbitJump;
-      if (name === 'source') activateWorkspaceMode('inspect');
-      if (name === 'object' && ($('#orbitSelectedName', root)?.textContent || '').trim() === 'NONE') {
-        $('#orbitSearch', root)?.focus();
-        setActive('catalog');
-        return;
-      }
-      setActive(name);
-      setTimeout(() => scrollSection(map[name], panel), name === 'source' ? 80 : 0);
-    });
-
-    let raf = 0;
-    panel.addEventListener('scroll', () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const y = panel.scrollTop + nav.offsetHeight + 20;
-        let current = 'catalog';
-        for (const name of ['catalog','view','ground','object','source']) {
-          const card = map[name];
-          if (card && card.offsetParent !== null && card.offsetTop <= y) current = name;
-        }
-        setActive(current);
-      });
-    }, { passive:true });
+    // A continuous sidebar: search, selected object, then field controls.
+    // Ground and provenance remain accessible through one native disclosure.
+    for (const card of [catalog, object, view]) {
+      if (card) panel.appendChild(card);
+    }
+    const extras = document.createElement('details');
+    extras.className = 'orbit-extras';
+    const summary = document.createElement('summary');
+    summary.innerHTML = '<span>GROUND & SOURCE</span><small>Observer station · data provenance</small>';
+    extras.appendChild(summary);
+    for (const card of [ground, source]) {
+      if (!card) continue;
+      card.removeAttribute('aria-hidden');
+      extras.appendChild(card);
+    }
+    panel.appendChild(extras);
   }
 
   function installSearchKeyboard(root) {
@@ -161,7 +123,7 @@
         <small><b data-selection-class>—</b><i aria-hidden="true">·</i><span data-selection-altitude>—</span><i aria-hidden="true">·</i><span data-selection-look>NO OBSERVER</span></small>
       </div>
       <div class="orbit-selection-actions">
-        <button type="button" data-selection-focus>FOCUS</button>
+        <button type="button" data-selection-focus>CENTER</button>
         <button type="button" data-selection-details>DETAILS</button>
         <button type="button" data-selection-clear aria-label="Clear selected object">CLEAR</button>
       </div>`;
@@ -172,13 +134,11 @@
     const altitude = $('#orbitAltitude', root);
     const elevation = $('#orbitElevation', root);
     const horizon = $('#orbitHorizonState', root);
-    const navObject = $('[data-orbit-jump="object"]', sections.panel);
 
     const render = () => {
       const name = (selectedName?.textContent || '').trim();
       const hasSelection = Boolean(name && name !== 'NONE');
       bar.hidden = !hasSelection;
-      navObject?.classList.toggle('has-selection', hasSelection);
       if (!hasSelection) return;
       $('[data-selection-name]', bar).textContent = name;
       $('[data-selection-class]', bar).textContent = (selectedClass?.textContent || '—').trim();
@@ -196,29 +156,12 @@
     bar.addEventListener('click', event => {
       if (event.target.closest('[data-selection-focus]')) $('#orbitFocus', root)?.click();
       if (event.target.closest('[data-selection-details]')) {
-        activateWorkspaceMode('work');
-        setTimeout(() => scrollSection(sections.object, sections.panel), 60);
+        scrollSection(sections.object);
       }
       if (event.target.closest('[data-selection-clear]')) {
         $('.orbit-canvas', root)?.dispatchEvent(new MouseEvent('dblclick', { bubbles:true, cancelable:true }));
       }
     });
-  }
-
-  function installWorkspaceSemantics(root, sections) {
-    const dialog = root.closest('.instrument-dialog');
-    if (!dialog || dialog.dataset.orbitRound2Semantics === '1') return;
-    dialog.dataset.orbitRound2Semantics = '1';
-    const sync = () => {
-      const mode = dialog.dataset.workspaceMode || 'work';
-      root.dataset.orbitDensity = mode;
-      if (mode === 'work') sections.source?.setAttribute('aria-hidden', 'true');
-      else sections.source?.removeAttribute('aria-hidden');
-    };
-    const observer = new MutationObserver(sync);
-    observer.observe(dialog, { attributes:true, attributeFilter:['data-workspace-mode'] });
-    root._orbitRound2WorkspaceObserver = observer;
-    sync();
   }
 
   function refine(root) {
@@ -232,10 +175,9 @@
     const sections = classifyCards(root);
     consolidateView(root, sections);
     const normalized = classifyCards(root);
-    installRailNav(root, normalized);
+    installCompactSidebar(root, normalized);
     installSearchKeyboard(root);
     installSelectionBar(root, normalized);
-    installWorkspaceSemantics(root, normalized);
 
     const panelObserver = new MutationObserver(() => {
       const current = classifyCards(root);
@@ -258,7 +200,6 @@
     observer.disconnect();
     $$('.orbit-v2').forEach(root => {
       root._orbitRound2SelectionObserver?.disconnect?.();
-      root._orbitRound2WorkspaceObserver?.disconnect?.();
       root._orbitRound2PanelObserver?.disconnect?.();
     });
   }, { once:true });
