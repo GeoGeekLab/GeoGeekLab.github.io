@@ -3,51 +3,86 @@
   gap:0!important;
 }
 
-.instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav{
-  position:sticky;
-  top:0;
-  z-index:30;
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  border-bottom:1px solid var(--lab-workspace-line);
-  background:rgba(12,20,15,.97);
-  backdrop-filter:blur(12px);
-}
-.instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav button{
-  min-width:0;
-  min-height:38px;
-  padding:0 5px;
-  border:0;
-  border-right:1px solid var(--lab-workspace-line-soft);
-  background:transparent;
-  color:var(--lab-workspace-faint);
-  font:700 7.8px/1 var(--mono);
-  letter-spacing:.065em;
-  cursor:pointer;
-}
-.instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav button:last-child{border-right:0}
-.instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav button:hover,
-.instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav button:focus-visible{
-  color:var(--lab-workspace-fg);
-  outline:none;
-  background:rgba(255,255,255,.025);
-}
-.instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav button[aria-pressed="true"]{
-  color:var(--lab-workspace-fg);
-  box-shadow:inset 0 -2px 0 var(--lab-workspace-signal);
-}
-.instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav button.has-selection::after{
-  content:"";
-  display:inline-block;
-  width:5px;
-  height:5px;
-  margin-left:5px;
-  border-radius:50%;
-  background:#d16339;
-  box-shadow:0 0 8px rgba(209,99,57,.55);
-  vertical-align:1px;
-}
 
+/* One continuous Orbit sidebar. Advanced tools remain available but collapsed. */
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-panel{
+  display:flex!important;
+  flex-direction:column;
+  align-content:stretch;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-card[data-orbit-section]{
+  flex-shrink:0;
+  border:0!important;
+  border-bottom:1px solid var(--lab-workspace-line-soft)!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  padding:15px 17px!important;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-card[data-orbit-section="catalog"] .orbit-card-head strong{
+  display:none;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-card[data-orbit-section="catalog"] .orbit-card-head{
+  align-items:center;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-view-more,
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-extras{
+  min-width:0;
+  flex-shrink:0;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-view-more summary,
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-extras>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  list-style:none;
+  cursor:pointer;
+  color:#c4d0c6;
+  font:700 9px/1.4 var(--mono);
+  letter-spacing:.085em;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-view-more summary::-webkit-details-marker,
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-extras>summary::-webkit-details-marker{
+  display:none;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-view-more summary::after,
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-extras>summary::after{
+  content:"+";
+  color:#d16339;
+  font-size:14px;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-view-more[open]>summary::after,
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-extras[open]>summary::after{
+  content:"−";
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-view-more summary{
+  padding:11px 0 2px;
+  border-top:1px solid var(--lab-workspace-line-soft);
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-view-more{
+  margin-top:8px;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-extras>summary{
+  min-height:54px;
+  padding:11px 17px;
+  border-top:1px solid var(--lab-workspace-line);
+  border-bottom:1px solid var(--lab-workspace-line-soft);
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-extras>summary small{
+  margin-left:auto;
+  color:#87978b;
+  font:500 9px/1.3 var(--mono);
+  letter-spacing:0;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-extras .orbit-card{
+  margin:0;
+}
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-view-more summary:focus-visible,
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-extras>summary:focus-visible{
+  outline:2px solid #d16339;
+  outline-offset:-2px;
+}
 .instrument-dialog[data-instrument-kind="orbit"] .orbit-card[data-orbit-section]{
   scroll-margin-top:39px;
 }
@@ -124,18 +159,6 @@
   display:none;
 }
 
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="work"] .orbit-provenance{
-  display:none!important;
-}
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="inspect"] .orbit-provenance{
-  display:grid!important;
-}
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="inspect"] .orbit-card{
-  padding:18px 18px!important;
-}
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="inspect"] .orbit-view-advanced{
-  padding:13px 0 0!important;
-}
 .instrument-dialog[data-instrument-kind="orbit"] .orbit-inspector .orbit-empty,
 .instrument-dialog[data-instrument-kind="orbit"] .orbit-provenance dd{
   color:#b8c0ba!important;
@@ -269,43 +292,13 @@
   outline:none;
 }
 
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="focus"] .orbit-hud{
-  right:auto;
-  max-width:min(640px,calc(100% - 32px));
-  grid-template-columns:auto minmax(0,1fr);
-}
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="focus"] .orbit-hud button{display:none}
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="focus"] .orbit-class-legend{
-  opacity:.42;
-}
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="focus"] .orbit-enhancement-tools{
-  opacity:.42;
-  transition:opacity .16s ease;
-}
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="focus"] .orbit-enhancement-tools:hover,
-.instrument-dialog[data-instrument-kind="orbit"][data-workspace-mode="focus"] .orbit-enhancement-tools:focus-within{
-  opacity:1;
-}
-
 @media(max-width:1040px){
-  .instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav{
-    top:0;
-  }
   .instrument-dialog[data-instrument-kind="orbit"] .orbit-selection-bar{
     width:min(560px,calc(100% - 130px));
   }
 }
 
 @media(max-width:700px){
-  .instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav{
-    position:sticky;
-    top:0;
-  }
-  .instrument-dialog[data-instrument-kind="orbit"] .orbit-rail-nav button{
-    min-height:42px;
-    font-size:7px;
-    padding:0 2px;
-  }
   .instrument-dialog[data-instrument-kind="orbit"] .orbit-hud{
     left:9px;
     right:9px;
@@ -325,7 +318,6 @@
     gap:7px;
     padding:8px 8px 8px 10px;
   }
-  .instrument-dialog[data-instrument-kind="orbit"] .orbit-selection-actions [data-selection-details]{display:none}
   .instrument-dialog[data-instrument-kind="orbit"] .orbit-selection-actions button{
     min-width:42px;
     padding:0 6px;

@@ -368,8 +368,6 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   const pointGeometry = new THREE.BufferGeometry();
   const pointMaterial = new THREE.PointsMaterial({ size:.027, vertexColors:true, transparent:true, opacity:.92, sizeAttenuation:true, depthWrite:false });
   const points = new THREE.Points(pointGeometry, pointMaterial); scene.add(points);
-  const raycaster = new THREE.Raycaster(); raycaster.params.Points.threshold = .055;
-  const pointer = new THREE.Vector2();
 
   function rebuildShells() {
     shellGroup.clear();
@@ -509,6 +507,10 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
 
   const resize = () => {const r=stage.getBoundingClientRect();if(!r.width||!r.height)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();drawGroundMap(groundCanvas,state,state.coastRings);};
   const observer = new ResizeObserver(resize);observer.observe(stage);resize();
+  // The sidebar discloses the ground map on demand. It needs a new raster
+  // whenever its CSS size changes from 0 to the visible dimensions.
+  const groundResizeObserver = new ResizeObserver(() => drawGroundMap(groundCanvas,state,state.coastRings));
+  groundResizeObserver.observe(groundCanvas);
 
   let raf=0;
   function animate(){if(innerSignal.aborted)return;raf=requestAnimationFrame(animate);updateTimeUi();requestPositions();if(state.time.rate>1)requestTrace();updateSelectedLabel();renderer.render(scene,camera);}
@@ -530,20 +532,121 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   timeRange.addEventListener('input',()=>{setSimulationTime(state,Date.now()+Number(timeRange.value)*3600000,{keepRunning:false});requestPositions(true);requestTrace(true);requestPass();});
   timeRange.addEventListener('dblclick',()=>{setSimulationTime(state,Date.now(),{keepRunning:true});timeRange.value='0';requestPositions(true);requestTrace(true);requestPass();});
 
-  let dragPointer=null;
-  canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;dragPointer=[e.clientX,e.clientY];state.pointerMoved=false;stage.classList.add('is-dragging');canvas.setPointerCapture?.(e.pointerId);});
-  canvas.addEventListener('pointermove',e=>{
-    if(dragPointer){const dx=e.clientX-dragPointer[0],dy=e.clientY-dragPointer[1];if(Math.abs(dx)+Math.abs(dy)>2)state.pointerMoved=true;dragPointer=[e.clientX,e.clientY];state.camera.yaw-=dx*.006;state.camera.pitch=clamp(state.camera.pitch+dy*.0055,-1.48,1.48);setCameraFromState(camera,state);return;}
-    const rect=canvas.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.params.Points.threshold=.035*state.camera.distance;raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObject(points,false)[0];const metaIndex=hit?pointGeometry.userData.indices?.[hit.index]:null;state.hoverIndex=metaIndex??null;if(metaIndex!=null){const meta=state.meta[metaIndex];tooltip.innerHTML=`<strong>${esc(meta.name)}</strong><small>${esc(meta.orbitClass)} · NORAD ${esc(meta.id)}</small>`;tooltip.style.left=`${clamp(e.clientX-rect.left+12,8,rect.width-220)}px`;tooltip.style.top=`${clamp(e.clientY-rect.top+12,46,rect.height-70)}px`;tooltip.classList.add('is-visible');}else tooltip.classList.remove('is-visible');
+  // Pick the nearest rendered point in CSS pixels. Raycaster Points.threshold
+  // uses world units and becomes inaccurate when zooming a dense orbital field.
+  const pickPosition = new THREE.Vector3();
+  const pickProjected = new THREE.Vector3();
+  const pickDirection = new THREE.Vector3();
+  const pickOcclusion = new THREE.Vector3();
+  const pickRay = new THREE.Ray();
+  const earthOccluder = new THREE.Sphere(new THREE.Vector3(), 1.025);
+  function pickPointAt(clientX, clientY, radiusPx = 8) {
+    const rect = canvas.getBoundingClientRect();
+    const attribute = pointGeometry.getAttribute('position');
+    const indices = pointGeometry.userData.indices;
+    if (!rect.width || !rect.height || !attribute || !indices) return null;
+    const x = clientX - rect.left, y = clientY - rect.top;
+    if (x < 0 || x > rect.width || y < 0 || y > rect.height) return null;
+
+    camera.updateMatrixWorld();
+    let best = null, bestDistanceSq = radiusPx * radiusPx;
+    for (let i = 0; i < attribute.count; i++) {
+      pickPosition.fromBufferAttribute(attribute, i);
+      pickProjected.copy(pickPosition).project(camera);
+      if (pickProjected.z < -1 || pickProjected.z > 1) continue;
+      const px = (pickProjected.x * .5 + .5) * rect.width;
+      const py = (-pickProjected.y * .5 + .5) * rect.height;
+      const distanceSq = (px - x) ** 2 + (py - y) ** 2;
+      if (distanceSq >= bestDistanceSq) continue;
+
+      // Do not select satellites hidden behind the solid Earth.
+      pickDirection.subVectors(pickPosition, camera.position).normalize();
+      pickRay.set(camera.position, pickDirection);
+      const earthHit = pickRay.intersectSphere(earthOccluder, pickOcclusion);
+      if (earthHit && earthHit.distanceToSquared(camera.position) + 1e-4 <
+          pickPosition.distanceToSquared(camera.position)) continue;
+
+      const index = indices[i];
+      if (index == null || !state.meta[index]) continue;
+      best = index;
+      bestDistanceSq = distanceSq;
+    }
+    return best;
+  }
+
+  let dragPointer = null;
+  let hoverFrame = 0;
+  const clearHover = () => {
+    state.hoverIndex = null;
+    tooltip.classList.remove('is-visible');
+  };
+  canvas.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || dragPointer) return;
+    if (hoverFrame) { cancelAnimationFrame(hoverFrame); hoverFrame = 0; }
+    dragPointer = { id:e.pointerId, x:e.clientX, y:e.clientY, lastX:e.clientX, lastY:e.clientY, moved:false };
+    state.pointerMoved = false;
+    // Keyboard camera controls dispatch synthetic pointers without capture eligibility.
+    try { canvas.setPointerCapture?.(e.pointerId); } catch {}
   });
-  const stopDrag=e=>{if(dragPointer&&!state.pointerMoved&&state.hoverIndex!=null)selectByIndex(state.hoverIndex);dragPointer=null;stage.classList.remove('is-dragging');if(e?.pointerId!=null)canvas.releasePointerCapture?.(e.pointerId);};canvas.addEventListener('pointerup',stopDrag);canvas.addEventListener('pointercancel',stopDrag);canvas.addEventListener('pointerleave',()=>{if(!dragPointer)tooltip.classList.remove('is-visible');});
+  canvas.addEventListener('pointermove', e => {
+    if (dragPointer) {
+      if (e.pointerId !== dragPointer.id) return;
+      const dx = e.clientX - dragPointer.lastX, dy = e.clientY - dragPointer.lastY;
+      dragPointer.lastX = e.clientX;
+      dragPointer.lastY = e.clientY;
+      if (Math.hypot(e.clientX - dragPointer.x, e.clientY - dragPointer.y) > 4) {
+        dragPointer.moved = true;
+        state.pointerMoved = true;
+      }
+      if (dragPointer.moved) {
+        state.camera.yaw -= dx * .006;
+        state.camera.pitch = clamp(state.camera.pitch + dy * .0055, -1.48, 1.48);
+        setCameraFromState(camera, state);
+        stage.classList.add('is-dragging');
+      }
+      clearHover();
+      return;
+    }
+    if (hoverFrame) cancelAnimationFrame(hoverFrame);
+    const clientX = e.clientX, clientY = e.clientY;
+    hoverFrame = requestAnimationFrame(() => {
+      hoverFrame = 0;
+      if (dragPointer) return;
+      const index = pickPointAt(clientX, clientY, 10);
+      state.hoverIndex = index;
+      if (index == null) { tooltip.classList.remove('is-visible'); return; }
+      const meta = state.meta[index];
+      const rect = canvas.getBoundingClientRect();
+      tooltip.innerHTML = `<strong>${esc(meta.name)}</strong><small>${esc(meta.orbitClass)} · NORAD ${esc(meta.id)}</small>`;
+      tooltip.style.left = `${clamp(clientX - rect.left + 12, 8, Math.max(8,rect.width - 220))}px`;
+      tooltip.style.top = `${clamp(clientY - rect.top + 12, 46, Math.max(46,rect.height - 70))}px`;
+      tooltip.classList.add('is-visible');
+    });
+  });
+  const finishPointer = (e, cancelled = false) => {
+    if (!dragPointer || e.pointerId !== dragPointer.id) return;
+    const moved = dragPointer.moved ||
+      Math.hypot(e.clientX - dragPointer.x, e.clientY - dragPointer.y) > 4;
+    const index = !cancelled && !moved
+      ? pickPointAt(e.clientX, e.clientY, e.pointerType === 'touch' ? 14 : 8)
+      : null;
+    dragPointer = null;
+    stage.classList.remove('is-dragging');
+    try { if (canvas.hasPointerCapture?.(e.pointerId)) canvas.releasePointerCapture(e.pointerId); } catch {}
+    clearHover();
+    if (index != null) selectByIndex(index);
+  };
+  canvas.addEventListener('pointerup', e => finishPointer(e));
+  canvas.addEventListener('pointercancel', e => finishPointer(e, true));
+  canvas.addEventListener('pointerleave', () => { if (!dragPointer) clearHover(); });
   canvas.addEventListener('wheel',e=>{e.preventDefault();const min=1.65,max=state.radial==='physical'?34:8;state.camera.distance=clamp(state.camera.distance*Math.exp(e.deltaY*.0012),min,max);setCameraFromState(camera,state);},{passive:false});
   canvas.addEventListener('dblclick',e=>{e.preventDefault();clearSelection();});
   groundCanvas.addEventListener('click',e=>{const r=groundCanvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;state.observer={lon:x*360-180,lat:90-y*180,height:0};renderObserverRelation();drawGroundMap(groundCanvas,state,state.coastRings);requestPositions(true);requestPass();});
 
   graticule.visible=true;renderPass();drawGroundMap(groundCanvas,state,state.coastRings);
   return () => {
-    controller.abort();signal?.removeEventListener?.('abort',abort);cancelAnimationFrame(raf);observer.disconnect();worker.terminate();
+    if (hoverFrame) cancelAnimationFrame(hoverFrame);
+    controller.abort();signal?.removeEventListener?.('abort',abort);cancelAnimationFrame(raf);observer.disconnect();groundResizeObserver.disconnect();worker.terminate();
     scene.traverse(object=>{object.geometry?.dispose?.();if(Array.isArray(object.material))object.material.forEach(m=>m?.dispose?.());else object.material?.dispose?.();});renderer.dispose();container.innerHTML='';
   };
 }

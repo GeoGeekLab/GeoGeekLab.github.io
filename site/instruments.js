@@ -89,7 +89,7 @@
   async function mountOrbit({ signal } = {}) {
     setStageLoading(labUI.loadingOrbit || 'Reading the orbital field…');
     try {
-      const module = await import('./orbital/orbital-engine.js');
+      const module = await import('./orbital/orbital-engine.js?v=20261011orbit1');
       if (signal?.aborted) return () => {};
       return await module.mountOrbitalLab({ container: stage, locale, signal, labels: labUI.orbit || {}, statusCallback: state => setInstrumentStatus(state.live ? 'live' : 'demo', `${Number(state.count || 0).toLocaleString()} ${'OBJECTS'}`) });
     } catch (error) {
