@@ -81,6 +81,7 @@ jobs:
 
       - name: Verify ORIENT release assets
         run: |
+          node scripts/verify-lab-previews.mjs --dist
           test -s dist/play/orient/data/places.v1.json
           test -s dist/play/orient/data/relations.v1.json
           test -s dist/play/orient/orient-content.js
@@ -128,6 +129,7 @@ jobs:
           node --test site/water/workbench-v10-2/tests/atm-sensor-ui.test.mjs
           node --test site/water/workbench-v10-2/tests/uncertainty-ui.test.mjs
           node --test site/water/workbench-v10-2/tests/integration-ui.test.mjs
+          node --test tests/water/water-quiet-ui.test.mjs
           npm run qa
           node scripts/verify-play-live-release.mjs --local
 
@@ -141,7 +143,7 @@ jobs:
       - name: Validate Water V10.2 phase 1-2 UI preview (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-foundation.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate Water V10.2 phase 3 UI components (desktop and mobile Chromium)
-        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-components.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+        run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-components.spec.mjs tests/browser/water-quiet-workspace.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate Water V10.2 phase 4 RT science UI (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-rt.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate Water V10.2 phase 6A physics UI (desktop and mobile Chromium)

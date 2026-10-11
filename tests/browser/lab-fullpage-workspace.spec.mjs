@@ -36,6 +36,11 @@ for (const [kind, fixture, railSelector] of instruments) {
       await expect(page.locator('.pulse-task-tabs')).toBeVisible();
       await expect(page.locator('.instrument-workspace-modes')).toBeHidden();
       await expect(dialog).not.toHaveAttribute('data-workspace-mode', /.+/);
+    } else if (kind === 'orbit') {
+      // Orbit now uses one continuous sidebar, without Focus/Work/Inspect modes.
+      await expect(dialog).not.toHaveAttribute('data-workspace-mode', /.+/);
+      await expect(page.locator('.instrument-workspace-modes')).toBeHidden();
+      await expect(page.locator('.pulse-task-tabs')).toBeHidden();
     } else {
       await expect(dialog).toHaveAttribute('data-workspace-mode', 'work');
       await expect(page.locator('.instrument-workspace-modes')).toBeVisible();
@@ -81,7 +86,7 @@ for (const [kind, fixture, railSelector] of instruments) {
       await page.locator('[data-pulse-task="observe"]').click();
       await expect(dialog).toHaveAttribute('data-pulse-task','observe');
       await expect(rail).toBeVisible();
-    } else {
+    } else if (kind !== 'orbit') {
       await page.locator('[data-workspace-mode="focus"]').click();
       await expect(dialog).toHaveAttribute('data-workspace-mode', 'focus');
       await expect(page.locator('.instrument-meta')).toBeHidden();

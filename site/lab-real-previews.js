@@ -22,14 +22,45 @@
     visual.classList.remove('is-real-output');
     visual.classList.add('is-preview-fallback');
 
+    // Never substitute fabricated instrument artwork for a failed screenshot.
+    // Keep the error explicit and make a transient image failure recoverable.
     const fallback = document.createElement('div');
     fallback.className = 'lab-preview-unavailable';
-    fallback.setAttribute('role', 'img');
-    fallback.setAttribute('aria-label', title + ' preview unavailable');
-    // This is an explicit error state, not a fabricated instrument screenshot.
-    fallback.innerHTML = '<span class="lab-preview-unavailable-grid" aria-hidden="true"></span>' +
-      '<span class="lab-preview-unavailable-label">PREVIEW UNAVAILABLE</span>';
+    fallback.setAttribute('role', 'group');
+    fallback.setAttribute('aria-label', title + ' image loading failed');
+    const grid = document.createElement('span');
+    grid.className = 'lab-preview-unavailable-grid';
+    grid.setAttribute('aria-hidden', 'true');
+    const message = document.createElement('span');
+    message.className = 'lab-preview-unavailable-label';
+    message.textContent = 'IMAGE UNAVAILABLE';
+    const retry = document.createElement('button');
+    retry.className = 'lab-preview-retry';
+    retry.type = 'button';
+    retry.textContent = 'RETRY IMAGE';
+    retry.setAttribute('aria-label', 'Retry image for ' + title);
+    retry.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      restoreImage(visual, title, kind);
+    });
+    fallback.append(grid, message, retry);
     visual.replaceChildren(fallback);
+  }
+
+  function restoreImage(visual, title, kind) {
+    // A cache-busting request is limited to explicit user action.
+    const image = makeImage(kind, title + ' — real instrument output');
+    const url = new URL(image.src, document.baseURI);
+    url.searchParams.set('retry', String(Date.now()));
+    image.src = url.href;
+    image.loading = 'eager';
+    delete visual.dataset.previewFallback;
+    visual.dataset.realPreview = kind;
+    visual.classList.remove('is-preview-fallback');
+    visual.classList.add('is-real-output');
+    visual.replaceChildren(image);
+    watchImage(visual, image, title, kind);
   }
 
   function watchImage(visual, image, title, kind) {
