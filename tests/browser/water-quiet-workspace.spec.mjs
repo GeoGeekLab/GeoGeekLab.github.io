@@ -89,6 +89,7 @@ test('The original Water share link displays the quiet, cache-busted workbench',
   await expect(frame.locator('.water-scope-boundary')).toContainText('Not externally validated', {timeout:45000});
   await expect(frame.locator('#range-chl')).toBeVisible();
   await expect(frame.locator('#range-anap')).toBeHidden();
-  const adapter = await page.evaluate(() => [...document.scripts].map(s => s.src).find(s => s.includes('water/workbench-v10-2/instrument.js')) || '');
-  expect(adapter).toContain('10.2.0-quiet2');
+  // The Water adapter is loaded through dynamic import(), not a script tag.
+  const iframeUrl = await page.locator('#instrumentStage iframe.water-v102-frame').getAttribute('src');
+  expect(new URL(iframeUrl, page.url()).searchParams.get('chartfix')).toBe('10.2.0-quiet2');
 });
