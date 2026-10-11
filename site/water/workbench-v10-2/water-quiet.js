@@ -7,6 +7,7 @@
 
   const disclosureState = new Map();
   let contextExpanded = false;
+  let chartExplanationExpanded = false;
 
   function createDisclosure(parent, nodes, label, key, className = '') {
     if (!parent || !nodes.length) return null;
@@ -107,12 +108,49 @@
     }
   }
 
+  function compactWaterOpticsChart() {
+    const main = document.getElementById('mainContent');
+    const optics = main?.querySelector('.p6-optics');
+    const intro = optics?.querySelector('.p6-optics-intro');
+    if (!intro || optics.dataset.quietChart === '1') return;
+    optics.dataset.quietChart = '1';
+
+    // Keep the title, scientific scope, and model-variant warning visible.
+    // Move only explanatory paragraphs into a keyboard-accessible disclosure.
+    const paragraphs = [...intro.children].filter(node =>
+      node.matches('p:not(.p6-baseline):not(.p6-variant)'));
+    if (!paragraphs.length) return;
+
+    const details = document.createElement('details');
+    details.className = 'water-chart-method';
+    const summary = document.createElement('summary');
+    summary.textContent = 'What this model shows · assumptions';
+    const body = document.createElement('div');
+    body.className = 'water-chart-method-body';
+    details.append(summary, body);
+    paragraphs.forEach(node => body.appendChild(node));
+    intro.appendChild(details);
+    details.open = chartExplanationExpanded;
+    details.addEventListener('toggle', () => { chartExplanationExpanded = details.open; });
+  }
+
   function init() {
     installScientificScope();
     const rail = document.getElementById('controls');
     if (!rail) return;
 
     installCompactControls();
+    compactWaterOpticsChart();
+    const main = document.getElementById('mainContent');
+    if (main) {
+      const chartObserver = new MutationObserver(records => {
+        if (records.some(record => record.target === main && record.type === 'childList')) {
+          compactWaterOpticsChart();
+        }
+      });
+      chartObserver.observe(main, { childList: true });
+    }
+
     const observer = new MutationObserver(records => {
       if (!records.some(record => record.target === rail && record.type === 'childList')) return;
       installCompactControls();
