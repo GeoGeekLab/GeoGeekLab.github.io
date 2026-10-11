@@ -43,3 +43,14 @@ test('The Lab releases the revised Water adapter without touching the model', ()
   assert.match(styles, /min-height: 44px/);
   assert.doesNotMatch(styles, /water-model\.js|rt-engine\.js/);
 });
+
+
+test('Navigation cue reflects actual horizontal overflow, not a permanent decoration', () => {
+  const html = read('site/water/workbench-v10-2/app/index.html');
+  const qualityJs = read('site/water/workbench-v10-2/v102-quality.js');
+  const qualityCss = read('site/water/workbench-v10-2/v102-quality.css');
+  assert.match(html, /v102-quality\.js/);
+  assert.match(qualityJs, /scroller\.scrollLeft \+ scroller\.clientWidth < scroller\.scrollWidth - 2/);
+  assert.match(qualityJs, /classList\.toggle\('has-more-right', hasMore\)/);
+  assert.match(qualityCss, /\.appnav\.has-more-right::after/);
+});
