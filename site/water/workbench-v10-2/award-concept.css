@@ -1,4 +1,4 @@
-/* Water as Spectrum — award concept A1
+/* Water as Spectrum — award concept A2
  * Presentation-only layer.
  * Baseline: release 20261011v107watercache1 / commit 9718171862959c9232e1dd7b4f69d31c36b0bc75.
  * The scientific model, experiment schema, exports, reference data, and model state are unchanged.
@@ -847,7 +847,7 @@ html[data-geogeek-embedded="true"] .side-head{
   background:var(--award-solar);
   box-shadow:0 0 15px rgba(232,161,123,.18);
   transform-origin:100% 50%;
-  transform:rotate(calc(-1 * var(--water-sun-angle)));
+  transform:rotate(var(--water-sun-angle));
   transition:transform 280ms var(--award-motion);
 }
 .award-rt-sun i::after{
