@@ -205,3 +205,42 @@ Any award concept must declare:
 A concept must not silently rebase onto a later release.
 
 Rebasing requires a separate review of visual, scientific, and regression changes.
+
+
+## 12. A4 host shell contract
+
+The shared Observatory shell is now a first-class family primitive.
+
+The host shell owns:
+
+- Lab / Observatory orientation;
+- the instrument title;
+- one read-only instrument context;
+- the existing task or workspace-mode control;
+- the Lab Index exit;
+- host-level provenance/status where already present.
+
+The host shell does not own:
+
+- scientific chart color;
+- map layer color;
+- sensor-band color;
+- instrument-specific control semantics;
+- model calculations;
+- instrument task state.
+
+The seven Observatory instruments can use different accents.
+
+An accent identifies the instrument at host level.
+
+It must not overwrite domain data colors inside the scientific viewport.
+
+Water keeps its internal workspace navigation.
+
+Pulse keeps Observe / Analyze.
+
+Orbit keeps its continuous field.
+
+The remaining host-mode instruments keep Focus / Work / Inspect.
+
+The A4 context only reflects those states.
