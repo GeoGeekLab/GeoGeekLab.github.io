@@ -543,3 +543,439 @@ html[data-geogeek-embedded="true"] .side-head{
   }
   .award-water-field::after{display:none}
 }
+
+
+/* ========================================================================
+   AWARD CONCEPT A2
+   Spectrum is the primary coordinate in Water Optics.
+   Selection geometry is explicit in WATER RT without depicting photon paths.
+   ======================================================================== */
+
+:root{
+  --water-probe-x:30%;
+  --water-rt-depth-y:18%;
+  --water-sun-angle:0deg;
+  --award-motion:cubic-bezier(.2,.72,.22,1);
+}
+
+/* WATER OPTICS / spectral instrument */
+.p6-optics.award-optics-a2{
+  gap:0!important;
+  padding:0!important;
+  background:transparent!important;
+}
+.p6-optics.award-optics-a2 > .p6-optics-intro{
+  order:0!important;
+  margin:0!important;
+  padding:clamp(18px,2.3vw,30px) clamp(20px,2.7vw,40px) 14px!important;
+  border:0!important;
+  border-bottom:1px solid var(--award-line)!important;
+  background:linear-gradient(180deg,rgba(var(--water-spectrum-rgb),.035),transparent)!important;
+}
+.p6-optics.award-optics-a2 > .p6-optics-intro h3{
+  color:var(--award-text)!important;
+  font-family:var(--serif,Georgia,serif)!important;
+  font-size:clamp(28px,3vw,44px)!important;
+  font-weight:500!important;
+  line-height:1.04!important;
+  letter-spacing:-.035em!important;
+}
+.p6-optics.award-optics-a2 > .p6-optics-intro > p{
+  max-width:78ch;
+}
+.p6-optics.award-optics-a2 > .award-spectrum-ruler{
+  order:1!important;
+}
+.p6-optics.award-optics-a2 > .p6-optics-plots{
+  order:2!important;
+}
+.p6-optics.award-optics-a2 > .p6-reading-grid{
+  order:3!important;
+}
+.p6-optics.award-optics-a2 > .p6-closure{
+  order:4!important;
+}
+.p6-optics.award-optics-a2 > .p6-data{
+  order:5!important;
+}
+
+.award-spectrum-ruler{
+  position:relative;
+  min-height:88px;
+  padding:14px clamp(20px,2.7vw,40px) 18px;
+  overflow:hidden;
+  border-bottom:1px solid var(--award-line);
+  background:#09120d;
+}
+.award-spectrum-ruler-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:13px;
+}
+.award-spectrum-ruler-head span{
+  color:var(--award-muted);
+  font:700 9px/1.2 var(--mono,ui-monospace,monospace);
+  letter-spacing:.11em;
+}
+.award-spectrum-ruler-head strong{
+  color:rgb(var(--water-spectrum-rgb));
+  font:650 12px/1.2 var(--mono,ui-monospace,monospace);
+  font-variant-numeric:tabular-nums;
+}
+.award-spectrum-track{
+  position:relative;
+  height:22px;
+  border-top:1px solid rgba(241,239,231,.18);
+  background:
+    linear-gradient(90deg,
+      rgba(92,94,210,.18) 0%,
+      rgba(70,140,214,.18) 18%,
+      rgba(69,190,200,.18) 34%,
+      rgba(103,194,132,.16) 50%,
+      rgba(211,192,96,.14) 70%,
+      rgba(222,130,83,.15) 86%,
+      rgba(194,78,66,.14) 100%);
+}
+.award-spectrum-track::after{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:-1px;height:1px;
+  background:linear-gradient(90deg,
+    #6866cf,#5f8fd4,#5fc2c5,#7ec891,#d3c477,#dc8b5c,#c75e52);
+  opacity:.55;
+}
+.award-spectrum-track > span{
+  position:absolute;
+  left:var(--x);
+  bottom:-4px;
+  color:#7f9388;
+  font:650 9px/1 var(--mono,ui-monospace,monospace);
+  transform:translateX(-50%);
+}
+.award-spectrum-track > span:first-of-type{transform:none}
+.award-spectrum-track > span:last-of-type{transform:translateX(-100%)}
+.award-spectrum-marker{
+  position:absolute;
+  z-index:2;
+  left:var(--water-probe-x);
+  top:-6px;
+  width:1px;
+  height:31px;
+  background:rgb(var(--water-spectrum-rgb));
+  box-shadow:0 0 18px rgba(var(--water-spectrum-rgb),.45);
+  transform:translateX(-.5px);
+  transition:left 260ms var(--award-motion),background-color 260ms var(--award-motion);
+}
+.award-spectrum-marker::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-3px;
+  width:7px;
+  height:7px;
+  border:1px solid rgba(241,239,231,.92);
+  border-radius:50%;
+  background:rgb(var(--water-spectrum-rgb));
+  transform:translate(-50%,-50%);
+}
+
+.p6-optics.award-optics-a2 .p6-optics-plots{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:1px!important;
+  padding:1px 0 0!important;
+  background:var(--award-line)!important;
+}
+.p6-optics.award-optics-a2 .p6-spectrum{
+  margin:0!important;
+  padding:clamp(16px,2vw,24px)!important;
+  border:0!important;
+  background:#0b1510!important;
+}
+.p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-primary{
+  grid-column:1/-1!important;
+  padding-block:clamp(20px,2.4vw,32px)!important;
+  background:
+    radial-gradient(65% 80% at var(--water-probe-x) 45%,rgba(var(--water-spectrum-rgb),.055),transparent 72%),
+    #09130e!important;
+}
+.p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-primary header{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:end;
+  gap:8px 20px;
+}
+.p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-primary header .p6-section-tag{
+  grid-column:1/-1;
+}
+.p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-primary header h4{
+  margin:0!important;
+  color:var(--award-text)!important;
+  font-family:var(--serif,Georgia,serif)!important;
+  font-size:clamp(24px,2.6vw,38px)!important;
+  font-weight:500!important;
+  letter-spacing:-.025em!important;
+}
+.p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-primary header p{
+  margin:0!important;
+  text-align:right;
+}
+.p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-primary svg.graph{
+  max-height:420px!important;
+}
+.p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-support header h4{
+  font-family:var(--sans,system-ui,sans-serif)!important;
+  font-size:15px!important;
+  font-weight:600!important;
+  letter-spacing:-.01em;
+}
+.p6-optics.award-optics-a2 .p6-reading-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:1px!important;
+  margin:0!important;
+  background:var(--award-line)!important;
+  border-top:1px solid var(--award-line)!important;
+  border-bottom:1px solid var(--award-line)!important;
+}
+.p6-optics.award-optics-a2 .p6-reading{
+  min-height:116px;
+  padding:16px clamp(16px,1.8vw,24px)!important;
+  background:var(--award-panel)!important;
+}
+.p6-optics.award-optics-a2 .p6-reading>span{
+  color:var(--award-muted)!important;
+  font:700 9px/1.4 var(--mono,ui-monospace,monospace)!important;
+  letter-spacing:.07em!important;
+}
+.p6-optics.award-optics-a2 .p6-reading h4{
+  color:#c6d2ca!important;
+  font-family:var(--sans,system-ui,sans-serif)!important;
+  font-size:12px!important;
+  font-weight:560!important;
+}
+.p6-optics.award-optics-a2 .p6-reading strong{
+  color:var(--award-text)!important;
+  font-size:clamp(16px,1.55vw,21px)!important;
+}
+.p6-optics.award-optics-a2 .p6-reading p{
+  color:var(--award-muted)!important;
+  font-size:10px!important;
+}
+.p6-optics.award-optics-a2 .p6-closure,
+.p6-optics.award-optics-a2 .p6-data{
+  margin:clamp(18px,2vw,28px) clamp(20px,2.7vw,40px) 0!important;
+}
+.p6-optics.award-optics-a2 .p6-data{
+  margin-bottom:clamp(24px,3vw,44px)!important;
+}
+
+/* WATER RT / direct selection geometry, explicitly not a solved field */
+.rt-science-workspace .rt-science-hero{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(220px,28%)!important;
+  gap:clamp(24px,4vw,58px)!important;
+  align-items:stretch!important;
+}
+.rt-science-workspace .award-rt-copy{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+}
+.rt-science-workspace .award-rt-copy h2{
+  max-width:15ch!important;
+}
+.award-rt-geometry{
+  min-height:220px;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr);
+  border-left:1px solid var(--award-line);
+  padding-left:clamp(18px,2vw,28px);
+}
+.award-rt-geometry-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:start;
+  padding-bottom:10px;
+}
+.award-rt-geometry-head span,
+.award-rt-geometry-head strong{
+  font:700 8px/1.3 var(--mono,ui-monospace,monospace);
+  letter-spacing:.09em;
+}
+.award-rt-geometry-head span{color:rgb(var(--water-spectrum-rgb))}
+.award-rt-geometry-head strong{color:#7f9488;text-align:right}
+.award-rt-diagram{
+  position:relative;
+  min-height:170px;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(232,161,123,.035),transparent 24%),
+    linear-gradient(180deg,transparent 18%,rgba(var(--water-spectrum-rgb),.03) 18%,rgba(var(--water-spectrum-rgb),.055));
+}
+.award-rt-surface{
+  position:absolute;
+  left:0;right:0;top:18%;
+  height:1px;
+  background:rgba(241,239,231,.38);
+}
+.award-rt-surface span{
+  position:absolute;
+  right:0;
+  top:-14px;
+  color:#8d9e94;
+  font:650 8px/1 var(--mono,ui-monospace,monospace);
+}
+.award-rt-sun{
+  position:absolute;
+  left:56%;
+  top:18%;
+  width:38%;
+  height:38%;
+  pointer-events:none;
+}
+.award-rt-sun i{
+  position:absolute;
+  right:0;
+  top:0;
+  width:82%;
+  height:1px;
+  background:var(--award-solar);
+  box-shadow:0 0 15px rgba(232,161,123,.18);
+  transform-origin:100% 50%;
+  transform:rotate(calc(-1 * var(--water-sun-angle)));
+  transition:transform 280ms var(--award-motion);
+}
+.award-rt-sun i::after{
+  content:"";
+  position:absolute;
+  left:-2px;
+  top:-2px;
+  width:5px;height:5px;
+  border-radius:50%;
+  background:var(--award-solar);
+}
+.award-rt-sun span{
+  position:absolute;
+  right:0;
+  top:10px;
+  color:#d4a982;
+  font:650 9px/1 var(--mono,ui-monospace,monospace);
+}
+.award-rt-depth{
+  position:absolute;
+  left:0;
+  right:0;
+  top:var(--water-rt-depth-y);
+  height:1px;
+  transition:top 280ms var(--award-motion);
+}
+.award-rt-depth i{
+  position:absolute;
+  left:0;right:0;top:0;
+  height:1px;
+  background:linear-gradient(90deg,rgba(var(--water-spectrum-rgb),.8),rgba(var(--water-spectrum-rgb),.08));
+  box-shadow:0 0 20px rgba(var(--water-spectrum-rgb),.12);
+}
+.award-rt-depth span{
+  position:absolute;
+  left:0;
+  top:7px;
+  color:rgb(var(--water-spectrum-rgb));
+  font:650 9px/1 var(--mono,ui-monospace,monospace);
+}
+.award-rt-wavelength{
+  position:absolute;
+  right:0;
+  bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.award-rt-wavelength i{
+  width:7px;height:7px;
+  border-radius:50%;
+  background:rgb(var(--water-spectrum-rgb));
+  box-shadow:0 0 14px rgba(var(--water-spectrum-rgb),.5);
+}
+.award-rt-wavelength span{
+  color:var(--award-text);
+  font:650 9px/1 var(--mono,ui-monospace,monospace);
+}
+.award-rt-axis-label{
+  position:absolute;
+  left:0;
+  bottom:8px;
+  color:#788d80;
+  font:650 8px/1 var(--mono,ui-monospace,monospace);
+  letter-spacing:.08em;
+}
+
+.rt-science-workspace .rt-science-conditions{
+  margin-top:1px!important;
+}
+.rt-science-workspace .rt-science-card{
+  overflow:hidden;
+  background:#0a140f!important;
+}
+.rt-science-workspace .rt-science-card-head{
+  border-bottom:1px solid var(--award-line)!important;
+  padding-bottom:12px!important;
+}
+.rt-science-workspace .rt-science-card-head h3{
+  color:var(--award-text)!important;
+  font-family:var(--sans,system-ui,sans-serif)!important;
+  font-size:14px!important;
+  font-weight:600!important;
+}
+.rt-science-workspace .rt-science-plot{
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px),
+    linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
+    transparent!important;
+  background-size:44px 44px!important;
+}
+
+@media (max-width:900px){
+  .rt-science-workspace .rt-science-hero{
+    grid-template-columns:1fr!important;
+  }
+  .award-rt-geometry{
+    min-height:176px;
+    border-left:0;
+    border-top:1px solid var(--award-line);
+    padding:16px 0 0;
+  }
+}
+@media (max-width:735px){
+  .p6-optics.award-optics-a2 .p6-optics-plots{
+    grid-template-columns:1fr!important;
+  }
+  .p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-primary{
+    grid-column:auto!important;
+  }
+  .p6-optics.award-optics-a2 .p6-reading-grid{
+    grid-template-columns:1fr!important;
+  }
+  .award-spectrum-ruler{
+    padding-inline:15px;
+  }
+  .p6-optics.award-optics-a2 > .p6-optics-intro{
+    padding-inline:15px!important;
+  }
+  .p6-optics.award-optics-a2 .p6-closure,
+  .p6-optics.award-optics-a2 .p6-data{
+    margin-inline:15px!important;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .award-spectrum-marker,
+  .award-rt-sun i,
+  .award-rt-depth{
+    transition:none!important;
+  }
+}
