@@ -207,3 +207,34 @@ Water keeps its own spectral accent and its own internal workspace navigation.
 The host does not create a second Focus / Work / Inspect system for Water.
 
 See `docs/LAB_AWARD_A4.md`.
+
+
+## A5 interaction polish
+
+A5 does not change the A3 Water concept architecture.
+
+It adds a separate `award-a5` polish layer.
+
+```text
+Water science     → 10.2.0-quiet2
+Water concept     → award-a3
+Water polish      → award-a5
+Lab host          → award-a4
+Lab host polish   → award-a5
+```
+
+The selected wavelength now uses one visual identity across the spectrum ruler, chart probe, active data point, table row, readout, and wavelength scrubber.
+
+The scrubber represents the physical 400–700 nm domain.
+
+It is no longer styled like a generic completion/progress bar.
+
+Workspace changes use a short opacity reveal.
+
+Scientific chart geometry is not scaled, translated, or morphed.
+
+The production Water card capture now selects the real Water Optics workspace and a reproducible 490 nm probe before capture.
+
+No preview-only scientific state is injected.
+
+See `docs/LAB_AWARD_A5.md`.
