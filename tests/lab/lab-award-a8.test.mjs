@@ -38,11 +38,11 @@ test('A8 Lighthouse budget audits the open Water instrument',()=>{
   const config=read('lighthouserc.json');
   const summary=read('scripts/summarize-award-lighthouse.mjs');
   assert.match(config,/instrument=water/);
-  assert.match(config,/workbench-v10-2\\/app\\/index\\.html/);
-  assert.match(summary,/embedded-water-v102-document/);
-  assert.match(summary,/hostDeepLinkAudited:true/);
-  assert.match(summary,/hostReports\\.length<2\\|\\|matches\\.length<2/);
-  assert.match(summary,/values\\[mid-1\\]\\+values\\[mid\\]/);
+  assert.ok(config.includes('water/workbench-v10-2/app/index.html'));
+  assert.ok(summary.includes('embedded-water-v102-document'));
+  assert.ok(summary.includes('hostDeepLinkAudited:true'));
+  assert.ok(summary.includes('hostReports.length<2||matches.length<2'));
+  assert.ok(summary.includes('(values[mid-1]+values[mid])/2'));
   assert.match(summary,/accessibilityMin:0\.95/);
   assert.match(summary,/clsMax:0\.10/);
   assert.match(summary,/performanceMin:0\.70/);
