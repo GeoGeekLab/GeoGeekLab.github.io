@@ -67,7 +67,7 @@
     root.style.setProperty('--water-probe-x',probeX.toFixed(3)+'%');
     root.style.setProperty('--water-depth-y',(30+clamp(depthT,0,1)*52).toFixed(2)+'%');
     root.style.setProperty('--water-rt-depth-y',(18+clamp(depthT,0,1)*66).toFixed(2)+'%');
-    root.style.setProperty('--water-sun-angle',clamp(sun,0,75).toFixed(2)+'deg');
+    root.style.setProperty('--water-sun-angle',(-clamp(sun,0,75)).toFixed(2)+'deg');
     root.dataset.waterSpectralBand=nm<470?'violet-blue':nm<530?'cyan-green':nm<590?'green-yellow':nm<645?'orange':'red';
 
     const active=document.querySelector('.tab[aria-selected="true"]');
