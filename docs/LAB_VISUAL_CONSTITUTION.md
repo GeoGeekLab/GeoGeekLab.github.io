@@ -349,3 +349,16 @@ SVG marks with zero geometric width or height should be tested through their ren
 Synthetic shell tests must not pretend to mount a scientific instrument.
 
 Submission captures should be produced and uploaded before long unrelated browser suites when this does not weaken the final release gate.
+
+
+## 18. A10 freeze contract
+
+A submission candidate needs an explicit stop condition.
+
+Once the complete science regression, sibling regression, award browser contracts, curated captures, embedded accessibility checks, full browser baseline, and instrument-specific Lighthouse budget pass together, visual iteration should freeze.
+
+Further changes require evidence of a visible defect, accessibility issue, performance regression, or scientific correctness issue.
+
+A technical release-candidate verdict must record its source release, frozen baseline, workflow commit, design/science versions, and evidence files.
+
+Technical readiness must never be described as an award guarantee.

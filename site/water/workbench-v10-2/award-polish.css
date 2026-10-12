@@ -438,7 +438,7 @@ html[data-geogeek-embedded="true"] .side-head{
  * broken. A9 turns it into an explicit, noninteractive continuation cue. */
 .appnav::before,
 .appnav::after{
-  width:44px;
+  width:96px;
   display:grid;
   place-items:center;
   color:#a9bbb1;
@@ -449,16 +449,16 @@ html[data-geogeek-embedded="true"] .side-head{
   content:"‹";
   justify-items:start;
   padding-left:9px;
-  background:linear-gradient(90deg,var(--award-panel) 0 46%,rgba(16,25,19,.82) 64%,rgba(16,25,19,0) 100%);
+  background:linear-gradient(90deg,var(--award-panel) 0 58%,rgba(16,25,19,.94) 72%,rgba(16,25,19,0) 100%);
 }
 .appnav::after{
   content:"›";
   justify-items:end;
   padding-right:9px;
-  background:linear-gradient(270deg,var(--award-panel) 0 46%,rgba(16,25,19,.82) 64%,rgba(16,25,19,0) 100%);
+  background:linear-gradient(270deg,var(--award-panel) 0 58%,rgba(16,25,19,.94) 72%,rgba(16,25,19,0) 100%);
 }
 .appnav .nav-scroll{
-  scroll-padding-inline:44px;
+  scroll-padding-inline:96px;
 }
 
 /* The Water Optics screenshot showed the primary Rrs chart only after a large
@@ -527,4 +527,15 @@ html[data-geogeek-embedded="true"] .side-head{
   .appnav::after{
     display:none!important;
   }
+}
+
+
+/* A10 edge-mask freeze
+ * The final A9 capture still exposed fragments such as "ical model" behind the
+ * continuation glyph. The wider opaque shoulder masks incomplete labels while
+ * leaving the real tabs and scroll semantics untouched. */
+.appnav::before,
+.appnav::after{
+  backdrop-filter:blur(.35px);
+  -webkit-backdrop-filter:blur(.35px);
 }

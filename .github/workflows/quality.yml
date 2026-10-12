@@ -183,6 +183,17 @@ jobs:
       - name: Lighthouse baseline
         run: npm run qa:lighthouse
 
+      - name: Verify award release candidate
+        run: node scripts/verify-award-release-candidate.mjs
+
+      - name: Upload award release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: award-release-candidate
+          if-no-files-found: error
+          include-hidden-files: true
+          path: .award-submission
+
       - name: Upload quality reports
         if: always()
         uses: actions/upload-artifact@v4

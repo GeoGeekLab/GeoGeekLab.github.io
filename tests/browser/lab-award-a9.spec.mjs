@@ -26,8 +26,8 @@ test('A9 navigation overflow uses explicit continuation cues instead of exposed 
   });
   expect(cue.beforeContent).toContain('‹');
   expect(cue.afterContent).toContain('›');
-  expect(cue.beforeWidth).toBeGreaterThanOrEqual(40);
-  expect(cue.afterWidth).toBeGreaterThanOrEqual(40);
+  expect(cue.beforeWidth).toBeGreaterThanOrEqual(88);
+  expect(cue.afterWidth).toBeGreaterThanOrEqual(88);
 });
 
 test('A9 Water Optics opening is flat and keeps the primary spectrum in the desktop first view',async({page},testInfo)=>{
@@ -51,8 +51,12 @@ test('A9 mobile Lab exit presents one back-to-index glyph',async({page},testInfo
   const close=dialog.locator('#instrumentClose');
   const style=await close.evaluate(node=>({
     fontSize:parseFloat(getComputedStyle(node).fontSize),
-    before:getComputedStyle(node,'::before').content
+    color:getComputedStyle(node).color,
+    before:getComputedStyle(node,'::before').content,
+    beforeColor:getComputedStyle(node,'::before').color
   }));
   expect(style.fontSize).toBe(0);
+  expect(style.color).toBe('rgba(0, 0, 0, 0)');
   expect(style.before).toContain('←');
+  expect(style.beforeColor).not.toBe('rgba(0, 0, 0, 0)');
 });

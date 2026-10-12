@@ -72,3 +72,12 @@ The final corrections are intentionally narrow.
 - Mobile Lab exit shows one return glyph rather than an arrow plus ×.
 
 Atmosphere topology and the Pulse family-comparison frame required no structural revision.
+
+
+## A10 freeze rule
+
+The submission package freezes when the complete quality workflow and the A10 candidate gate pass on the same commit.
+
+The package then contains the six curated frames, Water Lighthouse evidence, and `release-readiness.json`.
+
+Further aesthetic iteration is blocked unless new evidence identifies a defect or regression.

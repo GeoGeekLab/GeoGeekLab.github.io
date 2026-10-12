@@ -330,6 +330,15 @@
     border-radius:50%;
     font-size:0!important;
     line-height:0!important;
+    color:transparent!important;
+    text-shadow:none!important;
+  }
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-close::before{
+    color:#93a198!important;
+  }
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-close:hover::before,
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-close:focus-visible::before{
+    color:var(--gg-award-text,#f1efe7)!important;
   }
 }
 @media(prefers-reduced-motion:reduce){
