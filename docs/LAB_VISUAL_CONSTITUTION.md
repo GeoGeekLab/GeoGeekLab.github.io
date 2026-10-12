@@ -244,3 +244,32 @@ Orbit keeps its continuous field.
 The remaining host-mode instruments keep Focus / Work / Inspect.
 
 The A4 context only reflects those states.
+
+
+## 13. A5 finish-quality contract
+
+Award finish must not depend on decorative motion.
+
+Host transitions can emphasize a change of instrument or task.
+
+The scientific viewport must not scale or translate during those transitions.
+
+Opacity-only viewport reveals are allowed.
+
+Navigation chrome can use small positional motion.
+
+Reduced-motion mode must remove all nonessential transition effects.
+
+Tablet layouts should retain enough Observatory orientation to answer which instrument and task are active.
+
+Mobile layouts can remove secondary orientation when space is constrained.
+
+Production preview captures must wait for the same visual layer used by the deployed instrument.
+
+Preview scripts can operate real controls to select a representative state.
+
+They must not inject scientific values that a user cannot reproduce through the interface.
+
+For Water, wavelength is a coordinate.
+
+The ruler, chart probe, numeric readout, table selection, and wavelength scrubber should use one consistent spectral identity.
