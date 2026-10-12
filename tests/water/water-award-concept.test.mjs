@@ -113,10 +113,13 @@ test('Award A5 links the shared wavelength coordinate without changing model sem
 test('A5 tool overlay escapes scientific-field stacking without changing actions', () => {
   const css=read(prefix+'award-polish.css');
   const js=read(prefix+'award-polish.js');
-  assert.match(css,/\.ui-toolmenu-panel\s*\{[^}]*position:fixed!important/is);
-  assert.match(css,/z-index:1000!important/);
+  assert.match(css,/\.ui-toolmenu-panel\[data-award-tools-portal="a5"\]\s*\{[^}]*position:fixed!important/is);
+  assert.match(css,/z-index:2147483000!important/);
   assert.match(js,/function positionTools\(\)/);
   assert.match(js,/getBoundingClientRect\(\)/);
   assert.match(js,/dataset\.awardOverlay='a5'/);
+  assert.match(js,/document\.body\.appendChild\(panel\)/);
+  assert.match(js,/menu\.appendChild\(panel\)/);
+  assert.match(js,/aria-expanded/);
   assert.doesNotMatch(js,/\.click\(\)|\.dispatchEvent\(/);
 });
