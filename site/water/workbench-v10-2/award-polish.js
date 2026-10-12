@@ -43,12 +43,40 @@
 
   function installToolOverlay(){
     const menu=document.getElementById('toolsMenu');
-    if(!menu||menu.dataset.awardOverlay==='a5') return;
+    const summary=menu?.querySelector(':scope > summary');
+    const panel=menu?.querySelector(':scope > .ui-toolmenu-panel')||
+      document.querySelector('.ui-toolmenu-panel[data-award-tools-portal="a5"]');
+    if(!menu||!summary||!panel||menu.dataset.awardOverlay==='a5') return;
+
     menu.dataset.awardOverlay='a5';
-    menu.addEventListener('toggle',scheduleTools);
+    panel.dataset.awardToolsPortal='a5';
+    if(!panel.id) panel.id='waterAwardToolsPanel';
+    summary.setAttribute('aria-controls',panel.id);
+    summary.setAttribute('aria-expanded',String(menu.open));
+
+    function syncPortal(){
+      summary.setAttribute('aria-expanded',String(menu.open));
+      if(menu.open){
+        if(panel.parentElement!==document.body) document.body.appendChild(panel);
+        panel.hidden=false;
+        scheduleTools();
+      }else{
+        panel.hidden=true;
+        if(panel.parentElement!==menu) menu.appendChild(panel);
+        panel.hidden=false;
+      }
+    }
+
+    menu.addEventListener('toggle',syncPortal);
+    panel.addEventListener('keydown',event=>{
+      if(event.key!=='Escape') return;
+      event.preventDefault();
+      menu.open=false;
+      summary.focus();
+    });
     window.addEventListener('resize',scheduleTools,{passive:true});
     document.addEventListener('scroll',scheduleTools,{passive:true,capture:true});
-    scheduleTools();
+    syncPortal();
   }
 
   function currentWorkspace(){
