@@ -169,6 +169,21 @@
   box-shadow:0 0 9px rgba(var(--lab-award-accent-rgb),.22);
 }
 
+
+/* Water V10.2 has a compact host override with !important declarations.
+ * A4 keeps that compact contract while restoring the shared masthead rhythm. */
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"][data-lab-award-shell="a4"] .instrument-head{
+  min-height:68px!important;
+  padding:9px clamp(18px,2vw,30px) 8px!important;
+  align-items:center!important;
+  gap:clamp(14px,1.6vw,24px)!important;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"][data-lab-award-shell="a4"] .instrument-head h2{
+  margin:0!important;
+  font-size:clamp(30px,2.35vw,38px)!important;
+  line-height:.95!important;
+}
+
 /* Shared task controls use the accent only for active state.
  * Individual instruments keep their own internal control design. */
 .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] :is(.instrument-workspace-modes,.pulse-task-tabs){
