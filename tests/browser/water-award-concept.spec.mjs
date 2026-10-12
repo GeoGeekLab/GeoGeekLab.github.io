@@ -4,11 +4,13 @@ async function openAwardWater(page){
   await page.goto('/lab.html?release=20261011v107watercache1&instrument=water#l13',{waitUntil:'domcontentloaded'});
   await expect(page.locator('iframe.water-v102-frame')).toBeVisible({timeout:45000});
   const frame=page.frameLocator('iframe.water-v102-frame');
-  await expect(frame.locator('html')).toHaveAttribute('data-water-award-concept','a2',{timeout:30000});
+  await expect(frame.locator('html')).toHaveAttribute('data-water-award-concept','a3',{timeout:30000});
+  await expect(frame.locator('html')).toHaveAttribute('data-water-award-optical','a3');
+  await expect(frame.locator('html')).toHaveAttribute('data-water-award-journey','a3');
   return frame;
 }
 
-test('Water A2 makes wavelength a visible coordinate without replacing the original probe',async({page})=>{
+test('Water A3 keeps wavelength as a visible coordinate without replacing the original probe',async({page})=>{
   const frame=await openAwardWater(page);
   await expect(frame.locator('.award-spectrum-ruler')).toBeVisible();
   await expect(frame.locator('#probeRange')).toBeVisible();
@@ -21,7 +23,7 @@ test('Water A2 makes wavelength a visible coordinate without replacing the origi
   await expect(frame.locator('.p6-optics-plots')).toBeVisible();
 });
 
-test('Water A2 presents RT selection geometry as geometry, not a solved radiance field',async({page})=>{
+test('Water A3 presents RT selection geometry as geometry, not a solved radiance field',async({page})=>{
   const frame=await openAwardWater(page);
   await frame.locator('#mainNav [data-tab="rt"]').click();
 
@@ -39,4 +41,33 @@ test('Water A2 presents RT selection geometry as geometry, not a solved radiance
 
   await expect(frame.locator('.rt-science-provenance')).toBeVisible();
   await expect(frame.locator('.rt-science-status')).toBeVisible();
+});
+
+test('Water A3 exposes the atmosphere, sensor and correction model topology without replacing science',async({page})=>{
+  const frame=await openAwardWater(page);
+
+  await frame.locator('#mainNav [data-tab="atm"]').click();
+  let topology=frame.locator('.award-model-topology');
+  await expect(topology).toBeVisible();
+  await expect(topology).toContainText('FORWARD PATH');
+  await expect(topology.locator('[data-node="atmosphere"]')).toHaveClass(/is-active/);
+  await expect(frame.locator('.p6b-reading')).toHaveCount(4);
+  await expect(frame.locator('#p6b-atmosphere-values > summary')).toBeVisible();
+
+  await frame.locator('#mainNav [data-tab="sensor"]').click();
+  topology=frame.locator('.award-model-topology');
+  await expect(topology).toBeVisible();
+  await expect(topology).toContainText('SRF WEIGHTING');
+  await expect(topology.locator('[data-node="sensor"]')).toHaveClass(/is-active/);
+  await expect(frame.locator('.p6b-stages')).toBeVisible();
+  await expect(frame.locator('#p6b-sensor-table > summary')).toBeVisible();
+
+  await frame.locator('#mainNav [data-tab="ac"]').click();
+  topology=frame.locator('.award-model-topology');
+  await expect(topology).toBeVisible();
+  await expect(topology).toContainText('INVERSE HYPOTHESIS');
+  await expect(topology.locator('[data-node="correction"]')).toHaveClass(/is-active/);
+  await expect(frame.locator('.p7-metrics')).toBeVisible();
+  await expect(frame.locator('#p7-ac-values > summary')).toBeVisible();
+  await expect(frame.locator('.p7-no-validation')).toContainText('NOT PERFORMED');
 });
