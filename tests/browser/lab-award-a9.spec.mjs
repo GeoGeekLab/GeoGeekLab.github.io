@@ -26,10 +26,10 @@ test('A9 navigation overflow uses explicit continuation cues instead of exposed 
   });
   expect(cue.beforeContent).toContain('‹');
   expect(cue.afterContent).toContain('›');
-  // A11 Focus narrows the opaque shoulder instead of masking full labels.
-  expect(cue.beforeWidth).toBeGreaterThanOrEqual(26);
-  expect(cue.beforeWidth).toBeLessThanOrEqual(40);
-  expect(cue.afterWidth).toBeGreaterThanOrEqual(26);
+  // The actual Focus screenshot exposed chopped labels with a narrow shoulder.
+  // Keep the original 96px mask in both modes.
+  expect(cue.beforeWidth).toBeGreaterThanOrEqual(88);
+  expect(cue.afterWidth).toBeGreaterThanOrEqual(88);
   await frame.locator('[data-attention-mode="detail"]').click();
   const detailWidth=await nav.evaluate(node=>parseFloat(getComputedStyle(node,'::after').width));
   expect(detailWidth).toBeGreaterThanOrEqual(88);
