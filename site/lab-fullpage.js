@@ -17,6 +17,25 @@
     document.head.appendChild(link);
   }
 
+  if (!document.querySelector('link[data-lab-award-system]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'core/lab-award-system.css?v=a4';
+    link.dataset.labAwardSystem = 'a4';
+    document.head.appendChild(link);
+  }
+
+  if (!document.querySelector('link[data-lab-award-shell]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'lab-award-shell.css?v=a4';
+    link.dataset.labAwardShell = 'a4';
+    document.head.appendChild(link);
+  }
+
+  import(new URL('lab-award-shell.js?v=a4', document.baseURI).href)
+    .catch(error => console.warn('[GeoGeek] Lab award shell A4 could not load; base workspace remains available.', error));
+
   const dialog = document.getElementById('instrumentDialog');
   const head = dialog?.querySelector('.instrument-head');
   const close = document.getElementById('instrumentClose');
