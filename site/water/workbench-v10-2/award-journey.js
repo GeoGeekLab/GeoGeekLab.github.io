@@ -122,10 +122,18 @@
     if(!view) return;
 
     view.classList.add('award-observation-a3');
-    if(view.querySelector(':scope > .award-model-topology')) return;
+    const signature=workspace==='sensor'
+      ?workspace+':' + (sensorUsesRrs()?'rrs':'toa')
+      :workspace;
+    const existing=view.querySelector(':scope > .award-model-topology');
+    if(existing?.dataset.topologySignature===signature) return;
 
     const topology=makeTopology(workspace);
-    if(topology) view.prepend(topology);
+    if(topology){
+      topology.dataset.topologySignature=signature;
+      if(existing) existing.replaceWith(topology);
+      else view.prepend(topology);
+    }
   }
 
   function schedule(){
