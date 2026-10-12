@@ -75,3 +75,36 @@ A4 should unify the Lab host shell across Water, Pulse, Earth, Orbit, and Figure
 The target is not “an Awwwards-looking dashboard.”
 
 The target is a credible scientific instrument with enough authorship, interaction quality, typographic control, motion discipline, and technical polish to compete at Awwwards / Webby / FWA level while remaining usable for actual analysis.
+
+
+## A2 implementation
+
+A2 moves from surface styling to instrument hierarchy.
+
+### Water Optics
+
+- The 400–700 nm domain is now a visible coordinate.
+- The active wavelength has a read-only spectral marker.
+- The original wavelength probe remains the actual control.
+- Above-water Rrs becomes the primary spectral panel.
+- Absorption and backscatter remain supporting scientific panels.
+- The three existing numerical readings remain visible as compact telemetry.
+- Numeric closure and source tables remain available below the main field.
+
+### WATER RT
+
+- The header now includes a direct selection-geometry summary.
+- The geometry reads the selected in-water solar zenith, wavelength, and depth.
+- It is explicitly labeled `NOT A RADIANCE FIELD`.
+- It does not calculate attenuation, photon paths, or angular radiance.
+- Existing RT plots, tables, provenance, and mismatch state remain authoritative.
+
+### Shared Lab consistency
+
+A2 follows the new `docs/LAB_VISUAL_CONSTITUTION.md`.
+
+Pulse remains the reference for compact rail density and separator logic.
+
+Earth, World, and Orbit remain references for immersive scientific viewports.
+
+Water combines the compact rail with an optical field specific to spectroscopy and radiative transfer.
