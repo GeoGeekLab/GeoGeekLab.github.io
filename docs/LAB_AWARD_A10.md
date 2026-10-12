@@ -131,3 +131,9 @@ The boot surface now uses platform system sans/monospace stacks only. It no long
 The final interface keeps the normal GeoGeek type system after reveal; only the transient readiness cover is isolated.
 
 This is a performance-gate fix and does not change Water RT science or interaction.
+
+## Follow-up: cold-entry watchdog and Lighthouse
+
+The October 12 run `38225390778` passed the entire browser/accessibility baseline but failed Water's strict LCP gate: two mobile-emulated samples were 4356 ms and 4656 ms versus a 4000 ms maximum. Both reports identified the transient site-wide boot-status text as the simulated LCP candidate, not any RT scientific graph. The existing 3000 ms safety timer was cancelled at the **start** of asynchronous `reveal()`, defeating its purpose when `settle()` or its layout frames stalled.
+
+The watchdog remains armed until `finishReveal()` actually commits the ready state. At the deadline it reveals the already parsed document immediately instead of waiting again for the stalled work; the status text is not pointlessly repainted. Normal entries still wait for styles, preinit enhancements and fonts, and leaving/frozen/restoring handoff remains protected. A deliberately stalled-frame browser regression now verifies the safety path. This is a loading-state correctness/performance repair, not a change to Water RT scientific data, calculations or visuals.

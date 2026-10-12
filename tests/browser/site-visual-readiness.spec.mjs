@@ -49,6 +49,19 @@ test.describe('site-wide visual readiness', () => {
     }
   });
 
+  test('cold-entry safety handoff reveals static content even if layout frames stall', async ({ page }) => {
+    await page.addInitScript(() => {
+      // Intentionally stall only animation-frame callbacks. The watchdog must
+      // not rely on the same frames as the normal settle path.
+      window.requestAnimationFrame = () => 1;
+    });
+    await page.goto('/field-notes.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'ready', { timeout: 6000 });
+    await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('visibility', 'hidden');
+    await expect.poll(() => page.evaluate(() => window.__GEOGEEK_VISUAL_READY__)).toBe(true);
+    await expect(page.locator('main#main')).toBeVisible();
+  });
+
   test('root path uses the index artifact without a client-side redirect navigation', async ({ page }) => {
     const navigations = [];
     page.on('framenavigated', frame => {
