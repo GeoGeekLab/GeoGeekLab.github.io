@@ -4,6 +4,23 @@
  */
 
 
+
+/* Tool popovers must remain above the scientific field.
+ * The compact award field introduces explicit chart stacking, so the host
+ * toolbar owns a higher stacking plane rather than relying on source order. */
+.topbar{
+  position:relative!important;
+  z-index:80!important;
+  overflow:visible!important;
+}
+.ui-toolmenu{
+  z-index:90!important;
+}
+.ui-toolmenu-panel{
+  z-index:100!important;
+  pointer-events:auto;
+}
+
 /* Workspace groups keep all nine destinations visible, but the active phase owns
  * the visual emphasis. This reduces directory-like competition without hiding
  * the scientific workflow. */
