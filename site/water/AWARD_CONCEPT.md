@@ -182,3 +182,28 @@ A3 introduces shared `gg-lab-*` primitives rather than Water-only copies.
 They are loaded only by the Water concept branch today.
 
 They are designed so a later A4 pass can reuse the same topology, telemetry, rail, and field grammar in sibling Lab instruments without forcing their domain-specific visuals to match Water.
+
+
+## A4 host integration
+
+A4 is a Lab-host pass, not a new Water science pass.
+
+The Water internal award layer remains `award-a3`.
+
+The shared Lab host is now `A4`.
+
+This separation is intentional.
+
+```text
+GeoGeek Lab host      → A4
+Water workbench shell → A3
+Water science         → V10.2 quiet2
+```
+
+Water now shares the same Observatory masthead, orientation grammar, task ownership rule, and Lab Index exit geometry as Pulse, Earth, Orbit, Flow, Figure, and World.
+
+Water keeps its own spectral accent and its own internal workspace navigation.
+
+The host does not create a second Focus / Work / Inspect system for Water.
+
+See `docs/LAB_AWARD_A4.md`.
