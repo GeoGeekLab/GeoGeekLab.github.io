@@ -3,6 +3,28 @@
  * This file changes presentation only.
  */
 
+
+/* Workspace groups keep all nine destinations visible, but the active phase owns
+ * the visual emphasis. This reduces directory-like competition without hiding
+ * the scientific workflow. */
+.appnav .ui-nav-group{
+  position:relative;
+  transition:background-color 160ms ease,border-color 160ms ease;
+}
+.appnav .ui-nav-group.is-current{
+  background:linear-gradient(180deg,rgba(var(--water-spectrum-rgb),.028),transparent);
+  border-color:rgba(var(--water-spectrum-rgb),.16)!important;
+}
+.appnav .ui-nav-group.is-current .ui-nav-heading{
+  color:rgb(var(--water-spectrum-rgb))!important;
+}
+.appnav .ui-nav-group:not(.is-current) .ui-nav-heading{
+  color:#7f9187!important;
+}
+.appnav .ui-nav-group:not(.is-current) .tab:not([aria-selected="true"]){
+  color:#94a49b!important;
+}
+
 /* Wavelength is a coordinate, not a progress value.
  * The shared probe now uses the physical visible-spectrum domain end to end. */
 .probe-range{
