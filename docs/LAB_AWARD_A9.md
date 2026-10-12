@@ -61,3 +61,74 @@ It makes art-direction evidence available early enough to inspect without waitin
 Once the six A8 frames are available, the remaining A9 work is image-based.
 
 Only defects visible in the actual desktop, tablet, mobile, and Pulse comparison captures should trigger further visual changes.
+
+
+## Six-frame art-direction findings
+
+The early A9 evidence pipeline produced all six submission frames successfully.
+
+### Water Optics desktop
+
+The optical hierarchy is working.
+
+The 490 nm ruler, Rrs heading, chart probe and right-side Water Optical State read as one instrument.
+
+The remaining issue was vertical density.
+
+The introductory scope panel still behaved like a large rounded card and consumed space that should belong to the primary spectrum.
+
+A9 removes its radius and tightens its spacing without hiding the model boundary, baseline-slope state, or assumptions disclosure.
+
+### WATER RT desktop
+
+The A7 open-reference-chamber structure is working.
+
+Selection geometry, mismatch status, sampled quantities, and the numerical-reference rail form a coherent signature scene.
+
+The title used four lines at 1600 px and displaced solved quantities unnecessarily.
+
+A9 widens the editorial measure slightly.
+
+It does not reduce type to solve the problem.
+
+### Atmosphere desktop
+
+The observation topology reads clearly and remains correctly labeled as a model topology rather than a measured signal path.
+
+No structural change is required.
+
+### WATER RT tablet
+
+The tablet hierarchy is sound.
+
+The largest visible defect is the partially clipped workspace label at the left edge of the horizontal navigation.
+
+### Water Optics mobile
+
+The mobile composition preserves the scientific scope and wavelength coordinate.
+
+Two visible defects remained.
+
+The horizontal workspace strip exposed fragments of neighboring labels.
+
+The circular Lab exit showed both the mobile back arrow and the underlying ×.
+
+A9 replaces the subtle edge fade with explicit continuation chevrons and forces the mobile exit text glyph off while retaining its accessible label and back-arrow pseudo-glyph.
+
+### Pulse family comparison
+
+Pulse confirms that the shared Observatory host does not erase domain identity.
+
+No Water styling is transferred into the seismic field.
+
+## A9 visual rule
+
+Do not change a strong frame merely because another frame has a defect.
+
+The six-frame review resulted in three narrow corrections:
+
+1. make horizontal continuation explicit;
+2. flatten and tighten the Water Optics opening;
+3. remove the duplicated mobile exit glyph.
+
+The RT title-measure adjustment is the only additional desktop composition change.

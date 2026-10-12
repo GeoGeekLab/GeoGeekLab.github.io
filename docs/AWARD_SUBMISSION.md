@@ -58,3 +58,17 @@ Use the A8 generated frames in this order:
 The first two frames should carry most of the visual argument.
 
 The final Pulse frame should establish that Water belongs to a broader scientific product rather than a standalone visual experiment.
+
+
+## A9 image review
+
+The six-frame submission capture was reviewed at desktop, tablet, and mobile sizes.
+
+The final corrections are intentionally narrow.
+
+- Water Optics gives more first-view area to the actual Rrs spectrum.
+- WATER RT retains its open reference chamber and uses a slightly wider editorial title measure.
+- Horizontal workspace overflow now has explicit continuation chevrons.
+- Mobile Lab exit shows one return glyph rather than an arrow plus ×.
+
+Atmosphere topology and the Pulse family-comparison frame required no structural revision.

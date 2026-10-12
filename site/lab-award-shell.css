@@ -328,7 +328,8 @@
     min-width:44px;
     min-height:44px;
     border-radius:50%;
-    font-size:0;
+    font-size:0!important;
+    line-height:0!important;
   }
 }
 @media(prefers-reduced-motion:reduce){
