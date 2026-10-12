@@ -7,6 +7,13 @@
   'use strict';
   const rootUrl = new URL('water/workbench-v10-2/', document.baseURI);
   const stylesheet = new URL('instrument.css?v=10.2.0-quiet2', rootUrl).href;
+  const awardStylesheet = new URL('award-concept.css?v=a5', rootUrl).href;
+  const awardScripts = Object.freeze([
+    { id: 'optical', href: new URL('award-optical.js?v=a3', rootUrl).href },
+    { id: 'journey', href: new URL('award-journey.js?v=a3', rootUrl).href },
+    { id: 'polish', href: new URL('award-polish.js?v=a5', rootUrl).href },
+    { id: 'marker', href: new URL('award-concept.js?v=a3', rootUrl).href }
+  ]);
   const frameUrl = new URL('app/index.html', rootUrl);
   const mounts = window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};
   let sequence = 0;
@@ -18,6 +25,28 @@
     link.href = stylesheet;
     link.dataset.waterV102Style = '1';
     document.head.appendChild(link);
+  }
+
+  function installAwardConcept(frame) {
+    const doc = frame.contentDocument;
+    if (!doc?.head) return;
+
+    if (!doc.querySelector('link[data-water-award-concept]')) {
+      const link = doc.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = awardStylesheet;
+      link.dataset.waterAwardConcept = 'a3';
+      doc.head.appendChild(link);
+    }
+
+    for (const module of awardScripts) {
+      if (doc.querySelector('script[data-water-award-module="' + module.id + '"]')) continue;
+      const script = doc.createElement('script');
+      script.src = module.href;
+      script.async = false;
+      script.dataset.waterAwardModule = module.id;
+      doc.body?.appendChild(script);
+    }
   }
 
   async function mount({ stage = document.getElementById('instrumentStage'), signal } = {}) {
@@ -71,9 +100,20 @@
       cleanup();
     }
 
+    function onFrameLoad() {
+      // An iframe inserted before src assignment can emit an about:blank load.
+      // Ignore that transient document so the award layer attaches only to the
+      // real V10.2 application document.
+      const href = frame.contentWindow?.location?.href || '';
+      if (!href || href === 'about:blank') return;
+      frame.removeEventListener('load', onFrameLoad);
+      installAwardConcept(frame);
+    }
+
     cleanup = () => {
       window.removeEventListener('message', onMessage);
       signal?.removeEventListener('abort', onAbort);
+      frame.removeEventListener('load', onFrameLoad);
       clearTimeout(timeout);
       frame.remove();
       if(dialog?.dataset.waterUiVersion==='v102') delete dialog.dataset.waterUiVersion;
@@ -81,13 +121,14 @@
 
     window.addEventListener('message', onMessage);
     signal?.addEventListener('abort', onAbort, { once: true });
+    frame.addEventListener('load', onFrameLoad);
+    frame.src = url.href;
     stage.replaceChildren(frame);
     timeout = setTimeout(() => {
       if (settled) return;
       settled = true;
       rejectReady(new Error('Water V10.2 UI stages 1–4 did not initialize within 15 seconds'));
     }, 15000);
-    frame.src = url.href;
 
     try {
       const ready = await loaded;
@@ -130,5 +171,5 @@
   }
 
   mounts.water = mount;
-  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2', mount };
+  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2', conceptVersion: 'award-a3', polishVersion: 'award-a5', mount };
 })();

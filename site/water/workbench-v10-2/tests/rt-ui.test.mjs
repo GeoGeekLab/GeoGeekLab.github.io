@@ -79,3 +79,16 @@ test('UX-RT4-06 chart primitives handle zero or signed observations without NaNs
  assert.match(resid,/Δr_rs/);
  assert.ok(!resid.includes('NaN'));
 });
+
+
+test('UX-RT4-07 RT charts load the discrete interaction layer without changing the solver',()=>{
+ const interaction=fs.readFileSync(path.join(root,'v102-rt-interaction.js'),'utf8');
+ assert.match(app,/v102-rt-interaction\.js\?v=10\.2\.0-rt-interactive1/);
+ assert.match(interaction,/data-rt-depth/);
+ assert.match(interaction,/data-rt-wl/);
+ assert.match(interaction,/Interactive discrete nodes/);
+ assert.match(interaction,/pointermove/);
+ assert.match(interaction,/ArrowLeft/);
+ assert.doesNotMatch(interaction,/GeoGeekRT101\.[A-Za-z_$][\w$]*\s*=/);
+ assert.doesNotMatch(interaction,/fetch\(|XMLHttpRequest|WebSocket/);
+});

@@ -1,0 +1,182 @@
+/* Water as Spectrum — Award Polish A5
+ * Coordinates presentation transitions only.
+ * It never writes model parameters or invokes a scientific computation.
+ */
+(() => {
+  'use strict';
+  const root=document.documentElement;
+  if(root.dataset.waterAwardPolish==='a5') return;
+  root.dataset.waterAwardPolish='a5';
+
+  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
+  let lastWorkspace='';
+  let lastProbe='';
+  let timer=0;
+  let toolFrame=0;
+  let navFrame=0;
+
+  function positionTools(){
+    toolFrame=0;
+    const menu=document.getElementById('toolsMenu');
+    const summary=menu?.querySelector(':scope > summary');
+    const panel=menu?.querySelector(':scope > .ui-toolmenu-panel')||
+      document.querySelector('.ui-toolmenu-panel[data-award-tools-portal="a5"]');
+    if(!menu?.open||!summary||!panel) return;
+
+    const trigger=summary.getBoundingClientRect();
+    const width=panel.offsetWidth||Math.min(255,window.innerWidth-16);
+    const height=panel.offsetHeight||140;
+    const gutter=8;
+    const left=Math.max(gutter,Math.min(window.innerWidth-width-gutter,trigger.right-width));
+    const below=trigger.bottom+6;
+    const above=trigger.top-height-6;
+    const top=below+height<=window.innerHeight-gutter
+      ?below
+      :Math.max(gutter,above);
+
+    panel.style.setProperty('--water-tools-left',left.toFixed(1)+'px');
+    panel.style.setProperty('--water-tools-top',top.toFixed(1)+'px');
+  }
+
+  function scheduleTools(){
+    if(toolFrame) return;
+    toolFrame=requestAnimationFrame(positionTools);
+  }
+
+  function installToolOverlay(){
+    const menu=document.getElementById('toolsMenu');
+    const summary=menu?.querySelector(':scope > summary');
+    const panel=menu?.querySelector(':scope > .ui-toolmenu-panel')||
+      document.querySelector('.ui-toolmenu-panel[data-award-tools-portal="a5"]');
+    if(!menu||!summary||!panel||menu.dataset.awardOverlay==='a5') return;
+
+    menu.dataset.awardOverlay='a5';
+    panel.dataset.awardToolsPortal='a5';
+    if(!panel.id) panel.id='waterAwardToolsPanel';
+    summary.setAttribute('aria-controls',panel.id);
+    summary.setAttribute('aria-expanded',String(menu.open));
+
+    function syncPortal(){
+      summary.setAttribute('aria-expanded',String(menu.open));
+      if(menu.open){
+        if(panel.parentElement!==document.body) document.body.appendChild(panel);
+        panel.hidden=false;
+        scheduleTools();
+      }else{
+        panel.hidden=true;
+        if(panel.parentElement!==menu) menu.appendChild(panel);
+        panel.hidden=false;
+      }
+    }
+
+    function toolEntries(){
+      return [...panel.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')]
+        .filter(node=>!node.hidden&&getComputedStyle(node).display!=='none');
+    }
+
+    menu.addEventListener('toggle',syncPortal);
+    summary.addEventListener('keydown',event=>{
+      if(event.key!=='Tab'||event.shiftKey||!menu.open) return;
+      const first=toolEntries()[0];
+      if(!first) return;
+      event.preventDefault();
+      first.focus();
+    });
+    panel.addEventListener('keydown',event=>{
+      const entries=toolEntries();
+      if(event.key==='Escape'){
+        event.preventDefault();
+        menu.open=false;
+        summary.focus();
+        return;
+      }
+      if(event.key!=='Tab'||!entries.length) return;
+      const first=entries[0],last=entries[entries.length-1];
+      if(event.shiftKey&&document.activeElement===first){
+        event.preventDefault();
+        summary.focus();
+      }else if(!event.shiftKey&&document.activeElement===last){
+        event.preventDefault();
+        menu.open=false;
+        (document.querySelector('#mainNav [aria-selected="true"]')||summary).focus();
+      }
+    });
+    window.addEventListener('resize',scheduleTools,{passive:true});
+    document.addEventListener('scroll',scheduleTools,{passive:true,capture:true});
+    syncPortal();
+  }
+
+  function installNavEdges(){
+    const scroller=document.querySelector('.appnav .nav-scroll');
+    if(!scroller||scroller.dataset.awardEdges==='a7') return;
+    scroller.dataset.awardEdges='a7';
+
+    const update=()=>{
+      navFrame=0;
+      const max=Math.max(0,scroller.scrollWidth-scroller.clientWidth);
+      root.dataset.waterNavStart=String(scroller.scrollLeft<=2);
+      root.dataset.waterNavEnd=String(scroller.scrollLeft>=max-2);
+    };
+    const schedule=()=>{
+      if(navFrame) return;
+      navFrame=requestAnimationFrame(update);
+    };
+    scroller.addEventListener('scroll',schedule,{passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    schedule();
+  }
+
+  function currentWorkspace(){
+    return document.querySelector('#mainNav [data-tab][aria-selected="true"]')?.dataset.tab||'';
+  }
+
+  function currentProbe(){
+    return document.getElementById('probeValue')?.textContent?.trim()||'';
+  }
+
+  function pulse(kind){
+    if(reduced?.matches) return;
+    clearTimeout(timer);
+    delete root.dataset.waterAwardTransition;
+    requestAnimationFrame(()=>{
+      root.dataset.waterAwardTransition=kind;
+      timer=window.setTimeout(()=>{
+        delete root.dataset.waterAwardTransition;
+      },320);
+    });
+  }
+
+  function reconcile(){
+    installToolOverlay();
+    installNavEdges();
+    const workspace=currentWorkspace();
+    const probe=currentProbe();
+
+    if(lastWorkspace && workspace && workspace!==lastWorkspace) pulse('workspace');
+    else if(lastProbe && probe && probe!==lastProbe) pulse('probe');
+
+    if(workspace) lastWorkspace=workspace;
+    if(probe) lastProbe=probe;
+  }
+
+  const observer=new MutationObserver(reconcile);
+  observer.observe(document.body,{
+    subtree:true,
+    childList:true,
+    characterData:true,
+    attributes:true,
+    attributeFilter:['aria-selected']
+  });
+
+  document.addEventListener('input',event=>{
+    if(event.target?.id==='probeRange') reconcile();
+  },{passive:true});
+
+  reconcile();
+
+  window.GeoWaterAwardPolish=Object.freeze({
+    version:'a5',
+    concept:'a3',
+    scientificWorkbench:'10.2.0-quiet2'
+  });
+})();

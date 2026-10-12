@@ -69,7 +69,7 @@ function injectBoot(html, relative) {
   const surface = darkSurface(relative) ? 'dark' : 'paper';
   const preinit = `<script data-geogeek-boot-preinit>document.documentElement.dataset.geogeekBoot='loading';document.documentElement.dataset.geogeekBootSurface='${surface}';</script>`;
   const critical = `<style data-geogeek-boot-critical>
-:root{--geogeek-boot-bg:#f6f4ee;--geogeek-boot-fg:#152019;--geogeek-boot-soft:#435048;--geogeek-boot-muted:#657068;--geogeek-boot-line:rgba(21,32,25,.08);--geogeek-boot-signal:#a64624;--geogeek-boot-pad:clamp(22px,4.2vw,68px);--geogeek-boot-sans:"Instrument Sans",Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;--geogeek-boot-mono:"IBM Plex Mono","SFMono-Regular","Roboto Mono","Liberation Mono",Menlo,Consolas,monospace}
+:root{--geogeek-boot-bg:#f6f4ee;--geogeek-boot-fg:#152019;--geogeek-boot-soft:#435048;--geogeek-boot-muted:#657068;--geogeek-boot-line:rgba(21,32,25,.08);--geogeek-boot-signal:#a64624;--geogeek-boot-pad:clamp(22px,4.2vw,68px);--geogeek-boot-sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;--geogeek-boot-mono:ui-monospace,"SFMono-Regular","Roboto Mono","Liberation Mono",Menlo,Consolas,monospace}
 html[data-geogeek-boot-surface="dark"]{--geogeek-boot-bg:#090b0d;--geogeek-boot-fg:#f1efe7;--geogeek-boot-soft:#aeb7af;--geogeek-boot-muted:#aeb7af;--geogeek-boot-line:rgba(242,240,233,.10);--geogeek-boot-signal:#e86a48}
 html[data-geogeek-boot="loading"],html[data-geogeek-boot="leaving"],html[data-geogeek-boot="frozen"],html[data-geogeek-boot="restoring"]{background:var(--geogeek-boot-bg)!important}
 html[data-geogeek-boot="loading"] body,html[data-geogeek-boot="leaving"] body,html[data-geogeek-boot="frozen"] body,html[data-geogeek-boot="restoring"] body{overflow:hidden!important;background:var(--geogeek-boot-bg)!important}
@@ -86,8 +86,12 @@ html[data-geogeek-boot-surface="dark"] #geogeek-boot-cover{background:var(--geog
 #geogeek-boot-cover .geogeek-boot-scale>span{color:var(--geogeek-boot-muted);font-size:11px;line-height:1;font-weight:700;letter-spacing:.085em}
 #geogeek-boot-cover .geogeek-boot-scale>strong{color:var(--geogeek-boot-fg);font-size:13px;line-height:1.25;font-weight:650;letter-spacing:.015em;text-transform:uppercase}
 #geogeek-boot-cover .geogeek-boot-scale>em{color:var(--geogeek-boot-signal);font-size:11px;line-height:1;font-weight:700;letter-spacing:.07em;font-style:normal}
+/* Cold entry paints a neutral, truthful bridge without short-lived text candidates.
+   The accessible status label remains on the cover; intentional navigation
+   handoffs retain their visible text in leaving/frozen/restoring states. */
+html[data-geogeek-boot="loading"] #geogeek-boot-cover .geogeek-boot-brand>span:last-child,html[data-geogeek-boot="loading"] #geogeek-boot-cover .geogeek-boot-scale{visibility:hidden!important}
 html[data-geogeek-boot="loading"] #geogeek-boot-cover,html[data-geogeek-boot="leaving"] #geogeek-boot-cover,html[data-geogeek-boot="frozen"] #geogeek-boot-cover,html[data-geogeek-boot="restoring"] #geogeek-boot-cover{opacity:1!important;pointer-events:auto!important;transition:none!important}
-html[data-geogeek-boot="ready"] #geogeek-boot-cover{opacity:0;pointer-events:none;visibility:visible!important}
+html[data-geogeek-boot="ready"] #geogeek-boot-cover{opacity:0;pointer-events:none;visibility:hidden!important}
 @media(max-width:640px){:root{--geogeek-boot-pad:18px}#geogeek-boot-cover::after{top:63px}#geogeek-boot-cover .geogeek-boot-brand{height:64px}#geogeek-boot-cover .geogeek-boot-scale{top:86px;right:18px}}
 @media(prefers-reduced-motion:reduce){#geogeek-boot-cover{transition:none}}
 </style>`;

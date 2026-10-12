@@ -1,0 +1,370 @@
+/* Water as Spectrum — award concept A3
+ * Observation topology and workspace narrative.
+ * Presentation only; all values remain sourced from existing V10.2 DOM output.
+ */
+
+/* The three observation workspaces become one visual family. */
+.p6b-atmosphere.award-observation-a3,
+.p6b-sensor.award-observation-a3,
+.p7-ac.award-observation-a3{
+  display:grid!important;
+  gap:0!important;
+  min-width:0;
+  padding:0!important;
+  background:transparent!important;
+}
+
+.p6b-atmosphere.award-observation-a3 > .gg-lab-topology,
+.p6b-sensor.award-observation-a3 > .gg-lab-topology,
+.p7-ac.award-observation-a3 > .gg-lab-topology{
+  order:-10;
+  margin:0;
+}
+
+/* Editorial lead sections remain scientific disclosures, not marketing heroes. */
+.award-observation-a3 > .p6b-hero,
+.p7-ac.award-observation-a3 > .p7-principle{
+  margin:0!important;
+  padding:clamp(20px,2.5vw,34px) clamp(20px,2.7vw,40px)!important;
+  border:0!important;
+  border-bottom:1px solid var(--award-line)!important;
+  border-radius:0!important;
+  background:
+    radial-gradient(65% 100% at 15% 30%,rgba(var(--water-spectrum-rgb),.035),transparent 70%),
+    transparent!important;
+}
+.award-observation-a3 > .p6b-hero h3,
+.p7-ac.award-observation-a3 > .p7-principle h3{
+  max-width:20ch;
+  margin:7px 0 10px!important;
+  color:var(--award-text)!important;
+  font-family:var(--serif,Georgia,serif)!important;
+  font-size:clamp(27px,2.85vw,43px)!important;
+  font-weight:500!important;
+  line-height:1.04!important;
+  letter-spacing:-.034em!important;
+}
+.award-observation-a3 .p6b-kicker,
+.p7-ac.award-observation-a3 .p7-kicker{
+  color:rgb(var(--water-spectrum-rgb))!important;
+  font:700 9px/1.4 var(--mono,ui-monospace,monospace)!important;
+  letter-spacing:.09em!important;
+}
+.award-observation-a3 > .p6b-hero>p,
+.p7-ac.award-observation-a3 > .p7-principle>p{
+  max-width:82ch;
+}
+.award-observation-a3 .p6b-warning{
+  max-width:82ch;
+  margin-top:14px!important;
+  border:1px solid rgba(232,184,111,.24)!important;
+  border-left:2px solid var(--award-warning)!important;
+  border-radius:0!important;
+  background:rgba(232,184,111,.045)!important;
+  color:#dacdbd!important;
+}
+
+/* ATMOSPHERE: show additive components as one decomposition strip. */
+.p6b-atmosphere.award-observation-a3 > .p6b-section:not(.p6b-hero){
+  margin:0!important;
+  padding:clamp(18px,2.1vw,28px) clamp(20px,2.7vw,40px)!important;
+  border:0!important;
+  border-bottom:1px solid var(--award-line)!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-reading-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:1px!important;
+  margin-top:14px;
+  background:var(--award-line)!important;
+  border:1px solid var(--award-line)!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-reading{
+  min-height:118px;
+  gap:7px!important;
+  padding:14px 15px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:var(--award-panel)!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-reading>span{
+  color:var(--award-muted)!important;
+  font:650 10px/1.35 var(--sans,system-ui,sans-serif)!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-reading strong{
+  color:var(--award-text)!important;
+  font:650 clamp(15px,1.4vw,19px)/1.35 var(--mono,ui-monospace,monospace)!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-reading small{
+  color:#95a79d!important;
+  font-size:10px!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-total{
+  position:relative;
+  background:
+    linear-gradient(180deg,rgba(var(--water-spectrum-rgb),.065),transparent 85%),
+    var(--award-panel)!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-total::before{
+  content:"SUM";
+  position:absolute;
+  right:12px;
+  top:11px;
+  color:rgb(var(--water-spectrum-rgb));
+  font:700 8px/1 var(--mono,ui-monospace,monospace);
+  letter-spacing:.10em;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-equation{
+  margin:1px 0 0!important;
+  padding:11px 14px!important;
+  border:0!important;
+  border-top:1px solid var(--award-line)!important;
+  background:#0e1a13!important;
+  color:#aebdb4!important;
+  font:550 10px/1.55 var(--mono,ui-monospace,monospace)!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-conditions{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  gap:1px!important;
+  margin:14px 0 0!important;
+  background:var(--award-line)!important;
+  border:1px solid var(--award-line)!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-conditions>div{
+  min-height:78px;
+  padding:11px 12px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:var(--award-panel)!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-conditions dt{
+  color:var(--award-muted)!important;
+  font:600 9px/1.4 var(--sans,system-ui,sans-serif)!important;
+}
+.p6b-atmosphere.award-observation-a3 .p6b-conditions dd{
+  color:var(--award-text)!important;
+  font:650 11px/1.4 var(--mono,ui-monospace,monospace)!important;
+}
+.p6b-atmosphere.award-observation-a3 > .p6b-chart-section{
+  margin:0!important;
+  padding:clamp(20px,2.4vw,34px) clamp(20px,2.7vw,40px)!important;
+  border:0!important;
+  border-bottom:1px solid var(--award-line)!important;
+  border-radius:0!important;
+  background:#09130e!important;
+}
+.p6b-atmosphere.award-observation-a3 > .p6b-data{
+  margin:clamp(18px,2vw,28px) clamp(20px,2.7vw,40px) clamp(26px,3vw,44px)!important;
+}
+
+/* SENSOR: make response weighting read as a three-stage instrument transform. */
+.p6b-sensor.award-observation-a3 > .p6b-section:not(.p6b-hero),
+.p6b-sensor.award-observation-a3 > .p6b-chart-section{
+  margin:0!important;
+  padding:clamp(18px,2.1vw,28px) clamp(20px,2.7vw,40px)!important;
+  border:0!important;
+  border-bottom:1px solid var(--award-line)!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+.p6b-sensor.award-observation-a3 .p6b-source{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:1px!important;
+  margin:16px 0 0!important;
+  background:var(--award-line)!important;
+  border:1px solid var(--award-line)!important;
+}
+.p6b-sensor.award-observation-a3 .p6b-source>div{
+  min-height:82px;
+  padding:12px 13px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:var(--award-panel)!important;
+}
+.p6b-sensor.award-observation-a3 .p6b-source dt{
+  color:var(--award-muted)!important;
+  font:650 9px/1.4 var(--sans,system-ui,sans-serif)!important;
+}
+.p6b-sensor.award-observation-a3 .p6b-source dd{
+  color:var(--award-text)!important;
+  font:620 11px/1.45 var(--mono,ui-monospace,monospace)!important;
+}
+.p6b-sensor.award-observation-a3 .p6b-stages ol{
+  position:relative;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:1px!important;
+  margin:14px 0 0!important;
+  padding:0!important;
+  list-style:none!important;
+  counter-reset:award-sensor-stage;
+  background:var(--award-line)!important;
+  border:1px solid var(--award-line)!important;
+}
+.p6b-sensor.award-observation-a3 .p6b-stages li{
+  counter-increment:award-sensor-stage;
+  position:relative;
+  min-height:132px;
+  padding:36px 16px 16px!important;
+  background:var(--award-panel)!important;
+  color:#aebdb4!important;
+  font-size:11px!important;
+}
+.p6b-sensor.award-observation-a3 .p6b-stages li::before{
+  content:"0" counter(award-sensor-stage);
+  position:absolute;
+  left:16px;
+  top:14px;
+  color:rgb(var(--water-spectrum-rgb));
+  font:700 9px/1 var(--mono,ui-monospace,monospace);
+  letter-spacing:.09em;
+}
+.p6b-sensor.award-observation-a3 .p6b-stages li strong{
+  color:var(--award-text)!important;
+  font-weight:600!important;
+}
+.p6b-sensor.award-observation-a3 > .p6b-chart-section{
+  background:#09130e!important;
+}
+.p6b-sensor.award-observation-a3 > .p6b-data{
+  margin:clamp(18px,2vw,28px) clamp(20px,2.7vw,40px) clamp(26px,3vw,44px)!important;
+}
+
+/* ATMOSPHERIC CORRECTION: separate hypothesis from validation. */
+.p7-ac.award-observation-a3 > .p7-panel:not(.p7-principle),
+.p7-ac.award-observation-a3 > .p7-plot{
+  margin:0!important;
+  padding:clamp(18px,2.1vw,28px) clamp(20px,2.7vw,40px)!important;
+  border:0!important;
+  border-bottom:1px solid var(--award-line)!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+.p7-ac.award-observation-a3 .p7-steps{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:1px!important;
+  margin:16px 0 0!important;
+  background:var(--award-line)!important;
+  border:1px solid var(--award-line)!important;
+}
+.p7-ac.award-observation-a3 .p7-steps>div{
+  min-height:134px;
+  gap:8px!important;
+  padding:14px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:var(--award-panel)!important;
+}
+.p7-ac.award-observation-a3 .p7-steps b{
+  color:rgb(var(--water-spectrum-rgb))!important;
+  font:650 10px/1.45 var(--mono,ui-monospace,monospace)!important;
+  letter-spacing:.025em;
+}
+.p7-ac.award-observation-a3 .p7-steps span{
+  color:#aebdb4!important;
+  font-size:10px!important;
+}
+.p7-ac.award-observation-a3 .p7-steps .p7-no-validation{
+  background:rgba(232,184,111,.045)!important;
+  box-shadow:inset 0 2px 0 rgba(232,184,111,.42);
+}
+.p7-ac.award-observation-a3 .p7-steps .p7-no-validation b{
+  color:var(--award-warning)!important;
+}
+.p7-ac.award-observation-a3 .p7-metrics{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:1px!important;
+  background:var(--award-line)!important;
+  border:1px solid var(--award-line)!important;
+}
+.p7-ac.award-observation-a3 .p7-metrics>div{
+  min-height:102px;
+  padding:12px 13px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:var(--award-panel)!important;
+}
+.p7-ac.award-observation-a3 .p7-metrics span{
+  color:var(--award-muted)!important;
+  font-size:9px!important;
+}
+.p7-ac.award-observation-a3 .p7-metrics strong{
+  color:var(--award-text)!important;
+  font-size:clamp(13px,1.3vw,17px)!important;
+}
+.p7-ac.award-observation-a3 .p7-metrics small{
+  color:#8fa197!important;
+  font-size:9px!important;
+}
+.p7-ac.award-observation-a3 .p7-interpret{
+  margin:1px 0 0!important;
+  padding:11px 14px!important;
+  border:0!important;
+  border-top:1px solid var(--award-line)!important;
+  background:#0e1a13!important;
+  color:#aebdb4!important;
+}
+.p7-ac.award-observation-a3 > .p7-plot{
+  background:#09130e!important;
+}
+.p7-ac.award-observation-a3 > .p7-data{
+  margin:clamp(18px,2vw,28px) clamp(20px,2.7vw,40px) clamp(26px,3vw,44px)!important;
+}
+
+/* Common data disclosures stay secondary but never disappear. */
+.award-observation-a3 :is(.p6b-data,.p7-data){
+  border-radius:2px!important;
+  border-color:var(--award-line)!important;
+  background:var(--award-panel)!important;
+}
+.award-observation-a3 :is(.p6b-data,.p7-data) summary{
+  color:#dbe4de!important;
+  font-family:var(--sans,system-ui,sans-serif)!important;
+}
+.award-observation-a3 :is(.p6b-table-scroll,.p7-table-scroll){
+  scrollbar-color:rgba(232,237,233,.22) transparent!important;
+}
+
+/* One continuous optical signal language across these workspaces. */
+html[data-water-workspace="atm"] .gg-lab-topology-node[data-node="atmosphere"],
+html[data-water-workspace="sensor"] .gg-lab-topology-node[data-node="sensor"],
+html[data-water-workspace="ac"] .gg-lab-topology-node[data-node="correction"]{
+  filter:drop-shadow(0 0 15px rgba(var(--water-spectrum-rgb),.08));
+}
+
+@media(max-width:1120px){
+  .p6b-atmosphere.award-observation-a3 .p6b-conditions{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  .p6b-sensor.award-observation-a3 .p6b-source{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:850px){
+  .p6b-atmosphere.award-observation-a3 .p6b-reading-grid,
+  .p7-ac.award-observation-a3 .p7-steps{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .p7-ac.award-observation-a3 .p7-metrics{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:650px){
+  .p6b-sensor.award-observation-a3 .p6b-stages ol{
+    grid-template-columns:1fr!important;
+  }
+  .p6b-atmosphere.award-observation-a3 .p6b-conditions,
+  .p6b-sensor.award-observation-a3 .p6b-source{
+    grid-template-columns:1fr 1fr!important;
+  }
+}
+@media(max-width:430px){
+  .p6b-atmosphere.award-observation-a3 .p6b-reading-grid,
+  .p6b-atmosphere.award-observation-a3 .p6b-conditions,
+  .p6b-sensor.award-observation-a3 .p6b-source,
+  .p7-ac.award-observation-a3 .p7-steps,
+  .p7-ac.award-observation-a3 .p7-metrics{
+    grid-template-columns:1fr!important;
+  }
+}

@@ -43,7 +43,9 @@ test('UX-P3 status uses RT provenance and responds to parameter matching',async(
 test('UX-P3 tools are discoverable and CSV / JSON / model inspector actions remain functional',async({page})=>{
  const app=await openStage3(page);
  await expect(app.locator('#exportBtn')).toBeHidden();
- await app.locator('#toolsMenu > summary').click();
+ const toolsSummary=app.locator('#toolsMenu > summary');
+ await toolsSummary.click();
+ await expect(toolsSummary).toHaveAttribute('aria-expanded','true');
  await expect(app.locator('#exportBtn')).toBeVisible();
  const download=page.waitForEvent('download');
  await app.locator('#exportBtn').click();

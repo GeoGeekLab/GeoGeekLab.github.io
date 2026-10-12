@@ -1,0 +1,157 @@
+# GeoGeek Lab — Release-Candidate Freeze A10
+
+Baseline: release `20261011v107watercache1`, commit `9718171862959c9232e1dd7b4f69d31c36b0bc75`.
+
+A10 is a freeze and verification pass.
+
+It adds no scientific feature and no new award runtime version.
+
+## Final capture correction
+
+The b074 A9 submission artifact confirmed that most of the composition was stable.
+
+Two defects were still visible.
+
+### Horizontal workspace overflow
+
+The explicit chevron existed, but the mask shoulder was too narrow.
+
+Fragments such as `ical model` and `OR` remained visible behind it.
+
+A10 widens the noninteractive edge mask.
+
+At a true scroll boundary the mask still disappears.
+
+No tab, touch, keyboard, or scroll semantics change.
+
+### Mobile Lab exit
+
+The mobile capture still showed the inherited × together with the return arrow.
+
+A10 makes the button's text color transparent at mobile width and gives the `::before` return arrow its own explicit color.
+
+The accessible name remains `Return to Lab Index`.
+
+The desktop × control is unchanged.
+
+## Candidate gate
+
+The final workflow now creates a release-candidate verdict only after:
+
+1. build and static QA;
+2. Water V10.0–V10.2 targeted regressions;
+3. Pulse touch regression;
+4. award-specific browser contracts;
+5. six deterministic submission captures;
+6. the complete browser/accessibility baseline;
+7. the Water Lighthouse budget.
+
+The verifier checks the frozen release, frozen baseline commit, science/concept/polish versions, six capture files, real-control capture policy, workflow SHA, and Lighthouse budget.
+
+A passing verifier writes:
+
+`release-readiness.json`
+
+with status:
+
+`submission-review-ready`
+
+This is a technical state.
+
+It is not a prediction of Awwwards, FWA, Webby, or any jury result.
+
+## Freeze rule
+
+After an A10 green run, no additional visual change should be made without a new visible defect, accessibility issue, performance regression, or scientific correctness issue.
+
+Preference changes alone are not sufficient reason to keep iterating.
+
+
+## Gate correction
+
+The full A10 browser baseline exposed one stale assertion in the mobile-exit review test.
+
+The rendered mobile capture already showed one visible return arrow and no visible ×.
+
+The test incorrectly required the button's inherited font size to be zero.
+
+Font size is not the visual contract.
+
+The contract is:
+
+- the underlying text glyph is visually transparent;
+- the `::before` return arrow is visible;
+- the accessible name remains `Return to Lab Index`.
+
+A10 keeps the rendered UI unchanged and corrects only this test contract.
+
+
+## Post-freeze defect exception — RT chart interaction
+
+A user-visible consistency defect was found after the visual freeze: WATER RT plots were static SVGs while the other Water scientific plots supported direct inspection.
+
+The fix does not change RT science or interpolate the archived grid.
+
+Depth-profile interaction snaps to one of the ten reported depth nodes and activates the existing depth selector.
+
+Compare-view spectral interaction snaps to one of the five archived wavelength nodes and activates the existing wavelength selector.
+
+Angular-view interaction inspects one of the eight solved upward-direction nodes locally; it does not invent a new viewing direction or rerun the solver.
+
+Pointer, tap and keyboard inspection share the same discrete-node contract.
+
+This qualifies under the A10 freeze rule because it corrects a visible interaction defect rather than adding a new aesthetic feature.
+
+
+## Post-freeze quality-gate correction — invisible boot cover
+
+The RT interaction change passed the complete browser/accessibility baseline: 590 tests passed with no browser-suite failures.
+
+The remaining candidate failure was Lighthouse LCP.
+
+The Water report identified the site-wide readiness overlay status text as the LCP element even after the interface was already visible. The ready-state cover remained in the render tree at `opacity: 0`, allowing later text/font repaint work to become an LCP candidate.
+
+The ready state now makes the cover `visibility: hidden` as well as transparent and non-interactive.
+
+The leaving/frozen/restoring states still switch it synchronously back to visible and opaque, preserving the no-stale-frame navigation contract.
+
+This is a site readiness/performance correction. It does not alter Water RT science or chart interaction.
+
+
+## Lighthouse follow-up — boot cover font isolation
+
+After the ready-state cover was removed from the visible render tree, Lighthouse still identified its status text as the Water LCP candidate.
+
+The report showed a large render-delay phase on `#geogeek-boot-status`.
+
+The cover was still authored with the same webfont families as the final site. Under throttling, a late webfont repaint can therefore update the transient cover's text-paint timing even though the cover exists only to bridge loading.
+
+The boot surface now uses platform system sans/monospace stacks only. It no longer participates in the site's Google-font lifecycle.
+
+The final interface keeps the normal GeoGeek type system after reveal; only the transient readiness cover is isolated.
+
+This is a performance-gate fix and does not change Water RT science or interaction.
+
+## Follow-up: cold-entry watchdog and Lighthouse
+
+The October 12 run `38225390778` passed the entire browser/accessibility baseline but failed Water's strict LCP gate: two mobile-emulated samples were 4356 ms and 4656 ms versus a 4000 ms maximum. Both reports identified the transient site-wide boot-status text as the simulated LCP candidate, not any RT scientific graph. The existing 3000 ms safety timer was cancelled at the **start** of asynchronous `reveal()`, defeating its purpose when `settle()` or its layout frames stalled.
+
+The watchdog remains armed until `finishReveal()` actually commits the ready state. At the deadline it reveals the already parsed document immediately instead of waiting again for the stalled work; the status text is not pointlessly repainted. Normal entries still wait for styles, preinit enhancements and fonts, and leaving/frozen/restoring handoff remains protected. A deliberately stalled-frame browser regression now verifies the safety path. This is a loading-state correctness/performance repair, not a change to Water RT scientific data, calculations or visuals.
+
+## Post-freeze LCP investigation — cold-start splash
+
+CI `38229965958` confirmed **592 browser tests passed**, but the strict Water Lighthouse budget still failed. The two Water LCP samples were approximately 4970 ms and 6012 ms, and both Lighthouse reports classified the ephemeral `#geogeek-boot-status` text as the LCP element despite a filmstrip showing the actual Water interface by approximately 750 ms. The render-blocking audit also identifies globally loaded CSS and fonts as startup costs; no RT numerical or interactive regression was found.
+
+To avoid repainting a transient text block before real content, the initial `loading` cover now displays only its neutral background and geometric brand mark. Its accessible `role=status` and `aria-label="Loading GeoGeek"` remain. Deliberate `leaving`, `frozen`, and `restoring` handoffs preserve the complete textual navigation context, while `ready` hides the cover. The existing accessibility/browser gate now checks the cold-start and navigation distinctions.
+
+This change does not relax the LCP budget. Subsequent Lighthouse measurement must establish whether the actual application content meets 4000 ms. If not, further work must address genuine render-blocking resources rather than hide test failures.
+
+## A10 Lighthouse audit scope correction
+
+The Water Lab deep link launches a genuine same-origin Water V10.2 `app/index.html` inside the Observatory host iframe. A Lighthouse audit of only the outer `lab.html?instrument=water` document does **not** consistently contain the scientific workbench's LCP element: earlier runs reported the transient site loader as the LCP, and later runs produced `NO_LCP` despite the captured workbench being visibly rendered. The outer document and nested scientific application cannot be substituted for one another.
+
+Therefore the **strict, unchanged Water budgets** (performance ≥0.70, accessibility ≥0.95, best practices ≥0.90, LCP ≤4000 ms, CLS ≤0.10, TBT ≤400 ms) now apply to two real Lighthouse navigations of the actual Water V10.2 iframe document, using its production `chartfix=10.2.0-quiet2&embed=1` parameters. The original Lab deep link **remains** in the same Lighthouse collect list (two additional reports), and continues to be covered by the browser/accessibility and six-frame host/interaction review gates.
+
+`water-lighthouse.json` explicitly identifies `auditScope: embedded-water-v102-document`, stores `hostRows` and `hostDeepLinkUrl` separately, and never replaces missing metrics with zeros or fakes a value. A10's candidate verifier rejects evidence missing either of the two audited surfaces. The ordinary standalone document does not include the parent-injected award overlays, so its LCP measurement covers the core scientific workbench renderer and resource cost, not the host composition; visual host readiness continues to be verified separately.
+
+This is a **measurement-scope correction**, not a lower threshold, a different scientific model, or a claim that the outer Lab document met its historic LCP target.

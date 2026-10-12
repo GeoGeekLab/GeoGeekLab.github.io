@@ -58,14 +58,16 @@ for (const file of await htmlFiles(dist)) {
     'data-geogeek-boot-preload',
     'data-geogeek-visual-readiness="true"',
     'html[data-geogeek-boot="leaving"] #geogeek-boot-cover',
+    'html[data-geogeek-boot="loading"] #geogeek-boot-cover .geogeek-boot-brand>span:last-child,html[data-geogeek-boot="loading"] #geogeek-boot-cover .geogeek-boot-scale{visibility:hidden!important}',
     'transition:none!important',
+    'html[data-geogeek-boot="ready"] #geogeek-boot-cover{opacity:0;pointer-events:none;visibility:hidden!important}',
     'class="geogeek-boot-brand"',
     'class="geogeek-boot-brand-mark"',
     'class="geogeek-boot-scale"',
     'border-radius:50%',
     '--geogeek-boot-fg:#152019',
     '--geogeek-boot-signal:#a64624',
-    '--geogeek-boot-sans:"Instrument Sans"',
+    '--geogeek-boot-sans:ui-sans-serif',
     'INFORMATION SCALE',
     'VIEW / READYING'
   ];
@@ -74,6 +76,9 @@ for (const file of await htmlFiles(dist)) {
   }
   if (html.includes('class="geogeek-boot-inner"')) {
     fail(`${relative} still contains the obsolete centered readiness card`);
+  }
+  if (/--geogeek-boot-(?:sans|mono):[^;}]*?(?:Instrument Sans|IBM Plex Mono)/.test(html)) {
+    fail(`${relative} boot cover must not wait for webfont repaint`);
   }
 
   const preinitRefs = [...html.matchAll(/src=(['"])([^'"]*\/)?ux-preinit\.js(?:\?v=([^'"]+))?\1/gi)];

@@ -1,0 +1,7 @@
+/* Water as Spectrum — award concept stylesheet manifest.
+ * Frozen A2 foundation + A3 instrument hierarchy + A5 interaction polish.
+ */
+@import url("../../core/lab-award-system.css?v=a3");
+@import url("./award-foundation.css?v=a3");
+@import url("./award-journey.css?v=a3");
+@import url("./award-polish.css?v=a5");

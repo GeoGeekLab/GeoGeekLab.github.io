@@ -51,6 +51,7 @@ await new Promise((resolve, reject) => {
 
 const base = 'http://127.0.0.1:4173';
 const instruments = ['orbit', 'earth', 'flow', 'pulse', 'figure', 'world', 'water', 'swath', 'locate', 'zone', 'path', 'project', 'light'];
+const observatoryKinds = new Set(['orbit','earth','flow','pulse','figure','world','water']);
 const browser = await chromium.launch({ headless: true, args: ['--disable-dev-shm-usage'] });
 
 async function newPage(viewport = { width: 1600, height: 1000 }) {
@@ -123,6 +124,42 @@ async function exerciseFlowLab(page) {
     await page.waitForFunction(value => document.querySelector('#instrumentStage .flow-lab')?.dataset.mode === value, mode, { timeout: 5000 });
     await page.waitForSelector(selector, { state: 'visible', timeout: 5000 });
   }
+}
+
+async function prepareAwardShowcase(page, kind) {
+  if (!observatoryKinds.has(kind)) return;
+
+  // The Observatory preview must come from the same award shell that visitors
+  // receive. Reduced-motion capture keeps this deterministic and avoids
+  // photographing a transition frame.
+  await page.waitForFunction(() => document.documentElement.dataset.labAwardPolish === 'a5', null, { timeout: 15000 });
+  await page.waitForFunction(() => document.getElementById('instrumentDialog')?.dataset.labAwardShell === 'a4', null, { timeout: 15000 });
+
+  if (kind === 'water') {
+    const frame = page.frameLocator('#instrumentStage iframe.water-v102-frame');
+    await expectWaterAward(frame);
+
+    // Use a stable, information-rich optical state for the collection card.
+    // This operates the real probe and workspace controls; it does not inject
+    // preview-only scientific values.
+    await frame.locator('#mainNav [data-tab="iop"]').click();
+    const rrs = frame.locator('#plotNav [data-plot="rrs"]');
+    if (await rrs.count()) await rrs.click();
+    await frame.locator('#probeRange').evaluate(node => {
+      node.value = '490';
+      node.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await frame.locator('#probeValue').waitFor({ state: 'visible' });
+    await frame.locator('[data-award-spectrum-value]').waitFor({ state: 'visible' });
+    const probe = (await frame.locator('#probeValue').textContent())?.trim();
+    if (probe !== '490 nm') throw new Error('water: showcase probe did not settle at 490 nm');
+  }
+}
+
+async function expectWaterAward(frame) {
+  await frame.locator('html[data-water-award-concept="a3"][data-water-award-polish="a5"]')
+    .waitFor({ state: 'attached', timeout: 30000 });
+  await frame.locator('.award-spectrum-ruler').waitFor({ state: 'visible', timeout: 30000 });
 }
 
 async function captureInstrument(kind) {
@@ -223,6 +260,8 @@ async function captureInstrument(kind) {
         throw new Error('water: scientific workbench failed before preview capture');
       }
     }
+
+    await prepareAwardShowcase(page, kind);
 
     const settle = kind === 'flow' || kind === 'orbit' ? 6500 : 2800;
     await page.waitForTimeout(settle);

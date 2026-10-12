@@ -72,9 +72,12 @@
     await nextFrames(2);
   };
 
-  const reveal = async ({ restored = false } = {}) => {
+  const finishReveal = ({ restored = false } = {}) => {
+    // Keep the cold-entry safety timeout armed until a visible, completed
+    // handoff. The previous reveal() cancelled it before any async settle work,
+    // so a stalled enhancement could leave the loading cover indefinitely.
+    if (revealed && root.dataset.geogeekBoot === 'ready') return;
     clearTimeout(revealTimer);
-    await settle();
     navigationCommitted = false;
     revealed = true;
     setState('ready');
@@ -82,6 +85,11 @@
     window.__GEOGEEK_VISUAL_READY__ = true;
     window.__GEOGEEK_VISUAL_READY_AT__ = performance.now();
     dispatchEvent(new CustomEvent('geogeek:visual-ready', { detail: { restored } }));
+  };
+
+  const reveal = async ({ restored = false } = {}) => {
+    await settle();
+    finishReveal({ restored });
   };
 
   const beginLeave = (label = '') => {
@@ -165,13 +173,14 @@
     start();
   }
 
-  // A broken enhancement must not create a permanent blank page. The timeout
-  // reveals the authoritative static HTML while preserving the no-old-frame
-  // contract during the normal path.
+  // A broken/slow enhancement must not keep the main document concealed.
+  // The safety path reveals already-parsed HTML directly: rerunning settle()
+  // here would repeat the very wait that timed out. Do not repaint the short-
+  // lived status text just before handoff (a late transient LCP candidate).
+  // Only cold entry is eligible; leaving/frozen/restoring remain protected.
   revealTimer = setTimeout(() => {
-    if (revealed) return;
-    if (status) status.textContent = 'Opening GeoGeek…';
-    reveal({ restored: false });
+    if (revealed || root.dataset.geogeekBoot !== 'loading') return;
+    finishReveal({ restored: false });
   }, 3000);
 
   window.GeoGeekVisualReadiness = Object.freeze({

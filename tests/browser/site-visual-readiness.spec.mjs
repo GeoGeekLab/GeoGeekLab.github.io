@@ -13,7 +13,15 @@ const principalRoutes = [
 async function expectReady(page) {
   await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'ready');
   await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '0');
+  await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('visibility', 'hidden');
   await expect.poll(() => page.evaluate(() => window.__GEOGEEK_VISUAL_READY__)).toBe(true);
+
+  const bootFonts = await page.locator('#geogeek-boot-cover').evaluate(node => ({
+    brand:getComputedStyle(node.querySelector('.geogeek-boot-brand')).fontFamily,
+    scale:getComputedStyle(node.querySelector('.geogeek-boot-scale')).fontFamily
+  }));
+  expect(bootFonts.brand).not.toMatch(/Instrument Sans/i);
+  expect(bootFonts.scale).not.toMatch(/IBM Plex Mono/i);
 
   const hasPreinit = await page.locator('script[src*="ux-preinit.js"]').count();
   if (hasPreinit) {
@@ -25,6 +33,7 @@ async function expectImmediateLeaveCover(page) {
   await page.evaluate(() => window.GeoGeekVisualReadiness.beginLeave('Testing handoff…'));
   await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'leaving');
   await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '1');
+  await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('visibility', 'visible');
   await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('pointer-events', 'auto');
   await page.evaluate(() => window.GeoGeekVisualReadiness.reveal({ restored: false }));
   await expectReady(page);
@@ -38,6 +47,25 @@ test.describe('site-wide visual readiness', () => {
       await expect(page.locator('script[data-geogeek-visual-readiness="true"]')).toHaveCount(1);
       await expect(page.locator('#geogeek-boot-cover')).toHaveCount(1);
     }
+  });
+
+  test('cold-entry safety handoff reveals static content even if layout frames stall', async ({ page }) => {
+    await page.addInitScript(() => {
+      // Intentionally stall only animation-frame callbacks. The watchdog must
+      // not rely on the same frames as the normal settle path.
+      window.requestAnimationFrame = () => 1;
+    });
+    await page.goto('/field-notes.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'loading');
+    // The cover's geometric mark stays visible. Its transient copy is not
+    // repainted as a false LCP candidate while the real document prepares.
+    await expect(page.locator('#geogeek-boot-cover .geogeek-boot-brand-mark')).toHaveCSS('visibility', 'visible');
+    await expect(page.locator('#geogeek-boot-cover .geogeek-boot-scale')).toHaveCSS('visibility', 'hidden');
+    await expect(page.locator('#geogeek-boot-cover')).toHaveAttribute('aria-label', 'Loading GeoGeek');
+    await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'ready', { timeout: 6000 });
+    await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('visibility', 'hidden');
+    await expect.poll(() => page.evaluate(() => window.__GEOGEEK_VISUAL_READY__)).toBe(true);
+    await expect(page.locator('main#main')).toBeVisible();
   });
 
   test('root path uses the index artifact without a client-side redirect navigation', async ({ page }) => {

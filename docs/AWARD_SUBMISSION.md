@@ -1,0 +1,87 @@
+# GeoGeek Lab / Water as Spectrum — Submission Framing
+
+## One-line concept
+
+Water is not treated as a blue surface.
+
+It is treated as a spectral medium whose behavior changes with wavelength, depth, scattering, atmosphere, sensor response, and model assumptions.
+
+## Primary interaction
+
+The wavelength probe is the central coordinate.
+
+The same wavelength state appears in the spectral ruler, chart probe, active point, numerical readout, table emphasis, and optical ambience.
+
+## Signature scene
+
+WATER RT is the strongest submission scene.
+
+It combines an editorial scientific opening with explicit selection geometry, reference-state status, sampled optical quantities, solved plots, method disclosure, and provenance.
+
+The geometry is labeled `NOT A RADIANCE FIELD`.
+
+This prevents a schematic control summary from being mistaken for a computed photon or radiance visualization.
+
+## Scientific position
+
+The workbench is a teaching model.
+
+It is not externally validated.
+
+The numerical RT reference is self-generated and not externally benchmarked.
+
+Matched-model closure is not described as empirical accuracy.
+
+These limitations are part of the interface rather than hidden legal copy.
+
+## Family consistency
+
+Water uses the same Observatory grammar as Pulse and the other Lab instruments.
+
+The family identity comes from structure, typography roles, rail behavior, separators, provenance, and host orientation.
+
+Water owns its spectral cyan/mineral signal and warm solar reference.
+
+Pulse retains its seismic-orange signal.
+
+## Recommended review order
+
+Use the A8 generated frames in this order:
+
+1. `01-water-spectrum-desktop.png`
+2. `02-water-rt-desktop.png`
+3. `03-water-atmosphere-desktop.png`
+4. `04-water-rt-tablet.png`
+5. `05-water-spectrum-mobile.png`
+6. `06-pulse-family-desktop.png`
+
+The first two frames should carry most of the visual argument.
+
+The final Pulse frame should establish that Water belongs to a broader scientific product rather than a standalone visual experiment.
+
+
+## A9 image review
+
+The six-frame submission capture was reviewed at desktop, tablet, and mobile sizes.
+
+The final corrections are intentionally narrow.
+
+- Water Optics gives more first-view area to the actual Rrs spectrum.
+- WATER RT retains its open reference chamber and uses a slightly wider editorial title measure.
+- Horizontal workspace overflow now has explicit continuation chevrons.
+- Mobile Lab exit shows one return glyph rather than an arrow plus ×.
+
+Atmosphere topology and the Pulse family-comparison frame required no structural revision.
+
+
+## A10 freeze rule
+
+The submission package freezes when the complete quality workflow and the A10 candidate gate pass on the same commit.
+
+The package then contains the six curated frames, Water Lighthouse evidence, and `release-readiness.json`.
+
+Further aesthetic iteration is blocked unless new evidence identifies a defect or regression.
+
+## Lighthouse measurement scope
+
+Water is a same-origin iframe instrument. The two strict Lighthouse samples measure the **real Water V10.2 app document** rather than mistaking a transient Lab loading cover (or `NO_LCP`) for scientific instrument paint. The original hosted Lab deep link is still collected and independently exercised by browser and screenshot gates. `water-lighthouse.json` records both scopes; the performance limits are unchanged. Standalone app measurements do not include parent-injected award overlays.
