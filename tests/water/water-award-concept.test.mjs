@@ -5,13 +5,15 @@ import {readFileSync} from 'node:fs';
 const read = name => readFileSync(new URL('../../' + name, import.meta.url), 'utf8');
 const prefix='site/water/workbench-v10-2/';
 
-test('Award A3 preserves the validated Water version contract', () => {
+test('Award A3 plus A5 preserves the validated Water version contract', () => {
   const adapter=read(prefix+'instrument.js');
   assert.match(adapter,/version:\s*'10\.2\.0-quiet2'/);
   assert.match(adapter,/conceptVersion:\s*'award-a3'/);
-  assert.match(adapter,/award-concept\.css\?v=a3/);
+  assert.match(adapter,/award-concept\.css\?v=a5/);
   assert.match(adapter,/award-optical\.js\?v=a3/);
   assert.match(adapter,/award-journey\.js\?v=a3/);
+  assert.match(adapter,/award-polish\.js\?v=a5/);
+  assert.match(adapter,/polishVersion:\s*'award-a5'/);
   assert.match(adapter,/award-concept\.js\?v=a3/);
   assert.match(adapter,/chartfix', '10\.2\.0-quiet2'/);
 });
@@ -20,6 +22,7 @@ test('Award A3 modules are presentation-only and cannot write model state', () =
   const scripts=[
     read(prefix+'award-optical.js'),
     read(prefix+'award-journey.js'),
+    read(prefix+'award-polish.js'),
     read(prefix+'award-concept.js')
   ].join('\n');
   assert.doesNotMatch(scripts,/GeoGeekRT101\s*=/);
@@ -41,6 +44,7 @@ test('Award A3 CSS is modular and keeps A2 optical science visible', () => {
   assert.match(manifest,/lab-award-system\.css\?v=a3/);
   assert.match(manifest,/award-foundation\.css\?v=a3/);
   assert.match(manifest,/award-journey\.css\?v=a3/);
+  assert.match(manifest,/award-polish\.css\?v=a5/);
 
   assert.match(foundation,/--water-probe-x/);
   assert.match(foundation,/--water-rt-depth-y/);
@@ -87,4 +91,20 @@ test('Award injection ignores transient about:blank iframe loads', () => {
   assert.ok(srcIndex >= 0 && appendIndex >= 0 && srcIndex < appendIndex,
     'frame src must be assigned before insertion so the concept layer cannot bind to about:blank');
   assert.match(adapter,/frame\.removeEventListener\('load', onFrameLoad\)/);
+});
+
+
+test('Award A5 links the shared wavelength coordinate without changing model semantics', () => {
+  const css=read(prefix+'award-polish.css');
+  const js=read(prefix+'award-polish.js');
+  assert.match(css,/\.graph \.probe-line/);
+  assert.match(css,/\.graph \.active-dot/);
+  assert.match(css,/\.probe-range/);
+  assert.match(css,/linear-gradient\(90deg/);
+  assert.match(css,/prefers-reduced-motion:reduce/);
+  assert.match(js,/waterAwardPolish='a5'/);
+  assert.doesNotMatch(js,/models\.run\(|computeWaterOptics\(|fetch\(/);
+  assert.doesNotMatch(js,/localStorage\.|sessionStorage\./);
+  assert.doesNotMatch(js,/\.dispatchEvent\(|\.click\(\)/);
+  assert.doesNotMatch(js,/\.(?:value|checked)\s*=/);
 });
