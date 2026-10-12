@@ -7,10 +7,11 @@
   'use strict';
   const rootUrl = new URL('water/workbench-v10-2/', document.baseURI);
   const stylesheet = new URL('instrument.css?v=10.2.0-quiet2', rootUrl).href;
-  const awardStylesheet = new URL('award-concept.css?v=a3', rootUrl).href;
+  const awardStylesheet = new URL('award-concept.css?v=a5', rootUrl).href;
   const awardScripts = Object.freeze([
     { id: 'optical', href: new URL('award-optical.js?v=a3', rootUrl).href },
     { id: 'journey', href: new URL('award-journey.js?v=a3', rootUrl).href },
+    { id: 'polish', href: new URL('award-polish.js?v=a5', rootUrl).href },
     { id: 'marker', href: new URL('award-concept.js?v=a3', rootUrl).href }
   ]);
   const frameUrl = new URL('app/index.html', rootUrl);
@@ -170,5 +171,5 @@
   }
 
   mounts.water = mount;
-  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2', conceptVersion: 'award-a3', mount };
+  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2', conceptVersion: 'award-a3', polishVersion: 'award-a5', mount };
 })();
