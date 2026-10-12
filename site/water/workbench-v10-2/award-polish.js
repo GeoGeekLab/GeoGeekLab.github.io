@@ -18,7 +18,8 @@
     toolFrame=0;
     const menu=document.getElementById('toolsMenu');
     const summary=menu?.querySelector(':scope > summary');
-    const panel=menu?.querySelector(':scope > .ui-toolmenu-panel');
+    const panel=menu?.querySelector(':scope > .ui-toolmenu-panel')||
+      document.querySelector('.ui-toolmenu-panel[data-award-tools-portal="a5"]');
     if(!menu?.open||!summary||!panel) return;
 
     const trigger=summary.getBoundingClientRect();
