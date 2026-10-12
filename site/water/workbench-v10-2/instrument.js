@@ -7,6 +7,8 @@
   'use strict';
   const rootUrl = new URL('water/workbench-v10-2/', document.baseURI);
   const stylesheet = new URL('instrument.css?v=10.2.0-quiet2', rootUrl).href;
+  const awardStylesheet = new URL('award-concept.css?v=a1', rootUrl).href;
+  const awardScript = new URL('award-concept.js?v=a1', rootUrl).href;
   const frameUrl = new URL('app/index.html', rootUrl);
   const mounts = window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};
   let sequence = 0;
@@ -18,6 +20,26 @@
     link.href = stylesheet;
     link.dataset.waterV102Style = '1';
     document.head.appendChild(link);
+  }
+
+  function installAwardConcept(frame) {
+    const doc = frame.contentDocument;
+    if (!doc?.head) return;
+
+    if (!doc.querySelector('link[data-water-award-concept]')) {
+      const link = doc.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = awardStylesheet;
+      link.dataset.waterAwardConcept = 'a1';
+      doc.head.appendChild(link);
+    }
+
+    if (!doc.querySelector('script[data-water-award-concept]')) {
+      const script = doc.createElement('script');
+      script.src = awardScript;
+      script.dataset.waterAwardConcept = 'a1';
+      doc.body?.appendChild(script);
+    }
   }
 
   async function mount({ stage = document.getElementById('instrumentStage'), signal } = {}) {
@@ -81,6 +103,7 @@
 
     window.addEventListener('message', onMessage);
     signal?.addEventListener('abort', onAbort, { once: true });
+    frame.addEventListener('load', () => installAwardConcept(frame), { once: true });
     stage.replaceChildren(frame);
     timeout = setTimeout(() => {
       if (settled) return;
@@ -130,5 +153,5 @@
   }
 
   mounts.water = mount;
-  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2', mount };
+  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2-award-a1', mount };
 })();
