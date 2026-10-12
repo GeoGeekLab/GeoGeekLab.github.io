@@ -45,6 +45,25 @@ test('UX-P3 tools are discoverable and CSV / JSON / model inspector actions rema
  await expect(app.locator('#exportBtn')).toBeHidden();
  await app.locator('#toolsMenu > summary').click();
  await expect(app.locator('#exportBtn')).toBeVisible();
+ console.log('A5_TOOL_DIAGNOSTIC',JSON.stringify(await app.locator('#toolsMenu').evaluate(menu=>{
+  const panel=menu.querySelector('.ui-toolmenu-panel');
+  const button=menu.querySelector('#exportBtn');
+  const topbar=menu.closest('.topbar');
+  const rect=node=>{const r=node?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height,top:r.top,right:r.right,bottom:r.bottom,left:r.left}:null};
+  const br=button?.getBoundingClientRect();
+  const hit=br?document.elementFromPoint(br.left+br.width/2,br.top+br.height/2):null;
+  const style=node=>node?{position:getComputedStyle(node).position,zIndex:getComputedStyle(node).zIndex,overflow:getComputedStyle(node).overflow,display:getComputedStyle(node).display,pointerEvents:getComputedStyle(node).pointerEvents}:null;
+  return {
+   scrollY:window.scrollY,
+   awardPolish:document.documentElement.dataset.waterAwardPolish||null,
+   menuOpen:menu.open,
+   menu:rect(menu),panel:rect(panel),button:rect(button),topbar:rect(topbar),
+   menuStyle:style(menu),panelStyle:style(panel),topbarStyle:style(topbar),
+   inlineLeft:panel?.style.getPropertyValue('--water-tools-left')||null,
+   inlineTop:panel?.style.getPropertyValue('--water-tools-top')||null,
+   hit:{tag:hit?.tagName||null,id:hit?.id||null,className:typeof hit?.className==='string'?hit.className:null,text:hit?.textContent?.trim()?.slice(0,80)||null}
+  };
+ })));
  const download=page.waitForEvent('download');
  await app.locator('#exportBtn').click();
  const saved=await download;
