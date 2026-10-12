@@ -99,9 +99,20 @@
       cleanup();
     }
 
+    function onFrameLoad() {
+      // An iframe inserted before src assignment can emit an about:blank load.
+      // Ignore that transient document so the award layer attaches only to the
+      // real V10.2 application document.
+      const href = frame.contentWindow?.location?.href || '';
+      if (!href || href === 'about:blank') return;
+      frame.removeEventListener('load', onFrameLoad);
+      installAwardConcept(frame);
+    }
+
     cleanup = () => {
       window.removeEventListener('message', onMessage);
       signal?.removeEventListener('abort', onAbort);
+      frame.removeEventListener('load', onFrameLoad);
       clearTimeout(timeout);
       frame.remove();
       if(dialog?.dataset.waterUiVersion==='v102') delete dialog.dataset.waterUiVersion;
@@ -109,14 +120,14 @@
 
     window.addEventListener('message', onMessage);
     signal?.addEventListener('abort', onAbort, { once: true });
-    frame.addEventListener('load', () => installAwardConcept(frame), { once: true });
+    frame.src = url.href;
+    frame.addEventListener('load', onFrameLoad);
     stage.replaceChildren(frame);
     timeout = setTimeout(() => {
       if (settled) return;
       settled = true;
       rejectReady(new Error('Water V10.2 UI stages 1–4 did not initialize within 15 seconds'));
     }, 15000);
-    frame.src = url.href;
 
     try {
       const ready = await loaded;
