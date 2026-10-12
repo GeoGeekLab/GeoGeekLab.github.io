@@ -86,7 +86,29 @@ test('Water A5 keeps one wavelength identity across ruler, chart and scrubber',a
   await expect(frame.locator('#probeValue')).toContainText('490 nm');
 
   await expect(frame.locator('[data-award-spectrum-value]')).toContainText('490 nm');
-  await expect(frame.locator('.p6-spectrum.award-spectrum-primary .graph .probe-line')).toBeVisible();
+
+  const probeLine=frame.locator('.p6-spectrum.award-spectrum-primary .graph .probe-line');
+  await expect(probeLine).toHaveCount(1);
+  const line=await probeLine.evaluate(node=>{
+    const style=getComputedStyle(node);
+    return {
+      x1:parseFloat(node.getAttribute('x1')),
+      x2:parseFloat(node.getAttribute('x2')),
+      y1:parseFloat(node.getAttribute('y1')),
+      y2:parseFloat(node.getAttribute('y2')),
+      stroke:style.stroke,
+      display:style.display,
+      visibility:style.visibility,
+      opacity:parseFloat(style.opacity)
+    };
+  });
+  expect(line.x1).toBeCloseTo(line.x2,3);
+  expect(Math.abs(line.y2-line.y1)).toBeGreaterThan(40);
+  expect(line.stroke).not.toBe('none');
+  expect(line.display).not.toBe('none');
+  expect(line.visibility).not.toBe('hidden');
+  expect(line.opacity).toBeGreaterThan(0);
+
   await expect(frame.locator('.p6-spectrum.award-spectrum-primary .graph .active-dot')).toBeVisible();
 
   const visual=await slider.evaluate(node=>{

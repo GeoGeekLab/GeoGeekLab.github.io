@@ -162,11 +162,23 @@ jobs:
 
       - name: Validate Pulse Round 5 44px touch-target regression (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/pulse-round5.spec.mjs --grep 'Pulse mobile controls stay touch-sized' --project=desktop-chromium --project=mobile-chromium --workers=2
-      - name: Browser and accessibility baseline
-        run: npm run qa:browser
+
+      - name: Validate award browser contracts
+        run: npx playwright test -c playwright.config.mjs tests/browser/lab-award-shell.spec.mjs tests/browser/lab-award-polish.spec.mjs tests/browser/lab-award-a6.spec.mjs tests/browser/lab-award-a7.spec.mjs tests/browser/water-award-concept.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
 
       - name: Capture award submission review
         run: npm run award:capture
+
+      - name: Upload award submission review
+        uses: actions/upload-artifact@v4
+        with:
+          name: award-submission-review
+          if-no-files-found: error
+          include-hidden-files: true
+          path: .award-submission
+
+      - name: Browser and accessibility baseline
+        run: npm run qa:browser
 
       - name: Lighthouse baseline
         run: npm run qa:lighthouse

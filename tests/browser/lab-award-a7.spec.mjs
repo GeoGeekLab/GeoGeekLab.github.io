@@ -11,17 +11,23 @@ async function openWaterRt(page){
   return {dialog,frame};
 }
 
-test('A7 Water keeps compact host while preserving readable Observatory context',async({page})=>{
+test('A7 Water keeps compact host and follows the declared responsive orientation contract',async({page},testInfo)=>{
   const {dialog}=await openWaterRt(page);
   const height=await dialog.locator('.instrument-head').evaluate(node=>node.getBoundingClientRect().height);
   expect(height).toBeLessThanOrEqual(76);
 
+  const context=dialog.locator('.instrument-award-context');
   const kicker=dialog.locator('.instrument-award-context-kicker');
   const mode=dialog.locator('.instrument-award-context-mode');
-  await expect(kicker).toBeVisible();
-  await expect(mode).toBeVisible();
+
+  await expect(kicker).toHaveText('OBSERVATORY · 07');
+  await expect(mode).toHaveText('INTERNAL WORKSPACE');
   expect(await kicker.evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(10);
   expect(await mode.evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(10);
+
+  if(testInfo.project.name.includes('mobile')) await expect(context).toBeHidden();
+  else await expect(context).toBeVisible();
+
   await expect(dialog.locator('.instrument-award-axis')).toBeHidden();
 });
 

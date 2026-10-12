@@ -334,3 +334,18 @@ At least one sibling-instrument frame should be included when family consistency
 The open award-candidate instrument must be included in performance and accessibility measurement.
 
 Passing automated budgets is necessary but not sufficient for award-quality review.
+
+
+## 17. A9 evidence-gate contract
+
+A failing visual test must be classified before changing the interface.
+
+Do not alter a correct responsive design merely to satisfy a stale assertion.
+
+Tests for intentionally hidden mobile orientation must differ from desktop visibility assertions.
+
+SVG marks with zero geometric width or height should be tested through their rendered attributes, stroke, opacity, and semantic state rather than generic element-visibility heuristics.
+
+Synthetic shell tests must not pretend to mount a scientific instrument.
+
+Submission captures should be produced and uploaded before long unrelated browser suites when this does not weaken the final release gate.
