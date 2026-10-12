@@ -16,12 +16,12 @@
 .ui-toolmenu{
   z-index:90!important;
 }
-.ui-toolmenu-panel{
+.ui-toolmenu-panel[data-award-tools-portal="a5"]{
   position:fixed!important;
   left:var(--water-tools-left,auto)!important;
   top:var(--water-tools-top,auto)!important;
   right:auto!important;
-  z-index:1000!important;
+  z-index:2147483000!important;
   pointer-events:auto;
 }
 
