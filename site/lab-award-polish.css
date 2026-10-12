@@ -31,8 +31,8 @@
   to{transform:scaleX(1);opacity:1}
 }
 @keyframes gg-award-context-arrive{
-  from{opacity:.38;translate:0 3px}
-  to{opacity:1;translate:0 0}
+  from{opacity:.38;transform:translateY(3px)}
+  to{opacity:1;transform:translateY(0)}
 }
 @keyframes gg-award-stage-enter{
   from{opacity:.72}
