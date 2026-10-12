@@ -76,3 +76,15 @@ test('Award concept remains pinned to the requested release baseline', () => {
   assert.match(constitution,/20261011v107watercache1/);
   assert.match(constitution,/must not silently rebase/i);
 });
+
+
+test('Award injection ignores transient about:blank iframe loads', () => {
+  const adapter=read(prefix+'instrument.js');
+  assert.match(adapter,/function onFrameLoad\(\)/);
+  assert.match(adapter,/href === 'about:blank'/);
+  const srcIndex=adapter.indexOf('frame.src = url.href');
+  const appendIndex=adapter.indexOf('stage.replaceChildren(frame)');
+  assert.ok(srcIndex >= 0 && appendIndex >= 0 && srcIndex < appendIndex,
+    'frame src must be assigned before insertion so the concept layer cannot bind to about:blank');
+  assert.match(adapter,/frame\.removeEventListener\('load', onFrameLoad\)/);
+});
