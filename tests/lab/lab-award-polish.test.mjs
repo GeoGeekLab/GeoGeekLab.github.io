@@ -41,3 +41,15 @@ test('A5 preserves tablet orientation and mobile compactness',()=>{
   assert.match(css,/instrument-award-context/);
   assert.match(css,/@media\(max-width:700px\)/);
 });
+
+
+test('A5 preview capture waits for award layers and uses a reproducible Water state',()=>{
+  const capture=read('scripts/capture-lab-previews.mjs');
+  assert.match(capture,/labAwardPolish === 'a5'/);
+  assert.match(capture,/dataset\.labAwardShell === 'a4'/);
+  assert.match(capture,/data-water-award-concept="a3"/);
+  assert.match(capture,/data-water-award-polish="a5"/);
+  assert.match(capture,/data-tab="iop"/);
+  assert.match(capture,/node\.value = '490'/);
+  assert.match(capture,/new Event\('input'/);
+});
