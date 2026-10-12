@@ -32,6 +32,9 @@ test('A4 keeps all seven Observatory instruments in one shell family', () => {
   for(const kind of ['world','figure','orbit','earth','flow','pulse','water']){
     assert.match(js,new RegExp(kind));
   }
+  assert.match(js,/Object\.freeze\(\['orbit','earth','flow','pulse','figure','world','water'\]\)/);
+  assert.match(js,/orbit:\{index:'01'/);
+  assert.match(js,/water:\{index:'07'/);
   assert.match(js,/SPECTRAL WATER/);
   assert.match(js,/SEISMIC FIELD/);
   assert.match(js,/ORBITAL FIELD/);
