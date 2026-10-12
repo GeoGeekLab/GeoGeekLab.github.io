@@ -5,36 +5,66 @@ import {readFileSync} from 'node:fs';
 const read = name => readFileSync(new URL('../../' + name, import.meta.url), 'utf8');
 const prefix='site/water/workbench-v10-2/';
 
-test('Award A2 preserves the validated Water version contract', () => {
+test('Award A3 preserves the validated Water version contract', () => {
   const adapter=read(prefix+'instrument.js');
   assert.match(adapter,/version:\s*'10\.2\.0-quiet2'/);
-  assert.match(adapter,/conceptVersion:\s*'award-a2'/);
-  assert.match(adapter,/award-concept\.css\?v=a2/);
-  assert.match(adapter,/award-concept\.js\?v=a2/);
+  assert.match(adapter,/conceptVersion:\s*'award-a3'/);
+  assert.match(adapter,/award-concept\.css\?v=a3/);
+  assert.match(adapter,/award-optical\.js\?v=a3/);
+  assert.match(adapter,/award-journey\.js\?v=a3/);
+  assert.match(adapter,/award-concept\.js\?v=a3/);
   assert.match(adapter,/chartfix', '10\.2\.0-quiet2'/);
 });
 
-test('Award A2 is presentation-only and does not write model state', () => {
-  const js=read(prefix+'award-concept.js');
-  assert.doesNotMatch(js,/GeoGeekRT101\s*=/);
-  assert.doesNotMatch(js,/models\.run\(|computeWaterOptics\(|fetch\(/);
-  assert.doesNotMatch(js,/localStorage\.|sessionStorage\./);
-  assert.doesNotMatch(js,/\.dispatchEvent\(|\.click\(\)/);
-  assert.doesNotMatch(js,/\.(?:value|checked)\s*=/);
-  assert.match(js,/NOT A RADIANCE FIELD/);
-  assert.match(js,/ACTIVE WAVELENGTH/);
+test('Award A3 modules are presentation-only and cannot write model state', () => {
+  const scripts=[
+    read(prefix+'award-optical.js'),
+    read(prefix+'award-journey.js'),
+    read(prefix+'award-concept.js')
+  ].join('\n');
+  assert.doesNotMatch(scripts,/GeoGeekRT101\s*=/);
+  assert.doesNotMatch(scripts,/models\.run\(|computeWaterOptics\(|fetch\(/);
+  assert.doesNotMatch(scripts,/localStorage\.|sessionStorage\./);
+  assert.doesNotMatch(scripts,/\.dispatchEvent\(|\.click\(\)/);
+  assert.doesNotMatch(scripts,/\.(?:value|checked)\s*=/);
+  assert.match(scripts,/NOT A RADIANCE FIELD/);
+  assert.match(scripts,/ACTIVE WAVELENGTH/);
+  assert.match(scripts,/MODEL TOPOLOGY · READ-ONLY/);
 });
 
-test('Award A2 exposes spectral and RT selection coordinates without hiding science', () => {
-  const css=read(prefix+'award-concept.css');
-  assert.match(css,/AWARD CONCEPT A2/);
-  assert.match(css,/--water-probe-x/);
-  assert.match(css,/--water-rt-depth-y/);
-  assert.match(css,/--water-sun-angle/);
-  assert.match(css,/\.award-spectrum-ruler/);
-  assert.match(css,/\.award-rt-geometry/);
-  assert.match(css,/@media \(prefers-reduced-motion:reduce\)/);
-  assert.doesNotMatch(css,/\.rt-science-provenance\s*\{[^}]*display\s*:\s*none/is);
+test('Award A3 CSS is modular and keeps A2 optical science visible', () => {
+  const manifest=read(prefix+'award-concept.css');
+  const foundation=read(prefix+'award-foundation.css');
+  const journey=read(prefix+'award-journey.css');
+  const shared=read('site/core/lab-award-system.css');
+
+  assert.match(manifest,/lab-award-system\.css\?v=a3/);
+  assert.match(manifest,/award-foundation\.css\?v=a3/);
+  assert.match(manifest,/award-journey\.css\?v=a3/);
+
+  assert.match(foundation,/--water-probe-x/);
+  assert.match(foundation,/--water-rt-depth-y/);
+  assert.match(foundation,/--water-sun-angle/);
+  assert.match(foundation,/\.award-spectrum-ruler/);
+  assert.match(foundation,/\.award-rt-geometry/);
+  assert.doesNotMatch(foundation,/\.rt-science-provenance\s*\{[^}]*display\s*:\s*none/is);
+
+  assert.match(shared,/\.gg-lab-topology/);
+  assert.match(journey,/\.award-observation-a3/);
+  assert.match(journey,/p6b-atmosphere/);
+  assert.match(journey,/p6b-sensor/);
+  assert.match(journey,/p7-ac/);
+});
+
+test('Award A3 retains reduced-motion and scientific-limit affordances', () => {
+  const foundation=read(prefix+'award-foundation.css');
+  const shared=read('site/core/lab-award-system.css');
+  const journey=read(prefix+'award-journey.js');
+  assert.match(foundation,/@media \(prefers-reduced-motion:reduce\)/);
+  assert.match(shared,/@media\(prefers-reduced-motion:reduce\)/);
+  assert.match(journey,/not independent correction validation/i);
+  assert.match(journey,/not measured satellite radiance/i);
+  assert.match(journey,/no band value/i);
 });
 
 test('Award concept remains pinned to the requested release baseline', () => {
@@ -42,6 +72,7 @@ test('Award concept remains pinned to the requested release baseline', () => {
   const constitution=read('docs/LAB_VISUAL_CONSTITUTION.md');
   assert.match(doc,/20261011v107watercache1/);
   assert.match(doc,/9718171862959c9232e1dd7b4f69d31c36b0bc75/);
+  assert.match(doc,/A3 implementation/);
   assert.match(constitution,/20261011v107watercache1/);
   assert.match(constitution,/must not silently rebase/i);
 });
