@@ -33,8 +33,18 @@
     document.head.appendChild(link);
   }
 
+  if (!document.querySelector('link[data-lab-award-polish]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'lab-award-polish.css?v=a5';
+    link.dataset.labAwardPolish = 'a5';
+    document.head.appendChild(link);
+  }
+
   import(new URL('lab-award-shell.js?v=a4', document.baseURI).href)
     .catch(error => console.warn('[GeoGeek] Lab award shell A4 could not load; base workspace remains available.', error));
+  import(new URL('lab-award-polish.js?v=a5', document.baseURI).href)
+    .catch(error => console.warn('[GeoGeek] Lab award polish A5 could not load; base workspace remains available.', error));
 
   const dialog = document.getElementById('instrumentDialog');
   const head = dialog?.querySelector('.instrument-head');
