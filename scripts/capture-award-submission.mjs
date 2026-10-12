@@ -139,12 +139,17 @@ async function shotWaterRt(viewport,file,label){
   try{
     await frame.locator('#mainNav [data-tab="rt"]').click();
     await frame.locator('.rt-science-workspace').waitFor({state:'visible'});
-    await frame.locator('.award-rt-geometry').waitFor({state:'visible'});
+    // Curate both A11 densities: desktop Focus shows the chart; tablet Detail
+    // preserves the full geometry and provenance inspection.
+    const density=viewport.width>=1280?'focus':'detail';
+    await frame.locator('[data-attention-mode="'+density+'"]').click();
+    if(density==='detail') await frame.locator('.award-rt-geometry').waitFor({state:'visible'});
+    else await frame.locator('.rt-science-plot-grid').waitFor({state:'visible'});
     await captureDialog(page,file,{
       label,
       instrument:'water',
       workspace:'rt',
-      state:{view:'depth',reference:'fixed numerical grid'},
+      state:{view:'depth',reference:'fixed numerical grid',density},
       viewport
     });
   }finally{await page.close();}

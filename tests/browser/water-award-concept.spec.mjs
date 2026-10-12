@@ -27,6 +27,8 @@ test('Water A3 keeps wavelength as a visible coordinate without replacing the or
 test('Water A3 presents RT selection geometry as geometry, not a solved radiance field',async({page})=>{
   const frame=await openAwardWater(page);
   await frame.locator('#mainNav [data-tab="rt"]').click();
+  // A11 Focus prioritizes charts; full scientific selection geometry is in Detail.
+  await frame.locator('[data-attention-mode="detail"]').click();
 
   const geometry=frame.locator('.award-rt-geometry');
   await expect(geometry).toBeVisible();

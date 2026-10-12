@@ -43,7 +43,7 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   await expect(chinesePanel).toContainText('它没有顺理成章的传世孤本，却值得在不同的时代风浪里，一次又一次翻开残页，回去追问。');
 });
 
-test('Elsewhere exposes BOOK as a thirty-four-record collection index', async ({ page }) => {
+test('Elsewhere exposes BOOK as a thirty-five-record collection index', async ({ page }) => {
   await page.goto('/elsewhere.html#e02');
 
   const bookCollection = page.locator('#e02[data-collection-entry="true"]');
@@ -51,7 +51,7 @@ test('Elsewhere exposes BOOK as a thirty-four-record collection index', async ({
   await expect(bookCollection.locator('.book-unit-head')).toContainText('BOOK INDEX');
 
   const records = bookCollection.locator('.book-unit-row');
-  await expect(records).toHaveCount(34);
+  await expect(records).toHaveCount(35);
   await expect(records.first()).toContainText('The Glory and the Dream');
   await expect(records.first()).toContainText('William Manchester');
   await expect(records.first()).toContainText('1974');
@@ -88,6 +88,9 @@ test('Elsewhere exposes BOOK as a thirty-four-record collection index', async ({
   await expect(records.nth(31)).toContainText('八次危机：中国的真实经验1949-2009');
   await expect(records.nth(32)).toContainText('苦难辉煌');
   await expect(records.nth(33)).toContainText('1587, A Year of No Significance');
+  // Production now includes the authored 35th reading record.
+  await expect(records.nth(34)).toContainText('厚黑学');
+  await expect(records.nth(34)).toContainText('李宗吾');
 });
 
 test('BOOK scaffold pages keep metadata while leaving the reading response empty', async ({ page }) => {

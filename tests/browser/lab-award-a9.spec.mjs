@@ -26,8 +26,13 @@ test('A9 navigation overflow uses explicit continuation cues instead of exposed 
   });
   expect(cue.beforeContent).toContain('‹');
   expect(cue.afterContent).toContain('›');
+  // The actual Focus screenshot exposed chopped labels with a narrow shoulder.
+  // Keep the original 96px mask in both modes.
   expect(cue.beforeWidth).toBeGreaterThanOrEqual(88);
   expect(cue.afterWidth).toBeGreaterThanOrEqual(88);
+  await frame.locator('[data-attention-mode="detail"]').click();
+  const detailWidth=await nav.evaluate(node=>parseFloat(getComputedStyle(node,'::after').width));
+  expect(detailWidth).toBeGreaterThanOrEqual(88);
 });
 
 test('A9 Water Optics opening is flat and keeps the primary spectrum in the desktop first view',async({page},testInfo)=>{
