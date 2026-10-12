@@ -68,12 +68,37 @@
       }
     }
 
+    function toolEntries(){
+      return [...panel.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')]
+        .filter(node=>!node.hidden&&getComputedStyle(node).display!=='none');
+    }
+
     menu.addEventListener('toggle',syncPortal);
-    panel.addEventListener('keydown',event=>{
-      if(event.key!=='Escape') return;
+    summary.addEventListener('keydown',event=>{
+      if(event.key!=='Tab'||event.shiftKey||!menu.open) return;
+      const first=toolEntries()[0];
+      if(!first) return;
       event.preventDefault();
-      menu.open=false;
-      summary.focus();
+      first.focus();
+    });
+    panel.addEventListener('keydown',event=>{
+      const entries=toolEntries();
+      if(event.key==='Escape'){
+        event.preventDefault();
+        menu.open=false;
+        summary.focus();
+        return;
+      }
+      if(event.key!=='Tab'||!entries.length) return;
+      const first=entries[0],last=entries[entries.length-1];
+      if(event.shiftKey&&document.activeElement===first){
+        event.preventDefault();
+        summary.focus();
+      }else if(!event.shiftKey&&document.activeElement===last){
+        event.preventDefault();
+        menu.open=false;
+        (document.querySelector('#mainNav [aria-selected="true"]')||summary).focus();
+      }
     });
     window.addEventListener('resize',scheduleTools,{passive:true});
     document.addEventListener('scroll',scheduleTools,{passive:true,capture:true});

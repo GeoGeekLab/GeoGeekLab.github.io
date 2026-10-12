@@ -22,6 +22,9 @@
   top:var(--water-tools-top,auto)!important;
   right:auto!important;
   z-index:2147483000!important;
+  max-height:calc(100dvh - 16px);
+  overflow:auto;
+  overscroll-behavior:contain;
   pointer-events:auto;
 }
 
@@ -118,7 +121,8 @@
 }
 .chart-footer strong,
 .probe-readout b{
-  color:rgb(var(--water-spectrum-rgb))!important;
+  color:var(--award-text)!important;
+  color:color-mix(in srgb,rgb(var(--water-spectrum-rgb)) 48%,var(--award-text))!important;
 }
 .p6-current-row{
   background:rgba(var(--water-spectrum-rgb),.065)!important;
@@ -127,7 +131,77 @@
   box-shadow:inset 0 1px 0 rgba(var(--water-spectrum-rgb),.12),inset 0 -1px 0 rgba(var(--water-spectrum-rgb),.12);
 }
 .p6-current-row th{
-  color:rgb(var(--water-spectrum-rgb))!important;
+  color:var(--award-text)!important;
+  color:color-mix(in srgb,rgb(var(--water-spectrum-rgb)) 48%,var(--award-text))!important;
+}
+
+/* A6 legibility audit: scientific microtype stays compact but readable. */
+.appnav .ui-nav-heading,
+.plot-flag,
+.rt-science-kicker,
+.award-spectrum-ruler-head span{
+  font-size:10px!important;
+}
+.award-rt-geometry-head span,
+.award-rt-geometry-head strong,
+.award-rt-surface span,
+.award-rt-axis-label,
+.award-rt-depth span,
+.award-rt-wavelength span{
+  font-size:10px!important;
+  line-height:1.25!important;
+}
+:is(
+  .ui-toolmenu>summary,
+  .ui-toolentry,
+  .appnav .tab,
+  .plot-tab,
+  .tiny-btn,
+  .ghost-btn,
+  .probe-range
+):focus-visible{
+  outline:2px solid #f1efe7!important;
+  outline-offset:2px!important;
+}
+
+@media(prefers-contrast:more){
+  .appnav .ui-nav-group,
+  .chart-top,
+  .workspace-head,
+  .probe-bar,
+  .side-rail,
+  .ui-toolmenu-panel[data-award-tools-portal="a5"]{
+    border-color:rgba(241,239,231,.34)!important;
+  }
+  .appnav .ui-nav-group:not(.is-current) .tab:not([aria-selected="true"]),
+  .plot-flag{
+    color:#c2ccc6!important;
+  }
+}
+@media(forced-colors:active){
+  .probe-range{
+    background:CanvasText!important;
+    border-color:CanvasText!important;
+  }
+  .graph .probe-line{
+    stroke:Highlight!important;
+  }
+  .graph .active-dot,
+  .award-spectrum-marker{
+    fill:Highlight!important;
+    background:Highlight!important;
+  }
+  :is(
+    .ui-toolmenu>summary,
+    .ui-toolentry,
+    .appnav .tab,
+    .plot-tab,
+    .tiny-btn,
+    .ghost-btn,
+    .probe-range
+  ):focus-visible{
+    outline-color:Highlight!important;
+  }
 }
 
 /* Workspace changes get one restrained optical reveal.

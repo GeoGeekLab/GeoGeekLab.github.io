@@ -273,3 +273,24 @@ They must not inject scientific values that a user cannot reproduce through the 
 For Water, wavelength is a coordinate.
 
 The ruler, chart probe, numeric readout, table selection, and wavelength scrubber should use one consistent spectral identity.
+
+
+## 14. A6 review contract
+
+Final award review is corrective, not additive.
+
+Do not create a new visual layer merely to fix spacing, focus, contrast, or type size.
+
+Scientific microtype that carries status, units, workspace identity, or provenance should not depend on sub-10 px text in the primary desktop experience.
+
+Instrument signature colors can remain saturated on marks.
+
+Text must use a contrast-safe variant when the raw signature hue becomes too dark.
+
+Portaled or top-layer controls must preserve logical keyboard traversal and focus restoration.
+
+Forced-colors and increased-contrast preferences must retain active-state and focus cues.
+
+Automated accessibility checks must include embedded instrument documents, not only the Lab host page.
+
+A release candidate still requires the complete browser, accessibility, regression, and Lighthouse gates to pass.

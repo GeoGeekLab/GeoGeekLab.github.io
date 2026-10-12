@@ -238,3 +238,28 @@ The production Water card capture now selects the real Water Optics workspace an
 No preview-only scientific state is injected.
 
 See `docs/LAB_AWARD_A5.md`.
+
+
+## A6 review corrections
+
+A6 adds no new Water concept layer.
+
+It audits the existing A3 concept and A5 polish.
+
+The review raises scientific microtype that had become too small, restores contrast-safe spectral text after the A5 cascade, and adds explicit focus treatment.
+
+The A5 Tools viewport portal remains because it solves a real stacking conflict with the chart field.
+
+A6 restores keyboard traversal through that portal and focus restoration on Escape.
+
+Forced-colors and increased-contrast preferences now receive explicit support.
+
+A dedicated Water iframe accessibility check is added to the browser suite.
+
+The scientific workbench remains `10.2.0-quiet2`.
+
+The concept remains `award-a3`.
+
+The polish remains `award-a5`.
+
+See `docs/LAB_AWARD_A6.md`.
