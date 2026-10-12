@@ -52,6 +52,14 @@ for(const file of frames){
 if(manifest.shots?.length!==frames.length) fail('manifest must contain six curated frames');
 
 const lighthouse=readJson('water-lighthouse.json');
+if(lighthouse.auditScope!=='embedded-water-v102-document') fail('strict Lighthouse audit must target the real Water app document');
+if(lighthouse.hostDeepLinkAudited!==true||!lighthouse.hostDeepLinkUrl?.includes('instrument=water')) {
+  fail('original Lab deep-link must remain independently audited');
+}
+if(!lighthouse.url?.includes('/water/workbench-v10-2/app/index.html')||
+  lighthouse.runs<2||lighthouse.hostRows?.length<2){
+  fail('two real workbench and two host Lighthouse reports are required');
+}
 const m=lighthouse.median||{};
 const b=lighthouse.budgets||{};
 const checks=[

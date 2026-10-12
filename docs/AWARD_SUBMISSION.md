@@ -81,3 +81,7 @@ The submission package freezes when the complete quality workflow and the A10 ca
 The package then contains the six curated frames, Water Lighthouse evidence, and `release-readiness.json`.
 
 Further aesthetic iteration is blocked unless new evidence identifies a defect or regression.
+
+## Lighthouse measurement scope
+
+Water is a same-origin iframe instrument. The two strict Lighthouse samples measure the **real Water V10.2 app document** rather than mistaking a transient Lab loading cover (or `NO_LCP`) for scientific instrument paint. The original hosted Lab deep link is still collected and independently exercised by browser and screenshot gates. `water-lighthouse.json` records both scopes; the performance limits are unchanged. Standalone app measurements do not include parent-injected award overlays.

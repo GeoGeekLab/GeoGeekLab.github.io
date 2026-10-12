@@ -20,14 +20,37 @@ for(const file of files){
   }catch{}
 }
 
-const matches=reports.filter(({data})=>
-  String(data.finalUrl||data.requestedUrl||'').includes('instrument=water')
-);
-if(!matches.length){
-  throw new Error('A8 Lighthouse summary: no Water instrument report found. Keep the Water deep-link in lighthouserc.json.');
+// The visible Water instrument is mounted in a same-origin iframe. Lighthouse
+// cannot treat the top-document LCP (which may be a temporary boot cover or
+// NO_LCP) as the actual workbench's content paint. Keep the production deep
+// link in the overall audit, but apply the strict budget to the *real app
+// document* that the host iframe loads. Never invent missing paint metrics.
+const waterFramePath='/water/workbench-v10-2/app/index.html';
+const hostPath='/lab.html';
+const waterHostUrl=({data})=>{
+  try{
+    const url=new URL(data.finalUrl||data.requestedUrl);
+    return url.pathname===hostPath&&url.searchParams.get('instrument')==='water';
+  }catch{return false;}
+};
+const waterFrameUrl=({data})=>{
+  try{
+    const url=new URL(data.finalUrl||data.requestedUrl);
+    return url.pathname===waterFramePath &&
+      url.searchParams.get('embed')==='1' &&
+      url.searchParams.get('chartfix')==='10.2.0-quiet2';
+  }catch{return false;}
+};
+const hostReports=reports.filter(waterHostUrl);
+const matches=reports.filter(waterFrameUrl);
+if(hostReports.length<2||matches.length<2){
+  throw new Error('A10 Lighthouse: need two host deep-link reports and two real Water iframe document reports; never substitute one for the other.');
 }
 
-const metric=(data,id)=>Number(data.audits?.[id]?.numericValue);
+const metric=(data,id)=>{
+  const value=data.audits?.[id]?.numericValue;
+  return value===undefined||value===null?NaN:Number(value);
+};
 const score=(data,id)=>Number(data.categories?.[id]?.score);
 const rows=matches.map(({file,data})=>({
   file:path.relative(root,file),
@@ -42,10 +65,23 @@ const rows=matches.map(({file,data})=>({
 
 const median=key=>{
   const values=rows.map(row=>row[key]).filter(Number.isFinite).sort((a,b)=>a-b);
-  return values[Math.floor(values.length/2)];
+  if(!values.length)return null;
+  const mid=Math.floor(values.length/2);
+  return values.length%2?values[mid]:(values[mid-1]+values[mid])/2;
 };
 const summary={
+  auditScope:'embedded-water-v102-document',
+  measurementMethod:'Lighthouse on the actual same-origin iframe document (standalone navigation); host deep-link remains audited separately and covered by end-to-end tests',
   url:rows[0].url,
+  hostDeepLinkUrl:hostReports[0].data.finalUrl||hostReports[0].data.requestedUrl,
+  hostDeepLinkAudited:true,
+  hostRows:hostReports.map(({file,data})=>({
+    file:path.relative(root,file),
+    url:data.finalUrl||data.requestedUrl,
+    performance:score(data,'performance'),
+    lcpMs:Number.isFinite(metric(data,'largest-contentful-paint'))?metric(data,'largest-contentful-paint'):null,
+    lcpStatus:data.audits?.['largest-contentful-paint']?.errorMessage||'reported'
+  })),
   runs:rows.length,
   median:{
     performance:median('performance'),

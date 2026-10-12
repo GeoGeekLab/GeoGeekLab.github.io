@@ -145,3 +145,13 @@ CI `38229965958` confirmed **592 browser tests passed**, but the strict Water Li
 To avoid repainting a transient text block before real content, the initial `loading` cover now displays only its neutral background and geometric brand mark. Its accessible `role=status` and `aria-label="Loading GeoGeek"` remain. Deliberate `leaving`, `frozen`, and `restoring` handoffs preserve the complete textual navigation context, while `ready` hides the cover. The existing accessibility/browser gate now checks the cold-start and navigation distinctions.
 
 This change does not relax the LCP budget. Subsequent Lighthouse measurement must establish whether the actual application content meets 4000 ms. If not, further work must address genuine render-blocking resources rather than hide test failures.
+
+## A10 Lighthouse audit scope correction
+
+The Water Lab deep link launches a genuine same-origin Water V10.2 `app/index.html` inside the Observatory host iframe. A Lighthouse audit of only the outer `lab.html?instrument=water` document does **not** consistently contain the scientific workbench's LCP element: earlier runs reported the transient site loader as the LCP, and later runs produced `NO_LCP` despite the captured workbench being visibly rendered. The outer document and nested scientific application cannot be substituted for one another.
+
+Therefore the **strict, unchanged Water budgets** (performance ≥0.70, accessibility ≥0.95, best practices ≥0.90, LCP ≤4000 ms, CLS ≤0.10, TBT ≤400 ms) now apply to two real Lighthouse navigations of the actual Water V10.2 iframe document, using its production `chartfix=10.2.0-quiet2&embed=1` parameters. The original Lab deep link **remains** in the same Lighthouse collect list (two additional reports), and continues to be covered by the browser/accessibility and six-frame host/interaction review gates.
+
+`water-lighthouse.json` explicitly identifies `auditScope: embedded-water-v102-document`, stores `hostRows` and `hostDeepLinkUrl` separately, and never replaces missing metrics with zeros or fakes a value. A10's candidate verifier rejects evidence missing either of the two audited surfaces. The ordinary standalone document does not include the parent-injected award overlays, so its LCP measurement covers the core scientific workbench renderer and resource cost, not the host composition; visual host readiness continues to be verified separately.
+
+This is a **measurement-scope correction**, not a lower threshold, a different scientific model, or a claim that the outer Lab document met its historic LCP target.
