@@ -2,14 +2,14 @@
  * Read-only host orientation for the seven Observatory instruments.
  * It does not mount instruments, change parameters, or replace instrument tasks.
  */
-const CORE=Object.freeze(['world','figure','orbit','earth','flow','pulse','water']);
+const CORE=Object.freeze(['orbit','earth','flow','pulse','figure','world','water']);
 const META=Object.freeze({
-  world:{index:'01',field:'PROJECTION FIELD',quantity:'DISTORTION / RELATION'},
-  figure:{index:'02',field:'IMAGE → TRACE',quantity:'ABSTRACTION / CONTOUR'},
-  orbit:{index:'03',field:'ORBITAL FIELD',quantity:'TRACKS / STATIONS'},
-  earth:{index:'04',field:'EARTH OBSERVATION',quantity:'LAYERS / COMPARE'},
-  flow:{index:'05',field:'FLOW FIELD',quantity:'VECTOR / REPRESENTATION'},
-  pulse:{index:'06',field:'SEISMIC FIELD',quantity:'EVENTS / TIME'},
+  world:{index:'06',field:'PROJECTION FIELD',quantity:'DISTORTION / RELATION'},
+  figure:{index:'05',field:'IMAGE → TRACE',quantity:'ABSTRACTION / CONTOUR'},
+  orbit:{index:'01',field:'ORBITAL FIELD',quantity:'TRACKS / STATIONS'},
+  earth:{index:'02',field:'EARTH OBSERVATION',quantity:'LAYERS / COMPARE'},
+  flow:{index:'03',field:'FLOW FIELD',quantity:'VECTOR / REPRESENTATION'},
+  pulse:{index:'04',field:'SEISMIC FIELD',quantity:'EVENTS / TIME'},
   water:{index:'07',field:'SPECTRAL WATER',quantity:'400–700 NM / RT'}
 });
 
