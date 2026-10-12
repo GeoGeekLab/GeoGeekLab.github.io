@@ -58,17 +58,17 @@ html[data-water-attention="focus"] .appnav .ui-nav-group.is-current .ui-nav-head
 }
 html[data-water-attention="focus"] .appnav::before,
 html[data-water-attention="focus"] .appnav::after {
-  width:31px!important;
-  padding-inline:8px!important;
+  width:96px!important;
+  padding-inline:9px!important;
   backdrop-filter:none!important;
   -webkit-backdrop-filter:none!important;
-  background:linear-gradient(90deg,var(--award-panel),transparent)!important;
+  background:linear-gradient(90deg,var(--award-panel) 0 58%,rgba(16,25,19,.94) 72%,transparent 100%)!important;
 }
 html[data-water-attention="focus"] .appnav::after {
-  background:linear-gradient(270deg,var(--award-panel),transparent)!important;
+  background:linear-gradient(270deg,var(--award-panel) 0 58%,rgba(16,25,19,.94) 72%,transparent 100%)!important;
 }
 html[data-water-attention="focus"] .appnav .nav-scroll {
-  scroll-padding-inline:32px;
+  scroll-padding-inline:96px;
 }
 html[data-water-attention="focus"] .workspace-head,
 html[data-water-attention="focus"][data-geogeek-embedded="true"] .workspace-head {
@@ -103,8 +103,11 @@ html[data-water-attention="focus"] .workspace.rt-active .side-head small {
   font-size:11px;
 }
 html[data-water-attention="focus"] .workspace.rt-active .rt-science-workspace {
-  padding:clamp(14px,1.65vw,24px)!important;
+  padding:clamp(12px,1.1vw,17px)!important;
   gap:11px!important;
+}
+html[data-water-attention="focus"] .workspace.rt-active .chart-main {
+  padding-top:6px!important;
 }
 /* The outer workspace already identifies Water RT. Remove the repeated intro
  * in Focus; restore the entire title, geometry and assumptions in Detail. */
@@ -143,12 +146,10 @@ html[data-water-attention="focus"] .workspace.rt-active .rt-science-view {
   border-top:0!important;
   gap:10px;
 }
+/* Chart titles and axes already identify each solved quantity.
+ * Full detail retains the longer analytical lead and methodology. */
 html[data-water-attention="focus"] .workspace.rt-active .rt-science-view-head {
-  order:0;
-  margin:0 0 3px!important;
-  padding:0 0 8px!important;
-  border-bottom:1px solid var(--water-focus-rule);
-  max-width:none;
+  display:none!important;
 }
 html[data-water-attention="focus"] .workspace.rt-active .rt-science-view-head h3 {
   font-size:clamp(19px,1.7vw,25px)!important;
@@ -179,6 +180,15 @@ html[data-water-attention="focus"] .workspace.rt-active .rt-science-card-head {
 }
 html[data-water-attention="focus"] .workspace.rt-active .rt-science-card-head h3 {
   font-size:14px!important;
+}
+html[data-water-attention="focus"] .workspace.rt-active .rt-science-card-head p {
+  display:none!important;
+}
+html[data-water-attention="focus"] .workspace.rt-active .rt-science-legend {
+  margin:5px 0 2px!important;
+}
+html[data-water-attention="focus"] .workspace.rt-active .rt-science-card .rt-science-plot {
+  margin-top:2px!important;
 }
 /* Supporting values remain in the document and follow the plots. */
 html[data-water-attention="focus"] .workspace.rt-active .rt-science-results {
