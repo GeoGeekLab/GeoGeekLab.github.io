@@ -101,3 +101,18 @@ Angular-view interaction inspects one of the eight solved upward-direction nodes
 Pointer, tap and keyboard inspection share the same discrete-node contract.
 
 This qualifies under the A10 freeze rule because it corrects a visible interaction defect rather than adding a new aesthetic feature.
+
+
+## Post-freeze quality-gate correction — invisible boot cover
+
+The RT interaction change passed the complete browser/accessibility baseline: 590 tests passed with no browser-suite failures.
+
+The remaining candidate failure was Lighthouse LCP.
+
+The Water report identified the site-wide readiness overlay status text as the LCP element even after the interface was already visible. The ready-state cover remained in the render tree at `opacity: 0`, allowing later text/font repaint work to become an LCP candidate.
+
+The ready state now makes the cover `visibility: hidden` as well as transparent and non-interactive.
+
+The leaving/frozen/restoring states still switch it synchronously back to visible and opaque, preserving the no-stale-frame navigation contract.
+
+This is a site readiness/performance correction. It does not alter Water RT science or chart interaction.

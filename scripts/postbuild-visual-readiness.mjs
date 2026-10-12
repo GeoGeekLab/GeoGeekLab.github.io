@@ -87,7 +87,7 @@ html[data-geogeek-boot-surface="dark"] #geogeek-boot-cover{background:var(--geog
 #geogeek-boot-cover .geogeek-boot-scale>strong{color:var(--geogeek-boot-fg);font-size:13px;line-height:1.25;font-weight:650;letter-spacing:.015em;text-transform:uppercase}
 #geogeek-boot-cover .geogeek-boot-scale>em{color:var(--geogeek-boot-signal);font-size:11px;line-height:1;font-weight:700;letter-spacing:.07em;font-style:normal}
 html[data-geogeek-boot="loading"] #geogeek-boot-cover,html[data-geogeek-boot="leaving"] #geogeek-boot-cover,html[data-geogeek-boot="frozen"] #geogeek-boot-cover,html[data-geogeek-boot="restoring"] #geogeek-boot-cover{opacity:1!important;pointer-events:auto!important;transition:none!important}
-html[data-geogeek-boot="ready"] #geogeek-boot-cover{opacity:0;pointer-events:none;visibility:visible!important}
+html[data-geogeek-boot="ready"] #geogeek-boot-cover{opacity:0;pointer-events:none;visibility:hidden!important}
 @media(max-width:640px){:root{--geogeek-boot-pad:18px}#geogeek-boot-cover::after{top:63px}#geogeek-boot-cover .geogeek-boot-brand{height:64px}#geogeek-boot-cover .geogeek-boot-scale{top:86px;right:18px}}
 @media(prefers-reduced-motion:reduce){#geogeek-boot-cover{transition:none}}
 </style>`;

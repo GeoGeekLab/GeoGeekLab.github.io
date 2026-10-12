@@ -13,6 +13,7 @@ const principalRoutes = [
 async function expectReady(page) {
   await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'ready');
   await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '0');
+  await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('visibility', 'hidden');
   await expect.poll(() => page.evaluate(() => window.__GEOGEEK_VISUAL_READY__)).toBe(true);
 
   const hasPreinit = await page.locator('script[src*="ux-preinit.js"]').count();
@@ -25,6 +26,7 @@ async function expectImmediateLeaveCover(page) {
   await page.evaluate(() => window.GeoGeekVisualReadiness.beginLeave('Testing handoff…'));
   await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'leaving');
   await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('opacity', '1');
+  await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('visibility', 'visible');
   await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('pointer-events', 'auto');
   await page.evaluate(() => window.GeoGeekVisualReadiness.reveal({ restored: false }));
   await expectReady(page);
