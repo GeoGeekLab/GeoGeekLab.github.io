@@ -13,7 +13,7 @@ async function openWater(page) {
   return frame;
 }
 
-test('Focus shows sampled RT charts before supplementary metrics while keeping warnings',async({page})=>{
+test('Focus shows sampled RT charts before supplementary metrics while keeping warnings',async({page},testInfo)=>{
   const frame=await openWater(page);
   await expect(frame.locator('.water-scope-boundary')).toContainText('Not externally validated');
   await expect(frame.locator('.rt-science-status')).toBeVisible();
@@ -34,6 +34,12 @@ test('Focus shows sampled RT charts before supplementary metrics while keeping w
   expect(y.status).toBeLessThan(y.plot);
   expect(y.view).toBeLessThan(y.conditions);
   expect(y.plot).toBeLessThan(y.conditions);
+  if(testInfo.project.name.includes('desktop')){
+    const graph=await frame.locator('.rt-science-plot-grid .rt-science-plot').first().boundingBox();
+    expect(graph).not.toBeNull();
+    // The actual plotted lines, not just a heading, must enter the first view.
+    expect(graph.y).toBeLessThan(page.viewportSize().height*0.70);
+  }
 });
 
 test('Detail exposes geometry without resetting selected RT case or graph data',async({page})=>{
