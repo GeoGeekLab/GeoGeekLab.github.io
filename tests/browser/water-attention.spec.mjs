@@ -40,7 +40,7 @@ test('Detail exposes geometry without resetting selected RT case or graph data',
   const frame=await openWater(page);
   const wavelength=frame.locator('[data-rt-wl][aria-pressed="true"]');
   const oldWavelength=await wavelength.getAttribute('data-rt-wl');
-  const other=frame.locator('[data-rt-wl]').filter({hasNot:wavelength}).first();
+  const other=frame.locator('[data-rt-wl]:not([aria-pressed="true"])').first();
   await other.click();
   const chosen=await frame.locator('[data-rt-wl][aria-pressed="true"]').getAttribute('data-rt-wl');
   expect(chosen).not.toBe(oldWavelength);
