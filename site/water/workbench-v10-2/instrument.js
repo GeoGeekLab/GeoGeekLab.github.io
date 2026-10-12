@@ -7,8 +7,12 @@
   'use strict';
   const rootUrl = new URL('water/workbench-v10-2/', document.baseURI);
   const stylesheet = new URL('instrument.css?v=10.2.0-quiet2', rootUrl).href;
-  const awardStylesheet = new URL('award-concept.css?v=a2', rootUrl).href;
-  const awardScript = new URL('award-concept.js?v=a2', rootUrl).href;
+  const awardStylesheet = new URL('award-concept.css?v=a3', rootUrl).href;
+  const awardScripts = Object.freeze([
+    { id: 'optical', href: new URL('award-optical.js?v=a3', rootUrl).href },
+    { id: 'journey', href: new URL('award-journey.js?v=a3', rootUrl).href },
+    { id: 'marker', href: new URL('award-concept.js?v=a3', rootUrl).href }
+  ]);
   const frameUrl = new URL('app/index.html', rootUrl);
   const mounts = window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};
   let sequence = 0;
@@ -30,14 +34,16 @@
       const link = doc.createElement('link');
       link.rel = 'stylesheet';
       link.href = awardStylesheet;
-      link.dataset.waterAwardConcept = 'a2';
+      link.dataset.waterAwardConcept = 'a3';
       doc.head.appendChild(link);
     }
 
-    if (!doc.querySelector('script[data-water-award-concept]')) {
+    for (const module of awardScripts) {
+      if (doc.querySelector('script[data-water-award-module="' + module.id + '"]')) continue;
       const script = doc.createElement('script');
-      script.src = awardScript;
-      script.dataset.waterAwardConcept = 'a2';
+      script.src = module.href;
+      script.async = false;
+      script.dataset.waterAwardModule = module.id;
       doc.body?.appendChild(script);
     }
   }
@@ -153,5 +159,5 @@
   }
 
   mounts.water = mount;
-  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2', conceptVersion: 'award-a2', mount };
+  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2', conceptVersion: 'award-a3', mount };
 })();
