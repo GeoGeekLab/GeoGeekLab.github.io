@@ -86,6 +86,10 @@ html[data-geogeek-boot-surface="dark"] #geogeek-boot-cover{background:var(--geog
 #geogeek-boot-cover .geogeek-boot-scale>span{color:var(--geogeek-boot-muted);font-size:11px;line-height:1;font-weight:700;letter-spacing:.085em}
 #geogeek-boot-cover .geogeek-boot-scale>strong{color:var(--geogeek-boot-fg);font-size:13px;line-height:1.25;font-weight:650;letter-spacing:.015em;text-transform:uppercase}
 #geogeek-boot-cover .geogeek-boot-scale>em{color:var(--geogeek-boot-signal);font-size:11px;line-height:1;font-weight:700;letter-spacing:.07em;font-style:normal}
+/* Cold entry paints a neutral, truthful bridge without short-lived text candidates.
+   The accessible status label remains on the cover; intentional navigation
+   handoffs retain their visible text in leaving/frozen/restoring states. */
+html[data-geogeek-boot="loading"] #geogeek-boot-cover .geogeek-boot-brand>span:last-child,html[data-geogeek-boot="loading"] #geogeek-boot-cover .geogeek-boot-scale{visibility:hidden!important}
 html[data-geogeek-boot="loading"] #geogeek-boot-cover,html[data-geogeek-boot="leaving"] #geogeek-boot-cover,html[data-geogeek-boot="frozen"] #geogeek-boot-cover,html[data-geogeek-boot="restoring"] #geogeek-boot-cover{opacity:1!important;pointer-events:auto!important;transition:none!important}
 html[data-geogeek-boot="ready"] #geogeek-boot-cover{opacity:0;pointer-events:none;visibility:hidden!important}
 @media(max-width:640px){:root{--geogeek-boot-pad:18px}#geogeek-boot-cover::after{top:63px}#geogeek-boot-cover .geogeek-boot-brand{height:64px}#geogeek-boot-cover .geogeek-boot-scale{top:86px;right:18px}}

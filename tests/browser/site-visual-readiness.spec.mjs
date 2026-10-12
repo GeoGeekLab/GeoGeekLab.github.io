@@ -56,6 +56,12 @@ test.describe('site-wide visual readiness', () => {
       window.requestAnimationFrame = () => 1;
     });
     await page.goto('/field-notes.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'loading');
+    // The cover's geometric mark stays visible. Its transient copy is not
+    // repainted as a false LCP candidate while the real document prepares.
+    await expect(page.locator('#geogeek-boot-cover .geogeek-boot-brand-mark')).toHaveCSS('visibility', 'visible');
+    await expect(page.locator('#geogeek-boot-cover .geogeek-boot-scale')).toHaveCSS('visibility', 'hidden');
+    await expect(page.locator('#geogeek-boot-cover')).toHaveAttribute('aria-label', 'Loading GeoGeek');
     await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot', 'ready', { timeout: 6000 });
     await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('visibility', 'hidden');
     await expect.poll(() => page.evaluate(() => window.__GEOGEEK_VISUAL_READY__)).toBe(true);

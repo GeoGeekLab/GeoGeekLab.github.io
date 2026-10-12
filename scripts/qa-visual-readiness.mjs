@@ -58,6 +58,7 @@ for (const file of await htmlFiles(dist)) {
     'data-geogeek-boot-preload',
     'data-geogeek-visual-readiness="true"',
     'html[data-geogeek-boot="leaving"] #geogeek-boot-cover',
+    'html[data-geogeek-boot="loading"] #geogeek-boot-cover .geogeek-boot-brand>span:last-child,html[data-geogeek-boot="loading"] #geogeek-boot-cover .geogeek-boot-scale{visibility:hidden!important}',
     'transition:none!important',
     'html[data-geogeek-boot="ready"] #geogeek-boot-cover{opacity:0;pointer-events:none;visibility:hidden!important}',
     'class="geogeek-boot-brand"',
