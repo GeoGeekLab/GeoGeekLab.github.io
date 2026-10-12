@@ -7,6 +7,7 @@ async function openAwardWater(page){
   await expect(frame.locator('html')).toHaveAttribute('data-water-award-concept','a3',{timeout:30000});
   await expect(frame.locator('html')).toHaveAttribute('data-water-award-optical','a3');
   await expect(frame.locator('html')).toHaveAttribute('data-water-award-journey','a3');
+  await expect(frame.locator('html')).toHaveAttribute('data-water-award-polish','a5');
   return frame;
 }
 
@@ -70,4 +71,28 @@ test('Water A3 exposes the atmosphere, sensor and correction model topology with
   await expect(frame.locator('.p7-metrics')).toBeVisible();
   await expect(frame.locator('#p7-ac-values > summary')).toBeVisible();
   await expect(frame.locator('.p7-no-validation')).toContainText('NOT PERFORMED');
+});
+
+
+test('Water A5 keeps one wavelength identity across ruler, chart and scrubber',async({page})=>{
+  const frame=await openAwardWater(page);
+  await frame.locator('#mainNav [data-tab="iop"]').click();
+
+  const slider=frame.locator('#probeRange');
+  await slider.evaluate(node=>{
+    node.value='490';
+    node.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  await expect(frame.locator('#probeValue')).toContainText('490 nm');
+
+  await expect(frame.locator('[data-award-spectrum-value]')).toContainText('490 nm');
+  await expect(frame.locator('.p6-spectrum.award-spectrum-primary .graph .probe-line')).toBeVisible();
+  await expect(frame.locator('.p6-spectrum.award-spectrum-primary .graph .active-dot')).toBeVisible();
+
+  const visual=await slider.evaluate(node=>{
+    const style=getComputedStyle(node);
+    return {background:style.backgroundImage,borderRadius:style.borderRadius};
+  });
+  expect(visual.background).toContain('linear-gradient');
+  expect(parseFloat(visual.borderRadius)).toBeLessThanOrEqual(1);
 });
