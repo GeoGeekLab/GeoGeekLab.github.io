@@ -165,6 +165,9 @@ jobs:
       - name: Browser and accessibility baseline
         run: npm run qa:browser
 
+      - name: Capture award submission review
+        run: npm run award:capture
+
       - name: Lighthouse baseline
         run: npm run qa:lighthouse
 
@@ -179,3 +182,4 @@ jobs:
             playwright-report
             test-results
             .lighthouseci
+            .award-submission

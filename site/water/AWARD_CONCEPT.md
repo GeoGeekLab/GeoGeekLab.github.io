@@ -280,3 +280,18 @@ Mismatch status, reference conditions, sampled quantities, method disclosure, an
 The horizontal nine-workspace navigation gains noninteractive continuation fades when overflow is present.
 
 See `docs/LAB_AWARD_A7.md`.
+
+
+## A8 submission evidence
+
+A8 does not alter the Water runtime design.
+
+It adds deterministic submission captures and an open-Water Lighthouse budget.
+
+The curated frames use real workspace controls and a reproducible 490 nm optical state.
+
+A Pulse frame is included to verify that Water remains part of the Observatory family.
+
+The capture manifest records the frozen release and design/science version stack.
+
+See `docs/LAB_AWARD_A8.md` and `docs/AWARD_SUBMISSION.md`.

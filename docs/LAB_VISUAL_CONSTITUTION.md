@@ -313,3 +313,24 @@ Use open fields and separators when the underlying information already has a str
 Horizontal overflow must look intentional.
 
 Edge continuation cues may be used when they are noninteractive, disappear at scroll boundaries, and do not replace keyboard or touch access.
+
+
+## 16. A8 submission-evidence contract
+
+Award review evidence must be reproducible from the production interface.
+
+Capture scripts can operate real controls.
+
+They must not write scientific state that users cannot reproduce.
+
+Every curated frame should record its release, source baseline, viewport, instrument, workspace, and active state.
+
+Submission captures should run with reduced motion.
+
+This avoids judging or publishing an accidental transition frame.
+
+At least one sibling-instrument frame should be included when family consistency is part of the design claim.
+
+The open award-candidate instrument must be included in performance and accessibility measurement.
+
+Passing automated budgets is necessary but not sufficient for award-quality review.
