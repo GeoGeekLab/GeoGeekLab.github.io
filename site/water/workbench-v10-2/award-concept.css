@@ -1,0 +1,545 @@
+/* Water as Spectrum — award concept A1
+ * Presentation-only layer.
+ * Baseline: release 20261011v107watercache1 / commit 9718171862959c9232e1dd7b4f69d31c36b0bc75.
+ * The scientific model, experiment schema, exports, reference data, and model state are unchanged.
+ *
+ * Shared Lab DNA:
+ * - abyss green-black field
+ * - warm off-white type
+ * - mono scientific labels
+ * - thin separators and square geometry
+ * - semantic signal colour
+ *
+ * Water signature:
+ * - wavelength-reactive optical field
+ * - cyan/mineral spectral light
+ * - warm solar reference
+ * - depth as a spatial axis
+ */
+
+:root{
+  --award-bg:#0b120e;
+  --award-panel:#101913;
+  --award-panel-2:#142019;
+  --award-field:#08110d;
+  --award-text:#f1efe7;
+  --award-body:#c9d0ca;
+  --award-muted:#9fb2a6;
+  --award-line:rgba(232,237,233,.14);
+  --award-line-strong:rgba(232,237,233,.24);
+  --award-solar:#e8a17b;
+  --award-warning:#e8b86f;
+  --water-spectrum-rgb:92,184,198;
+  --water-pointer-x:50%;
+  --water-pointer-y:36%;
+  --water-depth-y:58%;
+  --water-rail:clamp(320px,24vw,380px);
+  color-scheme:dark;
+}
+
+body{
+  background:var(--award-bg)!important;
+  color:var(--award-text);
+  font-family:var(--sans,system-ui,sans-serif);
+}
+
+.shell{
+  background:var(--award-bg)!important;
+}
+
+/* Keep GeoGeek's existing instrument grammar. Reduce visual chrome instead of
+ * inventing a separate design system for Water. */
+.topbar{
+  min-height:62px!important;
+  padding:10px clamp(18px,2.4vw,34px)!important;
+  background:rgba(11,18,14,.96)!important;
+  border-bottom:1px solid var(--award-line)!important;
+}
+.topbar h1{
+  color:var(--award-text)!important;
+  font-family:var(--serif,Georgia,serif)!important;
+  font-weight:500!important;
+  letter-spacing:-.025em!important;
+}
+.topbar .micro,
+.eyebrow,
+.water-scope-label,
+.ui-nav-heading,
+.rt-science-kicker{
+  font-family:var(--mono,ui-monospace,monospace)!important;
+  letter-spacing:.09em!important;
+}
+
+.appnav,
+html[data-geogeek-embedded="true"] .appnav{
+  min-height:48px!important;
+  background:rgba(12,20,15,.97)!important;
+  border-bottom:1px solid var(--award-line)!important;
+  box-shadow:none!important;
+}
+.appnav .ui-nav-group{
+  border-color:var(--award-line)!important;
+}
+.appnav .ui-nav-heading{
+  color:var(--award-muted)!important;
+  font-size:9px!important;
+}
+.appnav .ui-nav-links .tab{
+  min-height:46px!important;
+  color:#aebdb4!important;
+  border-radius:0!important;
+  background:transparent!important;
+  transition:color 160ms ease,background-color 160ms ease,border-color 160ms ease;
+}
+.appnav .ui-nav-links .tab:hover{
+  color:var(--award-text)!important;
+  background:rgba(255,255,255,.025)!important;
+}
+.appnav .ui-nav-links .tab[aria-selected="true"]{
+  color:var(--award-text)!important;
+  background:rgba(var(--water-spectrum-rgb),.055)!important;
+  border-bottom-color:var(--award-solar)!important;
+}
+
+.water-scope-strip{
+  min-height:40px!important;
+  padding:6px clamp(18px,2.4vw,34px)!important;
+  background:var(--award-panel)!important;
+  border-bottom:1px solid var(--award-line)!important;
+}
+.water-scope-label{color:#8fb5a4!important}
+.water-scope-boundary{color:#e8c6a9!important}
+.water-scope-more>summary,
+.water-detail-group>summary{
+  border-radius:2px!important;
+  border-color:var(--award-line-strong)!important;
+  background:transparent!important;
+}
+.water-scope-more>summary:hover,
+.water-detail-group>summary:hover{
+  background:rgba(255,255,255,.025)!important;
+}
+
+/* The workspace becomes one scientific field with one inspector rail. */
+.workspace,
+html[data-geogeek-embedded="true"] .workspace{
+  grid-template-columns:minmax(0,1fr) var(--water-rail)!important;
+  background:var(--award-bg)!important;
+}
+.main-space{
+  position:relative;
+  isolation:isolate;
+  min-width:0;
+  background:
+    radial-gradient(80% 58% at var(--water-pointer-x) var(--water-pointer-y),
+      rgba(var(--water-spectrum-rgb),.055),transparent 65%),
+    linear-gradient(180deg,rgba(var(--water-spectrum-rgb),.025),transparent 26%),
+    var(--award-bg)!important;
+}
+.award-water-field{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  overflow:hidden;
+  opacity:.95;
+}
+.award-water-field::before{
+  content:"";
+  position:absolute;
+  left:-10%;
+  right:-10%;
+  top:var(--water-depth-y);
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(var(--water-spectrum-rgb),.2),transparent);
+  box-shadow:0 0 34px rgba(var(--water-spectrum-rgb),.07);
+}
+.award-water-field::after{
+  content:"";
+  position:absolute;
+  width:min(58vw,820px);
+  height:min(58vw,820px);
+  left:calc(var(--water-pointer-x) - min(29vw,410px));
+  top:calc(var(--water-pointer-y) - min(29vw,410px));
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(var(--water-spectrum-rgb),.045),transparent 67%);
+  filter:blur(1px);
+}
+.workspace-head,
+.chart-area,
+.probe-bar{
+  position:relative;
+  z-index:1;
+}
+.workspace-head,
+html[data-geogeek-embedded="true"] .workspace-head{
+  min-height:88px!important;
+  padding:15px clamp(20px,2.7vw,40px)!important;
+  background:rgba(11,18,14,.78)!important;
+  border-bottom:1px solid var(--award-line)!important;
+}
+.ui-workspace-identity .eyebrow{
+  color:#91b7a7!important;
+}
+.space-title{
+  color:var(--award-text)!important;
+  font-family:var(--serif,Georgia,serif)!important;
+  font-weight:500!important;
+  font-size:clamp(25px,2.15vw,34px)!important;
+  letter-spacing:-.022em!important;
+}
+.space-subtitle{
+  max-width:68ch!important;
+  color:var(--award-body)!important;
+  font-size:12px!important;
+  line-height:1.55!important;
+}
+.tiny-btn,
+.ghost-btn,
+.plot-tab,
+.preset-btn,
+.rt-choice{
+  border-radius:2px!important;
+  box-shadow:none!important;
+}
+.tiny-btn,
+.ghost-btn{
+  background:transparent!important;
+  border-color:var(--award-line-strong)!important;
+  color:#d6e0d9!important;
+}
+.tiny-btn:hover,
+.ghost-btn:hover{
+  border-color:rgba(var(--water-spectrum-rgb),.42)!important;
+  background:rgba(var(--water-spectrum-rgb),.045)!important;
+}
+.ui-primary-action{
+  background:#1a2a21!important;
+  border-color:#526e5e!important;
+}
+
+.chart-top{
+  padding:9px clamp(20px,2.7vw,40px)!important;
+  border-bottom:1px solid var(--award-line)!important;
+  background:rgba(10,17,13,.62)!important;
+}
+.plot-switches{gap:4px!important}
+.plot-tab{
+  min-height:40px!important;
+  padding:8px 14px!important;
+  background:transparent!important;
+  border-color:var(--award-line)!important;
+  color:#b7c3bc!important;
+}
+.plot-tab[aria-pressed="true"]{
+  color:var(--award-text)!important;
+  background:rgba(var(--water-spectrum-rgb),.07)!important;
+  border-color:rgba(var(--water-spectrum-rgb),.4)!important;
+}
+.plot-flag{
+  color:var(--award-muted)!important;
+  font-family:var(--mono,ui-monospace,monospace)!important;
+  font-size:9px!important;
+  letter-spacing:.055em!important;
+}
+.chart-main,
+html[data-geogeek-embedded="true"] .chart-main{
+  padding:clamp(18px,2.4vw,34px) clamp(20px,2.7vw,40px) 40px!important;
+}
+
+/* Let plots and readouts form one continuous scientific surface. */
+.hero-plot,
+.metric,
+.hint-strip,
+.p6-spectrum,
+.p6-reading,
+.rt-card,
+.rt-science-reading,
+.rt-science-result,
+.rt-science-status{
+  border-radius:2px!important;
+  box-shadow:none!important;
+}
+.hero-plot,
+.p6-spectrum,
+.rt-card{
+  background:rgba(12,22,16,.78)!important;
+  border-color:var(--award-line)!important;
+}
+.metric-grid,
+.p6-reading-grid{
+  gap:1px!important;
+  background:var(--award-line)!important;
+}
+.metric,
+.p6-reading{
+  margin:0!important;
+  background:var(--award-panel)!important;
+  border:0!important;
+}
+.metric strong,
+.p6-reading strong{
+  font-family:var(--mono,ui-monospace,monospace)!important;
+  font-variant-numeric:tabular-nums;
+}
+.hint-strip{
+  background:rgba(20,32,25,.74)!important;
+  border-color:var(--award-line)!important;
+}
+
+/* Water RT: depth and direction are the visual hierarchy. */
+.rt-science-workspace{
+  position:relative;
+  max-width:none!important;
+}
+.rt-science-hero{
+  position:relative;
+  padding:4px 0 20px!important;
+  margin-bottom:18px!important;
+  border-bottom:1px solid var(--award-line)!important;
+  overflow:hidden;
+}
+.rt-science-hero::after{
+  content:"";
+  position:absolute;
+  width:46%;
+  height:1px;
+  right:0;
+  bottom:-1px;
+  background:linear-gradient(90deg,transparent,rgba(var(--water-spectrum-rgb),.7));
+  box-shadow:0 0 28px rgba(var(--water-spectrum-rgb),.16);
+}
+.rt-science-hero h2{
+  color:var(--award-text)!important;
+  font-family:var(--serif,Georgia,serif)!important;
+  font-size:clamp(29px,3.0vw,46px)!important;
+  line-height:1.03!important;
+  font-weight:500!important;
+  letter-spacing:-.035em!important;
+  max-width:16ch;
+}
+.rt-science-hero p{
+  max-width:68ch!important;
+  color:var(--award-body)!important;
+  font-size:13px!important;
+  line-height:1.6!important;
+}
+.rt-science-kicker{
+  color:rgb(var(--water-spectrum-rgb))!important;
+  font-size:9px!important;
+}
+.rt-science-status{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:20px!important;
+  align-items:center!important;
+  padding:15px 18px!important;
+  background:rgba(17,25,19,.76)!important;
+  border:1px solid var(--award-line)!important;
+}
+.rt-science-unmatched{
+  border-left:2px solid var(--award-solar)!important;
+}
+.rt-science-matched{
+  border-left:2px solid rgb(var(--water-spectrum-rgb))!important;
+}
+.rt-science-status p{
+  color:var(--award-body)!important;
+  line-height:1.55!important;
+}
+.rt-science-sync{
+  border-radius:2px!important;
+  background:var(--award-solar)!important;
+  color:#16120f!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.rt-science-conditions,
+.rt-science-results{
+  display:grid!important;
+  gap:1px!important;
+  background:var(--award-line)!important;
+  border:1px solid var(--award-line)!important;
+}
+.rt-science-conditions{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+.rt-science-results{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+.rt-science-result{
+  padding:13px 15px!important;
+  background:var(--award-panel)!important;
+  border:0!important;
+}
+.rt-science-result span,
+.rt-science-result small{
+  color:var(--award-muted)!important;
+}
+.rt-science-result strong{
+  color:var(--award-text)!important;
+  font-family:var(--mono,ui-monospace,monospace)!important;
+  font-variant-numeric:tabular-nums;
+}
+.rt-science-view{
+  margin-top:22px!important;
+  border-top:1px solid var(--award-line)!important;
+  padding-top:20px!important;
+}
+.rt-science-view-head{
+  max-width:74ch;
+  margin-bottom:18px!important;
+}
+.rt-science-view-head>span{
+  color:rgb(var(--water-spectrum-rgb))!important;
+  font:700 9px/1.4 var(--mono,ui-monospace,monospace)!important;
+  letter-spacing:.09em!important;
+}
+.rt-science-view-head h3{
+  color:var(--award-text)!important;
+  font-family:var(--serif,Georgia,serif)!important;
+  font-size:clamp(22px,2.1vw,31px)!important;
+  font-weight:500!important;
+  letter-spacing:-.02em!important;
+}
+.rt-science-view-head p,
+.rt-science-reading p{
+  color:var(--award-body)!important;
+  line-height:1.6!important;
+}
+.rt-science-reading{
+  padding:14px 16px!important;
+  background:rgba(20,32,25,.76)!important;
+  border:1px solid var(--award-line)!important;
+}
+.rt-science-plot-grid{
+  gap:14px!important;
+}
+.rt-science-method{
+  border-radius:2px!important;
+  border-color:var(--award-line)!important;
+  background:transparent!important;
+}
+.rt-science-provenance{
+  color:var(--award-muted)!important;
+  font:700 9px/1.6 var(--mono,ui-monospace,monospace)!important;
+  letter-spacing:.055em!important;
+}
+
+/* The inspector rail shares Pulse's geometry and density. */
+.side-rail{
+  background:var(--award-panel)!important;
+  border-left:1px solid var(--award-line)!important;
+}
+.side-head,
+html[data-geogeek-embedded="true"] .side-head{
+  min-height:86px!important;
+  padding:15px 18px!important;
+  background:var(--award-panel-2)!important;
+  border-bottom:1px solid var(--award-line)!important;
+}
+.side-head h2{
+  color:var(--award-text)!important;
+  font-size:19px!important;
+  font-weight:580!important;
+  letter-spacing:-.015em!important;
+}
+.side-head small{color:var(--award-muted)!important}
+.side-head .dot{
+  background:rgb(var(--water-spectrum-rgb))!important;
+  box-shadow:0 0 0 4px rgba(var(--water-spectrum-rgb),.12)!important;
+}
+.control-scroll{scrollbar-color:rgba(232,237,233,.22) transparent}
+#controls .control-section,
+#controls .ui-control-section{
+  border-bottom:1px solid var(--award-line)!important;
+}
+.water-detail-group{
+  border-radius:2px!important;
+  background:transparent!important;
+  border-color:var(--award-line)!important;
+}
+#controls :is(.switch,.preset-btn,.rt-choice,.ghost-btn){
+  min-height:39px!important;
+}
+#controls .rt-choice,
+#controls .preset-btn{
+  background:transparent!important;
+  border-color:var(--award-line-strong)!important;
+  color:#cbd7cf!important;
+}
+#controls .rt-choice[aria-pressed="true"],
+#controls .preset-btn[aria-pressed="true"]{
+  background:rgba(var(--water-spectrum-rgb),.10)!important;
+  border-color:rgba(var(--water-spectrum-rgb),.54)!important;
+  color:var(--award-text)!important;
+}
+#controls input,
+#controls select{
+  border-radius:2px!important;
+  background:var(--award-field)!important;
+  border-color:var(--award-line-strong)!important;
+  color:var(--award-text)!important;
+}
+
+/* Probe becomes a compact scientific scrubber, not a second footer. */
+.probe-bar{
+  min-height:48px!important;
+  padding:8px clamp(20px,2.7vw,40px)!important;
+  background:rgba(11,18,14,.94)!important;
+  border-top:1px solid var(--award-line)!important;
+  color:var(--award-body)!important;
+}
+.probe-range{
+  accent-color:rgb(var(--water-spectrum-rgb))!important;
+}
+#probeValue{
+  color:rgb(var(--water-spectrum-rgb))!important;
+  font-family:var(--mono,ui-monospace,monospace)!important;
+}
+.probe-readout{
+  color:var(--award-body)!important;
+  font-family:var(--mono,ui-monospace,monospace)!important;
+}
+
+.foot{
+  border-top:1px solid var(--award-line)!important;
+  background:#09100c!important;
+  color:#82988b!important;
+}
+
+@media (max-width:1050px){
+  :root{--water-rail:315px}
+  .rt-science-conditions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media (max-width:735px){
+  .workspace,
+  html[data-geogeek-embedded="true"] .workspace{
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  .side-rail{border-left:0!important;border-top:1px solid var(--award-line)!important}
+  .rt-science-hero h2{max-width:none}
+  .rt-science-results{grid-template-columns:1fr!important}
+  .chart-main,
+  html[data-geogeek-embedded="true"] .chart-main{
+    padding-inline:15px!important;
+  }
+  .workspace-head,
+  html[data-geogeek-embedded="true"] .workspace-head{
+    padding-inline:15px!important;
+  }
+}
+@media (max-width:480px){
+  .rt-science-conditions{grid-template-columns:1fr!important}
+  .rt-science-status{grid-template-columns:1fr!important}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    scroll-behavior:auto!important;
+    transition-duration:.001ms!important;
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+  }
+  .award-water-field::after{display:none}
+}
