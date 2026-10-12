@@ -48,7 +48,7 @@ The concept layer must not:
 6. encode scientific values with colour only;
 7. require motion to read a result.
 
-The A1 JavaScript only reads existing DOM state and exposes CSS variables.
+All award-concept JavaScript reads existing DOM state only. It does not write experiment values or invoke model calculations.
 
 ## A1 scope
 
@@ -64,11 +64,9 @@ A1 is a reversible presentation layer.
 
 ## Next concept passes
 
-A2 should redesign the main spectral chart as the primary optical instrument.
+A4 should unify the Lab host shell primitives across Water, Pulse, Earth, Orbit, and Figure without flattening instrument identities.
 
-A3 should add physically meaningful transitions for solar zenith, absorption, scattering, sensor response, and atmospheric correction.
-
-A4 should unify the Lab host shell across Water, Pulse, Earth, Orbit, and Figure without flattening instrument identities.
+A later motion pass can add additional state transitions only where the underlying model semantics justify them.
 
 ## Acceptance standard
 
@@ -108,3 +106,79 @@ Pulse remains the reference for compact rail density and separator logic.
 Earth, World, and Orbit remain references for immersive scientific viewports.
 
 Water combines the compact rail with an optical field specific to spectroscopy and radiative transfer.
+
+
+## A3 implementation
+
+A3 changes the architecture before adding more effects.
+
+### Modular visual architecture
+
+The original concept stylesheet is no longer a growing patch stack.
+
+`award-concept.css` is now a manifest.
+
+It imports:
+
+- `site/core/lab-award-system.css` for shared Lab primitives;
+- `award-foundation.css` for the frozen A2 Water shell, spectrum, and RT geometry;
+- `award-journey.css` for the A3 observation-flow presentation.
+
+JavaScript is also separated.
+
+- `award-optical.js` owns ambient wavelength, spectral ruler, and RT selection geometry.
+- `award-journey.js` owns the read-only observation topology.
+- `award-concept.js` only marks the active concept version after both modules load.
+
+### Observation topology
+
+Atmosphere, Sensor, and Atmospheric Correction no longer imply one incorrect linear pipeline.
+
+The A3 topology shows the actual conceptual branches:
+
+```text
+Water Rrs(λ) ───────┬──────────────→ Sensor weighting → band samples
+       │            │
+       ▼            │
+Atmosphere → ρ*TOA ─┤
+       │
+       └───────────────────────────→ Correction → recovered Rrs
+```
+
+Sensor weighting can therefore use the selected Rrs or TOA source spectrum.
+
+Atmospheric correction originates from the modeled TOA branch.
+
+The topology is read-only and never changes workspace state.
+
+### Atmosphere
+
+The existing Rayleigh, aerosol, transmitted-water, and total values now read as one additive decomposition strip.
+
+The existing geometry and atmosphere inputs become compact telemetry.
+
+The original chart and numeric source table remain authoritative.
+
+### Sensor
+
+The existing source-spectrum, response-function, and band-integration explanation becomes a connected three-stage transform.
+
+SRF provenance and incomplete-coverage behavior remain visible.
+
+No unavailable band is converted to zero or visually implied as a valid sample.
+
+### Atmospheric correction
+
+The existing forward model, inverse hypothesis, conditional comparison, and missing independent validation become a single four-stage reasoning sequence.
+
+The final stage remains explicitly marked as not performed.
+
+Matched-model closure is not presented as empirical validation.
+
+### Cross-Lab consistency
+
+A3 introduces shared `gg-lab-*` primitives rather than Water-only copies.
+
+They are loaded only by the Water concept branch today.
+
+They are designed so a later A4 pass can reuse the same topology, telemetry, rail, and field grammar in sibling Lab instruments without forcing their domain-specific visuals to match Water.
