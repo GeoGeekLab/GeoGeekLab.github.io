@@ -50,6 +50,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('Orbit exposes advanced controls and forwards wheel zoom across the field', async ({ page }) => {
+  // Mobile emulation performs the same WebGL boot, accordion expansion, wheel
+  // forwarding and time-step checks under a smaller, touch-enabled viewport.
+  // Full-suite trace evidence shows the assertions complete successfully but
+  // can cross Playwright's 30 s default while the final click is settling.
+  test.setTimeout(45_000);
   const upstreamRequests = [];
   page.on('request', request => {
     if (/celestrak\.org\/NORAD\/elements\/gp\.php/i.test(request.url())) upstreamRequests.push(request.url());
