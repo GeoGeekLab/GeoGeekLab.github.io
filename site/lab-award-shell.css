@@ -183,6 +183,24 @@
   font-size:clamp(30px,2.35vw,38px)!important;
   line-height:.95!important;
 }
+/* A7: Water owns a dense internal workspace header, so the shared host keeps
+ * orientation but removes duplicated quantity/axis rows. This preserves the
+ * family grammar while staying inside the validated compact-host contract. */
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"][data-lab-award-shell="a4"] .instrument-award-context{
+  align-self:center;
+  grid-template-rows:auto auto;
+  gap:2px;
+  padding:2px 0 1px 14px;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"][data-lab-award-shell="a4"] .instrument-award-context>strong{
+  align-self:start;
+  font-size:11px;
+  line-height:1.15;
+}
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"][data-lab-award-shell="a4"] .instrument-award-context>small,
+.instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"][data-lab-award-shell="a4"] .instrument-award-axis{
+  display:none;
+}
 
 /* Shared task controls use the accent only for active state.
  * Individual instruments keep their own internal control design. */

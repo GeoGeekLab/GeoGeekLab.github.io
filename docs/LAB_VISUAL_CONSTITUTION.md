@@ -294,3 +294,22 @@ Forced-colors and increased-contrast preferences must retain active-state and fo
 Automated accessibility checks must include embedded instrument documents, not only the Lab host page.
 
 A release candidate still requires the complete browser, accessibility, regression, and Lighthouse gates to pass.
+
+
+## 15. A7 final-composition contract
+
+Final composition decisions must be based on real viewport captures.
+
+When a scientific instrument already contains dense internal orientation, the shared host may compress duplicated metadata but must retain instrument identity, active task context, and exit behavior.
+
+Do not shrink primary orientation labels below practical reading size merely to satisfy a height target.
+
+Prefer removing duplicated rows.
+
+A scientific reference workspace should not become one large decorative card.
+
+Use open fields and separators when the underlying information already has a strong hierarchy.
+
+Horizontal overflow must look intentional.
+
+Edge continuation cues may be used when they are noninteractive, disappear at scroll boundaries, and do not replace keyboard or touch access.

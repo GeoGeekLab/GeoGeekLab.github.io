@@ -13,6 +13,7 @@
   let lastProbe='';
   let timer=0;
   let toolFrame=0;
+  let navFrame=0;
 
   function positionTools(){
     toolFrame=0;
@@ -105,6 +106,26 @@
     syncPortal();
   }
 
+  function installNavEdges(){
+    const scroller=document.querySelector('.appnav .nav-scroll');
+    if(!scroller||scroller.dataset.awardEdges==='a7') return;
+    scroller.dataset.awardEdges='a7';
+
+    const update=()=>{
+      navFrame=0;
+      const max=Math.max(0,scroller.scrollWidth-scroller.clientWidth);
+      root.dataset.waterNavStart=String(scroller.scrollLeft<=2);
+      root.dataset.waterNavEnd=String(scroller.scrollLeft>=max-2);
+    };
+    const schedule=()=>{
+      if(navFrame) return;
+      navFrame=requestAnimationFrame(update);
+    };
+    scroller.addEventListener('scroll',schedule,{passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    schedule();
+  }
+
   function currentWorkspace(){
     return document.querySelector('#mainNav [data-tab][aria-selected="true"]')?.dataset.tab||'';
   }
@@ -127,6 +148,7 @@
 
   function reconcile(){
     installToolOverlay();
+    installNavEdges();
     const workspace=currentWorkspace();
     const probe=currentProbe();
 

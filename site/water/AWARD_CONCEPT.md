@@ -263,3 +263,20 @@ The concept remains `award-a3`.
 The polish remains `award-a5`.
 
 See `docs/LAB_AWARD_A6.md`.
+
+
+## A7 final composition review
+
+A7 adds no new Water version or award runtime layer.
+
+It is a capture-driven composition correction.
+
+The Water host keeps 10 px Observatory orientation while removing duplicated host quantity/axis rows so the existing 76 px compact-header contract can still pass.
+
+WATER RT loses its outer dashboard frame and becomes an open reference chamber.
+
+Mismatch status, reference conditions, sampled quantities, method disclosure, and provenance remain visible.
+
+The horizontal nine-workspace navigation gains noninteractive continuation fades when overflow is present.
+
+See `docs/LAB_AWARD_A7.md`.
