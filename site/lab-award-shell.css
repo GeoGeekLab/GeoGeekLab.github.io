@@ -1,0 +1,304 @@
+/* GeoGeek Lab — Award Shell A4
+ * Shared host layer for the seven Observatory instruments.
+ * Instrument-specific viewports, rails, data, and model logic remain untouched.
+ */
+
+.instrument-dialog[data-lab-workspace="true"]{
+  --lab-award-accent:var(--gg-award-warm,#d16339);
+  --lab-award-accent-rgb:209,99,57;
+}
+.instrument-dialog[data-instrument-kind="water"]{
+  --lab-award-accent:#6dbbc5;
+  --lab-award-accent-rgb:109,187,197;
+}
+.instrument-dialog[data-instrument-kind="pulse"]{
+  --lab-award-accent:#d16339;
+  --lab-award-accent-rgb:209,99,57;
+}
+.instrument-dialog[data-instrument-kind="orbit"]{
+  --lab-award-accent:#df966a;
+  --lab-award-accent-rgb:223,150,106;
+}
+.instrument-dialog[data-instrument-kind="earth"]{
+  --lab-award-accent:#79b7a4;
+  --lab-award-accent-rgb:121,183,164;
+}
+.instrument-dialog[data-instrument-kind="flow"]{
+  --lab-award-accent:#83b6c1;
+  --lab-award-accent-rgb:131,182,193;
+}
+.instrument-dialog[data-instrument-kind="figure"]{
+  --lab-award-accent:#a89bb9;
+  --lab-award-accent-rgb:168,155,185;
+}
+.instrument-dialog[data-instrument-kind="world"]{
+  --lab-award-accent:#b9aa76;
+  --lab-award-accent-rgb:185,170,118;
+}
+
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-shell{
+  background:
+    linear-gradient(90deg,rgba(238,242,239,.022) 1px,transparent 1px),
+    var(--gg-award-bg,#0b120e);
+  background-size:min(25vw,400px) 100%,auto;
+}
+
+/* A compact Observatory masthead. It keeps the title and exit stable while
+ * giving every instrument the same orientation grammar. */
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-head{
+  position:relative;
+  grid-template-columns:minmax(250px,.9fr) minmax(260px,.72fr) auto auto;
+  align-items:center;
+  gap:clamp(15px,1.7vw,28px);
+  min-height:78px;
+  padding:11px clamp(20px,2vw,32px) 10px;
+  background:
+    linear-gradient(90deg,rgba(var(--lab-award-accent-rgb),.038),transparent 28%),
+    rgba(10,17,13,.965);
+  border-bottom-color:var(--gg-award-line,rgba(232,237,233,.14));
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-head::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-1px;
+  width:min(34vw,520px);
+  height:1px;
+  background:linear-gradient(90deg,var(--lab-award-accent),rgba(var(--lab-award-accent-rgb),.18),transparent);
+  pointer-events:none;
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-head>div:first-child{
+  min-width:0;
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-breadcrumb{
+  margin-bottom:5px;
+  color:#788a80;
+  font-size:7.5px;
+  letter-spacing:.12em;
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-kicker{
+  display:none;
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-head h2{
+  margin:0;
+  overflow:hidden;
+  color:var(--gg-award-text,#f1efe7);
+  font-family:var(--serif,Georgia,serif);
+  font-size:clamp(31px,2.65vw,44px);
+  font-weight:400;
+  line-height:.95;
+  letter-spacing:-.042em;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.instrument-award-context{
+  min-width:0;
+  align-self:stretch;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  gap:3px;
+  padding:7px 0 3px 16px;
+  border-left:1px solid var(--gg-award-line,rgba(232,237,233,.14));
+}
+.instrument-award-context-line{
+  min-width:0;
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:14px;
+}
+.instrument-award-context-kicker,
+.instrument-award-context-mode,
+.instrument-award-context small{
+  font-family:var(--mono,ui-monospace,monospace);
+  text-transform:uppercase;
+}
+.instrument-award-context-kicker{
+  color:#73877c;
+  font-size:7.5px;
+  font-weight:700;
+  line-height:1;
+  letter-spacing:.11em;
+}
+.instrument-award-context-mode{
+  flex:0 0 auto;
+  color:var(--lab-award-accent);
+  font-size:7.5px;
+  font-weight:700;
+  line-height:1;
+  letter-spacing:.10em;
+}
+.instrument-award-context strong{
+  align-self:center;
+  min-width:0;
+  overflow:hidden;
+  color:#dfe5e0;
+  font:600 12px/1.2 var(--sans,system-ui,sans-serif);
+  letter-spacing:-.01em;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.instrument-award-context small{
+  min-width:0;
+  overflow:hidden;
+  color:#809188;
+  font-size:7.5px;
+  font-weight:650;
+  line-height:1.2;
+  letter-spacing:.07em;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.instrument-award-axis{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(8px,1fr));
+  gap:3px;
+  width:min(220px,100%);
+  margin-top:2px;
+}
+.instrument-award-axis i{
+  display:block;
+  height:1px;
+  background:rgba(232,237,233,.13);
+}
+.instrument-award-axis i.is-active{
+  height:2px;
+  margin-top:-1px;
+  background:var(--lab-award-accent);
+  box-shadow:0 0 9px rgba(var(--lab-award-accent-rgb),.22);
+}
+
+/* Shared task controls use the accent only for active state.
+ * Individual instruments keep their own internal control design. */
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] :is(.instrument-workspace-modes,.pulse-task-tabs){
+  align-self:center;
+  gap:1px;
+  padding:2px;
+  border-color:rgba(232,237,233,.10);
+  background:rgba(255,255,255,.012);
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] :is(.instrument-workspace-modes,.pulse-task-tabs) button{
+  border-radius:0;
+  transition:background-color 150ms ease,color 150ms ease,box-shadow 150ms ease;
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] :is(.instrument-workspace-modes,.pulse-task-tabs) button[aria-pressed="true"]{
+  color:var(--gg-award-text,#f1efe7);
+  background:rgba(var(--lab-award-accent-rgb),.095);
+  box-shadow:inset 0 -1px 0 var(--lab-award-accent);
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] :is(.instrument-workspace-modes,.pulse-task-tabs) button:focus-visible{
+  outline:1px solid var(--lab-award-accent);
+  outline-offset:-1px;
+}
+
+/* Keep the validated close-control geometry. The A4 shell changes its tone,
+ * not its hit target or semantics. */
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-close{
+  width:44px;
+  height:44px;
+  min-width:44px;
+  min-height:44px;
+  flex:0 0 44px;
+  padding:0;
+  border:1px solid rgba(232,237,233,.16);
+  border-radius:50%;
+  background:rgba(255,255,255,.012);
+  color:#93a198;
+  font-size:21px;
+  transition:border-color 150ms ease,color 150ms ease,background-color 150ms ease;
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-close:hover,
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-close:focus-visible{
+  border-color:rgba(var(--lab-award-accent-rgb),.72);
+  background:rgba(var(--lab-award-accent-rgb),.055);
+  color:var(--gg-award-text,#f1efe7);
+  outline:none;
+}
+
+/* The viewport is one continuous scientific field. */
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-stage{
+  isolation:isolate;
+  background:
+    radial-gradient(62% 70% at 42% 44%,rgba(var(--lab-award-accent-rgb),.018),transparent 72%),
+    #08100c;
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-stage::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:0;
+  pointer-events:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.015);
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-stage>*{
+  position:relative;
+  z-index:1;
+}
+
+/* Footer remains a provenance/status surface. It becomes visually quiet.
+ * Water can continue to suppress it because the embedded workbench owns
+ * equivalent status and provenance internally. */
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-foot{
+  border-top-color:rgba(232,237,233,.08);
+  background:#0e1711;
+  color:#75877d;
+}
+
+/* Focus mode keeps the same orientation strip rather than changing identity. */
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-workspace-mode="focus"] .instrument-head{
+  min-height:68px;
+  padding-top:8px;
+  padding-bottom:8px;
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-workspace-mode="focus"] .instrument-head h2{
+  font-size:clamp(30px,2.35vw,38px);
+}
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-workspace-mode="focus"] .instrument-award-context{
+  padding-block:4px 1px;
+}
+
+/* The shell accent never replaces domain colors inside the scientific view. */
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] :is(
+  .orbit-layout,.earth-observation-lab,.flow-lab,.pulse-observation-lab,
+  .figure-workbench,.figure-layout,.world-layout
+){
+  --lab-shell-accent:var(--lab-award-accent);
+}
+
+@media(max-width:1040px){
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-head{
+    grid-template-columns:minmax(0,1fr) auto;
+    min-height:84px;
+  }
+  .instrument-award-context{display:none}
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] :is(.instrument-workspace-modes,.pulse-task-tabs){
+    grid-column:1/-1;
+    grid-row:2;
+    justify-self:start;
+  }
+}
+@media(max-width:700px){
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-head{
+    min-height:72px;
+    padding:10px 14px 8px;
+  }
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-head h2{
+    font-size:clamp(29px,9vw,38px);
+  }
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] .instrument-close{
+    width:44px;
+    height:44px;
+    min-width:44px;
+    min-height:44px;
+    border-radius:50%;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] *,
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] *::before,
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"] *::after{
+    transition:none!important;
+    animation:none!important;
+  }
+}
