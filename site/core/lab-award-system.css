@@ -1,0 +1,183 @@
+/* GeoGeek Lab — award visual system primitives
+ * Baseline family reference: release 20261011v107watercache1.
+ * This file contains cross-instrument visual grammar only.
+ * It does not contain instrument model logic or data semantics.
+ */
+:root{
+  --gg-award-bg:#0b120e;
+  --gg-award-panel:#101913;
+  --gg-award-panel-2:#142019;
+  --gg-award-field:#08110d;
+  --gg-award-text:#f1efe7;
+  --gg-award-body:#c9d0ca;
+  --gg-award-muted:#9fb2a6;
+  --gg-award-line:rgba(232,237,233,.14);
+  --gg-award-line-strong:rgba(232,237,233,.24);
+  --gg-award-warm:#e8a17b;
+  --gg-award-warning:#e8b86f;
+  --gg-award-motion:cubic-bezier(.2,.72,.22,1);
+}
+
+.gg-lab-topology{
+  position:relative;
+  min-width:0;
+  overflow:hidden;
+  border-top:1px solid var(--gg-award-line);
+  border-bottom:1px solid var(--gg-award-line);
+  background:
+    radial-gradient(58% 120% at 54% 55%,rgba(255,255,255,.025),transparent 72%),
+    var(--gg-award-field);
+}
+.gg-lab-topology-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:start;
+  gap:18px;
+  padding:13px clamp(18px,2.4vw,32px) 9px;
+  border-bottom:1px solid rgba(232,237,233,.08);
+}
+.gg-lab-topology-head>div{
+  display:grid;
+  gap:4px;
+}
+.gg-lab-topology-kicker,
+.gg-lab-topology-state,
+.gg-lab-topology-readout dt{
+  font:700 9px/1.35 var(--mono,ui-monospace,monospace);
+  letter-spacing:.10em;
+}
+.gg-lab-topology-kicker{color:var(--gg-award-muted)}
+.gg-lab-topology-head strong{
+  color:var(--gg-award-text);
+  font:600 13px/1.3 var(--sans,system-ui,sans-serif);
+  letter-spacing:-.01em;
+}
+.gg-lab-topology-state{
+  color:var(--gg-award-warm);
+  text-align:right;
+  white-space:nowrap;
+}
+.gg-lab-topology-canvas{
+  min-width:0;
+  padding:3px clamp(14px,2.2vw,28px) 0;
+}
+.gg-lab-topology-svg{
+  display:block;
+  width:100%;
+  height:auto;
+  min-height:154px;
+  max-height:230px;
+}
+.gg-lab-topology-edge{
+  fill:none;
+  stroke:rgba(201,208,202,.20);
+  stroke-width:1.2;
+  vector-effect:non-scaling-stroke;
+}
+.gg-lab-topology-edge.is-active{
+  stroke:var(--gg-award-warm);
+  stroke-width:1.6;
+}
+.gg-lab-topology-node rect{
+  fill:#0d1711;
+  stroke:rgba(232,237,233,.18);
+  stroke-width:1;
+  vector-effect:non-scaling-stroke;
+}
+.gg-lab-topology-node .gg-node-kicker{
+  fill:#83978b;
+  font:700 18px var(--mono,ui-monospace,monospace);
+  letter-spacing:1.5px;
+}
+.gg-lab-topology-node .gg-node-title{
+  fill:#d9e1dc;
+  font:600 28px var(--sans,system-ui,sans-serif);
+}
+.gg-lab-topology-node .gg-node-quantity{
+  fill:#91a69a;
+  font:600 20px var(--mono,ui-monospace,monospace);
+}
+.gg-lab-topology-node.is-active rect{
+  fill:rgba(232,161,123,.055);
+  stroke:var(--gg-award-warm);
+}
+.gg-lab-topology-node.is-active .gg-node-kicker,
+.gg-lab-topology-node.is-active .gg-node-quantity{
+  fill:var(--gg-award-warm);
+}
+.gg-lab-topology-node.is-active .gg-node-title{
+  fill:var(--gg-award-text);
+}
+.gg-lab-topology-readout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);
+  gap:1px;
+  margin:0;
+  background:var(--gg-award-line);
+  border-top:1px solid var(--gg-award-line);
+}
+.gg-lab-topology-readout>div{
+  min-width:0;
+  padding:11px clamp(13px,1.7vw,20px);
+  background:var(--gg-award-panel);
+}
+.gg-lab-topology-readout dt{
+  color:var(--gg-award-muted);
+}
+.gg-lab-topology-readout dd{
+  margin:5px 0 0;
+  color:var(--gg-award-body);
+  font:500 11px/1.48 var(--sans,system-ui,sans-serif);
+  overflow-wrap:anywhere;
+}
+.gg-lab-topology-readout>div:last-child dd{
+  color:#b8c3bc;
+}
+
+.gg-lab-telemetry{
+  display:grid;
+  gap:1px;
+  background:var(--gg-award-line);
+}
+.gg-lab-telemetry>div{
+  min-width:0;
+  background:var(--gg-award-panel);
+}
+
+.gg-lab-process{
+  display:grid;
+  gap:1px;
+  background:var(--gg-award-line);
+}
+.gg-lab-process>li,
+.gg-lab-process>div{
+  min-width:0;
+  background:var(--gg-award-panel);
+}
+
+@media(max-width:720px){
+  .gg-lab-topology-head{
+    display:grid;
+    gap:8px;
+  }
+  .gg-lab-topology-state{
+    text-align:left;
+    white-space:normal;
+  }
+  .gg-lab-topology-readout{
+    grid-template-columns:1fr;
+  }
+  .gg-lab-topology-svg{
+    min-width:620px;
+  }
+  .gg-lab-topology-canvas{
+    overflow-x:auto;
+    scrollbar-width:thin;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .gg-lab-topology *{
+    transition:none!important;
+    animation:none!important;
+  }
+}
