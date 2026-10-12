@@ -73,19 +73,24 @@ html[data-water-attention="focus"] .appnav .nav-scroll {
 html[data-water-attention="focus"] .workspace-head,
 html[data-water-attention="focus"][data-geogeek-embedded="true"] .workspace-head {
   min-height:64px!important;
-  padding:9px clamp(17px,2.2vw,29px)!important;
+  padding:6px clamp(17px,2.2vw,29px)!important;
 }
 html[data-water-attention="focus"] .space-title {
   font-size:clamp(22px,1.7vw,28px)!important;
   margin:2px 0 3px;
+}
+/* Focus keeps the workspace title, chart labels and mandatory science status.
+ * The redundant subtitle is restored without changing DOM/state in Full detail. */
+html[data-water-attention="focus"] .workspace.rt-active .space-subtitle {
+  display:none!important;
 }
 html[data-water-attention="focus"] .space-subtitle {
   max-width:80ch!important;
   line-height:1.4!important;
 }
 html[data-water-attention="focus"] .chart-top {
-  padding:6px clamp(17px,2.2vw,29px)!important;
-  min-height:48px!important;
+  padding:4px clamp(17px,2.2vw,29px)!important;
+  min-height:44px!important;
 }
 html[data-water-attention="focus"] .plot-tab {
   min-height:39px!important;
@@ -103,11 +108,11 @@ html[data-water-attention="focus"] .workspace.rt-active .side-head small {
   font-size:11px;
 }
 html[data-water-attention="focus"] .workspace.rt-active .rt-science-workspace {
-  padding:clamp(12px,1.1vw,17px)!important;
-  gap:11px!important;
+  padding:clamp(9px,0.9vw,14px)!important;
+  gap:9px!important;
 }
 html[data-water-attention="focus"] .workspace.rt-active .chart-main {
-  padding-top:6px!important;
+  padding-top:2px!important;
 }
 /* The outer workspace already identifies Water RT. Remove the repeated intro
  * in Focus; restore the entire title, geometry and assumptions in Detail. */
