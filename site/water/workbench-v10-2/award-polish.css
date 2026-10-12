@@ -1,0 +1,135 @@
+/* Water as Spectrum — Award Polish A5
+ * Final interaction/capture polish on top of the frozen A3 concept.
+ * This file changes presentation only.
+ */
+
+/* Wavelength is a coordinate, not a progress value.
+ * The shared probe now uses the physical visible-spectrum domain end to end. */
+.probe-range{
+  height:6px!important;
+  border:1px solid rgba(241,239,231,.16)!important;
+  border-radius:0!important;
+  background:
+    linear-gradient(90deg,
+      rgba(104,102,207,.72) 0%,
+      rgba(95,143,212,.74) 17%,
+      rgba(95,194,197,.76) 34%,
+      rgba(126,200,145,.70) 50%,
+      rgba(211,196,119,.68) 70%,
+      rgba(220,139,92,.72) 86%,
+      rgba(199,94,82,.72) 100%)!important;
+  box-shadow:0 0 18px rgba(var(--water-spectrum-rgb),.045);
+}
+.probe-range::-webkit-slider-thumb{
+  width:15px!important;
+  height:15px!important;
+  border:2px solid rgba(241,239,231,.92)!important;
+  border-radius:50%!important;
+  background:rgb(var(--water-spectrum-rgb))!important;
+  box-shadow:
+    0 0 0 3px rgba(8,17,13,.88),
+    0 0 18px rgba(var(--water-spectrum-rgb),.34)!important;
+}
+.probe-range::-moz-range-thumb{
+  width:11px!important;
+  height:11px!important;
+  border:2px solid rgba(241,239,231,.92)!important;
+  border-radius:50%!important;
+  background:rgb(var(--water-spectrum-rgb))!important;
+  box-shadow:
+    0 0 0 3px rgba(8,17,13,.88),
+    0 0 18px rgba(var(--water-spectrum-rgb),.34)!important;
+}
+
+/* One wavelength marker language across chart, ruler, table and readout. */
+.graph .probe-line{
+  stroke:rgb(var(--water-spectrum-rgb))!important;
+  stroke-width:1.25!important;
+  stroke-dasharray:3 4!important;
+  opacity:.92;
+}
+.graph .active-dot{
+  fill:rgb(var(--water-spectrum-rgb))!important;
+  stroke:var(--award-field)!important;
+  stroke-width:2.5!important;
+  filter:drop-shadow(0 0 5px rgba(var(--water-spectrum-rgb),.36));
+}
+.chart-footer strong,
+.probe-readout b{
+  color:rgb(var(--water-spectrum-rgb))!important;
+}
+.p6-current-row{
+  background:rgba(var(--water-spectrum-rgb),.065)!important;
+}
+.p6-current-row :is(th,td){
+  box-shadow:inset 0 1px 0 rgba(var(--water-spectrum-rgb),.12),inset 0 -1px 0 rgba(var(--water-spectrum-rgb),.12);
+}
+.p6-current-row th{
+  color:rgb(var(--water-spectrum-rgb))!important;
+}
+
+/* Workspace changes get one restrained optical reveal.
+ * The data itself never moves, scales, or morphs into a different quantity. */
+html[data-water-award-transition="workspace"] .workspace-head .ui-workspace-identity{
+  animation:water-award-heading-arrive 240ms cubic-bezier(.2,.72,.22,1) both;
+}
+html[data-water-award-transition="workspace"] .chart-main{
+  animation:water-award-field-arrive 260ms ease-out both;
+}
+html[data-water-award-transition="probe"] .award-spectrum-marker,
+html[data-water-award-transition="probe"] .graph .active-dot{
+  filter:drop-shadow(0 0 9px rgba(var(--water-spectrum-rgb),.44));
+}
+
+@keyframes water-award-heading-arrive{
+  from{opacity:.45;translate:0 3px}
+  to{opacity:1;translate:0 0}
+}
+@keyframes water-award-field-arrive{
+  from{opacity:.82}
+  to{opacity:1}
+}
+
+/* Keep the main spectral panel visually dominant at wide award-capture sizes. */
+@media(min-width:1200px){
+  .p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-primary svg.graph{
+    min-height:290px!important;
+  }
+  .p6-optics.award-optics-a2 .p6-spectrum.award-spectrum-support svg.graph{
+    min-height:205px!important;
+  }
+}
+
+/* Narrow screens keep one compact two-line scientific scrubber. */
+@media(max-width:520px){
+  .probe-bar{
+    display:grid!important;
+    grid-template-columns:auto auto minmax(0,1fr)!important;
+    gap:7px 10px!important;
+    align-items:center!important;
+  }
+  .probe-bar label{grid-column:1}
+  #probeValue{grid-column:2;min-width:0!important}
+  .probe-readout{
+    grid-column:3!important;
+    grid-row:1!important;
+    justify-self:end;
+    min-width:0;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .probe-range{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    width:100%!important;
+    margin:3px 0 1px!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  html[data-water-award-transition] .workspace-head .ui-workspace-identity,
+  html[data-water-award-transition] .chart-main{
+    animation:none!important;
+  }
+}
