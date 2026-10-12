@@ -1,0 +1,93 @@
+/* GeoGeek Lab — Award Polish A5
+ * Transition craft and responsive orientation for the A4 Observatory shell.
+ * No scientific viewport geometry or instrument state is changed here.
+ */
+
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"]{
+  --lab-award-transition-duration:320ms;
+}
+
+/* The active accent line acts as an orientation cue, not decoration. */
+.instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"] .instrument-head::after{
+  transform-origin:left center;
+}
+
+/* State changes get one restrained reveal. The viewport does not move or scale. */
+.instrument-dialog[data-lab-award-transition][data-lab-workspace="true"] .instrument-head::after{
+  animation:gg-award-accent-arrive var(--lab-award-transition-duration) cubic-bezier(.2,.72,.22,1) both;
+}
+.instrument-dialog[data-lab-award-transition][data-lab-workspace="true"] .instrument-award-context{
+  animation:gg-award-context-arrive 260ms cubic-bezier(.2,.72,.22,1) both;
+}
+.instrument-dialog[data-lab-award-transition="enter"][data-lab-workspace="true"] .instrument-stage{
+  animation:gg-award-stage-enter 300ms ease-out both;
+}
+.instrument-dialog[data-lab-award-transition="state"][data-lab-workspace="true"] .instrument-stage{
+  animation:gg-award-stage-state 220ms ease-out both;
+}
+
+@keyframes gg-award-accent-arrive{
+  from{transform:scaleX(.12);opacity:.28}
+  to{transform:scaleX(1);opacity:1}
+}
+@keyframes gg-award-context-arrive{
+  from{opacity:.38;translate:0 3px}
+  to{opacity:1;translate:0 0}
+}
+@keyframes gg-award-stage-enter{
+  from{opacity:.72}
+  to{opacity:1}
+}
+@keyframes gg-award-stage-state{
+  0%{opacity:.84}
+  100%{opacity:1}
+}
+
+/* Tablet keeps orientation instead of dropping it completely.
+ * The long field title and family axis collapse; the instrument index and mode remain. */
+@media(min-width:701px) and (max-width:1040px){
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"] .instrument-head{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-rows:auto auto;
+    row-gap:7px;
+  }
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"] .instrument-award-context{
+    display:grid!important;
+    grid-column:1;
+    grid-row:2;
+    align-self:center;
+    width:max-content;
+    max-width:100%;
+    padding:3px 0 0;
+    border-left:0;
+  }
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"] .instrument-award-context-line{
+    justify-content:flex-start;
+    gap:10px;
+  }
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"] .instrument-award-context>strong,
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"] .instrument-award-context>small,
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"] .instrument-award-axis{
+    display:none;
+  }
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"] :is(.instrument-workspace-modes,.pulse-task-tabs){
+    grid-column:2;
+    grid-row:2;
+    justify-self:end;
+  }
+}
+
+/* Mobile keeps the validated compact shell. */
+@media(max-width:700px){
+  .instrument-dialog[data-lab-workspace="true"][data-lab-award-shell="a4"][data-lab-award-polish="a5"] .instrument-award-context{
+    display:none!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .instrument-dialog[data-lab-award-transition][data-lab-workspace="true"] .instrument-head::after,
+  .instrument-dialog[data-lab-award-transition][data-lab-workspace="true"] .instrument-award-context,
+  .instrument-dialog[data-lab-award-transition][data-lab-workspace="true"] .instrument-stage{
+    animation:none!important;
+  }
+}
