@@ -9,7 +9,7 @@ test('A11 is injected into the existing Water iframe, never a parallel scientifi
   const adapter=read(path+'instrument.js');
   assert.match(adapter,/water-attention\.css\?v=a11/);
   assert.match(adapter,/water-attention\.js\?v=a11/);
-  assert.match(adapter,/data-water-attention-style/);
+  assert.match(adapter,/dataset\.waterAttentionStyle/);
   assert.match(adapter,/award-concept\.css\?v=a5/);
   assert.match(adapter,/10\.2\.0-quiet2/);
 });
