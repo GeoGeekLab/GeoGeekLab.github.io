@@ -66,7 +66,7 @@ for (const file of await htmlFiles(dist)) {
     'border-radius:50%',
     '--geogeek-boot-fg:#152019',
     '--geogeek-boot-signal:#a64624',
-    '--geogeek-boot-sans:ui-sans-serif'
+    '--geogeek-boot-sans:ui-sans-serif',
     'INFORMATION SCALE',
     'VIEW / READYING'
   ];
