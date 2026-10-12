@@ -116,3 +116,18 @@ The ready state now makes the cover `visibility: hidden` as well as transparent 
 The leaving/frozen/restoring states still switch it synchronously back to visible and opaque, preserving the no-stale-frame navigation contract.
 
 This is a site readiness/performance correction. It does not alter Water RT science or chart interaction.
+
+
+## Lighthouse follow-up — boot cover font isolation
+
+After the ready-state cover was removed from the visible render tree, Lighthouse still identified its status text as the Water LCP candidate.
+
+The report showed a large render-delay phase on `#geogeek-boot-status`.
+
+The cover was still authored with the same webfont families as the final site. Under throttling, a late webfont repaint can therefore update the transient cover's text-paint timing even though the cover exists only to bridge loading.
+
+The boot surface now uses platform system sans/monospace stacks only. It no longer participates in the site's Google-font lifecycle.
+
+The final interface keeps the normal GeoGeek type system after reveal; only the transient readiness cover is isolated.
+
+This is a performance-gate fix and does not change Water RT science or interaction.

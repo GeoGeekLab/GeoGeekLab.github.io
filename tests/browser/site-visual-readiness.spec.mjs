@@ -16,6 +16,13 @@ async function expectReady(page) {
   await expect(page.locator('#geogeek-boot-cover')).toHaveCSS('visibility', 'hidden');
   await expect.poll(() => page.evaluate(() => window.__GEOGEEK_VISUAL_READY__)).toBe(true);
 
+  const bootFonts = await page.locator('#geogeek-boot-cover').evaluate(node => ({
+    brand:getComputedStyle(node.querySelector('.geogeek-boot-brand')).fontFamily,
+    scale:getComputedStyle(node.querySelector('.geogeek-boot-scale')).fontFamily
+  }));
+  expect(bootFonts.brand).not.toMatch(/Instrument Sans/i);
+  expect(bootFonts.scale).not.toMatch(/IBM Plex Mono/i);
+
   const hasPreinit = await page.locator('script[src*="ux-preinit.js"]').count();
   if (hasPreinit) {
     await expect.poll(() => page.evaluate(() => window.__GEOGEEK_PREINIT_READY__)).toBe(true);

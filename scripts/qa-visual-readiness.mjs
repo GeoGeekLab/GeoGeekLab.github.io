@@ -66,7 +66,7 @@ for (const file of await htmlFiles(dist)) {
     'border-radius:50%',
     '--geogeek-boot-fg:#152019',
     '--geogeek-boot-signal:#a64624',
-    '--geogeek-boot-sans:"Instrument Sans"',
+    '--geogeek-boot-sans:ui-sans-serif'
     'INFORMATION SCALE',
     'VIEW / READYING'
   ];
@@ -75,6 +75,9 @@ for (const file of await htmlFiles(dist)) {
   }
   if (html.includes('class="geogeek-boot-inner"')) {
     fail(`${relative} still contains the obsolete centered readiness card`);
+  }
+  if (/--geogeek-boot-(?:sans|mono):[^;}]*?(?:Instrument Sans|IBM Plex Mono)/.test(html)) {
+    fail(`${relative} boot cover must not wait for webfont repaint`);
   }
 
   const preinitRefs = [...html.matchAll(/src=(['"])([^'"]*\/)?ux-preinit\.js(?:\?v=([^'"]+))?\1/gi)];
