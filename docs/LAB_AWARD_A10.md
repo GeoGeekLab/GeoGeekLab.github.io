@@ -65,3 +65,22 @@ It is not a prediction of Awwwards, FWA, Webby, or any jury result.
 After an A10 green run, no additional visual change should be made without a new visible defect, accessibility issue, performance regression, or scientific correctness issue.
 
 Preference changes alone are not sufficient reason to keep iterating.
+
+
+## Gate correction
+
+The full A10 browser baseline exposed one stale assertion in the mobile-exit review test.
+
+The rendered mobile capture already showed one visible return arrow and no visible ×.
+
+The test incorrectly required the button's inherited font size to be zero.
+
+Font size is not the visual contract.
+
+The contract is:
+
+- the underlying text glyph is visually transparent;
+- the `::before` return arrow is visible;
+- the accessible name remains `Return to Lab Index`.
+
+A10 keeps the rendered UI unchanged and corrects only this test contract.

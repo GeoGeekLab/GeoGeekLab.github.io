@@ -50,13 +50,13 @@ test('A9 mobile Lab exit presents one back-to-index glyph',async({page},testInfo
   const {dialog}=await openWater(page,'iop');
   const close=dialog.locator('#instrumentClose');
   const style=await close.evaluate(node=>({
-    fontSize:parseFloat(getComputedStyle(node).fontSize),
     color:getComputedStyle(node).color,
     before:getComputedStyle(node,'::before').content,
-    beforeColor:getComputedStyle(node,'::before').color
+    beforeColor:getComputedStyle(node,'::before').color,
+    ariaLabel:node.getAttribute('aria-label')
   }));
-  expect(style.fontSize).toBe(0);
   expect(style.color).toBe('rgba(0, 0, 0, 0)');
   expect(style.before).toContain('←');
   expect(style.beforeColor).not.toBe('rgba(0, 0, 0, 0)');
+  expect(style.ariaLabel).toBe('Return to Lab Index');
 });
