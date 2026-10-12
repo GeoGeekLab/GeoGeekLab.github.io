@@ -12,6 +12,44 @@
   let lastWorkspace='';
   let lastProbe='';
   let timer=0;
+  let toolFrame=0;
+
+  function positionTools(){
+    toolFrame=0;
+    const menu=document.getElementById('toolsMenu');
+    const summary=menu?.querySelector(':scope > summary');
+    const panel=menu?.querySelector(':scope > .ui-toolmenu-panel');
+    if(!menu?.open||!summary||!panel) return;
+
+    const trigger=summary.getBoundingClientRect();
+    const width=panel.offsetWidth||Math.min(255,window.innerWidth-16);
+    const height=panel.offsetHeight||140;
+    const gutter=8;
+    const left=Math.max(gutter,Math.min(window.innerWidth-width-gutter,trigger.right-width));
+    const below=trigger.bottom+6;
+    const above=trigger.top-height-6;
+    const top=below+height<=window.innerHeight-gutter
+      ?below
+      :Math.max(gutter,above);
+
+    panel.style.setProperty('--water-tools-left',left.toFixed(1)+'px');
+    panel.style.setProperty('--water-tools-top',top.toFixed(1)+'px');
+  }
+
+  function scheduleTools(){
+    if(toolFrame) return;
+    toolFrame=requestAnimationFrame(positionTools);
+  }
+
+  function installToolOverlay(){
+    const menu=document.getElementById('toolsMenu');
+    if(!menu||menu.dataset.awardOverlay==='a5') return;
+    menu.dataset.awardOverlay='a5';
+    menu.addEventListener('toggle',scheduleTools);
+    window.addEventListener('resize',scheduleTools,{passive:true});
+    document.addEventListener('scroll',scheduleTools,{passive:true,capture:true});
+    scheduleTools();
+  }
 
   function currentWorkspace(){
     return document.querySelector('#mainNav [data-tab][aria-selected="true"]')?.dataset.tab||'';
@@ -34,6 +72,7 @@
   }
 
   function reconcile(){
+    installToolOverlay();
     const workspace=currentWorkspace();
     const probe=currentProbe();
 
