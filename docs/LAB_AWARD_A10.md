@@ -84,3 +84,20 @@ The contract is:
 - the accessible name remains `Return to Lab Index`.
 
 A10 keeps the rendered UI unchanged and corrects only this test contract.
+
+
+## Post-freeze defect exception — RT chart interaction
+
+A user-visible consistency defect was found after the visual freeze: WATER RT plots were static SVGs while the other Water scientific plots supported direct inspection.
+
+The fix does not change RT science or interpolate the archived grid.
+
+Depth-profile interaction snaps to one of the ten reported depth nodes and activates the existing depth selector.
+
+Compare-view spectral interaction snaps to one of the five archived wavelength nodes and activates the existing wavelength selector.
+
+Angular-view interaction inspects one of the eight solved upward-direction nodes locally; it does not invent a new viewing direction or rerun the solver.
+
+Pointer, tap and keyboard inspection share the same discrete-node contract.
+
+This qualifies under the A10 freeze rule because it corrects a visible interaction defect rather than adding a new aesthetic feature.

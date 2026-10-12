@@ -70,3 +70,46 @@ test('UX-RT4 mobile: readable cards, accessible data table and no body horizonta
  await expect(app.locator('.rt-science-data table')).toBeVisible();
  await expect(app.locator('.rt-science-sync')).toBeVisible();
 });
+
+
+test('UX-RT4 interaction: depth and wavelength charts select existing discrete reference nodes',async({page})=>{
+ const app=await openRT(page);
+
+ const depthChart=app.locator('.rt-science-plot[data-rt-interactive="depth"]').first();
+ await expect(depthChart).toBeVisible();
+ await expect(depthChart).toHaveAttribute('tabindex','0');
+ await expect(depthChart.locator('circle').filter({hasText:'at 10 m:'}).first()).toBeAttached();
+
+ const depthNode=depthChart.locator('circle').filter({hasText:'at 10 m:'}).first();
+ await depthNode.click({force:true});
+ await expect(app.locator('[data-rt-depth="10"]')).toHaveAttribute('aria-pressed','true');
+ await expect(app.locator('.rt-science-conditions')).toContainText('10 m');
+ await expect(app.locator('.rt-chart-readout').first()).toContainText('10 m');
+
+ await app.locator('[data-plot="compare"]').click();
+ const spectral=app.locator('.rt-science-plot[data-rt-interactive="wavelength"]').first();
+ await expect(spectral).toBeVisible();
+ const node620=spectral.locator('circle').filter({hasText:'at 620 nm:'}).first();
+ await node620.click({force:true});
+ await expect(app.locator('[data-rt-wl="620"]')).toHaveAttribute('aria-pressed','true');
+ await expect(app.locator('.rt-science-conditions')).toContainText('620 nm');
+ await expect(app.locator('.rt-chart-readout').first()).toContainText('620 nm');
+});
+
+test('UX-RT4 interaction: keyboard and angular-node inspection remain discrete',async({page})=>{
+ const app=await openRT(page);
+ const depthChart=app.locator('.rt-science-plot[data-rt-interactive="depth"]').first();
+ await depthChart.focus();
+ await depthChart.press('End');
+ await expect(app.locator('[data-rt-depth="20"]')).toHaveAttribute('aria-pressed','true');
+ await expect(app.locator('.rt-science-conditions')).toContainText('20 m');
+
+ await app.locator('[data-plot="angular"]').click();
+ const angular=app.locator('.rt-science-plot[data-rt-interactive="direction"]');
+ await expect(angular).toBeVisible();
+ await angular.focus();
+ await angular.press('End');
+ await expect(app.locator('.rt-chart-readout')).toContainText('|μ|');
+ await expect(angular.locator('circle.is-inspected')).toHaveCount(1);
+ await expect(app.locator('[data-rt-depth="20"]')).toHaveAttribute('aria-pressed','true');
+});

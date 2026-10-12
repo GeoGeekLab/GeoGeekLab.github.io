@@ -97,3 +97,73 @@
  .rt-science-result strong{font-size:13px}
  .rt-science-result span{font-size:9px}
 }
+
+
+/* RT discrete chart interaction.
+ * Inspection snaps to solved nodes; no visual interpolation or new RT solve. */
+.rt-science-plot[data-rt-interactive]{
+ cursor:crosshair;
+ outline:none;
+}
+.rt-science-plot[data-rt-interactive]:focus-visible{
+ outline:2px solid #f4d59d;
+ outline-offset:4px;
+}
+.rt-science-plot[data-rt-interactive] circle{
+ vector-effect:non-scaling-stroke;
+ transition:stroke-width 120ms ease,filter 120ms ease;
+}
+.rt-science-plot[data-rt-interactive] circle.is-inspected{
+ stroke:#fff7df!important;
+ stroke-width:3.2!important;
+ filter:drop-shadow(0 0 4px rgba(244,213,157,.65));
+}
+.rt-chart-readout{
+ position:sticky;
+ left:0;
+ display:grid;
+ grid-template-columns:auto minmax(0,1fr);
+ align-items:start;
+ gap:10px 14px;
+ width:100%;
+ box-sizing:border-box;
+ margin-top:8px;
+ padding:9px 0 2px;
+ border-top:1px solid rgba(185,210,194,.18);
+ color:#cbdcd0;
+ font:10px/1.5 ui-monospace,Consolas,monospace;
+}
+.rt-chart-readout>strong{
+ color:#f1d8a6;
+ font-size:11px;
+ white-space:nowrap;
+}
+.rt-chart-readout-values{
+ display:flex;
+ flex-wrap:wrap;
+ gap:4px 16px;
+ min-width:0;
+}
+.rt-chart-readout-values>span{
+ color:#c8d9ce;
+}
+@media(max-width:700px){
+ .rt-chart-readout{
+  grid-template-columns:1fr;
+  gap:4px;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .rt-science-plot[data-rt-interactive] circle{
+  transition:none!important;
+ }
+}
+@media(forced-colors:active){
+ .rt-science-plot[data-rt-interactive]:focus-visible{
+  outline-color:Highlight;
+ }
+ .rt-science-plot[data-rt-interactive] circle.is-inspected{
+  stroke:Highlight!important;
+  filter:none;
+ }
+}
