@@ -120,8 +120,8 @@
 
     window.addEventListener('message', onMessage);
     signal?.addEventListener('abort', onAbort, { once: true });
-    frame.src = url.href;
     frame.addEventListener('load', onFrameLoad);
+    frame.src = url.href;
     stage.replaceChildren(frame);
     timeout = setTimeout(() => {
       if (settled) return;
