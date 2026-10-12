@@ -67,6 +67,7 @@
   height:auto;
   min-height:154px;
   max-height:230px;
+  color:var(--gg-award-body);
 }
 .gg-lab-topology-edge{
   fill:none;
