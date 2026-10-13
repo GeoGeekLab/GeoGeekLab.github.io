@@ -51,7 +51,7 @@ test('each operator separates scalable capability from a distinct human commitme
     assert.equal(workbench.dataset.valueState, states[index]);
     assert.equal(button.attributes['aria-pressed'], 'true');
     assert.equal(fields.valueActiveCount.textContent, '0' + (index + 1) + ' / 04');
-    assert.ok(fields.valueActiveExpression.textContent.includes('≠'));
+    assert.ok(fields.valueActiveExpression.textContent.includes('→'));
     seen.add([
       fields.valueActiveInput.textContent,
       fields.valueActiveOutput.textContent,
@@ -60,7 +60,7 @@ test('each operator separates scalable capability from a distinct human commitme
     ].join('|'));
   }
   assert.equal(seen.size, 4);
-  assert.equal(fields.valueActiveAxiom.textContent, 'Capability is not permission.');
+  assert.equal(fields.valueActiveAxiom.textContent, 'Capability calls for responsibility.');
 });
 
 test('arrow, Home, and End keys navigate the modes', () => {
@@ -77,14 +77,28 @@ test('arrow, Home, and End keys navigate the modes', () => {
 });
 
 test('philosophical contrasts remain distinct from task-value predictions', () => {
-  assert.match(source, /Correctness cannot decide what matters/);
-  assert.match(source, /Difference does not diminish dignity/);
-  assert.match(source, /No model contains the world/);
-  assert.match(source, /Capability is not permission/);
+  assert.match(source, /Judgment gives intelligence direction/);
+  assert.match(source, /Every person carries equal dignity/);
+  assert.match(source, /The world exceeds every model/);
+  assert.match(source, /Capability calls for responsibility/);
   assert.doesNotMatch(source, /value (?:is|=) 0|vibes only|electricity/);
   assert.match(html, /AI AGE \/ HUMAN JUDGMENT/);
   assert.match(html, /EPISTEMOLOGY \/ LIMITS/);
   assert.match(html, /AXIOLOGY \/ JUDGMENT/);
   assert.match(html, /ETHICS \/ DIGNITY/);
   assert.match(html, /PRAXIS \/ CONSEQUENCE/);
+});
+
+test('all visible coordinates statements use affirmative formulations', () => {
+  const modes = ['open', 'taste', 'respect', 'respond'];
+  const { buttons, fields } = mount();
+  const excluded = /\\b(?:no|not|never|cannot)\\b|≠/i;
+  for (const [index, button] of buttons.entries()) {
+    button.events.click();
+    assert.equal(fields.valueActiveLens.textContent.toLowerCase(), modes[index]);
+    for (const name of ['Axiom', 'Question', 'Expression']) {
+      assert.doesNotMatch(fields['valueActive' + name].textContent, excluded);
+    }
+  }
+  assert.match(html, /INTELLIGENCE \/ HUMAN AGENCY/);
 });
