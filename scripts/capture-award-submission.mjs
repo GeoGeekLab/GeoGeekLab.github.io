@@ -7,7 +7,7 @@ import {chromium} from 'playwright';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const site=path.join(root,'site');
 const output=path.join(root,'.award-submission');
-const release='20261011v107watercache1';
+const release='20261013a12';
 const baselineCommit='9718171862959c9232e1dd7b4f69d31c36b0bc75';
 
 fs.rmSync(output,{recursive:true,force:true});
@@ -134,14 +134,13 @@ async function shotWaterSpectrum(viewport,file,label){
   }finally{await page.close();}
 }
 
-async function shotWaterRt(viewport,file,label){
+async function shotWaterRt(viewport,file,label,densityOverride){
   const {page,frame}=await openWater(viewport);
   try{
     await frame.locator('#mainNav [data-tab="rt"]').click();
     await frame.locator('.rt-science-workspace').waitFor({state:'visible'});
-    // Curate both A11 densities: desktop Focus shows the chart; tablet Detail
-    // preserves the full geometry and provenance inspection.
-    const density=viewport.width>=1280?'focus':'detail';
+    // Curate desktop Focus and Full detail as separate reversible science presentations.
+    const density=densityOverride||'focus';
     await frame.locator('[data-attention-mode="'+density+'"]').click();
     if(density==='detail') await frame.locator('.award-rt-geometry').waitFor({state:'visible'});
     else await frame.locator('.rt-science-plot-grid').waitFor({state:'visible'});
@@ -199,8 +198,8 @@ try{
   await shotWaterSpectrum({width:1600,height:1000},'01-water-spectrum-desktop.png','Wavelength as the primary optical coordinate');
   await shotWaterRt({width:1600,height:1000},'02-water-rt-desktop.png','Depth, direction and explicit numerical-reference limits');
   await shotWaterAtmosphere({width:1600,height:1000},'03-water-atmosphere-desktop.png','Observation topology from water signal to atmosphere');
-  await shotWaterRt({width:1024,height:900},'04-water-rt-tablet.png','Reference chamber at tablet composition');
-  await shotWaterSpectrum({width:390,height:844},'05-water-spectrum-mobile.png','Spectral instrument on a compact viewport');
+  await shotWaterRt({width:1280,height:720},'04-water-rt-desktop-1280.png','Focus RT chart on a 1280 × 720 desktop viewport');
+  await shotWaterRt({width:1600,height:1000},'05-water-rt-desktop-detail.png','Full-detail desktop reference geometry and provenance','detail');
   await shotPulse({width:1600,height:1000},'06-pulse-family-desktop.png','Shared Observatory grammar with a different scientific identity');
 
   const manifest={
@@ -214,7 +213,7 @@ try{
       waterPolish:'award-a5',
       observatoryHost:'award-a4',
       hostPolish:'award-a5',
-      review:'A8 submission capture'
+      review:'A12 desktop composition capture'
     },
     capturePolicy:{
       realControlsOnly:true,

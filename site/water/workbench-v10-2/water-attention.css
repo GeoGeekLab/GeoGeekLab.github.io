@@ -370,3 +370,71 @@ html[data-water-attention="focus"] .water-attention-switch {
 @media(prefers-reduced-motion:reduce) {
   .water-nav-arrow {transition:none!important;}
 }
+
+
+/* A12 desktop presentation: complete nine-workspace navigation, no cropped tabs.
+ * Preserve one semantic tablist and all nine existing destinations.
+ * At narrow widths the legacy scroll controls remain available; support is desktop-first. */
+@media (min-width:1100px) {
+  html[data-water-attention] .appnav {
+    min-height:50px!important;
+  }
+  html[data-water-attention] .appnav .nav-scroll {
+    display:grid!important;
+    grid-template-columns:minmax(0,5fr) minmax(0,3fr) minmax(0,1.06fr)!important;
+    flex:1 1 auto!important;
+    min-width:0!important;
+    height:50px;
+    gap:0!important;
+    overflow:visible!important;
+    scrollbar-width:none!important;
+  }
+  html[data-water-attention] .appnav .ui-nav-group {
+    min-width:0!important;
+    flex:none!important;
+    gap:0!important;
+    padding:0!important;
+    background:transparent!important;
+  }
+  /* Group names already have aria-hidden=true. Borders preserve grouping without sacrificing a tab. */
+  html[data-water-attention] .appnav .ui-nav-heading {
+    display:none!important;
+  }
+  html[data-water-attention] .appnav .ui-nav-links {
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    align-items:stretch;
+    min-width:0!important;
+    width:100%!important;
+  }
+  html[data-water-attention] .appnav .ui-nav-group:nth-child(2) .ui-nav-links {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  html[data-water-attention] .appnav .ui-nav-group:nth-child(3) .ui-nav-links {
+    grid-template-columns:minmax(0,1fr);
+  }
+  html[data-water-attention] .appnav .ui-nav-links .tab {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    width:100%;
+    min-width:0!important;
+    min-height:46px!important;
+    padding:4px 3px!important;
+    white-space:normal!important;
+    text-align:center;
+    font-size:clamp(10px,.76vw,12px)!important;
+    line-height:1.22!important;
+    letter-spacing:0!important;
+  }
+  html[data-water-attention] .appnav .ui-nav-links .tab .no {
+    flex:0 0 auto;
+    margin-right:0!important;
+    font-size:10px!important;
+  }
+  /* The desktop grid fits without horizontal scroll, so arrows are not needed. */
+  html[data-water-attention] .appnav .water-nav-controls {
+    display:none!important;
+  }
+}

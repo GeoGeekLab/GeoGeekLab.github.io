@@ -4,7 +4,7 @@ import path from 'node:path';
 const root=process.cwd();
 const dir=path.join(root,'.award-submission');
 const expected={
-  release:'20261011v107watercache1',
+  release:'20261013a12',
   baselineCommit:'9718171862959c9232e1dd7b4f69d31c36b0bc75',
   science:'10.2.0-quiet2',
   concept:'award-a3',
@@ -16,8 +16,8 @@ const frames=[
   '01-water-spectrum-desktop.png',
   '02-water-rt-desktop.png',
   '03-water-atmosphere-desktop.png',
-  '04-water-rt-tablet.png',
-  '05-water-spectrum-mobile.png',
+  '04-water-rt-desktop-1280.png',
+  '05-water-rt-desktop-detail.png',
   '06-pulse-family-desktop.png'
 ];
 
