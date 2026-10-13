@@ -13,6 +13,7 @@
 <title>GeoGeek — Geo to see. Geek to build.</title>
 <link href="styles.css?v=20260930d" rel="stylesheet"/>
 <link href="/ux-refinements.css?v=20260929e" rel="stylesheet"/>
+<link href="/brand-coordinates.css?v=20261013a" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20261003f"></script>
 </head>
 <body>
@@ -45,91 +46,86 @@
 <div class="hero-copy">
 <h1 class="display">GeoGeek</h1>
 <p class="hero-tagline">Geo to see. Geek to build.</p>
-<p class="hero-lexicon hero-domain-line">GIS / GeoAI / Remote Sensing</p>
+<p class="hero-lexicon hero-domain-line">AI Native · Geospatial Engineering · Open Science</p>
 <div class="hero-origin-entry"><a href="/origin/" aria-label="Enter GeoGeek Origin: Why GeoGeek">ORIGIN / WHY GeoGeek ↗</a></div>
 </div>
 <a class="hero-edge hero-edge-center" href="https://github.com/GeoGeekLab" rel="noreferrer" target="_blank"><svg class="github-mark" aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.477 2 2 6.486 2 12.02c0 4.428 2.865 8.184 6.839 9.509.5.093.682-.217.682-.483 0-.237-.009-.866-.014-1.7-2.782.605-3.369-1.344-3.369-1.344-.455-1.158-1.11-1.466-1.11-1.466-.908-.621.069-.608.069-.608 1.004.071 1.532 1.033 1.532 1.033.892 1.53 2.341 1.088 2.91.832.091-.647.349-1.088.635-1.338-2.221-.253-4.555-1.112-4.555-4.945 0-1.092.39-1.985 1.029-2.684-.103-.253-.446-1.27.098-2.648 0 0 .84-.269 2.75 1.026A9.564 9.564 0 0 1 12 6.867a9.54 9.54 0 0 1 2.504.339c1.909-1.295 2.747-1.026 2.747-1.026.546 1.378.203 2.395.1 2.648.64.699 1.028 1.592 1.028 2.684 0 3.842-2.338 4.689-4.566 4.937.359.31.679.923.679 1.861 0 1.344-.012 2.428-.012 2.758 0 .268.18.58.688.482A10.023 10.023 0 0 0 22 12.02C22 6.486 17.523 2 12 2Z"/></svg><span>GitHub ↗</span></a>
 <div class="hero-edge hero-edge-right">SCROLL / CHANGE SCALE ↓</div>
 <div aria-hidden="true" class="map-corners"><i></i><i></i><i></i><i></i></div>
 </section>
-<section class="home-section coordinates-section" data-scale="1 : 100,000" data-scale-level="POSITION" id="now">
+<section class="home-section coordinates-section values-home" data-scale="1 : 100,000" data-scale-level="POSITION" id="now">
 <div class="page-title coordinates-head coordinates-home-title concept-section-head">
   <div>
     <div class="section-label eyebrow">01 / COORDINATES</div>
     <h2>Coordinates</h2>
+    <p class="coordinates-identity"><span>IDENTITY /</span><strong>Research Engineer</strong></p>
   </div>
-  <p class="page-intro concept-section-intro">Being, seeing, valuing, and making are positions within the same field.</p>
+  <p class="page-intro concept-section-intro">Four commitments shape how we see geographic evidence and what we choose to build.</p>
 </div>
 
-<div class="coordinates-workbench philosophy-field" data-coordinate-state="being">
-  <div class="coordinates-field">
-    <div class="coordinates-field-head">
-      <span>RELATIONAL FIELD</span>
-      <small>BEING → SEEING → VALUING → MAKING → BEING</small>
+<div class="value-workbench" data-value-state="open">
+  <section class="value-instrument" aria-label="One geographic claim considered through four research lenses">
+    <div class="value-instrument-head">
+      <span>RESEARCH LENS / 01</span>
+      <small>ILLUSTRATIVE CASE · NOT OBSERVATIONAL DATA</small>
     </div>
-
-    <div class="coordinates-plot" id="coordinatePlot" tabindex="0" aria-label="Interactive GeoGeek philosophical field. Choose Being, Seeing, Valuing, or Making. In Making, drag the marked node to alter the field.">
-      <canvas class="coordinate-canvas" id="coordinateCanvas" aria-hidden="true"></canvas>
-
-      <div class="coordinate-node-set" aria-label="Philosophical coordinates">
-        <button class="coordinate-node coordinate-node-being is-active" type="button" data-coordinate-trigger="being" aria-pressed="true">
-          <b>01</b><span>BEING</span><em>ONTOLOGY</em>
-        </button>
-        <button class="coordinate-node coordinate-node-seeing" type="button" data-coordinate-trigger="seeing" aria-pressed="false">
-          <b>02</b><span>SEEING</span><em>EPISTEMOLOGY</em>
-        </button>
-        <button class="coordinate-node coordinate-node-valuing" type="button" data-coordinate-trigger="valuing" aria-pressed="false">
-          <b>03</b><span>VALUING</span><em>AXIOLOGY</em>
-        </button>
-        <button class="coordinate-node coordinate-node-making" type="button" data-coordinate-trigger="making" aria-pressed="false">
-          <b>04</b><span>MAKING</span><em>PRAXIS</em>
-        </button>
+    <div class="value-instrument-body">
+      <div class="value-flow" aria-label="Observation, selected lens, and research output">
+        <div class="value-flow-block value-observation">
+          <span>OBSERVATION · GEO / SEE</span>
+          <strong>A satellite image seems to show a change in a lake.</strong>
+          <small>Observed difference ≠ established explanation</small>
+        </div>
+        <div class="value-flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="value-flow-block value-lens" aria-live="polite" aria-atomic="true">
+          <span>SELECTED LENS</span>
+          <strong id="valueActiveLens">Open</strong>
+          <small id="valueActiveMeaning">Consider alternatives</small>
+        </div>
+        <div class="value-flow-arrow" aria-hidden="true"><span></span></div>
+        <div class="value-flow-block value-outcome" aria-live="polite" aria-atomic="true">
+          <span>RESEARCH OUTPUT · GEEK / BUILD</span>
+          <strong id="valueActiveOutput">Alternative explanations</strong>
+          <small>A checkable result, not a slogan</small>
+        </div>
       </div>
-
-      <div class="coordinate-readout" aria-live="polite">
-        <span id="coordinateReadoutKicker">BEING / ONTOLOGY</span>
-        <strong id="coordinateReadout">TO BE IS TO BE SOMEWHERE.</strong>
-        <small id="coordinateProbeReadout">SITUATION · RELATION · BECOMING</small>
+      <div class="value-decision" aria-live="polite" aria-atomic="true">
+        <div class="value-decision-part">
+          <span>THE QUESTION</span>
+          <p id="valueActiveQuestion">Could season, atmosphere, or sensor differences explain this change?</p>
+        </div>
+        <div class="value-decision-part">
+          <span>THE ACTION</span>
+          <p id="valueActiveAction">Compare dates, sensors, and processing assumptions before interpreting the image.</p>
+        </div>
       </div>
     </div>
-
-    <div class="coordinates-field-foot">
-      <span id="coordinateFieldStatus">FIELD / RELATIONAL</span>
-      <button id="coordinateReset" class="coordinate-reset" type="button" hidden>RESET FIELD</button>
+    <div class="value-instrument-foot">
+      <span>GEO TO SEE <i aria-hidden="true">→</i> GEEK TO BUILD</span>
+      <output id="valueActiveCount" aria-label="Selected lens, one of four">01 / 04</output>
     </div>
-  </div>
+  </section>
 
-  <div class="coordinates-register" aria-label="GeoGeek philosophical sequence">
-    <article data-coordinate="being" class="is-active">
-      <button class="coordinate-register-button" type="button" data-coordinate-trigger="being" aria-pressed="true">
-        <div class="coordinate-register-meta"><b>01</b><span>BEING</span><em>ONTOLOGY</em></div>
-        <h3>Situation and relation</h3>
-      </button>
-    </article>
-
-    <article data-coordinate="seeing">
-      <button class="coordinate-register-button" type="button" data-coordinate-trigger="seeing" aria-pressed="false">
-        <div class="coordinate-register-meta"><b>02</b><span>SEEING</span><em>EPISTEMOLOGY</em></div>
-        <h3>Frame and limit</h3>
-      </button>
-    </article>
-
-    <article data-coordinate="valuing">
-      <button class="coordinate-register-button" type="button" data-coordinate-trigger="valuing" aria-pressed="false">
-        <div class="coordinate-register-meta"><b>03</b><span>VALUING</span><em>AXIOLOGY</em></div>
-        <h3>Judgment and choice</h3>
-      </button>
-    </article>
-
-    <article data-coordinate="making">
-      <button class="coordinate-register-button" type="button" data-coordinate-trigger="making" aria-pressed="false">
-        <div class="coordinate-register-meta"><b>04</b><span>MAKING</span><em>PRAXIS</em></div>
-        <h3>Action and consequence</h3>
-      </button>
-    </article>
+  <div class="value-register" role="group" aria-label="Choose a research lens">
+    <button class="value-choice is-active" type="button" data-value-trigger="open" aria-pressed="true">
+      <span class="value-choice-meta"><b>01</b><em>ATTITUDE / UNKNOWN</em></span>
+      <strong>Open</strong><small>Allow other explanations.</small>
+    </button>
+    <button class="value-choice" type="button" data-value-trigger="taste" aria-pressed="false">
+      <span class="value-choice-meta"><b>02</b><em>JUDGMENT / EVIDENCE</em></span>
+      <strong>Taste</strong><small>Find the evidence that matters.</small>
+    </button>
+    <button class="value-choice" type="button" data-value-trigger="respect" aria-pressed="false">
+      <span class="value-choice-meta"><b>03</b><em>RELATION / PEOPLE</em></span>
+      <strong>Respect</strong><small>Consider people and place.</small>
+    </button>
+    <button class="value-choice" type="button" data-value-trigger="respond" aria-pressed="false">
+      <span class="value-choice-meta"><b>04</b><em>PRACTICE / CONSEQUENCE</em></span>
+      <strong>Respond</strong><small>Make the work accountable.</small>
+    </button>
   </div>
 </div>
-
+<p class="value-method-note"><span>READING KEY /</span> Four lenses on the same claim—not four steps that guarantee a conclusion.</p>
 </section>
 
 <section class="home-section home-commons-full commons-page" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="commons">
@@ -227,6 +223,7 @@
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
 <script src="app.js?v=20260930g"></script>
+<script src="/brand-coordinates.js?v=20261013a"></script>
 <script src="core/modules.js?v=20261013a12"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="commons/config.js"></script>
