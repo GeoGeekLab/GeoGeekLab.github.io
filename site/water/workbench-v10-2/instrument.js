@@ -8,13 +8,13 @@
   const rootUrl = new URL('water/workbench-v10-2/', document.baseURI);
   const stylesheet = new URL('instrument.css?v=10.2.0-quiet2', rootUrl).href;
   const awardStylesheet = new URL('award-concept.css?v=a5', rootUrl).href;
-  const attentionStylesheet = new URL('water-attention.css?v=a11', rootUrl).href;
+  const attentionStylesheet = new URL('water-attention.css?v=a12', rootUrl).href;
   const awardScripts = Object.freeze([
     { id: 'optical', href: new URL('award-optical.js?v=a3', rootUrl).href },
     { id: 'journey', href: new URL('award-journey.js?v=a3', rootUrl).href },
     { id: 'polish', href: new URL('award-polish.js?v=a5', rootUrl).href },
     { id: 'marker', href: new URL('award-concept.js?v=a3', rootUrl).href },
-    { id: 'attention', href: new URL('water-attention.js?v=a11', rootUrl).href }
+    { id: 'attention', href: new URL('water-attention.js?v=a12', rootUrl).href }
   ]);
   const frameUrl = new URL('app/index.html', rootUrl);
   const mounts = window.GeoGeekInstrumentMounts = window.GeoGeekInstrumentMounts || {};

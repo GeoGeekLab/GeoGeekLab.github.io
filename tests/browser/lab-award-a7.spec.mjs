@@ -47,16 +47,31 @@ test('A7 RT reference chamber removes the dashboard-frame effect without hiding 
   await expect(frame.locator('.award-rt-geometry')).toContainText('NOT A RADIANCE FIELD');
 });
 
-test('A7 horizontal workspace overflow reads as intentional continuation',async({page})=>{
+test('A7 desktop fits all nine tabs; narrow legacy navigation retains scroll cues',async({page})=>{
   const {frame}=await openWaterRt(page);
   const nav=frame.locator('.appnav .nav-scroll');
-  const metrics=await nav.evaluate(node=>({
-    max:node.scrollWidth-node.clientWidth,
-    left:node.scrollLeft,
-    start:document.documentElement.dataset.waterNavStart,
-    end:document.documentElement.dataset.waterNavEnd
-  }));
-  expect(metrics.max).toBeGreaterThan(0);
-  expect(['true','false']).toContain(metrics.start);
-  expect(['true','false']).toContain(metrics.end);
+  const metrics=await nav.evaluate(node=>{
+    const box=node.getBoundingClientRect();
+    const tabs=[...node.querySelectorAll('[role="tab"][data-tab]')];
+    return {
+      max:node.scrollWidth-node.clientWidth,
+      start:document.documentElement.dataset.waterNavStart,
+      end:document.documentElement.dataset.waterNavEnd,
+      tabCount:tabs.length,
+      allVisible:tabs.every(tab=>{
+        const bounds=tab.getBoundingClientRect();
+        return bounds.left>=box.left-1&&bounds.right<=box.right+1&&
+          tab.scrollWidth-tab.clientWidth<=2&&tab.scrollHeight-tab.clientHeight<=2;
+      })
+    };
+  });
+  expect(metrics.tabCount).toBe(9);
+  if((page.viewportSize()?.width||0)>=1100){
+    expect(metrics.max).toBeLessThanOrEqual(2);
+    expect(metrics.allVisible).toBe(true);
+  }else{
+    expect(metrics.max).toBeGreaterThan(0);
+    expect(['true','false']).toContain(metrics.start);
+    expect(['true','false']).toContain(metrics.end);
+  }
 });

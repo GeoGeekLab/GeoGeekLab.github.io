@@ -84,7 +84,7 @@ test('Sensitivity keeps the working parameter editor immediately actionable', as
 
 test('The original Water share link displays the quiet, cache-busted workbench', async ({page}) => {
   await page.goto('/lab.html?release=20261010v103play3&instrument=water#l13', {waitUntil:'domcontentloaded'});
-  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content','20261011v107watercache1');
+  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content','20261013a12');
   const frame = page.frameLocator('#instrumentStage iframe.water-v102-frame');
   await expect(frame.locator('.water-scope-boundary')).toContainText('Not externally validated', {timeout:45000});
   await expect(frame.locator('#range-chl')).toBeVisible();

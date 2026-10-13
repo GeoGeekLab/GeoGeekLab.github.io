@@ -6,6 +6,11 @@ on:
   push:
     branches-ignore: [main]
   workflow_dispatch:
+    inputs:
+      preview_url:
+        description: 'Independent HTTPS staging origin (leave empty for standard PR QA)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -78,6 +83,39 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Validate assembled A12 preview over HTTP and desktop Chromium
+        run: node scripts/verify-water-a12-built-preview.mjs
+
+      - name: Upload assembled A12 desktop preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: a12-built-preview
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+          path: |
+            .a12-built-preview
+            dist
+
+      - name: Validate A12 public preview gate syntax
+        run: node --check scripts/verify-water-a12-public-preview.mjs
+
+      - name: Verify independent A12 public preview
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url != '' }}
+        env:
+          A12_PREVIEW_BASE_URL: ${{ inputs.preview_url }}
+        run: node scripts/verify-water-a12-public-preview.mjs
+
+      - name: Upload independent A12 public preview evidence
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: a12-public-preview
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+          path: .a12-public-preview
 
       - name: Verify ORIENT release assets
         run: |
@@ -164,7 +202,7 @@ jobs:
         run: npx playwright test -c playwright.config.mjs tests/browser/pulse-round5.spec.mjs --grep 'Pulse mobile controls stay touch-sized' --project=desktop-chromium --project=mobile-chromium --workers=2
 
       - name: Validate award browser contracts
-        run: npx playwright test -c playwright.config.mjs tests/browser/lab-award-shell.spec.mjs tests/browser/lab-award-polish.spec.mjs tests/browser/lab-award-a6.spec.mjs tests/browser/lab-award-a7.spec.mjs tests/browser/water-award-concept.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+        run: npx playwright test -c playwright.config.mjs tests/browser/lab-award-shell.spec.mjs tests/browser/lab-award-polish.spec.mjs tests/browser/lab-award-a6.spec.mjs tests/browser/lab-award-a7.spec.mjs tests/browser/lab-award-a9.spec.mjs tests/browser/water-attention.spec.mjs tests/browser/water-award-concept.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
 
       - name: Capture award submission review
         run: npm run award:capture
