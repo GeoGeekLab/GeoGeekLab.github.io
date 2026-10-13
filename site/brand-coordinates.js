@@ -14,7 +14,7 @@
     taste: {
       name: 'Taste', input: 'SOLUTIONS', horizon: 'WHAT MATTERS',
       axiom: 'Correctness cannot decide what matters.',
-      question: 'Which questions deserve solving?',
+      question: 'Which problems are worth solving?',
       expression: 'correct ≠ worthwhile'
     },
     respect: {
