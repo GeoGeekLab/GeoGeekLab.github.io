@@ -6,6 +6,11 @@ on:
   push:
     branches-ignore: [main]
   workflow_dispatch:
+    inputs:
+      preview_url:
+        description: 'Independent HTTPS staging origin (leave empty for standard PR QA)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -92,6 +97,25 @@ jobs:
           path: |
             .a12-built-preview
             dist
+
+      - name: Validate A12 public preview gate syntax
+        run: node --check scripts/verify-water-a12-public-preview.mjs
+
+      - name: Verify independent A12 public preview
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url != '' }}
+        env:
+          A12_PREVIEW_BASE_URL: ${{ inputs.preview_url }}
+        run: node scripts/verify-water-a12-public-preview.mjs
+
+      - name: Upload independent A12 public preview evidence
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: a12-public-preview
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+          path: .a12-public-preview
 
       - name: Verify ORIENT release assets
         run: |
