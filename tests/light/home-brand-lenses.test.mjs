@@ -33,14 +33,15 @@ test('homepage uses the settled brand, a single-line identity, and four values',
   for (const name of states) assert.match(html, new RegExp('data-value-trigger="' + name + '"'));
   for (const field of fieldNames) assert.match(html, new RegExp('id="valueActive' + field + '"'));
   assert.match(html, /AI Native · Geospatial Engineering · Open Science/);
-  assert.match(html, /<p class="page-intro concept-section-intro coordinate-self">I'm a Research Engineer\.<\/p>/);
-  assert.match(css, /\.coordinate-self\s*\{[^}]*white-space:nowrap!important/s);
+  assert.match(html, /<h2>Coordinates<\/h2>\s*<p class="coordinate-self">I'm a Research Engineer\.<\/p>/);
+  assert.match(css, /\.coordinate-self\s*\{[^}]*white-space:nowrap;/s);
+  assert.doesNotMatch(css, /max-width:24ch|text-wrap:balance/);
   assert.doesNotMatch(html, /IDENTITY \/|satellite image|ILLUSTRATIVE CASE|Four commitments shape/);
   assert.doesNotMatch(html, /coordinateCanvas|data-coordinate-trigger=/);
   assert.match(html, /id="commonsMap"/);
 });
 
-test('each operator produces a distinct philosophical thesis, question, and horizon', () => {
+test('each operator separates scalable capability from a distinct human commitment', () => {
   const { buttons, fields, workbench } = mount();
   const seen = new Set();
   for (const [index, button] of buttons.entries()) {
@@ -57,6 +58,7 @@ test('each operator produces a distinct philosophical thesis, question, and hori
     ].join('|'));
   }
   assert.equal(seen.size, 4);
+  assert.equal(fields.valueActiveAxiom.textContent, 'Capability is not permission.');
 });
 
 test('arrow, Home, and End keys navigate the modes', () => {
@@ -70,4 +72,17 @@ test('arrow, Home, and End keys navigate the modes', () => {
   assert.equal(fields.valueActiveLens.textContent, 'Respond');
   buttons[3].events.keydown({ key: 'Home', preventDefault() {} });
   assert.equal(fields.valueActiveLens.textContent, 'Open');
+});
+
+test('philosophical contrasts remain distinct from task-value predictions', () => {
+  assert.match(source, /Correctness cannot decide what matters/);
+  assert.match(source, /Difference does not diminish dignity/);
+  assert.match(source, /No model contains the world/);
+  assert.match(source, /Capability is not permission/);
+  assert.doesNotMatch(source, /value (?:is|=) 0|vibes only|electricity/);
+  assert.match(html, /AI AGE \/ HUMAN JUDGMENT/);
+  assert.match(html, /EPISTEMOLOGY \/ LIMITS/);
+  assert.match(html, /AXIOLOGY \/ JUDGMENT/);
+  assert.match(html, /ETHICS \/ DIGNITY/);
+  assert.match(html, /PRAXIS \/ CONSEQUENCE/);
 });
