@@ -6,7 +6,7 @@ const read=name=>readFileSync(new URL('../../'+name,import.meta.url),'utf8');
 
 test('A10 candidate gate remains pinned to the frozen scientific baseline',()=>{
   const gate=read('scripts/verify-award-release-candidate.mjs');
-  assert.match(gate,/20261011v107watercache1/);
+  assert.match(gate,/20261013a12/);
   assert.match(gate,/9718171862959c9232e1dd7b4f69d31c36b0bc75/);
   assert.match(gate,/10\.2\.0-quiet2/);
   assert.match(gate,/award-a3/);
