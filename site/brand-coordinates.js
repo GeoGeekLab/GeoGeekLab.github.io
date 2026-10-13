@@ -6,28 +6,28 @@
 
   const values = {
     open: {
-      name: 'Open', input: 'MODELS', horizon: 'OPEN QUESTIONS',
-      axiom: 'The world exceeds every model.',
-      question: 'What else can we discover?',
-      expression: 'explore(models) → discovery'
+      name: 'Open', input: 'MODELS', horizon: 'HYPOTHESES',
+      axiom: 'The unknown expands the search space.',
+      question: 'What should we explore beyond the model?',
+      expression: 'hypothesisSpace.expand()'
     },
     taste: {
-      name: 'Taste', input: 'SOLUTIONS', horizon: 'DIRECTION',
-      axiom: 'Judgment gives intelligence direction.',
-      question: 'What is worth pursuing?',
-      expression: 'judge(options) → direction'
+      name: 'Taste', input: 'POSSIBILITIES', horizon: 'PURPOSE',
+      axiom: 'Judgment defines the objective function.',
+      question: 'Which problem is worth solving?',
+      expression: 'objective = human.judgment()'
     },
     respect: {
-      name: 'Respect', input: 'OPTIMIZATION', horizon: 'HUMAN DIGNITY',
-      axiom: 'Every person carries equal dignity.',
-      question: 'Whose voice shapes what we build?',
-      expression: 'respect(people) → dignity'
+      name: 'Respect', input: 'OPTIMIZATION', horizon: 'DIGNITY',
+      axiom: 'Human dignity is a system invariant.',
+      question: 'Whose agency shapes the system?',
+      expression: 'assert(dignity.isInvariant)'
     },
     respond: {
-      name: 'Respond', input: 'AUTONOMY', horizon: 'RESPONSIBILITY',
-      axiom: 'Capability calls for responsibility.',
-      question: 'What future follows from our actions?',
-      expression: 'respond(capability) → responsibility'
+      name: 'Respond', input: 'AUTONOMY', horizon: 'ACCOUNTABILITY',
+      axiom: 'Own the side effects.',
+      question: 'Who owns the downstream effects?',
+      expression: 'sideEffects.forEach(own)'
     }
   };
   const order = Object.keys(values);
