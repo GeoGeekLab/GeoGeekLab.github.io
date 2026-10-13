@@ -92,7 +92,7 @@ test('philosophical contrasts remain distinct from task-value predictions', () =
 test('all visible coordinates statements use affirmative formulations', () => {
   const modes = ['open', 'taste', 'respect', 'respond'];
   const { buttons, fields } = mount();
-  const excluded = /\\b(?:no|not|never|cannot)\\b|≠/i;
+  const excluded = /\b(?:no|not|never|cannot)\b|≠/i;
   for (const [index, button] of buttons.entries()) {
     button.events.click();
     assert.equal(fields.valueActiveLens.textContent.toLowerCase(), modes[index]);
