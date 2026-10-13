@@ -77,6 +77,24 @@ test('A12 desktop 1280 and 1600 show nine complete workspace tabs without trunca
     const graph=await frame.locator('.rt-science-plot-grid .rt-science-plot').first().boundingBox();
     expect(graph).not.toBeNull();
     expect(graph.y).toBeLessThan(viewport.height*.70);
+    if(viewport.width===1280){
+      const plotHeader=await frame.locator('.chart-top').evaluate(node=>{
+        const rect=node.getBoundingClientRect();
+        const buttons=[...node.querySelectorAll('#plotNav [data-plot]')];
+        return {height:rect.height,buttons:buttons.map(button=>{
+          const b=button.getBoundingClientRect();
+          return {top:b.top,bottom:b.bottom,textOverflow:button.scrollWidth-button.clientWidth,
+            fontSize:parseFloat(getComputedStyle(button).fontSize)};
+        })};
+      });
+      expect(plotHeader.buttons).toHaveLength(3);
+      expect(plotHeader.height).toBeLessThanOrEqual(66);
+      for(const button of plotHeader.buttons){
+        expect(Math.abs(button.top-plotHeader.buttons[0].top)).toBeLessThanOrEqual(2);
+        expect(button.textOverflow).toBeLessThanOrEqual(2);
+        expect(button.fontSize).toBeGreaterThanOrEqual(10);
+      }
+    }
     await frame.locator('#mainNav [data-tab="iop"]').click();
     await expect(frame.locator('#mainNav [data-tab="iop"]')).toHaveAttribute('aria-selected','true');
     await frame.locator('#mainNav [data-tab="rt"]').focus();
