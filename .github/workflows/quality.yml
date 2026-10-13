@@ -164,7 +164,7 @@ jobs:
         run: npx playwright test -c playwright.config.mjs tests/browser/pulse-round5.spec.mjs --grep 'Pulse mobile controls stay touch-sized' --project=desktop-chromium --project=mobile-chromium --workers=2
 
       - name: Validate award browser contracts
-        run: npx playwright test -c playwright.config.mjs tests/browser/lab-award-shell.spec.mjs tests/browser/lab-award-polish.spec.mjs tests/browser/lab-award-a6.spec.mjs tests/browser/lab-award-a7.spec.mjs tests/browser/water-award-concept.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+        run: npx playwright test -c playwright.config.mjs tests/browser/lab-award-shell.spec.mjs tests/browser/lab-award-polish.spec.mjs tests/browser/lab-award-a6.spec.mjs tests/browser/lab-award-a7.spec.mjs tests/browser/lab-award-a9.spec.mjs tests/browser/water-attention.spec.mjs tests/browser/water-award-concept.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
 
       - name: Capture award submission review
         run: npm run award:capture
