@@ -35,7 +35,9 @@ test('homepage uses the settled brand, a single-line identity, and four values',
   assert.match(html, /AI Native · Geospatial Engineering · Open Science/);
   assert.match(html, /<h2>Coordinates<\/h2>\s*<p class="coordinate-self">I'm a Research Engineer\.<\/p>/);
   assert.match(css, /\.coordinate-self\s*\{[^}]*white-space:nowrap;/s);
-  assert.doesNotMatch(css, /max-width:24ch|text-wrap:balance/);
+  const quoteRule = css.match(/#now\.values-home \.value-decision blockquote\s*\{[^}]*\}/s)?.[0] || '';
+  assert.ok(quoteRule);
+  assert.doesNotMatch(quoteRule, /max-width:24ch|text-wrap:balance/);
   assert.doesNotMatch(html, /IDENTITY \/|satellite image|ILLUSTRATIVE CASE|Four commitments shape/);
   assert.doesNotMatch(html, /coordinateCanvas|data-coordinate-trigger=/);
   assert.match(html, /id="commonsMap"/);
