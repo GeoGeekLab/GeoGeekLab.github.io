@@ -7,8 +7,8 @@ const path='site/water/workbench-v10-2/';
 
 test('A11 is injected into the existing Water iframe, never a parallel scientific app',()=>{
   const adapter=read(path+'instrument.js');
-  assert.match(adapter,/water-attention\.css\?v=a11/);
-  assert.match(adapter,/water-attention\.js\?v=a11/);
+  assert.match(adapter,/water-attention\.css\?v=a12/);
+  assert.match(adapter,/water-attention\.js\?v=a12/);
   assert.match(adapter,/dataset\.waterAttentionStyle/);
   assert.match(adapter,/award-concept\.css\?v=a5/);
   assert.match(adapter,/10\.2\.0-quiet2/);
@@ -38,4 +38,16 @@ test('Focus puts the real RT chart first, with scientific warnings visible',()=>
   assert.doesNotMatch(css,/\.rt-science-provenance\s*\{[^}]*display\s*:\s*none/is);
   assert.match(css,/@media\(forced-colors:active\)/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+});
+
+test('A12 makes the nine unchanged workspaces discoverable using real navigation controls',()=>{
+  const script=read(path+'water-attention.js');
+  const css=read(path+'water-attention.css');
+  assert.match(script,/installNavControls/);
+  assert.match(script,/aria-label.*Previous workspaces/);
+  assert.match(script,/aria-label.*Next workspaces/);
+  assert.match(script,/scrollBy/);
+  assert.match(css,/\.water-nav-controls/);
+  assert.match(css,/\.appnav::before/);
+  assert.match(css,/display:none!important/);
 });

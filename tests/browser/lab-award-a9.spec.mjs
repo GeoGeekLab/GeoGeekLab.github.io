@@ -10,29 +10,30 @@ async function openWater(page,tab='iop'){
   return {dialog,frame};
 }
 
-test('A9 navigation overflow uses explicit continuation cues instead of exposed partial labels',async({page})=>{
-  const {frame}=await openWater(page,'rt');
+test('A12 navigation has operable continuation controls, without masking partial tabs',async({page})=>{
+  const {frame}=await openWater(page,'iop');
   const nav=frame.locator('.appnav');
-  const cue=await nav.evaluate(node=>{
-    const before=getComputedStyle(node,'::before');
-    const after=getComputedStyle(node,'::after');
-    return {
-      beforeContent:before.content,
-      beforeWidth:parseFloat(before.width),
-      beforeOpacity:parseFloat(before.opacity),
-      afterContent:after.content,
-      afterWidth:parseFloat(after.width)
-    };
-  });
-  expect(cue.beforeContent).toContain('‹');
-  expect(cue.afterContent).toContain('›');
-  // The actual Focus screenshot exposed chopped labels with a narrow shoulder.
-  // Keep the original 96px mask in both modes.
-  expect(cue.beforeWidth).toBeGreaterThanOrEqual(88);
-  expect(cue.afterWidth).toBeGreaterThanOrEqual(88);
-  await frame.locator('[data-attention-mode="detail"]').click();
-  const detailWidth=await nav.evaluate(node=>parseFloat(getComputedStyle(node,'::after').width));
-  expect(detailWidth).toBeGreaterThanOrEqual(88);
+  const controls=nav.locator('.water-nav-controls');
+  await expect(controls).toBeVisible();
+  await expect(controls).toHaveAttribute('role','group');
+  const styles=await nav.evaluate(node=>({
+    before:getComputedStyle(node,'::before').display,
+    after:getComputedStyle(node,'::after').display
+  }));
+  expect(styles.before).toBe('none');
+  expect(styles.after).toBe('none');
+  const next=controls.locator('[data-water-nav-next]');
+  const prev=controls.locator('[data-water-nav-prev]');
+  await expect(next).toBeEnabled();
+  const scroller=frame.locator('#mainNav');
+  const start=await scroller.evaluate(node=>node.scrollLeft);
+  await next.click();
+  await expect.poll(()=>scroller.evaluate(node=>node.scrollLeft)).toBeGreaterThan(start+8);
+  await expect(prev).toBeEnabled();
+  await prev.focus();
+  await page.keyboard.press('Enter');
+  await expect.poll(()=>scroller.evaluate(node=>node.scrollLeft)).toBeLessThan(start+20);
+  await expect(frame.locator('#mainNav [role="tab"][data-tab]')).toHaveCount(9);
 });
 
 test('A9 Water Optics opening is flat and keeps the primary spectrum in the desktop first view',async({page},testInfo)=>{

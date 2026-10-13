@@ -277,3 +277,96 @@ html[data-water-attention="focus"] .workspace.rt-active .rt-choice-fieldset {
 @media(prefers-reduced-motion:reduce) {
   .water-attention-switch button {transition:none!important}
 }
+
+
+/* A12: visible navigation controls replace the A9 non-interactive 96px masks.
+ * No tab is removed. The same tablist retains scroll and keyboard semantics. */
+html[data-water-attention] .appnav::before,
+html[data-water-attention] .appnav::after {
+  display:none!important;
+}
+html[data-water-attention] .appnav {
+  align-items:center;
+  padding-inline:clamp(9px,1.15vw,20px)!important;
+  gap:9px;
+}
+html[data-water-attention] .appnav .nav-scroll {
+  flex:1 1 auto;
+  min-width:0;
+  scroll-padding-inline:12px!important;
+  scrollbar-width:thin;
+}
+html[data-water-attention] .appnav .ui-nav-group {
+  scroll-snap-align:start;
+}
+.water-nav-controls {
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  align-self:stretch;
+  gap:4px;
+  padding-left:10px;
+  border-left:1px solid rgba(232,237,233,.18);
+  background:#101c15;
+}
+.water-nav-controls[hidden] { display:none!important; }
+.water-nav-arrow {
+  min-width:36px;
+  min-height:38px;
+  padding:0 8px;
+  border:1px solid #587562;
+  border-radius:4px;
+  background:#1c3024;
+  color:#f0f4eb;
+  font:700 22px/1 var(--sans,system-ui,sans-serif);
+  cursor:pointer;
+}
+.water-nav-arrow:hover:not(:disabled) {
+  border-color:#a7c0ac;
+  background:#2b4935;
+}
+.water-nav-arrow:disabled {
+  opacity:.35;
+  cursor:default;
+}
+.water-nav-arrow:focus-visible {
+  outline:2px solid #ffe0aa;
+  outline-offset:2px;
+}
+.water-nav-position {
+  min-width:42px;
+  color:#c2d5c9;
+  font:650 10px/1.2 var(--mono,ui-monospace,monospace);
+  text-align:center;
+  white-space:nowrap;
+}
+/* Focus keeps the chart dominant; mode controls and evidence remain subordinate. */
+html[data-water-attention="focus"] .water-attention-switch {
+  border-color:rgba(232,237,233,.18);
+}
+@media(max-width:760px) {
+  html[data-water-attention] .appnav {
+    padding-inline:7px!important;
+    gap:5px;
+  }
+  .water-nav-controls {padding-left:6px;gap:5px;}
+  .water-nav-position {display:none;}
+  .water-nav-arrow {min-width:44px;min-height:44px;}
+  html[data-water-attention="focus"] .workspace-head {
+    min-height:0!important;
+    padding:8px 14px!important;
+  }
+  html[data-water-attention="focus"] .space-title {
+    font-size:22px!important;
+  }
+  html[data-water-attention="focus"] .space-subtitle {
+    font-size:11px;
+    line-height:1.4;
+  }
+}
+@media(forced-colors:active) {
+  .water-nav-arrow {border-color:ButtonText;color:ButtonText;}
+}
+@media(prefers-reduced-motion:reduce) {
+  .water-nav-arrow {transition:none!important;}
+}
