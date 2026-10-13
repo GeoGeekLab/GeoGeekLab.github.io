@@ -60,4 +60,10 @@ test('mobile keeps the identity intact; all four lenses remain selectable', asyn
     await page.locator('[data-value-trigger="' + name + '"]').evaluate(button => button.click());
     await expect(page.locator('#now .value-workbench')).toHaveAttribute('data-value-state', name);
   }
+  const outputLines = await page.locator('#valueActiveOutput').evaluate(element => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    return range.getClientRects().length;
+  });
+  expect(outputLines).toBe(1);
 });
