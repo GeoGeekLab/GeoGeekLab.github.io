@@ -79,6 +79,19 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Validate assembled A12 preview over HTTP and desktop Chromium
+        run: node scripts/verify-water-a12-built-preview.mjs
+
+      - name: Upload assembled A12 desktop preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: a12-built-preview
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            .a12-built-preview
+            dist
+
       - name: Verify ORIENT release assets
         run: |
           node scripts/verify-lab-previews.mjs --dist
