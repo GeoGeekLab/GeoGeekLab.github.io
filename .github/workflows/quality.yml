@@ -87,6 +87,7 @@ jobs:
         with:
           name: a12-built-preview
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 7
           path: |
             .a12-built-preview
