@@ -6,28 +6,28 @@
 
   const values = {
     open: {
-      name: 'Open', input: 'MODELS', horizon: 'THE UNSEEN',
-      axiom: 'No model contains the world.',
-      question: 'What lies beyond the model?',
-      expression: 'model(world) ≠ world'
+      name: 'Open', input: 'MODELS', horizon: 'OPEN QUESTIONS',
+      axiom: 'The world exceeds every model.',
+      question: 'What else can we discover?',
+      expression: 'explore(models) → discovery'
     },
     taste: {
-      name: 'Taste', input: 'SOLUTIONS', horizon: 'WHAT MATTERS',
-      axiom: 'Correctness cannot decide what matters.',
-      question: 'Which problems are worth solving?',
-      expression: 'correct ≠ worthwhile'
+      name: 'Taste', input: 'SOLUTIONS', horizon: 'DIRECTION',
+      axiom: 'Judgment gives intelligence direction.',
+      question: 'What is worth pursuing?',
+      expression: 'judge(options) → direction'
     },
     respect: {
-      name: 'Respect', input: 'OPTIMIZATION', horizon: 'EQUAL DIGNITY',
-      axiom: 'Difference does not diminish dignity.',
-      question: 'Whose values shape the objective?',
-      expression: 'person ≠ metric'
+      name: 'Respect', input: 'OPTIMIZATION', horizon: 'HUMAN DIGNITY',
+      axiom: 'Every person carries equal dignity.',
+      question: 'Whose voice shapes what we build?',
+      expression: 'respect(people) → dignity'
     },
     respond: {
-      name: 'Respond', input: 'AUTONOMY', horizon: 'ACCOUNTABILITY',
-      axiom: 'Capability is not permission.',
-      question: 'Who bears the consequences?',
-      expression: 'can_build ≠ should_build'
+      name: 'Respond', input: 'AUTONOMY', horizon: 'RESPONSIBILITY',
+      axiom: 'Capability calls for responsibility.',
+      question: 'What future follows from our actions?',
+      expression: 'respond(capability) → responsibility'
     }
   };
   const order = Object.keys(values);
