@@ -1,4 +1,4 @@
-/* GEOGEEK / Coordinates — a human operating philosophy. */
+/* GEOGEEK / Coordinates — four human commitments in the AI age. */
 #now.coordinates-section.values-home {
   display:block;
   height:auto;
@@ -8,15 +8,24 @@
   padding-bottom:clamp(54px,6vw,88px);
 }
 
-#now.values-home .coordinates-head { margin-bottom:clamp(22px,3vw,40px); }
+#now.values-home .coordinates-head.concept-section-head {
+  display:block;
+  margin-bottom:clamp(22px,3vw,40px);
+}
+#now.values-home .coordinates-head > div:first-child {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  min-width:0;
+}
 #now.values-home .coordinate-self {
-  margin:0 0 5px!important;
-  max-width:none!important;
-  color:var(--fg)!important;
-  font:550 clamp(16px,1.65vw,23px)/1.3 var(--mono)!important;
-  letter-spacing:-.025em!important;
-  white-space:nowrap!important;
-  text-wrap:nowrap!important;
+  display:block;
+  margin:14px 0 0;
+  max-width:100%;
+  color:var(--fg);
+  font:550 clamp(14px,1.55vw,21px)/1.35 var(--mono);
+  letter-spacing:-.025em;
+  white-space:nowrap;
 }
 #now.values-home .value-workbench {
   display:grid;
@@ -109,11 +118,13 @@
   padding:2px 0 0;
 }
 #now.values-home .value-decision blockquote {
-  margin:0;max-width:24ch;
+  margin:0;
+  max-width:100%;
   color:var(--fg);
-  font:430 clamp(28px,3vw,43px)/1.08 var(--serif);
+  font:430 clamp(27px,2.55vw,42px)/1.11 var(--serif);
   letter-spacing:-.045em;
-  text-wrap:balance;
+  white-space:normal;
+  text-wrap:wrap;
 }
 #now.values-home .value-question {
   display:grid;grid-template-columns:auto 1fr;
@@ -201,8 +212,9 @@
 }
 @media(max-width:640px) {
   #now.values-home .coordinate-self {
-    font-size:clamp(13.5px,4vw,16px)!important;
-    white-space:nowrap!important;
+    margin-top:12px;
+    font-size:clamp(13.5px,4vw,16px);
+    white-space:nowrap;
   }
   #now.values-home .value-instrument-head {flex-wrap:wrap;gap:5px}
   #now.values-home .value-instrument-head small {text-align:left}
