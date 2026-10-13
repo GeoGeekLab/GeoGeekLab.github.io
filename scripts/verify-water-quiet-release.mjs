@@ -3,10 +3,10 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
-const release='20261011v107watercache1';
+const release='20261013a12';
 const adapterVersion='10.2.0-quiet2';
 const adapterUrlVersion='10.2.0-quiet2-a12';
-const moduleUrlVersion='20261011v107watercache1-a12';
+const moduleUrlVersion='20261013a12';
 const quietVersion='20261011-quiet2';
 const site=new URL('../site/',import.meta.url);
 const paths=[
@@ -38,14 +38,14 @@ const pos=process.argv.indexOf('--url');
 if(pos>=0){
   const base=process.argv[pos+1];
   if(!base)throw new Error('--url requires a public site base URL');
-  async function get(file,legacy=false){
+  async function get(file,legacy=false,bust=true){
     const url=new URL(file,base.endsWith('/')?base:base+'/');
     if(legacy){
-      url.searchParams.set('release','20261010v103play3');
+      url.searchParams.set('release','20261011v107watercache1');
       url.searchParams.set('instrument','water');
     }
-    url.searchParams.set('__quiet_smoke',String(Date.now()));
-    const res=await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
+    if(bust)url.searchParams.set('__quiet_smoke',String(Date.now()));
+    const res=await fetch(url,bust?{cache:'no-store',headers:{'Cache-Control':'no-cache'}}:{cache:'default'});
     if(!res.ok)throw new Error(file+': HTTP '+res.status);
     const type=res.headers.get('content-type')||'';
     const expected=file.endsWith('.html')?'text/html':file.endsWith('.css')?'text/css':'javascript';
@@ -56,6 +56,7 @@ if(pos>=0){
   for(let attempt=0;attempt<5;attempt++){
     try{
       verify('Public Pages',...(await Promise.all(paths.map(p=>get(p)))));
+      verify('Public Pages normal-cache URLs',...(await Promise.all(paths.map(p=>get(p,false,false)))));
       const old=await get('lab.html',true);
       assert.ok(old.includes('meta content="'+release+'" name="geogeek-lab-release"'),'Original shared URL returned old Lab');
       console.log('Public Water quiet release verified: '+release+' / '+adapterVersion+' / '+quietVersion+'; original shared URL current');
