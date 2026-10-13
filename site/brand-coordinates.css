@@ -101,6 +101,22 @@
   font:560 clamp(19px,1.9vw,27px)/1.06 var(--sans);
   letter-spacing:-.045em;
 }
+
+/* Human values read as conceptual operators, with meaningful, selectable states. */
+#now.values-home .value-lens>strong::after,
+#now.values-home .value-choice>strong::after {
+  content:"()";
+  margin-left:2px;
+  font:500 .49em/1 var(--mono);
+  letter-spacing:-.08em;
+  color:var(--signal);
+  vertical-align:.14em;
+}
+#now.values-home .value-instrument-foot code::before {
+  content:"> ";
+  color:var(--muted);
+}
+
 #now.values-home .value-flow-arrow {display:grid;place-items:center}
 #now.values-home .value-flow-arrow span {
   position:relative;width:100%;height:1px;
