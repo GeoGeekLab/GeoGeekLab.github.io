@@ -1,50 +1,59 @@
-/* Four complementary research lenses for the same geospatial claim. */
+/* GEOGEEK / Four values as four ways of approaching the world. */
 (() => {
   'use strict';
   const root = document.querySelector('#now .value-workbench');
   if (!root) return;
-  const lenses = {
+
+  const values = {
     open: {
-      label: 'Open', meaning: 'Consider alternatives', output: 'Alternative explanations',
-      question: 'Could season, atmosphere, or sensor differences explain this change?',
-      action: 'Compare dates, sensors, and processing assumptions before interpreting the image.'
+      name: 'Open', input: 'UNKNOWN', horizon: 'POSSIBILITY',
+      axiom: 'The world is larger than every frame.',
+      question: 'What remains unseen?',
+      expression: 'open(unknown) → possibility'
     },
     taste: {
-      label: 'Taste', meaning: 'Find what matters', output: 'A discriminating test',
-      question: 'Which measurement could separate a real change from an imaging artifact?',
-      action: 'Choose a diagnostic that can challenge the favored explanation, not just reinforce it.'
+      name: 'Taste', input: 'POSSIBILITY', horizon: 'MEANING',
+      axiom: 'Not everything possible is worth making.',
+      question: 'What deserves to exist?',
+      expression: 'discern(possibility) → meaning'
     },
     respect: {
-      label: 'Respect', meaning: 'Consider people and place', output: 'A context and impact note',
-      question: 'Whose water, livelihoods, or decisions could this interpretation affect?',
-      action: 'Document local context, uncertainty, and the possible consequences of being wrong.'
+      name: 'Respect', input: 'DIFFERENCE', horizon: 'RECOGNITION',
+      axiom: 'Difference does not diminish dignity.',
+      question: 'Whose world is missing from our view?',
+      expression: 'respect(difference) → recognition'
     },
     respond: {
-      label: 'Respond', meaning: 'Make the work accountable', output: 'A reproducible record',
-      question: 'Can another researcher inspect the claim and improve the method?',
-      action: 'Share the sources, method, limits, and next test—not only the finished map.'
+      name: 'Respond', input: 'KNOWLEDGE', horizon: 'RESPONSIBILITY',
+      axiom: 'Knowing changes what we owe the world.',
+      question: 'What will our work set in motion?',
+      expression: 'respond(knowledge) → responsibility'
     }
   };
-  const order = Object.keys(lenses);
+
+  const order = Object.keys(values);
   const buttons = [...root.querySelectorAll('[data-value-trigger]')];
-  const names = ['Lens', 'Meaning', 'Output', 'Question', 'Action', 'Count'];
-  const fields = Object.fromEntries(names.map(name => [name.toLowerCase(), document.getElementById('valueActive' + name)]));
+  const fields = Object.fromEntries(
+    ['Input', 'Lens', 'Output', 'Axiom', 'Question', 'Expression', 'Count']
+      .map(key => [key.toLowerCase(), document.getElementById('valueActive' + key)])
+  );
   if (buttons.length !== order.length || Object.values(fields).some(field => !field)) return;
 
   function select(key) {
-    const value = lenses[key];
+    const value = values[key];
     if (!value) return;
     root.dataset.valueState = key;
-    buttons.forEach(button => {
+    for (const button of buttons) {
       const active = button.dataset.valueTrigger === key;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
-    });
-    fields.lens.textContent = value.label;
-    fields.meaning.textContent = value.meaning;
-    fields.output.textContent = value.output;
+    }
+    fields.input.textContent = value.input;
+    fields.lens.textContent = value.name;
+    fields.output.textContent = value.horizon;
+    fields.axiom.textContent = value.axiom;
     fields.question.textContent = value.question;
-    fields.action.textContent = value.action;
+    fields.expression.textContent = value.expression;
     fields.count.textContent = String(order.indexOf(key) + 1).padStart(2, '0') + ' / 04';
   }
 
