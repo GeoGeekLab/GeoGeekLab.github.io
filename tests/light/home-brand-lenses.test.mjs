@@ -60,7 +60,8 @@ test('each operator separates scalable capability from a distinct human commitme
     ].join('|'));
   }
   assert.equal(seen.size, 4);
-  assert.equal(fields.valueActiveAxiom.textContent, 'Capability calls for responsibility.');
+  assert.equal(fields.valueActiveAxiom.textContent, 'Own the side effects.');
+  assert.equal(fields.valueActiveExpression.textContent, 'sideEffects.forEach(own)');
 });
 
 test('arrow, Home, and End keys navigate the modes', () => {
@@ -77,16 +78,16 @@ test('arrow, Home, and End keys navigate the modes', () => {
 });
 
 test('philosophical contrasts remain distinct from task-value predictions', () => {
-  assert.match(source, /Judgment gives intelligence direction/);
-  assert.match(source, /Every person carries equal dignity/);
-  assert.match(source, /The world exceeds every model/);
-  assert.match(source, /Capability calls for responsibility/);
+  assert.match(source, /Judgment defines the objective function/);
+  assert.match(source, /Human dignity is a system invariant/);
+  assert.match(source, /The unknown expands the search space/);
+  assert.match(source, /Own the side effects/);
   assert.doesNotMatch(source, /value (?:is|=) 0|vibes only|electricity/);
-  assert.match(html, /AI AGE \/ HUMAN JUDGMENT/);
-  assert.match(html, /EPISTEMOLOGY \/ LIMITS/);
-  assert.match(html, /AXIOLOGY \/ JUDGMENT/);
-  assert.match(html, /ETHICS \/ DIGNITY/);
-  assert.match(html, /PRAXIS \/ CONSEQUENCE/);
+  assert.match(html, /HUMAN \/ CONTROL PLANE/);
+  assert.match(html, /EPISTEMOLOGY \/ SEARCH/);
+  assert.match(html, /AXIOLOGY \/ OBJECTIVE/);
+  assert.match(html, /ETHICS \/ INVARIANT/);
+  assert.match(html, /PRAXIS \/ SIDE EFFECTS/);
 });
 
 test('all visible coordinates statements use affirmative formulations', () => {
@@ -100,5 +101,16 @@ test('all visible coordinates statements use affirmative formulations', () => {
       assert.doesNotMatch(fields['valueActive' + name].textContent, excluded);
     }
   }
-  assert.match(html, /INTELLIGENCE \/ HUMAN AGENCY/);
+  assert.match(html, /AI \/ COMPUTE/);
+});
+
+test('geek semantics connect agency to models, objectives, invariants and effects', () => {
+  assert.match(source, /hypothesisSpace\.expand\(\)/);
+  assert.match(source, /objective = human\.judgment\(\)/);
+  assert.match(source, /assert\(dignity\.isInvariant\)/);
+  assert.match(source, /sideEffects\.forEach\(own\)/);
+  assert.match(css, /\.value-choice>strong::after/);
+  assert.match(css, /\.value-instrument-foot code::before/);
+  assert.match(html, /HUMAN \/ OPERATOR/);
+  assert.match(html, /HUMAN \/ VALUE/);
 });
