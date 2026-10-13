@@ -1,4 +1,4 @@
-/* GEOGEEK / Four values as four ways of approaching the world. */
+/* GEOGEEK / Four philosophical commitments under AI-mediated abundance. */
 (() => {
   'use strict';
   const root = document.querySelector('#now .value-workbench');
@@ -6,31 +6,30 @@
 
   const values = {
     open: {
-      name: 'Open', input: 'UNKNOWN', horizon: 'POSSIBILITY',
-      axiom: 'The world is larger than every frame.',
-      question: 'What remains unseen?',
-      expression: 'open(unknown) → possibility'
+      name: 'Open', input: 'MODELS', horizon: 'THE UNSEEN',
+      axiom: 'No model contains the world.',
+      question: 'What lies beyond the model?',
+      expression: 'model(world) ≠ world'
     },
     taste: {
-      name: 'Taste', input: 'POSSIBILITY', horizon: 'MEANING',
-      axiom: 'Not everything possible is worth making.',
-      question: 'What deserves to exist?',
-      expression: 'discern(possibility) → meaning'
+      name: 'Taste', input: 'SOLUTIONS', horizon: 'WHAT MATTERS',
+      axiom: 'Correctness cannot decide what matters.',
+      question: 'Which questions deserve solving?',
+      expression: 'correct ≠ worthwhile'
     },
     respect: {
-      name: 'Respect', input: 'DIFFERENCE', horizon: 'RECOGNITION',
+      name: 'Respect', input: 'OPTIMIZATION', horizon: 'EQUAL DIGNITY',
       axiom: 'Difference does not diminish dignity.',
-      question: 'Whose world is missing from our view?',
-      expression: 'respect(difference) → recognition'
+      question: 'Whose values shape the objective?',
+      expression: 'person ≠ metric'
     },
     respond: {
-      name: 'Respond', input: 'KNOWLEDGE', horizon: 'RESPONSIBILITY',
-      axiom: 'Knowing changes what we owe the world.',
-      question: 'What will our work set in motion?',
-      expression: 'respond(knowledge) → responsibility'
+      name: 'Respond', input: 'AUTONOMY', horizon: 'ACCOUNTABILITY',
+      axiom: 'Capability is not permission.',
+      question: 'Who bears the consequences?',
+      expression: 'can_build ≠ should_build'
     }
   };
-
   const order = Object.keys(values);
   const buttons = [...root.querySelectorAll('[data-value-trigger]')];
   const fields = Object.fromEntries(
