@@ -49,7 +49,7 @@ test('each operator separates scalable capability from a distinct human commitme
     assert.equal(workbench.dataset.valueState, states[index]);
     assert.equal(button.attributes['aria-pressed'], 'true');
     assert.equal(fields.valueActiveCount.textContent, '0' + (index + 1) + ' / 04');
-    assert.ok(fields.valueActiveExpression.textContent.includes('→'));
+    assert.ok(fields.valueActiveExpression.textContent.includes('≠'));
     seen.add([
       fields.valueActiveInput.textContent,
       fields.valueActiveOutput.textContent,
