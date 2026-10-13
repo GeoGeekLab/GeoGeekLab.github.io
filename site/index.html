@@ -13,7 +13,7 @@
 <title>GeoGeek — Geo to see. Geek to build.</title>
 <link href="styles.css?v=20260930d" rel="stylesheet"/>
 <link href="/ux-refinements.css?v=20260929e" rel="stylesheet"/>
-<link href="/brand-coordinates.css?v=20261013a" rel="stylesheet"/>
+<link href="/brand-coordinates.css?v=20261013b" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20261003f"></script>
 </head>
 <body>
@@ -58,74 +58,69 @@
   <div>
     <div class="section-label eyebrow">01 / COORDINATES</div>
     <h2>Coordinates</h2>
-    <p class="coordinates-identity"><span>IDENTITY /</span><strong>Research Engineer</strong></p>
   </div>
-  <p class="page-intro concept-section-intro">Four commitments shape how we see geographic evidence and what we choose to build.</p>
+  <p class="page-intro concept-section-intro coordinate-self">I'm a Research Engineer.</p>
 </div>
 
 <div class="value-workbench" data-value-state="open">
-  <section class="value-instrument" aria-label="One geographic claim considered through four research lenses">
+  <section class="value-instrument" aria-label="GEOGEEK philosophical operators">
     <div class="value-instrument-head">
-      <span>RESEARCH CASE / 01</span>
-      <small>ILLUSTRATIVE CASE · NOT OBSERVATIONAL DATA</small>
+      <span>GEO / GEEK — MINDSET</span>
+      <small>HUMAN / IN THE LOOP</small>
     </div>
+
     <div class="value-instrument-body">
-      <div class="value-flow" aria-label="Observation, selected lens, and research output">
+      <div class="value-flow" aria-label="A value transforms a starting point into a horizon">
         <div class="value-flow-block value-observation">
-          <span>OBSERVATION · GEO / SEE</span>
-          <strong>A satellite image seems to show a change in a lake.</strong>
-          <small>Observed difference ≠ established explanation</small>
+          <span>FROM</span>
+          <strong id="valueActiveInput">UNKNOWN</strong>
         </div>
         <div class="value-flow-arrow" aria-hidden="true"><span></span></div>
-        <div class="value-flow-block value-lens" aria-live="polite" aria-atomic="true">
-          <span>SELECTED LENS</span>
+        <div class="value-flow-block value-lens">
+          <span>THROUGH</span>
           <strong id="valueActiveLens">Open</strong>
-          <small id="valueActiveMeaning">Consider alternatives</small>
         </div>
         <div class="value-flow-arrow" aria-hidden="true"><span></span></div>
-        <div class="value-flow-block value-outcome" aria-live="polite" aria-atomic="true">
-          <span>RESEARCH OUTPUT · GEEK / BUILD</span>
-          <strong id="valueActiveOutput">Alternative explanations</strong>
-          <small>A checkable result, not a slogan</small>
+        <div class="value-flow-block value-outcome">
+          <span>TOWARD</span>
+          <strong id="valueActiveOutput">POSSIBILITY</strong>
         </div>
       </div>
+
       <div class="value-decision" aria-live="polite" aria-atomic="true">
-        <div class="value-decision-part">
-          <span>THE QUESTION</span>
-          <p id="valueActiveQuestion">Could season, atmosphere, or sensor differences explain this change?</p>
-        </div>
-        <div class="value-decision-part">
-          <span>THE ACTION</span>
-          <p id="valueActiveAction">Compare dates, sensors, and processing assumptions before interpreting the image.</p>
+        <blockquote id="valueActiveAxiom">The world is larger than every frame.</blockquote>
+        <div class="value-question">
+          <span>// QUESTION</span>
+          <p id="valueActiveQuestion">What remains unseen?</p>
         </div>
       </div>
     </div>
+
     <div class="value-instrument-foot">
-      <span>GEO TO SEE <i aria-hidden="true">→</i> GEEK TO BUILD</span>
-      <output id="valueActiveCount" aria-label="Selected lens, one of four">01 / 04</output>
+      <code id="valueActiveExpression">open(unknown) → possibility</code>
+      <output id="valueActiveCount" aria-label="Selected value, one of four">01 / 04</output>
     </div>
   </section>
 
-  <div class="value-register" role="group" aria-label="Choose a research lens">
+  <div class="value-register" role="group" aria-label="GEOGEEK values">
     <button class="value-choice is-active" type="button" data-value-trigger="open" aria-pressed="true">
-      <span class="value-choice-meta"><b>01</b><em>ATTITUDE / UNKNOWN</em></span>
-      <strong>Open</strong><small>Allow other explanations.</small>
+      <span class="value-choice-meta"><b>01</b><em>UNKNOWN / POSSIBILITY</em></span>
+      <strong>Open</strong>
     </button>
     <button class="value-choice" type="button" data-value-trigger="taste" aria-pressed="false">
-      <span class="value-choice-meta"><b>02</b><em>JUDGMENT / EVIDENCE</em></span>
-      <strong>Taste</strong><small>Find the evidence that matters.</small>
+      <span class="value-choice-meta"><b>02</b><em>POSSIBILITY / MEANING</em></span>
+      <strong>Taste</strong>
     </button>
     <button class="value-choice" type="button" data-value-trigger="respect" aria-pressed="false">
-      <span class="value-choice-meta"><b>03</b><em>RELATION / PEOPLE</em></span>
-      <strong>Respect</strong><small>Consider people and place.</small>
+      <span class="value-choice-meta"><b>03</b><em>DIFFERENCE / RECOGNITION</em></span>
+      <strong>Respect</strong>
     </button>
     <button class="value-choice" type="button" data-value-trigger="respond" aria-pressed="false">
-      <span class="value-choice-meta"><b>04</b><em>PRACTICE / CONSEQUENCE</em></span>
-      <strong>Respond</strong><small>Make the work accountable.</small>
+      <span class="value-choice-meta"><b>04</b><em>KNOWLEDGE / RESPONSIBILITY</em></span>
+      <strong>Respond</strong>
     </button>
   </div>
 </div>
-<p class="value-method-note"><span>READING KEY /</span> Four lenses on the same claim—not four steps that guarantee a conclusion.</p>
 </section>
 
 <section class="home-section home-commons-full commons-page" data-scale="1 : 25,000" data-scale-level="COLLECTION" id="commons">
@@ -223,7 +218,7 @@
 <script src="archive-content.js"></script>
 <script src="core/site-model.js"></script>
 <script src="app.js?v=20260930g"></script>
-<script src="/brand-coordinates.js?v=20261013a"></script>
+<script src="/brand-coordinates.js?v=20261013b"></script>
 <script src="core/modules.js?v=20261013a12"></script>
 <script src="core/semantic-scale.js"></script>
 <script src="commons/config.js"></script>
