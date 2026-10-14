@@ -1,104 +1,46 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { runInNewContext } from 'node:vm';
 
 const html = readFileSync(new URL('../../site/index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../../site/brand-coordinates.css', import.meta.url), 'utf8');
-const source = readFileSync(new URL('../../site/brand-coordinates.js', import.meta.url), 'utf8');
-const states = ['open', 'taste', 'respect', 'respond'];
-const fieldNames = ['Input', 'Lens', 'Output', 'Axiom', 'Question', 'Expression', 'Count'];
+const start = html.indexOf('<section class="home-section coordinates-section');
+const end = html.indexOf('<section class="home-section home-commons-full', start);
+const coordinates = html.slice(start, end);
 
-function mount() {
-  const buttons = states.map(key => ({
-    dataset: { valueTrigger: key },
-    attributes: {}, events: {}, classList: { toggle() {} },
-    setAttribute(name, value) { this.attributes[name] = value; },
-    addEventListener(name, handler) { this.events[name] = handler; },
-    focus() { this.focused = true; }
-  }));
-  const fields = Object.fromEntries(
-    fieldNames.map(key => ['valueActive' + key, { textContent: '' }])
-  );
-  const workbench = { dataset: {}, querySelectorAll: () => buttons };
-  const document = {
-    querySelector: selector => selector === '#now .value-workbench' ? workbench : null,
-    getElementById: id => fields[id] ?? null
-  };
-  runInNewContext(source, { document });
-  return { buttons, fields, workbench };
-}
+test('Coordinates presents the requested role and practice as static content', () => {
+  assert.ok(start >= 0 && end > start);
+  assert.match(coordinates, /<h2>Coordinates<\/h2>/);
+  assert.match(coordinates, /<h3 class="coordinate-role">Research Engineer<\/h3>/);
+  const practice = [
+    '<strong>AI Native</strong><span> — Method</span>',
+    '<strong>Geospatial Engineering</strong><span> — Domain</span>',
+    '<strong>Open Science</strong><span> — Principle</span>'
+  ];
+  for (const value of practice) assert.ok(coordinates.includes(value), value);
+});
 
-test('homepage uses the settled brand, a single-line identity, and four values', () => {
-  for (const name of states) assert.match(html, new RegExp('data-value-trigger="' + name + '"'));
-  for (const field of fieldNames) assert.match(html, new RegExp('id="valueActive' + field + '"'));
+test('all four values and exact user-provided statements are visible together', () => {
+  const statements = [
+    ['Open', 'Share to connect. Open to expand.'],
+    ['Taste', 'Sense to define. Taste to guide.'],
+    ['Respect', 'Stand to equal. Respect to endure.'],
+    ['Respond', 'Act to answer. Build to account.']
+  ];
+  assert.equal((coordinates.match(/class="coordinate-static-value"/g) || []).length, 4);
+  for (const [title, statement] of statements) {
+    assert.ok(coordinates.includes('<h3>' + title + '</h3>'), title);
+    assert.ok(coordinates.includes('<p>' + statement + '</p>'), statement);
+  }
+  assert.doesNotMatch(coordinates, /<button\b|data-value-trigger|aria-pressed|valueActive/);
+  assert.doesNotMatch(html, /<script[^>]*brand-coordinates\.js/);
+});
+
+test('responsive static layout and neighboring sections remain intact', () => {
+  assert.match(css, /coordinate-static-values/);
+  assert.match(css, /@media \(max-width:640px\)/);
+  assert.match(css, /grid-template-columns:1fr/);
   assert.match(html, /AI Native · Geospatial Engineering · Open Science/);
-  assert.match(html, /<h2>Coordinates<\/h2>\s*<p class="coordinate-self">I'm a Research Engineer\.<\/p>/);
-  assert.match(css, /\.coordinate-self\s*\{[^}]*white-space:nowrap;/s);
-  const quoteRule = css.match(/#now\.values-home \.value-decision blockquote\s*\{[^}]*\}/s)?.[0] || '';
-  assert.ok(quoteRule);
-  assert.doesNotMatch(quoteRule, /max-width:24ch|text-wrap:balance/);
-  assert.doesNotMatch(html, /IDENTITY \/|satellite image|ILLUSTRATIVE CASE|Four commitments shape/);
-  assert.doesNotMatch(html, /coordinateCanvas|data-coordinate-trigger=/);
   assert.match(html, /id="commonsMap"/);
-});
-
-test('each operator separates scalable capability from a distinct human commitment', () => {
-  const { buttons, fields, workbench } = mount();
-  const seen = new Set();
-  for (const [index, button] of buttons.entries()) {
-    button.events.click();
-    assert.equal(workbench.dataset.valueState, states[index]);
-    assert.equal(button.attributes['aria-pressed'], 'true');
-    assert.equal(fields.valueActiveCount.textContent, '0' + (index + 1) + ' / 04');
-    assert.ok(fields.valueActiveExpression.textContent.includes('→'));
-    seen.add([
-      fields.valueActiveInput.textContent,
-      fields.valueActiveOutput.textContent,
-      fields.valueActiveAxiom.textContent,
-      fields.valueActiveQuestion.textContent
-    ].join('|'));
-  }
-  assert.equal(seen.size, 4);
-  assert.equal(fields.valueActiveAxiom.textContent, 'Capability calls for responsibility.');
-});
-
-test('arrow, Home, and End keys navigate the modes', () => {
-  const { buttons, fields } = mount();
-  let prevented = false;
-  buttons[0].events.keydown({ key: 'ArrowRight', preventDefault() { prevented = true; } });
-  assert.equal(fields.valueActiveLens.textContent, 'Taste');
-  assert.equal(buttons[1].focused, true);
-  assert.equal(prevented, true);
-  buttons[1].events.keydown({ key: 'End', preventDefault() {} });
-  assert.equal(fields.valueActiveLens.textContent, 'Respond');
-  buttons[3].events.keydown({ key: 'Home', preventDefault() {} });
-  assert.equal(fields.valueActiveLens.textContent, 'Open');
-});
-
-test('philosophical contrasts remain distinct from task-value predictions', () => {
-  assert.match(source, /Judgment gives intelligence direction/);
-  assert.match(source, /Every person carries equal dignity/);
-  assert.match(source, /The world exceeds every model/);
-  assert.match(source, /Capability calls for responsibility/);
-  assert.doesNotMatch(source, /value (?:is|=) 0|vibes only|electricity/);
-  assert.match(html, /AI AGE \/ HUMAN JUDGMENT/);
-  assert.match(html, /EPISTEMOLOGY \/ LIMITS/);
-  assert.match(html, /AXIOLOGY \/ JUDGMENT/);
-  assert.match(html, /ETHICS \/ DIGNITY/);
-  assert.match(html, /PRAXIS \/ CONSEQUENCE/);
-});
-
-test('all visible coordinates statements use affirmative formulations', () => {
-  const modes = ['open', 'taste', 'respect', 'respond'];
-  const { buttons, fields } = mount();
-  const excluded = /\b(?:no|not|never|cannot)\b|≠/i;
-  for (const [index, button] of buttons.entries()) {
-    button.events.click();
-    assert.equal(fields.valueActiveLens.textContent.toLowerCase(), modes[index]);
-    for (const name of ['Axiom', 'Question', 'Expression']) {
-      assert.doesNotMatch(fields['valueActive' + name].textContent, excluded);
-    }
-  }
-  assert.match(html, /INTELLIGENCE \/ HUMAN AGENCY/);
+  assert.equal((html.match(/<section\b/g) || []).length, (html.match(/<\/section>/g) || []).length);
 });
