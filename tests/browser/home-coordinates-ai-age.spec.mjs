@@ -1,69 +1,70 @@
 import { test, expect } from '@playwright/test';
 
-test('Coordinates identity stays on one line, below the title, away from the scale', async ({ page }) => {
+test('Coordinates is a static manifesto with all statements visible', async ({ page }) => {
   await page.setViewportSize({ width: 1830, height: 900 });
   await page.goto('/');
-  await expect(page.locator('#now .coordinate-self')).toHaveText("I'm a Research Engineer.");
   await page.evaluate(() => document.fonts.ready);
 
-  const geometry = await page.evaluate(() => {
-    const heading = document.querySelector('#now h2');
-    const identity = document.querySelector('#now .coordinate-self');
-    const scale = document.querySelector('.scale-ui');
-    const h = heading.getBoundingClientRect();
-    const i = identity.getBoundingClientRect();
-    const s = scale.getBoundingClientRect();
-    const range = document.createRange();
-    range.selectNodeContents(identity);
+  const section = page.locator('#now');
+  await expect(section.locator('.coordinate-role')).toHaveText('Research Engineer');
+  await expect(section.locator('.coordinate-practice p')).toHaveText([
+    'AI Native — Method',
+    'Geospatial Engineering — Domain',
+    'Open Science — Principle'
+  ]);
+  await expect(section.locator('.coordinate-static-value h3')).toHaveText([
+    'Open', 'Taste', 'Respect', 'Respond'
+  ]);
+  await expect(section.locator('.coordinate-static-value p')).toHaveText([
+    'Share to connect. Open to expand.',
+    'Sense to define. Taste to guide.',
+    'Stand to equal. Respect to endure.',
+    'Act to answer. Build to account.'
+  ]);
+  await expect(section.locator('button')).toHaveCount(0);
+});
+
+test('desktop typography keeps the identity and four statements on one line', async ({ page }) => {
+  await page.setViewportSize({ width: 1830, height: 900 });
+  await page.goto('/');
+  await page.evaluate(() => document.fonts.ready);
+  const measured = await page.locator('#now').evaluate(section => {
+    const rectCount = el => {
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      return r.getClientRects().length;
+    };
     return {
-      identityLines: range.getClientRects().length,
-      belowHeading: i.top >= h.bottom - 1,
-      overlapsScale: i.left < s.right && i.right > s.left && i.top < s.bottom && i.bottom > s.top
+      role: rectCount(section.querySelector('.coordinate-role')),
+      statements: [...section.querySelectorAll('.coordinate-static-value p')].map(rectCount)
     };
   });
-  expect(geometry.identityLines).toBe(1);
-  expect(geometry.belowHeading).toBe(true);
-  expect(geometry.overlapsScale).toBe(false);
+  expect(measured.role).toBe(1);
+  expect(measured.statements).toEqual([1,1,1,1]);
 });
 
-test('aphorisms use the whole available width before wrapping', async ({ page }) => {
-  await page.setViewportSize({ width: 1830, height: 900 });
-  await page.goto('/');
-  await expect(page.locator('#valueActiveAxiom')).toBeVisible();
-  await page.evaluate(() => document.fonts.ready);
-
-  for (const value of ['open', 'taste', 'respect', 'respond']) {
-    await page.locator('[data-value-trigger="' + value + '"]').evaluate(button => button.click());
-    const state = await page.locator('#valueActiveAxiom').evaluate(element => {
-      const range = document.createRange();
-      range.selectNodeContents(element);
-      const parts = range.getClientRects();
-      const styles = getComputedStyle(element);
-      return { lines: parts.length, maxWidth: styles.maxWidth, content: element.textContent };
-    });
-    expect(state.lines, value + ': ' + state.content).toBe(1);
-    expect(state.maxWidth).not.toBe('24ch');
-  }
-});
-
-test('mobile keeps the identity intact; all four lenses remain selectable', async ({ page }) => {
+test('mobile presents all four statements as a legible vertical sequence', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
-  const identityLines = await page.locator('#now .coordinate-self').evaluate(element => {
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    return range.getClientRects().length;
-  });
-  expect(identityLines).toBe(1);
-  for (const name of ['open', 'taste', 'respect', 'respond']) {
-    await page.locator('[data-value-trigger="' + name + '"]').evaluate(button => button.click());
-    await expect(page.locator('#now .value-workbench')).toHaveAttribute('data-value-state', name);
+  const section = page.locator('#now');
+  await expect(section.locator('.coordinate-static-value')).toHaveCount(4);
+  const measured = await section.evaluate(node => ({
+    viewport: window.innerWidth,
+    documentWidth: document.documentElement.scrollWidth,
+    roleLines: (() => {
+      const r = document.createRange();
+      r.selectNodeContents(node.querySelector('.coordinate-role'));
+      return r.getClientRects().length;
+    })(),
+    boxes: [...node.querySelectorAll('.coordinate-static-value')].map(item => {
+      const r = item.getBoundingClientRect();
+      return { top: r.top, bottom: r.bottom, width: r.width };
+    })
+  }));
+  expect(measured.documentWidth).toBeLessThanOrEqual(measured.viewport + 1);
+  expect(measured.roleLines).toBe(1);
+  for (let i=1;i<measured.boxes.length;i++) {
+    expect(measured.boxes[i].top).toBeGreaterThanOrEqual(measured.boxes[i-1].bottom - 1);
   }
-  const outputLines = await page.locator('#valueActiveOutput').evaluate(element => {
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    return range.getClientRects().length;
-  });
-  expect(outputLines).toBe(1);
 });
