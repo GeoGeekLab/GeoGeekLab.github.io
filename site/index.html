@@ -14,6 +14,7 @@
 <link href="styles.css?v=20260930d" rel="stylesheet"/>
 <link href="/ux-refinements.css?v=20260929e" rel="stylesheet"/>
 <link href="/brand-coordinates.css?v=20261014-static" rel="stylesheet"/>
+<link href="/coordinates-field.css?v=20261017a" rel="stylesheet"/>
 <script src="/ux-preinit.js?v=20261003f"></script>
 </head>
 <body>
@@ -55,44 +56,99 @@
 </section>
 <section class="home-section coordinates-section values-home" data-scale="1 : 100,000" data-scale-level="POSITION" id="now">
   <div class="page-title coordinates-head coordinates-home-title concept-section-head">
-    <div>
-      <div class="section-label eyebrow">01 / COORDINATES</div>
-      <h2>Coordinates</h2>
+    <div><div class="section-label eyebrow">01 / COORDINATES</div><h2>Coordinates</h2></div>
+  </div>
+
+  <div class="coord-identity" aria-label="Research Engineer identity">
+    <div class="coord-identity-header">
+      <div class="coord-identity-copy">
+        <span class="coord-micro">POSITION / A PRACTICE IN THREE DIMENSIONS</span>
+        <h3>Research Engineer</h3>
+        <p>Geo to see. Geek to build. A position defined by method, domain, and principle.</p>
+      </div>
+      <div class="coord-ridge" aria-hidden="true">
+        <svg viewBox="0 0 540 170" preserveAspectRatio="xMidYMid meet" focusable="false">
+          <g fill="none" stroke="currentColor" stroke-width=".8" opacity=".55">
+            <path d="M2 140 75 124 125 130 166 82 199 108 252 45 304 70 341 18 389 62 436 30 487 83 538 59"/>
+            <path d="M2 148 75 132 125 138 166 90 199 116 252 53 304 78 341 26 389 70 436 38 487 91 538 67"/>
+            <path d="M2 156 75 140 125 146 166 98 199 124 252 61 304 86 341 34 389 78 436 46 487 99 538 75"/>
+            <path d="M2 164 75 148 125 154 166 106 199 132 252 69 304 94 341 42 389 86 436 54 487 107 538 83"/>
+            <path d="M2 172 75 156 125 162 166 114 199 140 252 77 304 102 341 50 389 94 436 62 487 115 538 91"/>
+            <path d="M2 180 75 164 125 170 166 122 199 148 252 85 304 110 341 58 389 102 436 70 487 123 538 99"/>
+          </g>
+          <path d="M252 45 252 10 M246 16 258 16" stroke="currentColor" stroke-opacity=".5" fill="none"/>
+          <circle cx="341" cy="18" r="3" fill="var(--signal)"/>
+        </svg>
+        <span>FIELD STUDY / ABSTRACT RELIEF</span>
+      </div>
+    </div>
+    <div class="coord-pillars" aria-label="Three dimensions of the research practice">
+      <div class="coord-pillar">
+        <svg class="coord-pillar-icon" aria-hidden="true" viewBox="0 0 60 60" fill="none"><circle cx="24" cy="30" r="18"/><circle cx="36" cy="30" r="18"/><path d="M30 22v16M22 30h16"/></svg>
+        <div><span class="coord-pillar-axis">01 / METHOD</span><strong>AI Native</strong><small>Method</small></div>
+      </div>
+      <div class="coord-pillar">
+        <svg class="coord-pillar-icon" aria-hidden="true" viewBox="0 0 60 60" fill="none"><path d="m30 9 23 13-23 13L7 22 30 9Z"/><path d="m7 30 23 13 23-13M7 38l23 13 23-13"/><path d="m14 26 16 9 16-9"/></svg>
+        <div><span class="coord-pillar-axis">02 / DOMAIN</span><strong>Geospatial Engineering</strong><small>Domain</small></div>
+      </div>
+      <div class="coord-pillar">
+        <svg class="coord-pillar-icon coord-pillar-icon-dots" aria-hidden="true" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="23" stroke-dasharray="1 8" stroke-width="2.4"/><circle cx="30" cy="30" r="3" fill="currentColor" stroke="none"/></svg>
+        <div><span class="coord-pillar-axis">03 / PRINCIPLE</span><strong>Open Science</strong><small>Principle</small></div>
+      </div>
     </div>
   </div>
 
-  <div class="coordinate-static-sheet">
-    <div class="coordinate-static-intro">
-      <h3 class="coordinate-role">Research Engineer</h3>
-      <div class="coordinate-practice" aria-label="Practice">
-        <p><strong>AI Native</strong><span> — Method</span></p>
-        <p><strong>Geospatial Engineering</strong><span> — Domain</span></p>
-        <p><strong>Open Science</strong><span> — Principle</span></p>
+  <div class="coord-atlas" data-active="open" aria-label="Interactive principle field">
+    <div class="coord-atlas-toolbar"><span><i class="coord-bullet"></i> PRINCIPLE FIELD / 04</span><span>FOUR VALUES · ONE RESEARCH PRACTICE</span></div>
+    <div class="coord-atlas-layout">
+      <div class="coord-readout" aria-live="polite" aria-atomic="true">
+        <div class="coord-readout-meta"><span id="coordReadoutIndex">01 / OPEN</span><span>ACTIVE PRINCIPLE</span></div>
+        <h3 id="coordReadoutTitle">Open</h3>
+        <p class="coord-readout-lead" id="coordReadoutLead">Share to connect. Open to expand.</p>
+        <p class="coord-readout-description" id="coordReadoutDescription">Remove friction between ideas, data, and people. Share the method as well as the result so that knowledge can travel.</p>
+        <div class="coord-readout-relation"><span>IN RELATION TO THE PRACTICE</span><strong id="coordReadoutRelation">OPEN SCIENCE / PRINCIPLE</strong><small id="coordReadoutInsight">Knowledge becomes useful when it can be examined and extended.</small></div>
+        <div class="coord-readout-navigation" role="group" aria-label="Select a value">
+          <button type="button" data-coord-value="open" class="is-active" aria-pressed="true"><em>01</em>Open</button>
+          <button type="button" data-coord-value="taste" aria-pressed="false"><em>02</em>Taste</button>
+          <button type="button" data-coord-value="respect" aria-pressed="false"><em>03</em>Respect</button>
+          <button type="button" data-coord-value="respond" aria-pressed="false"><em>04</em>Respond</button>
+        </div>
+      </div>
+      <div class="coord-plot" role="group" aria-label="Conceptual relationship map; choose one of four value nodes">
+        <div class="coord-plot-surtitle"><span>SCHEMATIC FIELD / RELATION</span><span>NOT GEOGRAPHIC POSITION</span></div>
+        <svg class="coord-map" viewBox="0 0 760 540" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <defs><pattern id="coordGrid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M 42 0 H 0 V 42" fill="none" stroke="#293c31" stroke-opacity=".055" stroke-width=".7"/></pattern></defs>
+          <rect width="760" height="540" fill="url(#coordGrid)"/>
+          <g class="coord-contours" fill="none" stroke="#415b4e" stroke-width=".7" stroke-opacity=".13"></g>
+          <g class="coord-reference" fill="none" stroke="#293c31" stroke-opacity=".27" stroke-width=".8">
+            <circle cx="380" cy="270" r="195" stroke-dasharray="3 6"/>
+            <circle cx="380" cy="270" r="138" stroke-dasharray="2 5"/>
+            <circle cx="380" cy="270" r="74"/>
+            <path d="M380 20V520M50 270H710"/>
+            <path d="M380 28v-13m0 510v-13M45 270H30m700 0h-15" stroke-opacity=".52"/>
+            <path d="M 380 270 L 228 150 L 532 150 L 532 390 L 228 390 Z" stroke-dasharray="4 5"/>
+            <path d="M228 150 L532 390 M532 150 L228 390" stroke-dasharray="3 7" stroke-opacity=".4"/>
+          </g>
+          <path class="coord-trace" id="coordActiveTrace" d="M 380 270 L 228 150" fill="none" stroke="#a64624" stroke-width="1.6"/>
+          <g class="coord-datum" fill="none" stroke="#243a2c" stroke-width="1">
+            <path d="M369 270H391M380 259V281"/><circle cx="380" cy="270" r="5" fill="#f6f4ee"/>
+            <path d="M40 35h18M40 35v18 M720 35h-18M720 35v18 M40 505h18M40 505v-18 M720 505h-18M720 505v-18" stroke-opacity=".26"/>
+          </g>
+          <g fill="#a64624"><rect x="378" y="73" width="4" height="4"/><rect x="378" y="464" width="4" height="4"/><rect x="183" y="268" width="4" height="4"/><rect x="573" y="268" width="4" height="4"/></g>
+        </svg>
+        <span class="coord-chart-label coord-chart-label-top">+Y</span>
+        <span class="coord-chart-label coord-chart-label-right">+X</span>
+        <span class="coord-chart-label coord-chart-label-bottom">−Y</span>
+        <span class="coord-chart-label coord-chart-label-left">−X</span>
+        <div class="coord-center-note" aria-hidden="true">POSITION<br/><b>RELATION</b><br/>SCALE</div>
+        <button type="button" class="coord-point coord-point-open is-active" data-coord-value="open" aria-pressed="true"><span class="coord-pin" aria-hidden="true"></span><span class="coord-point-copy"><b>01 / OPEN</b><small>TO CONNECT</small></span></button>
+        <button type="button" class="coord-point coord-point-taste" data-coord-value="taste" aria-pressed="false"><span class="coord-pin" aria-hidden="true"></span><span class="coord-point-copy"><b>02 / TASTE</b><small>TO DEFINE</small></span></button>
+        <button type="button" class="coord-point coord-point-respect" data-coord-value="respect" aria-pressed="false"><span class="coord-pin" aria-hidden="true"></span><span class="coord-point-copy"><b>03 / RESPECT</b><small>TO ENDURE</small></span></button>
+        <button type="button" class="coord-point coord-point-respond" data-coord-value="respond" aria-pressed="false"><span class="coord-pin" aria-hidden="true"></span><span class="coord-point-copy"><b>04 / RESPOND</b><small>TO ACCOUNT</small></span></button>
+        <div class="coord-map-bottom"><span>CONCEPTUAL DATUM / 000</span><span>SELECT A NODE ↗</span></div>
       </div>
     </div>
-
-    <div class="coordinate-static-values" aria-label="Open, Taste, Respect, Respond">
-      <article class="coordinate-static-value">
-        <span class="coordinate-static-number">01</span>
-        <h3>Open</h3>
-        <p>Share to connect. Open to expand.</p>
-      </article>
-      <article class="coordinate-static-value">
-        <span class="coordinate-static-number">02</span>
-        <h3>Taste</h3>
-        <p>Sense to define. Taste to guide.</p>
-      </article>
-      <article class="coordinate-static-value">
-        <span class="coordinate-static-number">03</span>
-        <h3>Respect</h3>
-        <p>Stand to equal. Respect to endure.</p>
-      </article>
-      <article class="coordinate-static-value">
-        <span class="coordinate-static-number">04</span>
-        <h3>Respond</h3>
-        <p>Act to answer. Build to account.</p>
-      </article>
-    </div>
+    <div class="coord-atlas-footer"><span><i></i> RELATIONS, NOT RANKINGS</span><p>This field shows how the four values orient a practice. It does not measure physical locations or distances.</p><span>GEOGEEK / COORDINATES</span></div>
   </div>
 </section>
 
@@ -200,5 +256,6 @@
 <script src="commons/commons-data.js?v=20260930b"></script>
 <script src="commons/commons.js?v=20260930e"></script>
 <script src="/ux-refinements.js?v=20260923d"></script>
+<script src="/coordinates-field.js?v=20261017a"></script>
 </body>
 </html>

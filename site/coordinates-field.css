@@ -1,0 +1,163 @@
+/* GeoGeek / Coordinates — a schematic value field, not a geodetic map.
+   Scoped exclusively to #now. Hero and Commons remain unchanged. */
+#now .coord-identity,
+#now .coord-atlas { position:relative; isolation:isolate; }
+#now .coord-micro,
+#now .coord-pillar-axis,
+#now .coord-atlas-toolbar,
+#now .coord-atlas-footer,
+#now .coord-readout-meta,
+#now .coord-readout-relation > span,
+#now .coord-readout-relation > strong,
+#now .coord-readout-relation > small,
+#now .coord-point,
+#now .coord-plot-surtitle,
+#now .coord-map-bottom,
+#now .coord-chart-label,
+#now .coord-center-note,
+#now .coord-ridge > span { font-family:var(--mono); }
+#now .coord-identity { border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+#now .coord-identity-header {
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);
+  align-items:end;gap:clamp(25px,4vw,60px);min-height:190px;
+  padding:30px 0 24px;position:relative;
+}
+#now .coord-identity-copy { position:relative;z-index:1;min-width:0; }
+#now .coord-micro { display:block;color:var(--signal);font-size:10px;font-weight:700;letter-spacing:.14em;line-height:1.6; }
+#now .coord-identity-copy h3 {
+  margin:14px 0 7px;color:var(--fg);
+  font:440 clamp(40px,4.2vw,70px)/1.05 var(--serif);letter-spacing:-.056em;
+  text-wrap:balance;
+}
+#now .coord-identity-copy p {margin:0;max-width:62ch;color:var(--soft);font:400 clamp(15px,1.2vw,18px)/1.4 var(--serif);}
+#now .coord-ridge { color:#849185;align-self:stretch;min-width:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:end;overflow:hidden; }
+#now .coord-ridge svg {display:block;width:100%;height:auto;max-height:160px;opacity:.72;}
+#now .coord-ridge > span {margin-top:-3px;font:600 9px/1.2 var(--mono);letter-spacing:.11em;color:#79867d;white-space:nowrap;}
+#now .coord-pillars { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line-soft);}
+#now .coord-pillar {display:grid;grid-template-columns:54px minmax(0,1fr);gap:clamp(11px,1.5vw,22px);align-items:center;min-width:0;padding:25px clamp(13px,2.5vw,38px) 27px;position:relative;}
+#now .coord-pillar:first-child {padding-left:0;}
+#now .coord-pillar + .coord-pillar {border-left:1px solid var(--line-soft);}
+#now .coord-pillar-icon {width:53px;height:53px;max-width:100%;color:#4c6154;stroke:currentColor;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;}
+#now .coord-pillar-icon-dots {stroke-width:3;}
+#now .coord-pillar > div {min-width:0;display:flex;flex-direction:column;align-items:flex-start;}
+#now .coord-pillar-axis {display:block;margin-bottom:10px;color:var(--signal);font-size:10px;font-weight:700;letter-spacing:.13em;line-height:1.2;}
+#now .coord-pillar strong {color:var(--fg);font:450 clamp(20px,1.75vw,29px)/1.07 var(--serif);letter-spacing:-.04em;text-wrap:balance;}
+#now .coord-pillar small {margin-top:8px;color:var(--muted);font:500 clamp(11px,.95vw,14px)/1.2 var(--mono);letter-spacing:.025em;}
+#now .coord-atlas {margin-top:clamp(36px,4.3vw,68px);border:1px solid var(--line);background:rgba(246,244,238,.69);}
+#now .coord-atlas-toolbar {min-height:42px;padding:12px clamp(15px,1.8vw,28px);display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);color:#53645a;font-size:10px;font-weight:650;letter-spacing:.095em;}
+#now .coord-atlas-toolbar > span:first-child {color:var(--fg);display:inline-flex;align-items:center;gap:10px;}
+#now .coord-bullet {display:inline-block;width:6px;height:6px;background:var(--signal);transform:rotate(45deg);}
+#now .coord-atlas-layout {display:grid;grid-template-columns:minmax(330px,36%) minmax(0,64%);min-width:0;}
+#now .coord-readout {display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:clamp(28px,3.1vw,49px) clamp(21px,3vw,48px) 24px;border-right:1px solid var(--line);position:relative;background:linear-gradient(150deg,rgba(255,255,255,.32),rgba(246,244,238,.17));}
+#now .coord-readout::before {content:"";position:absolute;left:-1px;top:0;width:3px;height:clamp(120px,18vw,190px);background:var(--signal);}
+#now .coord-readout-meta {display:flex;justify-content:space-between;gap:14px;width:100%;color:#89938c;font-size:9px;letter-spacing:.11em;font-weight:700;}
+#now .coord-readout-meta span:first-child {color:var(--signal);}
+#now .coord-readout h3 {color:var(--fg);font:420 clamp(51px,5vw,80px)/.97 var(--serif);letter-spacing:-.065em;margin:clamp(22px,3vw,45px) 0 12px;}
+#now .coord-readout-lead {margin:0;color:var(--fg);font:420 clamp(19px,1.65vw,27px)/1.23 var(--serif);letter-spacing:-.032em;}
+#now .coord-readout-description {color:var(--soft);font:420 clamp(15px,1.14vw,18px)/1.48 var(--serif);margin:clamp(20px,2.1vw,34px) 0 0;max-width:35ch;}
+#now .coord-readout-relation {margin-top:clamp(29px,3vw,49px);padding-top:18px;width:100%;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:9px;}
+#now .coord-readout-relation > span {font-size:9px;letter-spacing:.11em;font-weight:650;color:#87928a;}
+#now .coord-readout-relation > strong {font-size:12px;letter-spacing:.02em;font-weight:650;color:var(--fg);line-height:1.5;}
+#now .coord-readout-relation > small {font-size:10.5px;line-height:1.55;color:var(--muted);font-weight:450;max-width:36ch;letter-spacing:0;}
+#now .coord-readout-navigation {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;align-self:stretch;margin-top:auto;padding-top:34px;}
+#now .coord-readout-navigation button {appearance:none;cursor:pointer;display:flex;flex-direction:column;gap:8px;text-align:left;padding:11px 5px 12px 8px;background:transparent;border:0;border-top:1px solid var(--line);color:#7b877e;font:650 clamp(11px,.87vw,13px)/1.15 var(--sans);transition:color .22s ease,border-color .22s ease,background-color .22s ease;}
+#now .coord-readout-navigation button+button {border-left:1px solid var(--line-soft);}
+#now .coord-readout-navigation em {font:650 10px/1 var(--mono);font-style:normal;color:#8a938b;}
+#now .coord-readout-navigation button:hover,#now .coord-readout-navigation button:focus-visible,#now .coord-readout-navigation button.is-active {color:var(--fg);border-top-color:var(--signal);background:rgba(166,70,36,.032);}
+#now .coord-readout-navigation button.is-active em {color:var(--signal);}
+#now .coord-plot {min-height:510px;position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(circle at 51% 49%,rgba(255,255,255,.47),transparent 37%),linear-gradient(120deg,rgba(204,215,204,.10),rgba(245,244,238,.09));}
+#now .coord-map {display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+#now .coord-contours {transition:opacity .4s ease;}
+#now .coord-trace {stroke-dasharray:4 5;stroke-dashoffset:0;transition:d .45s ease,stroke-width .2s ease;}
+#now .coord-plot-surtitle {position:absolute;z-index:2;top:18px;left:22px;right:22px;display:flex;justify-content:space-between;gap:10px;color:#66746a;font-size:9px;font-weight:650;letter-spacing:.11em;}
+#now .coord-plot-surtitle span:last-child {color:#8e998f;}
+#now .coord-chart-label {position:absolute;z-index:1;color:#506357;font-size:9px;font-weight:700;letter-spacing:.03em;}
+#now .coord-chart-label-top {left:50%;top:4%;transform:translateX(-50%)}
+#now .coord-chart-label-bottom {left:50%;bottom:4%;transform:translateX(-50%)}
+#now .coord-chart-label-left {left:3.6%;top:50%;transform:translateY(-50%)}
+#now .coord-chart-label-right {right:3.6%;top:50%;transform:translateY(-50%)}
+#now .coord-center-note {position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,calc(-50% + 45px));font-size:8px;text-align:center;color:#98a59b;letter-spacing:.10em;line-height:1.6;pointer-events:none;}
+#now .coord-center-note b {font-weight:700;color:#526b5b;}
+#now .coord-point {appearance:none;cursor:pointer;position:absolute;z-index:4;display:flex;align-items:center;gap:12px;min-height:46px;max-width:145px;padding:5px 6px;background:rgba(246,244,238,.86);border:1px solid transparent;transform:translate(-13px,-50%);transition:background .2s ease,border-color .2s ease;}
+#now .coord-point:hover,#now .coord-point:focus-visible {background:rgba(255,255,252,.97);border-color:rgba(166,70,36,.28);}
+#now .coord-point-open {left:30%;top:27.8%;}
+#now .coord-point-taste {left:70%;top:27.8%;}
+#now .coord-point-respect {left:30%;top:72.2%;}
+#now .coord-point-respond {left:70%;top:72.2%;}
+#now .coord-pin {width:25px;height:25px;flex:none;position:relative;border-radius:50%;border:1px solid #697c70;background:rgba(246,244,238,.98);box-shadow:0 0 0 5px rgba(246,244,238,.85),0 0 0 6px rgba(77,97,81,.25);transition:box-shadow .2s ease,border-color .2s ease;}
+#now .coord-pin::after {content:"";position:absolute;inset:8px;border-radius:50%;background:#6e7a70;}
+#now .coord-point.is-active .coord-pin {border-color:var(--signal);box-shadow:0 0 0 5px rgba(166,70,36,.10),0 0 0 11px rgba(166,70,36,.07),0 0 0 20px rgba(166,70,36,.045);}
+#now .coord-point.is-active .coord-pin::after {inset:4px;background:var(--signal);}
+#now .coord-point-copy {display:flex;flex-direction:column;gap:5px;white-space:nowrap;text-align:left;}
+#now .coord-point-copy b {font-size:12px;font-weight:650;letter-spacing:.02em;color:var(--fg);}
+#now .coord-point-copy small {font-size:9px;font-weight:550;letter-spacing:.07em;color:#7d8a7f;}
+#now .coord-point.is-active .coord-point-copy b {color:var(--signal);}
+#now .coord-map-bottom {position:absolute;z-index:2;left:22px;right:22px;bottom:16px;display:flex;justify-content:space-between;gap:12px;color:#89988b;font-size:9px;letter-spacing:.065em;font-weight:650;pointer-events:none;}
+#now .coord-atlas-footer {min-height:50px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:26px;padding:12px clamp(15px,1.8vw,28px);font-size:9px;font-weight:650;letter-spacing:.065em;color:#708076;}
+#now .coord-atlas-footer > span {white-space:nowrap;}
+#now .coord-atlas-footer span:first-child {display:flex;gap:9px;align-items:center;color:var(--fg);}
+#now .coord-atlas-footer i {display:block;width:7px;height:7px;border:1px solid var(--signal);border-radius:50%;}
+#now .coord-atlas-footer p {margin:0;max-width:65ch;font:450 11px/1.4 var(--serif);letter-spacing:0;text-align:center;color:var(--muted);}
+#now .coord-plot button:focus-visible,#now .coord-readout-navigation button:focus-visible {outline:2px solid var(--signal);outline-offset:3px;}
+@media(max-width:1100px){
+ #now .coord-identity-header {grid-template-columns:minmax(0,1fr) minmax(200px,.65fr)}
+ #now .coord-pillars .coord-pillar {grid-template-columns:38px minmax(0,1fr);gap:12px;padding-inline:20px;}
+ #now .coord-pillars .coord-pillar:first-child {padding-left:0;}
+ #now .coord-pillar-icon {width:38px;height:38px;}
+ #now .coord-atlas-layout {grid-template-columns:minmax(285px,40%) minmax(0,60%);}
+ #now .coord-readout {padding:28px 22px 22px;}
+ #now .coord-plot {min-height:490px;}
+ #now .coord-point {gap:8px;max-width:128px;}
+ #now .coord-point-copy b {font-size:10px;}
+ #now .coord-point-copy small {font-size:8px;}
+}
+@media(max-width:780px){
+ #now .coord-identity-header {grid-template-columns:minmax(0,1fr);min-height:0;gap:0;padding:25px 0 20px;}
+ #now .coord-identity-copy h3 {font-size:clamp(39px,8vw,57px);}
+ #now .coord-ridge {display:none;}
+ #now .coord-pillars {grid-template-columns:1fr;}
+ #now .coord-pillar,#now .coord-pillars .coord-pillar {grid-template-columns:42px minmax(0,1fr);padding:18px 0;gap:17px;}
+ #now .coord-pillar + .coord-pillar {border-left:0;border-top:1px solid var(--line-soft);}
+ #now .coord-pillar-icon {width:42px;height:42px;}
+ #now .coord-pillar strong {font-size:clamp(21px,5.4vw,28px);}
+ #now .coord-pillar-axis {margin-bottom:6px;}
+ #now .coord-pillar small {margin-top:5px;}
+ #now .coord-atlas-layout {grid-template-columns:1fr;}
+ #now .coord-readout {border-right:0;border-bottom:1px solid var(--line);min-height:340px;padding:30px 24px 23px;}
+ #now .coord-readout h3 {margin-top:25px;font-size:58px;}
+ #now .coord-readout-lead {font-size:24px;}
+ #now .coord-readout-description {font-size:17px;max-width:57ch;margin-top:18px;}
+ #now .coord-readout-relation {margin-top:24px;}
+ #now .coord-readout-navigation {margin-top:0;padding-top:25px;}
+ #now .coord-plot {min-height:0;height:auto;aspect-ratio:1.43/1;}
+ #now .coord-atlas-footer {flex-wrap:wrap;gap:10px;}
+ #now .coord-atlas-footer p {order:3;text-align:left;width:100%;max-width:none;}
+}
+@media(max-width:480px){
+ #now .coord-micro {font-size:9px;}
+ #now .coord-identity-copy p {font-size:16px;}
+ #now .coord-atlas {margin-top:32px;}
+ #now .coord-atlas-toolbar {min-height:44px;padding:10px 12px;font-size:8px;}
+ #now .coord-atlas-toolbar > span:last-child {text-align:right;max-width:136px;line-height:1.4;}
+ #now .coord-readout {padding:24px 17px 18px;}
+ #now .coord-readout h3 {font-size:54px;margin-top:24px;}
+ #now .coord-readout-lead {font-size:23px;}
+ #now .coord-readout-description {font-size:16px;}
+ #now .coord-readout-navigation button {font-size:11px;padding:10px 4px 10px 5px;}
+ #now .coord-plot {aspect-ratio:1.04/1;}
+ #now .coord-plot-surtitle {left:10px;right:10px;top:12px;font-size:7px;}
+ #now .coord-plot-surtitle span:last-child {text-align:right;}
+ #now .coord-point {gap:6px;max-width:104px;min-height:38px;padding:3px;background:rgba(246,244,238,.92);transform:translate(-10px,-50%);}
+ #now .coord-pin {width:20px;height:20px;box-shadow:0 0 0 3px rgba(246,244,238,.9),0 0 0 4px rgba(77,97,81,.23);}
+ #now .coord-pin::after {inset:6px;}
+ #now .coord-point.is-active .coord-pin {box-shadow:0 0 0 3px rgba(166,70,36,.12),0 0 0 7px rgba(166,70,36,.065),0 0 0 12px rgba(166,70,36,.045);}
+ #now .coord-point.is-active .coord-pin::after {inset:4px;}
+ #now .coord-point-copy b {font-size:9px;letter-spacing:0;}
+ #now .coord-point-copy small {font-size:7px;letter-spacing:0;}
+ #now .coord-center-note {font-size:7px;transform:translate(-50%,calc(-50% + 32px));}
+ #now .coord-map-bottom {left:11px;right:11px;bottom:11px;font-size:7.5px;}
+ #now .coord-atlas-footer {padding:13px 12px;font-size:8px;}
+}
+@media(prefers-reduced-motion:reduce){
+ #now .coord-trace,#now .coord-point,#now .coord-pin,#now .coord-contours,#now .coord-readout-navigation button {transition:none!important;}
+}
