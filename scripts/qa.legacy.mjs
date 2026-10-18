@@ -61,7 +61,12 @@ check(fs.readFileSync(path.join(root,'site','field-notes.html'),'utf8').includes
 check(fs.readFileSync(path.join(root,'templates','field-note.html'),'utf8').includes('record-wechat-portal'),'Record WeChat source channel panel missing.');
 
 const build=spawnSync(process.execPath,[path.join(root,'scripts','build.mjs')],{encoding:'utf8'});
-check(build.status===0,`Build failed: ${build.stderr}`);
+if (build.error || build.status !== 0) {
+  if (build.stdout) process.stdout.write(build.stdout);
+  if (build.stderr) process.stderr.write(build.stderr);
+  console.error(`Legacy build failed: ${build.error?.message || `exit ${build.status}`}`);
+  process.exit(build.status || 1);
+}
 check(fs.existsSync(path.join(root,'site','archive-content.js')),'Local source preview archive cache was not generated.');
 check(fs.existsSync(path.join(root,'site','assets','field-notes','n01')),'Local source preview figure cache was not generated.');
 
