@@ -4,8 +4,8 @@
   "id": "book-035",
   "data": {
     "unit": "book",
-    "status": "open",
-    "scaffold": false,
+    "status": "draft",
+    "scaffold": true,
     "order": 35,
     "parentRef": "elsewhere:e02",
     "firstPublished": "1912",
