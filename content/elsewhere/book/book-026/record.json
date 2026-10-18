@@ -4,8 +4,8 @@
   "id": "book-026",
   "data": {
     "unit": "book",
-    "status": "open",
-    "scaffold": false,
+    "status": "draft",
+    "scaffold": true,
     "order": 26,
     "parentRef": "elsewhere:e02",
     "firstPublished": "2008"
