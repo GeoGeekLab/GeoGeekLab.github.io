@@ -1,113 +1,154 @@
 # GeoGeek
 
-A geographic practice for observing, comparing, and building with space.
+**Geo to see. Geek to build.**
 
-**Geo to see. Geek to build.**  
-https://geogeeklab.github.io/
+**AI Native · Geospatial Engineering · Open Science**
 
-[![GeoGeek](site/assets/og-default.png)](https://geogeeklab.github.io/)
+[**Enter GeoGeek ↗**](https://geogeeklab.github.io/) · [Field Notes](https://geogeeklab.github.io/field-notes.html) · [Lab](https://geogeeklab.github.io/lab.html) · [Atlas](https://geogeeklab.github.io/atlas.html) · [Elsewhere](https://geogeeklab.github.io/elsewhere.html)
 
-GeoGeek does not treat a map as decoration. A map is an instrument with a field, a scale, a source, a relation, and a limit.
+[![GeoGeek — Geo to see. Geek to build.](site/assets/og-default.png)](https://geogeeklab.github.io/)
 
-## Information field
+Here's the thing: Two maps can show the same place and tell you different things. Change the **source, extent, scale, time, or method**, and a new pattern may appear.
 
-The site uses a semantic information scale. The denominator describes information depth, not cartographic map scale.
+So, how do we make sense of what we see? By asking better geographic questions — and building ways to explore them.
 
-```text
-SITE
-  ↓
-POSITION
-  ↓
-COLLECTION
-  ↓
-RECORD
-  ↓
-DETAIL
-```
+**GeoGeek** is a research-engineering practice for **seeing geographically and building spatially**. It brings together field writing, interactive geographic instruments, and independent engineering projects. The aim is simple: make the choices behind a spatial representation easier to see, explore, and understand.
 
-A collection shows relations between records. A record declares the conditions that make one object legible. Detail opens the instrument that can change those conditions.
+## Explore the field
 
-## What's here
+Where would you like to start? Follow an idea, try an instrument, or browse the archive from a different angle.
 
-- **Field Notes** — authored notes on geography, GIS, remote sensing, evidence, scale, and spatial reasoning.
-- **Lab** — interactive geographic instruments with explicit sources, assumptions, observation conditions, and limits.
-- **Atlas** — the same archive projected through field, time, type, topic, trace, and geographic relations.
-- **Commons** — a shared geographic field built from approximate positions and observations.
-- **Elsewhere** — places, references, and traces that resist the main archive geometry.
+| Entry | What you will find |
+| --- | --- |
+| [**Origin**](https://geogeeklab.github.io/origin/) | Follow the questions behind GeoGeek, from the cosmos to the act of observation. [中文](https://geogeeklab.github.io/origin/cn/) |
+| [**Coordinates**](https://geogeeklab.github.io/#now) | Discover the three coordinates of the practice: AI Native as method, Geospatial Engineering as domain, and Open Science as ethos. |
+| [**Commons**](https://geogeeklab.github.io/#commons) | Explore a shared geographic field of positions, relations, and observations. |
+| [**Field Notes**](https://geogeeklab.github.io/field-notes.html) | Read essays and working notes on GIS, remote sensing, GeoAI, scale, and research practice. |
+| [**Lab**](https://geogeeklab.github.io/lab.html) | Try interactive instruments that reveal how geographic systems and representations work. |
+| [**Atlas**](https://geogeeklab.github.io/atlas.html) | Explore the archive by field, time, type, topic, trace, and geographic relations. |
+| [**Elsewhere**](https://geogeeklab.github.io/elsewhere.html) | Find photography, books, sound, and creative work beyond the main geographic archive. |
 
-## Lab
+### Coordinates, not credentials
 
-The Lab is organized as ten records. Every card exposes **READ RECORD ↗** before or beside **OPEN INSTRUMENT ↗**.
+Four values guide the practice:
 
-### OBSERVATORY / 06
+**Open** to connect · **Taste** to discern · **Respect** to trust · **Respond** to answer.
 
-The Observatory reads changing systems and changing representations through declared conditions.
-
-- **Orbital Commons** — catalog / orbit / ground relation.
-- **Earth in Change** — sensor / image / acquisition time.
-- **Geographic Flow Laboratory** — field / OD / trajectory / release.
-- **Earth Pulse** — seismic event / time window / aggregation.
-- **Image → Trace** — raster / contour / abstraction.
-- **World as Relation** — surface / projection / visible relation.
-
-Desktop layout uses three records per row. Smaller viewports reduce the grid without changing record order.
-
-### PLAY / 04
-
-Play changes one rule and returns the spatial consequence.
-
-- **Orient** — point / reference / error.
-- **Bound** — field / threshold / scale.
-- **Connect** — node / edge / reachability.
-- **Project** — surface / projection / distortion.
-
-Play is not a score layer. It is a small record of what changed after a judgment, relation, or representation changed.
-
-## Record contract
-
-A Lab record is the stable reading surface. The interactive instrument is the changing surface.
+The site also follows an *information scale*:
 
 ```text
-COLLECTION CARD
-      │
-      ├── READ RECORD ──→ conditions / source / status / limit
-      │
-      └── OPEN INSTRUMENT ──→ interaction / perturbation / effect
+SITE → POSITION → COLLECTION → RECORD → DETAIL
 ```
 
-Lab record pages live in `site/records/`. Runtime behavior lives in instrument modules under `site/`, `site/play/`, and related Lab modules.
+Think of it as a path into the work. Start with the whole site, find a collection, open a record, and move into its details. Each step gives you a closer view of the ideas and tools behind it.
 
-## Repository field
+Here, *scale* describes **the depth of reading and interaction**. Cartographic scale describes something different: the relationship between distances on a map and distances on the ground.
+
+## Lab — see what changes when you change something
+
+Want to understand a geographic system? Try changing one part of it.
+
+The Lab currently brings together **13 interactive instruments** in three groups. Each instrument has two complementary ways in:
+
+- **Record:** Read the context, sources, assumptions, conditions, and limits.
+- **Interactive workspace:** Change a variable and observe what happens.
+
+Together, they connect the explanation to the experience.
+
+### Studies / representation and abstraction
+
+How does a representation change the world we think we're seeing? These studies let you examine the steps between an image, a model, and a geographic view.
+
+| Instrument | What it makes visible |
+| --- | --- |
+| [**Image → Trace**](https://geogeeklab.github.io/records/lab-l11.html) | Watch a raster image become contours, regions, and traces. |
+| [**World as Relation**](https://geogeeklab.github.io/records/lab-l12.html) | Explore how projection choices change geographic relations and distortion. |
+
+### Observatory / changing fields
+
+The Earth keeps changing. So do the ways we observe it. These instruments help you explore movement, time, measurements, and their interpretation.
+
+| Instrument | What it makes visible |
+| --- | --- |
+| [**Orbital Commons**](https://geogeeklab.github.io/records/lab-l04.html) | Connect satellite catalogs, propagated orbits, and ground relations. |
+| [**Earth in Change**](https://geogeeklab.github.io/records/lab-l05.html) | Examine Earth observation as a time-dependent image rather than a fixed basemap. |
+| [**Geographic Flow Laboratory**](https://geogeeklab.github.io/records/lab-l06.html) | Compare vector fields, origin–destination flows, trajectories, and releases. |
+| [**Earth Pulse**](https://geogeeklab.github.io/records/lab-l10.html) | Explore earthquakes by magnitude, depth, recency, and spatial aggregation. The instrument describes observed activity rather than forecasting hazards. |
+| [**Water as Spectrum**](https://geogeeklab.github.io/records/lab-l13.html) | Follow the path from water optics and atmospheric effects to sensor signals and inversion assumptions. |
+
+### Play / spatial reasoning
+
+Sometimes the best way to understand a spatial idea is to test your own intuition. Make a choice, see the result, and try again.
+
+| Instrument | What you change or test |
+| --- | --- |
+| [**Locate**](https://geogeeklab.github.io/records/lab-l07.html) | Estimate a location, then inspect distance and bearing error. |
+| [**Zone**](https://geogeeklab.github.io/records/lab-l08.html) | Recognize a country through shape, position, and neighbors. |
+| [**Trace**](https://geogeeklab.github.io/records/lab-l09.html) | Navigate a topological path through shared land borders. |
+| [**Project**](https://geogeeklab.github.io/records/lab-l14.html) | Predict how a projection will change familiar geography, then inspect the result. |
+| [**Light**](https://geogeeklab.github.io/records/lab-l15.html) | Remove light-path mechanisms and observe the remaining signal. |
+| [**Swath**](https://geogeeklab.github.io/records/lab-l16.html) | Change altitude, field of view, and detector samples to explore coverage and sampling tradeoffs. |
 
 ```text
-content/field-notes/    Authored Field Note sources
-site/                   Site UI, archive data, records, and instrument runtimes
-templates/              Generated page templates
-scripts/                Build, validation, delivery, and QA tooling
-tests/                  Node and browser contracts
-backend/                Backend services
-dist/                   Generated deployable projection
-.github/workflows/      GitHub Pages build and deployment
+LAB COLLECTION
+    │
+    ├── RECORD ────────→ context / source / conditions / limits
+    │
+    └── INSTRUMENT ────→ change a variable / observe the consequence
 ```
 
-`dist/` is generated output. Do not edit it directly.
+The source archive also retains **three earlier conceptual Lab studies**. They remain part of the collection's history and are separate from the 13 interactive instruments shown in the current Lab.
 
-`site/archive-content.js` is also generated during the build. The authored Lab and archive seed data live in `site/content.js`.
+**[Open the Lab ↗](https://geogeeklab.github.io/lab.html)**
 
-See [`REPOSITORY.md`](REPOSITORY.md) for repository conventions. See [`STATIC_DELIVERY_ARCHITECTURE.md`](STATIC_DELIVERY_ARCHITECTURE.md) for the delivery model.
+## Engineering builds
 
-## Development
+Some questions lead to essays. Others lead to tools.
 
-Requires Node.js.
+GeoGeek connects to independent engineering and research projects, each developed in its own repository. They extend the same curiosity into geospatial diagnostics, data discovery, research workflows, and software engineering.
+
+| Project | Focus |
+| --- | --- |
+| [**GeoDebug**](https://github.com/GeoGeekLab/geodebug) | Geospatial debugging and data diagnostics |
+| [**STAC Scout**](https://github.com/GeoGeekLab/stac-scout) | Spatiotemporal asset discovery |
+| [**Nature Reviewer Skills**](https://github.com/GeoGeekLab/nature-reviewer-skills) | Research review workflows |
+| [**IPCC WGI Scientific Plotting**](https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill) | Scientific plotting |
+| [**engineering-quality**](https://github.com/GeoGeekLab/engineering-quality) | Software engineering quality |
+| [**modern-software-codex-skills**](https://github.com/GeoGeekLab/modern-software-codex-skills) | Agent-assisted engineering workflows |
+| [**awesome-tech-feeds**](https://github.com/GeoGeekLab/awesome-tech-feeds) | Curated technical knowledge feeds |
+| [**personal-learning-map**](https://github.com/GeoGeekLab/personal-learning-map) | Learning systems and knowledge mapping |
+
+Discover more at [**GeoGeekLab on GitHub ↗**](https://github.com/GeoGeekLab).
+
+## Inside this repository
+
+Curious how the site works? This repository contains the **GeoGeek website**, its content sources, geographic instrument runtimes, and the static-site delivery pipeline.
+
+```text
+content/field-notes/   Canonical Field Notes sources
+site/                  Website pages, styles, archive data, instruments
+site/records/          Lab and Elsewhere record pages
+templates/             Templates for generated pages
+backend/               Supporting backend code
+scripts/               Build, data preparation, validation, and QA
+tests/                 Node and browser tests
+docs/                  Technical decisions and instrument documentation
+.github/workflows/     Quality checks and GitHub Pages deployment
+dist/                  Generated deployment output (not source-controlled)
+```
+
+**Edit the sources, not `dist/`.** The build also generates `site/archive-content.js` and article assets for local previews. The source files remain the canonical place to make changes.
+
+### Build and preview
+
+The deployment workflow uses **Node.js 24**.
 
 ```bash
 npm run build
 npm run preview
 ```
 
-`npm run build` validates the authored field, builds the static site, applies delivery transforms, and writes `dist/`.
-
-Run the repository QA contract separately when changing content, runtime behavior, or layout:
+Run checks after changes to content, interaction, or layout:
 
 ```bash
 npm run qa
@@ -115,32 +156,39 @@ npm run qa:links
 npm run qa:browser
 ```
 
-Orient has an additional deterministic content contract:
+Browser checks use Playwright tooling and installed browsers. In CI, full release verification also prepares external data snapshots and Lab imagery. These generated assets may be absent from a plain local checkout.
 
-```bash
-npm run qa:orient
-```
-
-## Build and deployment
+### Delivery
 
 ```text
-AUTHORED FIELD
 content/ + site/ + templates/
-            │
-            ▼
-        npm run build
-            │
-            ▼
+             │
+             ▼
+       npm run build
+             │
+             ▼
       validated dist/
-            │
-            ▼
-       GitHub Pages
+             │
+             ▼
+       GitHub Actions
+             │
+             ▼
+        GitHub Pages
 ```
 
-Pushes to `main` are built and deployed to GitHub Pages with GitHub Actions.
+Pushes to `main` trigger the [Pages workflow](.github/workflows/pages.yml). Pull requests run the [quality workflow](.github/workflows/quality.yml).
 
-## Sources and limits
+For implementation details, read [REPOSITORY.md](REPOSITORY.md) and [STATIC_DELIVERY_ARCHITECTURE.md](STATIC_DELIVERY_ARCHITECTURE.md).
 
-GeoGeek instruments use browser-native geometry, authored relation sets, and external geographic or observational sources. The interface should expose those conditions instead of presenting a source as a neutral world.
+## Sources, uncertainty, and reuse
 
-Third-party licenses and attribution live in [`site/THIRD_PARTY_LICENSES.md`](site/THIRD_PARTY_LICENSES.md).
+Every geographic instrument begins with choices about observations, catalogs, imagery, or geometry. When these come from third parties, their availability and freshness can change.
+
+GeoGeek makes observation conditions and limits part of the experience. This helps you understand where a representation comes from, what it can show, and how to interpret it.
+
+Third-party attributions and license terms are documented in [site/THIRD_PARTY_LICENSES.md](site/THIRD_PARTY_LICENSES.md). Each external dataset and asset retains its own terms of use within the site's **Open Science** practice.
+
+---
+
+**Geo to see. Geek to build.**  
+[Website](https://geogeeklab.github.io/) · [GitHub](https://github.com/GeoGeekLab) · [Report an issue](https://github.com/GeoGeekLab/GeoGeekLab.github.io/issues)
