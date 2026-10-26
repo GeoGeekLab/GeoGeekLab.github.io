@@ -86,4 +86,56 @@ for (const record of records) {
   await fs.writeFile(path.join(distRecords, `${ref.replace(':', '-')}.html`), page);
 }
 
+
+// Build the static LISTENING index as well as the individual record pages.
+// Client-side listening-unit.js can re-render this same index after loading.
+const elsewherePath = path.join(root, 'dist', 'elsewhere.html');
+const orderedRecords = [...records].sort((a, b) => {
+  const orderA = Number.isFinite(Number(a.order)) ? Number(a.order) : Number.MAX_SAFE_INTEGER;
+  const orderB = Number.isFinite(Number(b.order)) ? Number(b.order) : Number.MAX_SAFE_INTEGER;
+  return orderA - orderB || String(a.id).localeCompare(String(b.id));
+});
+const rows = orderedRecords.map((record, index) => {
+  const ref = String(record.ref || 'elsewhere:' + record.id);
+  const title = String(record.title || '').trim();
+  const source = record.source || {};
+  const sourceId = String(source.bvid || source.videoId || source.aid || record.id);
+  const heading = title || String(source.videoTitle || '').trim() || sourceId;
+  const secondary = title
+    ? [record.creator, record.firstReleased].filter(Boolean).join(' · ')
+    : [source.provider, 'SOURCE TITLE PENDING'].filter(Boolean).join(' · ');
+  const change = String(record.change || '').toUpperCase();
+  const language = title && record.titleLanguage ? ' lang="' + esc(record.titleLanguage) + '"' : '';
+  const pendingClass = title ? '' : ' is-source-pending';
+
+  return '<a class="listening-unit-row contour-target' + pendingClass +
+    '" data-record-ref="' + esc(ref) +
+    '" data-transition-source data-local-scale="1 : 2,500" data-local-level="RECORD" href="records/' +
+    esc(ref.replace(':', '-')) + '.html">' +
+    '<span class="listening-unit-index">' + String(index + 1).padStart(2, '0') + '</span>' +
+    '<span class="listening-unit-main"><strong' + language + '>' + esc(heading) + '</strong>' +
+    (secondary ? '<small>' + esc(secondary) + '</small>' : '') + '</span>' +
+    '<span class="listening-unit-change">' + esc(change) + '</span>' +
+    '<span class="listening-unit-arrow" aria-hidden="true">↗</span>' +
+    '</a>';
+}).join('\n');
+
+const indexCount = String(orderedRecords.length).padStart(2, '0') +
+  (orderedRecords.length === 1 ? ' RECORD' : ' RECORDS');
+const index = '<section class="listening-unit" aria-label="Listening records" data-listening-count="' +
+  orderedRecords.length + '">\n' +
+  '<div class="listening-unit-head"><span>LISTENING INDEX</span><strong>' + indexCount + '</strong></div>\n' +
+  (orderedRecords.length
+    ? '<div class="listening-unit-list">\n' + rows + '\n</div>'
+    : '<p class="listening-unit-empty">No listening records yet.</p>') +
+  '\n</section>';
+
+const elsewhereHtml = await fs.readFile(elsewherePath, 'utf8');
+const indexPattern = /<section class="listening-unit"[\s\S]*?<\/section>/;
+if (!indexPattern.test(elsewhereHtml)) {
+  throw new Error('Elsewhere LISTENING index placeholder not found');
+}
+await fs.writeFile(elsewherePath, elsewhereHtml.replace(indexPattern, index));
+console.log('Materialized Elsewhere LISTENING index: ' + orderedRecords.length + ' records.');
+
 console.log(`Materialized Elsewhere LISTENING records: ${records.length}.`);
