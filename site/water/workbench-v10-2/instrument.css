@@ -3,9 +3,7 @@
 .instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"] .instrument-workspace-modes{
  display:none!important;
 }
-/* v10.2 stage-2 preview: compact host chrome only for waterVersion=v102.
- * All other Lab instruments, V9, V10.0 and V10.1 retain their existing layout.
- */
+/* Compact host chrome for the supported Water workspace. */
 .instrument-dialog[data-instrument-kind="water"][data-water-ui-version="v102"][data-lab-workspace="true"] .instrument-shell{
  grid-template-rows:auto minmax(0,1fr) !important;
 }
@@ -41,3 +39,5 @@
   font-size:21px!important;
  }
 }
+
+.water-startup-error button,.water-startup-error a{display:inline-flex;align-items:center;min-height:44px;margin:12px 12px 0 0;padding:10px 14px;border:1px solid currentColor;background:transparent;color:inherit;font:600 13px/1.3 var(--sans);cursor:pointer}

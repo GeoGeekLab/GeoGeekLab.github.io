@@ -10,3 +10,4 @@ await import('./qa-first-view-state.mjs');
 await import('./qa-round3.mjs');
 await import('./qa-origin-handoff.mjs');
 await import('./qa-visual-readiness.mjs');
+await import('./qa-repair-contract.mjs');

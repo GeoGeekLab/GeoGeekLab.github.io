@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import process from 'node:process';
+import { SITE_ASSET_RELEASE } from './site-release-contract.mjs';
 
 const ASSETS = [
   'content.js',
@@ -15,7 +16,7 @@ const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 function extract(html, label) {
   const refs = new Map();
   for (const asset of ASSETS) {
-    const pattern = new RegExp(`src=["']${escapeRegExp(asset)}\\?v=([^"'&<>\\s]+)["']`);
+    const pattern = new RegExp(`src=["']/?${escapeRegExp(asset)}\\?v=([^"'&<>\\s]+)["']`);
     const match = html.match(pattern);
     if (!match) throw new Error(`${label}: missing versioned Lab runtime reference for ${asset}`);
     refs.set(asset, match[1]);
@@ -54,6 +55,9 @@ async function readTarget() {
 
 const sourceHtml = await readFile(new URL('../site/lab.html', import.meta.url), 'utf8');
 const expected = extract(sourceHtml, 'site/lab.html');
+if (expected.get('core/modules.js') !== SITE_ASSET_RELEASE) {
+  throw new Error(`site/lab.html: core/modules.js must use the shared release ${SITE_ASSET_RELEASE}`);
+}
 const target = await readTarget();
 
 if (target) {

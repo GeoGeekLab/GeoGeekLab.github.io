@@ -1,16 +1,16 @@
 #!/usr/bin/env node
-/** Verify (or --write regenerate) every committed V10.1 reference record
- * from the unchanged V10.0 semi-analytical IOP implementation and independent
- * scalar DOM numerical solver. No external RT validation is claimed.
+/** Read-only verification of the pinned shared RT reference records.
+ * Uses the supported UI's unchanged semi-analytical IOP implementation and
+ * independent scalar DOM solver. No external RT validation is claimed.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {solveRT,SOLVER_VERSION,ANGLES,HG_BB_FRACTION} from '../site/water/workbench-v10-1/reference/dom-solver.mjs';
+import {solveRT,SOLVER_VERSION,ANGLES,HG_BB_FRACTION} from '../site/water/shared/reference/dom-solver.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const file=path.join(root,'site/water/workbench-v10-1/reference/rt-reference-v1.json');
+const file=path.join(root,'site/water/shared/reference/rt-reference-v1.json');
 const data=JSON.parse(fs.readFileSync(file,'utf8'));
-const app=fs.readFileSync(path.join(root,'site/water/workbench-v10/app/index.html'),'utf8');
+const app=fs.readFileSync(path.join(root,'site/water/workbench-v10-2/app/index.html'),'utf8');
 const i=app.indexOf('const __factories='),j=app.indexOf('</script>',i);
 const req=new Function(app.slice(i,j).replace("__require('main.js');","return __require;"))();
 const {geogeekAdapter}=req('model/geogeek-adapter.js');

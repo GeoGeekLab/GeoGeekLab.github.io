@@ -5,7 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const app=fs.readFileSync(path.join(root,'app/index.html'),'utf8');
-const data=JSON.parse(fs.readFileSync(path.join(root,'../workbench-v10-1/reference/rt-reference-v1.json'),'utf8'));
+const data=JSON.parse(fs.readFileSync(path.join(root,'../shared/reference/rt-reference-v1.json'),'utf8'));
 const req=new Function(app.slice(app.indexOf('const __factories='),app.indexOf('</script>',app.indexOf('const __factories='))).replace("__require('main.js');","return __require;"))();
 const {validateSession}=req('core/session-store.js'),views=req('components/rt-science-views.js');
 const rtWorkspace=req('workspaces/rt.js').rtWorkspace;

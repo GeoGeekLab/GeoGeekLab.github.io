@@ -1,0 +1,22 @@
+/* Shared roles for documents, maps and instruments. Scientific colour scales
+   remain owned by their instruments. */
+:root {
+  --font-sans:"Instrument Sans",Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --font-serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --font-mono:"IBM Plex Mono","SFMono-Regular","Roboto Mono","Liberation Mono",Menlo,Consolas,monospace;
+  --text-caption:.75rem;
+  --text-small:.875rem;
+  --text-body:1rem;
+  --space-1:.25rem;
+  --space-2:.5rem;
+  --space-3:.75rem;
+  --space-4:1rem;
+  --space-6:1.5rem;
+  --space-8:2rem;
+  --control-min-size:44px;
+  --focus-width:2px;
+  --focus-offset:3px;
+  --status-stale:#99501d;
+  --status-error:#a32b27;
+  --status-ready:#315b43;
+}

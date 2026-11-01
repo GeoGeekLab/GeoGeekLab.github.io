@@ -1,4 +1,8 @@
 /* GEOGEEK / Coordinates: static editorial statement. */
+.hero-actions {display:flex;flex-wrap:wrap;justify-content:center;gap:12px 24px;margin-top:22px;font:600 12px/1.4 var(--mono);}
+.hero-actions a {display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:var(--control-min-size,44px);padding:10px 16px;border:1px solid var(--line);text-decoration:none;}
+.hero-actions .hero-primary-action {background:var(--fg);color:var(--bg);border-color:var(--fg);}
+.hero-actions a:focus-visible {outline:var(--focus-width,2px) solid var(--signal);outline-offset:var(--focus-offset,3px);}
 #now.coordinates-section.values-home {
   display:block;
   height:auto;

@@ -78,6 +78,7 @@
     // so a stalled enhancement could leave the loading cover indefinitely.
     if (revealed && root.dataset.geogeekBoot === 'ready') return;
     clearTimeout(revealTimer);
+    clearTimeout(window.__GEOGEEK_BOOT_WATCHDOG__);
     navigationCommitted = false;
     revealed = true;
     setState('ready');

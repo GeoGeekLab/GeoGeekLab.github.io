@@ -22,6 +22,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Verify recovery and preview contracts
+        run: node --test tests/data-supply/*.test.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Prime data supply from live Pages
@@ -29,8 +31,6 @@ jobs:
       - name: Materialize pinned reference supply
         run: node scripts/prepare-data-references.mjs
       - name: Refresh data supply for deploy
-        env:
-          DATA_SUPPLY_ALLOW_STALE: '1'
         run: node scripts/update-data-supply.mjs
       - name: Prepare Lab raster
         run: |
@@ -57,16 +57,13 @@ jobs:
           test -s site/orbital/data/active.json
           test -s site/orbital/data/active.meta.json
           grep -F 'unified-supply-v2' site/orbital/orbit-catalog-source.js
-          grep -F "const RELEASE = '20261004b'" site/core/provider-stability.js
-          grep -F "const RELEASE = '20261004b'" site/core/observatory-entry.js
-          grep -F 'core/provider-stability.js?v=20261004b' site/core/modules.js
           grep -F '0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e' site/core/provider-stability.js
           grep -F 'www.spaceweather.gov/products/aurora-30-minute-forecast' site/core/provider-stability.js
           ! grep -in '\bDEMO\b' site/orbital/orbital-engine.js site/orbital/orbit-worker.js
           node scripts/verify-data-supply.mjs
       - name: Install release browser tools
         run: |
-          npm install --no-save playwright@1.55.0 @playwright/test@1.55.0
+          npm ci
           npx playwright install --with-deps chromium firefox webkit
       - name: Install responsive image optimizer
         run: |
@@ -82,7 +79,7 @@ jobs:
       - name: Verify published Lab preview assets
         run: |
           node scripts/verify-lab-previews.mjs --dist
-          node scripts/verify-water-quiet-release.mjs --local
+          node scripts/verify-water-quiet-release.mjs --dist
       - name: Verify World v12 release cache contract
         run: node scripts/verify-world-v12-release.mjs
       - name: Verify ORIENT release assets
@@ -117,15 +114,8 @@ jobs:
         run: node scripts/verify-field-note-pages.mjs
       - name: QA
         run: |
-          node --test site/water/workbench-v6/smoke.test.mjs
-          node --test site/water/workbench-v7/smoke.test.mjs
-          node --test site/water/workbench-v8/tests/measured-srf.test.mjs
-          node --test site/water/workbench-v9/tests/uncertainty.test.mjs
-          node --test site/water/workbench-v9/tests/model-integration.test.mjs
-          node --test site/water/workbench-v9/tests/startup-recovery.test.mjs
-          node --test site/water/workbench-v10/tests/v10-scientific-contract.test.mjs
           node scripts/verify-water-rt-reference.mjs
-          node --test site/water/workbench-v10-1/tests/rt-reference.test.mjs
+          node --test tests/water/*.test.mjs
           node --test site/water/workbench-v10-2/tests/ui-foundation.test.mjs
           node --test site/water/workbench-v10-2/tests/ui-components.test.mjs
           node --test site/water/workbench-v10-2/tests/rt-ui.test.mjs
@@ -138,12 +128,6 @@ jobs:
           node scripts/qa.mjs
           node --test tests/orbit/orbit-ui-contract.test.mjs
           node scripts/verify-play-live-release.mjs --local
-      - name: Water V9 backward compatibility (desktop and mobile Chromium)
-        run: npx playwright test -c playwright.config.mjs tests/browser/water-instrument.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
-      - name: Water V10.0 browser integration (desktop and mobile Chromium)
-        run: npx playwright test -c playwright.config.mjs tests/browser/water-v10.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
-      - name: Water V10.1 numerical RT browser integration (desktop and mobile Chromium)
-        run: npx playwright test -c playwright.config.mjs tests/browser/water-v101.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Water V10.2 UI release browsers (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-foundation.spec.mjs tests/browser/water-v102-components.spec.mjs tests/browser/water-quiet-workspace.spec.mjs tests/browser/water-v102-rt.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Water V10.2 Stages 5–7 release browsers (desktop and mobile Chromium)
@@ -184,20 +168,7 @@ jobs:
       - name: Verify public Lab preview images
         env:
           BASE_URL: ${{ needs.deploy.outputs.page_url }}
-        run: |
-          set -euo pipefail
-          base="${BASE_URL%/}"
-          tmp="$(mktemp -d)"
-          trap 'rm -rf "$tmp"' EXIT
-          for name in orbit earth flow pulse figure world water locate zone path project light swath; do
-            mime="$(curl --fail --silent --show-error --location --retry 3 --retry-all-errors --max-time 30 --output "$tmp/$name.jpg" --write-out '%{content_type}' "$base/assets/lab/previews/$name.jpg?verify=${GITHUB_SHA}")"
-            test "$mime" = 'image/jpeg'
-            test "$(wc -c < "$tmp/$name.jpg")" -ge 8000
-          done
-          mime="$(curl --fail --silent --show-error --location --retry 3 --retry-all-errors --max-time 30 --output "$tmp/orbit.webp" --write-out '%{content_type}' "$base/assets/lab/previews/orbit.webp?verify=${GITHUB_SHA}")"
-          test "$mime" = 'image/webp'
-          test "$(wc -c < "$tmp/orbit.webp")" -ge 8000
-          echo 'All 14 public Lab images are valid and accessible'
+        run: node scripts/verify-lab-previews.mjs --url "$BASE_URL"
       - name: Verify published Origin Chinese narrative
         env:
           BASE_URL: ${{ needs.deploy.outputs.page_url }}
@@ -245,140 +216,15 @@ jobs:
             test -s "/tmp/$(basename "$path")"
           done
           node scripts/verify-lab-cache-contract.mjs --url "$base/lab.html"
-          curl --fail --silent --show-error --location "$base/core/modules.js" | grep -F 'provider-stability.js?v=20261004b'
-          curl --fail --silent --show-error --location "$base/core/provider-stability.js" | grep -F "const RELEASE = '20261004b'"
-          curl --fail --silent --show-error --location "$base/core/observatory-entry.js" | grep -F "const RELEASE = '20261004b'"
           curl --fail --silent --show-error --location "$base/orbital/orbit-catalog-source.js" | grep -F 'unified-supply-v2'
       - name: Verify public World v12 projection workbench
         env:
           WORLD_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
         run: node scripts/verify-world-v12-release.mjs --url "$WORLD_RELEASE_BASE_URL"
-      - name: Verify public Water V8 measured SRF assets
+      - name: Verify current public Water workspace and shared science assets
         env:
           WATER_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
-        run: |
-          set -euo pipefail
-          base="${WATER_RELEASE_BASE_URL%/}"
-          mkdir -p /tmp/geogeek-water-v8
-          for path in \
-            lab.html \
-            core/modules.js \
-            water/workbench-v8/instrument.js \
-            water/workbench-v8/app/index.html \
-            water/workbench-v8/chart-fix.js \
-            water/workbench-v8/srf/measured-response-data.js; do
-            file="/tmp/geogeek-water-v8/$(basename "$path")"
-            curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?v=20261008v8" -o "$file"
-            test -s "$file"
-          done
-          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v8/lab.html
-          grep -Fq 'WATER_WORKBENCH_V8' /tmp/geogeek-water-v8/modules.js
-          grep -Fq 'water/workbench-v8/' /tmp/geogeek-water-v8/instrument.js
-          grep -Fq "'app/index.html'" /tmp/geogeek-water-v8/instrument.js
-          grep -Fq 'measured-response-data.js?v=8.0.0' /tmp/geogeek-water-v8/index.html
-          grep -Fq 'model/measured-sensor-response.js' /tmp/geogeek-water-v8/index.html
-          grep -Fq 'pointermove' /tmp/geogeek-water-v8/chart-fix.js
-          grep -Fq 'GeoGeekMeasuredSRFData' /tmp/geogeek-water-v8/measured-response-data.js
-          grep -Fq 'be6c8291507aadfb75d9abcef6689be1600144dd' /tmp/geogeek-water-v8/measured-response-data.js
-          grep -Fq '94753de9654d69ec3be6f19c4b27bf7aa4c8381b' /tmp/geogeek-water-v8/measured-response-data.js
-          grep -Fq '8092b059b8c9d46ca8dadfb159b5a0654554464d' /tmp/geogeek-water-v8/measured-response-data.js
-          echo 'Water V8 live asset smoke passed: Lab entry, mount, charts, and 3 pinned SRF profiles'
-      - name: Verify public Water V9 identifiability assets
-        env:
-          WATER_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
-        run: |
-          set -euo pipefail
-          base="${WATER_RELEASE_BASE_URL%/}"
-          mkdir -p /tmp/geogeek-water-v9
-          for path in \
-            lab.html \
-            core/modules.js \
-            water/workbench-v9/instrument.js \
-            water/workbench-v9/app/index.html \
-            water/workbench-v9/analysis/uncertainty-engine.js \
-            water/workbench-v9/chart-fix.js \
-            water/workbench-v9/srf/measured-response-data.js; do
-            file="/tmp/geogeek-water-v9/$(basename "$path")"
-            curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?v=20261008v9" -o "$file"
-            test -s "$file"
-          done
-          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v9/lab.html
-          grep -Fq 'WATER_WORKBENCH_V9' /tmp/geogeek-water-v9/modules.js
-          grep -Fq 'water/workbench-v9/' /tmp/geogeek-water-v9/instrument.js
-          grep -Fq 'uncertainty-engine.js?v=9.0.0' /tmp/geogeek-water-v9/index.html
-          grep -Fq 'data-v9-resilience="local-engine-fallback"' /tmp/geogeek-water-v9/index.html
-          grep -Fq 'workspaces/uncertainty.js' /tmp/geogeek-water-v9/index.html
-          grep -Fq 'uncertaintyAndIdentifiability' /tmp/geogeek-water-v9/index.html
-          grep -Fq 'rank-deficient' /tmp/geogeek-water-v9/uncertainty-engine.js
-          grep -Fq 'GeoGeekV9Engine' /tmp/geogeek-water-v9/uncertainty-engine.js
-          grep -Fq 'pointermove' /tmp/geogeek-water-v9/chart-fix.js
-          grep -Fq 'GeoGeekMeasuredSRFData' /tmp/geogeek-water-v9/measured-response-data.js
-          echo 'Water V9 live asset smoke passed: 8 workspaces, Fisher diagnostics and V8 SRF'
-      - name: Verify public Water V10.0 scientific-contract assets
-        env:
-          WATER_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
-        run: |
-          set -euo pipefail
-          base="${WATER_RELEASE_BASE_URL%/}"
-          mkdir -p /tmp/geogeek-water-v10
-          for path in lab.html core/modules.js water/workbench-v10/instrument.js water/workbench-v10/app/index.html water/workbench-v10/science-contract.js; do
-            file="/tmp/geogeek-water-v10/$(basename "$path")"
-            curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261008v10" -o "$file"
-            test -s "$file"
-          done
-          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v10/lab.html
-          grep -Fq 'WATER_WORKBENCH_V10' /tmp/geogeek-water-v10/modules.js
-          grep -Fq 'water/workbench-v10/' /tmp/geogeek-water-v10/instrument.js
-          grep -Fq 'schemaVersion:7' /tmp/geogeek-water-v10/index.html
-          grep -Fq 'GeoGeekV10Contract' /tmp/geogeek-water-v10/science-contract.js
-          echo 'Water V10.0 live asset smoke passed'
-      - name: Verify public Water V10.1 reference solver, offline slices and workspace
-        env:
-          WATER_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
-        run: |
-          set -euo pipefail
-          base="${WATER_RELEASE_BASE_URL%/}"
-          mkdir -p /tmp/geogeek-water-v101
-          for path in lab.html core/modules.js water/workbench-v10-1/instrument.js water/workbench-v10-1/app/index.html water/workbench-v10-1/rt-engine.js water/workbench-v10-1/reference/rt-reference-v1.json; do
-            file="/tmp/geogeek-water-v101/$(basename "$path")"
-            curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261008v101" -o "$file"
-            test -s "$file"
-          done
-          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v101/lab.html
-          grep -Fq 'WATER_WORKBENCH_V101' /tmp/geogeek-water-v101/modules.js
-          grep -Fq 'water-v101-frame' /tmp/geogeek-water-v101/instrument.js
-          grep -Fq 'schemaVersion:8' /tmp/geogeek-water-v101/index.html
-          grep -Fq 'GeoGeekRT101' /tmp/geogeek-water-v101/rt-engine.js
-          node --input-type=module -e "import fs from 'node:fs';const d=JSON.parse(fs.readFileSync('/tmp/geogeek-water-v101/rt-reference-v1.json','utf8'));if(d.cases.length!==3||d.cases.some(c=>c.records.length!==15)||d.status!=='internally-generated-unvalidated')process.exit(1)"
-          echo 'Water V10.1 published numerical RT reference asset smoke passed'
-      - name: Verify public Water V10.2 scientific UI and versioned fallback
-        env:
-          WATER_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
-        run: |
-          set -euo pipefail
-          base="${WATER_RELEASE_BASE_URL%/}"
-          mkdir -p /tmp/geogeek-water-v102
-          for path in lab.html core/modules.js water/workbench-v10-2/instrument.js water/workbench-v10-2/app/index.html water/workbench-v10-2/rt-engine.js water/workbench-v10-2/v102-layout.css water/workbench-v10-2/v102-components.css water/workbench-v10-2/v102-rt.css water/workbench-v10-2/v102-physics-views.js water/workbench-v10-2/v102-physics.css water/workbench-v10-2/v102-atm-sensor-views.js water/workbench-v10-2/v102-atm-sensor.css water/workbench-v10-2/v102-uncertainty-views.js water/workbench-v10-2/v102-uncertainty.css water/workbench-v10-2/v102-analysis-views.js water/workbench-v10-2/v102-analysis.css water/workbench-v10-2/water-quiet.css water/workbench-v10-2/water-quiet.js; do
-            file="/tmp/geogeek-water-v102/$(basename "$path")"
-            curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 2 "$base/$path?release=20261009v102" -o "$file"
-            test -s "$file"
-          done
-          grep -Fq "$(grep -o 'core/modules\.js?v=[^"]*' site/lab.html | head -n 1)" /tmp/geogeek-water-v102/lab.html
-          grep -Fq "try { await loadModule(WATER_WORKBENCH_V102); }" /tmp/geogeek-water-v102/modules.js
-          grep -Fq "requestedWaterVersion==='v101'" /tmp/geogeek-water-v102/modules.js
-          grep -Fq 'water-v102-frame' /tmp/geogeek-water-v102/instrument.js
-          grep -Fq 'schemaVersion:8' /tmp/geogeek-water-v102/index.html
-          grep -Fq 'Signed model discrepancy' /tmp/geogeek-water-v102/index.html
-          grep -Fq 'depthProfile' /tmp/geogeek-water-v102/index.html
-          grep -Fq 'workbench-v10-1/reference/rt-reference-v1.json' /tmp/geogeek-water-v102/rt-engine.js
-          grep -Fq 'rt-science-workspace' /tmp/geogeek-water-v102/v102-rt.css
-          grep -Fq 'data-geogeek-sync-dependency="water-v102-physics"' /tmp/geogeek-water-v102/index.html
-          grep -Fq 'data-geogeek-sync-dependency="water-v102-atm-sensor"' /tmp/geogeek-water-v102/index.html
-          grep -Fq 'data-geogeek-sync-dependency="water-v102-uncertainty"' /tmp/geogeek-water-v102/index.html
-          grep -Fq 'data-geogeek-sync-dependency="water-v102-analysis"' /tmp/geogeek-water-v102/index.html
-          ! grep -Fq 'v102-accessibility-views.js' /tmp/geogeek-water-v102/index.html
-          node scripts/verify-water-quiet-release.mjs --url "$base"
-          echo 'V10.2 public scientific UI, quiet adapter and V10.1 reference pin smoke passed'
+        run: node scripts/verify-water-quiet-release.mjs --url "$WATER_RELEASE_BASE_URL"
       - name: Verify public ORIENT release
         env:
           ORIENT_RELEASE_BASE_URL: ${{ needs.deploy.outputs.page_url }}

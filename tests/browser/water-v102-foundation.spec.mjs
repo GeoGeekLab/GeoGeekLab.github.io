@@ -45,8 +45,19 @@ test('UX-P2 390px: mobile settings appear below RT results without horizontal pa
  expect(g.width).toBeLessThanOrEqual(g.viewport+2);
  expect(await d.locator('.instrument-head').evaluate(el=>el.getBoundingClientRect().height)).toBeLessThanOrEqual(76);
 });
-test('UX-P2 explicit waterVersion=v101 preserves stable science fallback',async({page})=>{
+test('Legacy waterVersion queries open the supported workspace',async({page})=>{
  await page.goto('/lab.html?instrument=water&waterVersion=v101#l13',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#instrumentStage iframe.water-v101-frame')).toBeVisible({timeout:20000});
- await expect(page.locator('#instrumentStage iframe.water-v102-frame')).toHaveCount(0);
+ await expect(page.locator('#instrumentStage iframe.water-v102-frame')).toBeVisible({timeout:20000});
+ await expect(page.locator('#instrumentStage iframe.water-v101-frame')).toHaveCount(0);
+});
+
+test('Water uses the same typography roles as the host',async({page})=>{
+ const {app}=await visit(page);
+ const hostFonts=await page.locator('body').evaluate(el=>{
+  const s=getComputedStyle(el);return ['--font-sans','--font-serif','--font-mono'].map(name=>s.getPropertyValue(name).trim());
+ });
+ const waterFonts=await app.locator('body').evaluate(el=>{
+  const s=getComputedStyle(el);return ['--sans','--serif','--mono'].map(name=>s.getPropertyValue(name).trim());
+ });
+ expect(waterFonts).toEqual(hostFonts);
 });

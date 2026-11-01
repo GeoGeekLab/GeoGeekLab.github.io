@@ -61,12 +61,29 @@ test('Stages 5–7: keyboard navigation and 390px analysis tables remain contain
  await expect(app.locator('#tab-compare')).toBeFocused();
  await expect(app.locator('#tab-compare')).toHaveAttribute('aria-selected','true');
 });
-test('Stages 5–7: historical waterVersion=v101 rollback is an independent instrument',async({page})=>{
+test('Historical Water queries retain all nine workspaces in the supported UI',async({page})=>{
  await page.goto('/lab.html?instrument=water&waterVersion=v101#l13',{waitUntil:'domcontentloaded'});
  await expect(page.locator('#instrumentDialog')).toHaveAttribute('data-instrument-kind','water',{timeout:25000});
- // The historical V10.1 adapter does not set V10.2's data-water-ui-version marker.
- await expect(page.locator('#instrumentStage iframe.water-v101-frame')).toBeVisible({timeout:25000});
- await expect(page.locator('#instrumentStage iframe.water-v102-frame')).toHaveCount(0);
- const historical=page.frameLocator('#instrumentStage iframe.water-v101-frame');
- await expect(historical.locator('#mainNav [data-tab]')).toHaveCount(9,{timeout:20000});
+ await expect(page.locator('#instrumentStage iframe.water-v102-frame')).toBeVisible({timeout:25000});
+ await expect(page.locator('#instrumentStage iframe.water-v101-frame')).toHaveCount(0);
+ const current=page.frameLocator('#instrumentStage iframe.water-v102-frame');
+ await expect(current.locator('#mainNav [data-tab]')).toHaveCount(9,{timeout:20000});
+});
+
+test('A startup failure keeps one scientific version and permits an explicit retry',async({page})=>{
+ const retired=[];
+ page.on('request',request=>{if(/water\/workbench-v(?:5|6|7|8|9|10|10-1)\//.test(request.url()))retired.push(request.url());});
+ await page.route('**/water/workbench-v10-2/app/index.html*',route=>route.fulfill({
+  contentType:'text/html',body:`<script>parent.postMessage({type:'geogeek:water-v5:boot-error',instance:new URLSearchParams(location.search).get('instance'),message:'Simulated startup failure'},location.origin);</script>`
+ }));
+ await page.goto(destination,{waitUntil:'domcontentloaded'});
+ await expect(page.locator('.water-startup-error')).toBeVisible({timeout:20000});
+ await expect(page.getByRole('link',{name:'Open standalone workspace'})).toHaveAttribute('href',/water\/workbench-v10-2\/app\/index.html$/);
+ expect(retired).toEqual([]);
+ await page.unroute('**/water/workbench-v10-2/app/index.html*');
+ await page.getByRole('button',{name:'Retry Water workspace'}).click();
+ const current=page.frameLocator('#instrumentStage iframe.water-v102-frame');
+ await expect(current.locator('#mainNav [data-tab]')).toHaveCount(9,{timeout:20000});
+ await expect(page.locator('.water-startup-error')).toHaveCount(0);
+ expect(retired).toEqual([]);
 });

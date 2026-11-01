@@ -31,9 +31,10 @@ jobs:
         with:
           node-version: 24
 
+      - name: Verify recovery and preview contracts
+        run: node --test tests/data-supply/*.test.mjs
+
       - name: Prepare production data supply
-        env:
-          DATA_SUPPLY_ALLOW_STALE: '1'
         run: |
           node scripts/prime-data-supply-from-live.mjs
           node scripts/prepare-data-references.mjs
@@ -62,7 +63,8 @@ jobs:
 
       - name: Install browser quality tools
         run: |
-          npm install --no-save @playwright/test@1.55.0 axe-core@4.11.3 @lhci/cli@0.15.1
+          npm ci
+          npm install --no-save --package-lock=false @lhci/cli@0.15.1
           npx playwright install --with-deps chromium
 
       - name: Install responsive image optimizer
@@ -75,14 +77,13 @@ jobs:
         run: node scripts/capture-lab-previews.mjs
 
       - name: Verify production Lab previews
-        run: |
-          for name in orbit earth flow pulse figure world water locate zone path project light; do
-            test -s "site/assets/lab/previews/${name}.jpg"
-          done
-          grep -E "const VERSION = 'capture-[0-9a-f]{12}';" site/lab-real-previews.js
+        run: node scripts/verify-lab-previews.mjs
 
       - name: Build
         run: npm run build
+
+      - name: Validate repaired delivery and document visuals
+        run: npx playwright test tests/browser/repair.spec.mjs tests/browser/repair-visual.spec.mjs --workers=2
 
       - name: Validate assembled A12 preview over HTTP and desktop Chromium
         run: node scripts/verify-water-a12-built-preview.mjs
@@ -149,15 +150,7 @@ jobs:
 
       - name: Static QA
         run: |
-          node --test site/water/workbench-v6/smoke.test.mjs
-          node --test site/water/workbench-v7/smoke.test.mjs
-          node --test site/water/workbench-v8/tests/measured-srf.test.mjs
-          node --test site/water/workbench-v9/tests/uncertainty.test.mjs
-          node --test site/water/workbench-v9/tests/model-integration.test.mjs
-          node --test site/water/workbench-v9/tests/startup-recovery.test.mjs
-          node --test site/water/workbench-v10/tests/v10-scientific-contract.test.mjs
           node scripts/verify-water-rt-reference.mjs
-          node --test site/water/workbench-v10-1/tests/rt-reference.test.mjs
           node --test site/water/workbench-v10-2/tests/ui-foundation.test.mjs
           node --test site/water/workbench-v10-2/tests/ui-components.test.mjs
           node --test site/water/workbench-v10-2/tests/rt-ui.test.mjs
@@ -168,17 +161,13 @@ jobs:
           node --test site/water/workbench-v10-2/tests/uncertainty-ui.test.mjs
           node --test site/water/workbench-v10-2/tests/integration-ui.test.mjs
           node --test tests/water/water-quiet-ui.test.mjs
-          node scripts/verify-water-quiet-release.mjs --local
+          node scripts/verify-water-quiet-release.mjs --dist
           npm run qa
           node scripts/verify-play-live-release.mjs --local
 
       - name: Internal links and assets
         run: npm run qa:links
 
-      - name: Validate Water V10.0 browser tests
-        run: npx playwright test -c playwright.config.mjs tests/browser/water-v10.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
-      - name: Validate Water V10.1 numerical RT browser tests
-        run: npx playwright test -c playwright.config.mjs tests/browser/water-v101.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate Water V10.2 phase 1-2 UI preview (desktop and mobile Chromium)
         run: npx playwright test -c playwright.config.mjs tests/browser/water-v102-foundation.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
       - name: Validate Water V10.2 phase 3 UI components (desktop and mobile Chromium)

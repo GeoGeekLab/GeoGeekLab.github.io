@@ -15,7 +15,7 @@ This patch implements the P0–P2 program without replacing the existing framewo
 - English Field Note bodies are prerendered into route HTML.
 - Existing English routes remain `/field-notes/<slug>/`.
 - Legacy `/zh/field-notes/<slug>/` paths are noindex compatibility redirects to the English canonical route; they contain no article content.
-- The site is English-only except for one intentionally preserved standalone Chinese page at `/origin/cn/`. `/origin/` is the English canonical Origin page, and the two Origin pages use static reciprocal hreflang links without any global locale runtime.
+- The navigation and Field Notes use English. `/origin/cn/` is the standalone Chinese Origin page. Published book records can also contain authored English and Chinese reading panels. A book's reading-language switch affects that record only; no global locale runtime exists. `/origin/` and `/origin/cn/` use static reciprocal hreflang links.
 - `archive-content.js` keeps its existing compatibility shape but every `bodyHtml` value is emptied after the legacy QA passes.
 - `/data/field-notes.json` and `/data/site-index.json` contain metadata only.
 - `field-notes.html` receives a complete static list. The old JS target remains hidden for compatibility.
@@ -45,10 +45,13 @@ The site also generates:
 
 - JSON Feed: `/feed.json`.
 - Related-record navigation uses explicit trace/relation metadata when present, with chronological neighbors as a deterministic fallback.
-- Article images get intrinsic `width`/`height`, `loading`, and `decoding` attributes at build time.
-- When ImageMagick (`magick` or `convert`) is available, large raster article figures receive 640w/1280w variants plus `srcset`/`sizes`. The site still builds without ImageMagick; final QA reports the missing optimization as a warning.
+- Article images get intrinsic `width`/`height`, `loading`, and `decoding` attributes at build time. `/assets/field-notes/<id>/` is the single published figure location. Article routes do not carry a second figure copy.
+- The locked `sharp` build dependency generates 640w/1280w variants plus `srcset`/`sizes` for large raster figures. Image generation works on Windows and Linux without a separately installed image optimizer. Production QA requires the generated variants.
 - `styles.css` is post-processed into `styles.base.css`, `styles-atlas.css`, and `styles-commons.css`. Only unambiguous top-level Atlas/Commons rules move out of the base stylesheet; nested media/support rules remain shared to avoid visual regression.
 - Performance budgets are enforced in `scripts/performance-budget.json` for initial local JS, metadata, shared CSS, and article HTML.
+- Draft and scaffold book records remain in `content/`. They do not enter the public archive, book index, or sitemap. Previously shared draft URLs serve a `noindex` explanation with a link to the published book collection.
+- The production copy omits README files, tests, prototype resources, and historical Water runtimes. License notices remain published. Historical Water entry URLs redirect to the current workspace and retain query strings and fragments.
+- Machine-readable dates use ISO calendar dates. Public metadata reads the authored series keys and tags. Authored page metadata takes precedence over default SEO metadata.
 
 ## Build sequence
 

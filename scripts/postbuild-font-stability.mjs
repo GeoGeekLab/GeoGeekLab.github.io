@@ -2,6 +2,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { normalizePageDesign } from './site-design-contract.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = process.env.GEOGEEK_DIST
@@ -52,7 +53,8 @@ function addStableFontStylesheet(html) {
   return html.replace(/<\/head>/i, `${stylesheet}\n</head>`);
 }
 
-export function normalizeFontHtml(html) {
+export function normalizeFontHtml(html, relative = 'index.html') {
+  html = normalizePageDesign(html, relative);
   html = removeGoogleFontStylesheets(html);
   html = ensureConnectionHints(html);
   html = addStableFontStylesheet(html);
@@ -75,7 +77,7 @@ async function main() {
 
   for (const file of htmlFiles) {
     const html = await fs.readFile(file, 'utf8');
-    await fs.writeFile(file, normalizeFontHtml(html));
+    await fs.writeFile(file, normalizeFontHtml(html, path.relative(dist, file)));
   }
 
   for (const file of cssFiles) {

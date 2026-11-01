@@ -75,10 +75,15 @@
     @media (max-width: 760px) {
       .site-nav .brand {
         gap: 10px;
+        flex-shrink: 0;
       }
       .site-nav .brand > span:last-child {
         font-size: 16px !important;
+        max-width: none;
+        overflow: visible;
       }
+      .site-nav .nav-links { gap: 12px; min-width: 0; }
+      .site-nav .nav-links a { font-size: 12px; letter-spacing: 0; }
       .site-nav .brand-mark {
         width: 17px;
         height: 17px;

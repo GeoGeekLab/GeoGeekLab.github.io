@@ -2,11 +2,12 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bootPreinit } from './boot-contract.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
-const runtime = '/visual-readiness.js?v=20261005a';
-const preinitVersion = '20261005a';
+const runtime = '/visual-readiness.js?v=20261029-recovery';
+const preinitVersion = '20261101a';
 
 const exists = file => fs.access(file).then(() => true).catch(() => false);
 
@@ -67,7 +68,7 @@ function bridgeProgrammaticNavigation(html, relative) {
 function injectBoot(html, relative) {
   if (/data-geogeek-visual-readiness=(['"])true\1/i.test(html)) return html;
   const surface = darkSurface(relative) ? 'dark' : 'paper';
-  const preinit = `<script data-geogeek-boot-preinit>document.documentElement.dataset.geogeekBoot='loading';document.documentElement.dataset.geogeekBootSurface='${surface}';</script>`;
+  const preinit = `<script data-geogeek-boot-preinit>${bootPreinit(surface)}</script>`;
   const critical = `<style data-geogeek-boot-critical>
 :root{--geogeek-boot-bg:#f6f4ee;--geogeek-boot-fg:#152019;--geogeek-boot-soft:#435048;--geogeek-boot-muted:#657068;--geogeek-boot-line:rgba(21,32,25,.08);--geogeek-boot-signal:#a64624;--geogeek-boot-pad:clamp(22px,4.2vw,68px);--geogeek-boot-sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;--geogeek-boot-mono:ui-monospace,"SFMono-Regular","Roboto Mono","Liberation Mono",Menlo,Consolas,monospace}
 html[data-geogeek-boot-surface="dark"]{--geogeek-boot-bg:#090b0d;--geogeek-boot-fg:#f1efe7;--geogeek-boot-soft:#aeb7af;--geogeek-boot-muted:#aeb7af;--geogeek-boot-line:rgba(242,240,233,.10);--geogeek-boot-signal:#e86a48}

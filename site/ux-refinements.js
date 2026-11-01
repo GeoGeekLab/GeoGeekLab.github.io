@@ -152,15 +152,17 @@
     dock.setAttribute('aria-label', 'Primary');
     const items = [
       ['index.html', 'Home', 'home'],
-      ['field-notes.html', 'Notes', 'notes'],
+      ['field-notes.html', 'Field Notes', 'notes'],
       ['lab.html', 'Lab', 'lab'],
       ['atlas.html', 'Atlas', 'atlas'],
       ['elsewhere.html', 'Elsewhere', 'elsewhere']
     ];
-    const current = pageKind === 'record' || pageKind === 'commons' ? 'notes' : pageKind === 'field-notes' ? 'notes' : pageKind;
+    const recordRef = document.body.dataset.recordRef || new URLSearchParams(location.search).get('ref') || '';
+    const recordCollection = recordRef.startsWith('lab:') ? 'lab' : recordRef.startsWith('elsewhere:') ? 'elsewhere' : 'notes';
+    const current = pageKind === 'record' ? recordCollection : pageKind === 'commons' ? 'home' : pageKind === 'field-notes' ? 'notes' : pageKind;
     dock.innerHTML = items.map(([href, label, key]) => {
       const active = current === key || (current === 'home' && key === 'home');
-      const url = new URL(href, location.href);
+      const url = new URL(`/${href}`, location.origin);
       return `<a href="${url.pathname}${url.search}${url.hash}" data-dock="${key}"${active ? ' class="is-active" aria-current="page"' : ''}><span>${label}</span></a>`;
     }).join('');
     document.body.appendChild(dock);

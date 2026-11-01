@@ -764,9 +764,10 @@
 
     $$('#primaryNav a').forEach(link => link.removeAttribute('aria-current'));
     const navHref = collectionHref(kind);
-    $(`#primaryNav a[href="${navHref}"]`)?.setAttribute('aria-current', 'page');
+    const collectionPath = new URL(navHref, document.baseURI).pathname;
+    $$('#primaryNav a').find(link => new URL(link.href, document.baseURI).pathname === collectionPath)?.setAttribute('aria-current', 'page');
     $$('#sheetIndex a').forEach(link => link.removeAttribute('aria-current'));
-    $(`#sheetIndex a[href="${navHref}"]`)?.setAttribute('aria-current', 'page');
+    $$('#sheetIndex a').find(link => new URL(link.href, document.baseURI).pathname === collectionPath)?.setAttribute('aria-current', 'page');
   }
 
   function initCurrentCoordinates() {

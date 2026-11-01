@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "scienceChanged": false,
+  "archiveCommit": "00b2d8331f22abc6a6c47e97f6dd1a118e384f78",
+  "assets": [
+    {
+      "path": "srf/measured-response-data.js",
+      "archivedSource": "site/water/workbench-v9/srf/measured-response-data.js",
+      "sha256": "29cc2a4e58be9cfc1ac2608cbafa2065469e58ad18cdc9e77f7de8e5d0fb918c"
+    },
+    {
+      "path": "srf/UPSTREAM-PROSAIL-GPL3.txt",
+      "archivedSource": "site/water/workbench-v9/srf/UPSTREAM-PROSAIL-GPL3.txt",
+      "sha256": "589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2"
+    },
+    {
+      "path": "analysis/uncertainty-engine.js",
+      "archivedSource": "site/water/workbench-v9/analysis/uncertainty-engine.js",
+      "sha256": "bd1a6f8cb75a71547d373b8425e65a0f8a61f8b67c69f6a95ad1261ef09f7b80"
+    },
+    {
+      "path": "science-contract.js",
+      "archivedSource": "site/water/workbench-v10/science-contract.js",
+      "sha256": "61093f51800bfe32343c050782dd23dfc6a7e0bc9d1008610bf4454331a58897"
+    },
+    {
+      "path": "chart-fix.js",
+      "archivedSource": "site/water/workbench-v9/chart-fix.js",
+      "sha256": "f3735435c7a2ed342e825562dcbe496403d1b1a5298fccdac411fddb1bb7f1cd"
+    },
+    {
+      "path": "reference/rt-reference-v1.json",
+      "archivedSource": "site/water/workbench-v10-1/reference/rt-reference-v1.json",
+      "sha256": "9e81f706e87f990c9f29cdebe06f9d373e5789179c1e53311ed66cdde073651e"
+    },
+    {
+      "path": "reference/dom-solver.mjs",
+      "archivedSource": "site/water/workbench-v10-1/reference/dom-solver.mjs",
+      "sha256": "f725629406dfbcf6594e03479572c73fbe9d772fadfb6ae891ee550996297016"
+    }
+  ]
+}

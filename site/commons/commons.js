@@ -96,7 +96,7 @@
       const title = $('.page-title');
       if (title) {
         $('.eyebrow', title).textContent = page.eyebrow;
-        $('h1', title).textContent = page.heading;
+        $('h1,h2', title).textContent = page.heading;
         $('.page-intro', title).textContent = page.intro;
       }
       document.title = page.title;
@@ -127,7 +127,7 @@
     if (form) {
       const labels = $$('label > span',form); if(labels[0]) labels[0].textContent=ui.form?.place||'PLACE'; if(labels[1]) labels[1].textContent=ui.form?.name||'NAME / OPTIONAL'; if(labels[2]) labels[2].textContent=ui.form?.observation||'OBSERVATION';
       $('#observationText').placeholder = ui.form?.placeholder || '';
-      $('#observationSubmit').textContent = ui.actions?.submit || 'ADD TO COMMONS';
+      $('#observationSubmit').textContent = Data.isLive() ? (ui.actions?.submit || 'ADD TO COMMONS') : 'SAVE IN THIS BROWSER';
       if (!state.user) $('#observationPlace').value = 'Locate first';
     }
     $('.commons-summary')?.setAttribute('aria-label', 'Commons summary');
@@ -142,6 +142,10 @@
     const node = $('#commonsStatus');
     if (!node) return;
     const live = mode === 'live' && !error;
+    const scope = $('#observationScope');
+    if (scope) scope.textContent = live ? (cfg.allowContributions ? 'Observations are submitted for public review.' : 'Public contributions are currently disabled.') : 'Demo field. Observations stay in this browser and are not shared publicly.';
+    const submit = $('#observationSubmit');
+    if (submit) submit.textContent = live ? (ui.actions?.submit || 'ADD TO COMMONS') : 'SAVE IN THIS BROWSER';
     node.dataset.state = live ? 'live' : error ? 'error' : 'demo';
     node.textContent = live ? (ui.statusLive || 'LIVE COMMONS') : error ? (ui.statusError || 'UNAVAILABLE') : (ui.statusDemo || 'DEMO FIELD');
   }
@@ -365,7 +369,7 @@
         $('#observationFeedback').textContent=result.status==='pending' ? (ui.form?.pending || '') : result.localOnly ? ('Demo mode: observation stays in this browser.') : (ui.form?.success || '');
         $('#observationText').value=''; $('#observationCount').textContent=`0 / ${cfg.privacy?.observationMaxLength || 180}`; await refresh();
       } catch { $('#observationFeedback').textContent=ui.form?.backend || 'Backend required.'; }
-      finally { btn.disabled=false; btn.textContent=ui.actions?.submit || 'CONTRIBUTE'; }
+      finally { btn.disabled=false; btn.textContent=Data.isLive() ? (ui.actions?.submit || 'CONTRIBUTE') : 'SAVE IN THIS BROWSER'; }
     });
   }
 

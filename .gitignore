@@ -5,8 +5,19 @@ dist/
 .DS_Store
 Thumbs.db
 *.log
+node_modules/
+.cache/
+playwright-report/
+test-results/
+.a12-built-preview/
+.award-submission/
+.lighthouseci/
 
 # generated local preview cache
 site/archive-content.js
 site/assets/field-notes/
 site/play/orient/data/relations.v1.json
+site/data/snapshots/
+site/data/reference/
+site/assets/lab/previews/
+site/assets/lab/sentinel2.jpg

@@ -6,7 +6,9 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "build:orient-content": "node scripts/build-orient-relations.mjs",
-    "qa": "npm run qa:water && npm run qa:lab && npm run qa:light && npm run qa:swath && npm run qa:orient && npm run qa:connect && npm run qa:bound && npm run qa:world && node scripts/qa.mjs",
+    "qa": "npm run qa:build && npm run qa:data-supply && npm run qa:water && npm run qa:lab && npm run qa:light && npm run qa:swath && npm run qa:orient && npm run qa:connect && npm run qa:bound && npm run qa:world && node scripts/qa.mjs",
+    "qa:build": "node --test tests/build/*.test.mjs",
+    "qa:data-supply": "node --test tests/data-supply/*.test.mjs",
     "qa:connect": "node --test tests/connect/*.test.mjs",
     "qa:bound": "node --test tests/bound/*.test.mjs",
     "qa:links": "node scripts/check-links.mjs",
@@ -22,5 +24,10 @@
     "qa:world": "node --test tests/world/*.test.mjs",
     "qa:lab": "node --test tests/lab/*.test.mjs",
     "award:capture": "node scripts/capture-award-submission.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.1",
+    "axe-core": "4.11.3",
+    "sharp": "0.34.5"
   }
 }

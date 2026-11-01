@@ -6,7 +6,7 @@
 (() => {
   'use strict';
   const rootUrl = new URL('water/workbench-v10-2/', document.baseURI);
-  const stylesheet = new URL('instrument.css?v=10.2.0-quiet2', rootUrl).href;
+  const stylesheet = new URL('instrument.css?v=10.2.0-shared1', rootUrl).href;
   const awardStylesheet = new URL('award-concept.css?v=a5', rootUrl).href;
   const attentionStylesheet = new URL('water-attention.css?v=a12', rootUrl).href;
   const awardScripts = Object.freeze([
@@ -67,7 +67,7 @@
     if (dialog) dialog.dataset.waterUiVersion = 'v102';
     const token = 'w' + (++sequence) + '-' + Math.random().toString(36).slice(2, 14);
     const url = new URL(frameUrl);
-    url.searchParams.set('chartfix', '10.2.0-quiet2');
+    url.searchParams.set('chartfix', '10.2.0-shared1');
     url.searchParams.set('embed', '1');
     url.searchParams.set('instance', token);
 
@@ -150,37 +150,38 @@
       return cleanup;
     } catch (error) {
       cleanup();
-      console.error('[GeoGeek] Water V10.2 UI stages 1–4 startup failed; attempting V10.1 recovery:',error);
-      // V10.1 is the complete numerical RT fallback; do not label it as V10.2.
-      const old=mounts.water;
-      try{
-        if(!window.GeoWaterWorkbenchV101?.mount){
-          await new Promise((resolve,reject)=>{
-            const script=document.createElement('script');
-            script.src=new URL('water/workbench-v10-1/instrument.js?v=10.1.0',document.baseURI).href;
-            script.onload=resolve;
-            script.onerror=()=>reject(new Error('Water V10.1 fallback adapter could not load'));
-            document.head.appendChild(script);
-          });
-        }
-        const fallback=window.GeoWaterWorkbenchV101?.mount||mounts.water;
-        if(typeof fallback!=='function'||fallback===mount)throw new Error('Fallback mount unavailable');
-        const close=await fallback({stage,signal});
-        mounts.water=old;
-        const notice=document.createElement('div');
-        notice.setAttribute('role','status');
-        notice.textContent='V10.2 UI unavailable · showing stable V10.1 scientific workspace';
-        notice.style.cssText='position:absolute;top:0;left:12px;z-index:12;padding:5px 9px;color:#f3ddc2;background:#493226;border:1px solid #bd8b5f;border-radius:0 0 5px 5px;font:11px monospace';
-        stage.appendChild(notice);
-        return ()=>{notice.remove();if(typeof close==='function')close();};
-      }catch(fallbackError){
-        mounts.water=old;
-        console.error('[GeoGeek] Water V10.1 recovery also failed:',fallbackError);
-        throw new Error('Water V10.2 UI stages 1–4 and V10.1 could not initialize',{cause:error});
-      }
+      console.error('[GeoGeek] Water workspace startup failed:', error);
+      if (signal?.aborted) return () => {};
+      const panel = document.createElement('div');
+      panel.className = 'instrument-error water-startup-error';
+      panel.setAttribute('role', 'alert');
+      const title = document.createElement('strong');
+      title.textContent = 'Water workspace unavailable.';
+      const message = document.createElement('p');
+      message.textContent = 'The current workspace did not start. Retry or open the standalone workspace.';
+      const retry = document.createElement('button');
+      retry.type = 'button';
+      retry.textContent = 'Retry Water workspace';
+      const standalone = document.createElement('a');
+      standalone.href = frameUrl.href;
+      standalone.target = '_blank';
+      standalone.rel = 'noopener noreferrer';
+      standalone.textContent = 'Open standalone workspace ↗';
+      panel.append(title, message, retry, standalone);
+      stage.replaceChildren(panel);
+      const retryMount = () => {
+        retry.disabled = true;
+        // Let the host create a new session, reset status and own cancellation.
+        window.GeoInstruments?.openByKind?.('water');
+      };
+      retry.addEventListener('click', retryMount, { once: true });
+      return () => {
+        retry.removeEventListener('click', retryMount);
+        panel.remove();
+      };
     }
   }
 
   mounts.water = mount;
-  window.GeoWaterWorkbenchV102 = { version: '10.2.0-quiet2', conceptVersion: 'award-a3', polishVersion: 'award-a5', mount };
+  window.GeoWaterWorkbenchV102 = { version: '10.2.0-shared1', conceptVersion: 'award-a3', polishVersion: 'award-a5', mount };
 })();

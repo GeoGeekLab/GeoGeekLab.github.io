@@ -7,7 +7,7 @@ const prefix='site/water/workbench-v10-2/';
 
 test('Award A3 plus A5 preserves the validated Water version contract', () => {
   const adapter=read(prefix+'instrument.js');
-  assert.match(adapter,/version:\s*'10\.2\.0-quiet2'/);
+  assert.match(adapter,/version:\s*'10\.2\.0-shared1'/);
   assert.match(adapter,/conceptVersion:\s*'award-a3'/);
   assert.match(adapter,/award-concept\.css\?v=a5/);
   assert.match(adapter,/award-optical\.js\?v=a3/);
@@ -15,7 +15,7 @@ test('Award A3 plus A5 preserves the validated Water version contract', () => {
   assert.match(adapter,/award-polish\.js\?v=a5/);
   assert.match(adapter,/polishVersion:\s*'award-a5'/);
   assert.match(adapter,/award-concept\.js\?v=a3/);
-  assert.match(adapter,/chartfix', '10\.2\.0-quiet2'/);
+  assert.match(adapter,/chartfix', '10\.2\.0-shared1'/);
 });
 
 test('Award A3 modules are presentation-only and cannot write model state', () => {

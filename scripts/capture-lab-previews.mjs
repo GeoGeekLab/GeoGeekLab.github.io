@@ -1,7 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createHash } from 'node:crypto';
+import { LAB_PREVIEW_KINDS, labPreviewCacheVersion, replaceLabPreviewVersion } from './lab-preview-manifest.mjs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -50,7 +50,7 @@ await new Promise((resolve, reject) => {
 });
 
 const base = 'http://127.0.0.1:4173';
-const instruments = ['orbit', 'earth', 'flow', 'pulse', 'figure', 'world', 'water', 'swath', 'locate', 'zone', 'path', 'project', 'light'];
+const instruments = LAB_PREVIEW_KINDS;
 const observatoryKinds = new Set(['orbit','earth','flow','pulse','figure','world','water']);
 const browser = await chromium.launch({ headless: true, args: ['--disable-dev-shm-usage'] });
 
@@ -327,16 +327,10 @@ async function captureInstrument(kind) {
 }
 
 function updatePreviewCacheVersion(files) {
-  const hash = createHash('sha256');
-  for (const file of files) {
-    hash.update(path.basename(file));
-    hash.update(fs.readFileSync(file));
-  }
-  const version = `capture-${hash.digest('hex').slice(0, 12)}`;
+  const images = new Map(files.map(file => [path.basename(file), fs.readFileSync(file)]));
+  const version = labPreviewCacheVersion(images);
   const source = fs.readFileSync(previewRuntime, 'utf8');
-  const versionPattern = /const VERSION = ['"][^'"]+['"];/;
-  if (!versionPattern.test(source)) throw new Error('Lab preview runtime is missing the VERSION declaration.');
-  fs.writeFileSync(previewRuntime, source.replace(versionPattern, `const VERSION = '${version}';`));
+  fs.writeFileSync(previewRuntime, replaceLabPreviewVersion(source, version));
   console.log(`Lab preview cache version: ${version}`);
 }
 

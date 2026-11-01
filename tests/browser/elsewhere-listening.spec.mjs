@@ -1,5 +1,14 @@
 import { test, expect } from '@playwright/test';
 
+test('query record previews remain available without entering the sitemap', async ({ request }) => {
+  const preview = await request.get('/record.html?ref=notes%3An01');
+  expect(preview.status()).toBe(200);
+  expect(await preview.text()).toMatch(/<meta\s+name="robots"\s+content="noindex,follow"\s*\/?>/i);
+  const sitemap = await request.get('/sitemap.xml');
+  expect(sitemap.status()).toBe(200);
+  expect(await sitemap.text()).not.toContain('<loc>https://geogeeklab.github.io/record.html</loc>');
+});
+
 test('Elsewhere exposes LISTENING as a thirty-two-record Sound as landscape collection using BOOK index geometry', async ({ page }) => {
   await page.goto('/elsewhere.html#e03');
 
@@ -63,6 +72,13 @@ test('Elsewhere exposes LISTENING as a thirty-two-record Sound as landscape coll
 
 test('LISTENING preserves original or first-release title language and supplied source embeds', async ({ page }) => {
   await page.goto('/records/elsewhere-listening-001.html');
+
+  const description = await page.locator('meta[name="description"]').getAttribute('content');
+  expect(description).toBeTruthy();
+  await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', description);
+  await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', description);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', await page.title());
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', await page.title());
   await expect(page.locator('#recordTitle')).toHaveText('稻香');
   await expect(page.locator('#recordTitle')).toHaveAttribute('lang', 'zh-Hant');
   await expect(page.locator('.listening-record-note')).toContainText('指挥老师为了给大家惊喜');

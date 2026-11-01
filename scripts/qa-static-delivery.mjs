@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
-import { spawnSync } from 'node:child_process';
+import { scriptBudget as measureScriptBudget } from './resource-budget.mjs';
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 const root=path.resolve(__dirname,'..');
@@ -42,14 +42,8 @@ function localScriptSrcs(html){
   return [...html.matchAll(/<script\b[^>]*\ssrc=(['"])(.*?)\1[^>]*><\/script>/gi)].map(m=>m[2]).filter(src=>!/^https?:/i.test(src));
 }
 async function scriptBudget(htmlFile){
-  const html=await read(htmlFile); let total=0;
-  for(const src of localScriptSrcs(html)){
-    const p=src.startsWith('/')?path.join(dist,src.replace(/^\/+/,'')):path.resolve(path.dirname(htmlFile),src);
-    if(await exists(p)) total+=gzipSize(await fs.readFile(p));
-  }
-  return total;
+  return measureScriptBudget(htmlFile, dist);
 }
-function hasImageTool(){return ['magick','convert'].some(cmd=>{const r=spawnSync(cmd,['-version'],{stdio:'ignore'});return !r.error&&r.status===0;});}
 
 const records=await loadRecords();
 ok(records.length===23,'23 Field Notes content records found');
@@ -184,7 +178,6 @@ if(await exists(collection)) { const n=await scriptBudget(collection); ok(n<=bud
 if(await exists(indexPath)) { const n=gzipSize(await read(indexPath)); ok(n<=budget.metadataIndexGzip,`metadata index ${kib(n)} KiB gzip ≤ ${Math.round(budget.metadataIndexGzip/1024)} KiB`); }
 const baseCss=path.join(dist,'styles.base.css'); if(await exists(baseCss)) { const n=gzipSize(await read(baseCss)); ok(n<=budget.sharedCssGzip,`shared CSS ${kib(n)} KiB gzip ≤ ${Math.round(budget.sharedCssGzip/1024)} KiB`); }
 
-warn(hasImageTool(),'ImageMagick is unavailable: responsive variants cannot be generated on this machine (intrinsic dimensions still enforced).');
 
 if(failures){console.error(`\nStatic-delivery QA failed: ${failures} invariant(s), ${warnings} warning(s).`);process.exit(1);}
 else console.log(`\nStatic-delivery QA passed (${records.length} English records, ${warnings} warning(s)).`);
