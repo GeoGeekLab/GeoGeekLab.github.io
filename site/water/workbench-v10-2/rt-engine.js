@@ -3,7 +3,7 @@
  */
 ((root)=>{
  'use strict';
- const PATH='../../workbench-v10-1/reference/rt-reference-v1.json';
+ const PATH='../../shared/reference/rt-reference-v1.json';
  const IDS=Object.freeze(['clear','phyto','cdom']);
  const WAVELENGTHS=Object.freeze([440,490,550,620,680]);
  const SUNS=Object.freeze([0,30,60]);

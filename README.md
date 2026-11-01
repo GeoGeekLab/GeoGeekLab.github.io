@@ -132,6 +132,10 @@ docs/                  Technical decisions and instrument documentation
 dist/                  Generated deployment output (not source-controlled)
 ```
 
+Navigation and Field Notes use English. Origin has a standalone Chinese page. Published book records may include authored English and Chinese reading panels, with a switch that applies only to that record.
+
+Draft and scaffold books remain in the source tree. They stay out of the published collection, metadata, and sitemap. Previously shared draft URLs show an unpublished-state explanation.
+
 **Edit the sources, not `dist/`.** The build also generates `site/archive-content.js` and article assets for local previews. The source files remain the canonical place to make changes.
 
 ### Build and preview

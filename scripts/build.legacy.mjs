@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { fetchAsset } from './fetch-asset.mjs';
+import { isPublishedBook, isPublicSitePath, legacyWaterRoutes, draftBookCompatibilityPage, waterCompatibilityPage } from './content-contract.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceDir = path.join(root, 'site');
@@ -15,12 +17,13 @@ const originAudioPath = path.join(dist, 'assets', 'audio', 'origin-adrift.mp3');
 const previewArchivePath = path.join(sourceDir, 'archive-content.js');
 const previewFigureRoot = path.join(sourceDir, 'assets', 'field-notes');
 
-const copyDir = (from, to) => {
+const copyDir = (from, to, { publicOnly = false } = {}) => {
   fs.mkdirSync(to, { recursive: true });
   for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
     const s = path.join(from, entry.name);
     const d = path.join(to, entry.name);
-    if (entry.isDirectory()) copyDir(s, d);
+    if (publicOnly && !isPublicSitePath(path.relative(sourceDir, s))) continue;
+    if (entry.isDirectory()) copyDir(s, d, { publicOnly });
     else fs.copyFileSync(s, d);
   }
 };
@@ -60,6 +63,7 @@ records.sort((a, b) => String(b.data.published).localeCompare(String(a.data.publ
 
 const bookShiftTypes = new Set(['frame', 'scale', 'distance', 'vocabulary', 'method']);
 const bookRecords = [];
+const draftBookRecords = [];
 if (fs.existsSync(bookContentDir)) {
   for (const entry of fs.readdirSync(bookContentDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
@@ -106,7 +110,8 @@ if (fs.existsSync(bookContentDir)) {
     if (scaffold && (bodyEn || bodyZh)) throw new Error(`BOOK ${entry.name}: scaffold body files must stay empty`);
     if (!scaffold && !bodyEn) throw new Error(`BOOK ${entry.name}: authored body.en.html must not be empty`);
     record.text.en.bodyHtml = renderBookBody(bodyEn, bodyZh, record.data?.defaultReadingLanguage || 'en');
-    bookRecords.push(record);
+    if (isPublishedBook(record)) bookRecords.push(record);
+    else draftBookRecords.push(record);
   }
 }
 bookRecords.sort((a, b) => {
@@ -135,18 +140,28 @@ writeRelationArtifact();
 
 // Production artifact.
 fs.rmSync(dist, { recursive: true, force: true });
-copyDir(sourceDir, dist);
+copyDir(sourceDir, dist, { publicOnly: true });
+for (const relative of legacyWaterRoutes) {
+  const output = path.join(dist, relative);
+  fs.mkdirSync(path.dirname(output), { recursive: true });
+  fs.writeFileSync(output, waterCompatibilityPage());
+}
+// Keep already-shared draft URLs useful without publishing draft records.
+for (const record of draftBookRecords) {
+  const output = path.join(dist, 'records', `${record.ref.replace(':', '-')}.html`);
+  fs.mkdirSync(path.dirname(output), { recursive: true });
+  fs.writeFileSync(output, draftBookCompatibilityPage(record));
+}
 
 // Origin soundtrack: fetch the CC-BY source during deployment, then trim/transcode the
 // narrative window (00:44–06:02) so visitors do not download the full 320 kbps master.
 // The page keeps the official source URL as a runtime fallback if this optional step fails.
 try {
-  const response = await fetch(originAudioUrl, {
-    headers: { 'user-agent': 'GeoGeek-Pages-Build/1.0', accept: 'audio/mpeg,*/*;q=0.8' },
-  });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const source = Buffer.from(await response.arrayBuffer());
+  const cacheAudio = path.join(root, '.cache', 'origin-adrift.mp3');
+  const source = fs.existsSync(cacheAudio) ? fs.readFileSync(cacheAudio) : await fetchAsset(originAudioUrl);
   if (source.length < 500_000) throw new Error(`unexpected audio payload (${source.length} bytes)`);
+  fs.mkdirSync(path.dirname(cacheAudio), { recursive:true });
+  fs.writeFileSync(cacheAudio, source);
   fs.mkdirSync(path.dirname(originAudioPath), { recursive: true });
   const tempAudio = path.join(dist, 'assets', 'audio', '.origin-adrift-source.mp3');
   fs.writeFileSync(tempAudio, source);
@@ -155,7 +170,7 @@ try {
     '-ss','44','-i',tempAudio,'-t','318',
     '-codec:a','libmp3lame','-b:a','112k','-ar','44100',
     originAudioPath,
-  ], { stdio: 'inherit' });
+  ], { stdio: 'inherit', timeout:45000 });
   if (ffmpeg.error || ffmpeg.status !== 0) {
     fs.copyFileSync(tempAudio, originAudioPath);
     console.warn('Origin soundtrack: ffmpeg unavailable; deployed the full source MP3 and will cue the same window at runtime.');
@@ -165,6 +180,13 @@ try {
   fs.rmSync(tempAudio, { force: true });
 } catch (error) {
   console.warn(`Origin soundtrack asset skipped: ${error?.message || error}. Runtime will fall back to the official CC-BY source.`);
+  // Do not publish missing local URLs when this optional download fails.
+  for (const relative of ['origin/index.html', 'origin/cn/index.html']) {
+    const file = path.join(dist, relative);
+    if (!fs.existsSync(file)) continue;
+    const html = fs.readFileSync(file, 'utf8').replace(/\s*<(?:link|source)\b[^>]*(?:href|src)="\/assets\/audio\/origin-adrift\.mp3"[^>]*>/gi, '');
+    fs.writeFileSync(file, html);
+  }
 }
 fs.writeFileSync(path.join(dist, 'archive-content.js'), makeArchiveBootstrap({ sourcePreview: false }));
 
@@ -209,6 +231,8 @@ const bookManifest = bookRecords.map(record => ({
   id: record.id,
   ref: record.ref,
   parentRef: record.data.parentRef,
+  status: record.data.status || 'open',
+  scaffold: false,
   order: record.data.order ?? null,
   title: record.text.en.title,
   author: record.text.en.author,

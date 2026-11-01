@@ -2,6 +2,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isPublishedBook } from './content-contract.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const contentRoot = path.join(root, 'content', 'elsewhere', 'book');
@@ -66,7 +67,7 @@ if (await exists(contentRoot)) {
 
     const record = JSON.parse(await read(recordPath));
     if (record?.data?.unit !== 'book') continue;
-    const scaffold = record.data?.scaffold === true;
+    if (!isPublishedBook(record)) continue;
 
     const bodyEnPath = path.join(unit, 'body.en.html');
     const bodyZhPath = path.join(unit, 'body.zh.html');
@@ -74,7 +75,7 @@ if (await exists(contentRoot)) {
 
     const bodyEn = (await read(bodyEnPath)).trim();
     const bodyZh = (await exists(bodyZhPath)) ? (await read(bodyZhPath)).trim() : '';
-    if (scaffold && (bodyEn || bodyZh)) throw new Error(`BOOK ${entry.name}: scaffold body files must stay empty`);
+    if (!bodyEn) throw new Error(`BOOK ${entry.name}: published reading response must not be empty`);
     const body = renderBookBody(bodyEn, bodyZh, record.data?.defaultReadingLanguage || 'en');
     const ref = String(record.ref || `elsewhere:${record.id || entry.name}`);
     const pagePath = path.join(distRoot, 'records', `${ref.replace(':', '-')}.html`);
@@ -90,12 +91,6 @@ if (await exists(contentRoot)) {
     if (bodyZh && !finalHtml.includes('data-book-lang-panel="zh"')) throw new Error(`BOOK ${entry.name}: Chinese authored panel was not materialized`);
     if (firstEnglishParagraph && !finalHtml.replace(/<[^>]+>/g, '').includes(firstEnglishParagraph)) {
       throw new Error(`BOOK ${entry.name}: authored English prose missing after final materialization`);
-    }
-    if (scaffold) {
-      const loc = findElement(finalHtml, 'recordBody');
-      if (!loc || finalHtml.slice(loc.openEnd, loc.closeStart).trim()) {
-        throw new Error(`BOOK ${entry.name}: scaffold reading response must stay empty`);
-      }
     }
     count += 1;
   }

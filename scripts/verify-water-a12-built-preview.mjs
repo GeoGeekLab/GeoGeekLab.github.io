@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // PR-only A12 built-dist HTTP/browser gate; no public Pages deployment.
 import assert from 'node:assert/strict';
+import {SITE_ASSET_RELEASE,CORE_MODULES_URL} from './site-release-contract.mjs';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:http';
 import {createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
@@ -9,12 +10,12 @@ import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),dist=join(root,'dist');
-const out=join(root,'.a12-built-preview'),release='20261013a12';
+const out=join(root,'.a12-built-preview'),release=SITE_ASSET_RELEASE;
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8',
   '.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8',
   '.json':'application/json; charset=utf-8','.svg':'image/svg+xml',
   '.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg',
-  '.webp':'image/webp','.ico':'image/x-icon'};
+  '.webp':'image/webp','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8'};
 assert.ok(existsSync(join(dist,'lab.html')),'Build dist/ before A12 preview verification');
 mkdirSync(out,{recursive:true});
 const result={release,head:process.env.GITHUB_SHA||null,scope:'built-dist-preview-not-public-pages',
@@ -44,8 +45,8 @@ try{
   });
   result.httpVerification=true;
   for(const path of ['/lab.html?release=20261011v107watercache1&instrument=water',
-    '/core/modules.js?v=20261013a12',
-    '/water/workbench-v10-2/instrument.js?v=10.2.0-quiet2-a12',
+    CORE_MODULES_URL,
+    '/water/workbench-v10-2/instrument.js?v=10.2.0-shared1',
     '/water/workbench-v10-2/water-attention.css?v=a12',
     '/water/workbench-v10-2/water-attention.js?v=a12']){
     const r=await fetch(base+path,{cache:'no-store'});
@@ -53,7 +54,7 @@ try{
     assert.ok((await r.text()).length>100,'Empty built asset: '+path);
   }
   assert.ok(readFileSync(join(dist,'lab.html'),'utf8').includes(
-    'meta content="'+release+'" name="geogeek-lab-release"'),'Stale built Lab HTML');
+    CORE_MODULES_URL),'Stale built Lab HTML');
   browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});
   for(const viewport of [{width:1280,height:720},{width:1600,height:1000}]){
     const page=await browser.newPage({viewport,deviceScaleFactor:1,reducedMotion:'reduce'});

@@ -75,7 +75,7 @@ export function sourceUrlFor(dataset, now = new Date()) {
   return `${dataset.upstream}?${p}`;
 }
 
-export function validatePayload(dataset, payload, previousMeta = null) {
+export function validatePayload(dataset, payload, previousMeta = null, { requireFreshness = true, now = Date.now() } = {}) {
   if (dataset.id === 'orbit-active') {
     if (!Array.isArray(payload)) throw new Error('Orbit payload is not a JSON array.');
     if (payload.length < 5000) throw new Error(`Orbit catalog too small: ${payload.length}.`);
@@ -96,7 +96,8 @@ export function validatePayload(dataset, payload, previousMeta = null) {
     }
     const epochs = summarizeEpochs(payload);
     const newestMs = Date.parse(epochs.newest || '');
-    if (!Number.isFinite(newestMs) || Date.now() - newestMs > 72 * 3600000) throw new Error(`Newest orbit epoch is unexpectedly old: ${epochs.newest || 'unknown'}.`);
+    // Recovery seeds need integrity, while upstream and release checks need freshness.
+    if (requireFreshness && (!Number.isFinite(newestMs) || now - newestMs > 72 * 3600000)) throw new Error(`Newest orbit epoch is unexpectedly old: ${epochs.newest || 'unknown'}.`);
     return { recordCount:payload.length, epochs };
   }
 

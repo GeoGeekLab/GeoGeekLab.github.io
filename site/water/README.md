@@ -1,5 +1,9 @@
 # Water as Spectrum — V1 scientific engine
 
+This document describes the historical V1 engine. The supported production UI is V10.2.
+See [SUPPORT.md](SUPPORT.md) for current entry points, shared assets, recovery and retired routes.
+The V1 scientific modules remain available to the smaller Light instrument and numerical regression tests.
+
 Round 2 contains the scientific engine only. It intentionally does not contain the final Lab UI.
 
 Quantitative scope: optically deep water, 400–700 nm, 1 nm sampling, 20 °C / 35 PSU pure-water baseline.

@@ -3,11 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
+import { SITE_ASSET_RELEASE, WATER_UI_VERSION, WATER_SCIENCE_MODEL_VERSION } from './site-release-contract.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const site=path.join(root,'site');
 const output=path.join(root,'.award-submission');
-const release='20261013a12';
+const release=SITE_ASSET_RELEASE;
+const baselineRelease='20261013a12';
 const baselineCommit='9718171862959c9232e1dd7b4f69d31c36b0bc75';
 
 fs.rmSync(output,{recursive:true,force:true});
@@ -205,10 +207,13 @@ try{
   const manifest={
     generatedAt:new Date().toISOString(),
     release,
+    baselineRelease,
     baselineCommit,
     branchHead:process.env.GITHUB_SHA||null,
     versions:{
-      waterScience:'10.2.0-quiet2',
+      waterScience:WATER_SCIENCE_MODEL_VERSION,
+      waterUi:WATER_UI_VERSION,
+      scienceBaseline:'10.2.0-quiet2',
       waterConcept:'award-a3',
       waterPolish:'award-a5',
       observatoryHost:'award-a4',

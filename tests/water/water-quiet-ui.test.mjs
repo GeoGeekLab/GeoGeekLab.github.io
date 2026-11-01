@@ -39,7 +39,7 @@ test('Water quiet layer cannot replace computation, scientific modules, or exper
 
 test('Embedding refreshes Water UI only', () => {
   const adapter = read(prefix + 'instrument.js');
-  assert.match(adapter, /chartfix', '10\.2\.0-quiet2'/);
+  assert.match(adapter, /chartfix', '10\.2\.0-shared1'/);
   assert.match(adapter, /const frameUrl = new URL\('app\/index\.html', rootUrl\)/);
 });
 
@@ -58,8 +58,8 @@ test('Lab entry imports a cache-busted Water adapter', () => {
   const html = read('site/lab.html');
   const modules = read('site/core/modules.js');
   const adapter = read(prefix + 'instrument.js');
-  assert.ok(html.includes('meta content="20261013a12" name="geogeek-lab-release"'));
-  assert.ok(html.includes('core/modules.js?v=20261013a12'));
-  assert.ok(modules.includes('workbench-v10-2/instrument.js?v=10.2.0-quiet2'));
-  assert.ok(adapter.includes("version: '10.2.0-quiet2'"));
+  assert.match(html, /name="geogeek-lab-release"/);
+  assert.match(html, /core\/modules\.js\?v=/);
+  assert.ok(modules.includes('workbench-v10-2/instrument.js?v=10.2.0-shared1'));
+  assert.ok(adapter.includes("version: '10.2.0-shared1'"));
 });

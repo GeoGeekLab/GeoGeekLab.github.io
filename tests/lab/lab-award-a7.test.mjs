@@ -6,7 +6,7 @@ const read=name=>readFileSync(new URL('../../'+name,import.meta.url),'utf8');
 
 test('A7 is a composition review, not a new scientific or concept version',()=>{
   const water=read('site/water/workbench-v10-2/instrument.js');
-  assert.match(water,/version:\s*'10\.2\.0-quiet2'/);
+  assert.match(water,/version:\s*'10\.2\.0-shared1'/);
   assert.match(water,/conceptVersion:\s*'award-a3'/);
   assert.match(water,/polishVersion:\s*'award-a5'/);
   assert.doesNotMatch(water,/award-a7/);

@@ -126,7 +126,7 @@ for (const [label, source] of [['Origin EN', originSource], ['Origin CN', fs.rea
 }
 
 const originCnPath = path.join(root,'site','origin','cn','index.html');
-check(fs.existsSync(originCnPath),'The sole Chinese page must exist at /origin/cn/.');
+check(fs.existsSync(originCnPath),'The standalone Chinese Origin page must exist at /origin/cn/.');
 if (fs.existsSync(originCnPath)) {
   const originCnSource = fs.readFileSync(originCnPath,'utf8');
   check(/<html\b[^>]*\blang=(['"])zh-CN\1/i.test(originCnSource),'/origin/cn/ must declare zh-CN.');

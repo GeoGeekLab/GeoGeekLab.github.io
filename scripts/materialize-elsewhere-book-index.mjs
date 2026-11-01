@@ -2,6 +2,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isPublishedBook } from './content-contract.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
@@ -15,7 +16,7 @@ const escapeHtml = value => String(value ?? '')
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#39;');
 
-const books = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+const books = JSON.parse(await fs.readFile(manifestPath, 'utf8')).filter(isPublishedBook);
 const count = books.length;
 const rows = books.map((book, index) => {
   const ref = String(book.ref || `elsewhere:${book.id}`);

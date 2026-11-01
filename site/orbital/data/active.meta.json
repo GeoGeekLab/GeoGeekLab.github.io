@@ -1,22 +1,31 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "supplyId": "orbit-active",
   "dataset": "celestrak-active-gp",
+  "datasetLabel": "Active GP / OMM catalog",
+  "provider": "CelesTrak",
   "format": "CCSDS OMM JSON",
   "source": "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON",
   "delivery": "GeoGeek same-origin snapshot",
-  "fetchedAt": "2026-10-02T00:31:39.798Z",
+  "transport": "HTTPS JSON upstream → scheduled refresh → Pages snapshot",
+  "scope": "Global active catalog shared by all visitors",
+  "fetchedAt": "2026-11-01T02:57:24.245Z",
   "sourceLastModified": null,
-  "recordCount": 16636,
-  "sha256": "3e5e407967cd9cb90ba999187c300aa37552e450c5f86c6632b7c1fbd9a669ef",
-  "epochs": {
-    "oldest": "2026-09-11T12:27:56.057Z",
-    "median": "2026-10-01T08:32:54.493Z",
-    "newest": "2026-10-02T03:42:59.671Z"
-  },
+  "recordCount": 16848,
+  "sha256": "1be025470e09e394ad000c5f4a908564ef05a8d06eae2c6e7419fa1797bc73fd",
+  "timeSemantics": "Snapshot fetch time; each OMM record carries its own orbital-element epoch.",
+  "freshnessSemantics": "Freshness is measured from GeoGeek snapshot fetchedAt; orbital prediction quality also depends on each record EPOCH.",
+  "resolution": "Object / orbital element set",
+  "limit": "Predicted position quality degrades as orbital elements age; this is not authoritative space-surveillance data.",
   "refreshPolicy": {
-    "minimumHours": 2,
-    "officialRequestsPerRun": 1,
+    "minimumMs": 7200000,
+    "staleAfterMs": 28800000,
     "retryOnHttpError": false,
     "lastKnownGoodOnFailure": true
+  },
+  "epochs": {
+    "oldest": "2026-10-05T17:26:53.630Z",
+    "median": "2026-10-31T06:27:57.084Z",
+    "newest": "2026-11-02T13:20:17.560Z"
   }
 }

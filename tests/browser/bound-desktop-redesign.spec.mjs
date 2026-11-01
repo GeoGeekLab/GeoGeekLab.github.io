@@ -59,9 +59,10 @@ async function capture(page,info,name) {
   });
 }
 
-test('BOUND task, square risk field and numerical evidence stay unobstructed at three desktop sizes',async({page},info)=>{
+// Each viewport gets its own browser fixture and timeout budget.
+for(const viewport of viewports){
+test(`BOUND task, square risk field and numerical evidence stay unobstructed at ${viewport.width} × ${viewport.height}`,async({page},info)=>{
   test.skip(!desktopOnly(info),'STEP 07 desktop-only visual contract');
-  for(const viewport of viewports) {
     await page.setViewportSize(viewport);
     const shell=await openBound(page);
     await checkWorkspace(shell);
@@ -89,8 +90,8 @@ test('BOUND task, square risk field and numerical evidence stay unobstructed at 
     await expect(shell.locator('.bound-v2-change')).toHaveClass(/is-visible/);
     await checkWorkspace(shell);
     await capture(page,info,`bound-decision-${viewport.width}`);
-  }
 });
+}
 
 test('BOUND keeps and redraws the original line with separate visible notation and intact results',async({page},info)=>{
   test.skip(!desktopOnly(info),'STEP 07 desktop-only visual contract');

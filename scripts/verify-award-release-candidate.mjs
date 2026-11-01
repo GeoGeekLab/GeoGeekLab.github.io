@@ -1,12 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { SITE_ASSET_RELEASE, WATER_UI_VERSION, WATER_SCIENCE_MODEL_VERSION } from './site-release-contract.mjs';
 
 const root=process.cwd();
 const dir=path.join(root,'.award-submission');
 const expected={
-  release:'20261013a12',
+  release:SITE_ASSET_RELEASE,
+  baselineRelease:'20261013a12',
   baselineCommit:'9718171862959c9232e1dd7b4f69d31c36b0bc75',
-  science:'10.2.0-quiet2',
+  science:WATER_SCIENCE_MODEL_VERSION,
+  ui:WATER_UI_VERSION,
+  scienceBaseline:'10.2.0-quiet2',
   concept:'award-a3',
   polish:'award-a5',
   host:'award-a4',
@@ -32,6 +36,8 @@ const manifest=readJson('manifest.json');
 if(manifest.release!==expected.release) fail('release mismatch');
 if(manifest.baselineCommit!==expected.baselineCommit) fail('baseline commit mismatch');
 if(manifest.versions?.waterScience!==expected.science) fail('Water science version mismatch');
+if(manifest.versions?.waterUi!==expected.ui) fail('Water UI version mismatch');
+if(manifest.versions?.scienceBaseline!==expected.scienceBaseline) fail('Water baseline provenance mismatch');
 if(manifest.versions?.waterConcept!==expected.concept) fail('Water concept version mismatch');
 if(manifest.versions?.waterPolish!==expected.polish) fail('Water polish version mismatch');
 if(manifest.versions?.observatoryHost!==expected.host) fail('Observatory host version mismatch');
@@ -84,6 +90,7 @@ const verdict={
   baselineCommit:expected.baselineCommit,
   versions:{
     waterScience:expected.science,
+    waterUi:expected.ui,
     waterConcept:expected.concept,
     waterPolish:expected.polish,
     observatoryHost:expected.host,

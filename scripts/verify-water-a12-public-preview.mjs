@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Optional public A12 staging gate; do not use this result as production Pages proof.
 import assert from 'node:assert/strict';
+import {SITE_ASSET_RELEASE,CORE_MODULES_URL} from './site-release-contract.mjs';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {readFileSync,existsSync,mkdirSync,writeFileSync} from 'node:fs';
@@ -24,7 +25,7 @@ assert.ok(existsSync(join(dist,'lab.html')),'The exact CI dist/ artifact must al
 mkdirSync(output,{recursive:true});
 
 const base=url.origin;
-const report={release:'20261013a12',workflowSha:process.env.GITHUB_SHA||null,
+const report={release:SITE_ASSET_RELEASE,workflowSha:process.env.GITHUB_SHA||null,
   scope:'public-independent-staging',previewOrigin:base,
   publicPreviewVerified:false,productionPagesVerified:false,exactAssetHashes:[],
   desktopChecks:[]};
@@ -79,11 +80,11 @@ try{
     try{
       await page.goto(base+'/lab.html?release=20261011v107watercache1&instrument=water#l13',
         {waitUntil:'domcontentloaded',timeout:45000});
-      await page.waitForFunction(()=>{
+      await page.waitForFunction(expectedModule=>{
         const dialog=document.getElementById('instrumentDialog');
         return dialog?.open===true&&dialog.dataset.instrumentKind==='water'&&
-          document.querySelector('meta[name="geogeek-lab-release"]')?.content==='20261013a12';
-      },null,{timeout:45000});
+          [...document.scripts].some(script=>script.getAttribute('src')===expectedModule);
+      },CORE_MODULES_URL,{timeout:45000});
       const frame=page.frameLocator('#instrumentStage iframe.water-v102-frame');
       await frame.locator('#mainNav [data-tab="rt"]').waitFor({state:'visible',timeout:45000});
       const nav=await frame.locator('#mainNav [data-tab]').evaluateAll(nodes=>{

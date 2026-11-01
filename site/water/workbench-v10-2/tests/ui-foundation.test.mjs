@@ -25,9 +25,9 @@ test('UX-BASE-02: spectral calculations stay numerically identical in four water
   for(const k of ['a','bb','rrs','subsurfaceRrs','toa','corrected'])assert.deepEqual(now[k],old[k],name+'/'+k);
  }
 });
-test('UX-BASE-03: RT reference asset is V10.1 pinned; no second scientific dataset',()=>{
+test('UX-BASE-03: RT reference uses shared assets with unchanged science',()=>{
  const loader=read(root,'rt-engine.js');
- assert.match(loader,/workbench-v10-1\/reference\/rt-reference-v1\.json/);
+ assert.match(loader,/shared\/reference\/rt-reference-v1\.json/);
  assert.equal(fs.existsSync(path.join(root,'reference/rt-reference-v1.json')),false);
  assert.deepEqual(JSON.parse(read(oldRoot,'reference/rt-reference-v1.json')).cases.map(x=>x.id),['clear','phyto','cdom']);
 });
@@ -43,12 +43,13 @@ test('UX-LAYOUT-01: preview owns document scroll and disables nested chart/contr
  assert.match(css,/overflow:visible!important/);assert.match(css,/overflow-y:auto!important/);
  assert.match(css,/data-geogeek-embedded/);
 });
-test('UX-ROUTE-01: default V10.2, explicit V10.1 fallback and versioned frame CSS',()=>{
+test('UX-ROUTE-01: one supported V10.2 workspace and explicit startup recovery',()=>{
  const host=read(path.resolve(root,'../../'),'core/modules.js');
  const adapter=read(root,'instrument.js'),styles=read(root,'instrument.css');
- assert.match(host,/try \{ await loadModule\(WATER_WORKBENCH_V102\)/);
- assert.match(host,/requestedWaterVersion==='v101'/);
+ assert.match(host,/await loadModule\(WATER_WORKBENCH_CURRENT\)/);
+ assert.doesNotMatch(host,/workbench-v(?:5|6|7|8|9|10|10-1)\//);
  assert.match(adapter,/water-v102-frame/);assert.match(adapter,/GeoWaterWorkbenchV102/);
- assert.match(adapter,/GeoWaterWorkbenchV101\?\.mount/);
+ assert.doesNotMatch(adapter,/workbench-v10-1|GeoWaterWorkbenchV101/);
+ assert.match(adapter,/Retry Water workspace/);
  assert.match(styles,/data-water-ui-version="v102"/);
 });

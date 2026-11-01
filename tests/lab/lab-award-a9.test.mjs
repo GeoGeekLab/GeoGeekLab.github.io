@@ -15,7 +15,7 @@ test('A9 visual changes are capture-driven presentation only',()=>{
 
 test('A9 does not create another Water science or concept version',()=>{
   const adapter=read('site/water/workbench-v10-2/instrument.js');
-  assert.match(adapter,/version:\s*'10\.2\.0-quiet2'/);
+  assert.match(adapter,/version:\s*'10\.2\.0-shared1'/);
   assert.match(adapter,/conceptVersion:\s*'award-a3'/);
   assert.match(adapter,/polishVersion:\s*'award-a5'/);
   assert.doesNotMatch(adapter,/award-a9/);

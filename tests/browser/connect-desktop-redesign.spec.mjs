@@ -37,10 +37,11 @@ async function route(root,ids){
   }
 }
 
-test('CONNECT old route, new network and hop evidence remain spatially separated across three desktop viewports',async({page},info)=>{
+// Each viewport gets its own browser fixture and timeout budget.
+for(const size of SIZES){
+test(`CONNECT old route, new network and hop evidence remain spatially separated at ${size.width} × ${size.height}`,async({page},info)=>{
   test.skip(!isDesktop(info),'STEP 10 desktop-only visual matrix');
   await page.emulateMedia({reducedMotion:'reduce'});
-  for(const size of SIZES){
     await page.setViewportSize(size);
     const root=await open(page);
     await zones(root);
@@ -105,8 +106,8 @@ test('CONNECT old route, new network and hop evidence remain spatially separated
     await expect(root.locator('.connect-v2-route-line:not(.is-ghost)')).toHaveCount(3);
     await zones(root);
     await photo(page,info,`connect-result-${size.width}`);
-  }
 });
+}
 
 test('CONNECT invalid edge retains the route; SVG keyboard navigation, Undo, lock and replay remain usable',async({page},info)=>{
   test.skip(!isDesktop(info),'STEP 10 desktop input');

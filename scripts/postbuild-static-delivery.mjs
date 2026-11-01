@@ -2,7 +2,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import sharp from 'sharp';
+import { normalizePublicationDate, recordSeries, recordTags, hasNoindex, fillMissingSeo, rewriteSharedStylesheet, deferArticleRuntime } from './content-contract.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -45,22 +46,7 @@ function recordSlug(record, dirName='') {
 }
 
 function recordDate(record) {
-  return String(record?.data?.published || record?.data?.datePublished || record?.data?.date || record?.data?.created || record.published || record.datePublished || record.date || record.created || '').slice(0, 10);
-}
-
-function recordSeries(record) {
-  return String(record?.data?.series || record?.data?.type || record?.data?.collection || record.series || record.type || record.collection || record?.atlas?.type || record?.data?.atlas?.type || '').trim();
-}
-
-function recordTags(record) {
-  return uniq([
-    ...asArray(record?.data?.tags),
-    ...asArray(record?.data?.topics),
-    ...asArray(record.tags),
-    ...asArray(record.topics),
-    ...asArray(record?.atlas?.topic),
-    ...asArray(record?.atlas?.topics),
-  ].flatMap(v => typeof v === 'string' ? v.split(',').map(x => x.trim()) : []));
+  return normalizePublicationDate(record?.data?.published || record?.data?.datePublished || record?.data?.date || record?.data?.created || record.published || record.datePublished || record.date || record.created || '');
 }
 
 function sourceUrl(record) {
@@ -276,26 +262,13 @@ function detectImageSize(buf) {
   return null;
 }
 
-let imageTool;
-function getImageTool() {
-  if (imageTool !== undefined) return imageTool;
-  for (const cmd of ['magick','convert']) {
-    const r = spawnSync(cmd, ['-version'], { stdio: 'ignore' });
-    if (!r.error && r.status === 0) return imageTool = cmd;
-  }
-  return imageTool = null;
-}
-
 async function makeVariant(source, width) {
   const ext = path.extname(source);
   const base = source.slice(0, -ext.length);
   const out = `${base}.w${width}${ext}`;
   if (await exists(out)) return out;
-  const tool = getImageTool();
-  if (!tool) return null;
-  const args = tool === 'magick' ? [source, '-auto-orient', '-resize', `${width}x>`, '-strip', out] : [source, '-auto-orient', '-resize', `${width}x>`, '-strip', out];
-  const r = spawnSync(tool, args, { stdio: 'ignore' });
-  return r.status === 0 && await exists(out) ? out : null;
+  await sharp(source).rotate().resize({ width, withoutEnlargement:true }).toFile(out);
+  return out;
 }
 
 function attr(tag, name) {
@@ -395,15 +368,6 @@ async function processArticleImages(html, htmlFile) {
   return output;
 }
 
-async function copyDir(from, to) {
-  if (!(await exists(from))) return;
-  await fs.mkdir(to, { recursive: true });
-  for (const entry of await fs.readdir(from, { withFileTypes:true })) {
-    const a = path.join(from, entry.name), b = path.join(to, entry.name);
-    if (entry.isDirectory()) await copyDir(a,b); else await fs.copyFile(a,b);
-  }
-}
-
 function articleTemplateFallback() {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GeoGeek Field Note</title><link rel="stylesheet" href="/styles.css"></head><body><a class="skip-link" href="#main">Skip to content</a><main id="main" class="record-page"><article><p class="static-kicker">FIELD NOTE</p><h1 id="recordTitle">Record</h1><p id="recordExcerpt"></p><dl id="recordMeta"></dl><div class="record-body" id="recordBody"></div></article></main></body></html>`;
 }
@@ -438,7 +402,6 @@ async function renderArticle(item, records) {
   });
   html = addStaticAssets(html);
   await fs.mkdir(outDir,{recursive:true});
-  await copyDir(path.join(item.base,'figures'), path.join(outDir,'figures'));
   html = await processArticleImages(html, outFile);
   await write(outFile, html);
 }
@@ -589,7 +552,7 @@ async function patchGenericSeo() {
     const route=publicPathForFile(file);
     const canonical=`${SITE}${route}`;
     const legacyRedirect = route === '/origin/en/' || /^\/zh\/field-notes\/[^/]+\/$/.test(route);
-    if (legacyRedirect) {
+    if (legacyRedirect || hasNoindex(html)) {
       await write(file, html);
       continue;
     }
@@ -598,7 +561,8 @@ async function patchGenericSeo() {
     if (!isArticle && !isOriginLanguagePage) {
       const title=titleFromHtml(html,route);
       const websiteSchema = route === '/' ? { '@context':'https://schema.org','@type':'WebSite',name:'GeoGeek',url:`${SITE}/`,description:genericDescription(route),inLanguage:'en' } : null;
-      html=patchSeo(html,{canonical,title,description:genericDescription(route),jsonLd:websiteSchema});
+      if (!/<title>[\s\S]*?<\/title>/i.test(html)) html=upsertTitle(html,title);
+      html=fillMissingSeo(html,seoBlock({canonical,title,description:genericDescription(route),jsonLd:websiteSchema}));
     }
     html=addStaticAssets(html,route);
     if (route === '/' || route === '/field-notes.html') {
@@ -614,6 +578,7 @@ async function writeSitemap(records) {
   const urls=[];
   for (const file of htmlFiles) {
     if (file.includes(legacyPrefix)) continue;
+    if (hasNoindex(await read(file))) continue;
     const route=publicPathForFile(file);
     if (route === '/origin/en/' || /404\.html$/.test(route)) continue;
     urls.push({loc:`${SITE}${route}`});
@@ -665,7 +630,7 @@ async function splitCss() {
   await write(path.join(dist,'styles-commons.css'),commons.join('\n'));
   for (const file of await listHtml()) {
     let html=await read(file); const route=publicPathForFile(file);
-    html=html.replace(/href=(['"])(\/?styles\.css)\1/gi,'href="/styles.base.css"');
+    html=rewriteSharedStylesheet(html);
     const routeCss=[];
     if (route==='/' || route.includes('atlas')) routeCss.push('/styles-atlas.css');
     if (route==='/' || route.includes('commons')) routeCss.push('/styles-commons.css');
@@ -683,6 +648,12 @@ async function optimizeScripts() {
       if (/\/field-notes\/[^/]+\/$/.test(route) && /previews\.js$/i.test(src)) return '';
       return `<script data-idle-src="${escapeHtml(src)}"></script>`;
     });
+
+    // Canonical articles already contain their complete body and metadata.
+    // Delay the shared archive runtime while retaining navigation first paint.
+    if (/^\/field-notes\/[^/]+\/$/.test(route)) {
+      html=deferArticleRuntime(html);
+    }
 
     // The collection is now fully present in first-response HTML and filtering
     // is handled by static-delivery.js. Preserve the legacy runtime as an idle
@@ -724,7 +695,6 @@ async function main() {
   await optimizeScripts();
   await writeSitemap(records);
   console.log(`[static-delivery] ${records.length} Field Notes prerendered in English; metadata, feeds, sitemap, responsive image pass and route CSS split complete.`);
-  if (!getImageTool()) console.warn('[static-delivery] ImageMagick not found; width/height still emitted, responsive raster variants skipped.');
 }
 
 await main();

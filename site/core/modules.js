@@ -8,15 +8,8 @@
   const PROVIDER_STABILITY_RUNTIME = 'core/provider-stability.js?v=20261004b';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002e';
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261009fixed1';
-  const WATER_INSTRUMENT = 'water/water-instrument.js?v=20261007o';
-  const WATER_WORKBENCH_V5 = 'water/workbench-v5/instrument.js?v=5.0.0';
-  const WATER_WORKBENCH_V6 = 'water/workbench-v6/instrument.js?v=6.0.0';
-  const WATER_WORKBENCH_V7 = 'water/workbench-v7/instrument.js?v=7.1.0';
-  const WATER_WORKBENCH_V8 = 'water/workbench-v8/instrument.js?v=8.0.0';
-  const WATER_WORKBENCH_V9 = 'water/workbench-v9/instrument.js?v=9.1.0';
-  const WATER_WORKBENCH_V10 = 'water/workbench-v10/instrument.js?v=10.0.0';
-  const WATER_WORKBENCH_V101 = 'water/workbench-v10-1/instrument.js?v=10.1.0';
-  const WATER_WORKBENCH_V102 = 'water/workbench-v10-2/instrument.js?v=10.2.0-quiet2-a12';
+  // One supported Water UI. Historical waterVersion query values remain compatible.
+  const WATER_WORKBENCH_CURRENT = 'water/workbench-v10-2/instrument.js?v=10.2.0-shared1';
   const observatoryKinds = new Set(['orbit', 'world', 'earth', 'pulse', 'flow', 'figure']);
 
   function alignPulseContract() {
@@ -161,41 +154,9 @@
     if (kind === 'flow' && !window.GeoFlowLab) await loadScript('flow-lab.js?v=20261002a');
     if (kind === 'flow' && !window.GeoFlowLabPolish) await loadScript('flow-lab-polish.js?v=20261002b');
     if (kind === 'water' && !window.GeoGeekInstrumentMounts?.water) {
-      try {
-        const requestedWaterVersion=new URLSearchParams(location.search).get('waterVersion');
-        if(requestedWaterVersion==='v9')await loadModule(WATER_WORKBENCH_V9);
-        else if(requestedWaterVersion==='v10')await loadModule(WATER_WORKBENCH_V10);
-        else if(requestedWaterVersion==='v101')await loadModule(WATER_WORKBENCH_V101);
-        else {
-          // V10.2 stages 1–4: the new UI is the default. Revert without changing
-          // any scientific calculation by explicitly requesting waterVersion=v101.
-          try { await loadModule(WATER_WORKBENCH_V102); }
-          catch (v102Error){
-            console.warn('[GeoGeek] V10.2 UI unavailable; restoring validated V10.1.',v102Error);
-            try { await loadModule(WATER_WORKBENCH_V101); }
-            catch (v101Error){
-              console.warn('[GeoGeek] V10.1 module unavailable; restoring V10.0.',v101Error);
-              try { await loadModule(WATER_WORKBENCH_V10); }
-              catch (v10Error){console.warn('[GeoGeek] V10.0 unavailable; restoring V9.',v10Error);await loadModule(WATER_WORKBENCH_V9);}
-            }
-          }
-        }
-      } catch (v9Error) {
-        console.warn('[GeoGeek] Water V9 import unavailable; loading V8.', v9Error);
-        try {
-          await loadModule(WATER_WORKBENCH_V8);
-        } catch (v8Error) {
-          console.warn('[GeoGeek] Water V8 import unavailable; loading V7.', v8Error);
-          try { await loadModule(WATER_WORKBENCH_V7); }
-          catch (v7Error) {
-            try { await loadModule(WATER_WORKBENCH_V6); }
-            catch (v6Error) {
-              try { await loadModule(WATER_WORKBENCH_V5); }
-              catch { await loadModule(WATER_INSTRUMENT); }
-            }
-          }
-        }
-      }
+      // Keep the model fixed when loading fails; do not silently switch UI/model generations.
+      await loadModule(WATER_WORKBENCH_CURRENT);
+      if (!window.GeoGeekInstrumentMounts?.water) throw new Error('Water workspace failed to register. Please retry.');
     }
     return window.GeoInstruments;
   }

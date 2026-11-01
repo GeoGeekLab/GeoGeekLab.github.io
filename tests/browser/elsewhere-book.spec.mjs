@@ -1,4 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { readdirSync, readFileSync } from 'node:fs';
+import { isPublishedBook } from '../../scripts/content-contract.mjs';
+
+const sourceRoot = new URL('../../content/elsewhere/book/', import.meta.url);
+const books = readdirSync(sourceRoot, { withFileTypes: true }).filter(entry => entry.isDirectory()).map(entry => JSON.parse(readFileSync(new URL(`${entry.name}/record.json`, sourceRoot), 'utf8')));
+const publishedBooks = books.filter(isPublishedBook);
+const draftBooks = books.filter(book => !isPublishedBook(book));
 
 test('BOOK 001 keeps BOOK metadata and authored reading response visibly readable in production', async ({ page }) => {
   await page.goto('/records/elsewhere-book-001.html');
@@ -43,143 +50,46 @@ test('BOOK 001 keeps BOOK metadata and authored reading response visibly readabl
   await expect(chinesePanel).toContainText('它没有顺理成章的传世孤本，却值得在不同的时代风浪里，一次又一次翻开残页，回去追问。');
 });
 
-test('Elsewhere exposes BOOK as a thirty-five-record collection index', async ({ page }) => {
+test('Elsewhere links only published BOOK records', async ({ page }) => {
   await page.goto('/elsewhere.html#e02');
-
-  const bookCollection = page.locator('#e02[data-collection-entry="true"]');
-  await expect(bookCollection).toBeVisible();
-  await expect(bookCollection.locator('.book-unit-head')).toContainText('BOOK INDEX');
-
-  const records = bookCollection.locator('.book-unit-row');
-  await expect(records).toHaveCount(35);
-  await expect(records.first()).toContainText('The Glory and the Dream');
-  await expect(records.first()).toContainText('William Manchester');
-  await expect(records.first()).toContainText('1974');
-  await expect(records.nth(1)).toContainText('How to Win Friends and Influence People');
-  await expect(records.nth(2)).toContainText('To Kill a Mockingbird');
-  await expect(records.nth(3)).toContainText('大明王朝1566');
-  await expect(records.nth(4)).toContainText('活着');
-  await expect(records.nth(5)).toContainText('A Tale of Two Cities');
-  await expect(records.nth(6)).toContainText('沧浪之水');
-  await expect(records.nth(7)).toContainText('黄金时代');
-  await expect(records.nth(8)).toContainText('ノルウェイの森');
-  await expect(records.nth(9)).toContainText('南渡北归');
-  await expect(records.nth(10)).toContainText('民国三大校长');
-  await expect(records.nth(11)).toContainText('Guns, Germs, and Steel');
-  await expect(records.nth(12)).toContainText('The Almanack of Naval Ravikant');
-  await expect(records.nth(13)).toContainText('ナミヤ雑貨店の奇蹟');
-  await expect(records.nth(14)).toContainText('The Evolution of Physics');
-  await expect(records.nth(15)).toContainText("Fermat's Enigma");
-  await expect(records.nth(16)).toContainText('围城');
-  await expect(records.nth(17)).toContainText('乡土中国');
-  await expect(records.nth(18)).toContainText('What Life Should Mean to You');
-  await expect(records.nth(19)).toContainText('Social Psychology');
-  await expect(records.nth(20)).toContainText('Psychologie des foules');
-  await expect(records.nth(21)).toContainText('嫌われる勇気');
-  await expect(records.nth(22)).toContainText('Il Principe');
-  await expect(records.nth(23)).toContainText('随想录');
-  await expect(records.nth(24)).toContainText('牛棚杂忆');
-  await expect(records.nth(25)).toContainText('目送');
-  await expect(records.nth(26)).toContainText('水问');
-  await expect(records.nth(27)).toContainText('平凡的世界');
-  await expect(records.nth(28)).toContainText('人工智能之不能');
-  await expect(records.nth(29)).toContainText('世界的逻辑');
-  await expect(records.nth(30)).toContainText('代谢增长论：技术小波和文明兴衰');
-  await expect(records.nth(31)).toContainText('八次危机：中国的真实经验1949-2009');
-  await expect(records.nth(32)).toContainText('苦难辉煌');
-  await expect(records.nth(33)).toContainText('1587, A Year of No Significance');
-  // Production now includes the authored 35th reading record.
-  await expect(records.nth(34)).toContainText('厚黑学');
-  await expect(records.nth(34)).toContainText('李宗吾');
-});
-
-test('BOOK scaffold pages keep metadata while leaving the reading response empty', async ({ page }) => {
-  await page.goto('/records/elsewhere-book-002.html');
-
-  await expect(page.locator('#recordTitle')).toHaveText('How to Win Friends and Influence People');
-  await expect(page.locator('#recordMeta')).toContainText('Dale Carnegie');
-  await expect(page.locator('#recordMeta')).toContainText('1936');
-  await expect(page.locator('#recordBody')).toBeEmpty();
-});
-
-
-test('BOOK 026 publishes the authored Chinese reading response verbatim', async ({ page }) => {
-  await page.goto('/records/elsewhere-book-026.html');
-
-  await expect(page.locator('#recordTitle')).toHaveText('目送');
-  await expect(page.locator('#recordMeta')).toContainText('龙应台');
-  await expect(page.locator('#recordMeta')).toContainText('DISTANCE');
-
-  const body=page.locator('#recordBody');
-  await expect(body.locator(':scope > article.book-reading-essay')).toHaveCount(1);
-  await expect(body.locator('.book-record-section')).toHaveCount(0);
-  await expect(body).toContainText('初中时第一次翻开龙应台的《目送》，只觉得文字清丽，甚至有些平淡。');
-  await expect(body).toContainText('人的一生，终究是一场无法弥补的辜负。');
-  await expect(body.locator('blockquote')).toContainText('我慢慢地、慢慢地了解到，所谓父女母子一场，只不过意味着，你和他的缘分就是今生今世不断地在目送他的背影渐行渐远。');
-  await expect(body).toContainText('龙应台在书里写下的，不过是人间最寻常的离别。可每一个人，却都要用半生的执拗与半生的泪光，才能彻底读懂那份沉静而深邃的爱。');
-});
-
-
-test('BOOK 026 Chinese essay uses readable paragraph and quote typography', async ({ page }) => {
-  await page.goto('/records/elsewhere-book-026.html');
-
-  const firstParagraph=page.locator('#recordBody .book-reading-essay > p').first();
-  const quote=page.locator('#recordBody .book-reading-essay blockquote');
-  const quoteParagraph=quote.locator('p');
-
-  const paragraphStyle=await firstParagraph.evaluate(node=>{
-    const style=getComputedStyle(node);
-    return {
-      textIndent:parseFloat(style.textIndent),
-      marginBottom:parseFloat(style.marginBottom),
-      lineHeight:parseFloat(style.lineHeight),
-      fontSize:parseFloat(style.fontSize)
-    };
-  });
-
-  expect(paragraphStyle.fontSize).toBeGreaterThanOrEqual(18);
-  expect(paragraphStyle.fontSize).toBeLessThanOrEqual(20);
-  expect(paragraphStyle.textIndent).toBeGreaterThanOrEqual(paragraphStyle.fontSize*1.9);
-  expect(paragraphStyle.marginBottom).toBeGreaterThan(paragraphStyle.fontSize);
-  expect(paragraphStyle.lineHeight).toBeGreaterThan(paragraphStyle.fontSize*1.75);
-
-  const quoteStyle=await quote.evaluate(node=>{
-    const style=getComputedStyle(node);
-    return {
-      borderLeftWidth:parseFloat(style.borderLeftWidth),
-      borderLeftStyle:style.borderLeftStyle,
-      paddingLeft:parseFloat(style.paddingLeft)
-    };
-  });
-
-  expect(quoteStyle.borderLeftStyle).toBe('solid');
-  expect(quoteStyle.borderLeftWidth).toBeGreaterThanOrEqual(2);
-  expect(quoteStyle.paddingLeft).toBeGreaterThan(10);
-
-  const quoteIndent=await quoteParagraph.evaluate(node=>parseFloat(getComputedStyle(node).textIndent));
-  expect(quoteIndent).toBe(0);
-});
-
-
-test('BOOK template globally enforces 18-20px copy, 1.9 leading, and two-em paragraph indent', async ({ page }) => {
-  for (const path of ['/records/elsewhere-book-001.html', '/records/elsewhere-book-026.html']) {
-    await page.goto(path);
-    const style = await page.locator('#recordBody p').first().evaluate(node => {
-      const computed = getComputedStyle(node);
-      return {
-        fontSize: parseFloat(computed.fontSize),
-        lineHeight: parseFloat(computed.lineHeight),
-        textIndent: parseFloat(computed.textIndent)
-      };
-    });
-
-    expect(style.fontSize).toBeGreaterThanOrEqual(18);
-    expect(style.fontSize).toBeLessThanOrEqual(20);
-    expect(style.lineHeight).toBeGreaterThanOrEqual(style.fontSize * 1.85);
-    expect(style.textIndent).toBeGreaterThanOrEqual(style.fontSize * 1.9);
+  const collection = page.locator('#e02[data-collection-entry="true"]');
+  await expect(collection).toBeVisible();
+  const records = collection.locator('.book-unit-row');
+  await expect(records).toHaveCount(publishedBooks.length);
+  for (const book of publishedBooks) {
+    await expect(collection.locator(`[data-record-ref="${book.ref}"]`)).toContainText(book.text.en.title);
   }
+  for (const book of draftBooks) {
+    await expect(collection.locator(`[data-record-ref="${book.ref}"]`)).toHaveCount(0);
+  }
+});
 
-  await page.goto('/records/elsewhere-book-026.html');
-  const quoteIndent = await page.locator('#recordBody blockquote p').evaluate(node => parseFloat(getComputedStyle(node).textIndent));
-  expect(quoteIndent).toBe(0);
+test('previously shared draft BOOK URLs explain the unpublished state and stay out of discovery', async ({ page, request }) => {
+  const book = draftBooks[0];
+  expect(book).toBeTruthy();
+  const route = `/records/${book.ref.replace(':', '-')}.html`;
+  await page.goto(route);
+  await expect(page.getByRole('heading', { name: 'Reading response not published' })).toBeVisible();
+  await expect(page.locator('main')).toContainText(book.text.en.title);
+  await expect(page.getByRole('link', { name: 'Return to the published book collection' })).toHaveAttribute('href', '/elsewhere.html#e02');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+  await expect(page.locator('#recordBody')).toHaveCount(0);
+  const sitemap = await (await request.get('/sitemap.xml')).text();
+  for (const draft of draftBooks) expect(sitemap).not.toContain(`/records/${draft.ref.replace(':', '-')}.html`);
+  const manifest = await (await request.get('/data/elsewhere-books.json')).json();
+  expect(manifest.map(record => record.ref)).toEqual(publishedBooks.sort((a,b) => a.data.order - b.data.order).map(book => book.ref));
+});
+
+test('published BOOK panels keep readable authored typography', async ({ page }) => {
+  await page.goto('/records/elsewhere-book-001.html');
+  const panel = page.locator('[data-book-lang-panel="zh"]');
+  await expect(panel).toBeVisible();
+  const style = await panel.locator('.book-reading-essay > p').first().evaluate(node => {
+    const computed = getComputedStyle(node);
+    return { fontSize: parseFloat(computed.fontSize), lineHeight: parseFloat(computed.lineHeight), textIndent: parseFloat(computed.textIndent) };
+  });
+  expect(style.fontSize).toBeGreaterThanOrEqual(18);
+  expect(style.fontSize).toBeLessThanOrEqual(20);
+  expect(style.lineHeight).toBeGreaterThanOrEqual(style.fontSize * 1.85);
+  expect(style.textIndent).toBeGreaterThanOrEqual(style.fontSize * 1.9);
 });

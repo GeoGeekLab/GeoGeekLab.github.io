@@ -11,7 +11,7 @@ test('A11 is injected into the existing Water iframe, never a parallel scientifi
   assert.match(adapter,/water-attention\.js\?v=a12/);
   assert.match(adapter,/dataset\.waterAttentionStyle/);
   assert.match(adapter,/award-concept\.css\?v=a5/);
-  assert.match(adapter,/10\.2\.0-quiet2/);
+  assert.match(adapter,/10\.2\.0-shared1/);
 });
 
 test('Focus and Detail only switch display density; model state is untouched',()=>{

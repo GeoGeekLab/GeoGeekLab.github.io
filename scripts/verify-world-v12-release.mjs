@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFile } from 'node:fs/promises';
+import { CORE_MODULES_URL } from './site-release-contract.mjs';
 const WORLD = '20261009v12';
 // The authored Lab HTML is the source of truth. Do not pin its release token
 // here: every unrelated Lab release must still pass the World v12 contract.
@@ -26,7 +27,9 @@ const loader=await load('core/modules.js');
 const world=await load('world-projection-lab.js');
 const distort=await load('world-distortion-v12.js');
 assert(lab.includes('content="'+RELEASE+'" name="geogeek-lab-release"'),'Lab release token mismatch');
-assert(lab.includes('core/modules.js?v='+RELEASE+'"'),'Lab script cache token mismatch');
+const modulesSrc = lab.match(/<script\b[^>]*\ssrc=(['"])(\/?core\/modules\.js\?v=[^'"]+)\1/i)?.[2];
+const modulesUrl = modulesSrc && new URL(modulesSrc, 'https://geogeeklab.github.io/');
+assert(modulesUrl && modulesUrl.pathname + modulesUrl.search === CORE_MODULES_URL, 'Lab script cache token mismatch');
 assert(loader.includes('world-projection-lab.js?v='+WORLD),'World module cache token mismatch');
 assert(world.includes("const V='"+WORLD+"'"),'World release constant mismatch');
 assert(world.includes("world-distortion-v12.js"),'World distortion engine not loaded');

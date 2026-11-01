@@ -2,7 +2,7 @@
   'use strict';
 
   // The capture job replaces this token with a hash of the generated images.
-  const VERSION = '20260930i';
+  const VERSION = 'capture-b271a6471108';
   const root = '/assets/lab/previews';
   const watched = new WeakSet();
 

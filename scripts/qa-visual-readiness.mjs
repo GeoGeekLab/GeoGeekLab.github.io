@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const site = path.join(root, 'site');
-const preinitVersion = '20261005a';
+const preinitVersion = '20261101a';
 
 async function htmlFiles(dir) {
   const out = [];

@@ -4,14 +4,16 @@ import {readFileSync} from 'node:fs';
 
 const read = name => readFileSync(new URL('../../' + name, import.meta.url), 'utf8');
 
-test('A4 loads the shared Observatory shell without changing instrument versions', () => {
+test('A4 loads the shared Observatory shell alongside the supported Water adapter', () => {
   const fullpage=read('site/lab-fullpage.js');
   assert.match(fullpage,/core\/lab-award-system\.css\?v=a4/);
   assert.match(fullpage,/lab-award-shell\.css\?v=a4/);
   assert.match(fullpage,/lab-award-shell\.js\?v=a4/);
 
   const water=read('site/water/workbench-v10-2/instrument.js');
-  assert.match(water,/version:\s*'10\.2\.0-quiet2'/);
+  assert.match(water,/version:\s*'10\.2\.0-shared1'/);
+  assert.ok(read('site/core/modules.js').includes('workbench-v10-2/instrument.js?v=10.2.0-shared1'));
+  assert.doesNotMatch(water,/workbench-v10-1|GeoWaterWorkbenchV101/);
   assert.match(water,/conceptVersion:\s*'award-a3'/);
 });
 

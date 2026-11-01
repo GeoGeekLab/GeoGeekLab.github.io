@@ -1,6 +1,6 @@
 # Elsewhere / BOOK
 
-Status: production content contract. Completed BOOK records require real bibliographic and authored orientation fields. Draft scaffolds may reserve a collection entry and static record page while the reading response remains intentionally empty.
+Status: production content contract. Completed BOOK records require real bibliographic and authored orientation fields. Draft scaffolds reserve a source record only. They do not enter the published collection or public metadata.
 
 ## Position
 
@@ -120,9 +120,11 @@ A completed BOOK record is publishable only when BIBLIOGRAPHY, BEFORE, SHIFT, AF
 
 TRACE can remain empty until a later relation actually exists.
 
-A scaffold is a visible draft slot for a known book. Set `data.scaffold` to `true`, keep `status` as `draft`, and keep `body.en.html` empty. A scaffold requires only the stable index metadata needed to identify the book. BEFORE, SHIFT, AFTER, RETURN, edition-read metadata, and translation metadata must not be invented just to satisfy the build.
+A scaffold is an unpublished source slot for a known book. Set `data.scaffold` to `true`, keep `status` as `draft`, and keep `body.en.html` empty. A scaffold requires only stable metadata needed to identify the book. BEFORE, SHIFT, AFTER, RETURN, edition-read metadata, and translation metadata must not be invented just to satisfy the build.
 
 When the reading response is ready, remove scaffold mode, fill the authored orientation fields, and write the real body before treating the record as complete.
+
+Set `data.status` to `open` when the record is ready to publish. Records with `draft`, `private`, or `unpublished` status remain outside the public archive, index, and sitemap. Already-shared draft detail URLs show a `noindex` explanation and link to the published collection; they do not expose an empty reading response.
 
 ## Source layout
 
@@ -144,7 +146,7 @@ dist/records/elsewhere-<id>.html
 dist/data/elsewhere-books.json
 ```
 
-The static record page prerenders the authored body content. Runtime archive body stripping therefore does not remove published BOOK prose in either language. Scaffold pages deliberately render an empty `READING RESPONSE` body.
+The static record page prerenders the authored body content. Runtime archive body stripping therefore does not remove published BOOK prose in either language. Draft compatibility pages explain the unpublished state and do not use the record renderer.
 
 Source preview uses `record.html?ref=elsewhere:<id>`. Production collection and Atlas links use the emitted static record page.
 

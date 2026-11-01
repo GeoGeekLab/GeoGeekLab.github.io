@@ -111,10 +111,14 @@ for (const file of htmlFiles) {
   blockingCount += accidentalBlockingLocalScripts(html).length;
   malformedIdleCount += (html.match(/data-idle-\s+src\s*=/gi) || []).length;
   if (/[/\\]field-notes[/\\][^/\\]+[/\\]index\.html$/.test(file)) articleSrcsetCount += (html.match(/\bsrcset=(['"])/gi) || []).length;
-  if (!hasStableFontContract(html)) unstableFontPages.push(path.relative(dist, file).replaceAll('\\', '/'));
+  const relative = path.relative(dist, file).replaceAll('\\', '/');
+  const validFonts = relative === 'water/workbench-v10-2/app/index.html'
+    ? googleFontLinks(html).length === 2 && /display=optional[^>]*media="print" onload="this.media='all'" data-geogeek-fonts="optional-workbench"/.test(html) && /<noscript><link rel="stylesheet"[^>]*display=optional/.test(html) && !/display=swap/.test(html)
+    : hasStableFontContract(html);
+  if (!validFonts) unstableFontPages.push(relative);
 }
 if (unstableFontPages.length) console.error(`Unstable font pages: ${unstableFontPages.join(', ')}`);
-check(unstableFontPages.length === 0, 'PERF-06 every generated HTML page uses the stable webfont contract');
+check(unstableFontPages.length === 0, 'PERF-06 every document uses its stable or nonblocking workbench font contract');
 check(blockingCount === 0, 'PERF-07 generated HTML has no accidental blocking local classic scripts');
 check(malformedIdleCount === 0, 'PERF-07 generated HTML preserves data-idle-src attributes');
 

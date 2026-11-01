@@ -50,9 +50,10 @@ async function capture(page,info,label,size){
   });
 }
 
-test('LIGHT keeps task, optical scene, legend, chart and readouts in separate desktop zones',async({page},info)=>{
+// Each viewport gets its own browser fixture and timeout budget.
+for(const size of desktopSizes){
+test(`LIGHT keeps task, optical scene, legend, chart and readouts in separate desktop zones at ${size.width} × ${size.height}`,async({page},info)=>{
   desktopOnly(info);
-  for(const size of desktopSizes){
     const shell=await openLight(page,size);
     await checkSeparated(shell);
     await expect(shell.locator('[data-path="atmosphere"]')).toContainText('PRESENT');
@@ -88,8 +89,8 @@ test('LIGHT keeps task, optical scene, legend, chart and readouts in separate de
     await expect(shell.locator('.light-after-value')).toHaveText('0.00e+0');
     await checkSeparated(shell);
     await capture(page,info,'water-removed',size);
-  }
 });
+}
 
 test('LIGHT keeps surface teaching signal separate and completes without masking the scene',async({page},info)=>{
   desktopOnly(info);

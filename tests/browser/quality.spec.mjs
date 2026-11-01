@@ -58,6 +58,7 @@ async function runAxe(page, testInfo) {
 
   console.log(`[axe] ${testInfo.project.name} ${page.url()} — critical=${critical.length}, serious=${serious.length}, total=${results.violations.length}${actionable ? ` — ${actionable}` : ''}`);
   expect(critical, `Critical axe violations on ${page.url()}`).toEqual([]);
+  expect(serious, `Serious axe violations on ${page.url()}`).toEqual([]);
 }
 
 for (const route of coreRoutes) {
