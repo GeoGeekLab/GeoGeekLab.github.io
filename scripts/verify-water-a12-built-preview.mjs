@@ -15,7 +15,7 @@ const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=u
   '.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8',
   '.json':'application/json; charset=utf-8','.svg':'image/svg+xml',
   '.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg',
-  '.webp':'image/webp','.ico':'image/x-icon'};
+  '.webp':'image/webp','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8'};
 assert.ok(existsSync(join(dist,'lab.html')),'Build dist/ before A12 preview verification');
 mkdirSync(out,{recursive:true});
 const result={release,head:process.env.GITHUB_SHA||null,scope:'built-dist-preview-not-public-pages',
