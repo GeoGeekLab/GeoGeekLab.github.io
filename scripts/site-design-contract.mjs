@@ -1,4 +1,4 @@
-import { SITE_ASSET_RELEASE } from './site-release-contract.mjs';
+import { SITE_ASSET_RELEASE, LAB_DOCUMENT_RELEASE } from './site-release-contract.mjs';
 
 const origin = 'https://geogeeklab.github.io/';
 const destinations = new Map([
@@ -26,7 +26,8 @@ export function normalizePageDesign(html, relative = 'index.html') {
       const url = href && localUrl(href);
       const name = url?.pathname.split('/').at(-1);
       if (!destinations.has(name)) return link;
-      return `${setAttr(tag, 'href', name)}${destinations.get(name)}${end}`;
+      const destination = name === 'lab.html' ? `/lab.html?release=${LAB_DOCUMENT_RELEASE}` : name;
+      return `${setAttr(tag, 'href', destination)}${destinations.get(name)}${end}`;
     });
     return `${open}${normalized}${close}`;
   });

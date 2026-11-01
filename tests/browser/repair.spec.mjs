@@ -21,7 +21,7 @@ test('articles remain readable when JavaScript is disabled', async ({browser}) =
 test('legacy Lab records select the canonical navigation destination', async ({page}) => {
   await page.goto('/record.html?ref=lab%3Al13');
   await expect(page.locator('#primaryNav a[aria-current="page"]')).toHaveText('Lab');
-  await expect(page.locator('#primaryNav a[aria-current="page"]')).toHaveAttribute('href','lab.html');
+  await expect(page.locator('#primaryNav a[aria-current="page"]')).toHaveAttribute('href','/lab.html?release=20261013a12');
 });
 
 test('home discovery and local observation scope are explicit', async ({page}) => {
