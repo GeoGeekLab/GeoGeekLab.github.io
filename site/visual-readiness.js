@@ -56,6 +56,9 @@
   };
 
   const waitForFonts = () => {
+    // Optional workbench fonts never swap after their short display period.
+    // The completed local layout can be revealed without waiting on the CDN.
+    if (document.querySelector('[data-geogeek-fonts="optional-workbench"]')) return Promise.resolve();
     if (!document.fonts?.ready) return Promise.resolve();
     return withTimeout(document.fonts.ready.catch(() => {}), 800);
   };

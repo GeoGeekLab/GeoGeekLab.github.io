@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import os from 'node:os';
@@ -31,6 +31,9 @@ test('production font pass replaces optional async delivery with one stable swap
     const css = `@import url("${optionalFontUrl}");\nbody{font-family:"Instrument Sans",sans-serif;}`;
 
     await writeFile(path.join(dist, 'index.html'), html);
+    const workbench = path.join(dist, 'water/workbench-v10-2/app');
+    await mkdir(workbench, { recursive: true });
+    await writeFile(path.join(workbench, 'index.html'), html.replace('<head>', '<head><meta charset="utf-8"><link rel="stylesheet" href="../view.css"><script data-geogeek-sync-dependency="water-v102-physics" src="../view.js"></script>'));
     await writeFile(path.join(dist, 'styles.css'), css);
 
     await execFileAsync(process.execPath, ['scripts/postbuild-font-stability.mjs'], {
@@ -53,6 +56,16 @@ test('production font pass replaces optional async delivery with one stable swap
 
     assert.doesNotMatch(outputCss, /fonts\.googleapis\.com/);
     assert.doesNotMatch(outputCss, /display=optional/);
+
+    const waterHtml = await readFile(path.join(workbench, 'index.html'), 'utf8');
+    assert.match(waterHtml, /data-geogeek-fonts="optional-workbench"/);
+    assert.match(waterHtml, /display=optional/);
+    assert.doesNotMatch(waterHtml, /display=swap/);
+    assert.match(waterHtml, /media="print" onload="this.media='all'"/);
+    assert.match(waterHtml, /<noscript><link rel="stylesheet"/);
+    assert.match(waterHtml, /rel="preload" as="style" href="\.\.\/view.css" data-water-early-asset/);
+    assert.match(waterHtml, /rel="preload" as="script" href="\.\.\/view.js" data-water-early-asset/);
+    assert(waterHtml.indexOf('data-water-early-asset') < waterHtml.indexOf('data-geogeek-sync-dependency'));
   } finally {
     await rm(dist, { recursive: true, force: true });
   }

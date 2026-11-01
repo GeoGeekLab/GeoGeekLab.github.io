@@ -6,7 +6,7 @@ import { bootPreinit } from './boot-contract.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
-const runtime = '/visual-readiness.js?v=20261029-recovery';
+const runtime = '/visual-readiness.js?v=20261101-workbench';
 const preinitVersion = '20261101a';
 
 const exists = file => fs.access(file).then(() => true).catch(() => false);

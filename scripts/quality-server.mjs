@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createGzip } from 'node:zlib';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
@@ -63,11 +64,19 @@ const server = http.createServer((req, res) => {
   res.statusCode = status;
   res.setHeader('Content-Type', mime[path.extname(file).toLowerCase()] || 'application/octet-stream');
   res.setHeader('Cache-Control', 'no-store');
+  // Match the gzip negotiation used by GitHub Pages. Lighthouse must measure
+  // deployed transfer sizes, while decoded response bytes remain identical.
+  const compressible = /\.(?:html|css|m?js|json|svg|txt|xml)$/i.test(file);
+  const gzip = compressible && /\bgzip\b/i.test(req.headers['accept-encoding'] || '');
+  if (compressible) res.setHeader('Vary', 'Accept-Encoding');
+  if (gzip) res.setHeader('Content-Encoding', 'gzip');
   if (req.method === 'HEAD') {
     res.end();
     return;
   }
-  fs.createReadStream(file).pipe(res);
+  const stream = fs.createReadStream(file);
+  if (gzip) stream.pipe(createGzip()).pipe(res);
+  else stream.pipe(res);
 });
 
 server.listen(port, '127.0.0.1', () => {

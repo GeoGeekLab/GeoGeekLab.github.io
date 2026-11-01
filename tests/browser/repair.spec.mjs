@@ -33,3 +33,12 @@ test('home discovery and local observation scope are explicit', async ({page}) =
   const size=await page.locator('.coord-readout-meta').evaluate(node=>parseFloat(getComputedStyle(node).fontSize));
   expect(size).toBeGreaterThanOrEqual(11);
 });
+
+test('Water remains visible when its optional remote font stylesheet fails', async ({page}) => {
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+  await page.goto('/water/workbench-v10-2/app/index.html?embed=1', {waitUntil:'domcontentloaded'});
+  await expect(page.locator('[data-geogeek-fonts="optional-workbench"]')).toHaveCount(1);
+  await expect(page.locator('html')).toHaveAttribute('data-geogeek-boot','ready');
+  await expect(page.locator('#spaceTitle')).toBeVisible();
+  await expect(page.locator('#spaceTitle')).toContainText('Optical Properties');
+});

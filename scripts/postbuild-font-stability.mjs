@@ -47,7 +47,23 @@ function ensureConnectionHints(html) {
   return html.replace(/<\/head>/i, `${hints.join('\n')}\n</head>`);
 }
 
-function addStableFontStylesheet(html) {
+function addStableFontStylesheet(html, relative) {
+  // The embedded workbench must paint without a third-party font round trip.
+  // Optional display keeps the first chosen face for this navigation, avoiding
+  // a late font swap that reflows the full-height mobile scientific workspace.
+  if (relative.replaceAll('\\', '/') === 'water/workbench-v10-2/app/index.html') {
+    const earlyAssets = [];
+    for (const tag of html.match(/<(?:link|script)\b[^>]*>/gi) || []) {
+      const css = /\brel="stylesheet"/.test(tag) && tag.match(/\bhref="(\.{1,2}\/[^"?#]+\.css(?:[^" ]*)?)"/)?.[1];
+      const script = /\bdata-geogeek-sync-dependency=/.test(tag) && tag.match(/\ssrc="([^"]+)"/)?.[1];
+      if (css || script) earlyAssets.push(`<link rel="preload" as="${css ? 'style' : 'script'}" href="${css || script}" data-water-early-asset>`);
+    }
+    // Discover dependencies before parser-ordered scientific bootstrap scripts.
+    // Preloading changes fetch timing, never their execution order.
+    if (!html.includes('data-water-early-asset')) html = html.replace(/<meta charset="utf-8">/i, tag => `${tag}\n${earlyAssets.join('\n')}`);
+    const escaped = fontCss.replace('display=swap', 'display=optional').replace(/&/g, '&amp;');
+    return html.replace(/<\/head>/i, `<link rel="stylesheet" href="${escaped}" media="print" onload="this.media='all'" data-geogeek-fonts="optional-workbench">\n<noscript><link rel="stylesheet" href="${escaped}"></noscript>\n</head>`);
+  }
   const escaped = fontCss.replace(/&/g, '&amp;');
   const stylesheet = `<link rel="stylesheet" href="${escaped}" data-geogeek-fonts="stable">`;
   return html.replace(/<\/head>/i, `${stylesheet}\n</head>`);
@@ -57,7 +73,7 @@ export function normalizeFontHtml(html, relative = 'index.html') {
   html = normalizePageDesign(html, relative);
   html = removeGoogleFontStylesheets(html);
   html = ensureConnectionHints(html);
-  html = addStableFontStylesheet(html);
+  html = addStableFontStylesheet(html, relative);
   return html;
 }
 
