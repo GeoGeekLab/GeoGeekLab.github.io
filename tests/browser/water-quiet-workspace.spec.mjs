@@ -1,4 +1,5 @@
 import {test, expect} from '@playwright/test';
+import { WATER_UI_VERSION } from '../../scripts/site-release-contract.mjs';
 
 async function openQuietWater(page) {
   await page.goto('/lab.html?instrument=water#l13', {waitUntil:'domcontentloaded'});
@@ -91,5 +92,5 @@ test('The original Water share link displays the quiet, cache-busted workbench',
   await expect(frame.locator('#range-anap')).toBeHidden();
   // The Water adapter is loaded through dynamic import(), not a script tag.
   const iframeUrl = await page.locator('#instrumentStage iframe.water-v102-frame').getAttribute('src');
-  expect(new URL(iframeUrl, page.url()).searchParams.get('chartfix')).toBe('10.2.0-quiet2');
+  expect(new URL(iframeUrl, page.url()).searchParams.get('chartfix')).toBe(WATER_UI_VERSION);
 });
