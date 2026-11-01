@@ -54,15 +54,48 @@ test('Flow round two makes movement grammar, geography and inference boundaries 
   await expect(page.locator('.flow-active-summary')).toContainText('interpolation ≠ additional observation');
   const pacific = page.locator('.flow-geo-overlay [data-flow-trip="0"]');
   await expect(pacific).toBeVisible();
+  const play = page.locator('#flTripPlay');
+  if ((await play.textContent())?.includes('Ⅱ')) await play.click();
+  await expect(play).toHaveText('▶');
+  const time = page.locator('#flTripTime');
+  const trail = page.locator('#flTrail');
+  const setRange = async (input, value) => {
+    await input.evaluate((node, value) => {
+      node.value = String(value);
+      node.dispatchEvent(new Event('input', { bubbles:true }));
+    }, value);
+    await expect(input).toHaveValue(String(value));
+  };
+  const moveCount = async () => ((await pacific.getAttribute('d'))?.match(/M/g) || []).length;
+  await setRange(trail, 22);
+  // At t=30 the Pacific head is still at 171.46° W. The active trail has
+  // not crossed the date line yet; at t=35 it first reaches 179.73° E.
+  await setRange(time, 30);
+  await expect.poll(moveCount).toBe(1);
+  await setRange(time, 40);
+  await expect.poll(moveCount).toBe(2);
   const d = await pacific.getAttribute('d');
   expect((d?.match(/M/g) || []).length).toBeGreaterThan(1);
+  const geometry = await pacific.evaluate(node => {
+    const width = document.querySelector('#flMap').getBoundingClientRect().width;
+    const commands = [...node.getAttribute('d').matchAll(/([ML])(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g)];
+    const jumps = commands.slice(1).filter(command => command[1] === 'L')
+      .map(command => Math.abs(Number(command[2]) - Number(commands[commands.indexOf(command)-1][2])));
+    return { width, maxDrawnJump:Math.max(...jumps), subpaths:commands.filter(command => command[1] === 'M').length };
+  });
+  expect(geometry.subpaths).toBe(2);
+  expect(geometry.maxDrawnJump).toBeLessThan(geometry.width * .1);
 
-  const time = page.locator('#flTripTime');
+  // Once the 22-unit trail window no longer contains the date-line crossing,
+  // a single continuous path is correct again.
+  await setRange(time, 60);
+  await expect.poll(moveCount).toBe(1);
+
   const before = Number(await time.inputValue());
-  await page.locator('#flTripPlay').click();
+  await play.click();
   await expect.poll(async () => Number(await time.inputValue()), { timeout:2500 }).not.toBe(before);
   await expect(pacific).toBeVisible();
-  await page.locator('#flTripPlay').click();
+  await play.click();
 
   await expect(page.locator('#instrumentStage')).not.toContainText(/\bDEMO\b/i);
   await expect(page.locator('.flow-projection-readout')).toContainText('PLATE CARRÉE');
