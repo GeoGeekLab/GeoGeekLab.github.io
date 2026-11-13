@@ -164,6 +164,9 @@ test('Orbit exposes clock-consistent step controls and true camera tracking', as
   expect(after-before).toBeLessThan(3700000);
   await page.locator('#orbitTrack').click();
   await expect(page.locator('#orbitTrack')).toHaveAttribute('aria-pressed','true');
+  // The inspector is below the 3D stage on mobile; bring the canvas back
+  // into the visual viewport before sending the touch gesture.
+  await page.locator('#orbitStageV2').scrollIntoViewIfNeeded();
   const box=await page.locator('.orbit-canvas').boundingBox();
   if(!box)throw new Error('Missing orbital canvas');
   const x=box.x+box.width*.3,y=box.y+box.height*.5;
