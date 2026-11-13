@@ -577,3 +577,18 @@
     transform:translateX(-50%);
   }
 }
+
+
+/* The zoom tools must remain usable alongside the selection overlay. */
+.instrument-dialog[data-instrument-kind="orbit"] .orbit-enhancement-tools [data-orbit-fit] {
+  display:inline-flex;
+}
+@media(max-width:700px) {
+  .instrument-dialog[data-instrument-kind="orbit"] .orbit-enhancement-tools {
+    top:136px;
+    right:10px;
+  }
+  .instrument-dialog[data-instrument-kind="orbit"] .orbit-selection-bar {
+    max-width:calc(100% - 18px);
+  }
+}
