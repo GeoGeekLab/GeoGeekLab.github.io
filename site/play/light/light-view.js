@@ -288,6 +288,8 @@
       root.querySelector('.light-ray-atmosphere').classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
       root.querySelector('.light-ray-surface').classList.toggle('is-off',!surfaceContribution);
       root.querySelector('.light-ray-water').classList.toggle('is-off',!scene.mechanisms.waterBackscatter);
+      [['atmosphere','.light-ray-atmosphere'],['surface','.light-ray-surface'],['water','.light-ray-water']]
+        .forEach(([id,selector])=>root.querySelector(selector).classList.toggle('is-focus',focusedPath===id));
       [
         ['atmosphere','SCATTERED SKY',scene.mechanisms.atmosphericScattering],
         ['surface','SURFACE REFLECTION',surfaceContribution],
