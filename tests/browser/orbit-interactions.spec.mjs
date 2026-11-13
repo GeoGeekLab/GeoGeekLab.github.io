@@ -138,3 +138,59 @@ test('Orbit round-two rail keeps object tasks primary and provenance progressive
   await page.locator('[data-selection-clear]').click();
   await expect(page.locator('.orbit-selection-bar')).toBeHidden();
 });
+
+
+test('Orbit clears deep-link state when the selected object is cleared', async ({ page }) => {
+  await page.goto('/lab.html?instrument=orbit&sat=25544#l04', { waitUntil:'domcontentloaded' });
+  await expect(page.locator('#orbitNorad')).toContainText('25544', {timeout:30000});
+  await page.locator('[data-selection-clear]').click();
+  await expect(page.locator('#orbitSelectedName')).toHaveText('NONE');
+  await expect.poll(() => new URL(page.url()).searchParams.has('sat')).toBe(false);
+  await page.reload({waitUntil:'domcontentloaded'});
+  await expect(page.locator('#orbitSelectedName')).toHaveText('NONE', {timeout:30000});
+});
+
+test('Orbit exposes clock-consistent step controls and true camera tracking', async ({ page }) => {
+  await page.goto('/lab.html?instrument=orbit&sat=25544#l04', { waitUntil:'domcontentloaded' });
+  await expect(page.locator('#orbitNorad')).toContainText('25544', {timeout:30000});
+  const orbit=page.locator('.orbit-v2');
+  const before=Number(await orbit.getAttribute('data-simulation-time-ms'));
+  await page.locator('.orbit-view-more > summary').click();
+  await page.locator('[data-orbit-step="1"]').click();
+  const after=Number(await orbit.getAttribute('data-simulation-time-ms'));
+  expect(after-before).toBeGreaterThan(3500000);
+  expect(after-before).toBeLessThan(3700000);
+  await page.locator('#orbitTrack').click();
+  await expect(page.locator('#orbitTrack')).toHaveAttribute('aria-pressed','true');
+  const box=await page.locator('.orbit-canvas').boundingBox();
+  if(!box)throw new Error('Missing orbital canvas');
+  const x=box.x+box.width*.3,y=box.y+box.height*.5;
+  await page.mouse.move(x,y);
+  await page.mouse.down();
+  await page.mouse.move(x+80,y+20,{steps:5});
+  await page.mouse.up();
+  await expect(page.locator('#orbitTrack')).toHaveAttribute('aria-pressed','false');
+});
+
+test('Orbit sorts and paginates matching catalog objects', async ({ page }) => {
+  const items=Array.from({length:24},(_,i)=>({
+    ...ORBIT_FIXTURE[0],
+    OBJECT_NAME:'ORBIT REGRESSION '+String(24-i).padStart(2,'0'),
+    NORAD_CAT_ID:26000+i,
+    OBJECT_ID:'2026-'+String(i+1).padStart(3,'0')+'A',
+  }));
+  await page.route('**/orbital/data/active.json',route=>route.fulfill({
+    status:200, contentType:'application/json', body:JSON.stringify(items),
+  }));
+  await page.goto('/lab.html?instrument=orbit#l04',{waitUntil:'domcontentloaded'});
+  const search=page.locator('#orbitSearch');
+  await expect(search).toBeVisible({timeout:30000});
+  await search.fill('ORBIT REGRESSION');
+  await expect(page.locator('[data-search-index]')).toHaveCount(10);
+  await expect(page.locator('.orbit-search-summary')).toContainText('24 MATCHES');
+  await page.locator('[data-search-page="next"]').click();
+  await expect(page.locator('.orbit-search-pager')).toContainText('PAGE 2 / 3');
+  await page.locator('[data-orbit-sort]').selectOption('norad');
+  await expect(page.locator('.orbit-search-pager')).toContainText('PAGE 1 / 3');
+  await expect(page.locator('[data-search-index]').first()).toContainText('26000');
+});
