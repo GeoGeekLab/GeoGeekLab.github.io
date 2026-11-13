@@ -284,7 +284,7 @@
     const help = document.createElement('div');
     help.className = 'orbit-help orbit-enhancement-help';
     help.hidden = true;
-    help.innerHTML = '<strong>FIELD CONTROLS</strong><div><kbd>DRAG</kbd><span>rotate field</span></div><div><kbd>SCROLL / PINCH</kbd><span>zoom</span></div><div><kbd>+ / −</kbd><span>zoom</span></div><div><kbd>ARROWS</kbd><span>rotate by drag-equivalent steps</span></div><div><kbd>F</kbd><span>focus selected object</span></div><div><kbd>T</kbd><span>toggle object tracking</span></div><div><kbd>R</kbd><span>reset field</span></div><div><kbd>SPACE</kbd><span>play / pause time</span></div><div><kbd>N</kbd><span>return to now</span></div><div><kbd>ESC</kbd><span>clear selection</span></div>';
+    help.innerHTML = '<strong>FIELD CONTROLS</strong><div><kbd>DRAG</kbd><span>rotate field</span></div><div><kbd>SCROLL / PINCH</kbd><span>zoom</span></div><div><kbd>+ / −</kbd><span>zoom</span></div><div><kbd>ARROWS</kbd><span>rotate by drag-equivalent steps</span></div><div><kbd>F</kbd><span>focus selected object</span></div><div><kbd>T</kbd><span>toggle object tracking</span></div><div><kbd>R</kbd><span>reset field</span></div><div><kbd>SPACE</kbd><span>play / pause time</span></div><div><kbd>N</kbd><span>return to now</span></div><div><kbd>ESC</kbd><span>clear selection / close</span></div>';
     stage.appendChild(help);
 
     const viewCard = document.createElement('section');
@@ -408,13 +408,15 @@
       else if(event.key.toLowerCase()==='t') {event.preventDefault();$('#orbitTrack',root)?.click();}
       else if(event.key===' ') {event.preventDefault();$('#orbitPlay',root)?.click();}
       else if(event.key==='Escape') {
-        event.preventDefault();
         if(!help.hidden) {
+          event.preventDefault();
           help.hidden=true;
           $('[data-orbit-help]',tools)?.setAttribute('aria-expanded','false');
-        } else {
+        } else if (($('#orbitSelectedName',root)?.textContent||'').trim()!=='NONE') {
+          event.preventDefault();
           canvas.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true}));
         }
+        // With no help or selection, let the native dialog handle Escape.
       } else if(event.key==='ArrowLeft'||event.key==='ArrowRight'||event.key==='ArrowUp'||event.key==='ArrowDown') {
         event.preventDefault();
         const r=canvas.getBoundingClientRect();
