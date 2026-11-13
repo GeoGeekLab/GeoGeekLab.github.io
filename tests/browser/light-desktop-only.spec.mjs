@@ -62,6 +62,8 @@ test('Light emphasizes the path under test and keeps removed paths identifiable'
   await shell.getByRole('button',{name:'REMOVE SCATTERING'}).click();
   await expect(shell.locator('.light-ray-atmosphere')).toHaveClass(/is-focus.*is-off|is-off.*is-focus/);
   await expect(shell.locator('[data-path="atmosphere"]')).toContainText('REMOVED');
+  await expect(shell.locator('[data-path="surface"]')).toContainText('NO SKY SOURCE');
+  await expect(shell.locator('.light-scene-summary')).toContainText('has no scattered-sky source');
   await expect(shell.locator('.light-ray-water')).not.toHaveClass(/is-off/);
   // The deleted path stays as an explanatory dashed ghost.
   await expect.poll(async()=>{
