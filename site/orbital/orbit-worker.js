@@ -221,9 +221,13 @@ function postPass(message) {
   const rightBound = Math.min(end, los ?? end);
   let bestTime = leftBound;
   let bestElevation = -90;
+  let closestSampleTime = leftBound;
+  let closestSampleRange = Infinity;
   for (let t = leftBound; t <= rightBound; t += coarseStepMs) {
-    const e = elevationAt(t);
-    if (e !== null && e > bestElevation) { bestElevation = e; bestTime = t; }
+    const look=elevationFor(item,new Date(t),observer);
+    if (!look) continue;
+    if (look.elevation > bestElevation) { bestElevation = look.elevation; bestTime = t; }
+    if (look.range < closestSampleRange) { closestSampleRange=look.range; closestSampleTime=t; }
   }
   const lastElevation = elevationAt(rightBound);
   if (lastElevation !== null && lastElevation > bestElevation) bestTime = rightBound;
@@ -238,9 +242,20 @@ function postPass(message) {
   }
   const peakTime = Math.round((a + b) / 2000) * 1000;
   const peak = elevationFor(item, new Date(peakTime), observer);
+  let ca=Math.max(leftBound,closestSampleTime-coarseStepMs);
+  let cb=Math.min(rightBound,closestSampleTime+coarseStepMs);
+  for(let i=0;i<32&&cb-ca>1000;i++){
+    const c=cb-(cb-ca)*phi,d=ca+(cb-ca)*phi;
+    if((elevationFor(item,new Date(c),observer)?.range??Infinity) > (elevationFor(item,new Date(d),observer)?.range??Infinity))ca=c;
+    else cb=d;
+  }
+  const closestTime=Math.round((ca+cb)/2000)*1000;
+  const closestLook=elevationFor(item,new Date(closestTime),observer);
+  const closest=closestLook?{...closestLook,timeMs:closestTime}:null;
   const result = {
     aos, los, inProgress, continuous:inProgress && aos === null && los === null,
     peak: peak ? { ...peak, timeMs:peakTime } : null,
+    closest,
   };
   self.postMessage({ type:'pass', id:item.id, requestId:message.requestId, result });
 }
