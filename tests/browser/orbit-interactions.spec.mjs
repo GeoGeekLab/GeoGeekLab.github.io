@@ -49,7 +49,7 @@ test.beforeEach(async ({ page }) => {
   await stubOrbitSnapshot(page);
 });
 
-test('Orbit exposes advanced controls and forwards wheel zoom across the field', async ({ page }) => {
+test('Orbit exposes advanced controls and forwards available zoom gestures', async ({ page }, testInfo) => {
   // Mobile emulation performs the same WebGL boot, accordion expansion, wheel
   // forwarding and time-step checks under a smaller, touch-enabled viewport.
   // Full-suite trace evidence shows the assertions complete successfully but
@@ -86,11 +86,13 @@ test('Orbit exposes advanced controls and forwards wheel zoom across the field',
     });
   });
 
-  const hud = page.locator('.orbit-hud');
-  await hud.hover();
-  await page.mouse.wheel(0, -320);
-  await expect.poll(() => page.evaluate(() => window.__orbitWheelCount)).toBeGreaterThan(0);
-
+  if (testInfo.project.name === 'desktop-chromium') {
+    // A real wheel is meaningful on desktop, not on an emulated touchscreen.
+    const hud = page.locator('.orbit-hud');
+    await hud.hover();
+    await page.mouse.wheel(0, -320);
+    await expect.poll(() => page.evaluate(() => window.__orbitWheelCount)).toBeGreaterThan(0);
+  }
   const before = await page.evaluate(() => window.__orbitWheelCount);
   await page.locator('[data-orbit-zoom="in"]').click();
   await expect.poll(() => page.evaluate(() => window.__orbitWheelCount)).toBeGreaterThan(before);
@@ -150,7 +152,7 @@ test('Orbit clears deep-link state when the selected object is cleared', async (
   await expect(page.locator('#orbitSelectedName')).toHaveText('NONE', {timeout:30000});
 });
 
-test('Orbit exposes clock-consistent step controls and true camera tracking', async ({ page }) => {
+test('Orbit exposes clock-consistent step controls and true camera tracking', async ({ page }, testInfo) => {
   await page.goto('/lab.html?instrument=orbit&sat=25544#l04', { waitUntil:'domcontentloaded' });
   await expect(page.locator('#orbitNorad')).toContainText('25544', {timeout:30000});
   const orbit=page.locator('.orbit-v2');
@@ -165,10 +167,20 @@ test('Orbit exposes clock-consistent step controls and true camera tracking', as
   const box=await page.locator('.orbit-canvas').boundingBox();
   if(!box)throw new Error('Missing orbital canvas');
   const x=box.x+box.width*.3,y=box.y+box.height*.5;
-  await page.mouse.move(x,y);
-  await page.mouse.down();
-  await page.mouse.move(x+80,y+20,{steps:5});
-  await page.mouse.up();
+  if (testInfo.project.name === 'mobile-chromium') {
+    // Test a real single-finger drag, not a synthetic mouse on a touch device.
+    const cdp=await page.context().newCDPSession(page);
+    const pt=(dx,dy)=>({x:Math.round(x+dx),y:Math.round(y+dy),id:1});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[pt(0,0)]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[pt(40,10)]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[pt(100,24)]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  } else {
+    await page.mouse.move(x,y);
+    await page.mouse.down();
+    await page.mouse.move(x+80,y+20,{steps:5});
+    await page.mouse.up();
+  }
   await expect(page.locator('#orbitTrack')).toHaveAttribute('aria-pressed','false');
 });
 
