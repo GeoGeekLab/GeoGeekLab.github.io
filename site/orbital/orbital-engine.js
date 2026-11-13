@@ -450,7 +450,9 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
 
   function clearTraceObjects() { while(traceGroup.children.length){const obj=traceGroup.children.pop();obj.geometry?.dispose?.();obj.material?.dispose?.();} }
   function updateTrace(message) {
-    state.trace=message; clearTraceObjects(); if(!state.selectedId||message.id!==state.selectedId)return;
+    // Discard stale replies before changing the selected object's trajectory.
+    if(!state.selectedId||message.id!==state.selectedId)return;
+    state.trace=message; clearTraceObjects();
     const orbitPts=[],groundPts=[],v=new THREE.Vector3();
     for(let i=0;i<message.values.length/3;i++){
       const o=i*3,lon=message.values[o],lat=message.values[o+1],alt=message.values[o+2];
@@ -498,7 +500,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   });
   function selectByIndex(index) {
     const meta=state.meta[index]; if(!meta)return;
-    state.selectedId=meta.id;state.followSelected=false;updateTrackUi();state.query='';state.searchPage=0;state.filter='ALL';search.value='';searchResults.classList.remove('is-open');$$('[data-filter]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.filter==='ALL'));
+    state.selectedId=meta.id;state.followSelected=false;updateTrackUi();state.query='';state.searchPage=0;state.filter='ALL';search.value='';search.setAttribute('aria-expanded','false');searchResults.classList.remove('is-open');searchResults.innerHTML='';$$('[data-filter]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.filter==='ALL'));
     selectedName.textContent=meta.name; selectedClass.textContent=meta.orbitClass; inspectorEmpty.hidden=true;inspectorDl.hidden=false;actions.hidden=false;
     noradEl.textContent=`${meta.id}${meta.objectId?` · ${meta.objectId}`:''}`;inclinationEl.textContent=`${fmt(meta.inclination,2)}°`;periodEl.textContent=meta.periodMin?`${fmt(meta.periodMin,1)} min`:'—';perigeeEl.textContent=Number.isFinite(meta.perigeeKm)?`${fmt(meta.perigeeKm,0)} km`:'—';apogeeEl.textContent=Number.isFinite(meta.apogeeKm)?`${fmt(meta.apogeeKm,0)} km`:'—';eccentricityEl.textContent=Number.isFinite(meta.eccentricity)?Number(meta.eccentricity).toFixed(6):'—';epochEl.textContent=meta.epochMs?`${formatUtc(meta.epochMs)} · ${formatAge(meta.epochMs)} old`:'—';
     sourceObject.href=`https://celestrak.org/NORAD/elements/gp.php?CATNR=${encodeURIComponent(meta.id)}&FORMAT=JSON-PRETTY`;
