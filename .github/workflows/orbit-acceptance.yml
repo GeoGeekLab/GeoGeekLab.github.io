@@ -1,0 +1,69 @@
+name: Orbit Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'site/orbital/**'
+      - 'site/core/modules.js'
+      - 'site/instruments.js'
+      - 'site/lab-fullpage.js'
+      - 'site/lab.html'
+      - 'scripts/site-release-contract.mjs'
+      - 'tests/orbit/**'
+      - 'tests/browser/orbit-*.spec.mjs'
+      - '.github/workflows/orbit-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orbit-acceptance-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  orbit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify orbit numeric and release contracts
+        run: |
+          node --test tests/orbit/*.test.mjs
+          node --test tests/build/site-design-contract.test.mjs
+          node scripts/verify-lab-cache-contract.mjs
+          node --check site/orbital/orbit-worker.js
+          node --check site/orbital/orbital-engine.js
+
+      - name: Install Chromium and test dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Prepare self-contained source preview
+        run: |
+          mkdir -p dist
+          cp -a site/. dist/
+
+      - name: Exercise desktop and mobile Orbit workspace
+        run: npx playwright test -c playwright.config.mjs tests/browser/orbit-interactions.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+
+      - name: Preserve visual acceptance screenshots and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orbit-acceptance-evidence
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
+          path: |
+            test-results/
+            playwright-report/
