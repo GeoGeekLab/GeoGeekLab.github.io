@@ -264,7 +264,7 @@ test('Orbit visual workbench keeps HUD, selection, zoom and time dock separate',
     expect(area, `overlap: ${pair} (${JSON.stringify(result)})`).toBeLessThan(3);
   }
   expect(result.overflow).toBeLessThanOrEqual(2);
-  expect(result.timeText).toMatch(/^\\d{4}-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d UTC$/);
+  expect(result.timeText).toMatch(/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d UTC$/);
   await testInfo.attach('orbit-workspace-visual', {
     body: await page.screenshot({animations:'disabled'}),
     contentType:'image/png',
