@@ -169,6 +169,7 @@
         :previousAction==='perturb'?'next'
         :previousAction==='next'||previousAction==='restart'?'first-choice'
         :previousAction;
+      if (nextAction==='first-choice') shell.overlay.scrollTop=0;
       const controls=[...panel.querySelectorAll('[data-light-action]')];
       const target=nextAction==='first-choice'
         ?controls.find(control=>control.classList.contains('light-choice'))||controls[0]
