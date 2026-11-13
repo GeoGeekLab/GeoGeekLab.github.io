@@ -13,7 +13,7 @@ const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
 const fmt = (value, digits = 1) => Number.isFinite(Number(value)) ? Number(value).toLocaleString(undefined, { maximumFractionDigits:digits, minimumFractionDigits:digits }) : '—';
-const formatUtc = ms => Number.isFinite(Number(ms)) ? new Date(Number(ms)).toISOString().replace('T',' ').slice(0,19) + ' UTC' : '—';
+const formatUtc = ms => ms != null && Number.isFinite(Number(ms)) ? new Date(Number(ms)).toISOString().replace('T',' ').slice(0,19) + ' UTC' : '—';
 const formatAge = ms => {
   if (!Number.isFinite(Number(ms))) return '—';
   const hours = Math.max(0, (Date.now() - Number(ms)) / 3600000);
@@ -229,7 +229,7 @@ function renderLayout(container, sourceMode) {
     <aside class="orbit-panel">
       <section class="orbit-card">
         <div class="orbit-card-head"><div><span>ORBITAL CATALOG</span><strong>Find an object, then read its relations.</strong></div><em id="orbitCatalogCount">—</em></div>
-        <div class="orbit-search-wrap"><input class="orbit-search" id="orbitSearch" type="search" placeholder="Name or NORAD catalog ID…" autocomplete="off" spellcheck="false"><div class="orbit-search-results" id="orbitSearchResults"></div></div>
+        <div class="orbit-search-wrap"><input class="orbit-search" id="orbitSearch" type="search" placeholder="Name or NORAD catalog ID…" autocomplete="off" spellcheck="false" aria-controls="orbitSearchResults" aria-expanded="false"><div class="orbit-search-results" id="orbitSearchResults" role="region" aria-label="Catalog search results"></div></div>
         <div class="orbit-filter-row" id="orbitFilters"><button type="button" data-filter="ALL" class="is-active">ALL</button><button type="button" data-filter="LEO">LEO</button><button type="button" data-filter="MEO">MEO</button><button type="button" data-filter="GSO">GSO</button><button type="button" data-filter="GEO">GEO</button><button type="button" data-filter="HEO">HEO</button><button type="button" data-filter="HIGH">HIGH</button></div>
         <div class="orbit-filter-counts" id="orbitFilterCounts">—</div>
       </section>
@@ -510,12 +510,54 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   }
 
   function renderPass(){
-    if(!state.selectedId||!state.observer){passEl.innerHTML='<span>NEXT GEOMETRIC PASS</span><strong>Select an object and set an observer.</strong>';return;}
-    if(!state.pass){passEl.innerHTML='<span>NEXT GEOMETRIC PASS</span><strong>No pass found in the next 24 h, or calculation pending.</strong>';return;}
-    const r=state.pass;passEl.innerHTML=`<span>NEXT GEOMETRIC PASS · 0° HORIZON</span><strong>AOS ${esc(formatUtc(r.aos).slice(11,19))} · MAX ${esc(fmt(r.peak?.elevation,1))}° · LOS ${r.los?esc(formatUtc(r.los).slice(11,19)):'>24H'} UTC</strong>`;
+    if(!state.selectedId||!state.observer){
+      passEl.innerHTML='<span>NEXT GEOMETRIC PASS</span><strong>Select an object and set an observer.</strong>';return;
+    }
+    if(!state.pass){
+      passEl.innerHTML='<span>NEXT GEOMETRIC PASS · 0° HORIZON</span><strong>No pass found in the next 24 hours.</strong>';return;
+    }
+    const r=state.pass;
+    const aos=r.aos!=null?formatUtc(r.aos):(r.inProgress?'BEFORE SEARCH WINDOW':'—');
+    const los=r.los!=null?formatUtc(r.los):'BEYOND SEARCH WINDOW';
+    const tca=r.peak?.timeMs!=null?formatUtc(r.peak.timeMs):'—';
+    const max=r.peak?fmt(r.peak.elevation,2)+'°':'—';
+    const stateText=r.continuous?'CONTINUOUS GEOMETRIC VISIBILITY':r.inProgress?'PASS IN PROGRESS':'NEXT PASS';
+    passEl.innerHTML=`<span>${stateText} · 0° HORIZON · UTC</span><strong>AOS ${esc(aos)}</strong><small>TCA ${esc(tca)} · MAX ${esc(max)}</small><small>LOS ${esc(los)}</small><small>1 s event refinement; model accuracy depends on element epoch.</small>`;
   }
 
-  function renderSearchResults(){const q=search.value.trim().toLowerCase();if(!q){searchResults.classList.remove('is-open');searchResults.innerHTML='';return;}const matches=[];for(let i=0;i<state.meta.length&&matches.length<9;i++){const m=state.meta[i];if(m.name.toLowerCase().includes(q)||m.id.includes(q)||m.objectId.toLowerCase().includes(q))matches.push([i,m]);}searchResults.innerHTML=matches.map(([i,m])=>`<button type="button" data-search-index="${i}"><b>${esc(m.name)}</b><small>${esc(m.orbitClass)} · ${esc(m.id)}</small></button>`).join('')||'<div class="orbit-empty">No matching object.</div>';searchResults.classList.add('is-open');}
+  function renderSearchResults(){
+    const q=search.value.trim().toLowerCase();
+    search.setAttribute('aria-expanded',String(Boolean(q)));
+    if(!q){searchResults.classList.remove('is-open');searchResults.innerHTML='';return;}
+    const all=[];
+    for(let i=0;i<state.meta.length;i++){
+      const m=state.meta[i];
+      if(m.name.toLowerCase().includes(q)||m.id.includes(q)||m.objectId.toLowerCase().includes(q))all.push([i,m]);
+    }
+    const relevance=m=>{
+      const name=m.name.toLowerCase();
+      if(m.id===q||name===q||m.objectId.toLowerCase()===q)return 0;
+      if(m.id.startsWith(q)||name.startsWith(q))return 1;
+      return 2;
+    };
+    all.sort((a,b)=>{
+      const ma=a[1],mb=b[1];
+      if(state.searchSort==='norad')return Number(ma.id)-Number(mb.id)||ma.name.localeCompare(mb.name);
+      if(state.searchSort==='epoch')return (mb.epochMs||0)-(ma.epochMs||0)||ma.name.localeCompare(mb.name);
+      if(state.searchSort==='name')return ma.name.localeCompare(mb.name)||Number(ma.id)-Number(mb.id);
+      return relevance(ma)-relevance(mb)||ma.name.localeCompare(mb.name)||Number(ma.id)-Number(mb.id);
+    });
+    const pageSize=10;
+    const totalPages=Math.max(1,Math.ceil(all.length/pageSize));
+    state.searchPage=clamp(state.searchPage,0,totalPages-1);
+    const first=state.searchPage*pageSize;
+    const rows=all.slice(first,first+pageSize);
+    const sorts=[['relevance','RELEVANCE'],['name','NAME A–Z'],['norad','NORAD ID'],['epoch','NEWEST EPOCH']];
+    const options=sorts.map(([key,label])=>`<option value="${key}" ${state.searchSort===key?'selected':''}>${label}</option>`).join('');
+    const resultMarkup=rows.map(([i,m])=>`<button type="button" data-search-index="${i}"><b>${esc(m.name)}</b><small>${esc(m.orbitClass)} · ${esc(m.id)}</small></button>`).join('');
+    searchResults.innerHTML=`<div class="orbit-search-summary"><span role="status">${all.length.toLocaleString()} MATCHES · ${all.length?first+1:0}–${Math.min(first+pageSize,all.length)}</span><label>SORT <select data-orbit-sort aria-label="Sort catalog search results">${options}</select></label></div><div class="orbit-search-items">${resultMarkup||'<p class="orbit-empty">No matching object.</p>'}</div><div class="orbit-search-pager"><button type="button" data-search-page="prev" ${state.searchPage===0?'disabled':''}>PREVIOUS</button><span>PAGE ${state.searchPage+1} / ${totalPages}</span><button type="button" data-search-page="next" ${state.searchPage>=totalPages-1?'disabled':''}>NEXT</button></div>`;
+    searchResults.classList.add('is-open');
+  }
 
   function applyRadialMode(mode){if(!['compressed','physical'].includes(mode))return;state.radial=mode;scaleBadge.textContent=mode.toUpperCase();scaleLimit.textContent=mode==='physical'?'Radial distance uses Earth-radius + propagated altitude; high orbits make Earth appear small.':'Altitude is visually compressed to keep LEO, MEO and GEO legible together; radial distance is not metric.';$$('[data-scale]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.scale===mode));state.camera.distance=mode==='physical'?18:3.35;rebuildShells();setCameraFromState(camera,state);if(state.trace)updateTrace(state.trace);if(state.lastFrame)updatePointCloud({...state.lastFrame,selectedState:state.selectedState});}
 
@@ -551,8 +593,21 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   function animate(){if(innerSignal.aborted)return;raf=requestAnimationFrame(animate);syncSimulationClock(state);const root=$('.orbit-v2',container);if(root)root.dataset.simulationTimeMs=String(Math.round(state.simulationTimeMs));updateTimeUi();requestPositions();if(state.time.rate>1)requestTrace();updateSelectedLabel();renderer.render(scene,camera);}
   animate();
 
-  search.addEventListener('input',()=>{renderSearchResults();state.query=search.value.trim();if(!state.query){requestPositions(true);return;}requestPositions(true);});
-  searchResults.addEventListener('click',e=>{const b=e.target.closest('[data-search-index]');if(b)selectByIndex(Number(b.dataset.searchIndex));});
+  search.addEventListener('input',()=>{state.searchPage=0;renderSearchResults();state.query=search.value.trim();if(!state.query){requestPositions(true);return;}requestPositions(true);});
+  searchResults.addEventListener('click',e=>{
+    const result=e.target.closest('[data-search-index]');
+    if(result){selectByIndex(Number(result.dataset.searchIndex));return;}
+    const pager=e.target.closest('[data-search-page]');
+    if(pager&&!pager.disabled){
+      state.searchPage+=pager.dataset.searchPage==='next'?1:-1;
+      renderSearchResults();search.focus({preventScroll:true});
+    }
+  });
+  searchResults.addEventListener('change',e=>{
+    if(e.target.matches('[data-orbit-sort]')){
+      state.searchSort=e.target.value;state.searchPage=0;renderSearchResults();search.focus({preventScroll:true});
+    }
+  });
   container.addEventListener('click',e=>{
     const filter=e.target.closest('[data-filter]');if(filter){setFilter(filter.dataset.filter);return;}
     const scale=e.target.closest('[data-scale]');if(scale){applyRadialMode(scale.dataset.scale);return;}
