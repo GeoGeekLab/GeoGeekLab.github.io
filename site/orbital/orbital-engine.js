@@ -388,7 +388,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     coastGroup.add(lines); state.coastRings = lines.userData.rings || []; drawGroundMap(groundCanvas,state,state.coastRings);
   });
 
-  const worker = new Worker(new URL('./orbit-worker.js?v=20261001b', import.meta.url), { type:'module' });
+  const worker = new Worker(new URL('./orbit-worker.js?v=20261113b', import.meta.url), { type:'module' });
   worker.postMessage({ type:'init', records:catalog.records });
   catalog.records = null;
   const maxPoints = (navigator.deviceMemory && navigator.deviceMemory <= 4) || matchMedia('(max-width:680px)').matches ? 9000 : 20000;
@@ -483,6 +483,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     const vFov=camera.fov*Math.PI/180;
     const hFov=2*Math.atan(Math.tan(vFov/2)*camera.aspect);
     const distance=radius/Math.sin(Math.min(vFov,hFov)/2)*1.08;
+    state.followSelected=false;updateTrackUi();
     state.camera.distance=clamp(distance,1.65,Math.max(1.65,Math.min(70,camera.far-radius-1)));
     setCameraFromState(camera,state);
   }
@@ -519,10 +520,11 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     const r=state.pass;
     const aos=r.aos!=null?formatUtc(r.aos):(r.inProgress?'BEFORE SEARCH WINDOW':'—');
     const los=r.los!=null?formatUtc(r.los):'BEYOND SEARCH WINDOW';
-    const tca=r.peak?.timeMs!=null?formatUtc(r.peak.timeMs):'—';
+    const tca=r.closest?.timeMs!=null?formatUtc(r.closest.timeMs):'—';
+    const maxTime=r.peak?.timeMs!=null?formatUtc(r.peak.timeMs):'—';
     const max=r.peak?fmt(r.peak.elevation,2)+'°':'—';
     const stateText=r.continuous?'CONTINUOUS GEOMETRIC VISIBILITY':r.inProgress?'PASS IN PROGRESS':'NEXT PASS';
-    passEl.innerHTML=`<span>${stateText} · 0° HORIZON · UTC</span><strong>AOS ${esc(aos)}</strong><small>TCA ${esc(tca)} · MAX ${esc(max)}</small><small>LOS ${esc(los)}</small><small>1 s event refinement; model accuracy depends on element epoch.</small>`;
+    passEl.innerHTML=`<span>${stateText} · 0° HORIZON · UTC</span><strong>AOS ${esc(aos)}</strong><small>TCA ${esc(tca)}</small><small>MAX ELEVATION ${esc(max)} AT ${esc(maxTime)}</small><small>LOS ${esc(los)}</small><small>1 s event refinement; model accuracy depends on element epoch.</small>`;
   }
 
   function renderSearchResults(){
@@ -561,7 +563,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
 
   function applyRadialMode(mode){if(!['compressed','physical'].includes(mode))return;state.radial=mode;scaleBadge.textContent=mode.toUpperCase();scaleLimit.textContent=mode==='physical'?'Radial distance uses Earth-radius + propagated altitude; high orbits make Earth appear small.':'Altitude is visually compressed to keep LEO, MEO and GEO legible together; radial distance is not metric.';$$('[data-scale]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.scale===mode));state.camera.distance=mode==='physical'?18:3.35;rebuildShells();setCameraFromState(camera,state);if(state.trace)updateTrace(state.trace);if(state.lastFrame)updatePointCloud({...state.lastFrame,selectedState:state.selectedState});}
 
-  function setView(view){$$('[data-view]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.view===view));if(view==='polar'){state.camera.yaw=.25;state.camera.pitch=1.36;}else{state.camera.yaw=.52;state.camera.pitch=.22;}setCameraFromState(camera,state);}
+  function setView(view){state.followSelected=false;updateTrackUi();$('[data-view]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.view===view));if(view==='polar'){state.camera.yaw=.25;state.camera.pitch=1.36;}else{state.camera.yaw=.52;state.camera.pitch=.22;}setCameraFromState(camera,state);}
 
   function setFilter(filter){state.filter=filter;state.query='';search.value='';$$('[data-filter]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.filter===filter));requestPositions(true);}
 
@@ -690,6 +692,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
         state.pointerMoved = true;
       }
       if (dragPointer.moved) {
+        if(state.followSelected){state.followSelected=false;updateTrackUi();}
         state.camera.yaw -= dx * .006;
         state.camera.pitch = clamp(state.camera.pitch + dy * .0055, -1.48, 1.48);
         setCameraFromState(camera, state);
