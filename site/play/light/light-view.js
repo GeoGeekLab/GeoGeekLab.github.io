@@ -58,7 +58,7 @@
             <path class="light-ray light-ray-surface" d="M540 282 C645 220 735 205 835 176"></path>
             <path class="light-ray light-ray-water" d="M540 286 C520 362 500 410 465 455 C535 423 620 370 704 306"></path>
           </svg>
-          <div class="light-scene-caption">ILLUSTRATIVE LIGHT PATHS <span>NOT TO SCALE</span></div>
+          <div class="light-scene-caption"><span class="light-scene-focus">PATH UNDER TEST</span><span>ILLUSTRATIVE PATHS · NOT TO SCALE</span></div>
           <div class="light-path-legend" aria-label="Light path status">
             <span data-path="atmosphere">SCATTERED SKY</span>
             <span data-path="surface">SURFACE REFLECTION</span>
@@ -83,7 +83,7 @@
       </div>`;
 
     shell.hud.innerHTML=`
-      <div class="light-evidence-head"><small>LIGHT / OPTICAL EVIDENCE</small><strong>Three optical mechanisms</strong></div>
+      <div class="light-evidence-head"><small>LIGHT / OPTICAL EVIDENCE</small><strong class="light-evidence-target">Three optical mechanisms</strong></div>
       <div class="light-evidence-meta">
         <div class="light-hud-block"><span>EXPERIMENT</span><strong class="light-hud-count">01 / 03</strong></div>
         <div class="light-hud-block"><span>MODEL</span><strong>PATH ABLATION</strong></div>
@@ -95,6 +95,22 @@
       <p class="light-phase-announcement" role="status" aria-live="polite" aria-atomic="true"></p>`;
 
     const root=shell.root;
+    // Desktop-only instrument. The notice replaces the experiments on narrow
+    // screens and coarse-pointer devices without changing the science state.
+    const desktopGate=document.createElement('section');
+    desktopGate.className='light-desktop-gate';
+    desktopGate.setAttribute('aria-labelledby','lightDesktopGateTitle');
+    desktopGate.innerHTML=`
+      <span class="light-desktop-gate-index">GEOGEEK / LAB / PLAY / L15</span>
+      <div class="light-desktop-gate-rule" aria-hidden="true"></div>
+      <p class="light-desktop-gate-kicker">DESKTOP EXPERIENCE</p>
+      <h2 id="lightDesktopGateTitle">Open Light on a desktop.</h2>
+      <p>Light uses a wide scene and a separate evidence panel. Please open this page on a computer to explore the three experiments.</p>
+      <p lang="zh-CN">本实验仅面向桌面端。请使用电脑浏览器打开相同链接。</p>
+      <a class="light-desktop-gate-link" href="/lab.html">RETURN TO LAB <span aria-hidden="true">↗</span></a>
+      <span class="light-desktop-gate-foot">SCATTERING / BACKSCATTER / REFLECTION</span>`;
+    root.append(desktopGate);
+
     const sky=root.querySelector('.light-sky');
     const ocean=root.querySelector('.light-ocean');
     const reflection=root.querySelector('.light-surface-reflection');
@@ -109,6 +125,18 @@
     const maxLabel=root.querySelector('.light-spectrum-y-max');
     const sceneSummary=root.querySelector('.light-scene-summary');
     const phaseAnnouncement=root.querySelector('.light-phase-announcement');
+    const sceneFocus=root.querySelector('.light-scene-focus');
+    const evidenceTarget=root.querySelector('.light-evidence-target');
+    const pathForMechanism=Object.freeze({
+      atmosphericScattering:'atmosphere',
+      surfaceReflection:'surface',
+      waterBackscatter:'water'
+    });
+    const pathTitle=Object.freeze({
+      atmosphere:'SCATTERED SKY',
+      surface:'SURFACE REFLECTION',
+      water:'WATER-LEAVING SIGNAL'
+    });
     let announcedPhase=null;
     const count=root.querySelector('.light-hud-count');
     const desktopQuery=window.matchMedia('(min-width:1024px)');
@@ -245,6 +273,10 @@
       root.dataset.atmosphericScattering=scene.mechanisms.atmosphericScattering?'on':'off';
       root.dataset.waterBackscatter=scene.mechanisms.waterBackscatter?'on':'off';
       root.dataset.surfaceReflection=scene.mechanisms.surfaceReflection?'on':'off';
+      const focusedPath=snapshot.phase==='complete'?'none':(pathForMechanism[snapshot.experiment?.mechanism]||'none');
+      root.dataset.lightFocus=focusedPath;
+      sceneFocus.textContent=focusedPath==='none'?'THREE PATHS · ONE VISIBLE WORLD':`UNDER TEST / ${pathTitle[focusedPath]}`;
+      evidenceTarget.textContent=focusedPath==='none'?'Three distinct optical paths':pathTitle[focusedPath];
       sceneSummary.textContent=`Conceptual scene. Scattered sky ${scene.mechanisms.atmosphericScattering?'present':'removed'}; reflected-sky surface path ${scene.mechanisms.atmosphericScattering&&scene.mechanisms.surfaceReflection?'present':'removed'}; water-leaving path ${scene.mechanisms.waterBackscatter?'present':'removed'}. Display color and geometry are illustrative.`;
 
       sky.classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
@@ -263,6 +295,9 @@
       ].forEach(([id,label,active])=>{
         const item=root.querySelector(`[data-path="${id}"]`);
         item.classList.toggle('is-off',!active);
+        item.classList.toggle('is-focus',focusedPath===id);
+        if (focusedPath===id) item.setAttribute('aria-current','step');
+        else item.removeAttribute('aria-current');
         item.textContent=`${label} · ${active?'PRESENT':'REMOVED'}`;
       });
 
