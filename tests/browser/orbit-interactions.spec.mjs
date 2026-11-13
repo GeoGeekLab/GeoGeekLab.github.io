@@ -157,8 +157,8 @@ test('Orbit exposes clock-consistent step controls and true camera tracking', as
   const before=Number(await orbit.getAttribute('data-simulation-time-ms'));
   await page.locator('.orbit-view-more > summary').click();
   await page.locator('[data-orbit-step="1"]').click();
+  await expect.poll(async()=>Number(await orbit.getAttribute('data-simulation-time-ms'))-before).toBeGreaterThan(3500000);
   const after=Number(await orbit.getAttribute('data-simulation-time-ms'));
-  expect(after-before).toBeGreaterThan(3500000);
   expect(after-before).toBeLessThan(3700000);
   await page.locator('#orbitTrack').click();
   await expect(page.locator('#orbitTrack')).toHaveAttribute('aria-pressed','true');
@@ -181,6 +181,16 @@ test('Orbit sorts and paginates matching catalog objects', async ({ page }) => {
   }));
   await page.route('**/orbital/data/active.json',route=>route.fulfill({
     status:200, contentType:'application/json', body:JSON.stringify(items),
+  }));
+  await page.route('**/orbital/data/active.meta.json',route=>route.fulfill({
+    status:200,contentType:'application/json',
+    body:JSON.stringify({
+      schemaVersion:2,supplyId:'orbit-active',dataset:'celestrak-active-gp',
+      format:'CCSDS OMM JSON',source:'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON',
+      fetchedAt:new Date().toISOString(),recordCount:items.length,sha256:'fixture',
+      epochs:{oldest:items[0].EPOCH,median:items[0].EPOCH,newest:items[0].EPOCH},
+      refreshPolicy:{minimumMs:7200000,staleAfterMs:28800000,lastKnownGoodOnFailure:true},
+    }),
   }));
   await page.goto('/lab.html?instrument=orbit#l04',{waitUntil:'domcontentloaded'});
   const search=page.locator('#orbitSearch');
