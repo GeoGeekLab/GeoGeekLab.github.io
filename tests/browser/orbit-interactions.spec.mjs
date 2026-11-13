@@ -259,16 +259,22 @@ test('Orbit visual workbench keeps HUD, selection, zoom and time dock separate',
     const selection=get('.orbit-selection-bar');
     const zoom=get('.orbit-enhancement-tools');
     const timeline=get('.orbit-time-dock');
+    const labelVisible=document.querySelector('.orbit-object-label')?.classList.contains('is-visible');
+    const label=labelVisible?get('.orbit-object-label'):null;
     const inside=element=>element.x>=stage.x-2&&element.right<=stage.right+2&&
                            element.y>=stage.y-2&&element.bottom<=stage.bottom+2;
     return {
-      stage, hud, selection, zoom, timeline,
+      stage, hud, selection, zoom, timeline, labelVisible,
       inside:{hud:inside(hud),selection:inside(selection),zoom:inside(zoom),timeline:inside(timeline)},
       collisions:{
         headerSelection:collide(hud,selection),
         selectionZoom:collide(selection,zoom),
         selectionTimeline:collide(selection,timeline),
         zoomTimeline:collide(zoom,timeline),
+        labelHud:label?collide(label,hud):0,
+        labelSelection:label?collide(label,selection):0,
+        labelZoom:label?collide(label,zoom):0,
+        labelTimeline:label?collide(label,timeline):0,
       },
       overflow:document.documentElement.scrollWidth-innerWidth,
       timeText:document.querySelector('#orbitTimeUtc')?.textContent||'',
