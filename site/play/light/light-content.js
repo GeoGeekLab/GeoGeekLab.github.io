@@ -40,7 +40,7 @@
       revealTitle:'THE WATER SIGNAL COLLAPSES.',
       reveal:'The water still exists and still absorbs light. But with bb forced to zero as a thought experiment, no modeled water-leaving reflectance returns toward the observer.',
       equation:'u = bb / (a + bb)  →  bb = 0  →  Rrs = 0',
-      limit:'Mechanism ablation outside natural-water states. The baseline Rrs comes from the validated Water as Spectrum engine.'
+      limit:'Mechanism ablation outside natural-water states. The baseline Rrs comes from the idealized, numerically tested Water as Spectrum model, not from field observations.'
     }),
     Object.freeze({
       id:'surface-no-reflection',
@@ -59,7 +59,7 @@
       chartLabel:'SKY-REFLECTION PATH / RELATIVE',
       revealTitle:'REFLECTION DISAPPEARS. WATER REMAINS.',
       reveal:'Surface reflection and water-leaving radiance are different paths. Turning off the reflected-sky path removes that contribution without deleting the modeled water signal.',
-      equation:'OBSERVED WATER VIEW = SURFACE PATH + WATER-LEAVING PATH',
+      equation:'TWO DISTINCT PATHS / SURFACE REFLECTION ≠ WATER-LEAVING SIGNAL',
       limit:'Surface path uses a fixed-angle Fresnel teaching model. It is not a sunglint or rough-surface BRDF solver.'
     })
   ]);
