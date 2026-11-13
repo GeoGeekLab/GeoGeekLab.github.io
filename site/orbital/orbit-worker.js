@@ -157,7 +157,9 @@ function postPass(message) {
   const start = Number(message.timeMs);
   const horizonMs = Math.max(1, Math.min(48, Number(message.hours || 24))) * 3600000;
   const end = start + horizonMs;
-  const coarseStepMs = 120000;
+  // Short grazing LEO passes can last less than two minutes.
+  // Sample those orbits every 30 seconds before event-root refinement.
+  const coarseStepMs = item.periodMin != null && item.periodMin < 225 ? 30000 : 120000;
   const elevationAt = timeMs => elevationFor(item, new Date(timeMs), observer)?.elevation ?? null;
   const elevationStart = elevationAt(start);
   if (elevationStart === null) {
