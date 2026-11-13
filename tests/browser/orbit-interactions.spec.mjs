@@ -204,3 +204,19 @@ test('Orbit sorts and paginates matching catalog objects', async ({ page }) => {
   await expect(page.locator('.orbit-search-pager')).toContainText('PAGE 1 / 3');
   await expect(page.locator('[data-search-index]').first()).toContainText('26000');
 });
+
+
+test('Orbit Escape closes help, clears selection, then exits the workspace', async ({ page }) => {
+  await page.goto('/lab.html?instrument=orbit&sat=25544#l04',{waitUntil:'domcontentloaded'});
+  await expect(page.locator('#orbitNorad')).toContainText('25544',{timeout:30000});
+  const stage=page.locator('#orbitStageV2');
+  await page.locator('[data-orbit-help]').click();
+  await stage.focus();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.orbit-enhancement-help')).toBeHidden();
+  await expect(page.locator('#orbitSelectedName')).not.toHaveText('NONE');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#orbitSelectedName')).toHaveText('NONE');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#instrumentDialog')).not.toBeVisible();
+});
