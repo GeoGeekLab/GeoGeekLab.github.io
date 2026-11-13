@@ -220,3 +220,53 @@ test('Orbit Escape closes help, clears selection, then exits the workspace', asy
   await page.keyboard.press('Escape');
   await expect(page.locator('#instrumentDialog')).not.toBeVisible();
 });
+
+
+test('Orbit visual workbench keeps HUD, selection, zoom and time dock separate', async ({page}, testInfo) => {
+  test.setTimeout(50_000);
+  await page.goto('/lab.html?instrument=orbit&sat=25544#l04', { waitUntil:'domcontentloaded' });
+  await expect(page.locator('#orbitNorad')).toContainText('25544', {timeout:30000});
+  await expect(page.locator('.orbit-selection-bar')).toBeVisible();
+  await expect(page.locator('.orbit-time-dock')).toBeVisible();
+  await expect(page.locator('[data-orbit-fit]')).toBeVisible();
+  await page.evaluate(async () => { if (document.fonts?.ready) await document.fonts.ready; });
+  const result=await page.evaluate(() => {
+    const get=selector=>{
+      const element=document.querySelector(selector);
+      if(!element)throw new Error('Missing '+selector);
+      const rect=element.getBoundingClientRect();
+      return {x:rect.x,y:rect.y,right:rect.right,bottom:rect.bottom,width:rect.width,height:rect.height};
+    };
+    const collide=(a,b)=>Math.max(0,Math.min(a.right,b.right)-Math.max(a.x,b.x)) *
+                          Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.y,b.y));
+    const stage=get('#orbitStageV2');
+    const hud=get('.orbit-hud');
+    const selection=get('.orbit-selection-bar');
+    const zoom=get('.orbit-enhancement-tools');
+    const timeline=get('.orbit-time-dock');
+    const inside=element=>element.x>=stage.x-2&&element.right<=stage.right+2&&
+                           element.y>=stage.y-2&&element.bottom<=stage.bottom+2;
+    return {
+      stage, hud, selection, zoom, timeline,
+      inside:{hud:inside(hud),selection:inside(selection),zoom:inside(zoom),timeline:inside(timeline)},
+      collisions:{
+        headerSelection:collide(hud,selection),
+        selectionZoom:collide(selection,zoom),
+        selectionTimeline:collide(selection,timeline),
+        zoomTimeline:collide(zoom,timeline),
+      },
+      overflow:document.documentElement.scrollWidth-innerWidth,
+      timeText:document.querySelector('#orbitTimeUtc')?.textContent||'',
+    };
+  });
+  expect(result.inside).toEqual({hud:true,selection:true,zoom:true,timeline:true});
+  for(const [pair,area] of Object.entries(result.collisions)) {
+    expect(area, `overlap: ${pair} (${JSON.stringify(result)})`).toBeLessThan(3);
+  }
+  expect(result.overflow).toBeLessThanOrEqual(2);
+  expect(result.timeText).toMatch(/^\\d{4}-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d UTC$/);
+  await testInfo.attach('orbit-workspace-visual', {
+    body: await page.screenshot({animations:'disabled'}),
+    contentType:'image/png',
+  });
+});
