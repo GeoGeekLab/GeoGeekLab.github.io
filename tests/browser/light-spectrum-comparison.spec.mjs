@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({},info)=>{
+  test.skip(info.project.name!=='desktop-chromium','Light spectral comparison is desktop-only');
+});
+
 async function openLight(page) {
   await page.goto('/lab.html?instrument=light', {waitUntil:'domcontentloaded'});
   const shell=page.locator('.play-v2-shell[data-play-kind="light"]');

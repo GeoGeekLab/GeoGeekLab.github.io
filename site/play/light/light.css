@@ -78,3 +78,49 @@
 @media(prefers-reduced-motion:reduce){
   .light-sky,.light-ocean,.light-water-signal,.light-surface-reflection,.light-ray,.light-spectrum-after{transition:none!important}
 }
+
+
+/* Desktop-only Light: do not turn the Play experiment into a mobile workflow.
+   The mobile notice replaces all interactive panels on phone-size screens and
+   coarse-pointer mobile devices. Desktop resize restores the same session. */
+.play-v2-shell[data-play-kind="light"] .light-desktop-gate{display:none}
+@media (max-width:780px), (hover:none) and (pointer:coarse){
+  .play-v2-shell[data-play-kind="light"] :is(.play-v2-header,.play-v2-viewport,.play-v2-overlay,.play-v2-hud){display:none!important}
+  .play-v2-shell[data-play-kind="light"] .light-desktop-gate{
+    box-sizing:border-box;position:absolute;inset:0;z-index:60;
+    display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+    gap:0;overflow-y:auto;padding:clamp(24px,6vw,56px);
+    background:radial-gradient(circle at 78% 14%,rgba(91,137,126,.12),transparent 39%),var(--play-bg,#0b100e);
+    color:var(--play-fg,#edece5);
+  }
+  .light-desktop-gate-index,.light-desktop-gate-kicker,.light-desktop-gate-foot{
+    font:700 11px/1.45 var(--play-font-data,monospace);letter-spacing:.1em;
+  }
+  .light-desktop-gate-index{color:var(--play-muted,#aebbb2)}
+  .light-desktop-gate-rule{width:44px;height:2px;background:var(--play-action,#d8794e);margin:clamp(34px,6vh,68px) 0 22px}
+  .light-desktop-gate-kicker{color:var(--play-action,#d8794e);margin:0 0 12px}
+  .light-desktop-gate h2{
+    max-width:20ch;margin:0 0 20px;font:600 clamp(29px,7vw,48px)/1.08 var(--play-font-interface,system-ui);
+    letter-spacing:-.045em;text-wrap:balance;
+  }
+  .light-desktop-gate p:not(.light-desktop-gate-kicker){
+    max-width:50ch;margin:0 0 14px;color:var(--play-muted,#aebbb2);
+    font:450 15px/1.6 var(--play-font-interface,system-ui);
+  }
+  .light-desktop-gate p[lang="zh-CN"]{font-size:14px!important}
+  .light-desktop-gate-link{
+    display:inline-flex;align-items:center;justify-content:space-between;gap:24px;
+    min-height:44px;margin-top:18px;padding:11px 16px;border:1px solid var(--play-line-strong,rgba(237,236,229,.32));
+    border-radius:var(--play-radius-control,8px);color:var(--play-fg,#edece5);
+    text-decoration:none;font:700 12px/1.4 var(--play-font-data,monospace);
+    letter-spacing:.04em;
+  }
+  .light-desktop-gate-link:focus-visible{outline:2px solid var(--play-focus,#e9c99a);outline-offset:3px}
+  .light-desktop-gate-link:hover{border-color:var(--play-reference,#8fb5ac)}
+  .light-desktop-gate-foot{margin-top:clamp(28px,6vh,64px);color:var(--play-muted,#aebbb2);font-size:10px}
+}
+@media (max-width:780px) and (max-height:540px){
+  .play-v2-shell[data-play-kind="light"] .light-desktop-gate{justify-content:flex-start}
+  .light-desktop-gate-rule{margin:14px 0}
+  .light-desktop-gate-foot{margin-top:16px}
+}

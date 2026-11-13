@@ -171,3 +171,40 @@
     transform:none;
   }
 }
+
+
+/* L3: focus one optical mechanism without implying any additional physics. */
+@media (min-width:1024px) {
+  .play-v2-shell[data-play-kind="light"] .light-ray:not(.is-focus):not(.is-off):not(.light-ray-direct){opacity:.44}
+  .play-v2-shell[data-play-kind="light"] .light-ray.is-focus{
+    stroke-width:3.3;opacity:1;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-ray.is-focus.is-off{
+    stroke:var(--play-action,#d8794e);stroke-dasharray:7 9;opacity:.31;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-scene-focus{
+    color:var(--play-fg,#edece5);font-weight:750;letter-spacing:.06em;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-path-legend span{
+    display:flex;align-items:center;gap:9px;min-height:18px;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-path-legend span::before{
+    content:"";display:inline-block;flex:0 0 18px;width:18px;
+    border-top:2px solid var(--play-reference,#8fb5ac);
+  }
+  .play-v2-shell[data-play-kind="light"] .light-path-legend [data-path="atmosphere"]::before{border-top-color:#97cceb}
+  .play-v2-shell[data-play-kind="light"] .light-path-legend [data-path="surface"]::before{border-top-color:#dae8e5}
+  .play-v2-shell[data-play-kind="light"] .light-path-legend [data-path="water"]::before{border-top-color:#63c0d5}
+  .play-v2-shell[data-play-kind="light"] .light-path-legend span.is-focus{
+    color:var(--play-fg,#edece5);font-weight:750;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-path-legend span.is-off::before{
+    border-top-style:dashed;opacity:.72;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-path-legend span.is-focus.is-off{
+    color:#e8a17b;
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .play-v2-shell[data-play-kind="light"] .light-ray{transition:none!important}
+}

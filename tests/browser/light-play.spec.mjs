@@ -7,7 +7,8 @@ async function openLight(page) {
   return shell;
 }
 
-test('LIGHT walks through three independent light-path ablations', async ({page}) => {
+test('LIGHT walks through three independent light-path ablations', async ({page},info) => {
+  test.skip(info.project.name!=='desktop-chromium','Light experiments are desktop-only');
   const shell=await openLight(page);
 
   await expect(shell).toContainText('WHY IS THE SKY BLUE?');
