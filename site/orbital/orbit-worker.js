@@ -217,7 +217,8 @@ function postPass(message) {
     return;
   }
   // Maximize elevation using a coarse peak bracket and golden-section refinement.
-  const leftBound = Math.max(start, aos ?? start);
+  // Include a recovered past AOS when the selected pass is already underway.
+  const leftBound = aos ?? start;
   const rightBound = Math.min(end, los ?? end);
   let bestTime = leftBound;
   let bestElevation = -90;
