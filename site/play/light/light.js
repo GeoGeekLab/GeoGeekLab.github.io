@@ -12,7 +12,7 @@
     if (!GeoPlay?.core || !GeoPlay?.shell?.createV2 || !GeoPlay?.trace) throw new Error('GeoPlay V2 runtime incomplete.');
     if (!content || !physics || !experiments || !viewApi) throw new Error('Light Play modules incomplete.');
 
-    GeoPlay.core.ensureStyle('play/light/light.css?v=20261007a','light-play');
+    GeoPlay.core.ensureStyle('play/light/light.css?v=20261113-light-l0b','light-play');
     GeoPlay.core.ensureStyle('play/light/light-desktop.css?v=20261010-step06b','light-desktop');
     const water=await window.GeoModules.loadModule('water/water-model.js?v=20261007a');
     if (signal?.aborted) return()=>{};

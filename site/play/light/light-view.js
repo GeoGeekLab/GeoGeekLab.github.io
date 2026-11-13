@@ -36,7 +36,7 @@
 
     shell.viewport.innerHTML=`
       <div class="light-stage">
-        <section class="light-world" aria-label="Conceptual light-path scene">
+        <section class="light-world" aria-label="Conceptual light-path scene" aria-describedby="lightSceneSummary">
           <div class="light-sky" aria-hidden="true">
             <span class="light-sun"></span>
             <span class="light-sky-note">ATMOSPHERE</span>
@@ -65,12 +65,15 @@
             <span data-path="water">WATER-LEAVING</span>
           </div>
           <span class="light-display-note">DISPLAY COLOR / ILLUSTRATIVE</span>
+          <p class="light-scene-summary" id="lightSceneSummary"></p>
         </section>
 
         <section class="light-spectrum-card" aria-label="Spectral consequence">
           <header><span class="light-spectrum-title">SPECTRUM</span><strong class="light-spectrum-mode">—</strong></header>
           <svg class="light-spectrum" viewBox="0 0 520 138" preserveAspectRatio="none" role="img" aria-label="Before and after spectrum">
             <line x1="12" y1="126" x2="508" y2="126" class="light-axis"></line>
+            <text x="12" y="10" class="light-spectrum-y-max">MAX —</text>
+            <text x="12" y="122" class="light-spectrum-zero">0</text>
             <path class="light-spectrum-before"></path>
             <path class="light-spectrum-after"></path>
             <text x="12" y="137">400</text><text x="248" y="137">550</text><text x="482" y="137">700 nm</text>
@@ -88,7 +91,8 @@
       <div class="light-evidence-legend-title">PATH STATUS / CONCEPTUAL</div>
       <div class="light-evidence-legend"></div>
       <div class="light-evidence-spectrum"></div>
-      <p class="light-evidence-limit">Scene geometry and color are illustrative. Sky and surface curves are relative teaching models. Only the water experiment shows modeled Rrs (sr⁻¹). TOA radiance is not modeled.</p>`;
+      <p class="light-evidence-limit">Scene geometry and color are illustrative. Sky and surface curves are relative teaching models. Only the water experiment shows modeled Rrs (sr⁻¹). TOA radiance is not modeled.</p>
+      <p class="light-phase-announcement" role="status" aria-live="polite" aria-atomic="true"></p>`;
 
     const root=shell.root;
     const sky=root.querySelector('.light-sky');
@@ -102,6 +106,10 @@
     const afterValue=root.querySelector('.light-after-value');
     const probeLabel=root.querySelector('.light-spectrum-probe');
     const spectrumSvg=root.querySelector('.light-spectrum');
+    const maxLabel=root.querySelector('.light-spectrum-y-max');
+    const sceneSummary=root.querySelector('.light-scene-summary');
+    const phaseAnnouncement=root.querySelector('.light-phase-announcement');
+    let announcedPhase=null;
     const count=root.querySelector('.light-hud-count');
     const desktopQuery=window.matchMedia('(min-width:1024px)');
     // Move existing presentation elements, not data or experiment logic.
@@ -128,6 +136,10 @@
       beforePath.setAttribute('d',pathD(chart.before,520,138,domainMax));
       afterPath.setAttribute('d',pathD(chart.after,520,138,domainMax));
       spectrumSvg.dataset.yMax=String(domainMax);
+      maxLabel.textContent=`MAX ${formatValue(domainMax,chart.unit)}`;
+      const revealed=snapshot.phase==='revealed'||snapshot.phase==='complete';
+      root.dataset.lightCompare=revealed?'revealed':'baseline';
+      spectrumSvg.setAttribute('aria-label',revealed?'Before and after spectra on the same vertical scale':'Baseline spectrum; result is hidden until reveal');
       spectrumMode.textContent=snapshot.experiment?.chartLabel || '—';
       const wavelengths=chart.wavelengthNm || [];
       const probeIndex=wavelengths.length
@@ -137,21 +149,37 @@
       const probeNm=wavelengths[probeIndex]??550;
       probeLabel.textContent=`${probeNm} NM · ${chart.unit==='sr⁻¹'?'Rrs / sr⁻¹':'RELATIVE'}`;
       beforeValue.textContent=formatValue(chart.before[probeIndex]??0,chart.unit);
-      afterValue.textContent=formatValue(chart.after[probeIndex]??0,chart.unit);
+      afterValue.textContent=revealed?formatValue(chart.after[probeIndex]??0,chart.unit):'PENDING';
     }
 
-    function button(label,onClick,{secondary=false,disabled=false}={}) {
+    function button(label,onClick,{secondary=false,disabled=false,action=null}={}) {
       const node=document.createElement('button');
       node.type='button';
       node.className=`light-action${secondary?' is-secondary':''}`;
       node.textContent=label;
       node.disabled=disabled;
+      if (action) node.dataset.lightAction=action;
       node.addEventListener('click',onClick);
       return node;
     }
 
+    function restorePanelFocus(panel,previousAction) {
+      if (!previousAction) return;
+      const nextAction=previousAction==='commit'?'perturb'
+        :previousAction==='perturb'?'next'
+        :previousAction==='next'||previousAction==='restart'?'first-choice'
+        :previousAction;
+      if (nextAction==='first-choice') shell.overlay.scrollTop=0;
+      const controls=[...panel.querySelectorAll('[data-light-action]')];
+      const target=nextAction==='first-choice'
+        ?controls.find(control=>control.classList.contains('light-choice'))||controls[0]
+        :controls.find(control=>control.dataset.lightAction===nextAction)||controls.find(control=>!control.disabled);
+      target?.focus({preventScroll:true});
+    }
+
     function renderPanel(snapshot) {
       const exp=snapshot.experiment;
+      const previousAction=shell.overlay.contains(document.activeElement)?document.activeElement?.dataset.lightAction:null;
       shell.overlay.innerHTML='';
       const panel=document.createElement('section');
       panel.className='light-panel';
@@ -161,8 +189,9 @@
           <h2>ONE COLOR. MULTIPLE PATHS.</h2>
           <p>Sky scattering, surface reflection, and water-leaving radiance are different mechanisms. Removing one does not remove the others.</p>
           <div class="light-limit">WATER / QUANTITATIVE Rrs · ATMOSPHERE + SURFACE / TEACHING MODELS</div>`;
-        panel.appendChild(button('PLAY AGAIN',callbacks.onRestart));
+        panel.appendChild(button('PLAY AGAIN',callbacks.onRestart,{action:'restart'}));
         shell.overlay.appendChild(panel);
+        restorePanelFocus(panel,previousAction);
         return;
       }
 
@@ -173,20 +202,20 @@
         choices.className='light-choices';
         exp.choices.forEach(choice=>{
           const selected=snapshot.selection===choice.id;
-          const choiceButton=button(choice.label,()=>callbacks.onSelect(choice.id),{secondary:!selected});
+          const choiceButton=button(choice.label,()=>callbacks.onSelect(choice.id),{secondary:!selected,action:`choice-${choice.id}`});
           choiceButton.classList.add('light-choice');
           choiceButton.setAttribute('aria-pressed',String(selected));
           choices.appendChild(choiceButton);
         });
         panel.appendChild(choices);
-        panel.appendChild(button('COMMIT PREDICTION',callbacks.onCommit,{disabled:!snapshot.selection}));
+        panel.appendChild(button('COMMIT PREDICTION',callbacks.onCommit,{disabled:!snapshot.selection,action:'commit'}));
       } else if (snapshot.phase==='committed') {
         const committed=document.createElement('div');
         committed.className='light-committed';
         const selected=exp.choices.find(choice=>choice.id===snapshot.selection)?.label || '—';
         committed.innerHTML=`<small>YOUR PREDICTION</small><strong>${selected}</strong>`;
         panel.appendChild(committed);
-        panel.appendChild(button(exp.action,callbacks.onPerturb));
+        panel.appendChild(button(exp.action,callbacks.onPerturb,{action:'perturb'}));
       } else if (snapshot.phase==='revealed') {
         panel.classList.add(snapshot.correct?'is-correct':'is-revised');
         panel.innerHTML+=`
@@ -194,19 +223,29 @@
           <p>${exp.reveal}</p>
           <code>${exp.equation}</code>
           <div class="light-limit">${exp.limit}</div>`;
-        panel.appendChild(button(snapshot.index===snapshot.total-1?'FINISH TRACE':'NEXT EXPERIMENT',callbacks.onNext));
+        panel.appendChild(button(snapshot.index===snapshot.total-1?'FINISH TRACE':'NEXT EXPERIMENT',callbacks.onNext,{action:'next'}));
       }
       shell.overlay.appendChild(panel);
+      restorePanelFocus(panel,previousAction);
     }
 
     function render(snapshot,scene) {
       shell.setState(snapshot.phase);
-      shell.setStatus(snapshot.phase==='revealed'?'MECHANISM REMOVED':snapshot.phase==='complete'?'TRACE COMPLETE':'NORMAL WORLD');
+      shell.setStatus(snapshot.phase==='revealed'?'MECHANISM REMOVED':snapshot.phase==='complete'?'TRACE COMPLETE':snapshot.phase==='committed'?'PREDICTION LOCKED':'NORMAL WORLD');
+      const currentPhase=`${snapshot.index}:${snapshot.phase}`;
+      if (currentPhase!==announcedPhase) {
+        announcedPhase=currentPhase;
+        phaseAnnouncement.textContent=snapshot.phase==='complete'?'All three experiments complete. Play again to restart.'
+          :snapshot.phase==='committed'?'Prediction locked. Remove the selected mechanism to reveal its effect.'
+          :snapshot.phase==='revealed'?`${snapshot.experiment.revealTitle} Before and after spectra are now available.`
+          :`Experiment ${snapshot.index+1} of ${snapshot.total}. ${snapshot.experiment.title}`;
+      }
       count.textContent=`${String(Math.min(snapshot.index+1,snapshot.total)).padStart(2,'0')} / ${String(snapshot.total).padStart(2,'0')}`;
 
       root.dataset.atmosphericScattering=scene.mechanisms.atmosphericScattering?'on':'off';
       root.dataset.waterBackscatter=scene.mechanisms.waterBackscatter?'on':'off';
       root.dataset.surfaceReflection=scene.mechanisms.surfaceReflection?'on':'off';
+      sceneSummary.textContent=`Conceptual scene. Scattered sky ${scene.mechanisms.atmosphericScattering?'present':'removed'}; reflected-sky surface path ${scene.mechanisms.atmosphericScattering&&scene.mechanisms.surfaceReflection?'present':'removed'}; water-leaving path ${scene.mechanisms.waterBackscatter?'present':'removed'}. Display color and geometry are illustrative.`;
 
       sky.classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
       ocean.style.setProperty('--light-water-color',scene.waterColor.css);
