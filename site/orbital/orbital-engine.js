@@ -1,3 +1,4 @@
+import { ORBIT_CLASSES } from './orbit-classification.js';
 const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.186.0/+esm';
 const CATALOG_URL = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON';
 const LAND_URL = 'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m/cultural/ne_110m_admin_0_countries.json';
@@ -7,7 +8,7 @@ const CACHE_MAX_AGE = 2 * 60 * 60 * 1000;
 const EARTH_RADIUS_KM = 6371.0088;
 const CLASS_COLOR = { LEO:0xa8d7ca, MEO:0xe1c66f, GSO:0xc0b0ed, GEO:0xdf754c, HEO:0xe4a879, HIGH:0xa8afd9 };
 const GROUND_COLOR = { LEO:'rgba(168,215,202,.45)', MEO:'rgba(225,198,111,.5)', GSO:'rgba(192,176,237,.55)', GEO:'rgba(223,117,76,.55)', HEO:'rgba(228,168,121,.55)', HIGH:'rgba(168,175,217,.45)' };
-const ORBIT_CLASSES = ['LEO','MEO','GSO','GEO','HEO','HIGH'];
+
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
