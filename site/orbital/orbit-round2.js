@@ -126,7 +126,8 @@
     const bar = document.createElement('div');
     bar.className = 'orbit-selection-bar';
     bar.hidden = true;
-    bar.setAttribute('aria-live', 'polite');
+    bar.setAttribute('role','group');
+    bar.setAttribute('aria-label','Selected orbital object actions');
     bar.innerHTML = `
       <div class="orbit-selection-copy">
         <span>SELECTED OBJECT</span>
