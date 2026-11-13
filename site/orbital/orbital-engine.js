@@ -6,6 +6,7 @@ const CACHE_TS_KEY = 'geogeek.orbit.catalogFetchedAt';
 const CACHE_MAX_AGE = 2 * 60 * 60 * 1000;
 const EARTH_RADIUS_KM = 6371.0088;
 const CLASS_COLOR = { LEO:0xa8d7ca, MEO:0xe1c66f, GSO:0xc0b0ed, GEO:0xdf754c, HEO:0xe4a879, HIGH:0xa8afd9 };
+const GROUND_COLOR = { LEO:'rgba(168,215,202,.45)', MEO:'rgba(225,198,111,.5)', GSO:'rgba(192,176,237,.55)', GEO:'rgba(223,117,76,.55)', HEO:'rgba(228,168,121,.55)', HIGH:'rgba(168,175,217,.45)' };
 const ORBIT_CLASSES = ['LEO','MEO','GSO','GEO','HEO','HIGH'];
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -296,7 +297,7 @@ function drawGroundMap(canvas, state, coastRings) {
       if (!meta) continue;
       const lon=frame.values[o]*180/Math.PI,lat=frame.values[o+1]*180/Math.PI;
       const x=(lon+180)/360*w,y=(90-lat)/180*h;
-      const color=meta.orbitClass==='LEO'?'rgba(168,215,202,.45)':meta.orbitClass==='MEO'?'rgba(225,198,111,.5)':meta.orbitClass==='GEO'?'rgba(223,117,76,.55)':'rgba(168,175,217,.45)';
+      const color=GROUND_COLOR[meta.orbitClass]||GROUND_COLOR.HIGH;
       ctx.fillStyle=color;ctx.fillRect(x-1,y-1,2,2);
     }
   }
@@ -396,7 +397,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   function renderCounts() {
     catalogCount.textContent = `${(state.counts.ALL || 0).toLocaleString()} OBJECTS`;
     filterCounts.textContent = classText(state.meta,state.counts);
-    $$('[data-filter]',container).forEach(button => { const key=button.dataset.filter; button.title = `${key}: ${(state.counts[key] || state.counts.ALL || 0).toLocaleString()}`; });
+    $$('[data-filter]',container).forEach(button => { const key=button.dataset.filter; button.title = `${key}: ${(state.counts[key] ?? state.counts.ALL ?? 0).toLocaleString()}`; });
   }
 
   function updateSourceFacts() {
@@ -488,6 +489,12 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     setCameraFromState(camera,state);
   }
   stage.addEventListener('geogeek:orbit-fit',fitAll);
+  $('.orbit-v2',container)?.addEventListener('geogeek:orbit-step-time',event=>{
+    const hours=Number(event.detail?.hours);
+    if(!Number.isFinite(hours))return;
+    setSimulationTime(state,simulationNow(state)+hours*3600000,{keepRunning:false});
+    requestPositions(true);requestTrace(true);requestPass();
+  });
   function selectByIndex(index) {
     const meta=state.meta[index]; if(!meta)return;
     state.selectedId=meta.id;state.followSelected=false;updateTrackUi();state.query='';state.searchPage=0;state.filter='ALL';search.value='';searchResults.classList.remove('is-open');$$('[data-filter]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.filter==='ALL'));
