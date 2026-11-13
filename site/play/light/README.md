@@ -36,6 +36,8 @@ That engine provides quantitative, idealized above-water `Rrs(λ)` from 400–70
 
 Light does not duplicate that model.
 
+The Water model has been numerically tested, but Light does not claim that its rendered Rrs is an independently validated field observation.
+
 The atmosphere path is deliberately limited to a normalized Rayleigh spectral shape:
 
 ```text
@@ -56,6 +58,14 @@ It does not model wind roughness, sunglint geometry, whitecaps, polarization, or
 When atmospheric scattering is removed, the reflected-sky contribution also becomes zero because its source field is absent. The surface reflection mechanism itself is not disabled.
 
 The `waterBackscatter = off` state is a mechanism-ablation thought experiment. It forces the displayed water-leaving spectrum to zero. It does not create an accepted natural-water state inside the Water as Spectrum engine.
+
+## Reveal and evidence behavior
+
+- The after-perturbation trace and its numeric readout remain concealed until the user commits a prediction and removes the mechanism.
+- Before and after traces use one unchanged, zero-aligned vertical scale. The chart shows its upper bound and distinguishes the two traces by line style as well as color.
+- The prediction, intervention, and next-experiment controls preserve keyboard focus across panel re-renders.
+- Short live status messages announce phase transitions; the conceptual scene also has a text description.
+- In the surface experiment, surface reflection and modeled water-leaving radiance remain separate physical paths. The relative surface teaching signal cannot be numerically added to Rrs (sr⁻¹) without an explicit common radiometric model.
 
 ## Display color
 
