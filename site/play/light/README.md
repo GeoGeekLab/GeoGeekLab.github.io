@@ -67,6 +67,26 @@ The `waterBackscatter = off` state is a mechanism-ablation thought experiment. I
 - Short live status messages announce phase transitions; the conceptual scene also has a text description.
 - In the surface experiment, surface reflection and modeled water-leaving radiance remain separate physical paths. The relative surface teaching signal cannot be numerically added to Rrs (sr⁻¹) without an explicit common radiometric model.
 
+## L3 desktop interaction and device policy
+
+Light is intentionally **desktop-only**. The three experiments retain the
+existing desktop three-zone composition: question, conceptual optical field,
+and numerical evidence.
+
+The active mechanism is highlighted consistently in the optical path and its
+legend. After ablation, that path remains as a faint dashed outline. The other
+paths retain their own statuses. These changes visualize path presence, not
+new radiative-transfer calculations.
+
+On phone-width viewports (780 CSS px and below) and touch-first/coarse-pointer
+devices, Light displays a short notice asking visitors to open the same URL in
+a desktop browser. The interactive experiment, HUD and scene are hidden.
+The notice provides a Return to Lab link. Resizing back to a supported desktop
+view does not reset the current experiment state.
+
+The mobile view is **not a feature target**. Do not build a parallel mobile
+experiment interface without an explicit future product decision.
+
 ## Display color
 
 Water display color is illustrative.
