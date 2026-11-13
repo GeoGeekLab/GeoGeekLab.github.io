@@ -566,3 +566,14 @@
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
+
+
+/* Keep the timeline as a readable instrument dock, not a full-width strip. */
+@media(min-width:701px){
+  .instrument-dialog[data-instrument-kind="orbit"] .orbit-time-dock{
+    left:50%;
+    right:auto;
+    width:min(990px,calc(100% - 32px));
+    transform:translateX(-50%);
+  }
+}
