@@ -47,13 +47,11 @@
   }
 
   function stepTime(root, hours) {
-    const range = $('#orbitTimeRange', root);
-    if (!range) return;
-    const min = Number(range.min || -12);
-    const max = Number(range.max || 12);
-    const next = clamp(Number(range.value || 0) + Number(hours), min, max);
-    range.value = String(next);
-    range.dispatchEvent(new Event('input', { bubbles:true }));
+    // Step the actual simulation clock, even when accelerated time lies
+    // outside the visible ±12 h slider range.
+    root.dispatchEvent(new CustomEvent('geogeek:orbit-step-time', {
+      detail:{ hours:Number(hours) }
+    }));
   }
 
   function mapEventForCoordinate(canvas, lat, lon) {
