@@ -87,3 +87,47 @@ test('LIGHT keeps surface teaching signal separate from water-leaving Rrs',async
   await shell.getByRole('button',{name:'FINISH TRACE'}).click();
   await expect(shell).toHaveAttribute('data-play-state','complete');
 });
+
+test('LIGHT keeps the result concealed until reveal and preserves keyboard focus across phases',async({page})=>{
+  await page.setViewportSize({width:1366,height:768});
+  const shell=await openLight(page);
+  const after=shell.locator('.light-after-value');
+  const chart=shell.locator('.light-spectrum');
+  const status=shell.locator('.light-phase-announcement');
+
+  await expect(shell).toHaveAttribute('data-light-compare','baseline');
+  await expect(after).toHaveText('PENDING');
+  await expect(chart).toHaveAttribute('aria-label','Baseline spectrum; result is hidden until reveal');
+  await expect(shell.locator('.light-spectrum-after')).toHaveCSS('opacity','0');
+  await expect(shell.locator('.light-spectrum-y-max')).toContainText('MAX');
+  await expect(status).toContainText('Experiment 1 of 3');
+
+  const choice=shell.getByRole('button',{name:'BLACK'});
+  await choice.focus();
+  await page.keyboard.press('Enter');
+  await expect(choice).toBeFocused();
+  await expect(choice).toHaveAttribute('aria-pressed','true');
+
+  const commit=shell.getByRole('button',{name:'COMMIT PREDICTION'});
+  await commit.focus();
+  await page.keyboard.press('Enter');
+  const remove=shell.getByRole('button',{name:'REMOVE SCATTERING'});
+  await expect(remove).toBeFocused();
+  await expect(after).toHaveText('PENDING');
+  await expect(status).toContainText('Prediction locked');
+
+  await page.keyboard.press('Enter');
+  const next=shell.getByRole('button',{name:'NEXT EXPERIMENT'});
+  await expect(next).toBeFocused();
+  await expect(shell).toHaveAttribute('data-light-compare','revealed');
+  await expect(chart).toHaveAttribute('aria-label','Before and after spectra on the same vertical scale');
+  await expect(shell.locator('.light-spectrum-after')).toHaveCSS('opacity','1');
+  await expect(after).toHaveText('0.000');
+  await expect(status).toContainText('Before and after spectra are now available');
+
+  await page.keyboard.press('Enter');
+  await expect(shell).toHaveAttribute('data-light-compare','baseline');
+  await expect(shell.getByRole('button',{name:'IT STAYS BLUE'})).toBeFocused();
+  await expect(after).toHaveText('PENDING');
+  await expect(status).toContainText('Experiment 2 of 3');
+});
