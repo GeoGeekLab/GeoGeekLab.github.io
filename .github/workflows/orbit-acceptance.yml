@@ -54,7 +54,7 @@ jobs:
           cp -a site/. dist/
 
       - name: Exercise desktop and mobile Orbit workspace
-        run: npx playwright test -c playwright.config.mjs tests/browser/orbit-interactions.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+        run: npx playwright test -c playwright.config.mjs tests/browser/orbit-interactions.spec.mjs tests/browser/orbit-live-snapshot.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
 
       - name: Preserve visual acceptance screenshots and failure traces
         if: always()
