@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { LAB_DOCUMENT_RELEASE } from '../../scripts/site-release-contract.mjs';
 
 test('a failed readiness runtime cannot conceal the static document', async ({page}) => {
   await page.route('**/visual-readiness.js*', route=>route.abort());
@@ -21,7 +22,7 @@ test('articles remain readable when JavaScript is disabled', async ({browser}) =
 test('legacy Lab records select the canonical navigation destination', async ({page}) => {
   await page.goto('/record.html?ref=lab%3Al13');
   await expect(page.locator('#primaryNav a[aria-current="page"]')).toHaveText('Lab');
-  await expect(page.locator('#primaryNav a[aria-current="page"]')).toHaveAttribute('href','/lab.html?release=20261013a12');
+  await expect(page.locator('#primaryNav a[aria-current="page"]')).toHaveAttribute('href',`/lab.html?release=${LAB_DOCUMENT_RELEASE}`);
 });
 
 test('home discovery and local observation scope are explicit', async ({page}) => {

@@ -9,7 +9,7 @@
     if (document.querySelector('link[data-orbit-round2]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = new URL('./orbit-round2.css?v=20261011a', import.meta.url).href;
+    link.href = new URL('./orbit-round2.css?v=20261113b', import.meta.url).href;
     link.dataset.orbitRound2 = '1';
     document.head.appendChild(link);
   }
@@ -102,14 +102,17 @@
       const list = buttons();
       if (event.key === 'ArrowDown' && list.length) {
         event.preventDefault();
-        sync(active < 0 ? 0 : active + 1);
+        if(active===list.length-1 && $('[data-search-page="next"]:not(:disabled)',results)){ $('[data-search-page="next"]',results).click();sync(0); }
+        else sync(active < 0 ? 0 : active + 1);
       } else if (event.key === 'ArrowUp' && list.length) {
         event.preventDefault();
-        sync(active < 0 ? list.length - 1 : active - 1);
+        if(active===0 && $('[data-search-page="prev"]:not(:disabled)',results)){ $('[data-search-page="prev"]',results).click();sync(buttons().length-1); }
+        else sync(active < 0 ? list.length - 1 : active - 1);
       } else if (event.key === 'Enter' && active >= 0 && list[active]) {
         event.preventDefault();
         list[active].click();
       } else if (event.key === 'Escape') {
+        event.preventDefault();
         active = -1;
         search.value = '';
         search.dispatchEvent(new Event('input', { bubbles:true }));
@@ -123,7 +126,8 @@
     const bar = document.createElement('div');
     bar.className = 'orbit-selection-bar';
     bar.hidden = true;
-    bar.setAttribute('aria-live', 'polite');
+    bar.setAttribute('role','group');
+    bar.setAttribute('aria-label','Selected orbital object actions');
     bar.innerHTML = `
       <div class="orbit-selection-copy">
         <span>SELECTED OBJECT</span>
@@ -133,6 +137,7 @@
       <div class="orbit-selection-actions">
         <button type="button" data-selection-focus>CENTER</button>
         <button type="button" data-selection-details>DETAILS</button>
+        <button type="button" data-selection-ground>GROUND</button>
         <button type="button" data-selection-clear aria-label="Clear selected object">CLEAR</button>
       </div>`;
     stage.appendChild(bar);
@@ -165,6 +170,11 @@
       if (event.target.closest('[data-selection-focus]')) $('#orbitFocus', root)?.click();
       if (event.target.closest('[data-selection-details]')) {
         scrollSection(sections.object);
+      }
+      if (event.target.closest('[data-selection-ground]')) {
+        const disclosure=$('.orbit-extras',root);
+        if(disclosure)disclosure.open=true;
+        scrollSection(sections.ground);
       }
       if (event.target.closest('[data-selection-clear]')) {
         $('.orbit-canvas', root)?.dispatchEvent(new MouseEvent('dblclick', { bubbles:true, cancelable:true }));

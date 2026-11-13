@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test';
-import { WATER_UI_VERSION } from '../../scripts/site-release-contract.mjs';
+import { WATER_UI_VERSION, LAB_DOCUMENT_RELEASE } from '../../scripts/site-release-contract.mjs';
 
 async function openQuietWater(page) {
   await page.goto('/lab.html?instrument=water#l13', {waitUntil:'domcontentloaded'});
@@ -85,7 +85,7 @@ test('Sensitivity keeps the working parameter editor immediately actionable', as
 
 test('The original Water share link displays the quiet, cache-busted workbench', async ({page}) => {
   await page.goto('/lab.html?release=20261010v103play3&instrument=water#l13', {waitUntil:'domcontentloaded'});
-  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content','20261013a12');
+  await expect(page.locator('meta[name="geogeek-lab-release"]')).toHaveAttribute('content', LAB_DOCUMENT_RELEASE);
   const frame = page.frameLocator('#instrumentStage iframe.water-v102-frame');
   await expect(frame.locator('.water-scope-boundary')).toContainText('Not externally validated', {timeout:45000});
   await expect(frame.locator('#range-chl')).toBeVisible();

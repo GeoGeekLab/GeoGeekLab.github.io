@@ -47,13 +47,11 @@
   }
 
   function stepTime(root, hours) {
-    const range = $('#orbitTimeRange', root);
-    if (!range) return;
-    const min = Number(range.min || -12);
-    const max = Number(range.max || 12);
-    const next = clamp(Number(range.value || 0) + Number(hours), min, max);
-    range.value = String(next);
-    range.dispatchEvent(new Event('input', { bubbles:true }));
+    // Step the actual simulation clock, even when accelerated time lies
+    // outside the visible ±12 h slider range.
+    root.dispatchEvent(new CustomEvent('geogeek:orbit-step-time', {
+      detail:{ hours:Number(hours) }
+    }));
   }
 
   function mapEventForCoordinate(canvas, lat, lon) {
@@ -149,9 +147,8 @@
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,r.width,r.height);
 
-    const timeRange = $('#orbitTimeRange', root);
-    const offsetHours = Number(timeRange?.value || 0);
-    const sun = solarPosition(Date.now() + offsetHours * 3600000);
+    const simulationTimeMs = Number(root.dataset.simulationTimeMs);
+    const sun = solarPosition(Number.isFinite(simulationTimeMs) && simulationTimeMs > 0 ? simulationTimeMs : Date.now());
     const sunX = (sun.lon + 180) / 360 * r.width;
     const sunY = (90 - sun.lat) / 180 * r.height;
 
@@ -287,7 +284,7 @@
     const help = document.createElement('div');
     help.className = 'orbit-help orbit-enhancement-help';
     help.hidden = true;
-    help.innerHTML = '<strong>FIELD CONTROLS</strong><div><kbd>DRAG</kbd><span>rotate field</span></div><div><kbd>SCROLL / PINCH</kbd><span>zoom</span></div><div><kbd>+ / −</kbd><span>zoom</span></div><div><kbd>ARROWS</kbd><span>rotate by drag-equivalent steps</span></div><div><kbd>F</kbd><span>focus selected object</span></div><div><kbd>R</kbd><span>reset field</span></div><div><kbd>SPACE</kbd><span>play / pause time</span></div><div><kbd>N</kbd><span>return to now</span></div><div><kbd>ESC</kbd><span>clear selection</span></div>';
+    help.innerHTML = '<strong>FIELD CONTROLS</strong><div><kbd>DRAG</kbd><span>rotate field</span></div><div><kbd>SCROLL / PINCH</kbd><span>zoom</span></div><div><kbd>+ / −</kbd><span>zoom</span></div><div><kbd>ARROWS</kbd><span>rotate by drag-equivalent steps</span></div><div><kbd>F</kbd><span>focus selected object</span></div><div><kbd>T</kbd><span>toggle object tracking</span></div><div><kbd>R</kbd><span>reset field</span></div><div><kbd>SPACE</kbd><span>play / pause time</span></div><div><kbd>N</kbd><span>return to now</span></div><div><kbd>ESC</kbd><span>clear selection / close</span></div>';
     stage.appendChild(help);
 
     const viewCard = document.createElement('section');
@@ -343,8 +340,7 @@
         return;
       }
       if (event.target.closest('[data-orbit-fit]')) {
-        const equator = $('[data-view="equator"]',root);
-        equator?.click();
+        stage.dispatchEvent(new Event('geogeek:orbit-fit'));
         return;
       }
       const helpButton = event.target.closest('[data-orbit-help]');
@@ -409,15 +405,18 @@
       else if(event.key.toLowerCase()==='f') {event.preventDefault();$('#orbitFocus',root)?.click();}
       else if(event.key.toLowerCase()==='r') {event.preventDefault();$('[data-view="equator"]',root)?.click();}
       else if(event.key.toLowerCase()==='n') {event.preventDefault();$('#orbitNow',root)?.click();}
+      else if(event.key.toLowerCase()==='t') {event.preventDefault();$('#orbitTrack',root)?.click();}
       else if(event.key===' ') {event.preventDefault();$('#orbitPlay',root)?.click();}
       else if(event.key==='Escape') {
-        event.preventDefault();
         if(!help.hidden) {
+          event.preventDefault();
           help.hidden=true;
           $('[data-orbit-help]',tools)?.setAttribute('aria-expanded','false');
-        } else {
+        } else if (($('#orbitSelectedName',root)?.textContent||'').trim()!=='NONE') {
+          event.preventDefault();
           canvas.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true}));
         }
+        // With no help or selection, let the native dialog handle Escape.
       } else if(event.key==='ArrowLeft'||event.key==='ArrowRight'||event.key==='ArrowUp'||event.key==='ArrowDown') {
         event.preventDefault();
         const r=canvas.getBoundingClientRect();
@@ -438,7 +437,7 @@
     $('[data-station-set]',station)?.addEventListener('click',()=>{
       const lat=Number(latInput.value);
       const lon=Number(lonInput.value);
-      if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat<-90||lat>90||lon<-180||lon>180) {
+      if(!latInput.value.trim()||!lonInput.value.trim()||!Number.isFinite(lat)||!Number.isFinite(lon)||lat<-90||lat>90||lon<-180||lon>180) {
         station.classList.add('has-error');
         return;
       }
@@ -472,11 +471,21 @@
     const selectedName=$('#orbitSelectedName',root);
     if(selectedName) {
       const selectedObserver=new MutationObserver(()=>{
-        const id=selectedCatalogId(root);
-        if(!id) return;
+        const name=(selectedName.textContent||'').trim();
         const url=new URL(location.href);
-        url.searchParams.set('sat',id);
-        history.replaceState(null,'',url);
+        if(!name||name==='NONE'){
+          if(url.searchParams.has('sat')){
+            url.searchParams.delete('sat');
+            history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+          }
+          return;
+        }
+        const id=selectedCatalogId(root);
+        if(!id)return;
+        if(url.searchParams.get('sat')!==id){
+          url.searchParams.set('sat',id);
+          history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+        }
       });
       selectedObserver.observe(selectedName,{childList:true,characterData:true,subtree:true});
       root._orbitSelectedObserver=selectedObserver;
