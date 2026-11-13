@@ -469,11 +469,21 @@
     const selectedName=$('#orbitSelectedName',root);
     if(selectedName) {
       const selectedObserver=new MutationObserver(()=>{
-        const id=selectedCatalogId(root);
-        if(!id) return;
+        const name=(selectedName.textContent||'').trim();
         const url=new URL(location.href);
-        url.searchParams.set('sat',id);
-        history.replaceState(null,'',url);
+        if(!name||name==='NONE'){
+          if(url.searchParams.has('sat')){
+            url.searchParams.delete('sat');
+            history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+          }
+          return;
+        }
+        const id=selectedCatalogId(root);
+        if(!id)return;
+        if(url.searchParams.get('sat')!==id){
+          url.searchParams.set('sat',id);
+          history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+        }
       });
       selectedObserver.observe(selectedName,{childList:true,characterData:true,subtree:true});
       root._orbitSelectedObserver=selectedObserver;
