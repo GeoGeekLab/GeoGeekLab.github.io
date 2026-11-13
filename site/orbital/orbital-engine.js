@@ -445,7 +445,12 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     pointGeometry.setAttribute('position',new THREE.BufferAttribute(pos,3)); pointGeometry.setAttribute('color',new THREE.BufferAttribute(colors,3)); pointGeometry.computeBoundingSphere(); pointGeometry.userData.indices=message.indices;
     hudReadout.textContent=`DRAWN ${count.toLocaleString()} / MATCHED ${Number(message.totalVisible||0).toLocaleString()} · ${state.filter} · ${state.radial.toUpperCase()} RADIAL`;
     if(state.selectedId){updateInspectorDynamic();if(state.followSelected&&state.selectedWorldVisible)centerSelected(false);}
-    drawGroundMap(groundCanvas,state,state.coastRings); requestTrace();
+    drawGroundMap(groundCanvas,state,state.coastRings);
+    if(!state.initialMobileFit && camera.aspect<1.05){
+      state.initialMobileFit=true;
+      fitAll();
+    }
+    requestTrace();
   }
 
   function clearTraceObjects() { while(traceGroup.children.length){const obj=traceGroup.children.pop();obj.geometry?.dispose?.();obj.material?.dispose?.();} }
@@ -482,7 +487,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   }
   function fitAll() {
     const attr=pointGeometry.getAttribute('position');
-    let radius=1.2;
+    let radius=state.layers.shells?radialRadius(35786,state.radial):1.2;
     if(attr)for(let i=0;i<attr.count;i++)radius=Math.max(radius,Math.hypot(attr.getX(i),attr.getY(i),attr.getZ(i)));
     const vFov=camera.fov*Math.PI/180;
     const hFov=2*Math.atan(Math.tan(vFov/2)*camera.aspect);
@@ -581,7 +586,54 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
 
   const labelRay=new THREE.Ray(),labelDirection=new THREE.Vector3(),labelHit=new THREE.Vector3();
   const labelEarth=new THREE.Sphere(new THREE.Vector3(),1.025);
-  function updateSelectedLabel(){if(!state.selectedId||!state.selectedWorldVisible){objectLabel.classList.remove('is-visible');return;}const p=state.selectedWorld.clone().project(camera);if(p.z>1||p.z<-1){objectLabel.classList.remove('is-visible');return;}labelDirection.subVectors(state.selectedWorld,camera.position).normalize();labelRay.set(camera.position,labelDirection);const hit=labelRay.intersectSphere(labelEarth,labelHit);if(hit&&hit.distanceToSquared(camera.position)+1e-4<state.selectedWorld.distanceToSquared(camera.position)){objectLabel.classList.remove('is-visible');return;}const rect=stage.getBoundingClientRect(),x=(p.x*.5+.5)*rect.width,y=(-p.y*.5+.5)*rect.height;if(x<0||x>rect.width||y<0||y>rect.height){objectLabel.classList.remove('is-visible');return;}const meta=state.meta.find(m=>m.id===state.selectedId);objectLabel.style.left=`${x}px`;objectLabel.style.top=`${y}px`;objectLabel.classList.add('is-visible');$('strong',objectLabel).textContent=meta?.name||state.selectedId;$('small',objectLabel).textContent=state.selectedState?`${fmt(state.selectedState.altitude,0)} KM · ${meta?.orbitClass||''}`:(meta?.orbitClass||'');}
+  let lastLabelLayoutAt=0;
+  function updateSelectedLabel(){
+    // The label must never obscure the status HUD, actions or time controls.
+    // Check at 8 Hz rather than forcing a DOM layout on every animation frame.
+    const at=performance.now();
+    if(at-lastLabelLayoutAt<125)return;
+    lastLabelLayoutAt=at;
+    if(!state.selectedId||!state.selectedWorldVisible){
+      objectLabel.classList.remove('is-visible');return;
+    }
+    const p=state.selectedWorld.clone().project(camera);
+    if(p.z>1||p.z<-1){
+      objectLabel.classList.remove('is-visible');return;
+    }
+    labelDirection.subVectors(state.selectedWorld,camera.position).normalize();
+    labelRay.set(camera.position,labelDirection);
+    const earthHit=labelRay.intersectSphere(labelEarth,labelHit);
+    if(earthHit&&earthHit.distanceToSquared(camera.position)+1e-4<state.selectedWorld.distanceToSquared(camera.position)){
+      objectLabel.classList.remove('is-visible');return;
+    }
+    const stageRect=stage.getBoundingClientRect();
+    const x=(p.x*.5+.5)*stageRect.width;
+    const y=(-p.y*.5+.5)*stageRect.height;
+    if(x<0||x>stageRect.width||y<0||y>stageRect.height){
+      objectLabel.classList.remove('is-visible');return;
+    }
+    const meta=state.meta.find(m=>m.id===state.selectedId);
+    $('strong',objectLabel).textContent=meta?.name||state.selectedId;
+    $('small',objectLabel).textContent=state.selectedState
+      ? `${fmt(state.selectedState.altitude,0)} KM · ${meta?.orbitClass||''}`
+      : (meta?.orbitClass||'');
+    objectLabel.style.left=`${x}px`;
+    objectLabel.style.top=`${y}px`;
+    objectLabel.classList.add('is-visible');
+    const labelRect=objectLabel.getBoundingClientRect();
+    const overlap=(a,b,padding=8)=>
+      a.left < b.right+padding && a.right > b.left-padding &&
+      a.top < b.bottom+padding && a.bottom > b.top-padding;
+    const blockedBy=$$('.orbit-hud, .orbit-selection-bar, .orbit-time-dock, .orbit-enhancement-tools',stage)
+      .some(element=>{
+        const box=element.getBoundingClientRect();
+        return box.width>0&&box.height>0&&overlap(labelRect,box);
+      });
+    if(blockedBy||labelRect.left<stageRect.left||labelRect.right>stageRect.right||
+       labelRect.top<stageRect.top||labelRect.bottom>stageRect.bottom){
+      objectLabel.classList.remove('is-visible');
+    }
+  }
 
   worker.onmessage = event => {
     const m=event.data||{};
