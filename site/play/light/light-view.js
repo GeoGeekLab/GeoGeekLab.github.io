@@ -277,7 +277,10 @@
       root.dataset.lightFocus=focusedPath;
       sceneFocus.textContent=focusedPath==='none'?'THREE PATHS · ONE VISIBLE WORLD':`UNDER TEST / ${pathTitle[focusedPath]}`;
       evidenceTarget.textContent=focusedPath==='none'?'Three distinct optical paths':pathTitle[focusedPath];
-      sceneSummary.textContent=`Conceptual scene. Scattered sky ${scene.mechanisms.atmosphericScattering?'present':'removed'}; reflected-sky surface path ${scene.mechanisms.atmosphericScattering&&scene.mechanisms.surfaceReflection?'present':'removed'}; water-leaving path ${scene.mechanisms.waterBackscatter?'present':'removed'}. Display color and geometry are illustrative.`;
+      const reflectedSkyStatus=!scene.mechanisms.atmosphericScattering && scene.mechanisms.surfaceReflection
+        ?'has no scattered-sky source'
+        :(scene.mechanisms.surfaceReflection?'present':'removed');
+      sceneSummary.textContent=`Conceptual scene. Scattered sky ${scene.mechanisms.atmosphericScattering?'present':'removed'}; reflected-sky surface path ${reflectedSkyStatus}; water-leaving path ${scene.mechanisms.waterBackscatter?'present':'removed'}. Display color and geometry are illustrative.`;
 
       sky.classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
       ocean.style.setProperty('--light-water-color',scene.waterColor.css);
@@ -300,7 +303,10 @@
         item.classList.toggle('is-focus',focusedPath===id);
         if (focusedPath===id) item.setAttribute('aria-current','step');
         else item.removeAttribute('aria-current');
-        item.textContent=`${label} · ${active?'PRESENT':'REMOVED'}`;
+        const pathStatus=id==='surface' && !scene.mechanisms.atmosphericScattering && scene.mechanisms.surfaceReflection
+          ?'NO SKY SOURCE'
+          :(active?'PRESENT':'REMOVED');
+        item.textContent=`${label} · ${pathStatus}`;
       });
 
       if (snapshot.experiment) renderSpectrum(snapshot,scene);
