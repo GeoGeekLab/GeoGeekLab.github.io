@@ -5,7 +5,8 @@ const CACHE_NAME = 'geogeek-orbit-v2';
 const CACHE_TS_KEY = 'geogeek.orbit.catalogFetchedAt';
 const CACHE_MAX_AGE = 2 * 60 * 60 * 1000;
 const EARTH_RADIUS_KM = 6371.0088;
-const CLASS_COLOR = { LEO: 0xa8d7ca, MEO: 0xe1c66f, GEO: 0xdf754c, HIGH: 0xa8afd9 };
+const CLASS_COLOR = { LEO:0xa8d7ca, MEO:0xe1c66f, GSO:0xc0b0ed, GEO:0xdf754c, HEO:0xe4a879, HIGH:0xa8afd9 };
+const ORBIT_CLASSES = ['LEO','MEO','GSO','GEO','HEO','HIGH'];
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -173,19 +174,24 @@ function setCameraFromState(camera, state) {
   camera.lookAt(0,0,0);
 }
 
-function simulationNow(state) {
-  if (!state.time.running) return state.time.baseMs;
-  return state.time.baseMs + (performance.now() - state.time.perfBase) * state.time.rate;
+// The canonical simulationTimeMs is shared by propagation and the solar overlay.
+function simulationNow(state) { return state.simulationTimeMs; }
+function syncSimulationClock(state) {
+  state.simulationTimeMs = state.time.running
+    ? state.time.baseMs + (performance.now() - state.time.perfBase) * state.time.rate
+    : state.time.baseMs;
+  return state.simulationTimeMs;
 }
 
 function setSimulationTime(state, ms, { keepRunning = state.time.running } = {}) {
   state.time.baseMs = Number(ms);
+  state.simulationTimeMs = state.time.baseMs;
   state.time.perfBase = performance.now();
   state.time.running = Boolean(keepRunning);
 }
 
 function setRate(state, rate) {
-  const now = simulationNow(state);
+  const now = syncSimulationClock(state);
   state.time.rate = Number(rate);
   setSimulationTime(state, now, { keepRunning:true });
 }
@@ -196,7 +202,7 @@ function medianEpoch(meta) {
 }
 
 function classText(meta, counts) {
-  return ['LEO','MEO','GEO','HIGH'].map(key => `${key} ${(counts[key] || 0).toLocaleString()}`).join(' · ');
+  return ORBIT_CLASSES.map(key => `${key} ${(counts[key] || 0).toLocaleString()}`).join(' · ');
 }
 
 function renderLayout(container, sourceMode) {
@@ -212,7 +218,7 @@ function renderLayout(container, sourceMode) {
       </div>
       <div class="orbit-object-label" id="orbitObjectLabel"><strong></strong><small></small></div>
       <div class="orbit-tooltip" id="orbitTooltip"></div>
-      <div class="orbit-class-legend"><span class="leo"><i></i>LEO</span><span class="meo"><i></i>MEO</span><span class="geo"><i></i>GEO</span><span class="high"><i></i>HIGH</span></div>
+      <div class="orbit-class-legend"><span class="leo"><i></i>LEO</span><span class="meo"><i></i>MEO</span><span class="gso"><i></i>GSO</span><span class="geo"><i></i>GEO</span><span class="heo"><i></i>HEO</span><span class="high"><i></i>HIGH</span></div>
       <div class="orbit-time-dock">
         <button type="button" id="orbitPlay">PAUSE</button>
         <div class="orbit-speed"><button type="button" id="orbitNow">NOW</button><button type="button" data-rate="1" class="is-active">1×</button><button type="button" data-rate="60">60×</button><button type="button" data-rate="600">600×</button></div>
@@ -224,7 +230,7 @@ function renderLayout(container, sourceMode) {
       <section class="orbit-card">
         <div class="orbit-card-head"><div><span>ORBITAL CATALOG</span><strong>Find an object, then read its relations.</strong></div><em id="orbitCatalogCount">—</em></div>
         <div class="orbit-search-wrap"><input class="orbit-search" id="orbitSearch" type="search" placeholder="Name or NORAD catalog ID…" autocomplete="off" spellcheck="false"><div class="orbit-search-results" id="orbitSearchResults"></div></div>
-        <div class="orbit-filter-row" id="orbitFilters"><button type="button" data-filter="ALL" class="is-active">ALL</button><button type="button" data-filter="LEO">LEO</button><button type="button" data-filter="MEO">MEO</button><button type="button" data-filter="GEO">GEO</button><button type="button" data-filter="HIGH">HIGH</button></div>
+        <div class="orbit-filter-row" id="orbitFilters"><button type="button" data-filter="ALL" class="is-active">ALL</button><button type="button" data-filter="LEO">LEO</button><button type="button" data-filter="MEO">MEO</button><button type="button" data-filter="GSO">GSO</button><button type="button" data-filter="GEO">GEO</button><button type="button" data-filter="HEO">HEO</button><button type="button" data-filter="HIGH">HIGH</button></div>
         <div class="orbit-filter-counts" id="orbitFilterCounts">—</div>
       </section>
       <section class="orbit-card">
@@ -243,14 +249,14 @@ function renderLayout(container, sourceMode) {
         <div class="orbit-card-head"><div><span>SELECTED OBJECT</span><strong id="orbitSelectedName">NONE</strong></div><em id="orbitSelectedClass">—</em></div>
         <p class="orbit-empty" id="orbitInspectorEmpty">Select a point or search the catalog. Position is propagated for the current simulation time.</p>
         <dl id="orbitInspectorDl" hidden>
-          <div><dt>NORAD / ID</dt><dd id="orbitNorad">—</dd></div><div><dt>POSITION</dt><dd id="orbitPosition">—</dd></div><div><dt>ALTITUDE</dt><dd id="orbitAltitude">—</dd></div><div><dt>VELOCITY</dt><dd id="orbitVelocity">—</dd></div><div><dt>INCLINATION</dt><dd id="orbitInclination">—</dd></div><div><dt>PERIOD</dt><dd id="orbitPeriod">—</dd></div><div><dt>ECCENTRICITY</dt><dd id="orbitEccentricity">—</dd></div><div><dt>ELEMENT EPOCH</dt><dd id="orbitEpoch">—</dd></div>
+          <div><dt>NORAD / ID</dt><dd id="orbitNorad">—</dd></div><div><dt>POSITION</dt><dd id="orbitPosition">—</dd></div><div><dt>ALTITUDE</dt><dd id="orbitAltitude">—</dd></div><div><dt>VELOCITY</dt><dd id="orbitVelocity">—</dd></div><div><dt>INCLINATION</dt><dd id="orbitInclination">—</dd></div><div><dt>PERIOD</dt><dd id="orbitPeriod">—</dd></div><div><dt>PERIGEE</dt><dd id="orbitPerigee">—</dd></div><div><dt>APOGEE</dt><dd id="orbitApogee">—</dd></div><div><dt>ECCENTRICITY</dt><dd id="orbitEccentricity">—</dd></div><div><dt>ELEMENT EPOCH</dt><dd id="orbitEpoch">—</dd></div>
         </dl>
-        <div class="orbit-actions" id="orbitActions" hidden><button type="button" id="orbitFocus">FOCUS OBJECT</button><a id="orbitSourceObject" href="https://celestrak.org/" target="_blank" rel="noreferrer">SOURCE ELEMENT ↗</a></div>
+        <div class="orbit-actions" id="orbitActions" hidden><button type="button" id="orbitFocus">FOCUS OBJECT</button><button type="button" id="orbitTrack" aria-pressed="false">TRACK OBJECT</button><a id="orbitSourceObject" href="https://celestrak.org/" target="_blank" rel="noreferrer">SOURCE ELEMENT ↗</a></div>
       </section>
       <section class="orbit-card orbit-provenance">
         <div class="orbit-card-head"><div><span>OBSERVATION CONDITIONS</span><strong>What this field can and cannot mean.</strong></div><em>DECLARED</em></div>
         <div class="orbit-source-state${sourceClass}" id="orbitSourceState"><i></i><span id="orbitSourceText">${sourceMode === 'live' ? 'LIVE CATALOG' : sourceMode === 'cache-fresh' ? 'CACHED ≤ 2 H' : 'STALE CACHE'}</span></div>
-        <dl><div><dt>SOURCE</dt><dd><a href="https://celestrak.org/NORAD/elements/" target="_blank" rel="noreferrer">CelesTrak active GP elements ↗</a></dd></div><div><dt>FORMAT</dt><dd>OMM JSON — avoids the legacy TLE catalog-number ceiling.</dd></div><div><dt>MODEL</dt><dd>SGP4 / SDP4 via satellite.js 6.0.2 in a Web Worker.</dd></div><div><dt>TIME</dt><dd id="orbitEpochAge">Element-set age —</dd></div><div><dt>SCALE</dt><dd id="orbitScaleLimit">Altitude is visually compressed; radial distance is not metric.</dd></div><div><dt>LIMIT</dt><dd>These are model-propagated positions from general perturbation elements, not precision ephemerides. Catalog activity and element quality vary by object.</dd></div></dl>
+        <dl><div><dt>SOURCE</dt><dd><a href="https://celestrak.org/NORAD/elements/" target="_blank" rel="noreferrer">CelesTrak active GP elements ↗</a></dd></div><div><dt>FORMAT</dt><dd>OMM JSON — avoids the legacy TLE catalog-number ceiling.</dd></div><div><dt>MODEL</dt><dd>SGP4 / SDP4 via satellite.js 6.0.2 in a Web Worker.</dd></div><div><dt>CLASS</dt><dd>Approximate classes derived from period, perigee, apogee, eccentricity and inclination. GEO is near stationary; GSO includes inclined or eccentric synchronous objects.</dd></div><div><dt>TIME</dt><dd id="orbitEpochAge">Element-set age —</dd></div><div><dt>SCALE</dt><dd id="orbitScaleLimit">Altitude is visually compressed; radial distance is not metric.</dd></div><div><dt>LIMIT</dt><dd>These are model-propagated positions from general perturbation elements, not precision ephemerides. Catalog activity and element quality vary by object.</dd></div></dl>
       </section>
     </aside>
   </div>`;
@@ -339,17 +345,17 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   const scaleBadge = $('#orbitScaleBadge', container), playButton = $('#orbitPlay', container), timeRange = $('#orbitTimeRange', container), timeUtc = $('#orbitTimeUtc', container), timeOffset = $('#orbitTimeOffset', container);
   const observerTitle = $('#orbitObserverTitle', container), horizonState = $('#orbitHorizonState', container), azimuthEl = $('#orbitAzimuth', container), elevationEl = $('#orbitElevation', container), rangeEl = $('#orbitRange', container), passEl = $('#orbitPass', container);
   const selectedName = $('#orbitSelectedName', container), selectedClass = $('#orbitSelectedClass', container), inspectorEmpty = $('#orbitInspectorEmpty', container), inspectorDl = $('#orbitInspectorDl', container), actions = $('#orbitActions', container);
-  const noradEl = $('#orbitNorad', container), positionEl = $('#orbitPosition', container), altitudeEl = $('#orbitAltitude', container), velocityEl = $('#orbitVelocity', container), inclinationEl = $('#orbitInclination', container), periodEl = $('#orbitPeriod', container), eccentricityEl = $('#orbitEccentricity', container), epochEl = $('#orbitEpoch', container), sourceObject = $('#orbitSourceObject', container), epochAge = $('#orbitEpochAge', container), scaleLimit = $('#orbitScaleLimit', container), sourceText = $('#orbitSourceText', container);
+  const noradEl = $('#orbitNorad', container), positionEl = $('#orbitPosition', container), altitudeEl = $('#orbitAltitude', container), velocityEl = $('#orbitVelocity', container), inclinationEl = $('#orbitInclination', container), periodEl = $('#orbitPeriod', container), perigeeEl = $('#orbitPerigee', container), apogeeEl = $('#orbitApogee', container), eccentricityEl = $('#orbitEccentricity', container), epochEl = $('#orbitEpoch', container), sourceObject = $('#orbitSourceObject', container), epochAge = $('#orbitEpochAge', container), scaleLimit = $('#orbitScaleLimit', container), sourceText = $('#orbitSourceText', container);
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:'high-performance' });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); renderer.setClearColor(0x050806, 0);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, .02, 80);
   const state = {
-    meta:[], counts:{}, filter:'ALL', query:'', selectedId:null, selectedState:null, observer:null, pass:null,
+    meta:[], counts:{}, filter:'ALL', query:'', searchSort:'relevance', searchPage:0, selectedId:null, selectedState:null, observer:null, pass:null, passRequestId:0, followSelected:false,
     radial:'compressed', layers:{ graticule:true, shells:true, orbit:true, ground:true },
     camera:{ yaw:.52, pitch:.22, distance:3.35 },
-    time:{ baseMs:Date.now(), perfBase:performance.now(), running:true, rate:1 },
+    time:{ baseMs:Date.now(), perfBase:performance.now(), running:true, rate:1 }, simulationTimeMs:Date.now(),
     tickPending:false, lastTickReal:0, lastTraceReal:0, hoverIndex:null, pointerMoved:false,
     lastFrame:null, trace:null, coastRings:null, selectedWorld:new THREE.Vector3(), selectedWorldVisible:false,
   };
@@ -416,9 +422,10 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
 
   function requestPass() {
     state.pass=null;
+    state.passRequestId += 1;
     if (!state.selectedId || !state.observer) { renderPass(); return; }
     passEl.innerHTML='<span>NEXT GEOMETRIC PASS</span><strong>Computing 24 h horizon…</strong>';
-    worker.postMessage({ type:'pass', id:state.selectedId, timeMs:simulationNow(state), observer:state.observer, hours:24 });
+    worker.postMessage({ type:'pass', id:state.selectedId, timeMs:simulationNow(state), observer:state.observer, hours:24, requestId:state.passRequestId });
   }
 
   function updatePointCloud(message) {
@@ -435,7 +442,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     }
     pointGeometry.setAttribute('position',new THREE.BufferAttribute(pos,3)); pointGeometry.setAttribute('color',new THREE.BufferAttribute(colors,3)); pointGeometry.computeBoundingSphere(); pointGeometry.userData.indices=message.indices;
     hudReadout.textContent=`DRAWN ${count.toLocaleString()} / MATCHED ${Number(message.totalVisible||0).toLocaleString()} · ${state.filter} · ${state.radial.toUpperCase()} RADIAL`;
-    if(state.selectedId)updateInspectorDynamic();
+    if(state.selectedId){updateInspectorDynamic();if(state.followSelected&&state.selectedWorldVisible)centerSelected(false);}
     drawGroundMap(groundCanvas,state,state.coastRings); requestTrace();
   }
 
@@ -454,16 +461,42 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   }
   function applyTraceVisibility(){for(const child of traceGroup.children)child.visible=child.userData.kind==='orbit'?state.layers.orbit:state.layers.ground;}
 
+  function updateTrackUi() {
+    const button = $('#orbitTrack',container);
+    if (!button) return;
+    button.textContent = state.followSelected ? 'STOP TRACKING' : 'TRACK OBJECT';
+    button.setAttribute('aria-pressed',String(state.followSelected));
+  }
+  function centerSelected(zoom = false) {
+    if (!state.selectedWorldVisible) return;
+    const n=state.selectedWorld.clone().normalize();
+    state.camera.yaw=Math.atan2(n.x,n.z);
+    state.camera.pitch=Math.asin(clamp(n.y,-1,1));
+    if(zoom)state.camera.distance=state.radial==='physical'
+      ? Math.max(2.2,state.selectedWorld.length()+1.7):2.6;
+    setCameraFromState(camera,state);
+  }
+  function fitAll() {
+    const attr=pointGeometry.getAttribute('position');
+    let radius=1.2;
+    if(attr)for(let i=0;i<attr.count;i++)radius=Math.max(radius,Math.hypot(attr.getX(i),attr.getY(i),attr.getZ(i)));
+    const vFov=camera.fov*Math.PI/180;
+    const hFov=2*Math.atan(Math.tan(vFov/2)*camera.aspect);
+    const distance=radius/Math.sin(Math.min(vFov,hFov)/2)*1.08;
+    state.camera.distance=clamp(distance,1.65,Math.max(1.65,Math.min(70,camera.far-radius-1)));
+    setCameraFromState(camera,state);
+  }
+  stage.addEventListener('geogeek:orbit-fit',fitAll);
   function selectByIndex(index) {
     const meta=state.meta[index]; if(!meta)return;
-    state.selectedId=meta.id; state.query=''; state.filter='ALL'; search.value='';searchResults.classList.remove('is-open');$$('[data-filter]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.filter==='ALL'));
+    state.selectedId=meta.id;state.followSelected=false;updateTrackUi();state.query='';state.searchPage=0;state.filter='ALL';search.value='';searchResults.classList.remove('is-open');$$('[data-filter]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.filter==='ALL'));
     selectedName.textContent=meta.name; selectedClass.textContent=meta.orbitClass; inspectorEmpty.hidden=true;inspectorDl.hidden=false;actions.hidden=false;
-    noradEl.textContent=`${meta.id}${meta.objectId?` · ${meta.objectId}`:''}`;inclinationEl.textContent=`${fmt(meta.inclination,2)}°`;periodEl.textContent=meta.periodMin?`${fmt(meta.periodMin,1)} min`:'—';eccentricityEl.textContent=Number.isFinite(meta.eccentricity)?Number(meta.eccentricity).toFixed(6):'—';epochEl.textContent=meta.epochMs?`${formatUtc(meta.epochMs)} · ${formatAge(meta.epochMs)} old`:'—';
+    noradEl.textContent=`${meta.id}${meta.objectId?` · ${meta.objectId}`:''}`;inclinationEl.textContent=`${fmt(meta.inclination,2)}°`;periodEl.textContent=meta.periodMin?`${fmt(meta.periodMin,1)} min`:'—';perigeeEl.textContent=Number.isFinite(meta.perigeeKm)?`${fmt(meta.perigeeKm,0)} km`:'—';apogeeEl.textContent=Number.isFinite(meta.apogeeKm)?`${fmt(meta.apogeeKm,0)} km`:'—';eccentricityEl.textContent=Number.isFinite(meta.eccentricity)?Number(meta.eccentricity).toFixed(6):'—';epochEl.textContent=meta.epochMs?`${formatUtc(meta.epochMs)} · ${formatAge(meta.epochMs)} old`:'—';
     sourceObject.href=`https://celestrak.org/NORAD/elements/gp.php?CATNR=${encodeURIComponent(meta.id)}&FORMAT=JSON-PRETTY`;
     requestPositions(true);requestTrace(true);requestPass();
   }
 
-  function clearSelection(){state.selectedId=null;state.selectedState=null;state.trace=null;state.selectedWorldVisible=false;clearTraceObjects();selectedName.textContent='NONE';selectedClass.textContent='—';inspectorEmpty.hidden=false;inspectorDl.hidden=true;actions.hidden=true;renderObserverRelation();renderPass();drawGroundMap(groundCanvas,state,state.coastRings);}
+  function clearSelection(){state.followSelected=false;updateTrackUi();state.passRequestId+=1;const url=new URL(location.href);if(url.searchParams.has('sat')){url.searchParams.delete('sat');history.replaceState(history.state,'',url.pathname+url.search+url.hash);}state.selectedId=null;state.selectedState=null;state.trace=null;state.selectedWorldVisible=false;clearTraceObjects();selectedName.textContent='NONE';selectedClass.textContent='—';inspectorEmpty.hidden=false;inspectorDl.hidden=true;actions.hidden=true;renderObserverRelation();renderPass();drawGroundMap(groundCanvas,state,state.coastRings);}
 
   function updateInspectorDynamic(){const p=state.selectedState;if(!p)return;positionEl.textContent=`${Math.abs(p.lat).toFixed(2)}° ${p.lat>=0?'N':'S'} · ${Math.abs(p.lon).toFixed(2)}° ${p.lon>=0?'E':'W'}`;altitudeEl.textContent=`${fmt(p.altitude,1)} km`;velocityEl.textContent=`${fmt(p.velocity,3)} km/s`;renderObserverRelation();}
 
@@ -490,9 +523,11 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
 
   function setFilter(filter){state.filter=filter;state.query='';search.value='';$$('[data-filter]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.filter===filter));requestPositions(true);}
 
-  function updateTimeUi(){const ms=simulationNow(state),offset=(ms-Date.now())/3600000;timeUtc.textContent=new Date(ms).toISOString().slice(11,19)+' UTC';timeOffset.textContent=Math.abs(offset)<.03?'NOW':`${offset>=0?'+':''}${offset.toFixed(1)} H`;if(document.activeElement!==timeRange)timeRange.value=String(clamp(offset,-12,12));playButton.textContent=state.time.running?'PAUSE':'PLAY';}
+  function updateTimeUi(){const ms=simulationNow(state),offset=(ms-Date.now())/3600000;timeUtc.textContent=new Date(ms).toISOString().replace('T',' ').slice(0,19)+' UTC';timeOffset.textContent=Math.abs(offset)<.03?'NOW':`${offset>=0?'+':''}${offset.toFixed(1)} H`;if(document.activeElement!==timeRange)timeRange.value=String(clamp(offset,-12,12));playButton.textContent=state.time.running?'PAUSE':'PLAY';}
 
-  function updateSelectedLabel(){if(!state.selectedId||!state.selectedWorldVisible){objectLabel.classList.remove('is-visible');return;}const p=state.selectedWorld.clone().project(camera);if(p.z>1||p.z<-1){objectLabel.classList.remove('is-visible');return;}const rect=stage.getBoundingClientRect(),x=(p.x*.5+.5)*rect.width,y=(-p.y*.5+.5)*rect.height;if(x<0||x>rect.width||y<0||y>rect.height){objectLabel.classList.remove('is-visible');return;}const meta=state.meta.find(m=>m.id===state.selectedId);objectLabel.style.left=`${x}px`;objectLabel.style.top=`${y}px`;objectLabel.classList.add('is-visible');$('strong',objectLabel).textContent=meta?.name||state.selectedId;$('small',objectLabel).textContent=state.selectedState?`${fmt(state.selectedState.altitude,0)} KM · ${meta?.orbitClass||''}`:(meta?.orbitClass||'');}
+  const labelRay=new THREE.Ray(),labelDirection=new THREE.Vector3(),labelHit=new THREE.Vector3();
+  const labelEarth=new THREE.Sphere(new THREE.Vector3(),1.025);
+  function updateSelectedLabel(){if(!state.selectedId||!state.selectedWorldVisible){objectLabel.classList.remove('is-visible');return;}const p=state.selectedWorld.clone().project(camera);if(p.z>1||p.z<-1){objectLabel.classList.remove('is-visible');return;}labelDirection.subVectors(state.selectedWorld,camera.position).normalize();labelRay.set(camera.position,labelDirection);const hit=labelRay.intersectSphere(labelEarth,labelHit);if(hit&&hit.distanceToSquared(camera.position)+1e-4<state.selectedWorld.distanceToSquared(camera.position)){objectLabel.classList.remove('is-visible');return;}const rect=stage.getBoundingClientRect(),x=(p.x*.5+.5)*rect.width,y=(-p.y*.5+.5)*rect.height;if(x<0||x>rect.width||y<0||y>rect.height){objectLabel.classList.remove('is-visible');return;}const meta=state.meta.find(m=>m.id===state.selectedId);objectLabel.style.left=`${x}px`;objectLabel.style.top=`${y}px`;objectLabel.classList.add('is-visible');$('strong',objectLabel).textContent=meta?.name||state.selectedId;$('small',objectLabel).textContent=state.selectedState?`${fmt(state.selectedState.altitude,0)} KM · ${meta?.orbitClass||''}`:(meta?.orbitClass||'');}
 
   worker.onmessage = event => {
     const m=event.data||{};
@@ -501,7 +536,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     }
     if(m.type==='positions'){state.tickPending=false;updatePointCloud(m);return;}
     if(m.type==='trace'){updateTrace(m);return;}
-    if(m.type==='pass'&&m.id===state.selectedId){state.pass=m.result;renderPass();}
+    if(m.type==='pass'&&m.id===state.selectedId&&m.requestId===state.passRequestId){state.pass=m.result;renderPass();}
   };
   worker.onerror = error => {console.warn('[GeoGeek] Orbital propagation worker error',error);state.tickPending=false;hudReadout.textContent='PROPAGATION WORKER ERROR';liveDot.className='orbit-live-dot is-error';};
 
@@ -513,7 +548,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   groundResizeObserver.observe(groundCanvas);
 
   let raf=0;
-  function animate(){if(innerSignal.aborted)return;raf=requestAnimationFrame(animate);updateTimeUi();requestPositions();if(state.time.rate>1)requestTrace();updateSelectedLabel();renderer.render(scene,camera);}
+  function animate(){if(innerSignal.aborted)return;raf=requestAnimationFrame(animate);syncSimulationClock(state);const root=$('.orbit-v2',container);if(root)root.dataset.simulationTimeMs=String(Math.round(state.simulationTimeMs));updateTimeUi();requestPositions();if(state.time.rate>1)requestTrace();updateSelectedLabel();renderer.render(scene,camera);}
   animate();
 
   search.addEventListener('input',()=>{renderSearchResults();state.query=search.value.trim();if(!state.query){requestPositions(true);return;}requestPositions(true);});
@@ -524,8 +559,9 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     const view=e.target.closest('[data-view]');if(view){setView(view.dataset.view);return;}
     const layer=e.target.closest('[data-layer]');if(layer){const key=layer.dataset.layer;state.layers[key]=!state.layers[key];layer.classList.toggle('is-active',state.layers[key]);if(key==='graticule')graticule.visible=state.layers[key];if(key==='shells')shellGroup.visible=state.layers[key];applyTraceVisibility();drawGroundMap(groundCanvas,state,state.coastRings);}
   });
-  $('#orbitResetView',container).addEventListener('click',()=>setView('equator'));
-  $('#orbitFocus',container).addEventListener('click',()=>{if(!state.selectedWorldVisible)return;const n=state.selectedWorld.clone().normalize();state.camera.yaw=Math.atan2(n.x,n.z);state.camera.pitch=Math.asin(clamp(n.y,-1,1));state.camera.distance=state.radial==='physical'?Math.max(2.2,state.selectedWorld.length()+1.7):2.6;setCameraFromState(camera,state);});
+  $('#orbitResetView',container).addEventListener('click',()=>{state.followSelected=false;updateTrackUi();setView('equator');state.camera.distance=state.radial==='physical'?18:3.35;setCameraFromState(camera,state);});
+  $('#orbitFocus',container).addEventListener('click',()=>centerSelected(true));
+  $('#orbitTrack',container).addEventListener('click',()=>{if(!state.selectedId)return;state.followSelected=!state.followSelected;updateTrackUi();if(state.followSelected)centerSelected(true);});
   playButton.addEventListener('click',()=>{const now=simulationNow(state);state.time.running=!state.time.running;setSimulationTime(state,now,{keepRunning:state.time.running});});
   $('#orbitNow',container).addEventListener('click',()=>{state.time.rate=1;setSimulationTime(state,Date.now(),{keepRunning:true});timeRange.value='0';$$('[data-rate]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.rate==='1'));requestPositions(true);requestTrace(true);requestPass();});
   $$('[data-rate]',container).forEach(button=>button.addEventListener('click',()=>{setRate(state,Number(button.dataset.rate));$$('[data-rate]',container).forEach(b=>b.classList.toggle('is-active',b===button));requestPositions(true);requestPass();}));
