@@ -4,7 +4,7 @@
   const loaded = new Map();
   const scriptUrl = src => new URL(src, document.baseURI).href;
   const ORBIT_CATALOG_SOURCE = 'orbital/orbit-catalog-source.js?v=20261004a';
-  const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261002c';
+  const ORBIT_ENHANCEMENT = 'orbital/orbital-enhancements-v3.js?v=20261113b';
   const PROVIDER_STABILITY_RUNTIME = 'core/provider-stability.js?v=20261004b';
   const EARTH_OBSERVATION_LAB = 'earth-observation-lab-v3.js?v=20261002e';
   const PULSE_OBSERVATION_LAB = 'pulse-observation-lab-v4.js?v=20261009fixed1';
@@ -129,7 +129,7 @@
     if (observatoryKinds.has(kind)) await loadModule(PROVIDER_STABILITY_RUNTIME);
     if (!window.GeoInstruments) {
       if (gameKinds.has(kind)) await loadScript('games.js');
-      await loadScript('instruments.js?v=20261011orbit1');
+      await loadScript('instruments.js?v=20261113b');
       quarantineLegacyPulseMount();
       await loadScript('figure-instrument.js?v=20261001a');
     } else {
