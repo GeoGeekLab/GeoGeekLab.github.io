@@ -275,3 +275,17 @@ The final Stage 6 HEAD must pass a new run with the CDP heap assertion and overl
 
 **Stage 7 stopping rule:** any failed required check, data/attribution ambiguity, merge conflict, production source mismatch, or unresolved accessibility/performance blocker means **do not merge**.
 
+
+
+### Stage 6 final implementation CI and Stage 7 starting baseline (2026-11-14)
+
+- **Implementation HEAD:** `23303baa94c1786e53dfee34160f53414aa63eb6`.
+- [Flow V3 Hardening Acceptance #43574807208](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43574807208): success, **42/42 Node tests; 67 Playwright passed, one platform-conditional skip; no failures**. Full Stage 1–5 regression remains in scope.
+- All four independent PR checks at that SHA concluded success: **Orbit Acceptance**, **Earth Pulse Source Preflight**, **Earth Pulse Regression** and **GeoGeek Quality**.
+- This run includes the deterministic 250/900/1800-particle × desktop/tablet/mobile stress matrix, three-cycle cleanup, CDP forced-GC heap growth test (≤20 MiB), controlled recovery/freshness cases, and axe WCAG A/AA scans across four modes in desktop and mobile-emulated Chromium.
+- Numeric thresholds are in [ACCEPTANCE.md](ACCEPTANCE.md); data, caching, licensing and platform limits in [STAGE6-AUDIT.md](STAGE6-AUDIT.md). These are scripted CI checks, not actual mobile-device or production Pages verification.
+- At closeout, `main` was still `64b6a281d345bd6dc9b92698d252ba419a1f4ed0`, while PR #200 remained Draft and based on the original `ed78ba052b48434aa0b16081c03d778d2b5fa3c0`. Stage 7 must re-read these refs before proceeding.
+- **Outstanding release blockers:** explicit code review and human approval, commercial-use/CC BY provider compliance, pinned GFS redistribution review, refreshed merge base, Pages build and post-deployment verification. No Stage 6 check authorizes merging.
+- The documentation/contract closeout will create a later HEAD. Require an all-green CI run for that HEAD before declaring Stage 6 signed off.
+
+**Stage 7 handoff entry:** Use `feat/flow-lab-v3`, Draft PR #200 and this HANDOFF as the source of truth. First inspect latest `main`, compare the complete diff, and collect final HEAD's mandatory checks. Only after those pass should Stage 7 request review and, with approval, merge and verify GitHub Pages. If any data provenance, performance, accessibility, licensing or integration check fails, keep the PR Draft.
