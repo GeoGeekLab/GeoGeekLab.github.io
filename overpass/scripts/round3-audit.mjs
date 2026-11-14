@@ -67,7 +67,7 @@ const release=process.argv.includes('--release-check')
 if(release){
   // Frozen pinned catalogs are intentionally not refreshed during source
   // build. This gate is for publishing, after a lawful upstream data refresh.
-  assert(!result.watched.health.snapshotStale48h,'Watched snapshot >48h old; refresh before release')
-  assert(!result.geoGeek.health.snapshotStale48h,'GeoGeek snapshot >48h old; refresh before shared-source deployment')
+  assert(!result.watched.health.policyStale,'Watched snapshot >48h old; refresh before release')
+  assert(!result.geoGeek.health.policyStale,'GeoGeek snapshot exceeds its supply-registry freshness threshold; refresh before shared-source deployment')
   assert(result.overlap.namedProfileRowsMissingFromGeoGeekActive===0,'GeoGeek active snapshot lacks Watched profiled objects')
 }

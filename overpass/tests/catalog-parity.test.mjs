@@ -19,7 +19,7 @@ function geoFixture(){
     EPOCH:'2026-11-13T00:00:00',MEAN_MOTION:15,ECCENTRICITY:.001,
     INCLINATION:98,RA_OF_ASC_NODE:1,ARG_OF_PERICENTER:1,MEAN_ANOMALY:1,
     BSTAR:1,MEAN_MOTION_DOT:1,MEAN_MOTION_DDOT:1
-  })),meta:{dataset:'celestrak-active-gp',recordCount:n,fetchedAt:zero}}
+  })),meta:{dataset:'celestrak-active-gp',recordCount:n,fetchedAt:zero,refreshPolicy:{staleAfterMs:8*3600000}}}
 }
 test('UTC CelesTrak epochs without Z are parsed as UTC, not local time',()=>{
   assert.equal(utcEpoch('2026-11-13T00:00:00'),Date.parse(zero))
@@ -29,6 +29,7 @@ test('UTC CelesTrak epochs without Z are parsed as UTC, not local time',()=>{
 test('snapshot fetch time and orbital-element epochs have different freshness semantics',()=>{
   const h=health(zero,[utcEpoch('2026-11-01T00:00:00'),utcEpoch('2026-11-12T00:00:00')],Date.parse('2026-11-14T12:00:00Z'))
   assert.equal(h.snapshotStale48h,false)
+  assert.equal(h.policyStale,false)
   assert(h.medianElementAgeDays>7)
   assert.notEqual(h.fetchedAt,h.epochMedian)
 })

@@ -68,3 +68,8 @@ development; failing to meet the release gate is not hidden.
 
 P3 modifies no production main branch, no rendered UI and no original
 Watched scientific code.
+
+**Release freshness policy:** Watched's own HUD uses a 48-hour stale
+threshold (src/ui/hud/readouts.ts). GeoGeek active OMM uses its exact
+refreshPolicy.staleAfterMs from active.meta.json (currently 8 hours).
+The audit reports and release gate preserve both thresholds separately.

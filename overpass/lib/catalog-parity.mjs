@@ -25,7 +25,7 @@ export function quantile(xs, q) {
   const x = [...xs].sort((a,b)=>a-b)
   return x[Math.floor((x.length-1)*Math.max(0,Math.min(1,q)))]
 }
-export function health(fetchedAt, epochDates, nowMs) {
+export function health(fetchedAt, epochDates, nowMs, staleAfterHours=48) {
   const fetchedMs = utcEpoch(fetchedAt)
   if (!Number.isFinite(fetchedMs)) throw new Error('Catalog fetchedAt is invalid')
   if (!Number.isFinite(nowMs)) throw new Error('Invalid comparison time')
@@ -37,6 +37,8 @@ export function health(fetchedAt, epochDates, nowMs) {
     fetchedAt: new Date(fetchedMs).toISOString(),
     snapshotAgeHours: Math.round(ageHours*100)/100,
     snapshotStale48h: ageHours>48 || ageHours < -1,
+    policyStaleAfterHours: staleAfterHours,
+    policyStale: ageHours>staleAfterHours || ageHours < -1,
     epochMedian: epochMedian === null ? null : new Date(epochMedian).toISOString(),
     medianElementAgeDays: epochMedian === null ? null : Math.round((nowMs-epochMedian)/DAY_MS*100)/100,
     validEpochs: validEpochs.length,
@@ -77,6 +79,8 @@ export function parseWatched(file) {
 export function parseGeoGeek(file, meta) {
   if(!Array.isArray(file)||file.length<10000) throw new Error('Invalid GeoGeek active OMM array')
   if(!meta||meta.dataset!=='celestrak-active-gp'||meta.recordCount!==file.length)throw new Error('GeoGeek supply metadata mismatch')
+  const maxAgeMs=Number(meta.refreshPolicy?.staleAfterMs)
+  if(!Number.isFinite(maxAgeMs)||maxAgeMs<=0)throw new Error('GeoGeek catalog freshness policy missing')
   const map=new Map(), epochs=[]
   let duplicates=0, malformed=0
   for(const item of file){
@@ -90,7 +94,7 @@ export function parseGeoGeek(file, meta) {
   }
   for(const item of map.values())epochs.push(item.epochMs)
   if(malformed)throw new Error('GeoGeek active OMM contains unusable elements: '+malformed)
-  return {map,count:map.size,rawCount:file.length,duplicates,fetchedAt:meta.fetchedAt,epochs,source:meta.source,format:'CCSDS OMM JSON (CelesTrak active only)'}
+  return {map,count:map.size,rawCount:file.length,duplicates,fetchedAt:meta.fetchedAt,epochs,source:meta.source,policyStaleAfterHours:maxAgeMs/HOUR_MS,format:'CCSDS OMM JSON (CelesTrak active only)'}
 }
 export function compareCatalogs(watched,geo,nowMs) {
   const matched=[], missingProfileRows=[], watchedOnlySample=[]
@@ -111,8 +115,8 @@ export function compareCatalogs(watched,geo,nowMs) {
   const mismatchDistances=matched.map(x=>x.absEpochDeltaHours)
   const result={
     generatedAt:new Date(nowMs).toISOString(),
-    watched:{count:watched.count,sourceGroups:['active','stations','weather','resource','planet','goes','noaa','sarsat'],profiledNamedRows:watched.namedCount,health:health(watched.fetchedAt,watched.epochs,nowMs)},
-    geoGeek:{count:geo.count,rawCount:geo.rawCount,sourceGroups:['active'],duplicates:geo.duplicates,health:health(geo.fetchedAt,geo.epochs,nowMs)},
+    watched:{count:watched.count,sourceGroups:['active','stations','weather','resource','planet','goes','noaa','sarsat'],profiledNamedRows:watched.namedCount,health:health(watched.fetchedAt,watched.epochs,nowMs,48)},
+    geoGeek:{count:geo.count,rawCount:geo.rawCount,sourceGroups:['active'],duplicates:geo.duplicates,health:health(geo.fetchedAt,geo.epochs,nowMs,geo.policyStaleAfterHours)},
     overlap:{
       shared:matched.length,watchedOnly,geoGeekOnly:geoOnly,
       namedProfileRowsShared:featuredShared,namedProfileRowsMissingFromGeoGeekActive:featuredOnly,
