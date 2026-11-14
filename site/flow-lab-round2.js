@@ -519,19 +519,33 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
         <div><dt>LIMIT</dt><dd>Interpolated positions are not additional observations; calculated arc distance is not measured travel.</dd></div>`;
     }
 
+    function syncTripLegend(){
+      let key=footer.querySelector('.flow-trip-sample-legend');
+      if(mode()!=='trips'){key?.remove();return;}
+      if(!key){
+        key=document.createElement('div');
+        key.className='flow-trip-sample-legend';
+        footer.insertBefore(key,projectionReadout);
+      }
+      key.innerHTML='<span>○ authored teaching sample</span>'+
+        '<span>● current display head</span>'+
+        '<span>— interpolated great-circle segment · not measured movement</span>';
+    }
     function syncMode(){
       syncTabs();syncSummary();ensureOdGeometryControl();
       const active=mode(),cleanup={};
       if(active!=='od'){
         selectedNode='';
         if(new URL(location.href).searchParams.has('flowNode'))cleanup.flowNode=null;
+        if(new URL(location.href).searchParams.has('flowPeer'))cleanup.flowPeer=null;
       }
       if(active!=='trips'){
         selectedTrip='';
         if(new URL(location.href).searchParams.has('flowTrip'))cleanup.flowTrip=null;
       }
       if(Object.keys(cleanup).length)updateUrl(cleanup);
-      syncAccessibleSelection();syncWorkspace();renderOverlay();
+      syncAccessibleSelection();syncWorkspace();syncMovementAnalysis();
+      syncTripLegend();renderOverlay();
     }
 
     // Native form controls make aria-hidden SVG selections keyboard-accessible.
@@ -559,14 +573,22 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
       selectedNode=(id&&id!==selectedNode&&Object.hasOwn(NODES,id))?id:'';
       updateUrl({flowNode:selectedNode||null});
       if(selectedNode)inspectSelectedNode(selectedNode);
-      syncAccessibleSelection();renderOverlay();
+      syncAccessibleSelection();syncMovementAnalysis();renderOverlay();
     }
     function chooseTrip(id){
       selectedTrip=(id&&id!==selectedTrip&&/^[0-7]$/.test(id))?id:'';
       updateUrl({flowTrip:selectedTrip||null});
       if(selectedTrip)inspectSelectedTrip(selectedTrip);
-      syncAccessibleSelection();renderOverlay();
+      syncAccessibleSelection();syncMovementAnalysis();renderOverlay();
     }
+    analysis.addEventListener('change',event=>{
+      if(!event.target.matches('[data-flow-peer]'))return;
+      const candidate=event.target.value;
+      if(Object.hasOwn(NODES,candidate)&&candidate!==(selectedNode||'nyc')){
+        odPeer=candidate;updateUrl({flowPeer:odPeer});
+        syncMovementAnalysis();renderOverlay();
+      }
+    });
     access.addEventListener('change',event=>{
       if(event.target.matches('[data-flow-place]')){
         const id=event.target.value;
@@ -607,6 +629,7 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
       updateUrl({ flowGeometry:odGeometry });
       ensureOdGeometryControl(); renderOverlay();
       if (selectedNode) inspectSelectedNode(selectedNode);
+      syncMovementAnalysis();
     });
 
     svg.addEventListener('click', event => {
@@ -639,23 +662,32 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
 
     map.addEventListener('wheel', () => setTimeout(renderOverlay, 0), { passive:true });
     map.addEventListener('pointerup', () => setTimeout(renderOverlay, 0));
-    dynamic.addEventListener('input', () => setTimeout(renderOverlay, 0));
-    dynamic.addEventListener('click', () => setTimeout(() => { ensureOdGeometryControl(); renderOverlay(); }, 0));
+    dynamic.addEventListener('input', () => setTimeout(()=>{
+      syncMovementAnalysis();renderOverlay();
+      if(selectedTrip&&mode()==='trips')inspectSelectedTrip(selectedTrip);
+    }, 0));
+    dynamic.addEventListener('click', () => setTimeout(()=>{
+      ensureOdGeometryControl();syncMovementAnalysis();renderOverlay();
+    }, 0));
 
     function onEscape(event){
       if(event.key!=='Escape'||event.defaultPrevented||!root.isConnected||
          !root.closest('.instrument-dialog[open]'))return;
       if(!selectedNode&&!selectedTrip)return;
       event.preventDefault();selectedNode='';selectedTrip='';
-      updateUrl({flowNode:null,flowTrip:null});
-      syncAccessibleSelection();renderOverlay();
+      updateUrl({flowNode:null,flowTrip:null,flowPeer:null});
+      syncAccessibleSelection();syncMovementAnalysis();renderOverlay();
     }
     document.addEventListener('keydown',onEscape);
 
     const shellObserver = new MutationObserver(records => {
-      if (records.some(record => record.attributeName === 'data-mode')) syncMode();
+      if(records.some(record=>record.attributeName==='data-mode'))syncMode();
+      else if(records.some(record=>record.attributeName==='data-trip-time')&&mode()==='trips'){
+        syncMovementAnalysis();
+        if(selectedTrip)inspectSelectedTrip(selectedTrip);
+      }
     });
-    shellObserver.observe(shell, { attributes:true, attributeFilter:['data-mode'] });
+    shellObserver.observe(shell, {attributes:true,attributeFilter:['data-mode','data-trip-time']});
     const svgObserver = new MutationObserver(() => renderOverlay());
     svgObserver.observe(svg, { childList:true });
     const dialog = root.closest('.instrument-dialog');
