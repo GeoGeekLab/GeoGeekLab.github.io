@@ -70,11 +70,15 @@ async function mount({signal,stage}={}){
   const [
     {sampleWind,advanceGeographic,canDrawSegment,fieldBounds},
     {advanceFixedClock,advanceTripTime,playbackCanAdvance},
-    {createPlateCarreeViewport}
+    {createPlateCarreeViewport},
+    {advanceFrozenField},
+    {windSpeedColor,WIND_COLOR_STOPS,fieldMetadata,seedDisk}
   ]=await Promise.all([
     import(new URL('flow/v3/core/field.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/clock.mjs',document.baseURI).href),
-    import(new URL('flow/v3/core/projection.mjs',document.baseURI).href)
+    import(new URL('flow/v3/core/projection.mjs',document.baseURI).href),
+    import(new URL('flow/v3/core/integrator.mjs',document.baseURI).href),
+    import(new URL('flow/v3/core/analysis.mjs',document.baseURI).href)
   ]);
   if(signal?.aborted)return()=>{};
   style();setConditions();
@@ -83,6 +87,7 @@ async function mount({signal,stage}={}){
   try{world=await getJSON(WORLD,signal)}catch{}
   try{wind=await loadOpenMeteo(signal)}catch{try{wind=await loadGFS(signal)}catch{wind=proceduralWind()}}
   if(signal?.aborted)return()=>{};
+  const windMeta=fieldMetadata(wind);
 
   stage.innerHTML=`<div class="flow-lab" data-mode="field">
     <section class="flow-map-shell" id="flMap" tabindex="0" role="region" aria-label="Interactive geographic flow map. Arrow keys pan, plus and minus zoom, Home fits, Enter samples the map centre." aria-describedby="flMapHelp">
@@ -102,7 +107,7 @@ async function mount({signal,stage}={}){
   const shell=$('.flow-lab',stage),map=$('#flMap',stage),base=$('#flBase',stage),fx=$('#flFx',stage),svg=$('#flSvg',stage),tip=$('#flTip',stage),dynamic=$('#flDynamic',stage),inspect=$('#flInspect',stage),legend=$('#flLegend',stage),zoomOut=$('#flZoom',stage),pauseBtn=$('#flPause',stage),sourceLink=$('#flSourceLink',stage),sourceLabel=$('#flSourceLabel',stage),status=$('#flStatus',stage);
   const bctx=base.getContext('2d'),fctx=fx.getContext('2d');
   const reduce=matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-  const state={mode:'field',zoom:1,panX:0,panY:0,paused:!!reduce,density:900,speed:36000,simulatedSeconds:0,vectors:true,top:12,curves:true,tripTime:30,tripPlay:!reduce,trail:22,releaseCount:80,releaseLife:180,release:[]};
+  const state={mode:'field',zoom:1,panX:0,panY:0,paused:!!reduce,density:900,speed:36000,simulatedSeconds:0,vectors:true,fieldStyle:'glyphs',top:12,curves:true,tripTime:30,tripPlay:!reduce,trail:22,releaseCount:80,releaseLife:180,releaseRadiusKm:60,releaseIntegrator:'rk4',releaseElapsedSeconds:0,release:[]};
   let W=1,H=1,dpr=1,particles=[],raf=0,last=performance.now(),tripLast=last,fieldCarry=0,releaseCarry=0,drag=null,resizer=null,destroyed=false;
   let projection=createPlateCarreeViewport(W,H);
   function refreshProjection(){
@@ -118,8 +123,72 @@ async function mount({signal,stage}={}){
   function resize(){const r=map.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);refreshProjection();dpr=Math.min(2,devicePixelRatio||1);setCanvas(base,bctx);setCanvas(fx,fctx);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);drawBase();renderStatic();clearFx()}
   function clearFx(){fctx.setTransform(dpr,0,0,dpr,0,0);fctx.clearRect(0,0,W,H)}
   function pathRing(ring){if(!ring?.length)return;bctx.beginPath();ring.forEach((p,i)=>{const q=project(p[0],p[1]);i?bctx.lineTo(q[0],q[1]):bctx.moveTo(q[0],q[1])});bctx.closePath();bctx.fill();bctx.stroke()}
-  function drawBase(){bctx.setTransform(dpr,0,0,dpr,0,0);bctx.clearRect(0,0,W,H);const g=bctx.createRadialGradient(W*.5,H*.45,20,W*.5,H*.45,Math.max(W,H)*.65);g.addColorStop(0,'#101d16');g.addColorStop(1,'#050a07');bctx.fillStyle=g;bctx.fillRect(0,0,W,H);bctx.save();bctx.strokeStyle='rgba(241,239,231,.055)';bctx.lineWidth=.7;for(let lon=-150;lon<=150;lon+=30){const a=project(lon,-80),z=project(lon,80);bctx.beginPath();bctx.moveTo(a[0],a[1]);bctx.lineTo(z[0],z[1]);bctx.stroke()}for(let lat=-60;lat<=60;lat+=20){const a=project(-180,lat),z=project(180,lat);bctx.beginPath();bctx.moveTo(a[0],a[1]);bctx.lineTo(z[0],z[1]);bctx.stroke()}if(world?.features){bctx.fillStyle='rgba(157,170,160,.18)';bctx.strokeStyle='rgba(241,239,231,.19)';bctx.lineWidth=.65;for(const f of world.features){const g=f.geometry;if(!g)continue;if(g.type==='Polygon')g.coordinates.forEach(pathRing);else if(g.type==='MultiPolygon')g.coordinates.forEach(poly=>poly.forEach(pathRing))}}bctx.restore();if(state.mode==='field'||state.mode==='release')drawVectors()}
-  function drawVectors(){if(!state.vectors||!wind)return;bctx.save();bctx.strokeStyle='rgba(134,216,207,.25)';bctx.fillStyle='rgba(134,216,207,.36)';bctx.lineWidth=.7;for(let lat=-60;lat<=60;lat+=20)for(let lon=-180;lon<180;lon+=30){const w=sampleWind(wind,lon,lat);if(!w.valid)continue;const p=project(lon,lat),len=clamp(w.speed*1.2,5,18),ang=Math.atan2(-w.v,w.u),x2=p[0]+Math.cos(ang)*len,y2=p[1]+Math.sin(ang)*len;bctx.beginPath();bctx.moveTo(p[0],p[1]);bctx.lineTo(x2,y2);bctx.stroke();bctx.beginPath();bctx.arc(x2,y2,1.1,0,Math.PI*2);bctx.fill()}bctx.restore()}
+  function drawBase(){bctx.setTransform(dpr,0,0,dpr,0,0);bctx.clearRect(0,0,W,H);const g=bctx.createRadialGradient(W*.5,H*.45,20,W*.5,H*.45,Math.max(W,H)*.65);g.addColorStop(0,'#101d16');g.addColorStop(1,'#050a07');bctx.fillStyle=g;bctx.fillRect(0,0,W,H);bctx.save();bctx.strokeStyle='rgba(241,239,231,.055)';bctx.lineWidth=.7;for(let lon=-150;lon<=150;lon+=30){const a=project(lon,-80),z=project(lon,80);bctx.beginPath();bctx.moveTo(a[0],a[1]);bctx.lineTo(z[0],z[1]);bctx.stroke()}for(let lat=-60;lat<=60;lat+=20){const a=project(-180,lat),z=project(180,lat);bctx.beginPath();bctx.moveTo(a[0],a[1]);bctx.lineTo(z[0],z[1]);bctx.stroke()}if(world?.features){bctx.fillStyle='rgba(157,170,160,.18)';bctx.strokeStyle='rgba(241,239,231,.19)';bctx.lineWidth=.65;for(const f of world.features){const g=f.geometry;if(!g)continue;if(g.type==='Polygon')g.coordinates.forEach(pathRing);else if(g.type==='MultiPolygon')g.coordinates.forEach(poly=>poly.forEach(pathRing))}}bctx.restore();if(state.mode==='field'||state.mode==='release'){drawCoverageMask();drawVectors()}}
+  function drawCoverageMask(){
+    if(!wind)return;
+    // The missing-data texture is a statement about source coverage, not wind speed.
+    const topLimit=windMeta.latitudeMax,bottomLimit=windMeta.latitudeMin;
+    bctx.save();
+    const shade=(low,high)=>{
+      const a=project(-180,high),b=project(180,low);
+      const left=Math.min(a[0],b[0]),top=Math.min(a[1],b[1]);
+      const width=Math.abs(b[0]-a[0]),height=Math.abs(b[1]-a[1]);
+      if(width<=0||height<=0)return;
+      bctx.beginPath();bctx.rect(left,top,width,height);bctx.clip();
+      bctx.fillStyle='rgba(8,10,11,.61)';bctx.fillRect(left,top,width,height);
+      bctx.strokeStyle='rgba(180,193,190,.20)';bctx.lineWidth=.65;
+      for(let x=left-height;x<left+width+height;x+=16){
+        bctx.beginPath();bctx.moveTo(x,top+height);bctx.lineTo(x+height,top);bctx.stroke();
+      }
+    };
+    if(topLimit<89)shade(topLimit,90);
+    bctx.restore();bctx.save();
+    if(bottomLimit>-89)shade(-90,bottomLimit);
+    bctx.restore();
+    bctx.save();bctx.setLineDash([3,5]);bctx.strokeStyle='rgba(213,228,223,.30)';
+    for(const latitude of [topLimit,bottomLimit]){
+      const a=project(-180,latitude),b=project(180,latitude);
+      bctx.beginPath();bctx.moveTo(...a);bctx.lineTo(...b);bctx.stroke();
+    }
+    bctx.restore();
+    map.dataset.fieldCoverage=windMeta.coverage;
+  }
+  function drawStreamlines(){
+    // Frozen vector-field streamline glyphs, not material paths or trajectories.
+    bctx.save();bctx.lineWidth=.8;bctx.globalAlpha=.43;
+    for(let lat=-55;lat<=55;lat+=16)for(let lon=-175;lon<180;lon+=24){
+      if(!sampleWind(wind,lon,lat).valid)continue;
+      const sample=sampleWind(wind,lon,lat);
+      bctx.strokeStyle=windSpeedColor(sample.speed)||'#86d8cf';
+      let old={lon,lat},pathOpen=false;
+      bctx.beginPath();
+      for(let i=0;i<19;i++){
+        const next=advanceFrozenField(wind,old.lon,old.lat,600,'rk2');
+        if(!next.valid||!canDrawSegment(old,next,{maxLonDelta:8,maxLatDelta:8}))break;
+        const a=project(old.lon,old.lat),b=project(next.lon,next.lat);
+        if(!pathOpen){bctx.moveTo(...a);pathOpen=true;}
+        bctx.lineTo(...b);
+        old=next;
+      }
+      if(pathOpen)bctx.stroke();
+    }
+    bctx.restore();
+  }
+  function drawVectors(){
+    if(!wind||state.fieldStyle==='hidden')return;
+    if(state.fieldStyle==='streamlines'){drawStreamlines();return;}
+    bctx.save();bctx.globalAlpha=.75;bctx.lineWidth=1.05;
+    for(let lat=-60;lat<=60;lat+=20)for(let lon=-180;lon<180;lon+=30){
+      const w=sampleWind(wind,lon,lat);if(!w.valid)continue;
+      const p=project(lon,lat),len=clamp(w.speed*1.3,5,20),ang=Math.atan2(-w.v,w.u);
+      const dx=Math.cos(ang),dy=Math.sin(ang),x2=p[0]+dx*len,y2=p[1]+dy*len;
+      bctx.strokeStyle=windSpeedColor(w.speed)||'#86d8cf';
+      bctx.beginPath();bctx.moveTo(p[0],p[1]);bctx.lineTo(x2,y2);
+      bctx.lineTo(x2-dx*4-dy*2,y2-dy*4+dx*2);
+      bctx.moveTo(x2,y2);bctx.lineTo(x2-dx*4+dy*2,y2-dy*4-dx*2);bctx.stroke();
+    }
+    bctx.restore();
+  }
   function randomSeed(){
     const bounds=fieldBounds(wind);
     const min=Math.max(-70,bounds.minLat+2),max=Math.min(70,bounds.maxLat-2);
