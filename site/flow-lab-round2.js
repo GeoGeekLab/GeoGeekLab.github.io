@@ -108,7 +108,8 @@
     const map = $('#flMap', root), svg = $('#flSvg', root);
     if (!map || !svg) return null;
     const rect = map.getBoundingClientRect(), z = currentZoom(root);
-    const ax = rect.width * z / 360, ay = -rect.height * z / 180;
+    const worldWidth = Math.min(rect.width, rect.height*2)*z;
+    const ax = worldWidth / 360, ay = -worldWidth / 360;
     let anchorNode = null, geo = null;
     if (mode === 'od') {
       anchorNode = $('[data-type="node"]', svg);
@@ -124,7 +125,7 @@
     return {
       ax, ay,
       bx:x - ax*geo[0], by:y - ay*geo[1],
-      worldWidth:rect.width*z,
+      worldWidth,
       project(lon, lat) { return [ax*lon + this.bx, ay*lat + this.by]; }
     };
   }
@@ -162,6 +163,22 @@
     root.dataset.flowRound2 = '1';
     shell.dataset.flowRound2 = '1';
     ensureStyle();
+    // Put persistent controls in document flow, outside projected geography.
+    const main=document.createElement('div');
+    main.className='flow-main';
+    const bar=document.createElement('header');
+    bar.className='flow-workbar';
+    bar.setAttribute('aria-label','Flow representation and playback controls');
+    const footer=document.createElement('footer');
+    footer.className='flow-map-footer';
+    footer.setAttribute('aria-label','Map legend, projection and navigation');
+    shell.insertBefore(main,map);
+    main.append(bar,map,footer);
+    const hud=$('.flow-hud',map);
+    if(hud)bar.append(tabs,hud);
+    const legend=$('.flow-legend',map),zoom=$('.flow-zoom',map);
+    if(legend)footer.append(legend);
+    if(zoom)footer.append(zoom);
 
     const cards = $$('.flow-card', rail);
     const controlCard = cards[0], readCard = cards[1], sourceCard = cards[2];
@@ -196,12 +213,12 @@
       <div><span>TIME</span><strong data-flow-time>—</strong></div>
       <div><span>ENCODES</span><strong data-flow-encodes>—</strong></div>
       <div><span>VALID INFERENCE</span><strong data-flow-valid>—</strong></div>`;
-    map.appendChild(strip);
+    summary.after(strip);
 
     const projectionReadout = document.createElement('div');
     projectionReadout.className = 'flow-projection-readout';
-    projectionReadout.innerHTML = '<span>PLATE CARRÉE / DISPLAY</span><strong data-flow-ew-scale>EW SCALE ×1.00 @ 0°</strong>';
-    map.appendChild(projectionReadout);
+    projectionReadout.innerHTML = '<span>PLATE CARRÉE · 2:1 FIT</span><strong data-flow-ew-scale>EW / NS ×1.00 @ 0°</strong>';
+    footer.insertBefore(projectionReadout,zoom||null);
 
     const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     overlay.setAttribute('class', 'flow-geo-overlay');
@@ -220,7 +237,9 @@
 
     let odGeometry = new URL(location.href).searchParams.get('flowGeometry') === 'geodesic' ? 'geodesic' : 'schematic';
     let selectedNode = new URL(location.href).searchParams.get('flowNode') || '';
+    if(!Object.hasOwn(NODES,selectedNode))selectedNode='';
     let selectedTrip = new URL(location.href).searchParams.get('flowTrip') || '';
+    if(!/^[0-7]$/.test(selectedTrip))selectedTrip='';
     let overlayRaf = 0;
 
     function mode() { return shell.dataset.mode || 'field'; }
@@ -396,13 +415,63 @@
         <div><dt>LIMIT</dt><dd>Interpolated display positions are not additional observations.</dd></div>`;
     }
 
-    function syncMode() {
-      syncTabs(); syncSummary(); ensureOdGeometryControl();
-      if (mode() !== 'od') selectedNode = '';
-      if (mode() !== 'trips') selectedTrip = '';
-      renderOverlay();
+    function syncMode(){
+      syncTabs();syncSummary();ensureOdGeometryControl();
+      const active=mode(),cleanup={};
+      if(active!=='od'){
+        selectedNode='';
+        if(new URL(location.href).searchParams.has('flowNode'))cleanup.flowNode=null;
+      }
+      if(active!=='trips'){
+        selectedTrip='';
+        if(new URL(location.href).searchParams.has('flowTrip'))cleanup.flowTrip=null;
+      }
+      if(Object.keys(cleanup).length)updateUrl(cleanup);
+      syncAccessibleSelection();renderOverlay();
     }
 
+    // Native form controls make aria-hidden SVG selections keyboard-accessible.
+    const access=document.createElement('section');
+    access.className='flow-accessible-selection';
+    access.setAttribute('aria-label','Choose a place or teaching track');
+    access.innerHTML=`<label data-flow-place-row>PLACE <select data-flow-place aria-label="Select origin or destination place">
+      <option value="">Choose place</option>
+      ${Object.entries(NODES).map(([key,node])=>`<option value="${key}">${node[2]}</option>`).join('')}
+    </select></label><label data-flow-trip-row>TEACHING TRACK <select data-flow-trip-select aria-label="Select teaching trajectory">
+      <option value="">Choose track</option>
+      ${TRIPS.map((trip,i)=>`<option value="${i}">${trip.name}</option>`).join('')}
+    </select></label>`;
+    controlCard?.append(access);
+    function syncAccessibleSelection(){
+      const active=mode();
+      const place=$('[data-flow-place]',access),trip=$('[data-flow-trip-select]',access);
+      $('[data-flow-place-row]',access).hidden=active!=='od';
+      $('[data-flow-trip-row]',access).hidden=active!=='trips';
+      access.hidden=active!=='od'&&active!=='trips';
+      if(place)place.value=selectedNode;
+      if(trip)trip.value=selectedTrip;
+    }
+    function chooseNode(id){
+      selectedNode=(id&&id!==selectedNode&&Object.hasOwn(NODES,id))?id:'';
+      updateUrl({flowNode:selectedNode||null});
+      if(selectedNode)inspectSelectedNode(selectedNode);
+      syncAccessibleSelection();renderOverlay();
+    }
+    function chooseTrip(id){
+      selectedTrip=(id&&id!==selectedTrip&&/^[0-7]$/.test(id))?id:'';
+      updateUrl({flowTrip:selectedTrip||null});
+      if(selectedTrip)inspectSelectedTrip(selectedTrip);
+      syncAccessibleSelection();renderOverlay();
+    }
+    access.addEventListener('change',event=>{
+      if(event.target.matches('[data-flow-place]')){
+        const id=event.target.value;
+        selectedNode='';chooseNode(id);
+      }else if(event.target.matches('[data-flow-trip-select]')){
+        const id=event.target.value;
+        selectedTrip='';chooseTrip(id);
+      }
+    });
     nav.addEventListener('click', event => {
       const button = event.target.closest('[data-flow-jump]');
       if (!button) return;
@@ -439,19 +508,13 @@
     svg.addEventListener('click', event => {
       const node = event.target.closest('[data-type="node"]');
       if (!node || mode() !== 'od') return;
-      selectedNode = selectedNode === node.dataset.id ? '' : node.dataset.id;
-      updateUrl({ flowNode:selectedNode || null });
-      inspectSelectedNode(selectedNode);
-      renderOverlay();
+      chooseNode(node.dataset.id);
     });
 
     overlay.addEventListener('click', event => {
       const trip = event.target.closest('[data-flow-trip]');
       if (!trip) return;
-      selectedTrip = selectedTrip === trip.dataset.flowTrip ? '' : trip.dataset.flowTrip;
-      updateUrl({ flowTrip:selectedTrip || null });
-      if (selectedTrip) inspectSelectedTrip(selectedTrip);
-      renderOverlay();
+      chooseTrip(trip.dataset.flowTrip);
     });
 
     map.addEventListener('pointermove', () => {
@@ -460,9 +523,13 @@
         const row = $$('.flow-inspect div', root).find(div => $('dt', div)?.textContent === 'POSITION');
         const text = row ? $('dd', row)?.textContent || '' : '';
         const match = text.match(/(-?\d+(?:\.\d+)?)°/);
-        if (!match) return;
-        const lat = Number(match[1]), stretch = 1 / Math.max(.15, Math.cos(rad(Math.abs(lat))));
-        $('[data-flow-ew-scale]', projectionReadout).textContent = `EW SCALE ×${stretch.toFixed(2)} @ ${Math.abs(lat).toFixed(0)}°${lat >= 0 ? 'N' : 'S'}`;
+        if(!match){
+          $('[data-flow-ew-scale]',projectionReadout).textContent='EW / NS · SELECT LATITUDE';
+          return;
+        }
+        const lat=Number(match[1]),stretch=1/Math.max(.01,Math.cos(rad(Math.abs(lat))));
+        $('[data-flow-ew-scale]',projectionReadout).textContent=
+          `EW / NS ×${stretch.toFixed(2)} @ ${Math.abs(lat).toFixed(0)}°${lat>=0?'N':'S'}`;
       });
     }, { passive:true });
 
@@ -471,12 +538,15 @@
     dynamic.addEventListener('input', () => setTimeout(renderOverlay, 0));
     dynamic.addEventListener('click', () => setTimeout(() => { ensureOdGeometryControl(); renderOverlay(); }, 0));
 
-    document.addEventListener('keydown', event => {
-      if (event.key !== 'Escape' || !root.isConnected) return;
-      selectedNode = ''; selectedTrip = '';
-      updateUrl({ flowNode:null, flowTrip:null });
-      renderOverlay();
-    });
+    function onEscape(event){
+      if(event.key!=='Escape'||event.defaultPrevented||!root.isConnected||
+         !root.closest('.instrument-dialog[open]'))return;
+      if(!selectedNode&&!selectedTrip)return;
+      event.preventDefault();selectedNode='';selectedTrip='';
+      updateUrl({flowNode:null,flowTrip:null});
+      syncAccessibleSelection();renderOverlay();
+    }
+    document.addEventListener('keydown',onEscape);
 
     const shellObserver = new MutationObserver(records => {
       if (records.some(record => record.attributeName === 'data-mode')) syncMode();
@@ -496,7 +566,8 @@
     syncMode(); syncWorkspace();
 
     root._flowRound2Cleanup = () => {
-      shellObserver.disconnect(); svgObserver.disconnect(); workspaceObserver.disconnect(); resizeObserver?.disconnect();
+      shellObserver.disconnect();svgObserver.disconnect();workspaceObserver.disconnect();resizeObserver?.disconnect();
+      document.removeEventListener('keydown',onEscape);
       cancelAnimationFrame(overlayRaf);
     };
   }
