@@ -437,6 +437,7 @@ async function mount({signal,stage}={}){
     return '<div class="flow-data-provenance" id="flDataProvenance">'+
       '<strong>'+windMeta.type+'</strong>'+
       '<span>'+windMeta.timeLabel+'</span>'+
+      '<span>RETRIEVED UTC · '+(wind.retrievedAt||'NOT APPLICABLE')+'</span>'+
       '<span data-source-freshness>'+provenance.label+'</span>'+
       '<span>LAT COVERAGE · '+windMeta.coverage+'</span>'+
       '<span>SPATIAL · '+windMeta.resolution+'</span>'+
