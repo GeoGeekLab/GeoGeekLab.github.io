@@ -87,6 +87,16 @@ test('V3 WORK, FOCUS and INSPECT retain map controls and reveal context only as 
   await expect(rail).toBeHidden();
   await expect(page.locator('.flow-workbar .flow-tabs [data-mode="release"]')).toBeVisible();
   await expect(page.locator('.flow-map-footer .flow-zoom [data-z="fit"]')).toBeVisible();
+  await page.locator('.flow-tabs [data-mode="od"]').click();
+  const focusPlace=page.locator('.flow-workbar [data-flow-place]');
+  await expect(focusPlace).toBeVisible();
+  await focusPlace.selectOption('nyc');
+  await expect(page.locator('#flInspect')).toContainText('New York');
+  await page.locator('.flow-tabs [data-mode="trips"]').click();
+  const focusTrip=page.locator('.flow-workbar [data-flow-trip-select]');
+  await expect(focusTrip).toBeVisible();
+  await focusTrip.selectOption('0');
+  await expect.poll(()=>new URL(page.url()).searchParams.get('flowTrip')).toBe('0');
   await page.locator('.instrument-workspace-modes [data-workspace-mode="inspect"]').click();
   await expect(rail).toBeVisible();
   await expect(page.locator('[data-flow-section="source"]')).toBeVisible();
@@ -101,6 +111,7 @@ test('V3 keyboard geography navigation, accessible OD/TRIPS selection and URL cl
   await map.focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#flSampleLive')).toContainText('Sampled');
+  await expect(page.locator('.flow-map-footer #flSampleReadout')).toBeVisible();
   const leftBefore=Number(await map.getAttribute('data-projection-left'));
   await page.keyboard.press('ArrowRight');
   await expect.poll(async()=>Number(await map.getAttribute('data-projection-left'))).toBeGreaterThan(leftBefore);
@@ -137,10 +148,14 @@ test('V3 mobile touch samples a persistent model value and controls are 44px tar
   if(!r)throw Error('No map rectangle');
   await map.tap({position:{x:r.width/2,y:r.height/2}});
   await expect(page.locator('#flSampleLive')).toContainText('10.0 metres per second');
+  await expect(page.locator('.flow-map-footer #flSampleReadout')).toBeVisible();
+  await expect(page.locator('#flSampleReadout')).toContainText('10.0 metres per second');
   await expect(page.locator('#flInspect')).toContainText('10.0 m/s');
+  await expect(page.locator('.instrument-head h2')).toHaveCSS('white-space','normal');
   const minTargets=await page.evaluate(()=>{
     const selectors=['.flow-workbar .flow-tabs button','.flow-workbar .flow-hud button',
-      '.flow-map-footer .flow-zoom button','.flow-rail-nav button'];
+      '.flow-map-footer .flow-zoom button','.flow-rail-nav button',
+      '.instrument-dialog[data-instrument-kind="flow"] .instrument-workspace-modes button'];
     return selectors.flatMap(sel=>[...document.querySelectorAll(sel)].map(el=>({
       label:el.textContent.trim(),height:el.getBoundingClientRect().height
     })));
