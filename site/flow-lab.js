@@ -217,6 +217,12 @@ async function mount({signal,stage}={}){
     else releaseCarry=result.remainderSeconds;
     state.simulatedSeconds+=result.simulatedSeconds;
     shell.dataset.simulatedSeconds=String(Math.round(state.simulatedSeconds));
+    if(key==='release'){
+      state.releaseElapsedSeconds+=result.simulatedSeconds;
+      shell.dataset.releaseElapsedHours=(state.releaseElapsedSeconds/3600).toFixed(2);
+      const elapsed=$('#flReleaseElapsed',stage);
+      if(elapsed)elapsed.textContent=(state.releaseElapsedSeconds/3600).toFixed(1)+' h';
+    }
     return result;
   }
   function drawFieldFrame(dt){
@@ -252,7 +258,7 @@ async function mount({signal,stage}={}){
       const before={lon:p.lon,lat:p.lat};
       let connected=true,valid=true;
       for(let i=0;i<clock.steps;i++){
-        const next=advanceGeographic(wind,p.lon,p.lat,clock.stepSeconds);
+        const next=advanceFrozenField(wind,p.lon,p.lat,clock.stepSeconds,state.releaseIntegrator);
         if(!next.valid){valid=false;connected=false;break;}
         if(next.wrapped)connected=false;
         p.lon=next.lon;p.lat=next.lat;
@@ -270,6 +276,7 @@ async function mount({signal,stage}={}){
       fctx.fillStyle=`rgba(255,218,195,${alpha})`;fctx.fillRect(b[0]-1,b[1]-1,2,2);
     }
     state.release=survivors;
+    updateReleaseStats();
     fctx.restore();
   }
   function qPath(a,b,curve=.22){const dx=b[0]-a[0],dy=b[1]-a[1],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,n=Math.hypot(dx,dy)||1,cx=mx-dy/n*n*curve,cy=my+dx/n*n*curve;return`M${a[0].toFixed(1)},${a[1].toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${b[0].toFixed(1)},${b[1].toFixed(1)}`}
@@ -302,25 +309,62 @@ async function mount({signal,stage}={}){
     raf=requestAnimationFrame(tick);
   }
 
+  function updateReleaseStats(){
+    shell.dataset.releaseActive=String(state.release.length);
+    shell.dataset.releaseIntegrator=state.releaseIntegrator;
+    shell.dataset.seedRadiusKm=String(state.releaseRadiusKm);
+    const count=$('#flActiveCount',stage);
+    if(count)count.textContent=String(state.release.length);
+  }
+  function windLegend(){
+    const stops=WIND_COLOR_STOPS;
+    const gradient='linear-gradient(90deg,'+stops.map(([v,c])=>c+' '+(v/30*100)+'%').join(',')+')';
+    const key='<div class="flow-speed-legend" aria-label="Model wind speed from 0 to 30 or more metres per second">'+
+      '<strong>WIND SPEED · m/s</strong>'+
+      '<span class="flow-speed-bar" style="background:'+gradient+'"></span>'+
+      '<span class="flow-speed-ticks">0 · 5 · 10 · 15 · 20 · 30+</span></div>';
+    return key+'<span class="flow-wind-time">'+windMeta.type+' · '+windMeta.timeLabel+
+      '</span><span>hatch = no valid wind · particle path ≠ forecast</span>';
+  }
+  function provenanceCard(){
+    return '<div class="flow-data-provenance" id="flDataProvenance">'+
+      '<strong>'+windMeta.type+'</strong>'+
+      '<span>'+windMeta.timeLabel+'</span>'+
+      '<span>LAT COVERAGE · '+windMeta.coverage+'</span>'+
+      '<span>SPATIAL · '+windMeta.resolution+'</span>'+
+      '<small>'+windMeta.caveat+'</small></div>';
+  }
   const modeMeta={
     field:{title:'Continuous vector field',badge:'EULERIAN',copy:'A field stores a velocity at every sampled location. It answers <b>how is the medium moving here?</b>, not where one object actually travelled.',q:'Read direction, magnitude, interpolation and uncertainty before reading particles as paths.',time:'SNAPSHOT',geom:'GRID'},
     od:{title:'Origin–destination network',badge:'AGGREGATE',copy:'An OD network aggregates movement between places. Line width encodes <b>how much connects A and B</b>; the arc is a diagram, not the literal travelled route.',q:'Compare node totals, direction and top-N filtering. Do not infer physical paths from schematic arcs.',time:'AGGREGATE',geom:'NETWORK'},
     trips:{title:'Timestamped trajectories',badge:'SEQUENCE',copy:'Trips attach time to ordered positions. Trails answer <b>where did an object move, and when?</b> rather than describing a continuous medium.',q:'Trail length changes the visual memory window. The demonstration tracks are reproducible teaching data, not observed vehicles.',time:'SEQUENCE',geom:'PATHS'},
     release:{title:'Lagrangian release',badge:'DERIVED',copy:'Release particles are numerically advected through the current vector snapshot. They ask <b>where could material move if this field stayed fixed?</b>.',q:'Click the map to seed particles. This is a snapshot advection experiment, not a forecast trajectory.',time:'DERIVED',geom:'PARTICLES'}
   };
-  function sourceForMode(){if(state.mode==='field'||state.mode==='release')return{label:wind.time,href:wind.sourceUrl,source:wind.source,limit:wind.limit,status:wind.kind==='procedural'?'FALLBACK':'DATA'};if(state.mode==='od')return{label:'normalized demo matrix',href:'https://github.com/visgl/flowmap.gl',source:'Reproducible demonstration OD matrix / real city coordinates',limit:'Flow magnitudes are illustrative normalized values. Arcs are schematic connections, not observed routes.',status:'DEMO'};return{label:'timestamped demo tracks',href:'https://deck.gl/docs/api-reference/geo-layers/trips-layer',source:'Reproducible demonstration trajectories',limit:'Teaching trajectories with synthetic timestamps; not observed vessel, aircraft or vehicle tracks.',status:'DEMO'}}
+  function sourceForMode(){if(state.mode==='field'||state.mode==='release')return{label:windMeta.timeLabel,href:wind.sourceUrl,source:wind.source,limit:windMeta.caveat,status:wind.kind==='procedural'?'FALLBACK':'DATA'};if(state.mode==='od')return{label:'normalized demo matrix',href:'https://github.com/visgl/flowmap.gl',source:'Reproducible demonstration OD matrix / real city coordinates',limit:'Flow magnitudes are illustrative normalized values. Arcs are schematic connections, not observed routes.',status:'DEMO'};return{label:'timestamped demo tracks',href:'https://deck.gl/docs/api-reference/geo-layers/trips-layer',source:'Reproducible demonstration trajectories',limit:'Teaching trajectories with synthetic timestamps; not observed vessel, aircraft or vehicle tracks.',status:'DEMO'}}
   function setInspector(rows){inspect.innerHTML=rows.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}
   function dynamicControls(){
-    if(state.mode==='field')dynamic.innerHTML=`<label class="flow-range"><span>PARTICLES <output id="flDensityOut">${state.density}</output></span><input id="flDensity" type="range" min="250" max="1800" step="50" value="${state.density}"></label><label class="flow-range"><span>SIM TIME <output id="flSpeedOut">${state.speed.toLocaleString()}×</output></span><input id="flSpeed" type="range" min="2000" max="120000" step="2000" value="${state.speed}"></label><div class="flow-buttons"><button class="flow-btn ${state.vectors?'active':''}" id="flVectors" type="button">VECTOR GLYPHS</button><button class="flow-btn" id="flReseed" type="button">RESEED</button></div>`;
+    if(state.mode==='field')dynamic.innerHTML=`<label class="flow-range"><span>PARTICLES <output id="flDensityOut">${state.density}</output></span><input id="flDensity" type="range" min="250" max="1800" step="50" value="${state.density}"></label><label class="flow-range"><span>SIM TIME <output id="flSpeedOut">${state.speed.toLocaleString()}×</output></span><input id="flSpeed" type="range" min="2000" max="120000" step="2000" value="${state.speed}"></label><div class="flow-buttons"><button class="flow-btn ${state.fieldStyle==='glyphs'?'active':''}" aria-pressed="${state.fieldStyle==='glyphs'}" id="flVectors" type="button">VECTOR GLYPHS</button><button class="flow-btn ${state.fieldStyle==='streamlines'?'active':''}" aria-pressed="${state.fieldStyle==='streamlines'}" id="flStreamlines" type="button">STREAMLINES</button></div><button class="flow-btn" id="flReseed" type="button">RESEED PARTICLES</button>${provenanceCard()}`;
     else if(state.mode==='od')dynamic.innerHTML=`<label class="flow-range"><span>TOP CONNECTIONS <output id="flTopOut">${state.top}</output></span><input id="flTop" type="range" min="4" max="24" step="1" value="${state.top}"></label><div class="flow-buttons"><button class="flow-btn ${state.curves?'active':''}" id="flCurves" type="button">CURVED ARCS</button><button class="flow-btn" id="flODReset" type="button">SHOW ALL</button></div>`;
     else if(state.mode==='trips')dynamic.innerHTML=`<div class="flow-timeline"><button id="flTripPlay" type="button">${state.tripPlay?'Ⅱ':'▶'}</button><input id="flTripTime" type="range" min="0" max="75" step="1" value="${Math.round(state.tripTime)}"><output id="flTripOut">${Math.round(state.tripTime)}</output></div><label class="flow-range"><span>TRAIL MEMORY <output id="flTrailOut">${state.trail}</output></span><input id="flTrail" type="range" min="5" max="55" step="1" value="${state.trail}"></label>`;
-    else dynamic.innerHTML=`<label class="flow-range"><span>SEED COUNT <output id="flReleaseCountOut">${state.releaseCount}</output></span><input id="flReleaseCount" type="range" min="20" max="240" step="10" value="${state.releaseCount}"></label><label class="flow-range"><span>LIFETIME (SIM HOURS) <output id="flReleaseLifeOut">${state.releaseLife}</output></span><input id="flReleaseLife" type="range" min="60" max="360" step="20" value="${state.releaseLife}"></label><small class="flow-sim-rate">Frozen wind · simulation time ${state.speed.toLocaleString()}×</small><div class="flow-buttons"><button class="flow-btn" id="flSeedGlobal" type="button">GLOBAL SEED</button><button class="flow-btn" id="flClearRelease" type="button">CLEAR</button></div>`;
+    else dynamic.innerHTML=`<label class="flow-range"><span>SEED COUNT <output id="flReleaseCountOut">${state.releaseCount}</output></span><input id="flReleaseCount" type="range" min="20" max="240" step="10" value="${state.releaseCount}"></label><label class="flow-range"><span>SEED RADIUS <output id="flSeedRadiusOut">${state.releaseRadiusKm} km</output></span><input id="flSeedRadius" type="range" min="0" max="300" step="10" value="${state.releaseRadiusKm}"></label><label class="flow-range"><span>LIFETIME (SIM HOURS) <output id="flReleaseLifeOut">${state.releaseLife}</output></span><input id="flReleaseLife" type="range" min="60" max="360" step="20" value="${state.releaseLife}"></label><label class="flow-integrator-label">INTEGRATION METHOD<select id="flReleaseIntegrator" aria-label="Frozen-field numerical integrator"><option value="euler" ${state.releaseIntegrator==='euler'?'selected':''}>Euler · first order</option><option value="rk2" ${state.releaseIntegrator==='rk2'?'selected':''}>RK2 · midpoint</option><option value="rk4" ${state.releaseIntegrator==='rk4'?'selected':''}>RK4 · fourth order</option></select></label><div class="flow-release-stats"><span>EXPERIMENT TIME <output id="flReleaseElapsed">${(state.releaseElapsedSeconds/3600).toFixed(1)} h</output></span><span>ACTIVE SEEDS <output id="flActiveCount">${state.release.length}</output></span></div><small class="flow-sim-rate">Frozen wind · simulation time ${state.speed.toLocaleString()}×. Tap map to seed a disk; global seed samples valid coverage. Spread ≠ uncertainty.</small><div class="flow-buttons"><button class="flow-btn" id="flSeedGlobal" type="button">GLOBAL SEED</button><button class="flow-btn" id="flClearRelease" type="button">CLEAR</button></div>${provenanceCard()}`;
     bindDynamic();
+    updateReleaseStats();
   }
   function bindDynamic(){
     $('#flDensity',stage)?.addEventListener('input',e=>{state.density=+e.target.value;$('#flDensityOut',stage).textContent=state.density;seedParticles();clearFx()});
     $('#flSpeed',stage)?.addEventListener('input',e=>{state.speed=+e.target.value;$('#flSpeedOut',stage).textContent=`${state.speed.toLocaleString()}×`});
-    $('#flVectors',stage)?.addEventListener('click',e=>{state.vectors=!state.vectors;e.currentTarget.classList.toggle('active',state.vectors);drawBase()});
+    const chooseFieldStyle=(style)=>{
+      state.fieldStyle=state.fieldStyle===style?'hidden':style;
+      state.vectors=state.fieldStyle==='glyphs';
+      shell.dataset.fieldStyle=state.fieldStyle;
+      for(const [id,value] of [['flVectors','glyphs'],['flStreamlines','streamlines']]){
+        const button=$('#'+id,stage);
+        if(button){const active=state.fieldStyle===value;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));}
+      }
+      drawBase();clearFx();
+    };
+    $('#flVectors',stage)?.addEventListener('click',()=>chooseFieldStyle('glyphs'));
+    $('#flStreamlines',stage)?.addEventListener('click',()=>chooseFieldStyle('streamlines'));
     $('#flReseed',stage)?.addEventListener('click',()=>{seedParticles();clearFx()});
     $('#flTop',stage)?.addEventListener('input',e=>{state.top=+e.target.value;$('#flTopOut',stage).textContent=state.top;renderOD()});
     $('#flCurves',stage)?.addEventListener('click',e=>{state.curves=!state.curves;e.currentTarget.classList.toggle('active',state.curves);renderOD()});
@@ -330,8 +374,17 @@ async function mount({signal,stage}={}){
     $('#flTrail',stage)?.addEventListener('input',e=>{state.trail=+e.target.value;$('#flTrailOut',stage).textContent=state.trail;renderTrips()});
     $('#flReleaseCount',stage)?.addEventListener('input',e=>{state.releaseCount=+e.target.value;$('#flReleaseCountOut',stage).textContent=state.releaseCount});
     $('#flReleaseLife',stage)?.addEventListener('input',e=>{state.releaseLife=+e.target.value;$('#flReleaseLifeOut',stage).textContent=state.releaseLife});
-    $('#flSeedGlobal',stage)?.addEventListener('click',()=>{for(let i=0;i<state.releaseCount;i++){const seed=randomSeed();if(sampleWind(wind,seed.lon,seed.lat).valid)state.release.push({...seed,age:0});}clearFx()});
-    $('#flClearRelease',stage)?.addEventListener('click',()=>{state.release=[];clearFx()});
+    $('#flSeedRadius',stage)?.addEventListener('input',e=>{state.releaseRadiusKm=+e.target.value;$('#flSeedRadiusOut',stage).textContent=state.releaseRadiusKm+' km';updateReleaseStats()});
+    $('#flReleaseIntegrator',stage)?.addEventListener('change',e=>{state.releaseIntegrator=e.target.value;updateReleaseStats()});
+    $('#flSeedGlobal',stage)?.addEventListener('click',()=>{
+      for(let i=0;i<state.releaseCount;i++){const seed=randomSeed();if(sampleWind(wind,seed.lon,seed.lat).valid)state.release.push({...seed,age:0});}
+      updateReleaseStats();clearFx();
+    });
+    $('#flClearRelease',stage)?.addEventListener('click',()=>{
+      state.release=[];state.releaseElapsedSeconds=0;
+      const out=$('#flReleaseElapsed',stage);if(out)out.textContent='0.0 h';
+      shell.dataset.releaseElapsedHours='0.00';updateReleaseStats();clearFx();
+    });
   }
   function setMode(mode){const pinned=$('#flSampleReadout',stage);if(pinned)pinned.hidden=true;state.mode=mode;shell.dataset.mode=mode;fieldCarry=0;releaseCarry=0;tripLast=performance.now();$$('.flow-tabs button',stage).forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));const m=modeMeta[mode];$('#flRepTitle',stage).textContent=m.title;$('#flRepBadge',stage).textContent=m.badge;$('#flRepCopy',stage).innerHTML=m.copy;$('#flQuestion',stage).textContent=m.q;$('#flMetricMode',stage).textContent=mode.toUpperCase();$('#flMetricTime',stage).textContent=m.time;$('#flMetricGeom',stage).textContent=m.geom;$('#flModeTitle',stage).textContent=`${mode.toUpperCase()} / ${m.badge}`;const src=sourceForMode();$('#flHudSource',stage).textContent=src.source;sourceLabel.textContent=src.label;sourceLink.href=src.href||'#';sourceLink.style.display=src.href?'':'none';status.textContent=src.status;setInspector([['POINTER','Move over the map to inspect the current representation.'],['SOURCE',src.source],['LIMIT',src.limit]]);legend.innerHTML=mode==='field'?'<span><b>FIELD</b> local velocity</span><span>particle path ≠ forecast track</span>':mode==='od'?'<span><b>WIDTH</b> normalized flow</span><span>arc ≠ literal route</span>':mode==='trips'?'<span><b>HEAD</b> current time</span><span>trail = visual memory</span>':'<span><b>CLICK</b> seed release</span><span>derived from snapshot field</span>';dynamicControls();clearFx();drawBase();renderStatic();if(mode==='field'&&particles.length!==state.density)seedParticles()}
 
