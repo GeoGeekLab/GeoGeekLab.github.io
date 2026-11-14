@@ -78,7 +78,7 @@ test('Stage 4 RK4 constant flow and antimeridian crossing preserve coordinate va
 });
 
 test('Stage 4 uniform-area release disk is bounded and enforces source mask',()=>{
-  const seq=[0,0, .25,.25, .81,.5, 1,.75];let i=0;
+  const seq=[0,0, .81,0, .25,.25, .49,.5, .64,.75];let i=0;
   const points=seedDisk(179.9,59.8,100,4,{
     random:()=>seq[(i++)%seq.length],
     valid:(lon,lat)=>Math.abs(lat)<=60
