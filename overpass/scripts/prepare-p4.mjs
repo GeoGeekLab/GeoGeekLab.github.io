@@ -21,7 +21,7 @@ function patch(path,needle,replacement){
 // Preserve /api/pan code in the pinned source for future backend use.
 patch('src/imagery/panUrl.ts',
   '  return panApiPath(cardUrl, t) ?',
-  "  if (import.meta.env.BASE_URL === '/overpass/') return undefined\n  return panApiPath(cardUrl, t) ?"
+  "  if (import.meta.env.BASE_URL === '/overpass/' || import.meta.env.VITE_OVERPASS_STATIC === '1') return undefined\n  return panApiPath(cardUrl, t) ?"
 )
 // Deep links in Results/Share must reopen this instrument, not GeoGeek home.
 // Do not change the Watched fallback link fields or preview rendering.

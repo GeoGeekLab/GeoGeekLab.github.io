@@ -48,3 +48,8 @@ This round does not deploy dynamic /api/pan, /api/og, /api/e, /s/:id or a
 share database. It also does not replace CelesTrak feeds or add any fabricated
 satellite image. Once the original Results browser checks are green, later
 rounds can integrate replay/time-lapse and the Lab entrypoint.
+
+P4 static build uses VITE_OVERPASS_STATIC=1 during the adapter tests and
+full build. The source overlay also tests Vite BASE_URL=/overpass/ so a
+manual static production build takes the same fallback even without the
+explicit flag. No other deployment is modified.
