@@ -219,11 +219,18 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
       sourceCard.appendChild(p);
     }
 
+    const analysis=document.createElement('section');
+    analysis.id='flMovementAnalysis';
+    analysis.className='flow-movement-analysis';
+    analysis.setAttribute('aria-label','OD or TRIPS quantitative analysis');
+    dynamic.after(analysis);
     let odGeometry = new URL(location.href).searchParams.get('flowGeometry') === 'geodesic' ? 'geodesic' : 'schematic';
     let selectedNode = new URL(location.href).searchParams.get('flowNode') || '';
     if(!Object.hasOwn(NODES,selectedNode))selectedNode='';
     let selectedTrip = new URL(location.href).searchParams.get('flowTrip') || '';
     if(!/^[0-7]$/.test(selectedTrip))selectedTrip='';
+    let odPeer = new URL(location.href).searchParams.get('flowPeer') || 'lon';
+    if(!Object.hasOwn(NODES,odPeer))odPeer='lon';
     let overlayRaf = 0;
 
     function mode() { return shell.dataset.mode || 'field'; }
@@ -238,6 +245,78 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
       });
       tabs.setAttribute('role', 'tablist');
       tabs.setAttribute('aria-label', 'Movement representation');
+    }
+
+    const fmt=value=>Number(value).toLocaleString('en-US',{maximumFractionDigits:1});
+    function renderOdAnalysis(){
+      const nodeId=selectedNode||'nyc';
+      if(odPeer===nodeId)odPeer=Object.keys(NODES).find(id=>id!==nodeId);
+      const total=odNodeTotals(nodeId),visible=sortedEdges(OD,
+        Number($('#flTop',root)?.value||12));
+      const displayed=odNodeTotals(nodeId,visible);
+      const pair=odPairTotals(nodeId,odPeer);
+      const totalNet=odNetworkTotals();
+      analysis.innerHTML=`<div class="flow-analysis-head"><strong>DIRECTED OD · TEACHING REFERENCE</strong>
+        <small>Normalized units · not observed movement or actual routes</small></div>
+        <div class="flow-analysis-metrics">
+          <div><span>OUT · ALL</span><strong data-od-out>${fmt(total.out)}</strong></div>
+          <div><span>IN · ALL</span><strong data-od-in>${fmt(total.in)}</strong></div>
+          <div><span>NET · ALL</span><strong data-od-net>${total.net>0?'+':''}${fmt(total.net)}</strong></div>
+        </div>
+        <p class="flow-analysis-note">Selected: ${NODES[nodeId][2]}. ${visible.length}/${OD.length} highest-weight edges displayed.
+        Visible OUT ${fmt(displayed.out)} / IN ${fmt(displayed.in)}.
+        Total directed network weight: ${fmt(totalNet.total)} normalized units.</p>
+        <label class="flow-analysis-peer-label">COMPARE WITH
+          <select data-flow-peer aria-label="Compare directed flows with another place">
+          ${Object.keys(NODES).filter(id=>id!==nodeId).map(id=>
+            `<option value="${id}" ${odPeer===id?'selected':''}>${NODES[id][2]}</option>`).join('')}
+          </select>
+        </label>
+        <div class="flow-pair-table" aria-label="Directed pair comparison">
+          <div><span>${NODES[nodeId][2]} → ${NODES[odPeer][2]}</span>
+            <strong data-od-forward>${fmt(pair.forward)} units</strong>
+            <span class="flow-pair-bar"><i style="width:${pair.total?100*pair.forward/pair.total:0}%"></i></span></div>
+          <div><span>${NODES[odPeer][2]} → ${NODES[nodeId][2]}</span>
+            <strong data-od-reverse>${fmt(pair.reverse)} units</strong>
+            <span class="flow-pair-bar"><i style="width:${pair.total?100*pair.reverse/pair.total:0}%"></i></span></div>
+        </div>
+        <div class="flow-analysis-note">PAIR NET · <b data-od-pair-net>${pair.net>0?'+':''}${fmt(pair.net)} normalized units</b>
+        toward ${pair.net>=0?NODES[odPeer][2]:NODES[nodeId][2]} when nonzero. The two arrows are distinct directed edges.</div>`;
+    }
+    function renderTripAnalysis(){
+      const id=selectedTrip===''?0:Number(selectedTrip),trip=TRIPS[id];
+      if(!trip)return;
+      const stats=tripMetrics(trip);
+      const value=Number(shell.dataset.tripTime||$('#flTripTime',root)?.value||30);
+      const current=tripPosition(trip,value);
+      const sampleState=current.clamped?'OUTSIDE SAMPLE WINDOW':current.sampled?'AUTHORED SAMPLE':'INTERPOLATED DISPLAY POSITION';
+      analysis.innerHTML=`<div class="flow-analysis-head"><strong>TRIPS · TEACHING SAMPLES</strong>
+        <small>Time = relative authored units · never UTC</small></div>
+        <div class="flow-analysis-metrics">
+          <div><span>SAMPLES</span><strong data-trip-samples>${stats.samples}</strong></div>
+          <div><span>ARC DISTANCE</span><strong data-trip-distance>${fmt(stats.totalDistanceKm)} km</strong></div>
+          <div><span>TIME SPAN</span><strong data-trip-duration>${fmt(stats.durationUnits)} units</strong></div>
+        </div>
+        <p class="flow-analysis-note">Track: ${trip.name}. Relative time ${fmt(value)}.
+          <strong data-trip-position-kind>${sampleState}</strong>.
+          Display position ${current.position[1].toFixed(2)}° latitude,
+          ${current.position[0].toFixed(2)}° longitude.</p>
+        <p class="flow-analysis-note">Sample spacing: average
+          <b data-trip-spacing>${fmt(stats.averageSamplingGapUnits)}</b>,
+          maximum ${fmt(stats.maxSamplingGapUnits)} time units.
+          Geodesic arc length is a calculation between authored samples, not a measured distance traveled.</p>
+        <div class="flow-segment-list" aria-label="Sample-to-sample geodesic segments">
+          ${stats.segments.map(seg=>`<div><span>S${seg.from} → S${seg.to}</span>
+          <strong>${fmt(seg.distanceKm)} km</strong><small>Δt ${fmt(seg.durationUnits)} units</small></div>`).join('')}
+        </div>
+        <p class="flow-analysis-note">Solid track = geodesic interpolation.
+          Hollow circles = supplied teaching samples.
+          Filled head = current display time. Neither interpolation nor arc length adds observations.</p>`;
+    }
+    function syncMovementAnalysis(){
+      if(mode()==='od'){analysis.hidden=false;renderOdAnalysis();}
+      else if(mode()==='trips'){analysis.hidden=false;renderTripAnalysis();}
+      else{analysis.hidden=true;analysis.replaceChildren();}
     }
 
     function syncSummary() {
