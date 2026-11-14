@@ -29,7 +29,8 @@ function observed(phase,manifest,at,ref) {
  return {schema:'overpass-p9-staging-observation-v1',phase,
   stageUrl:'https://stage.example.com/',sourceSha:manifest.sourceSha,
   manifestSha256:manifest.manifestSha256,deploymentRef:ref,checkedAt:at,
-  files:manifest.files,hostingDeploymentVerified:false,releaseApproved:false}
+  files:manifest.files,absentPaths:phase==='rollback'?['overpass/','records/lab-l17.html','assets/lab/previews/overpass.jpg']:[],
+  hostingDeploymentVerified:false,releaseApproved:false}
 }
 test('P9 staging rejects non-HTTPS, private, loopback and production targets',()=>{
  for(const u of ['http://staging.example.com/','https://localhost/',
@@ -38,6 +39,7 @@ test('P9 staging rejects non-HTTPS, private, loopback and production targets',()
  'https://dev.internal/','https://stage.example.com:8443/'])
   assert.throws(()=>validateStageUrl(u),u)
  assert.equal(validateStageUrl('https://stage.example.com/').origin,'https://stage.example.com')
+ assert.throws(()=>validateStageUrl('https://stage.example.com/subdir/'))
 })
 test('P9 instrument contract distinguishes candidate and 13-card rollback',()=>{
  assert.equal(inspectLab(candidate,'candidate').cardCount,14)
@@ -61,6 +63,7 @@ test('P9 sequence enforces chronological three-deployment, same content redeploy
   observed('redeploy',c,'2026-11-14T12:10:00Z','stage-run-c')]
  const result=verifySequence(reports)
  assert.equal(result.httpSequenceConsistent,true)
+ assert.equal(result.criticalPathsRestored,true)
  assert.equal(result.actualHostingRollbackProven,false)
  assert.equal(result.releaseApproved,false)
  assert.throws(()=>verifySequence([reports[0],reports[2],reports[1]]))
@@ -68,4 +71,5 @@ test('P9 sequence enforces chronological three-deployment, same content redeploy
  assert.throws(()=>verifySequence([reports[0],reports[1],{...reports[2],sourceSha:'0'.repeat(40)}]))
  assert.throws(()=>verifySequence([reports[0],reports[1],{...reports[2],stageUrl:'https://other.example.com/'}]))
  assert.throws(()=>verifySequence([reports[0],reports[1],{...reports[2],files:{...reports[2].files,'app.js':{sha256:'0'.repeat(64),bytes:20}}}]))
+ assert.throws(()=>verifySequence([reports[0],{...reports[1],absentPaths:[]},reports[2]]))
 })
