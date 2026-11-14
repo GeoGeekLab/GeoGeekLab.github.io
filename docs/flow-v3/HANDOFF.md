@@ -58,3 +58,33 @@ npx playwright test tests/browser/flow-v3-baseline.spec.mjs tests/browser/flow-r
 ```
 
 When the Stage 1 baseline proves insufficient for a scientifically new behavior, introduce a separate strict Stage 2 test rather than silently relaxing the existing baseline.
+
+
+---
+
+## Stage 2 implementation — scientific core repair (2026-11-14)
+
+Scope: FIELD/RELEASE trajectory continuity, sampled wind bounds, simulated-time dimensional correctness and one native TRIPS controller. Stage 3 map design and Stage 4 feature expansion remain explicitly out of scope.
+
+Implemented modules:
+- `site/flow/v3/core/field.mjs`: domain-aware regular/GFS/procedural sampling, meteorological wind convention, frozen-field RK2 geographic stepping, seam/reset segment rejection.
+- `site/flow/v3/core/clock.mjs`: dimensionless time-rate conversion, fixed-step accumulation and relative-TRIPS playback gate.
+- `site/flow-lab.js`: connects pure modules to FIELD and RELEASE Canvas; uses simulated seconds, resets without connecting discontinuous segments, shows OUTSIDE FIELD DOMAIN for unsupported latitudes, exposes Release lifetime in simulated hours.
+- `site/flow/flow-round2.js`: removes the competing TRIPS interval and event interception. Base Flow state owns global PAUSE, TRIPS play and the animation timeline.
+- `site/core/modules.js` and `site/lab-fullpage.js`: invalidate cached Flow entry scripts.
+
+A dynamic source animation needs time compression to produce visible map displacement at planetary scale. The updated FIELD control reads **SIM TIME**, defaults to 36,000×, and ranges from 2,000× to 120,000×. These are elapsed-time multipliers of the same frozen model snapshot, not forecast lead times. RELEASE lifetime now uses simulated hours. Foreground frame time is bounded to 100 ms to avoid unbounded jumps after suspended tabs. Fixed integration step = 120 simulated seconds.
+
+Strict tests: `tests/flow-v3/scientific-core.test.mjs`; `tests/browser/flow-v3-science.spec.mjs`. The dedicated CI workflow also continues Stage 1 and legacy Flow Round2 regression suites. Numeric cases include 30/60/120 fps equivalence, u/v convention, antimeridian reset rejection, interpolation, domain validity and pause/trip ownership.
+
+Stage 2 acceptance is conditional on the green CI run for the latest PR head. Do **not** report completion based only on the code having been pushed.
+
+## Stage 3 next — map-first UX and responsive controls
+
+1. Retire permanently overlaid HUD, mode tabs and four-cell grammar strip from the geographic evidence area in WORK/INSPECT.
+2. Keep a discoverable FOCUS mode, sample results, source status, projection controls and a nonintrusive map legend.
+3. Fix viewport-dependent Plate Carrée aspect distortion and quantify EW scale with correct projection geometry.
+4. Measure map overlay area against the contract's 8% target; inspect desktop/tablet/mobile screenshots.
+5. Repair mobile tap sampling, keyboard alternatives, focus/escape priority and selected-state URL cleanup.
+6. Preserve the tested four-mode scientific semantics and Stage 2 time/physics boundaries.
+7. Stage 3 must not merge PR #200; the PR stays Draft through Stage 7.
