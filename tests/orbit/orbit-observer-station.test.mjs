@@ -50,6 +50,7 @@ test('epoch labels use the simulation clock; presets reflect actual layer state'
   assert.match(engineSource,/simulationNow\(state\)-meta\.epochMs/);
   assert.match(engineSource,/AFTER.*BEFORE.*EPOCH/);
   assert.match(enhancementSource,/function activePreset\(root\)/);
-  assert.match(enhancementSource,/if\(event\.target\.closest\('\[data-layer\]'\)\)queueMicrotask/);
+  assert.match(engineSource,/dispatchEvent\(new Event\('geogeek:orbit-layers-changed'\)\)/);
+  assert.match(enhancementSource,/addEventListener\('geogeek:orbit-layers-changed'/);
   assert.match(enhancementSource,/orbitResetView/);
 });
