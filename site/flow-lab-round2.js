@@ -751,7 +751,8 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
     if(scanRaf)return;
     scanRaf=requestAnimationFrame(()=>{scanRaf=0;scan();});
   });
-  observer.observe(document.documentElement,{childList:true,subtree:true});
+  const observationRoot=document.getElementById('instrumentStage')||document.documentElement;
+  observer.observe(observationRoot,{childList:true,subtree:true});
   window.addEventListener('pagehide',()=>{
     observer.disconnect();
     if(scanRaf)cancelAnimationFrame(scanRaf);
