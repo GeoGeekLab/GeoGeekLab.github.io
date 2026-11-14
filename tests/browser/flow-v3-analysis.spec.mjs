@@ -51,9 +51,9 @@ test('Stage 4 RELEASE controls integration, disk radius, active seeds and elapse
   const pause=page.locator('#flPause');
   if((await pause.textContent())?.trim()==='PAUSE')await pause.click();
   await expect(pause).toHaveText('PLAY');
-  await page.locator('#flSeedRadius').fill('100');
+  await page.locator('#flSeedRadius').evaluate(el=>{el.value='100';el.dispatchEvent(new Event('input',{bubbles:true}));});
   await expect(page.locator('#flSeedRadiusOut')).toHaveText('100 km');
-  await page.locator('#flReleaseCount').fill('120');
+  await page.locator('#flReleaseCount').evaluate(el=>{el.value='120';el.dispatchEvent(new Event('input',{bubbles:true}));});
   await page.locator('#flReleaseIntegrator').selectOption('rk2');
   await expect(shell).toHaveAttribute('data-release-integrator','rk2');
   await page.locator('#flReleaseIntegrator').selectOption('rk4');
