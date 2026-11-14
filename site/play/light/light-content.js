@@ -116,7 +116,7 @@
       action:'INCREASE INCIDENCE ANGLE',
       intervention:Object.freeze({id:'grazing',min:0,max:85,step:1,baseline:40,defaultValue:75,unit:'°',label:'INCIDENCE FROM NORMAL'}),
       chartMode:'grazing',
-      chartLabel:'SMOOTH-SURFACE FRESNEL / FRACTION',
+      chartLabel:'FRESNEL REFLECTANCE / INCIDENCE ANGLE',
       revealTitle:'THE SMOOTH SURFACE REFLECTS MORE.',
       reveal:'Unpolarized Fresnel reflectance rises as the incoming ray approaches a grazing angle. Surface reflection and the water-leaving signal remain distinct.',
       equation:'R_F = (R_s + R_p) / 2',
