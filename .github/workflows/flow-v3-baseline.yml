@@ -49,7 +49,6 @@ jobs:
           node --check site/flow/v3/core/integrator.mjs
           node --check site/flow/v3/core/analysis.mjs
           node --check site/flow/v3/core/movement.mjs
-          node --check site/flow-lab-round2.js
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
