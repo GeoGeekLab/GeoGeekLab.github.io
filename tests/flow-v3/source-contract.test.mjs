@@ -11,7 +11,7 @@ const polish=read('site/flow-lab-polish.js');
 
 test('Flow V3 specification covers four non-interchangeable movement models',()=>{
   assert.equal(contract.schemaVersion,1);
-  assert.match(contract.status,/^(stage2-scientific-core-(implemented|verified)|stage3-map-first-ux-verified|stage4-field-release-analysis-verified|stage5-od-trips-analysis-verified)/);
+  assert.match(contract.status,/^(stage2-scientific-core-(implemented|verified)|stage3-map-first-ux-verified|stage4-field-release-analysis-verified|stage5-od-trips-analysis-verified|stage6-hardening-(implemented-pending-final-ci|verified))/);
   const modes=contract.invariants.primaryModeNames;
   assert.deepEqual(modes,['field','od','trips','release']);
   assert.deepEqual(Object.keys(contract.fourModes),modes);
@@ -78,6 +78,21 @@ test('acceptance targets are measurable and do not imply Stage 1 repairs',()=>{
   assert.ok(uiTargets.touchTargetMinCssPx>=44);
   assert.equal(Object.keys(stageGates).length,7);
   assert.ok(stageGates.stage7.some(x=>x.includes('merged')));
+});
+
+test('Stage 6 data and performance gates have runnable source and browser probes',()=>{
+  const unit=read('tests/flow-v3/hardening.test.mjs');
+  const browser=read('tests/browser/flow-v3-hardening.spec.mjs');
+  const axe=read('tests/browser/flow-v3-accessibility.spec.mjs');
+  assert.match(unit,/validateLiveGrid/);
+  assert.match(unit,/classifyWindProvenance/);
+  assert.match(browser,/getHeapUsage/);
+  assert.match(browser,/drawP95Ms/);
+  assert.match(axe,/wcag2aa/);
+  assert.match(base,/source-policy\\.mjs/);
+  assert.match(base,/telemetry\\.mjs/);
+  assert.match(round2,/ownedTimeouts\\.clear/);
+  assert.ok(contract.stageProgress.stage6.includes('final'));
 });
 
 test('Stage 5 directed network and relative teaching time are executable invariants',()=>{
