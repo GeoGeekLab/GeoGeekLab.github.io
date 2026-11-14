@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Geographic Flow Laboratory V3",
-  "status": "stage6-hardening-implemented-pending-final-ci",
+  "status": "stage6-hardening-verified",
   "owner": "Flow V3",
   "fourModes": {
     "field": {
@@ -125,7 +125,11 @@
     "sourceCache": "Live Open-Meteo no-store; pinned Natural Earth/GFS force-cache; source metadata records UTC valid and retrieval times separately",
     "sourceRecovery": "Invalid coordinate/time/unit grid rejects live data; GFS archived fallback then explicit synthetic field with labeled source failures",
     "performanceEvidence": "Bounded JS draw p95 measurements and CDP forced-GC heap evidence; viewport emulation is not physical mobile GPU validation",
-    "lifecycle": "Base cancels its RAF/ResizeObserver and removes visibility listener; Round2 disconnects observers, cancels pointer RAF and deferred timers"
+    "lifecycle": "Base cancels its RAF/ResizeObserver and removes visibility listener; Round2 disconnects observers, cancels pointer RAF and deferred timers",
+    "stage6SourceFreshness": "Live 84-point model field has one UTC valid time; stale and future valid times are explicitly disclosed, and archive/synthetic are not current conditions",
+    "stage6Cache": "Live Open-Meteo no-store; immutable pinned source assets force-cache; source-failure cascade is visible and tested",
+    "stage6ResourceCleanup": "Base RAF/ResizeObserver and refinement DOM observer/pointer timers removed on close; three-cycle forced-GC heap growth must not exceed 20 MiB",
+    "stage6Performance": "Quantitative budget includes >=30 sampled frames per density/viewport; P95 JS draw <=45ms desktop/tablet or 75ms mobile; Canvas <=70MiB, DOM nodes <=850, SVG paths <=180, overlay <=75/sec"
   },
   "uiTargets": {
     "mapControlOverlayFractionMax": 0.08,
@@ -181,7 +185,7 @@
     "stage3": "workbench-ci-verified",
     "stage4": "numeric-and-browser-ci-verified",
     "stage5": "numeric-and-browser-ci-verified",
-    "stage6": "implementation-complete-final-head-ci-pending",
+    "stage6": "final-head-ci-verified",
     "stage7": "pending"
   },
   "stageEvidence": {
@@ -236,8 +240,20 @@
       "maxObservedP95JsDrawMs": 28.53,
       "maxCanvasSurfaceMiB": 21.16,
       "axeAAViolations": 0,
-      "finalHeadCheck": "pending",
-      "auditFile": "docs/flow-v3/STAGE6-AUDIT.md"
+      "finalHeadCheck": "documentation-closeout-ci-pending",
+      "auditFile": "docs/flow-v3/STAGE6-AUDIT.md",
+      "finalRunUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43574807208",
+      "finalImplementationHead": "23303baa94c1786e53dfee34160f53414aa63eb6",
+      "finalImplementationNode": "42/42 passed, 0 failures",
+      "finalImplementationBrowser": "67 passed, 1 platform-specific skip, 0 failures",
+      "independentChecks": {
+        "orbit": "success",
+        "earthPulsePreflight": "success",
+        "earthPulseRegression": "success",
+        "geogeekQuality": "success"
+      },
+      "evidenceArtifact": "flow-v3-stage6-evidence",
+      "limits": "CDP forced-GC three-cycle heap is not a long-duration memory leak guarantee; Pages live deployment and commercial licensing remain Stage 7"
     }
   }
 }
