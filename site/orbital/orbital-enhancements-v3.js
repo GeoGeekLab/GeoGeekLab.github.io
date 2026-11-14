@@ -49,7 +49,7 @@
 
   function syncPreset(root, viewCard) {
     const active=activePreset(root);
-    $('[data-orbit-preset]',viewCard).forEach(button=>{
+    $$('[data-orbit-preset]',viewCard).forEach(button=>{
       const pressed=button.dataset.orbitPreset===active;
       button.classList.toggle('is-active',pressed);
       button.setAttribute('aria-pressed',String(pressed));
