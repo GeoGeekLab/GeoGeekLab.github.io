@@ -25,8 +25,12 @@ async function selectMode(page,mode){
 async function sendMapPointer(page,{lat,lon}){
   await page.locator('#flMap').evaluate((map,{lat,lon})=>{
     const r=map.getBoundingClientRect();
-    const x=r.left+(lon+180)/360*r.width;
-    const y=r.top+(90-lat)/180*r.height;
+    const worldWidth=Number(map.dataset.worldWidth);
+    const worldHeight=Number(map.dataset.worldHeight);
+    const left=Number(map.dataset.projectionLeft);
+    const top=Number(map.dataset.projectionTop);
+    const x=r.left+left+(lon+180)/360*worldWidth;
+    const y=r.top+top+(90-lat)/180*worldHeight;
     map.dispatchEvent(new PointerEvent('pointermove',{
       bubbles:true,clientX:x,clientY:y,pointerId:7,pointerType:'mouse'
     }));
