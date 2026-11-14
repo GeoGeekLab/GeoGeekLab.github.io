@@ -43,6 +43,7 @@ test('Light unlocks three continuous optical experiments after the core journey'
     await shell.getByRole('button',{name:action,exact:true}).click();
     const slider=shell.getByRole('slider',{name:control});
     await expect(slider).toBeVisible();
+    await expect(shell.locator('.light-mechanism-readout')).toBeVisible();
     await expect(shell.locator('.light-spectrum-after')).toHaveCSS('opacity','1');
     if (mode==='sunset') {
       await expect(shell.locator('[data-path="direct"]')).toBeVisible();
