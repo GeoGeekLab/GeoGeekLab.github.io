@@ -352,17 +352,26 @@
       ocean.style.setProperty('--light-water-color',scene.waterColor.css);
       waterSignal.style.opacity=scene.mechanisms.waterBackscatter?'1':'0.05';
       const surfaceContribution=scene.mechanisms.surfaceReflection && scene.mechanisms.atmosphericScattering;
-      reflection.style.opacity=surfaceContribution?String(Math.min(.72,.24+scene.surfaceReflectance*10)):'0';
+      reflection.style.opacity=surfaceContribution?String(Math.min(.8,.18+scene.surfaceReflectance*2.3)):'0';
+      directPath.setAttribute('d',mode==='grazing' && snapshot.interventionId==='grazing'
+        ?'M945 185 C800 210 662 246 540 282'
+        :'M770 70 C690 150 610 220 540 282');
+      depthPath.classList.toggle('is-off',mode!=='depth');
+      const depthLength=mode==='depth' && snapshot.interventionId==='depth'?Number(scene.visualValue):0;
+      depthPath.style.opacity=mode==='depth'?String(Math.max(.24,1-depthLength/12)):'0';
+      root.style.setProperty('--light-depth-strength',String(Math.min(.85,depthLength/9)));
 
       root.querySelector('.light-ray-atmosphere').classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
       root.querySelector('.light-ray-surface').classList.toggle('is-off',!surfaceContribution);
       root.querySelector('.light-ray-water').classList.toggle('is-off',!scene.mechanisms.waterBackscatter);
-      [['atmosphere','.light-ray-atmosphere'],['surface','.light-ray-surface'],['water','.light-ray-water']]
+      [['atmosphere','.light-ray-atmosphere'],['surface','.light-ray-surface'],['water','.light-ray-water'],['direct','.light-ray-direct'],['depth','.light-ray-depth']]
         .forEach(([id,selector])=>root.querySelector(selector).classList.toggle('is-focus',focusedPath===id));
       [
         ['atmosphere','SCATTERED SKY',scene.mechanisms.atmosphericScattering],
         ['surface','SURFACE REFLECTION',surfaceContribution],
-        ['water','WATER-LEAVING',scene.mechanisms.waterBackscatter]
+        ['water','WATER-LEAVING',scene.mechanisms.waterBackscatter],
+        ['direct','DIRECT SUNLIGHT',true],
+        ['depth','WATER ABSORPTION',true]
       ].forEach(([id,label,active])=>{
         const item=root.querySelector(`[data-path="${id}"]`);
         item.classList.toggle('is-off',!active);
@@ -376,7 +385,10 @@
       });
 
       if (snapshot.experiment) renderSpectrum(snapshot,scene);
-      renderPanel(snapshot);
+      if (meta?.type==='explore') {
+        const output=shell.overlay.querySelector('.light-explore-live');
+        if (output) output.textContent=`${Number(snapshot.exploreValue).toFixed(experimentConfig?.step<1?1:0)} ${experimentConfig?.unit||''}`;
+      } else renderPanel(snapshot);
     }
 
     return Object.freeze({
