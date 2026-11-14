@@ -145,6 +145,7 @@ test('Stage 6 overlay observer costs remain bounded during pan and TRIPS playbac
   await sources(page);await enter(page);
   await mode(page,'od');
   const initial=Number(await page.locator('.flow-lab').getAttribute('data-flow-overlay-renders')||0);
+  const started=Date.now();
   const map=page.locator('#flMap');
   const r=await map.boundingBox();if(!r)throw Error('No map bounds');
   await page.mouse.move(r.x+r.width*.3,r.y+r.height*.5);
