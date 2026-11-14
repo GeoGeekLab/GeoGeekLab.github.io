@@ -43,7 +43,7 @@ test('baseline identifies model wind, pinned sample and synthetic fallback expli
   assert.match(base,/loadGFS/);
   assert.match(base,/proceduralWind/);
   assert.match(base,/Open-Meteo \/ current 10 m wind/);
-  assert.match(base,/Pinned GFS surface-wind sample/);
+  assert.match(base,/Pinned archived GFS surface wind/);
   assert.match(base,/Synthetic fallback for interaction continuity/);
   assert.match(base,/normalized demo matrix/);
   assert.match(base,/synthetic timestamps/);
