@@ -89,9 +89,9 @@ test('Stage 6 data and performance gates have runnable source and browser probes
   assert.match(browser,/getHeapUsage/);
   assert.match(browser,/drawP95Ms/);
   assert.match(axe,/wcag2aa/);
-  assert.match(base,/source-policy\\.mjs/);
-  assert.match(base,/telemetry\\.mjs/);
-  assert.match(round2,/ownedTimeouts\\.clear/);
+  assert.match(base,/source-policy\.mjs/);
+  assert.match(base,/telemetry\.mjs/);
+  assert.match(round2,/ownedTimeouts\.clear/);
   assert.ok(contract.stageProgress.stage6.includes('final'));
 });
 
