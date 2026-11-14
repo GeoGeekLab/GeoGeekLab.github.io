@@ -1,0 +1,94 @@
+name: OVERPASS / P4 real imagery and Results
+on:
+  push:
+    branches: [feature/overpass-p4-imagery-results]
+    paths:
+      - '.github/workflows/overpass-p4.yml'
+      - 'overpass/**'
+      - 'tests/overpass-p4/**'
+      - 'playwright.overpass-p4.config.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  p4:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install GeoGeek dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify pinned Watched source and license
+        run: node overpass/scripts/assert-upstream.mjs
+      - name: Install Watched dependencies
+        working-directory: overpass/upstream
+        run: npm ci --no-audit --no-fund
+      - name: P3 catalog and epoch regression
+        run: |
+          node --test overpass/tests/catalog-parity.test.mjs
+          node overpass/scripts/round3-audit.mjs
+      - name: Preserve full upstream client/science tests
+        working-directory: overpass/upstream
+        run: npm test
+      - name: Preserve full upstream backend tests
+        working-directory: overpass/upstream
+        run: npm run test:backend
+      - name: GeoGeek host Build and Lab contracts
+        run: npm run qa:build && npm run qa:lab
+      - name: Apply P2 original visual and P4 static imagery/Results adapters
+        run: |
+          node overpass/scripts/prepare-r2.mjs
+          node overpass/scripts/prepare-p4.mjs
+          cp overpass/tests/results-p4.test.ts overpass/upstream/src/ui/results/overpass-p4.test.ts
+      - name: Results and imagery adapter regression
+        working-directory: overpass/upstream
+        run: npx vitest run src/ui/results/overpass-p4.test.ts
+      - name: Typecheck and build full OVERPASS under /overpass/
+        working-directory: overpass/upstream
+        env:
+          VITE_SITE_ORIGIN: https://geogeeklab.github.io/overpass
+        run: npm run build
+      - name: Static asset path integrity
+        run: |
+          node overpass/scripts/adapt-dist.mjs
+          node overpass/scripts/smoke-r2.mjs
+          node overpass/scripts/assemble-preview.mjs
+      - name: Probe live STAC + NASA GIBS without substituting mock images
+        run: node overpass/scripts/probe-imagery.mjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test live Results and seven-day timeline in desktop and mobile browsers
+        run: npx playwright test -c playwright.overpass-p4.config.mjs
+      - name: Upload live archive observations and catalog report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-p4-data-evidence
+          path: |
+            overpass/reports/p4-live-imagery.json
+            overpass/reports/r3-catalog-parity.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Upload desktop/mobile Results screenshot and browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-p4-results-browser
+          path: test-results/overpass-p4/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Upload static app build, not deployed to production
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-p4-static-preview
+          path: overpass/preview-root/overpass/
+          if-no-files-found: error
+          retention-days: 14
