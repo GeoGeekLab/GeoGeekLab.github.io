@@ -226,13 +226,18 @@
     color:#e8a17b;
   }
 }
+@media (min-width:1024px) and (max-height:790px){
+  .play-v2-shell[data-play-kind="light"] .light-evidence-head{padding-bottom:9px;}
+  .play-v2-shell[data-play-kind="light"] .light-evidence-meta{padding:9px 0;}
+  .play-v2-shell[data-play-kind="light"] .light-evidence-method{margin-top:2px;padding:5px 0 8px;}
+}
 @media (prefers-reduced-motion: reduce){
   .play-v2-shell[data-play-kind="light"] .light-ray{transition:none!important}
 }
 
 @media(min-width:1024px){
 .play-v2-shell[data-play-kind="light"] .light-spectrum-readout .light-change-readout{
-  grid-column:1/-1;margin-top:3px;padding-top:10px;border-top:1px solid var(--play-line,rgba(237,236,229,.18));
+  grid-column:1/-1;margin-top:1px;padding-top:7px;border-top:1px solid var(--play-line,rgba(237,236,229,.18));
   color:var(--play-muted,#aebbb2);font-variant-numeric:tabular-nums;
 }
 .play-v2-shell[data-play-kind="light"] .light-change-readout b{color:var(--play-reference,#8fb5ac);font-size:14px}
