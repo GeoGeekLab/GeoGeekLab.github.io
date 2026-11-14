@@ -39,6 +39,7 @@ jobs:
           node overpass/scripts/prepare-p4.mjs
           node overpass/scripts/prepare-p5.mjs
           node overpass/scripts/prepare-p12-full-runtime.mjs
+          node overpass/scripts/p12-celestrak-policy.mjs
       - name: Install Vercel CLI and load isolated Preview environment
         run: |
           npm install --global vercel@latest
