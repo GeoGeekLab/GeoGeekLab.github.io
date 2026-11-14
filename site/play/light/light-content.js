@@ -61,6 +61,66 @@
       reveal:'Surface reflection and water-leaving radiance are different paths. Turning off the reflected-sky path removes that contribution without deleting the modeled water signal.',
       equation:'TWO DISTINCT PATHS / SURFACE REFLECTION ≠ WATER-LEAVING SIGNAL',
       limit:'Surface path uses a fixed-angle Fresnel teaching model. It is not a sunglint or rough-surface BRDF solver.'
+    }),
+    Object.freeze({
+      id:'sunset-long-path',
+      index:'04',
+      title:'WHY DOES THE SETTING SUN LOOK RED?',
+      question:'As the direct sunlight travels through more atmosphere, which visible wavelengths are reduced most strongly?',
+      choices:Object.freeze([
+        Object.freeze({id:'short',label:'BLUE LIGHT WEAKENS MOST'}),
+        Object.freeze({id:'long',label:'RED LIGHT WEAKENS MOST'}),
+        Object.freeze({id:'equal',label:'ALL COLORS WEAKEN EQUALLY'})
+      ]),
+      correct:'short',
+      action:'LOWER THE SUN',
+      intervention:Object.freeze({id:'sunset',min:1,max:8,step:0.2,baseline:1.2,defaultValue:6,unit:'×',label:'RELATIVE AIR MASS'}),
+      chartMode:'sunset',
+      chartLabel:'DIRECT SUNLIGHT TRANSMISSION / FRACTION',
+      revealTitle:'THE DIRECT BEAM LOSES MORE BLUE.',
+      reveal:'A longer atmospheric path scatters more short-wavelength light out of the direct beam. The surviving direct sunlight becomes relatively richer in red light.',
+      equation:'T(λ) = exp[−m τ₅₅₀ (550/λ)⁴]',
+      limit:'Rayleigh-only direct-beam teaching model with τ₅₅₀ = 0.12 and relative air mass m. No aerosols, ozone, multiple scattering, or calibrated solar colors.'
+    }),
+    Object.freeze({
+      id:'water-depth-absorption',
+      index:'05',
+      title:'WHY DOES RED LIGHT FADE UNDERWATER?',
+      question:'If light travels through five metres of the same water, which spectral part does absorption remove most strongly?',
+      choices:Object.freeze([
+        Object.freeze({id:'red',label:'RED LIGHT WEAKENS FASTER'}),
+        Object.freeze({id:'blue',label:'BLUE LIGHT WEAKENS FASTER'}),
+        Object.freeze({id:'equal',label:'THE WHOLE SPECTRUM IS UNCHANGED'})
+      ]),
+      correct:'red',
+      action:'SEND LIGHT 5 M DOWN',
+      intervention:Object.freeze({id:'depth',min:0,max:8,step:0.25,baseline:0,defaultValue:5,unit:'m',label:'WATER PATH LENGTH'}),
+      chartMode:'depth',
+      chartLabel:'ABSORPTION-ONLY TRANSMISSION / FRACTION',
+      revealTitle:'RED LIGHT IS ABSORBED MORE RAPIDLY.',
+      reveal:'For this fixed water state, the absorption-only survival fraction falls rapidly at red wavelengths as path length increases.',
+      equation:'T(λ,z) = exp[−a(λ) · z]',
+      limit:'Uses Water as Spectrum total absorption a(λ). This is an absorption-only Beer–Lambert thought experiment, not Kd, underwater irradiance, or a full scattering solution.'
+    }),
+    Object.freeze({
+      id:'surface-grazing-angle',
+      index:'06',
+      title:'WHY DOES A GLANCING VIEW REFLECT MORE LIGHT?',
+      question:'For a smooth air–water interface, what happens to unpolarized reflection as the incidence angle increases toward grazing?',
+      choices:Object.freeze([
+        Object.freeze({id:'more',label:'REFLECTION INCREASES'}),
+        Object.freeze({id:'less',label:'REFLECTION DECREASES'}),
+        Object.freeze({id:'same',label:'REFLECTION IS UNCHANGED'})
+      ]),
+      correct:'more',
+      action:'INCREASE INCIDENCE ANGLE',
+      intervention:Object.freeze({id:'grazing',min:0,max:85,step:1,baseline:40,defaultValue:75,unit:'°',label:'INCIDENCE FROM NORMAL'}),
+      chartMode:'grazing',
+      chartLabel:'FRESNEL REFLECTANCE / INCIDENCE ANGLE',
+      revealTitle:'THE SMOOTH SURFACE REFLECTS MORE.',
+      reveal:'Unpolarized Fresnel reflectance rises as the incoming ray approaches a grazing angle. Surface reflection and the water-leaving signal remain distinct.',
+      equation:'R_F = (R_s + R_p) / 2',
+      limit:'Flat, smooth interface with fixed refractive indices n_air = 1.00 and n_water = 1.34. Wavelength-independent Fresnel fraction; no rough sea, wave glint, or polarized imaging.'
     })
   ]);
 
