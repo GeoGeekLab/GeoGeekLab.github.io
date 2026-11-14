@@ -22,7 +22,7 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
     if (document.querySelector('link[data-flow-round2]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = new URL('./flow-lab-round2.css?v=20261114-flow-v3-s5', import.meta.url).href;
+    link.href = new URL('./flow-lab-round2.css?v=20261114-flow-v3-s6', import.meta.url).href;
     link.dataset.flowRound2 = '1';
     document.head.appendChild(link);
   }
