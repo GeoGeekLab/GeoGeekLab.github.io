@@ -509,7 +509,9 @@
       mechanismReadout.textContent=experimentConfig
         ?`${experimentConfig.label} / ${formatParameter(variableValue,experimentConfig)}`
         :`${pathTitle[focusedPath]||'THREE PATHS'} / ${snapshot.phase==='revealed'?'CHANGED':'BASELINE'}`;
-      mechanismReadout.parentElement.hidden=snapshot.phase==='complete';
+      // The scene caption already names core mechanisms. This floating readout
+      // adds value only when the user can change a numerical parameter.
+      mechanismReadout.parentElement.hidden=snapshot.phase==='complete'||!experimentConfig;
       evidenceTarget.textContent=focusedPath==='none'?'Three distinct optical paths':pathTitle[focusedPath];
       const reflectedSkyStatus=!scene.mechanisms.atmosphericScattering && scene.mechanisms.surfaceReflection
         ?'has no scattered-sky source'
