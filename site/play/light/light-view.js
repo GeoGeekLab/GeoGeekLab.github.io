@@ -72,8 +72,8 @@
           <header><span class="light-spectrum-title">SPECTRUM</span><strong class="light-spectrum-mode">—</strong></header>
           <svg class="light-spectrum" viewBox="0 0 520 138" preserveAspectRatio="none" role="img" aria-label="Before and after spectrum">
             <line x1="12" y1="126" x2="508" y2="126" class="light-axis"></line>
-            <text x="12" y="10" class="light-spectrum-y-max">MAX —</text>
-            <text x="12" y="122" class="light-spectrum-zero">0</text>
+            <text x="508" y="13" text-anchor="end" class="light-spectrum-y-max">MAX —</text>
+            <text x="12" y="116" class="light-spectrum-zero">0</text>
             <path class="light-spectrum-before"></path>
             <path class="light-spectrum-after"></path>
             <text x="12" y="137">400</text><text x="248" y="137">550</text><text x="482" y="137">700 nm</text>
@@ -91,7 +91,7 @@
       <div class="light-evidence-legend-title">PATH STATUS / CONCEPTUAL</div>
       <div class="light-evidence-legend"></div>
       <div class="light-evidence-spectrum"></div>
-      <p class="light-evidence-limit">Scene geometry and color are illustrative. Sky and surface curves are relative teaching models. Only the water experiment shows modeled Rrs (sr⁻¹). TOA radiance is not modeled.</p>
+      <details class="light-evidence-method"><summary>MODEL SCOPE <span>VIEW LIMITS</span></summary><p class="light-evidence-limit">Scene geometry and color are illustrative. Sky and surface curves are relative teaching models. Only the water experiment shows modeled Rrs (sr⁻¹). TOA radiance is not modeled.</p></details>
       <p class="light-phase-announcement" role="status" aria-live="polite" aria-atomic="true"></p>`;
 
     const root=shell.root;
