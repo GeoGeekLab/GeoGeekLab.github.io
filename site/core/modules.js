@@ -151,7 +151,7 @@
     if (kind === 'figure' && !window.GeoFigureWorkbench) await loadScript('figure-analysis-workbench.js?v=20261001c');
     if (kind === 'figure' && !window.GeoFigureViewerV2) await loadScript('figure-viewer-v2.js?v=20261001d');
     if (kind === 'figure' && !window.GeoFigureViewerV2Polish) await loadScript('figure-viewer-v2-polish.js?v=20261001e');
-    if (kind === 'flow' && !window.GeoFlowLab) await loadScript('flow-lab.js?v=20261114-flow-v3-s3');
+    if (kind === 'flow' && !window.GeoFlowLab) await loadScript('flow-lab.js?v=20261114-flow-v3-s4');
     if (kind === 'flow' && !window.GeoFlowLabPolish) await loadScript('flow-lab-polish.js?v=20261002b');
     if (kind === 'water' && !window.GeoGeekInstrumentMounts?.water) {
       // Keep the model fixed when loading fails; do not silently switch UI/model generations.
