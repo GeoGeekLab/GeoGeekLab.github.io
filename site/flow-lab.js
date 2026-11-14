@@ -89,7 +89,7 @@ async function mount({signal,stage}={}){
       <canvas class="flow-base" id="flBase"></canvas><canvas class="flow-fx" id="flFx"></canvas><svg class="flow-svg" id="flSvg" aria-hidden="true"></svg>
       <div class="flow-hud"><strong id="flModeTitle">FIELD / EULERIAN</strong><span id="flHudSource">${wind.source}</span><button type="button" id="flPause">PAUSE</button><button type="button" id="flReset">RESET</button></div>
       <div class="flow-tabs" role="tablist"><button class="active" data-mode="field" type="button">FIELD</button><button data-mode="od" type="button">OD</button><button data-mode="trips" type="button">TRIPS</button><button data-mode="release" type="button">RELEASE</button></div>
-      <div class="flow-legend" id="flLegend"><span><b>FIELD</b> local velocity</span><span>particle path ≠ forecast track</span></div><div class="flow-tip" id="flTip"></div><p id="flMapHelp" class="flow-visually-hidden">The geographic map maintains a two to one Plate Carrée aspect. Tap to sample the local model field. Use arrow keys to pan and Enter to inspect the map centre.</p><output id="flSampleLive" class="flow-visually-hidden" role="status" aria-live="polite"></output>
+      <div class="flow-legend" id="flLegend"><span><b>FIELD</b> local velocity</span><span>particle path ≠ forecast track</span></div><div class="flow-tip" id="flTip"></div><output id="flSampleReadout" class="flow-sample-readout" aria-label="Pinned map sample" hidden></output><p id="flMapHelp" class="flow-visually-hidden">The geographic map maintains a two to one Plate Carrée aspect. Tap to sample the local model field. Use arrow keys to pan and Enter to inspect the map centre.</p><output id="flSampleLive" class="flow-visually-hidden" role="status" aria-live="polite"></output>
       <div class="flow-zoom"><button type="button" data-z="out" aria-label="Zoom out">−</button><output id="flZoom">100%</output><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit" aria-label="Fit the complete world map">FIT</button></div>
     </section>
     <aside class="flow-rail">
@@ -264,7 +264,7 @@ async function mount({signal,stage}={}){
     $('#flSeedGlobal',stage)?.addEventListener('click',()=>{for(let i=0;i<state.releaseCount;i++){const seed=randomSeed();if(sampleWind(wind,seed.lon,seed.lat).valid)state.release.push({...seed,age:0});}clearFx()});
     $('#flClearRelease',stage)?.addEventListener('click',()=>{state.release=[];clearFx()});
   }
-  function setMode(mode){state.mode=mode;shell.dataset.mode=mode;fieldCarry=0;releaseCarry=0;tripLast=performance.now();$$('.flow-tabs button',stage).forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));const m=modeMeta[mode];$('#flRepTitle',stage).textContent=m.title;$('#flRepBadge',stage).textContent=m.badge;$('#flRepCopy',stage).innerHTML=m.copy;$('#flQuestion',stage).textContent=m.q;$('#flMetricMode',stage).textContent=mode.toUpperCase();$('#flMetricTime',stage).textContent=m.time;$('#flMetricGeom',stage).textContent=m.geom;$('#flModeTitle',stage).textContent=`${mode.toUpperCase()} / ${m.badge}`;const src=sourceForMode();$('#flHudSource',stage).textContent=src.source;sourceLabel.textContent=src.label;sourceLink.href=src.href||'#';sourceLink.style.display=src.href?'':'none';status.textContent=src.status;setInspector([['POINTER','Move over the map to inspect the current representation.'],['SOURCE',src.source],['LIMIT',src.limit]]);legend.innerHTML=mode==='field'?'<span><b>FIELD</b> local velocity</span><span>particle path ≠ forecast track</span>':mode==='od'?'<span><b>WIDTH</b> normalized flow</span><span>arc ≠ literal route</span>':mode==='trips'?'<span><b>HEAD</b> current time</span><span>trail = visual memory</span>':'<span><b>CLICK</b> seed release</span><span>derived from snapshot field</span>';dynamicControls();clearFx();drawBase();renderStatic();if(mode==='field'&&particles.length!==state.density)seedParticles()}
+  function setMode(mode){const pinned=$('#flSampleReadout',stage);if(pinned)pinned.hidden=true;state.mode=mode;shell.dataset.mode=mode;fieldCarry=0;releaseCarry=0;tripLast=performance.now();$$('.flow-tabs button',stage).forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));const m=modeMeta[mode];$('#flRepTitle',stage).textContent=m.title;$('#flRepBadge',stage).textContent=m.badge;$('#flRepCopy',stage).innerHTML=m.copy;$('#flQuestion',stage).textContent=m.q;$('#flMetricMode',stage).textContent=mode.toUpperCase();$('#flMetricTime',stage).textContent=m.time;$('#flMetricGeom',stage).textContent=m.geom;$('#flModeTitle',stage).textContent=`${mode.toUpperCase()} / ${m.badge}`;const src=sourceForMode();$('#flHudSource',stage).textContent=src.source;sourceLabel.textContent=src.label;sourceLink.href=src.href||'#';sourceLink.style.display=src.href?'':'none';status.textContent=src.status;setInspector([['POINTER','Move over the map to inspect the current representation.'],['SOURCE',src.source],['LIMIT',src.limit]]);legend.innerHTML=mode==='field'?'<span><b>FIELD</b> local velocity</span><span>particle path ≠ forecast track</span>':mode==='od'?'<span><b>WIDTH</b> normalized flow</span><span>arc ≠ literal route</span>':mode==='trips'?'<span><b>HEAD</b> current time</span><span>trail = visual memory</span>':'<span><b>CLICK</b> seed release</span><span>derived from snapshot field</span>';dynamicControls();clearFx();drawBase();renderStatic();if(mode==='field'&&particles.length!==state.density)seedParticles()}
 
   function zoomTo(next,cx=W/2,cy=H/2){
     const old=state.zoom;next=clamp(next,.75,6);
@@ -285,11 +285,17 @@ async function mount({signal,stage}={}){
   }
   map.addEventListener('wheel',e=>{e.preventDefault();const r=map.getBoundingClientRect();zoomTo(state.zoom*Math.exp(-e.deltaY*.0012),e.clientX-r.left,e.clientY-r.top)},{passive:false});
   map.addEventListener('pointerdown',e=>{if(e.target.closest?.('.flow-tabs,.flow-hud,.flow-zoom'))return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,px:state.panX,py:state.panY,moved:false};map.setPointerCapture?.(e.pointerId);map.classList.add('drag')});
+  function showPinnedSample(text){
+    const output=$('#flSampleReadout',stage);
+    if(output){output.textContent=text;output.hidden=false;}
+    const announcement=$('#flSampleLive',stage);
+    if(announcement)announcement.textContent=text;
+  }
   function inspectCoordinate(x,y,{announce=false}={}){
     const ll=invert(x,y);
     if(!ll){
       setInspector([['STATUS','OUTSIDE MAP FRAME'],['LIMIT','The projected world occupies a 2:1 frame. Select a coordinate inside the world rectangle.']]);
-      if(announce)$('#flSampleLive',stage).textContent='Outside map frame';
+      if(announce)showPinnedSample('Outside map frame — select a point inside the projected world.');
       return false;
     }
     if(!['field','release'].includes(state.mode))return true;
@@ -297,7 +303,7 @@ async function mount({signal,stage}={}){
     if(!w.valid){
       setInspector([['POSITION',`${ll[1].toFixed(2)}°, ${ll[0].toFixed(2)}°`],
         ['STATUS','OUTSIDE FIELD DOMAIN'],['SOURCE',wind.source],['LIMIT','Wind grid has no valid value at this latitude.']]);
-      if(announce)$('#flSampleLive',stage).textContent='Outside field domain at latitude '+ll[1].toFixed(2)+' degrees';
+      if(announce)showPinnedSample('Outside field domain at latitude '+ll[1].toFixed(2)+' degrees.');
       return false;
     }
     const dir=(Math.atan2(-w.u,-w.v)*180/Math.PI+360)%360;
@@ -306,8 +312,8 @@ async function mount({signal,stage}={}){
       ['VECTOR',`u ${w.u.toFixed(1)} / v ${w.v.toFixed(1)} m/s`],
       ['FROM',`${Math.round(dir)}°`],['SOURCE',wind.source],
       ['LIMIT',state.mode==='release'?'Particle path assumes a frozen snapshot field.':wind.limit]]);
-    if(announce)$('#flSampleLive',stage).textContent=
-      `Sampled ${ll[1].toFixed(2)} latitude, ${ll[0].toFixed(2)} longitude; speed ${w.speed.toFixed(1)} metres per second; wind from ${Math.round(dir)} degrees.`;
+    if(announce)showPinnedSample(
+      `Sampled ${ll[1].toFixed(2)} latitude, ${ll[0].toFixed(2)} longitude; speed ${w.speed.toFixed(1)} metres per second; wind from ${Math.round(dir)} degrees.`);
     return true;
   }
   map.addEventListener('pointermove',e=>{
@@ -367,7 +373,7 @@ async function mount({signal,stage}={}){
   $('.flow-tabs',stage).addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(b)setMode(b.dataset.mode)});
   $('.flow-zoom',stage).addEventListener('click',e=>{const b=e.target.closest('[data-z]');if(!b)return;if(b.dataset.z==='fit')resetView();else zoomTo(state.zoom*(b.dataset.z==='in'?1.25:.8))});
   pauseBtn.addEventListener('click',()=>{state.paused=!state.paused;pauseBtn.textContent=state.paused?'PLAY':'PAUSE';if(!state.paused){last=performance.now();tripLast=last}});
-  $('#flReset',stage).addEventListener('click',()=>{resetView();state.release=[];state.tripTime=30;state.simulatedSeconds=0;shell.dataset.simulatedSeconds='0';fieldCarry=0;releaseCarry=0;tripLast=performance.now();const time=$('#flTripTime',stage),out=$('#flTripOut',stage);if(time)time.value='30';if(out)out.textContent='30';seedParticles();renderStatic();clearFx()});
+  $('#flReset',stage).addEventListener('click',()=>{const pinned=$('#flSampleReadout',stage);if(pinned)pinned.hidden=true;resetView();state.release=[];state.tripTime=30;state.simulatedSeconds=0;shell.dataset.simulatedSeconds='0';fieldCarry=0;releaseCarry=0;tripLast=performance.now();const time=$('#flTripTime',stage),out=$('#flTripOut',stage);if(time)time.value='30';if(out)out.textContent='30';seedParticles();renderStatic();clearFx()});
 
   seedParticles();dynamicControls();resize();if('ResizeObserver'in window){resizer=new ResizeObserver(resize);resizer.observe(map)}pauseBtn.textContent=state.paused?'PLAY':'PAUSE';raf=requestAnimationFrame(tick);
   return()=>{destroyed=true;cancelAnimationFrame(raf);resizer?.disconnect();if(stage.isConnected)stage.innerHTML=''};
