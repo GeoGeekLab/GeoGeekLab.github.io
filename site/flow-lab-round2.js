@@ -574,7 +574,13 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
     }
     function chooseNode(id){
       selectedNode=(id&&id!==selectedNode&&Object.hasOwn(NODES,id))?id:'';
-      updateUrl({flowNode:selectedNode||null});
+      const updates={flowNode:selectedNode||null};
+      const primary=selectedNode||'nyc';
+      if(odPeer===primary){
+        odPeer=Object.keys(NODES).find(node=>node!==primary);
+        updates.flowPeer=null;
+      }
+      updateUrl(updates);
       if(selectedNode)inspectSelectedNode(selectedNode);
       syncAccessibleSelection();syncMovementAnalysis();renderOverlay();
     }
