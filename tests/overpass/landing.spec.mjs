@@ -19,5 +19,5 @@ test('high-fidelity OVERPASS landing at /overpass/', async ({page},info)=>{
 test('original About entry remains accessible',async({page})=>{
   await page.goto('/overpass/',{waitUntil:'domcontentloaded'})
   await page.getByRole('button',{name:/How this works/i}).click()
-  await expect(page.getByText('The short version',{exact:false}).first()).toBeVisible({timeout:30000})
+  await expect(page.getByRole('heading',{name:'The short version'})).toBeVisible({timeout:30000})
 })
