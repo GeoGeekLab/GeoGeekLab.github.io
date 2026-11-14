@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Geographic Flow Laboratory V3",
-  "status": "design-contract-not-runtime",
+  "status": "stage2-scientific-core-implemented-pending-ci",
   "owner": "Flow V3",
   "fourModes": {
     "field": {
@@ -98,14 +98,17 @@
     ],
     "fieldVectorConvention": "u east-positive, v north-positive, meteorological direction is FROM clockwise from north",
     "baseMapProjection": "Plate Carree only if nominal 2:1 aspect is preserved; show viewport stretch separately",
-    "unitTime": "simulated_seconds = real_elapsed_seconds * dimensionless_rate",
+    "unitTime": "simulated_seconds = min(real_elapsed_ms,100ms)/1000 * dimensionless_rate; bounded per foreground frame after tab suspension",
     "outsideField": "do not silently extrapolate outside source spatial coverage",
     "geographicSeam": "never connect an antimeridian discontinuity or particle respawn with a drawn trajectory",
     "selectedState": "only one authoritative controller for mode, play, time, and URL selection state",
     "sourceLabels": "MODEL_CURRENT, MODEL_ARCHIVE, SYNTHETIC_FALLBACK, TEACHING_REFERENCE",
     "urlIsolation": "preserve non-Flow search parameters while replacing only validated flow-prefixed keys",
     "reducedMotion": "respect system preference and offer persistent pause",
-    "cleanup": "listeners, intervals, animation frames and observers are removed on unmount"
+    "cleanup": "listeners, intervals, animation frames and observers are removed on unmount",
+    "fieldLineage": "field sampled as instantaneous model snapshot; fixed-step RK2 path is a frozen-field experiment, not an actual tracked object",
+    "noExtrapolation": "regular or GFS samples outside latitude coverage return {valid:false} rather than clamping",
+    "onePlaybackController": "base flow-lab.js owns mode, pause, tripPlay, tripTime and all simulation progression; Round2 never installs a second interval"
   },
   "uiTargets": {
     "mapControlOverlayFractionMax": 0.08,
@@ -154,5 +157,14 @@
       "PR reviewed and merged",
       "main SHA and deployment status verified"
     ]
+  },
+  "stageProgress": {
+    "stage1": "baseline-passed",
+    "stage2": "implemented-pending-ci",
+    "stage3": "pending",
+    "stage4": "pending",
+    "stage5": "pending",
+    "stage6": "pending",
+    "stage7": "pending"
   }
 }
