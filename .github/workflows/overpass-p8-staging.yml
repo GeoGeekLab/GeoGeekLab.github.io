@@ -1,0 +1,36 @@
+name: OVERPASS / P8 independent HTTPS staging (manual)
+on:
+  workflow_dispatch:
+    inputs:
+      stage_url:
+        description: Independent HTTPS staging URL, not production
+        required: true
+        type: string
+      phase:
+        description: Actually deployed candidate or rollback version
+        type: choice
+        required: true
+        options: [candidate, rollback]
+permissions:
+  contents: read
+jobs:
+  probe:
+    environment: overpass-staging
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify independent HTTPS stage
+        env:
+          P8_STAGE_URL: ${{ inputs.stage_url }}
+          P8_PHASE: ${{ inputs.phase }}
+        run: node overpass/scripts/p8-staging-smoke.mjs "$P8_STAGE_URL" "$P8_PHASE"
+      - name: Save staging content hashes
+        uses: actions/upload-artifact@v4
+        with:
+          name: p8-stage-${{ inputs.phase }}
+          path: overpass/reports/p8-stage-${{ inputs.phase }}.json
+          if-no-files-found: error

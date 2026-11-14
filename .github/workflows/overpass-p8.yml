@@ -1,0 +1,167 @@
+name: OVERPASS / P8 code-only reconciliation and release gate
+on:
+  push:
+    branches: [feature/overpass-p8-staging-release]
+    paths:
+      - '.github/workflows/overpass-p8.yml'
+      - 'overpass/**'
+      - '.github/workflows/overpass-p8-staging.yml'
+      - '.github/workflows/overpass-p8-mp4.yml'
+      - 'tests/overpass-p8/**'
+      - 'playwright.overpass-p8-video.config.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  p8:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install GeoGeek dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify pinned Watched source and license
+        run: node overpass/scripts/assert-upstream.mjs
+      - name: Install Watched dependencies
+        working-directory: overpass/upstream
+        run: npm ci --no-audit --no-fund
+      - name: P8 code-only merge constraints plus P7 release contracts
+        run: |
+          node --test tests/overpass-p8/safe-merge.test.mjs
+          node overpass/scripts/p8-code-only-merge-gate.mjs
+          node --test tests/overpass-p7/*.test.mjs
+          node --test tests/overpass-p6/*.test.mjs
+      - name: Preserve the original main deployment until the release approvals exist
+        run: node overpass/scripts/p8-code-only-merge-gate.mjs
+      - name: P3 catalog and epoch regression
+        run: |
+          node --test overpass/tests/catalog-parity.test.mjs
+          node overpass/scripts/round3-audit.mjs
+      - name: Preserve full upstream client/science tests
+        working-directory: overpass/upstream
+        run: npm test
+      - name: Preserve full upstream backend tests
+        working-directory: overpass/upstream
+        run: npm run test:backend
+      - name: GeoGeek host Build and Lab contracts
+        run: npm run qa:build && npm run qa:lab
+      - name: Apply P2, P4 and P5 source overlays in isolated upstream checkout
+        run: |
+          node overpass/scripts/prepare-r2.mjs
+          node overpass/scripts/prepare-p4.mjs
+          node overpass/scripts/prepare-p5.mjs
+          cp overpass/tests/results-p4.test.ts overpass/upstream/src/ui/results/overpass-p4.test.ts
+          cp overpass/tests/p5-replay-timelapse.test.ts overpass/upstream/src/ui/results/overpass-p5.test.ts
+      - name: P4 plus P5 replay, time-lapse and share-link unit regressions
+        working-directory: overpass/upstream
+        env:
+          VITE_OVERPASS_STATIC: '1'
+        run: npx vitest run src/ui/results/overpass-p4.test.ts src/ui/results/overpass-p5.test.ts
+      - name: Typecheck and build full OVERPASS under /overpass/
+        working-directory: overpass/upstream
+        env:
+          VITE_SITE_ORIGIN: https://geogeeklab.github.io/overpass
+          VITE_OVERPASS_STATIC: '1'
+        run: npm run build
+      - name: Static asset path integrity
+        run: |
+          node overpass/scripts/adapt-dist.mjs
+          node overpass/scripts/smoke-r2.mjs
+          node overpass/scripts/license-p5.mjs
+          node overpass/scripts/assemble-preview.mjs
+      - name: Prepare independent GeoGeek host supply and captured Lab assets
+        run: |
+          node scripts/prime-data-supply-from-live.mjs
+          node scripts/prepare-data-references.mjs
+          node scripts/update-data-supply.mjs
+          node scripts/reuse-lab-previews.mjs
+          mkdir -p site/assets/lab
+          curl --fail --location --retry 3 --output site/assets/lab/sentinel2.jpg https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
+          node scripts/verify-lab-cache-contract.mjs
+          node scripts/verify-lab-previews.mjs
+      - name: Build pristine GeoGeek host and prove the unmodified 13-instrument baseline
+        run: |
+          npm run build
+          node scripts/verify-lab-previews.mjs --dist
+          node scripts/verify-lab-cache-contract.mjs --dist
+          test "$(grep -o 'class="project-card contour-target is-actionable"' dist/lab.html | wc -l)" -eq 13
+      - name: Save exact baseline for reversible rollout
+        run: cp -a dist overpass/rollback-root
+      - name: Probe live STAC + NASA GIBS without substituting mock images
+        run: node overpass/scripts/probe-imagery.mjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture actual OVERPASS browser output for Lab card
+        run: node overpass/scripts/capture-p6-preview.mjs
+      - name: Audit compact Watched catalog freshness and complete companion names
+        run: node overpass/scripts/p7-catalog-gate.mjs
+      - name: Author the l17 record in the disposable GeoGeek source checkout
+        run: node overpass/scripts/prepare-p7-source.mjs
+      - name: Rebuild the real GeoGeek site from the 14-record source model
+        run: |
+          npm run build
+          node scripts/verify-lab-previews.mjs --dist
+          node scripts/verify-lab-cache-contract.mjs --dist
+          node --test tests/overpass-p7/catalog-gate.test.mjs tests/overpass-p7/readiness.test.mjs
+      - name: Assemble source-built P7 preview without P6 postbuild card graft
+        run: node overpass/scripts/finalize-p7.mjs
+      - name: Perform an actual isolated rollback filesystem restore and checksum
+        run: node overpass/scripts/rollback-p7.mjs
+      - name: Assess complete pre-production gate, reporting stale sources as blockers
+        run: node overpass/scripts/p7-readiness.mjs
+      - name: Verify critical candidate paths and attribution
+        run: |
+          test -s overpass/preview-root/records/lab-l17.html
+          test -s overpass/preview-root/overpass/LICENSE
+          test -s overpass/preview-root/overpass/THIRD_PARTY_NOTICES.md
+          test -s overpass/reports/p7-source-integration.json
+          test -s overpass/reports/p7-release-readiness.json
+          test -s overpass/reports/p7-rollback-exercise.json
+      - name: Browser acceptance of original Results plus Lab navigation and return
+        run: |
+          npx playwright test -c playwright.overpass-p7.config.mjs
+          npx playwright test -c playwright.overpass-p6.config.mjs
+          npx playwright test -c playwright.overpass-p4.config.mjs
+          npx playwright test -c playwright.overpass-p5.config.mjs
+      - name: Upload live archive observations and catalog report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-p8-data-evidence
+          path: |
+            overpass/reports/p4-live-imagery.json
+            overpass/reports/r3-catalog-parity.json
+            overpass/reports/p6-preview-capture.json
+            overpass/reports/p7-catalog-freshness.json
+            overpass/reports/p7-source-integration.json
+            overpass/reports/p7-release-readiness.json
+            overpass/reports/p7-rollback-exercise.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Upload desktop/mobile Results screenshot and browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-p8-results-browser
+          path: |
+            test-results/overpass-p4/
+            test-results/overpass-p5/
+            test-results/overpass-p6/
+            test-results/overpass-p7/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Upload static app build, not deployed to production
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-p8-code-candidate-preview
+          path: overpass/preview-root/
+          if-no-files-found: error
+          retention-days: 14
