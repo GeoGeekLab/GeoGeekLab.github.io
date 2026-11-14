@@ -39,12 +39,46 @@ function style(){
 }
 
 function setConditions(){const c=$('#instrumentConditions');if(c)c.innerHTML=[['INPUT','Vector field · OD · timestamped paths'],['GEOMETRY','Field · network · trajectory · particles'],['TIME','Snapshot · aggregate · sequence'],['LIMIT','Representation ≠ phenomenon']].map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('');}
-async function getJSON(url,signal,timeout=16000){const c=new AbortController(),timer=setTimeout(()=>c.abort(),timeout),relay=()=>c.abort();signal?.addEventListener('abort',relay,{once:true});try{const r=await fetch(url,{mode:'cors',signal:c.signal,headers:{Accept:'application/json'}});if(!r.ok)throw Error(`HTTP ${r.status}`);return await r.json();}finally{clearTimeout(timer);signal?.removeEventListener?.('abort',relay)}}
+async function getJSON(url,signal,timeout=12000,cache='no-store'){
+  const c=new AbortController(),timer=setTimeout(()=>c.abort(),timeout),relay=()=>c.abort();
+  signal?.addEventListener('abort',relay,{once:true});
+  try{
+    const r=await fetch(url,{mode:'cors',cache,signal:c.signal,headers:{Accept:'application/json'}});
+    if(!r.ok)throw Error(`HTTP ${r.status}`);
+    return await r.json();
+  }finally{
+    clearTimeout(timer);signal?.removeEventListener?.('abort',relay);
+  }
+}
 
 function meteoUrl(){const lats=[],lons=[];for(let lat=-60;lat<=60;lat+=20)for(let lon=-180;lon<180;lon+=30){lats.push(lat);lons.push(lon)}return `https://api.open-meteo.com/v1/forecast?latitude=${lats.join(',')}&longitude=${lons.join(',')}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=GMT`;}
 function windFromDirection(speed,deg){const r=deg*Math.PI/180;return[-speed*Math.sin(r),-speed*Math.cos(r)]}
-async function loadOpenMeteo(signal){const raw=await getJSON(meteoUrl(),signal);const arr=Array.isArray(raw)?raw:[raw];if(arr.length!==84)throw Error('Incomplete wind grid');const u=new Float32Array(84),v=new Float32Array(84),speed=new Float32Array(84);let t='';arr.forEach((x,i)=>{const s=Number(x?.current?.wind_speed_10m),d=Number(x?.current?.wind_direction_10m);if(!Number.isFinite(s)||!Number.isFinite(d))throw Error('Invalid current wind');const currentTime=x?.current?.time;if(!currentTime||t&&currentTime!==t)throw Error('Inconsistent wind grid valid time');const q=windFromDirection(s,d);u[i]=q[0];v[i]=q[1];speed[i]=s;t=currentTime});return{kind:'regular',source:'Open-Meteo / current 10 m wind',sourceUrl:'https://open-meteo.com/en/docs',time:t||'current snapshot',limit:'Coarse sampled snapshot of 10 m wind. Interpolated between query points; not a trajectory forecast.',u,v,speed,cols:12,rows:7,lon0:-180,lat0:-60,dx:30,dy:20,wrap:true};}
-async function loadGFS(signal){const raw=await getJSON(GFS,signal,18000);if(!Array.isArray(raw))throw Error('Invalid GFS sample');const ur=raw.find(x=>x?.header?.parameterCategory===2&&x?.header?.parameterNumber===2)||raw[0],vr=raw.find(x=>x?.header?.parameterCategory===2&&x?.header?.parameterNumber===3)||raw[1];if(!ur?.data||!vr?.data)throw Error('Missing GFS vectors');const h=ur.header||{},cols=Number(h.nx||360),rows=Number(h.ny||181),lon0=Number(h.lo1||0),latStart=Number(h.la1??90),dx=Number(h.dx||1),dy=Math.abs(Number(h.dy||1));return{kind:'gfs',source:'NOAA GFS sample / earth.nullschool lineage',sourceUrl:'https://github.com/cambecc/earth',time:h.refTime||'pinned model sample',limit:'Pinned GFS surface-wind sample used only when live current wind is unavailable. Model field, not observation.',u:Float32Array.from(ur.data),v:Float32Array.from(vr.data),cols,rows,lon0,latStart,dx,dy};}
+async function loadOpenMeteo(signal,policy){
+  const raw=await getJSON(meteoUrl(),signal,12000,policy.SOURCE_CACHE_POLICY.live);
+  const result=policy.validateLiveGrid(raw);
+  return{
+    kind:'regular',source:'Open-Meteo / current 10 m wind',
+    sourceUrl:'https://open-meteo.com/en/docs',time:result.time,
+    retrievedAt:new Date().toISOString(),
+    limit:'Coarse model snapshot and interpolation. Not measured observations or a trajectory forecast.',
+    ...result,cols:12,rows:7,lon0:-180,lat0:-60,dx:30,dy:20,wrap:true
+  };
+}
+async function loadGFS(signal,policy){
+  const raw=await getJSON(GFS,signal,16000,policy.SOURCE_CACHE_POLICY.pinned);
+  if(!Array.isArray(raw))throw Error('Invalid GFS sample');
+  const ur=raw.find(x=>x?.header?.parameterCategory===2&&x?.header?.parameterNumber===2)||raw[0];
+  const vr=raw.find(x=>x?.header?.parameterCategory===2&&x?.header?.parameterNumber===3)||raw[1];
+  const shape=policy.validateGfsVectors(ur,vr);
+  return{
+    kind:'gfs',source:'NOAA GFS sample / earth.nullschool lineage',
+    sourceUrl:'https://github.com/cambecc/earth',
+    time:ur.header.refTime||'pinned model sample',
+    retrievedAt:new Date().toISOString(),
+    limit:'Pinned archived GFS surface wind. No live model-valid time or forecast lead can be inferred.',
+    u:Float32Array.from(ur.data),v:Float32Array.from(vr.data),...shape
+  };
+}
 function proceduralWind(){return{kind:'procedural',source:'Procedural vector field fallback',sourceUrl:'',time:'deterministic fallback',limit:'Synthetic fallback for interaction continuity; not meteorological data.'};}
 async function mount({signal,stage}={}){
   if(!stage||signal?.aborted)return()=>{};
@@ -54,23 +88,38 @@ async function mount({signal,stage}={}){
     {createPlateCarreeViewport},
     {advanceFrozenField},
     {windSpeedColor,WIND_COLOR_STOPS,fieldMetadata,seedDisk},
-    {NODES,OD,TRIPS,sortedEdges,odNodeTotals,odNetworkTotals,tripMetrics,tripPosition}
+    {NODES,OD,TRIPS,sortedEdges,odNodeTotals,odNetworkTotals,tripMetrics,tripPosition},
+    sourcePolicy
   ]=await Promise.all([
     import(new URL('flow/v3/core/field.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/clock.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/projection.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/integrator.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/analysis.mjs',document.baseURI).href),
-    import(new URL('flow/v3/core/movement.mjs',document.baseURI).href)
+    import(new URL('flow/v3/core/movement.mjs',document.baseURI).href),
+    import(new URL('flow/v3/core/source-policy.mjs',document.baseURI).href)
   ]);
   if(signal?.aborted)return()=>{};
   style();setConditions();
   stage.innerHTML='<div class="instrument-loading"><span>↝</span><strong>Assembling geographic flow representations…</strong></div>';
   let world=null,wind=null;
-  try{world=await getJSON(WORLD,signal)}catch{}
-  try{wind=await loadOpenMeteo(signal)}catch{try{wind=await loadGFS(signal)}catch{wind=proceduralWind()}}
+  const failures=[];
+  // Fetch boundaries concurrently; slow GeoJSON must not delay the wind request.
+  const mapTask=getJSON(WORLD,signal,6000,sourcePolicy.SOURCE_CACHE_POLICY.world)
+    .catch(()=>{failures.push('map-unavailable');return null;});
+  try{wind=await loadOpenMeteo(signal,sourcePolicy)}
+  catch{
+    failures.push('live-unavailable');
+    if(!signal?.aborted){
+      try{wind=await loadGFS(signal,sourcePolicy)}
+      catch{failures.push('archive-unavailable');wind=proceduralWind()}
+    }
+  }
+  world=await mapTask;
   if(signal?.aborted)return()=>{};
+  if(!wind)wind=proceduralWind();
   const windMeta=fieldMetadata(wind);
+  const provenance=sourcePolicy.classifyWindProvenance(wind);
 
   stage.innerHTML=`<div class="flow-lab" data-mode="field">
     <section class="flow-map-shell" id="flMap" tabindex="0" role="region" aria-label="Interactive geographic flow map. Arrow keys pan, plus and minus zoom, Home fits, Enter samples the map centre." aria-describedby="flMapHelp">
@@ -88,7 +137,12 @@ async function mount({signal,stage}={}){
   </div>`;
 
   const shell=$('.flow-lab',stage),map=$('#flMap',stage),base=$('#flBase',stage),fx=$('#flFx',stage),svg=$('#flSvg',stage),tip=$('#flTip',stage),dynamic=$('#flDynamic',stage),inspect=$('#flInspect',stage),legend=$('#flLegend',stage),zoomOut=$('#flZoom',stage),pauseBtn=$('#flPause',stage),sourceLink=$('#flSourceLink',stage),sourceLabel=$('#flSourceLabel',stage),status=$('#flStatus',stage);
-  const bctx=base.getContext('2d'),fctx=fx.getContext('2d');
+  shell.dataset.sourceClass=provenance.status;
+  shell.dataset.sourceCache=wind.kind==='regular'?'no-store':wind.kind==='gfs'?'force-cache':'none';
+  shell.dataset.sourceFailures=failures.join(',');
+  shell.dataset.basemapStatus=world?.features?'available':'unavailable';
+  shell.dataset.modelValidUtc=provenance.validTimeUtc===null?'':new Date(provenance.validTimeUtc).toISOString();
+    const bctx=base.getContext('2d'),fctx=fx.getContext('2d');
   const reduce=matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
   const state={mode:'field',zoom:1,panX:0,panY:0,paused:!!reduce,density:900,speed:36000,simulatedSeconds:0,vectors:true,fieldStyle:'glyphs',top:12,curves:true,tripTime:30,tripPlay:!reduce,trail:22,releaseCount:80,releaseLife:180,releaseRadiusKm:60,releaseIntegrator:'rk4',releaseElapsedSeconds:0,release:[]};
   let W=1,H=1,dpr=1,particles=[],raf=0,last=performance.now(),tripLast=last,fieldCarry=0,releaseCarry=0,drag=null,resizer=null,destroyed=false;
@@ -350,11 +404,22 @@ async function mount({signal,stage}={}){
       '</span><span>hatch = no valid wind · particle path ≠ forecast</span>';
   }
   function provenanceCard(){
+    const sourceTerms=wind.kind==='regular'
+      ?'<a href="https://open-meteo.com/en/terms" target="_blank" rel="noopener noreferrer">Weather data: Open-Meteo · CC BY 4.0</a>'
+      :wind.kind==='gfs'?'Archived GFS sample · attribution via earth.nullschool lineage'
+      :'Synthetic teaching fallback · no external weather data';
+    const mapTerms=world?.features
+      ?'<a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noopener noreferrer">Basemap: Natural Earth · public domain</a>'
+      :'Basemap unavailable · countries not drawn';
+    const failuresText=failures.length?'SOURCE RECOVERY · '+failures.join(' / '):'SOURCE RECOVERY · none';
     return '<div class="flow-data-provenance" id="flDataProvenance">'+
       '<strong>'+windMeta.type+'</strong>'+
       '<span>'+windMeta.timeLabel+'</span>'+
+      '<span data-source-freshness>'+provenance.label+'</span>'+
       '<span>LAT COVERAGE · '+windMeta.coverage+'</span>'+
       '<span>SPATIAL · '+windMeta.resolution+'</span>'+
+      '<span>'+failuresText+'</span>'+
+      '<span>'+sourceTerms+'</span><span>'+mapTerms+'</span>'+
       '<small>'+windMeta.caveat+'</small></div>';
   }
   const modeMeta={
