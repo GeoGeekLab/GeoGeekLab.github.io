@@ -1,0 +1,107 @@
+name: Flow V3 Release Candidate (no deploy)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/flow-v3/**'
+      - 'tests/flow-v3/**'
+      - 'tests/browser/flow-*.spec.mjs'
+      - 'site/flow-lab*'
+      - 'site/flow/**'
+      - 'site/core/modules.js'
+      - 'site/lab-fullpage.js'
+      - '.github/workflows/flow-v3-release-candidate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flow-v3-release-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  pages-build:
+    name: Production-equivalent Pages build and Flow smoke (no deployment)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    steps:
+      - name: Checkout integrated candidate
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate data-supply recovery contract
+        run: node --test tests/data-supply/*.test.mjs
+
+      - name: Materialize production data references
+        run: |
+          node scripts/prime-data-supply-from-live.mjs
+          node scripts/prepare-data-references.mjs
+          node scripts/update-data-supply.mjs
+
+      - name: Install release browser tools
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium firefox webkit
+
+      - name: Install production preview image optimizer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends imagemagick
+
+      - name: Prepare required Lab imagery
+        run: |
+          mkdir -p site/assets/lab
+          curl --fail --location --retry 3 --retry-all-errors \
+            --output site/assets/lab/sentinel2.jpg \
+            https://raw.githubusercontent.com/GlobalFishingWatch/frontend/d43ab35fa2ccff9e4b5e22729190defe30e03b72/apps/platform/public/images/layer-library/sentinel2.jpg
+          test -s site/assets/lab/sentinel2.jpg
+          node scripts/verify-lab-cache-contract.mjs
+
+      - name: Capture real Lab previews
+        run: |
+          node scripts/capture-lab-previews.mjs
+          node scripts/verify-lab-previews.mjs
+
+      - name: Build exact Pages candidate without publishing
+        run: node scripts/build.mjs
+
+      - name: Verify delivery, versions and Flow runtime are retained
+        run: |
+          node scripts/verify-lab-previews.mjs --dist
+          node scripts/verify-lab-cache-contract.mjs --dist
+          node scripts/verify-water-quiet-release.mjs --dist
+          node scripts/verify-world-v12-release.mjs
+          test -s dist/lab.html
+          test -s dist/flow-lab.js
+          test -s dist/flow-lab-round2.js
+          test -s dist/flow-lab-round2.css
+          test -s dist/flow/v3/core/projection.mjs
+          test -s dist/flow/v3/core/integrator.mjs
+          test -s dist/flow/v3/core/source-policy.mjs
+          test -s dist/flow/v3/core/movement.mjs
+          test -s dist/core/modules.js
+          grep -F 'flow-lab.js?v=20261114-flow-v3-s6' dist/core/modules.js
+
+      - name: Recheck Flow scientific contract on integrated build
+        run: npm run qa:flow-v3
+
+      - name: Test published-form dist through desktop and mobile Chromium
+        run: npx playwright test tests/browser/flow-v3-baseline.spec.mjs tests/browser/flow-v3-science.spec.mjs tests/browser/flow-v3-workbench.spec.mjs tests/browser/flow-v3-analysis.spec.mjs tests/browser/flow-v3-movement.spec.mjs tests/browser/flow-v3-hardening.spec.mjs tests/browser/flow-v3-accessibility.spec.mjs tests/browser/flow-round2.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+
+      - name: Archive release-candidate browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flow-v3-stage7-dist-evidence
+          retention-days: 21
+          if-no-files-found: ignore
+          include-hidden-files: true
+          path: |
+            test-results/
+            playwright-report/
