@@ -161,6 +161,7 @@ async function mount({signal,stage}={}){
     });
   };
   shell._flowDiagnostics=flowDiagnostics;
+  shell._flowResetMetrics=()=>telemetry.reset();
   const state={mode:'field',zoom:1,panX:0,panY:0,paused:!!reduce,density:900,speed:36000,simulatedSeconds:0,vectors:true,fieldStyle:'glyphs',top:12,curves:true,tripTime:30,tripPlay:!reduce,trail:22,releaseCount:80,releaseLife:180,releaseRadiusKm:60,releaseIntegrator:'rk4',releaseElapsedSeconds:0,release:[]};
   let W=1,H=1,dpr=1,particles=[],raf=0,last=performance.now(),tripLast=last,fieldCarry=0,releaseCarry=0,drag=null,resizer=null,destroyed=false;
   let projection=createPlateCarreeViewport(W,H);
