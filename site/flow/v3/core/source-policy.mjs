@@ -10,16 +10,21 @@ const closeLon=(a,b)=>Number.isFinite(a)&&Math.abs((((a-b)+540)%360)-180)<=2;
 export function parseUtcMs(value){
   if(typeof value!=='string'||!value.trim())return null;
   const text=value.trim().replace(' ','T');
-  if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:?\d{2})?$/.test(text))return null;
-  const explicit=/(Z|[+-]\d{2}:?\d{2})$/.test(text);
-  const ms=Date.parse(explicit?text:text+'Z');
-  if(!Number.isFinite(ms))return null;
-  // Do not accept an invalid calendar date rolled over by Date.parse.
-  if(!explicit){
-    const iso=new Date(ms).toISOString();
-    if(!iso.startsWith(text.slice(0,16)))return null;
-  }
-  return ms;
+  const match=text.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(Z|[+-]\d{2}:?\d{2})?$/);
+  if(!match)return null;
+  const [,yearText,monthText,dayText,hourText,minuteText,secondText='0',,offset='']=match;
+  const year=Number(yearText),month=Number(monthText),day=Number(dayText);
+  const hour=Number(hourText),minute=Number(minuteText),second=Number(secondText);
+  // Date.parse silently normalizes e.g. February 31 even when Z or an offset is supplied.
+  // Validate the written local calendar and clock BEFORE applying its offset.
+  const calendar=new Date(0);
+  calendar.setUTCFullYear(year,month-1,day);
+  calendar.setUTCHours(hour,minute,second,0);
+  if(calendar.getUTCFullYear()!==year||calendar.getUTCMonth()!==month-1||
+     calendar.getUTCDate()!==day||calendar.getUTCHours()!==hour||
+     calendar.getUTCMinutes()!==minute||calendar.getUTCSeconds()!==second)return null;
+  const ms=Date.parse(offset?text:text+'Z');
+  return Number.isFinite(ms)?ms:null;
 }
 export function validateLiveGrid(raw){
   const arr=Array.isArray(raw)?raw:[raw],grid=WIND_GRID;

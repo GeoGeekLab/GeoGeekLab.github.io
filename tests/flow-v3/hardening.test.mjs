@@ -48,6 +48,13 @@ test('Stage 6 UTC parsing rejects malformed and calendar-overflow dates',()=>{
   assert.equal(parseUtcMs('2026-11-14T08:00Z'),Date.parse('2026-11-14T08:00Z'));
   assert.equal(parseUtcMs('2026-11-14T10:00+02:00'),Date.parse('2026-11-14T08:00Z'));
   assert.equal(parseUtcMs('2026-02-31T08:00'),null);
+  assert.equal(parseUtcMs('2026-02-31T08:00Z'),null);
+  assert.equal(parseUtcMs('2026-11-31T08:00+02:00'),null);
+  assert.equal(parseUtcMs('2026-04-31T08:00Z'),null);
+  assert.equal(parseUtcMs('2026-02-29T08:00Z'),null);
+  assert.equal(parseUtcMs('2024-02-29T08:00Z'),Date.parse('2024-02-29T08:00Z'));
+  assert.equal(parseUtcMs('2024-02-29T10:00+02:00'),Date.parse('2024-02-29T08:00Z'));
+  assert.equal(parseUtcMs('2026-11-14T25:00Z'),null);
   assert.equal(parseUtcMs('not a date'),null);
   assert.equal(parseUtcMs(''),null);
 });
