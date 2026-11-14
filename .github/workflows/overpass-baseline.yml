@@ -1,0 +1,77 @@
+name: OVERPASS / isolated upstream baseline
+
+on:
+  push:
+    branches:
+      - 'feature/overpass-*'
+    paths:
+      - '.gitmodules'
+      - 'overpass/**'
+      - '.github/workflows/overpass-baseline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  watchedbaseline:
+    name: Pinned Watched / typecheck + tests + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout GeoGeek with pinned upstream
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: overpass/upstream/package-lock.json
+      - name: Assert pinned full source
+        run: node overpass/scripts/assert-upstream.mjs
+      - name: Install upstream dependencies
+        working-directory: overpass/upstream
+        run: npm ci --no-audit --no-fund
+      - name: TypeScript validation
+        working-directory: overpass/upstream
+        run: npm run typecheck
+      - name: Engine and UI tests
+        working-directory: overpass/upstream
+        run: npm test
+      - name: Backend unit tests
+        working-directory: overpass/upstream
+        run: npm run test:backend
+      - name: Full standalone build
+        working-directory: overpass/upstream
+        run: npm run build
+      - name: Validate output is complete
+        run: node overpass/scripts/smoke-dist.mjs
+      - name: Store standalone build (not deployed)
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-upstream-standalone
+          path: overpass/upstream/dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  geogeekbaseline:
+    name: Existing GeoGeek build and Lab regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout GeoGeek (no submodule required)
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install GeoGeek dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Existing build contracts
+        run: npm run qa:build
+      - name: Existing Lab contracts
+        run: npm run qa:lab
