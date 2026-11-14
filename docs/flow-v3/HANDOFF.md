@@ -95,3 +95,46 @@ Stage 2 acceptance is conditional on the green CI run for the latest PR head. Do
 - This run includes the invalid-release guard and the Stage 1/Round2 regressions. A later Stage 2 commit additionally asserts that global RESET immediately updates the TRIPS range; its final head CI is tracked in PR #200.
 - Production publishing remains forbidden until Stage 7. The PR stays Draft.
 - The model-wind snapshot remains static; SIM TIME speeds up frozen-field integration only. Do not interpret longer simulated trajectories as a meteorological forecast.
+
+
+---
+
+## Stage 3 implementation — Map-first UI/UX Reconstruction (2026-11-14)
+
+**Scope delivered:** permanently moved Flow HUD, representation tabs, legend, projection readout and zoom controls outside the map's geographic content. The WORK and INSPECT modes keep the analysis rail. FOCUS hides that rail while retaining modes, playback, zoom, visible pinned sample results and native OD/TRIPS selectors.
+
+### Runtime changes
+
+- `site/flow/v3/core/projection.mjs` defines a pure Plate Carrée viewport with an exactly 2:1 world aspect, centered letterboxing, pan/zoom and inverse coordinate mapping. It explicitly rejects sampling in letterboxed margins.
+- `site/flow-lab.js` uses this viewport for Canvas, SVG, pointer inversion and keyboard navigation. Touch/Enter samples now produce a persistent result in the map footer, plus an announcement for screen readers.
+- `site/flow-lab-round2.js` wraps the existing map in `.flow-main`, mounts the control bar above and legend/projection/zoom below, moves the scientific grammar into the rail, preserves geodesic alignment and offers native place/trajectory selects. Focus docks active selectors in the workbar. Mode transitions clear stale `flowNode` / `flowTrip` URL keys without modifying other parameters. Escape clears active Flow selection and returns control to the native dialog when no selection remains.
+- `site/flow-lab-round2.css` creates responsive workbar, main map, footbar and rail arrangements. Mobile title text wraps, 44px minimum main control targets are preserved, and the minimum projected map surface is increased to maintain readability.
+- `site/core/modules.js`, `site/flow/flow-round2.js`, and `site/lab-fullpage.js` refresh Flow asset versions without altering other instruments.
+
+### Acceptance evidence
+
+- **Flow V3 Workbench Acceptance**: [successful run 43557165166](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43557165166); Node tests have zero failures; Playwright had 29 passing tests and one desktop-only touch test skipped by design.
+- `tests/flow-v3/projection.test.mjs`: aspect, inverse projection, letterbox domain, EW/NS physical scale and stable geographic coordinates.
+- `tests/browser/flow-v3-workbench.spec.mjs`: WORK/FOCUS/INSPECT, screenshot/geometry checks at desktop (1440×900), tablet (900×980), mobile (390×844), keyboard navigation, touch sampling, selector accessibility and URL isolation.
+- First visual run identified an undersized mobile map (235px against a >250px baseline); the map minimum was raised and the full suite reran successfully.
+- Screenshots were manually inspected. The synthetic map-land polygon shown in CI is a controlled fixture, **not** a world-boundary data product.
+- Other independent workflows (Orbit, Earth Pulse, GeoGeek Quality) remain independent gates; check their latest result in PR #200. The Flow PR remains **Draft and unmerged**.
+
+### Scientific and interface guardrails
+
+1. Plate Carrée now uses a 2:1 map pixel ratio; its EW/NS scale readout is a latitude distortion ratio. A blank letterboxed margin is not a sampled location.
+2. The wind grid domain, fixed-step clock and release continuity from Stage 2 are unchanged.
+3. A pinned wind sample is a *model vector in the current snapshot*, never an observed object path or a weather prediction.
+4. OD arc geometry remains a display relation, not a literal route. TRIPS interpolation remains distinct from observed positions. RELEASE remains a frozen-field numerical experiment.
+5. Workspace controls stay outside the geographic map. In FOCUS, the map still supports keyboard and touch operations.
+6. No new third-party rendering dependency was introduced.
+
+### Stage 4 handoff — FIELD + RELEASE analytical expansion
+
+1. Add a quantitative wind-speed color scale with units, not a purely decorative legend.
+2. Add vector-arrow/streamline display choices and a visible source coverage mask. Do not interpolate into unsupported polar regions.
+3. Present sampling provenance, valid time and uncertainty limitations adjacent to observations.
+4. Add pure RK4 integrator tests against an analytical vector field; compare Euler, RK2 and RK4 using identical step sizes.
+5. Expose RELEASE seed radius, simulation time and integration settings. Distinguish ensemble seeding spread from model uncertainty.
+6. Preserve map-first layout, fixed-step time, reduced motion, URL isolation and the whole Stage 1–3 regression suite.
+7. Continue on `feat/flow-lab-v3` and Draft PR #200. **Do not merge before Stage 7.**
