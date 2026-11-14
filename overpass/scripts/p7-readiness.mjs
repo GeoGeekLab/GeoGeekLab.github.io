@@ -21,17 +21,20 @@ export function inspectGeoGeekMeta(meta,nowMs){
   limitHours:limitMs/3_600_000,stale:ageMs>limitMs||ageMs< -3_600_000,
   source:meta.source,recordCount:meta.recordCount}
 }
-export function evaluate({watched,geoGeek,legal,rollback,assets}){
+export function evaluate({watched,geoGeek,legal,rollback,assets,staging=false,
+ mp4=false,providerTerms=false,backendScope=false}){
  const blocks=[]
  if(watched.stale)blocks.push('Watched compact OMM catalog older than 48h or future dated')
  if(geoGeek.stale)blocks.push('GeoGeek active OMM snapshot exceeds declared 8h refresh policy')
  if(!legal)blocks.push('Original Watched license or third-party notices missing')
  if(!rollback)blocks.push('Rollback recovery exercise has not passed')
  if(!assets)blocks.push('Combined static routes or preview assets missing')
- return {review:'p7-production-readiness-v1',releaseEligible:blocks.length===0,
+ if(!staging)blocks.push('Independent HTTPS staging deployment and real rollback smoke test not approved')
+ if(!mp4)blocks.push('Historical Time-lapse real image download and browser MP4 export not accepted')
+ if(!providerTerms)blocks.push('Provider terms, attribution and source license review not signed off')
+ if(!backendScope)blocks.push('Missing dynamic /api and shortlink routes have no approved feature scope or hosting')
+ return {review:'p7-production-readiness-v2',releaseEligible:blocks.length===0,
   blockers:blocks,limitations:[
-   'Static Pages does not implement Watched /api/pan, /api/og, /api/e or /s/:id backend endpoints',
-   'Full decade-long Time-lapse frame downloads and real MP4 export are not end-to-end certified',
    'A pass is an SGP4 prediction, not proof of an acquired satellite image',
    'Provider rate limits and response latency remain external dependencies'
   ]}
@@ -45,8 +48,24 @@ export function run(root,{release=false,nowMs=Date.now()}={}){
  const legal=['overpass/LICENSE','overpass/THIRD_PARTY_NOTICES.md'].every(f=>existsSync(join(base,f)))
  const rollback=existsSync(resolve(root,'overpass/reports/p7-rollback-exercise.json'))
  const assets=['lab.html','records/lab-l17.html','overpass/index.html','assets/lab/previews/overpass.jpg'].every(f=>existsSync(join(base,f)))
- const verdict={...evaluate({watched,geoGeek,legal,rollback,assets}),watched,geoGeek,
-  legal,rollbackVerified:rollback,assetsVerified:assets,checksAt:new Date(nowMs).toISOString()}
+ // Do not infer acceptance from test presence or signed-off notices bundled in a ZIP.
+ // Each independent manual proof must contain a positive verdict.
+ const proofDir=resolve(root,'overpass/approvals')
+ const approved=name=>{
+  const file=join(proofDir,name+'.json')
+  if(!existsSync(file))return false
+  const data=JSON.parse(readFileSync(file,'utf8'))
+  return data.accepted===true && typeof data.reviewer==='string' &&
+   data.reviewer.trim().length>=2 && Number.isFinite(Date.parse(data.reviewedAt))
+ }
+ const staging=approved('staging-and-rollback')
+ const mp4=approved('historical-mp4')
+ const providerTerms=approved('provider-terms')
+ const backendScope=approved('backend-scope')
+ const verdict={...evaluate({watched,geoGeek,legal,rollback,assets,staging,mp4,providerTerms,backendScope}),watched,geoGeek,
+  legal,rollbackVerified:rollback,assetsVerified:assets,
+  independentApprovals:{staging,mp4,providerTerms,backendScope},
+  checksAt:new Date(nowMs).toISOString()}
  const report=resolve(root,'overpass/reports/p7-release-readiness.json')
  mkdirSync(dirname(report),{recursive:true})
  writeFileSync(report,JSON.stringify(verdict,null,2)+'\n')
