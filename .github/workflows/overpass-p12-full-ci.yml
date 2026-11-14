@@ -6,8 +6,12 @@ on:
       - 'overpass/scripts/prepare-p12-full-runtime.mjs'
       - 'overpass/scripts/p12-runtime-preflight.mjs'
       - 'overpass/scripts/p12-celestrak-policy.mjs'
+      - 'overpass/scripts/p12-social-identity.mjs'
+      - 'overpass/scripts/p12-bake-og.mjs'
       - 'overpass/scripts/p12-live-runtime-smoke.mjs'
       - 'overpass/scripts/p12-celestrak-policy.mjs'
+      - 'overpass/scripts/p12-social-identity.mjs'
+      - 'overpass/scripts/p12-bake-og.mjs'
       - 'tests/overpass-p12/**'
       - '.github/workflows/overpass-p12-full-ci.yml'
       - '.github/workflows/overpass-p12-vercel-preview.yml'
@@ -19,6 +23,8 @@ on:
       - 'overpass/scripts/p12-runtime-preflight.mjs'
       - 'overpass/scripts/p12-live-runtime-smoke.mjs'
       - 'overpass/scripts/p12-celestrak-policy.mjs'
+      - 'overpass/scripts/p12-social-identity.mjs'
+      - 'overpass/scripts/p12-bake-og.mjs'
       - 'tests/overpass-p12/**'
       - '.github/workflows/overpass-p12-full-ci.yml'
       - '.github/workflows/overpass-p12-vercel-preview.yml'
@@ -59,12 +65,16 @@ jobs:
           node overpass/scripts/prepare-p5.mjs
           node overpass/scripts/prepare-p12-full-runtime.mjs
           node overpass/scripts/p12-celestrak-policy.mjs
+          node overpass/scripts/p12-social-identity.mjs
+          node overpass/scripts/p12-bake-og.mjs
+          (cd overpass/upstream && npx tsx scripts/p12-bake-og.ts)
           test -s overpass/upstream/public/LICENSE
           test -s overpass/upstream/public/THIRD_PARTY_NOTICES.md
           node --input-type=module -e 'import fs from "node:fs"; import {validateVercelRoutes} from "./overpass/scripts/prepare-p12-full-runtime.mjs"; validateVercelRoutes(JSON.parse(fs.readFileSync("overpass/upstream/vercel.json")))'
           (cd overpass/upstream && VITE_OVERPASS_STATIC=0 VITE_SITE_ORIGIN=https://overpass.example.org npm run build)
           grep -q 'OVERPASS' overpass/upstream/dist/index.html
           ! grep -q '/overpass/assets/' overpass/upstream/dist/index.html
+          test -s overpass/upstream/dist/og-default.png
           test -s overpass/upstream/dist/LICENSE
           test -s overpass/upstream/dist/THIRD_PARTY_NOTICES.md
       - name: Keep non-public HTML and build only for review
