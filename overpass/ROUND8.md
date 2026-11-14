@@ -1,0 +1,64 @@
+# P8 — Stage acceptance, code merge and publication are distinct
+
+Date: 2026-11-14. This is not a legal approval or an assertion of a live release.
+
+The P8 integration reconciles the P7 development history with the two newer
+GeoGeek main commits. It retains all current Light and other original site
+features. It carries the pinned Watched source and isolated build scripts.
+
+A **code-only merge** is permitted only when the default Pages workflow and
+public GeoGeek site remain unchanged. The P8 code-only gate rejects automatic
+activation. Consequently, such a merge adds source/tests but DOES NOT publish
+OVERPASS as a fourteenth instrument.
+
+A full public release still requires each of the following independent proofs:
+1. Real HTTPS staging deployment of exact candidate and actual rollback to the
+   previously deployed 13-card site, plus forward re-deployment tests.
+2. Public Sentinel-2 historical frame downloads and a browser-created MP4
+   that passes ffprobe; the encoder may fall back to VP9/AV1 where no H.264
+   encoder is available, which needs an explicit compatibility decision.
+3. Human review of MIT derivative identity, source attribution, data usage and
+   font/texture licenses. The AI may prepare sources but cannot sign off.
+4. Explicit static-only versus dynamic-backend scope approval for /api/pan,
+   /api/og, /api/e and /s/:id. An absent endpoint must not be marked complete.
+5. Fresh OMM snapshot gates on the date of publication.
+
+A GitHub Actions ZIP and localhost preview are NOT independent HTTPS staging.
+The staging smoke test refuses localhost and the two production site origins.
+It only checks hosted content; a full rollback needs separate deployment
+records, plus human approval.
+
+## Review sources
+
+- Original Watched MIT and data notices: https://github.com/dev-Armaan/satellites
+- CelesTrak Usage Policy (GP refresh generally 2h): https://celestrak.org/usage-policy.php
+- Planetary Computer API and preview terms: https://planetarycomputer.microsoft.com/terms
+- Planetary Computer rate limits: https://planetarycomputer.microsoft.com/docs/
+- Copernicus data versus portal terms: https://dataspace.copernicus.eu/terms-and-conditions
+
+Watched's author distinguishes forks from the official Watched brand.
+OVERPASS must retain attribution without suggesting official affiliation.
+No automatic approval JSON will be generated.
+
+The six-hour catalog cron is disabled in the code-only merge. It may run
+only after a separate approved release activates scheduling. Manual dispatch
+still produces a candidate dataset without automatic deployment.
+
+## Verified real Chromium history/MP4 evidence (2026-11-14)
+
+- Run: https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43583150768
+- Place: Singapore; actual public Planetary Computer Sentinel-2 archives,
+  no URL interceptions or synthetic frames.
+- 77 captured provider HTTP requests were 2xx; eight clear historical image
+  frames were used, with years spanning 2017 to 2026.
+- Browser created an MP4 named overpass-singapore-2017-2026.mp4.
+  ffprobe: VP9, 720 x 720 pixels, 11.4 seconds, 6,010,608 bytes.
+- The original desktop 1080px Chromium software encode timed out at 98%;
+  the unchanged mobile export path at 720px passed. Desktop performance
+  remains a distinct release test and cannot be represented as passing.
+- VP9-in-MP4 is not proof of Safari/iPhone playback. A supported H.264 path
+  or a clearly documented incompatibility still requires approval.
+- No independent HTTPS staging URL or real production rollback evidence was
+  available for this code-only merge. The release gate stays closed.
+
+This document records a passed test, not human authorization to deploy.

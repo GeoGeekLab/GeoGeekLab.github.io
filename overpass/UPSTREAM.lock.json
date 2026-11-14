@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "upstreamRepository": "https://github.com/dev-Armaan/satellites",
+  "upstreamCommit": "a0e53b62573655a81d48b60a35cf661df314f2b7",
+  "upstreamCommitDate": "2026-11-13T19:49:50Z",
+  "upstreamLicense": "MIT",
+  "integrationStrategy": "pinned-git-submodule",
+  "path": "overpass/upstream",
+  "sourcePaths": [
+    "src/engine",
+    "src/imagery",
+    "src/globe",
+    "src/ui",
+    "src/app",
+    "api",
+    "public"
+  ],
+  "stage": "round-1-unmodified-upstream-baseline",
+  "productionIntegration": false,
+  "note": "Exact upstream source and assets, not a rebuilt or reduced clone. Build in isolation; integration and branding follow in later rounds."
+}

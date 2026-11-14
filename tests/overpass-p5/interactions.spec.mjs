@@ -1,0 +1,66 @@
+import {test,expect} from '@playwright/test'
+
+const target='/overpass/?q=43.4723,-80.5449&n=Waterloo'
+test('About preserves the original Watched maker and states static data/hosting truth',async({page},info)=>{
+ const bad=[]
+ page.on('pageerror',e=>bad.push(e.message))
+ await page.goto('/overpass/',{waitUntil:'domcontentloaded'})
+ // The boot curtain must leave before the About screenshot can be accepted.
+ await expect(page.locator('#boot-static')).toHaveCount(0,{timeout:30000})
+ await page.getByRole('button',{name:/How this works/i}).click()
+ const dialog=page.getByRole('dialog').first()
+ await expect(dialog).toBeVisible({timeout:30000})
+ await expect(dialog.locator('#about-method')).toContainText('fixed catalog snapshot')
+ await expect(dialog.locator('#about-accuracy')).toContainText('uncertainty grow')
+ await expect(dialog.locator('#about-privacy')).toContainText('no connected search or share database')
+ await expect(dialog.locator('#about-credits')).toContainText('Original Watched by')
+ await expect(dialog.locator('#about-credits')).toContainText('GeoGeek adaptation')
+ const license=await page.request.get('/overpass/LICENSE')
+ const notices=await page.request.get('/overpass/THIRD_PARTY_NOTICES.md')
+ expect(license.ok()).toBe(true)
+ expect(await license.text()).toContain('Armaan Gupta')
+ expect(notices.ok()).toBe(true)
+ await page.screenshot({path:info.outputPath('about.png'),fullPage:true})
+ await page.keyboard.press('Escape')
+ await expect(dialog).toHaveCount(0,{timeout:8000})
+ expect(bad).toEqual([])
+})
+
+test('Results pass replay keeps a bounded scrubber and play/pause controls',async({page},info)=>{
+ test.setTimeout(145_000)
+ await page.goto(target,{waitUntil:'domcontentloaded'})
+ await expect(page.getByRole('heading',{name:/satellites? watched/i}).first()).toBeVisible({timeout:120_000})
+ const row=page.locator('[data-pass-row]').first()
+ await expect(row).toBeVisible({timeout:20000})
+ await row.click()
+ await expect(page.locator('[data-detail-root]')).toBeAttached({timeout:20000})
+ const button=page.getByRole('button',{name:/^(Play|Pause) replay$/}).first()
+ await expect(button).toBeAttached({timeout:20000})
+ const slider=page.getByRole('slider',{name:'Scene time within the pass'}).first()
+ await expect(slider).toBeAttached()
+ const min=Number(await slider.getAttribute('min')),max=Number(await slider.getAttribute('max'))
+ expect(max).toBeGreaterThan(min)
+ // Selecting an imaged pass automatically starts the replay. Do not assume
+ // that the initial state must be paused on desktop or mobile.
+ const before=await button.getAttribute('aria-label')
+ expect(['Play replay','Pause replay']).toContain(before)
+ await button.click()
+ await expect(page.getByRole('button',{name:before==='Play replay'?'Pause replay':'Play replay'}).first()).toBeAttached({timeout:12000})
+ // Pause for stable screenshots if this click started playback.
+ if(before==='Play replay')await page.getByRole('button',{name:'Pause replay'}).first().click()
+ await page.screenshot({path:info.outputPath('replay.png'),fullPage:true})
+})
+test('Results time-lapse opens as an overlay without requiring all historical frames',async({page},info)=>{
+ test.setTimeout(145_000)
+ await page.goto(target,{waitUntil:'domcontentloaded'})
+ await expect(page.getByRole('heading',{name:/satellites? watched/i}).first()).toBeVisible({timeout:120_000})
+ const row=page.getByRole('button',{name:/Time-lapse.*This place, year by year/i}).first()
+ await expect(row).toBeAttached({timeout:20000})
+ await row.click()
+ const overlay=page.getByRole('dialog',{name:/Time-lapse of Waterloo/i})
+ await expect(overlay).toBeVisible({timeout:15000})
+ await expect(overlay.getByRole('button',{name:'Close'})).toBeVisible()
+ await page.screenshot({path:info.outputPath('timelapse-loading.png'),fullPage:true})
+ await page.keyboard.press('Escape')
+ await expect(overlay).toHaveCount(0,{timeout:8000})
+})

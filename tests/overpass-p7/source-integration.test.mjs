@@ -1,0 +1,45 @@
+import {test} from 'node:test'
+import assert from 'node:assert/strict'
+import {readFileSync} from 'node:fs'
+import {RECORD,patchContent,patchPreinit,patchStaticCollection,patchApp,patchLabPage,patchSiteModel,patchRealPreviews,patchOptimization} from '../../overpass/scripts/prepare-p7-source.mjs'
+const read=file=>readFileSync(new URL('../../'+file,import.meta.url),'utf8')
+test('P7 record is a proper source-authored geographic instrument with explicit route',()=>{
+ const source=patchContent(read('site/content.js'))
+ assert(source.includes('"ref": "lab:l17"'))
+ assert(source.indexOf('"ref": "lab:l17"')<source.indexOf('"ref": "lab:l14"'))
+ const parsed=JSON.parse(source.slice(source.indexOf('{'),source.indexOf(';\n\n(() =>')))
+ const record=parsed.records.find(x=>x.ref===RECORD.ref)
+ assert.equal(record.data.externalRoute,'/overpass/')
+ assert.equal(record.text.en.title,'OVERPASS')
+ assert.equal(record.text.en.status,'Instrument')
+ assert.equal(record.geography.scope,'global')
+ assert.throws(()=>patchContent(source),/already/)
+})
+test('P7 first-paint static renderer emits a fourteenth card as normal anchor',()=>{
+ const s=patchStaticCollection(read('scripts/lab-static-collection.mjs'))
+ assert(s.includes("'l13', 'l17'"))
+ assert(s.includes('data-instrument-route'))
+ assert(s.includes('href='))
+ assert(s.includes('!== 14'))
+ assert(s.includes('createHash'))
+})
+test('P7 site loader does not turn the external route into an internal instrument modal',()=>{
+ const app=patchApp(read('site/app.js'))
+ const lab=patchLabPage(read('site/lab-page.js'))
+ const model=patchSiteModel(read('site/core/site-model.js'))
+ assert(app.includes('cards.length === 14'))
+ assert(app.includes("P7 incomplete static Lab"))
+ assert(app.includes('OPEN OVERPASS'))
+ assert(lab.includes("card.querySelector('[data-instrument-route]')"))
+ assert(model.includes("record.item.externalRoute + '?from=record'"))
+})
+test('P7 original previews and conditions accept a standalone instrument without changing the original 13 previews',()=>{
+ const preinit=patchPreinit(read('site/lab-copy-preinit.js'))
+ const preview=patchRealPreviews(read('site/lab-real-previews.js'))
+ const optimization=patchOptimization(read('site/lab-optimization.js'))
+ assert(preinit.includes("'overpass'"))
+ assert(preinit.includes('A pass alone')===false)
+ assert(preinit.includes('Pass is not an image'))
+ assert(preview.includes("return 'overpass'"))
+ assert(optimization.includes("trigger.dataset.instrument || 'overpass'"))
+})
