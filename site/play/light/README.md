@@ -138,7 +138,7 @@ Act I retains the three original ablation experiments. After completing them, us
 | Red light disappearing underwater | T(λ,z)=exp(−a_total(λ)z) | absorption path z (0–8 m), 0→5 initially | Absorption-only homogeneous medium; not total diffuse underwater illumination or Kd |
 | Grazing reflection | R_F(θ)=(R_s+R_p)/2 | angle from surface normal (0–85°), 40→75 initially | Smooth air–water surface, unpolarized, n_air=1.00 and n_water=1.34; no waves or glint |
 
-The advanced charts use fractions, not satellite Rrs. The Fresnel plot is wavelength-flat because the model holds refractive index constant. Before and after spectra share the same Y range, and the range slider updates the scene without rebuilding the active control. `PLAY AGAIN` returns to the first three experiments.
+The advanced charts use fractions, not satellite Rrs. Sunset and underwater experiments retain spectra against wavelength. The Fresnel experiment displays reflectance **against incidence angle (0–85°)** because the baseline spectral plot was flat and less informative. Before intervention, the chart shows only the baseline point at 40°. After intervention, it reveals the angle-response curve and a movable selected-angle marker. This curve comes from the same unpolarized Fresnel calculation as the comparison values. Before and after readouts share the same 0–1 range, and sliders update the view without rebuilding the active control. `PLAY AGAIN` returns to the first three experiments.
 
 ### L6 visual design direction
 
