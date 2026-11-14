@@ -92,6 +92,12 @@ test('Stage 4 uniform-area release disk is bounded and enforces source mask',()=
   const collapsed=seedDisk(12,34,0,5,{random:()=>0.7});
   assert.equal(collapsed.accepted,5);
   for(const point of collapsed.points){close(point.lon,12);close(point.lat,34);}
+  // Radial random=1 must land on the spherical-cap boundary, at exactly 300 km.
+  let n=0;
+  const perimeter=seedDisk(0,0,300,1,{random:()=>[1,0][(n++)%2]}).points[0];
+  const ang=Math.acos(Math.min(1,Math.cos(perimeter.lat*Math.PI/180)*
+    Math.cos(perimeter.lon*Math.PI/180)));
+  close(ang*6371.0088,300,1e-7);
   assert.throws(()=>seedDisk(0,0,-1,10),RangeError);
   assert.throws(()=>seedDisk(0,0,10,2.5),RangeError);
 });
