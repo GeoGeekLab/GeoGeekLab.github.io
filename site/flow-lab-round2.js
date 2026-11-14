@@ -219,6 +219,8 @@
     projectionReadout.className = 'flow-projection-readout';
     projectionReadout.innerHTML = '<span>PLATE CARRÉE · 2:1 FIT</span><strong data-flow-ew-scale>EW / NS ×1.00 @ 0°</strong>';
     footer.insertBefore(projectionReadout,zoom||null);
+    const pinned=$('#flSampleReadout',map);
+    if(pinned)footer.insertBefore(pinned,projectionReadout);
 
     const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     overlay.setAttribute('class', 'flow-geo-overlay');
@@ -275,6 +277,13 @@
       if (sourceCard) {
         if (workspace === 'inspect') sourceCard.removeAttribute('aria-hidden');
         else sourceCard.setAttribute('aria-hidden', 'true');
+      }
+      // Focus has no inspector rail. Keep the accessible OD/TRIPS selection
+      // in the visible workbar instead of hiding the only keyboard alternative.
+      if(workspace==='focus'&&['od','trips'].includes(mode())){
+        if(access.parentElement!==bar)bar.append(access);
+      }else if(controlCard&&access.parentElement!==controlCard){
+        controlCard.append(access);
       }
     }
 
@@ -427,7 +436,7 @@
         if(new URL(location.href).searchParams.has('flowTrip'))cleanup.flowTrip=null;
       }
       if(Object.keys(cleanup).length)updateUrl(cleanup);
-      syncAccessibleSelection();renderOverlay();
+      syncAccessibleSelection();syncWorkspace();renderOverlay();
     }
 
     // Native form controls make aria-hidden SVG selections keyboard-accessible.
