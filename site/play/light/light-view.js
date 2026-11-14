@@ -93,7 +93,14 @@
             <text x="12" y="116" class="light-spectrum-zero">0</text>
             <path class="light-spectrum-before"></path>
             <path class="light-spectrum-after"></path>
-            <text x="12" y="137">400</text><text x="248" y="137">550</text><text x="482" y="137">700 nm</text>
+            <g class="light-angle-response-markers" aria-hidden="true">
+              <line class="light-angle-response-guide" x1="245" y1="126" x2="245" y2="124"></line>
+              <circle class="light-angle-baseline-dot" cx="245" cy="123" r="4"></circle>
+              <circle class="light-angle-active-dot" cx="245" cy="123" r="5"></circle>
+            </g>
+            <text class="light-spectrum-x0" x="12" y="137">400</text>
+            <text class="light-spectrum-xmid" x="248" y="137">550</text>
+            <text class="light-spectrum-xmax" x="482" y="137">700 nm</text>
           </svg>
           <div class="light-spectrum-readout"><span class="light-spectrum-probe">—</span><span>BEFORE <b class="light-before-value">—</b></span><span>AFTER <b class="light-after-value">—</b></span><span class="light-change-readout">Δ AFTER − BEFORE <b class="light-change-value">—</b></span></div>
         </section>
@@ -147,6 +154,14 @@
     const probeLabel=root.querySelector('.light-spectrum-probe');
     const spectrumSvg=root.querySelector('.light-spectrum');
     const maxLabel=root.querySelector('.light-spectrum-y-max');
+    const chartTitle=root.querySelector('.light-spectrum-title');
+    const chartCard=root.querySelector('.light-spectrum-card');
+    const xStartLabel=root.querySelector('.light-spectrum-x0');
+    const xMiddleLabel=root.querySelector('.light-spectrum-xmid');
+    const xEndLabel=root.querySelector('.light-spectrum-xmax');
+    const baselineDot=root.querySelector('.light-angle-baseline-dot');
+    const activeDot=root.querySelector('.light-angle-active-dot');
+    const activeGuide=root.querySelector('.light-angle-response-guide');
     const sceneSummary=root.querySelector('.light-scene-summary');
     const phaseAnnouncement=root.querySelector('.light-phase-announcement');
     const sceneFocus=root.querySelector('.light-scene-focus');
