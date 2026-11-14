@@ -374,9 +374,7 @@
     });
 
     syncPreset(root,viewCard);
-    root.addEventListener('click',event=>{
-      if(event.target.closest('[data-layer]'))queueMicrotask(()=>syncPreset(root,viewCard));
-    });
+    root.addEventListener('geogeek:orbit-layers-changed',()=>syncPreset(root,viewCard));
 
     const wheelForward = event => {
       if (event.target === canvas || event.target.closest('.orbit-panel,input,button,a')) return;
