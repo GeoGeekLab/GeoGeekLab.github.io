@@ -1,0 +1,74 @@
+name: OVERPASS / P3 orbit and catalog parity
+
+on:
+  push:
+    branches: [feature/overpass-r3-orbit-parity]
+    paths:
+      - '.github/workflows/overpass-r3.yml'
+      - 'overpass/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog-and-passes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout GeoGeek with the pinned Watched source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install host dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify original source commit and license
+        run: node overpass/scripts/assert-upstream.mjs
+      - name: Install pinned Watched dependencies
+        working-directory: overpass/upstream
+        run: npm ci --no-audit --no-fund
+      - name: Unit test the independent source and epoch audit
+        run: node --test overpass/tests/catalog-parity.test.mjs
+      - name: Compare actual Watched and GeoGeek catalogs and SGP4 rows
+        run: node overpass/scripts/round3-audit.mjs
+      - name: Full original Watched orbit, pass, imagery and UI regression
+        working-directory: overpass/upstream
+        run: npm test
+      - name: Original Watched backend regression
+        working-directory: overpass/upstream
+        run: npm run test:backend
+      - name: GeoGeek existing Build and Lab contracts
+        run: npm run qa:build && npm run qa:lab
+      - name: Reapply P2 visual overlay (no scientific code changes)
+        run: node overpass/scripts/prepare-r2.mjs
+      - name: Watched typecheck and complete isolated production build
+        working-directory: overpass/upstream
+        env:
+          VITE_SITE_ORIGIN: https://geogeeklab.github.io/overpass
+        run: npm run build
+      - name: Validate static build compatibility with /overpass/
+        run: |
+          node overpass/scripts/adapt-dist.mjs
+          node overpass/scripts/smoke-r2.mjs
+      - name: Upload source-coverage, freshness, and SGP4 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-p3-catalog-parity-report
+          path: overpass/reports/r3-catalog-parity.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload isolated complete OVERPASS build (not deployed)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-p3-static-build
+          path: overpass/upstream/dist/
+          if-no-files-found: error
+          retention-days: 14
