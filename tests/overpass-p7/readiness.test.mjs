@@ -18,10 +18,20 @@ test('P7 rollout never calls CI success proof of live-data freshness',()=>{
 })
 test('P7 legal, rollback and static route gates all block missing evidence',()=>{
  const r=evaluate({watched:{stale:false},geoGeek:{stale:false},legal:false,rollback:false,assets:false})
- assert.equal(r.blockers.length,3)
+ assert.equal(r.blockers.length,7)
 })
 test('P7 gate permits release only after all independently verifiable requirements pass',()=>{
- const r=evaluate({watched:{stale:false},geoGeek:{stale:false},legal:true,rollback:true,assets:true})
+ const r=evaluate({watched:{stale:false},geoGeek:{stale:false},legal:true,rollback:true,assets:true,
+  staging:true,mp4:true,providerTerms:true,backendScope:true})
  assert.equal(r.releaseEligible,true)
  assert.equal(r.blockers.length,0)
+})
+
+test('P7 never equates a fresh source catalog with approval for deployment',()=>{
+ const r=evaluate({watched:{stale:false},geoGeek:{stale:false},legal:true,rollback:true,assets:true})
+ assert.equal(r.releaseEligible,false)
+ assert(r.blockers.some(x=>x.includes('staging')))
+ assert(r.blockers.some(x=>x.includes('MP4')))
+ assert(r.blockers.some(x=>x.includes('Provider')))
+ assert(r.blockers.some(x=>x.includes('/api')))
 })
