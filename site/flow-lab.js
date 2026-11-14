@@ -500,7 +500,7 @@ async function mount({signal,stage}={}){
   pauseBtn.addEventListener('click',()=>{state.paused=!state.paused;pauseBtn.textContent=state.paused?'PLAY':'PAUSE';if(!state.paused){last=performance.now();tripLast=last}});
   $('#flReset',stage).addEventListener('click',()=>{const pinned=$('#flSampleReadout',stage);if(pinned)pinned.hidden=true;resetView();state.release=[];state.releaseElapsedSeconds=0;state.tripTime=30;state.simulatedSeconds=0;shell.dataset.simulatedSeconds='0';fieldCarry=0;releaseCarry=0;tripLast=performance.now();const time=$('#flTripTime',stage),out=$('#flTripOut',stage);if(time)time.value='30';if(out)out.textContent='30';seedParticles();renderStatic();updateReleaseStats();clearFx()});
 
-  seedParticles();dynamicControls();resize();if('ResizeObserver'in window){resizer=new ResizeObserver(resize);resizer.observe(map)}pauseBtn.textContent=state.paused?'PLAY':'PAUSE';raf=requestAnimationFrame(tick);
+  seedParticles();dynamicControls();legend.innerHTML=windLegend();sourceLabel.textContent=windMeta.timeLabel;shell.dataset.fieldStyle=state.fieldStyle;resize();if('ResizeObserver'in window){resizer=new ResizeObserver(resize);resizer.observe(map)}pauseBtn.textContent=state.paused?'PLAY':'PAUSE';raf=requestAnimationFrame(tick);
   return()=>{destroyed=true;cancelAnimationFrame(raf);resizer?.disconnect();if(stage.isConnected)stage.innerHTML=''};
 }
 
