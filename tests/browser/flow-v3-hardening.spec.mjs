@@ -170,6 +170,9 @@ test('Stage 6 unmount/remount disconnects frames, observers and workbench handle
   await sources(page);
   await enter(page);
   const stage=page.locator('#instrumentStage');
+  const session=await page.context().newCDPSession(page);
+  await session.send('HeapProfiler.collectGarbage');
+  const beforeHeap=await session.send('Runtime.getHeapUsage');
   for(let cycle=1;cycle<=3;cycle++){
     await expect(page.locator('.flow-lab')).toBeVisible();
     await page.locator('#flMap').focus();
