@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Geographic Flow Laboratory V3",
-  "status": "stage3-map-first-ux-verified",
+  "status": "stage4-field-release-analysis-verified",
   "owner": "Flow V3",
   "fourModes": {
     "field": {
@@ -111,7 +111,11 @@
     "onePlaybackController": "base flow-lab.js owns mode, pause, tripPlay, tripTime and all simulation progression; Round2 never installs a second interval",
     "projection": "Plate Carree fits a true 2:1 world pixel rectangle at all viewport sizes; inverse coordinates reject letterboxed margins",
     "flowSelection": "OD place and TRIPS teaching track selection support keyboard-accessible native selects in WORK, INSPECT and FOCUS",
-    "pinnedSample": "Touch or keyboard sample yields a visible map-footer readout in every workspace mode"
+    "pinnedSample": "Touch or keyboard sample yields a visible map-footer readout in every workspace mode",
+    "releaseIntegrator": "Euler/RK2/RK4 steps use one sampled frozen field and check all intermediate points for domain validity",
+    "releaseClock": "elapsed release time advances only with active seeds, and resets when the experiment is cleared",
+    "releaseUncertainty": "spherical-cap seed spread represents chosen initial conditions only; it is not quantified forecast uncertainty",
+    "windColor": "speed color is a fixed 0–30+ metres/second quantitative scale; model color has no observational or uncertainty meaning"
   },
   "uiTargets": {
     "mapControlOverlayFractionMax": 0.08,
@@ -165,7 +169,7 @@
     "stage1": "baseline-passed",
     "stage2": "scientific-core-ci-verified",
     "stage3": "workbench-ci-verified",
-    "stage4": "pending",
+    "stage4": "numeric-and-browser-ci-verified",
     "stage5": "pending",
     "stage6": "pending",
     "stage7": "pending"
@@ -189,6 +193,16 @@
         "900×980",
         "390×844"
       ]
+    },
+    "stage4": {
+      "runUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43561173094",
+      "browser": "37 passed, 1 desktop-only touch skip",
+      "numeric": "26 Node tests, 0 failures",
+      "modes": [
+        "field",
+        "release"
+      ],
+      "evidenceArtifact": "flow-v3-stage4-evidence"
     }
   }
 }
