@@ -692,7 +692,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     const filter=e.target.closest('[data-filter]');if(filter){setFilter(filter.dataset.filter);return;}
     const scale=e.target.closest('[data-scale]');if(scale){applyRadialMode(scale.dataset.scale);return;}
     const view=e.target.closest('[data-view]');if(view){setView(view.dataset.view);return;}
-    const layer=e.target.closest('[data-layer]');if(layer){const key=layer.dataset.layer;state.layers[key]=!state.layers[key];layer.classList.toggle('is-active',state.layers[key]);layer.setAttribute('aria-pressed',String(state.layers[key]));if(key==='graticule')graticule.visible=state.layers[key];if(key==='shells')shellGroup.visible=state.layers[key];applyTraceVisibility();drawGroundMap(groundCanvas,state,state.coastRings);}
+    const layer=e.target.closest('[data-layer]');if(layer){const key=layer.dataset.layer;state.layers[key]=!state.layers[key];layer.classList.toggle('is-active',state.layers[key]);layer.setAttribute('aria-pressed',String(state.layers[key]));if(key==='graticule')graticule.visible=state.layers[key];if(key==='shells')shellGroup.visible=state.layers[key];applyTraceVisibility();drawGroundMap(groundCanvas,state,state.coastRings);$('.orbit-v2',container)?.dispatchEvent(new Event('geogeek:orbit-layers-changed'));}
   });
   $('#orbitResetView',container).addEventListener('click',()=>{state.followSelected=false;updateTrackUi();setView('equator');state.camera.distance=state.radial==='physical'?18:3.35;setCameraFromState(camera,state);});
   $('#orbitFocus',container).addEventListener('click',()=>centerSelected(true));
