@@ -28,7 +28,13 @@
 
   function formatValue(value,unit) {
     if (unit==='sr⁻¹') return Number(value).toExponential(2);
+    if (unit==='fraction' && value>0 && value<.0005) return Number(value).toExponential(2);
     return Number(value).toFixed(3);
+  }
+
+  function formatParameter(value,config) {
+    const decimals=String(config.step).split('.')[1]?.length||0;
+    return `${Number(value).toFixed(decimals)} ${config.unit}`;
   }
 
   function create({shell,content,callbacks}={}) {
@@ -286,7 +292,7 @@
           const explorer=document.createElement('div');
           explorer.className='light-explorer';
           explorer.innerHTML=`
-            <div class="light-explorer-top"><label for="lightExploreControl">${config.label}</label><output class="light-explore-live" for="lightExploreControl">${snapshot.exploreValue} ${config.unit}</output></div>
+            <div class="light-explorer-top"><label for="lightExploreControl">${config.label}</label><output class="light-explore-live" for="lightExploreControl">${formatParameter(snapshot.exploreValue,config)}</output></div>
             <input type="range" id="lightExploreControl" min="${config.min}" max="${config.max}" step="${config.step}" value="${snapshot.exploreValue}" aria-label="${config.label}" />
             <div class="light-explorer-scale"><span>${config.min} ${config.unit}</span><span>${config.max} ${config.unit}</span></div>`;
           explorer.querySelector('input').addEventListener('input',event=>callbacks.onExplore(Number(event.target.value)));
@@ -338,7 +344,7 @@
       const experimentConfig=snapshot.experiment?.intervention;
       const variableValue=snapshot.phase==='revealed'&&snapshot.interventionId?scene.visualValue:experimentConfig?.baseline;
       mechanismReadout.textContent=experimentConfig
-        ?`${experimentConfig.label} / ${Number(variableValue).toFixed(experimentConfig.step<1?1:0)} ${experimentConfig.unit}`
+        ?`${experimentConfig.label} / ${formatParameter(variableValue,experimentConfig)}`
         :`${pathTitle[focusedPath]||'THREE PATHS'} / ${snapshot.phase==='revealed'?'CHANGED':'BASELINE'}`;
       mechanismReadout.parentElement.hidden=snapshot.phase==='complete';
       evidenceTarget.textContent=focusedPath==='none'?'Three distinct optical paths':pathTitle[focusedPath];
@@ -346,7 +352,7 @@
         ?'has no scattered-sky source'
         :(scene.mechanisms.surfaceReflection?'present':'removed');
       sceneSummary.textContent=experimentConfig
-        ?`Conceptual geometry, not a solved light field. ${experimentConfig.label} is ${Number(variableValue).toFixed(experimentConfig.step<1?1:0)} ${experimentConfig.unit}. ${snapshot.experiment.limit}`
+        ?`Conceptual geometry, not a solved light field. ${experimentConfig.label} is ${formatParameter(variableValue,experimentConfig)}. ${snapshot.experiment.limit}`
         :`Conceptual scene. Scattered sky ${scene.mechanisms.atmosphericScattering?'present':'removed'}; reflected-sky surface path ${reflectedSkyStatus}; water-leaving path ${scene.mechanisms.waterBackscatter?'present':'removed'}. Display color and geometry are illustrative.`;
 
       sky.classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
@@ -412,7 +418,7 @@
       if (snapshot.experiment) renderSpectrum(snapshot,scene);
       if (meta?.type==='explore') {
         const output=shell.overlay.querySelector('.light-explore-live');
-        if (output) output.textContent=`${Number(snapshot.exploreValue).toFixed(experimentConfig?.step<1?1:0)} ${experimentConfig?.unit||''}`;
+        if (output) output.textContent=`${formatParameter(snapshot.exploreValue,experimentConfig)}`;
       } else renderPanel(snapshot);
     }
 
