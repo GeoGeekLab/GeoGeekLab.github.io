@@ -228,3 +228,12 @@ Stage 2 acceptance is conditional on the green CI run for the latest PR head. Do
 5. Audit keyboard/focus lifecycle, screen-reader status repetition, native tap target sizes and the mobile analytical panel's vertical density.
 6. Add controlled source-failure, cache invalidation, stress, viewport and numeric regression tests. Preserve all Stage 1–5 suites and workflow evidence.
 7. Stay on `feat/flow-lab-v3` and Draft PR #200. Stage 6 does **not** merge; Stage 7 owns final approval, main synchronization, merge and deployment validation.
+
+
+### Final main drift addendum (Stage 5 closeout)
+
+A second main commit landed during Stage 5 validation. Current inspected `main` is **`64b6a281d345bd6dc9b92698d252ba419a1f4ed0`**. Relative to the original V3 base, the two main-only commits modify Light instrument files, two lines of `site/lab.html`, and `.github/workflows/pages.yml`. The latest commit pins the Pages build runner to `ubuntu-24.04` because the previously floating `ubuntu-latest` image was incompatible with the pinned Playwright release. No Flow runtime file was altered by these two main-only commits.
+
+**Stage 7 guardrail:** refresh the merge base against current main and validate the release/Pages workflow, not just the standalone Flow PR workflow. Do not assume the original Stage 1 base SHA remains suitable for a merge.
+
+**Final Stage 5 PR head before this addendum:** `45e08b369335126307fff13787fa61b23f17dbf8`. [Flow V3 Movement Acceptance final-head run 43564501860](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43564501860) passed with **35 Node tests, 0 failures; 45 browser passes, 1 platform-specific skip**. A new HEAD is created by this addendum and its CI must be rechecked before marking the entire handoff verified.
