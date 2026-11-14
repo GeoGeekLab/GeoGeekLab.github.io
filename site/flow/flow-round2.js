@@ -2,7 +2,7 @@
 // Round2 provides geometry/UX overlays only; it does not own a timer.
 const VERSION = '20261114-flow-v3-s2';
 
-await import(new URL('../flow-lab-round2.js?v=20261114-flow-v3-s5',import.meta.url).href);
+await import(new URL('../flow-lab-round2.js?v=20261114-flow-v3-s6',import.meta.url).href);
 
 function rewriteText(root) {
   if(!root)return;
