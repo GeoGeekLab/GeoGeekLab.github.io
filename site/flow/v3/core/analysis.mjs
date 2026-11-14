@@ -66,9 +66,11 @@ export function seedDisk(lon,lat,radiusKm,count,{random=Math.random,valid=()=>tr
   const deg=Math.PI/180,lat1=lat*deg,lon1=lon*deg;
   while(points.length<count&&attempts<maxAttempts){
     attempts++;
-    const distance=radiusKm*Math.sqrt(Math.max(0,Math.min(1,random())));
+    // A uniform spherical cap samples cos(angular distance) uniformly.
+    const radial=Math.max(0,Math.min(1,random()));
+    const delta=Math.acos(Math.max(-1,Math.min(1,
+      1-radial*(1-Math.cos(radiusKm/EARTH_RADIUS_KM)))));
     const bearing=2*Math.PI*Math.max(0,Math.min(1,random()));
-    const delta=distance/EARTH_RADIUS_KM;
     const lat2=Math.asin(Math.max(-1,Math.min(1,
       Math.sin(lat1)*Math.cos(delta)+Math.cos(lat1)*Math.sin(delta)*Math.cos(bearing))));
     const lon2=lon1+Math.atan2(Math.sin(bearing)*Math.sin(delta)*Math.cos(lat1),
