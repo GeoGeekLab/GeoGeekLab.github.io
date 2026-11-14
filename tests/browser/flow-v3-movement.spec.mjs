@@ -72,7 +72,7 @@ test('Stage 5 TRIPS marks authored samples separately from interpolated great-ci
   await expect(page.locator('[data-trip-distance]')).toContainText('km');
   await expect(page.locator('[data-trip-spacing]')).toHaveText('18');
   await expect(analysis).toContainText('not UTC');
-  await expect(analysis).toContainText('not measured distance traveled');
+  await expect(analysis).toContainText('not a measured distance traveled');
   await expect(page.locator('.flow-segment-list>div')).toHaveCount(4);
   await expect(page.locator('.flow-geo-overlay [data-flow-sample-trip="0"]')).toHaveCount(5);
   await expect(page.locator('.flow-trip-sample-legend')).toContainText('authored teaching sample');
