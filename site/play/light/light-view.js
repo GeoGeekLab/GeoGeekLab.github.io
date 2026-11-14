@@ -64,6 +64,13 @@
             <path class="light-ray light-ray-surface" d="M540 282 C645 220 735 205 835 176"></path>
             <path class="light-ray light-ray-water" d="M540 286 C520 362 500 410 465 455 C535 423 620 370 704 306"></path>
             <path class="light-ray light-ray-depth" d="M540 285 C546 354 563 406 581 499"></path>
+            <g class="light-incidence-guide">
+              <path class="light-angle-normal" d="M540 184 L540 375"></path>
+              <path class="light-angle-arc"></path>
+              <text class="light-angle-label" x="590" y="220">θ = 40°</text>
+              <text class="light-normal-label" x="549" y="191">NORMAL</text>
+            </g>
+            <text class="light-depth-label" x="560" y="335">0.00 m</text>
           </svg>
           <div class="light-scene-caption"><span class="light-scene-focus">PATH UNDER TEST</span><span>ILLUSTRATIVE PATHS · NOT TO SCALE</span></div>
           <div class="light-mechanism-readout" aria-hidden="true"><span>ACTIVE VARIABLE</span><strong>—</strong></div>
@@ -152,6 +159,9 @@
     const mechanismReadout=root.querySelector('.light-mechanism-readout strong');
     const directPath=root.querySelector('.light-ray-direct');
     const depthPath=root.querySelector('.light-ray-depth');
+    const angleArc=root.querySelector('.light-angle-arc');
+    const angleLabel=root.querySelector('.light-angle-label');
+    const depthLabel=root.querySelector('.light-depth-label');
     const pathForMechanism=Object.freeze({
       atmosphericScattering:'atmosphere',
       surfaceReflection:'surface',
@@ -381,6 +391,14 @@
           const endpointY=282-250*Math.cos(rad);
           root.querySelector('.light-ray-surface').setAttribute('d',
             `M540 282 L${endpointX.toFixed(1)} ${endpointY.toFixed(1)}`);
+          // The incidence arc measures θ from the surface normal.
+          const arcRadius=55;
+          const arcEndX=540+arcRadius*Math.sin(rad);
+          const arcEndY=282-arcRadius*Math.cos(rad);
+          angleArc.setAttribute('d',`M540 ${282-arcRadius} A${arcRadius} ${arcRadius} 0 0 1 ${arcEndX.toFixed(1)} ${arcEndY.toFixed(1)}`);
+          angleLabel.setAttribute('x',(540+78*Math.sin(rad/2)).toFixed(1));
+          angleLabel.setAttribute('y',(282-78*Math.cos(rad/2)).toFixed(1));
+          angleLabel.textContent=`θ ${angleDeg.toFixed(0)}°`;
         }
       } else {
         directPath.setAttribute('d','M770 70 C690 150 610 220 540 282');
@@ -390,6 +408,9 @@
       root.style.setProperty('--light-sunset-strength',String(sunsetStrength));
       const depthLength=mode==='depth' && snapshot.interventionId==='depth'?Number(scene.visualValue):0;
       depthPath.setAttribute('d',`M540 285 L${(540+depthLength*5).toFixed(1)} ${(285+depthLength*25).toFixed(1)}`);
+      depthLabel.setAttribute('x',(555+depthLength*5).toFixed(1));
+      depthLabel.setAttribute('y',(285+depthLength*25).toFixed(1));
+      depthLabel.textContent=`${depthLength.toFixed(2)} m`;
       depthPath.classList.toggle('is-off',mode!=='depth');
       depthPath.style.opacity=mode==='depth'&&depthLength>0?String(Math.max(.28,1-depthLength/12)):'0';
       root.style.setProperty('--light-depth-strength',String(Math.min(.85,depthLength/9)));
