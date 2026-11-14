@@ -36,7 +36,7 @@
 
     shell.viewport.innerHTML=`
       <div class="light-stage">
-        <section class="light-world" aria-label="Conceptual light-path scene">
+        <section class="light-world" aria-label="Conceptual light-path scene" aria-describedby="lightSceneSummary">
           <div class="light-sky" aria-hidden="true">
             <span class="light-sun"></span>
             <span class="light-sky-note">ATMOSPHERE</span>
@@ -58,29 +58,32 @@
             <path class="light-ray light-ray-surface" d="M540 282 C645 220 735 205 835 176"></path>
             <path class="light-ray light-ray-water" d="M540 286 C520 362 500 410 465 455 C535 423 620 370 704 306"></path>
           </svg>
-          <div class="light-scene-caption">ILLUSTRATIVE LIGHT PATHS <span>NOT TO SCALE</span></div>
+          <div class="light-scene-caption"><span class="light-scene-focus">PATH UNDER TEST</span><span>ILLUSTRATIVE PATHS · NOT TO SCALE</span></div>
           <div class="light-path-legend" aria-label="Light path status">
             <span data-path="atmosphere">SCATTERED SKY</span>
             <span data-path="surface">SURFACE REFLECTION</span>
             <span data-path="water">WATER-LEAVING</span>
           </div>
           <span class="light-display-note">DISPLAY COLOR / ILLUSTRATIVE</span>
+          <p class="light-scene-summary" id="lightSceneSummary"></p>
         </section>
 
         <section class="light-spectrum-card" aria-label="Spectral consequence">
           <header><span class="light-spectrum-title">SPECTRUM</span><strong class="light-spectrum-mode">—</strong></header>
           <svg class="light-spectrum" viewBox="0 0 520 138" preserveAspectRatio="none" role="img" aria-label="Before and after spectrum">
             <line x1="12" y1="126" x2="508" y2="126" class="light-axis"></line>
+            <text x="508" y="13" text-anchor="end" class="light-spectrum-y-max">MAX —</text>
+            <text x="12" y="116" class="light-spectrum-zero">0</text>
             <path class="light-spectrum-before"></path>
             <path class="light-spectrum-after"></path>
             <text x="12" y="137">400</text><text x="248" y="137">550</text><text x="482" y="137">700 nm</text>
           </svg>
-          <div class="light-spectrum-readout"><span class="light-spectrum-probe">—</span><span>BEFORE <b class="light-before-value">—</b></span><span>AFTER <b class="light-after-value">—</b></span></div>
+          <div class="light-spectrum-readout"><span class="light-spectrum-probe">—</span><span>BEFORE <b class="light-before-value">—</b></span><span>AFTER <b class="light-after-value">—</b></span><span class="light-change-readout">Δ AFTER − BEFORE <b class="light-change-value">—</b></span></div>
         </section>
       </div>`;
 
     shell.hud.innerHTML=`
-      <div class="light-evidence-head"><small>LIGHT / OPTICAL EVIDENCE</small><strong>Three optical mechanisms</strong></div>
+      <div class="light-evidence-head"><small>LIGHT / OPTICAL EVIDENCE</small><strong class="light-evidence-target">Three optical mechanisms</strong></div>
       <div class="light-evidence-meta">
         <div class="light-hud-block"><span>EXPERIMENT</span><strong class="light-hud-count">01 / 03</strong></div>
         <div class="light-hud-block"><span>MODEL</span><strong>PATH ABLATION</strong></div>
@@ -88,9 +91,26 @@
       <div class="light-evidence-legend-title">PATH STATUS / CONCEPTUAL</div>
       <div class="light-evidence-legend"></div>
       <div class="light-evidence-spectrum"></div>
-      <p class="light-evidence-limit">Scene geometry and color are illustrative. Sky and surface curves are relative teaching models. Only the water experiment shows modeled Rrs (sr⁻¹). TOA radiance is not modeled.</p>`;
+      <details class="light-evidence-method"><summary>MODEL SCOPE <span>VIEW LIMITS</span></summary><p class="light-evidence-limit">Scene geometry and color are illustrative. Sky and surface curves are relative teaching models. Only the water experiment shows modeled Rrs (sr⁻¹). TOA radiance is not modeled.</p></details>
+      <p class="light-phase-announcement" role="status" aria-live="polite" aria-atomic="true"></p>`;
 
     const root=shell.root;
+    // Desktop-only instrument. The notice replaces the experiments on narrow
+    // screens and coarse-pointer devices without changing the science state.
+    const desktopGate=document.createElement('section');
+    desktopGate.className='light-desktop-gate';
+    desktopGate.setAttribute('aria-labelledby','lightDesktopGateTitle');
+    desktopGate.innerHTML=`
+      <span class="light-desktop-gate-index">GEOGEEK / LAB / PLAY / L15</span>
+      <div class="light-desktop-gate-rule" aria-hidden="true"></div>
+      <p class="light-desktop-gate-kicker">DESKTOP EXPERIENCE</p>
+      <h2 id="lightDesktopGateTitle">Open Light on a desktop.</h2>
+      <p>Light uses a wide scene and a separate evidence panel. Please open this page on a computer to explore the three experiments.</p>
+      <p lang="zh-CN">本实验仅面向桌面端。请使用电脑浏览器打开相同链接。</p>
+      <a class="light-desktop-gate-link" href="/lab.html">RETURN TO LAB <span aria-hidden="true">↗</span></a>
+      <span class="light-desktop-gate-foot">SCATTERING / BACKSCATTER / REFLECTION</span>`;
+    root.append(desktopGate);
+
     const sky=root.querySelector('.light-sky');
     const ocean=root.querySelector('.light-ocean');
     const reflection=root.querySelector('.light-surface-reflection');
@@ -100,8 +120,25 @@
     const spectrumMode=root.querySelector('.light-spectrum-mode');
     const beforeValue=root.querySelector('.light-before-value');
     const afterValue=root.querySelector('.light-after-value');
+    const changeValue=root.querySelector('.light-change-value');
     const probeLabel=root.querySelector('.light-spectrum-probe');
     const spectrumSvg=root.querySelector('.light-spectrum');
+    const maxLabel=root.querySelector('.light-spectrum-y-max');
+    const sceneSummary=root.querySelector('.light-scene-summary');
+    const phaseAnnouncement=root.querySelector('.light-phase-announcement');
+    const sceneFocus=root.querySelector('.light-scene-focus');
+    const evidenceTarget=root.querySelector('.light-evidence-target');
+    const pathForMechanism=Object.freeze({
+      atmosphericScattering:'atmosphere',
+      surfaceReflection:'surface',
+      waterBackscatter:'water'
+    });
+    const pathTitle=Object.freeze({
+      atmosphere:'SCATTERED SKY',
+      surface:'SURFACE REFLECTION',
+      water:'WATER-LEAVING SIGNAL'
+    });
+    let announcedPhase=null;
     const count=root.querySelector('.light-hud-count');
     const desktopQuery=window.matchMedia('(min-width:1024px)');
     // Move existing presentation elements, not data or experiment logic.
@@ -128,6 +165,10 @@
       beforePath.setAttribute('d',pathD(chart.before,520,138,domainMax));
       afterPath.setAttribute('d',pathD(chart.after,520,138,domainMax));
       spectrumSvg.dataset.yMax=String(domainMax);
+      maxLabel.textContent=`MAX ${formatValue(domainMax,chart.unit)}`;
+      const revealed=snapshot.phase==='revealed'||snapshot.phase==='complete';
+      root.dataset.lightCompare=revealed?'revealed':'baseline';
+      spectrumSvg.setAttribute('aria-label',revealed?'Before and after spectra on the same vertical scale':'Baseline spectrum; result is hidden until reveal');
       spectrumMode.textContent=snapshot.experiment?.chartLabel || '—';
       const wavelengths=chart.wavelengthNm || [];
       const probeIndex=wavelengths.length
@@ -137,21 +178,38 @@
       const probeNm=wavelengths[probeIndex]??550;
       probeLabel.textContent=`${probeNm} NM · ${chart.unit==='sr⁻¹'?'Rrs / sr⁻¹':'RELATIVE'}`;
       beforeValue.textContent=formatValue(chart.before[probeIndex]??0,chart.unit);
-      afterValue.textContent=formatValue(chart.after[probeIndex]??0,chart.unit);
+      afterValue.textContent=revealed?formatValue(chart.after[probeIndex]??0,chart.unit):'PENDING';
+      changeValue.textContent=revealed?formatValue(chart.after[probeIndex]-chart.before[probeIndex],chart.unit):'—';
     }
 
-    function button(label,onClick,{secondary=false,disabled=false}={}) {
+    function button(label,onClick,{secondary=false,disabled=false,action=null}={}) {
       const node=document.createElement('button');
       node.type='button';
       node.className=`light-action${secondary?' is-secondary':''}`;
       node.textContent=label;
       node.disabled=disabled;
+      if (action) node.dataset.lightAction=action;
       node.addEventListener('click',onClick);
       return node;
     }
 
+    function restorePanelFocus(panel,previousAction) {
+      if (!previousAction) return;
+      const nextAction=previousAction==='commit'?'perturb'
+        :previousAction==='perturb'?'next'
+        :previousAction==='next'||previousAction==='restart'?'first-choice'
+        :previousAction;
+      if (nextAction==='first-choice') shell.overlay.scrollTop=0;
+      const controls=[...panel.querySelectorAll('[data-light-action]')];
+      const target=nextAction==='first-choice'
+        ?controls.find(control=>control.classList.contains('light-choice'))||controls[0]
+        :controls.find(control=>control.dataset.lightAction===nextAction)||controls.find(control=>!control.disabled);
+      target?.focus({preventScroll:true});
+    }
+
     function renderPanel(snapshot) {
       const exp=snapshot.experiment;
+      const previousAction=shell.overlay.contains(document.activeElement)?document.activeElement?.dataset.lightAction:null;
       shell.overlay.innerHTML='';
       const panel=document.createElement('section');
       panel.className='light-panel';
@@ -161,8 +219,9 @@
           <h2>ONE COLOR. MULTIPLE PATHS.</h2>
           <p>Sky scattering, surface reflection, and water-leaving radiance are different mechanisms. Removing one does not remove the others.</p>
           <div class="light-limit">WATER / QUANTITATIVE Rrs · ATMOSPHERE + SURFACE / TEACHING MODELS</div>`;
-        panel.appendChild(button('PLAY AGAIN',callbacks.onRestart));
+        panel.appendChild(button('PLAY AGAIN',callbacks.onRestart,{action:'restart'}));
         shell.overlay.appendChild(panel);
+        restorePanelFocus(panel,previousAction);
         return;
       }
 
@@ -173,20 +232,20 @@
         choices.className='light-choices';
         exp.choices.forEach(choice=>{
           const selected=snapshot.selection===choice.id;
-          const choiceButton=button(choice.label,()=>callbacks.onSelect(choice.id),{secondary:!selected});
+          const choiceButton=button(choice.label,()=>callbacks.onSelect(choice.id),{secondary:!selected,action:`choice-${choice.id}`});
           choiceButton.classList.add('light-choice');
           choiceButton.setAttribute('aria-pressed',String(selected));
           choices.appendChild(choiceButton);
         });
         panel.appendChild(choices);
-        panel.appendChild(button('COMMIT PREDICTION',callbacks.onCommit,{disabled:!snapshot.selection}));
+        panel.appendChild(button('COMMIT PREDICTION',callbacks.onCommit,{disabled:!snapshot.selection,action:'commit'}));
       } else if (snapshot.phase==='committed') {
         const committed=document.createElement('div');
         committed.className='light-committed';
         const selected=exp.choices.find(choice=>choice.id===snapshot.selection)?.label || '—';
         committed.innerHTML=`<small>YOUR PREDICTION</small><strong>${selected}</strong>`;
         panel.appendChild(committed);
-        panel.appendChild(button(exp.action,callbacks.onPerturb));
+        panel.appendChild(button(exp.action,callbacks.onPerturb,{action:'perturb'}));
       } else if (snapshot.phase==='revealed') {
         panel.classList.add(snapshot.correct?'is-correct':'is-revised');
         panel.innerHTML+=`
@@ -194,19 +253,36 @@
           <p>${exp.reveal}</p>
           <code>${exp.equation}</code>
           <div class="light-limit">${exp.limit}</div>`;
-        panel.appendChild(button(snapshot.index===snapshot.total-1?'FINISH TRACE':'NEXT EXPERIMENT',callbacks.onNext));
+        panel.appendChild(button(snapshot.index===snapshot.total-1?'FINISH TRACE':'NEXT EXPERIMENT',callbacks.onNext,{action:'next'}));
       }
       shell.overlay.appendChild(panel);
+      restorePanelFocus(panel,previousAction);
     }
 
     function render(snapshot,scene) {
       shell.setState(snapshot.phase);
-      shell.setStatus(snapshot.phase==='revealed'?'MECHANISM REMOVED':snapshot.phase==='complete'?'TRACE COMPLETE':'NORMAL WORLD');
+      shell.setStatus(snapshot.phase==='revealed'?'MECHANISM REMOVED':snapshot.phase==='complete'?'TRACE COMPLETE':snapshot.phase==='committed'?'PREDICTION LOCKED':'NORMAL WORLD');
+      const currentPhase=`${snapshot.index}:${snapshot.phase}`;
+      if (currentPhase!==announcedPhase) {
+        announcedPhase=currentPhase;
+        phaseAnnouncement.textContent=snapshot.phase==='complete'?'All three experiments complete. Play again to restart.'
+          :snapshot.phase==='committed'?'Prediction locked. Remove the selected mechanism to reveal its effect.'
+          :snapshot.phase==='revealed'?`${snapshot.experiment.revealTitle} Before and after spectra are now available.`
+          :`Experiment ${snapshot.index+1} of ${snapshot.total}. ${snapshot.experiment.title}`;
+      }
       count.textContent=`${String(Math.min(snapshot.index+1,snapshot.total)).padStart(2,'0')} / ${String(snapshot.total).padStart(2,'0')}`;
 
       root.dataset.atmosphericScattering=scene.mechanisms.atmosphericScattering?'on':'off';
       root.dataset.waterBackscatter=scene.mechanisms.waterBackscatter?'on':'off';
       root.dataset.surfaceReflection=scene.mechanisms.surfaceReflection?'on':'off';
+      const focusedPath=snapshot.phase==='complete'?'none':(pathForMechanism[snapshot.experiment?.mechanism]||'none');
+      root.dataset.lightFocus=focusedPath;
+      sceneFocus.textContent=focusedPath==='none'?'THREE PATHS · ONE VISIBLE WORLD':`UNDER TEST / ${pathTitle[focusedPath]}`;
+      evidenceTarget.textContent=focusedPath==='none'?'Three distinct optical paths':pathTitle[focusedPath];
+      const reflectedSkyStatus=!scene.mechanisms.atmosphericScattering && scene.mechanisms.surfaceReflection
+        ?'has no scattered-sky source'
+        :(scene.mechanisms.surfaceReflection?'present':'removed');
+      sceneSummary.textContent=`Conceptual scene. Scattered sky ${scene.mechanisms.atmosphericScattering?'present':'removed'}; reflected-sky surface path ${reflectedSkyStatus}; water-leaving path ${scene.mechanisms.waterBackscatter?'present':'removed'}. Display color and geometry are illustrative.`;
 
       sky.classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
       ocean.style.setProperty('--light-water-color',scene.waterColor.css);
@@ -217,6 +293,8 @@
       root.querySelector('.light-ray-atmosphere').classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
       root.querySelector('.light-ray-surface').classList.toggle('is-off',!surfaceContribution);
       root.querySelector('.light-ray-water').classList.toggle('is-off',!scene.mechanisms.waterBackscatter);
+      [['atmosphere','.light-ray-atmosphere'],['surface','.light-ray-surface'],['water','.light-ray-water']]
+        .forEach(([id,selector])=>root.querySelector(selector).classList.toggle('is-focus',focusedPath===id));
       [
         ['atmosphere','SCATTERED SKY',scene.mechanisms.atmosphericScattering],
         ['surface','SURFACE REFLECTION',surfaceContribution],
@@ -224,7 +302,13 @@
       ].forEach(([id,label,active])=>{
         const item=root.querySelector(`[data-path="${id}"]`);
         item.classList.toggle('is-off',!active);
-        item.textContent=`${label} · ${active?'PRESENT':'REMOVED'}`;
+        item.classList.toggle('is-focus',focusedPath===id);
+        if (focusedPath===id) item.setAttribute('aria-current','step');
+        else item.removeAttribute('aria-current');
+        const pathStatus=id==='surface' && !scene.mechanisms.atmosphericScattering && scene.mechanisms.surfaceReflection
+          ?'NO SKY SOURCE'
+          :(active?'PRESENT':'REMOVED');
+        item.textContent=`${label} · ${pathStatus}`;
       });
 
       if (snapshot.experiment) renderSpectrum(snapshot,scene);

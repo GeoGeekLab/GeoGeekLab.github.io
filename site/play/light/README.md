@@ -36,6 +36,8 @@ That engine provides quantitative, idealized above-water `Rrs(λ)` from 400–70
 
 Light does not duplicate that model.
 
+The Water model has been numerically tested, but Light does not claim that its rendered Rrs is an independently validated field observation.
+
 The atmosphere path is deliberately limited to a normalized Rayleigh spectral shape:
 
 ```text
@@ -56,6 +58,34 @@ It does not model wind roughness, sunglint geometry, whitecaps, polarization, or
 When atmospheric scattering is removed, the reflected-sky contribution also becomes zero because its source field is absent. The surface reflection mechanism itself is not disabled.
 
 The `waterBackscatter = off` state is a mechanism-ablation thought experiment. It forces the displayed water-leaving spectrum to zero. It does not create an accepted natural-water state inside the Water as Spectrum engine.
+
+## Reveal and evidence behavior
+
+- The after-perturbation trace and its numeric readout remain concealed until the user commits a prediction and removes the mechanism.
+- Before and after traces use one unchanged, zero-aligned vertical scale. The chart shows its upper bound and distinguishes the two traces by line style as well as color.
+- The prediction, intervention, and next-experiment controls preserve keyboard focus across panel re-renders.
+- Short live status messages announce phase transitions; the conceptual scene also has a text description.
+- In the surface experiment, surface reflection and modeled water-leaving radiance remain separate physical paths. The relative surface teaching signal cannot be numerically added to Rrs (sr⁻¹) without an explicit common radiometric model.
+
+## L3 desktop interaction and device policy
+
+Light is intentionally **desktop-only**. The three experiments retain the
+existing desktop three-zone composition: question, conceptual optical field,
+and numerical evidence.
+
+The active mechanism is highlighted consistently in the optical path and its
+legend. After ablation, that path remains as a faint dashed outline. The other
+paths retain their own statuses. These changes visualize path presence, not
+new radiative-transfer calculations.
+
+On phone-width viewports (780 CSS px and below) and touch-first/coarse-pointer
+devices, Light displays a short notice asking visitors to open the same URL in
+a desktop browser. The interactive experiment, HUD and scene are hidden.
+The notice provides a Return to Lab link. Resizing back to a supported desktop
+view does not reset the current experiment state.
+
+The mobile view is **not a feature target**. Do not build a parallel mobile
+experiment interface without an explicit future product decision.
 
 ## Display color
 
@@ -84,3 +114,16 @@ npm run qa:browser -- light-play.spec.mjs
 ```
 
 The production preview pipeline also captures `assets/lab/previews/light.jpg`.
+
+## L4 desktop evidence refinement
+
+- The evidence rail displays a signed `Δ = AFTER − BEFORE` at 550 nm only after the mechanism intervention is revealed.
+- It uses the same unit as the active teaching curve (relative sky/surface; sr⁻¹ water) and never combines unrelated physical paths.
+- The delta resets to hidden when the next experiment starts. The physics model and prediction state are unchanged.
+
+## L5 compact desktop evidence readability
+
+- The spectral range maximum sits at the top-right of the SVG instead of overlapping the high end of the curve.
+- The right rail displays a native keyboard-accessible **MODEL SCOPE / VIEW LIMITS** disclosure. Its full model qualification is available without occupying the small 1366×768 default reading area.
+- Removed-path labels stay legible; dashed swatches and explicit **REMOVED** / **NO SKY SOURCE** statuses carry the meaning without strike-through.
+- The rail retains native vertical scrolling when the disclosure is open. The conceptual scene and task area keep their desktop dimensions.
