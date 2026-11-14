@@ -346,6 +346,13 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
       }else if(controlCard&&access.parentElement!==controlCard){
         controlCard.append(access);
       }
+      // Move the SAME native timeline; never clone it or start a second clock.
+      const activeTimeline=dynamic.querySelector('.flow-timeline');
+      const docked=bar.querySelector('.flow-timeline');
+      if(mode()!=='trips'){docked?.remove();}
+      else if(workspace==='focus'){
+        if(activeTimeline){docked?.remove();bar.append(activeTimeline);}
+      }else if(docked)dynamic.prepend(docked);
     }
 
     function restoreBaseGeometry() {
@@ -397,7 +404,26 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
         circle.setAttribute('fill', trip.color === 'warm' ? '#e57449' : '#f1efe7');
         circle.setAttribute('data-flow-trip-head', id);
         if (String(id) !== selectedTrip && selectedTrip) circle.classList.add('is-dim');
+        const status=tripPosition(trip,time);
+        circle.dataset.flowPositionKind=status.sampled?'sampled':status.clamped?'clamped':'interpolated';
         overlay.appendChild(circle);
+        // Distinct hollow markers are authored teaching samples, never interpolated points.
+        if(!selectedTrip||String(id)===selectedTrip){
+          trip.pts.forEach((sample,index)=>{
+            const xy=projection.project(sample[0],sample[1]);
+            const marker=document.createElementNS('http://www.w3.org/2000/svg','circle');
+            marker.setAttribute('cx',xy[0]);marker.setAttribute('cy',xy[1]);
+            marker.setAttribute('r',String(selectedTrip?4.6:3.2));
+            marker.setAttribute('class','flow-r2-sample-marker');
+            marker.setAttribute('data-flow-sample',String(index));
+            marker.setAttribute('data-flow-sample-trip',String(id));
+            marker.setAttribute('fill','#07120d');
+            marker.setAttribute('stroke',trip.color==='warm'?'#efa277':'#c9f0e5');
+            marker.setAttribute('stroke-width','1.3');
+            marker.style.pointerEvents='none';
+            overlay.appendChild(marker);
+          });
+        }
       });
     }
 
@@ -416,6 +442,8 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
           stroke:'rgba(209,99,57,.72)',
           'stroke-width':1.2 + edge.value/34,
           'stroke-linecap':'round',
+          'marker-end':'url(#flOdArrow)',
+          'data-flow-direction':edge.a+'-to-'+edge.b,
           'data-flow-od':id
         });
         if (selectedNode && edge.a !== selectedNode && edge.b !== selectedNode) path.classList.add('is-dim');
@@ -464,25 +492,31 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
     function inspectSelectedNode(id) {
       const node = NODES[id];
       if (!node) return;
-      const outgoing = OD.filter(edge => edge.a === id).reduce((sum, edge) => sum + edge.value, 0);
-      const incoming = OD.filter(edge => edge.b === id).reduce((sum, edge) => sum + edge.value, 0);
+      const totals=odNodeTotals(id);
       const inspect = $('#flInspect', root);
       if (inspect) inspect.innerHTML = `
         <div><dt>PLACE</dt><dd>${node[2]}</dd></div>
-        <div><dt>OUT</dt><dd>${outgoing} normalized units</dd></div>
-        <div><dt>IN</dt><dd>${incoming} normalized units</dd></div>
+        <div><dt>OUT</dt><dd>${totals.out} normalized units</dd></div>
+        <div><dt>IN</dt><dd>${totals.in} normalized units</dd></div>
+        <div><dt>NET</dt><dd>${totals.net>0?'+':''}${totals.net} normalized units</dd></div>
         <div><dt>GEOMETRY</dt><dd>${odGeometry === 'geodesic' ? 'Great-circle display relation' : 'Schematic connection'}</dd></div>
         <div><dt>LIMIT</dt><dd>OD magnitude is illustrative; connection geometry is not an observed route.</dd></div>`;
     }
 
     function inspectSelectedTrip(id) {
-      const trip = TRIPS[Number(id)], inspect = $('#flInspect', root);
-      if (!trip || !inspect) return;
-      inspect.innerHTML = `
+      const trip=TRIPS[Number(id)],inspect=$('#flInspect',root);
+      if(!trip||!inspect)return;
+      const time=Number(shell.dataset.tripTime||$('#flTripTime',root)?.value||30);
+      const position=tripPosition(trip,time),metrics=tripMetrics(trip);
+      const kind=position.clamped?'OUTSIDE SAMPLE WINDOW':position.sampled?'AUTHORED TEACHING SAMPLE':'INTERPOLATED DISPLAY POSITION';
+      inspect.innerHTML=`
         <div><dt>TRACK</dt><dd>${trip.name}</dd></div>
-        <div><dt>TIME</dt><dd>${Number($('#flTripTime', root)?.value || 0).toFixed(0)}</dd></div>
+        <div><dt>TIME</dt><dd>${time.toFixed(1)} relative teaching units, not UTC</dd></div>
+        <div><dt>STATUS</dt><dd>${kind}</dd></div>
+        <div><dt>SAMPLES</dt><dd>${metrics.samples} authored teaching points</dd></div>
+        <div><dt>DISTANCE</dt><dd>${metrics.totalDistanceKm.toFixed(0)} km calculated geodesic arc</dd></div>
         <div><dt>INTERPOLATION</dt><dd>Shortest great-circle between supplied teaching samples</dd></div>
-        <div><dt>LIMIT</dt><dd>Interpolated display positions are not additional observations.</dd></div>`;
+        <div><dt>LIMIT</dt><dd>Interpolated positions are not additional observations; calculated arc distance is not measured travel.</dd></div>`;
     }
 
     function syncMode(){
