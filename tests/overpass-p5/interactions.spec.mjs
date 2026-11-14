@@ -32,16 +32,20 @@ test('Results pass replay keeps a bounded scrubber and play/pause controls',asyn
  await expect(row).toBeVisible({timeout:20000})
  await row.click()
  await expect(page.locator('[data-detail-root]')).toBeAttached({timeout:20000})
- const play=page.getByRole('button',{name:'Play replay'}).first()
- await expect(play).toBeAttached({timeout:20000})
+ const button=page.getByRole('button',{name:/^(Play|Pause) replay$/}).first()
+ await expect(button).toBeAttached({timeout:20000})
  const slider=page.getByRole('slider',{name:'Scene time within the pass'}).first()
  await expect(slider).toBeAttached()
  const min=Number(await slider.getAttribute('min')),max=Number(await slider.getAttribute('max'))
  expect(max).toBeGreaterThan(min)
- await play.click()
- await expect(page.getByRole('button',{name:'Pause replay'}).first()).toBeAttached({timeout:12000})
- // Click to pause so snapshots remain deterministic.
- await page.getByRole('button',{name:'Pause replay'}).first().click()
+ // Selecting an imaged pass automatically starts the replay. Do not assume
+ // that the initial state must be paused on desktop or mobile.
+ const before=await button.getAttribute('aria-label')
+ expect(['Play replay','Pause replay']).toContain(before)
+ await button.click()
+ await expect(page.getByRole('button',{name:before==='Play replay'?'Pause replay':'Play replay'}).first()).toBeAttached({timeout:12000})
+ // Pause for stable screenshots if this click started playback.
+ if(before==='Play replay')await page.getByRole('button',{name:'Pause replay'}).first().click()
  await page.screenshot({path:info.outputPath('replay.png'),fullPage:true})
 })
 test('Results time-lapse opens as an overlay without requiring all historical frames',async({page},info)=>{
