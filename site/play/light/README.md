@@ -127,3 +127,19 @@ The production preview pipeline also captures `assets/lab/previews/light.jpg`.
 - The right rail displays a native keyboard-accessible **MODEL SCOPE / VIEW LIMITS** disclosure. Its full model qualification is available without occupying the small 1366×768 default reading area.
 - Removed-path labels stay legible; dashed swatches and explicit **REMOVED** / **NO SKY SOURCE** statuses carry the meaning without strike-through.
 - The rail retains native vertical scrolling when the disclosure is open. The conceptual scene and task area keep their desktop dimensions.
+
+## L6 · Six experiments in two acts
+
+Act I retains the three original ablation experiments. After completing them, users can optionally begin Act II with three interactive propagation experiments. Act II reveals a continuous parameter slider only after a prediction and intervention.
+
+| Act II question | Model | Controlled parameter | Important limitation |
+|---|---|---|---|
+| Sunset reddening | T(λ)=exp(−m·0.12·(550/λ)^4) | air mass m (1–8), 1.2→6 initially | Simplified Rayleigh-only **direct sunlight** transmission; not real-sky radiance or color |
+| Red light disappearing underwater | T(λ,z)=exp(−a_total(λ)z) | absorption path z (0–8 m), 0→5 initially | Absorption-only homogeneous medium; not total diffuse underwater illumination or Kd |
+| Grazing reflection | R_F(θ)=(R_s+R_p)/2 | angle from surface normal (0–85°), 40→75 initially | Smooth air–water surface, unpolarized, n_air=1.00 and n_water=1.34; no waves or glint |
+
+The advanced charts use fractions, not satellite Rrs. The Fresnel plot is wavelength-flat because the model holds refractive index constant. Before and after spectra share the same Y range, and the range slider updates the scene without rebuilding the active control. `PLAY AGAIN` returns to the first three experiments.
+
+### L6 visual design direction
+
+The Watched.earth reference informs the precision of labeling, hairline geometry, tabular readouts, state feedback and restrained motion. GeoGeek's own green-black environment, warm off-white body text, Play typography and scientific color semantics remain authoritative. The central schematic and its optical paths stay conceptual; no ray tracing or numerical sky rendering is claimed. Light remains desktop-only.
