@@ -372,7 +372,7 @@
         const originX=540+250*Math.sin(rad);
         const originY=282-250*Math.cos(rad);
         directPath.setAttribute('d',`M${originX.toFixed(1)} ${originY.toFixed(1)} L540 282`);
-        root.style.setProperty('--light-sun-top',`${Math.max(4,Math.min(95,originY/297*100)).toFixed(2)}%`);
+        root.style.setProperty('--light-sun-top',`${Math.max(4,Math.min(52,originY/560*100)).toFixed(2)}%`);
         root.style.setProperty('--light-sun-right',`${((1000-originX)/10).toFixed(2)}%`);
         if (mode==='grazing') {
           const endpointX=540-250*Math.sin(rad);
