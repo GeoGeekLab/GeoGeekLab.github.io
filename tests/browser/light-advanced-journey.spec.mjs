@@ -32,6 +32,13 @@ test('Light unlocks three continuous optical experiments after the core journey'
     await shell.getByRole('button',{name:choice,exact:true}).click();
     await shell.getByRole('button',{name:'COMMIT PREDICTION'}).click();
     await expect(shell.locator('.light-explorer')).toHaveCount(0);
+    if (mode==='grazing') {
+      await expect(shell).toHaveAttribute('data-light-chart','angle');
+      await expect(shell.locator('.light-spectrum-x0')).toHaveText('0°');
+      await expect(shell.locator('.light-spectrum-xmax')).toHaveText('85°');
+      await expect(shell.locator('.light-angle-active-dot')).toBeHidden();
+      await expect(shell.locator('.light-spectrum-after')).toHaveCSS('opacity','0');
+    }
     await shell.getByRole('button',{name:action,exact:true}).click();
     const slider=shell.getByRole('slider',{name:control});
     await expect(slider).toBeVisible();
@@ -53,8 +60,12 @@ test('Light unlocks three continuous optical experiments after the core journey'
       await expect(shell.locator('[data-path="depth"]')).toBeHidden();
       await expect(shell.locator('.light-incidence-guide')).toBeVisible();
       await expect(shell.locator('.light-angle-label')).toContainText('θ 75°');
+      await expect(shell.locator('.light-angle-active-dot')).toBeVisible();
+      await expect(shell.locator('.light-spectrum')).toHaveAttribute('aria-label',/Fresnel reflectance by incidence angle/);
+      await expect(shell.locator('.light-spectrum-probe')).toContainText('θ 40° → 75°');
     }
     const initialArc=mode==='grazing'?await shell.locator('.light-angle-arc').getAttribute('d'):null;
+    const initialMarkerX=mode==='grazing'?await shell.locator('.light-angle-active-dot').getAttribute('cx'):null;
     const original=await shell.locator('.light-after-value').innerText();
     await slider.focus();
     await page.keyboard.press('End');
@@ -64,6 +75,8 @@ test('Light unlocks three continuous optical experiments after the core journey'
     if (mode==='grazing') {
       await expect(shell.locator('.light-angle-label')).toContainText('θ 85°');
       expect(await shell.locator('.light-angle-arc').getAttribute('d')).not.toBe(initialArc);
+      expect(await shell.locator('.light-angle-active-dot').getAttribute('cx')).not.toBe(initialMarkerX);
+      await expect(shell.locator('.light-spectrum-probe')).toContainText('θ 40° → 85°');
     }
     if (mode==='depth') await expect(shell.locator('.light-depth-label')).toContainText('8.00 m');
     if (mode==='sunset') {
