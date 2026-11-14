@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Geographic Flow Laboratory V3",
-  "status": "stage2-scientific-core-verified",
+  "status": "stage3-map-first-ux-verified",
   "owner": "Flow V3",
   "fourModes": {
     "field": {
@@ -108,7 +108,10 @@
     "cleanup": "listeners, intervals, animation frames and observers are removed on unmount",
     "fieldLineage": "field sampled as instantaneous model snapshot; fixed-step RK2 path is a frozen-field experiment, not an actual tracked object",
     "noExtrapolation": "regular or GFS samples outside latitude coverage return {valid:false} rather than clamping",
-    "onePlaybackController": "base flow-lab.js owns mode, pause, tripPlay, tripTime and all simulation progression; Round2 never installs a second interval"
+    "onePlaybackController": "base flow-lab.js owns mode, pause, tripPlay, tripTime and all simulation progression; Round2 never installs a second interval",
+    "projection": "Plate Carree fits a true 2:1 world pixel rectangle at all viewport sizes; inverse coordinates reject letterboxed margins",
+    "flowSelection": "OD place and TRIPS teaching track selection support keyboard-accessible native selects in WORK, INSPECT and FOCUS",
+    "pinnedSample": "Touch or keyboard sample yields a visible map-footer readout in every workspace mode"
   },
   "uiTargets": {
     "mapControlOverlayFractionMax": 0.08,
@@ -161,7 +164,7 @@
   "stageProgress": {
     "stage1": "baseline-passed",
     "stage2": "scientific-core-ci-verified",
-    "stage3": "pending",
+    "stage3": "workbench-ci-verified",
     "stage4": "pending",
     "stage5": "pending",
     "stage6": "pending",
@@ -176,6 +179,16 @@
       "browser": "22/22 passed",
       "runUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43553043378",
       "numeric": "node --test tests/flow-v3/*.test.mjs failures 0"
+    },
+    "stage3": {
+      "runUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43557165166",
+      "browser": "29 passed, 1 touch-specific desktop skip",
+      "numeric": "node --test tests/flow-v3/*.test.mjs 0 failures",
+      "sizes": [
+        "1440×900",
+        "900×980",
+        "390×844"
+      ]
     }
   }
 }
