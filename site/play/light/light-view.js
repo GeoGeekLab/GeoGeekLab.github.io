@@ -217,7 +217,7 @@
       if (!previousAction) return;
       const nextAction=previousAction==='commit'?'perturb'
         :previousAction==='perturb'?'next'
-        :previousAction==='next'||previousAction==='restart'?'first-choice'
+        :previousAction==='next'||previousAction==='restart'||previousAction==='begin-advanced'?'first-choice'
         :previousAction;
       if (nextAction==='first-choice') shell.overlay.scrollTop=0;
       const controls=[...panel.querySelectorAll('[data-light-action]')];
@@ -234,18 +234,25 @@
       const panel=document.createElement('section');
       panel.className='light-panel';
       if (snapshot.phase==='complete') {
-        panel.innerHTML=`
-          <span>TRACE COMPLETE</span>
+        panel.innerHTML=snapshot.advancedUnlocked?`
+          <span>TRACE COMPLETE / SIX EXPERIMENTS</span>
+          <h2>LIGHT MOVES THROUGH MATTER.</h2>
+          <p>Scattering, absorption, surface reflection, atmospheric path length, and geometry produce different optical outcomes.</p>
+          <div class="light-limit">THREE CORE EXPERIMENTS + THREE PARAMETER EXPLORATIONS · IDEALIZED MODELS</div>`:`
+          <span>ACT I COMPLETE / THREE PATHS</span>
           <h2>ONE COLOR. MULTIPLE PATHS.</h2>
-          <p>Sky scattering, surface reflection, and water-leaving radiance are different mechanisms. Removing one does not remove the others.</p>
-          <div class="light-limit">WATER / QUANTITATIVE Rrs · ATMOSPHERE + SURFACE / TEACHING MODELS</div>`;
-        panel.appendChild(button('PLAY AGAIN',callbacks.onRestart,{action:'restart'}));
+          <p>Sky scattering, surface reflection, and water-leaving radiance are distinct mechanisms. The next three experiments let you change path length, depth, and incidence angle.</p>
+          <div class="light-limit">ACT II / THREE PARAMETER EXPLORATIONS · OPTIONAL</div>`;
+        if (!snapshot.advancedUnlocked && content.EXPERIMENTS.length>3) {
+          panel.appendChild(button('EXPLORE THREE MORE',callbacks.onBeginAdvanced,{action:'begin-advanced'}));
+        }
+        panel.appendChild(button('PLAY AGAIN',callbacks.onRestart,{secondary:!snapshot.advancedUnlocked,action:'restart'}));
         shell.overlay.appendChild(panel);
         restorePanelFocus(panel,previousAction);
         return;
       }
 
-      panel.innerHTML=`<span>${exp.index} / MECHANISM</span><h2>${exp.title}</h2><p>${exp.question}</p>`;
+      panel.innerHTML=`<span>${exp.index} / ${snapshot.index<3?'CORE MECHANISM':'PROPAGATION EXPERIMENT'}</span><h2>${exp.title}</h2><p>${exp.question}</p>`;
 
       if (snapshot.phase==='question') {
         const choices=document.createElement('div');
@@ -273,6 +280,17 @@
           <p>${exp.reveal}</p>
           <code>${exp.equation}</code>
           <div class="light-limit">${exp.limit}</div>`;
+        if (exp.intervention) {
+          const config=exp.intervention;
+          const explorer=document.createElement('div');
+          explorer.className='light-explorer';
+          explorer.innerHTML=`
+            <div class="light-explorer-top"><label for="lightExploreControl">${config.label}</label><output class="light-explore-live" for="lightExploreControl">${snapshot.exploreValue} ${config.unit}</output></div>
+            <input type="range" id="lightExploreControl" min="${config.min}" max="${config.max}" step="${config.step}" value="${snapshot.exploreValue}" aria-label="${config.label}" />
+            <div class="light-explorer-scale"><span>${config.min} ${config.unit}</span><span>${config.max} ${config.unit}</span></div>`;
+          explorer.querySelector('input').addEventListener('input',event=>callbacks.onExplore(Number(event.target.value)));
+          panel.appendChild(explorer);
+        }
         panel.appendChild(button(snapshot.index===snapshot.total-1?'FINISH TRACE':'NEXT EXPERIMENT',callbacks.onNext,{action:'next'}));
       }
       shell.overlay.appendChild(panel);
