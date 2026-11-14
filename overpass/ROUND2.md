@@ -25,3 +25,11 @@ not hosted by Pages. Supabase is not configured. GeoGeek Lab's instrument
 registry is not yet modified (R6). A browser screenshot is an evidence
 artifact, not a pixel-perfect visual approval by itself. License and
 THIRD_PARTY_NOTICES.md must accompany later public distributions.
+
+R2 CI correction: the GeoGeek full production build requires pre-captured
+Lab instrument preview images (orbit.jpg and peers), which are unavailable
+in the fresh checkout. This is an independent host-build prerequisite, not
+an Overpass compile defect. R2 now validates GeoGeek's existing source/Lab
+contracts, then serves the complete /overpass/ artifact from a separate
+preview root. It does NOT claim a complete GeoGeek site build. Full host
+integration and preview-capture prerequisites are an R6 acceptance gate.

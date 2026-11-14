@@ -15,7 +15,7 @@ export default defineConfig({
     {name:'mobile-chromium',use:{...devices['Desktop Chrome'],viewport:{width:390,height:844},isMobile:true,hasTouch:true}}
   ],
   webServer:{
-    command:'python3 -m http.server 4173 --bind 127.0.0.1 --directory dist',
+    command:'python3 -m http.server 4173 --bind 127.0.0.1 --directory overpass/preview-root',
     url:'http://127.0.0.1:4173/overpass/',
     reuseExistingServer:false,timeout:30000
   },

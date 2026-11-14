@@ -47,9 +47,9 @@ jobs:
         run: |
           node overpass/scripts/adapt-dist.mjs
           node overpass/scripts/smoke-r2.mjs
-      - name: Build GeoGeek
-        run: npm run build
-      - name: Assemble isolated preview into GeoGeek dist
+      - name: Verify existing GeoGeek source and Lab contracts
+        run: npm run qa:build && npm run qa:lab
+      - name: Assemble scoped /overpass/ preview
         run: node overpass/scripts/assemble-preview.mjs
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -68,6 +68,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: overpass-r2-static-preview
-          path: dist/overpass/
+          path: overpass/preview-root/overpass/
           if-no-files-found: error
           retention-days: 14
