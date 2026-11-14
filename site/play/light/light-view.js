@@ -322,7 +322,7 @@
         node.classList.toggle('is-locked',index>=3&&!snapshot.advancedUnlocked);
       });
       modelType.textContent=snapshot.experiment?.intervention?'PATH PARAMETER':'PATH ABLATION';
-      evidenceScope.textContent=`Scene geometry and display color are illustrative. No TOA radiance is modeled. ${snapshot.experiment?.limit||'The three core paths are separate teaching mechanisms.'}`;
+      evidenceScope.textContent=`Scene geometry and display color are illustrative. TOA radiance is not modeled. ${snapshot.experiment?.limit||'The three core paths are separate teaching mechanisms.'}`;
       const mode=snapshot.experiment?.chartMode||'sky';
       root.dataset.lightPhenomenon=mode;
       root.dataset.lightIntervention=snapshot.interventionId||'none';
