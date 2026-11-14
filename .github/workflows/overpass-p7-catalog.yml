@@ -1,0 +1,49 @@
+name: OVERPASS / catalog refresh candidate (never auto-deploy)
+on:
+  workflow_dispatch:
+  schedule:
+    # CelesTrak asks clients not to re-fetch the same data within 2h.
+    # Scheduled workflows only activate after this workflow reaches default branch.
+    - cron: '41 */6 * * *'
+permissions:
+  contents: read
+jobs:
+  refresh-candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install pinned Watched dependencies
+        working-directory: overpass/upstream
+        run: npm ci --no-audit --no-fund
+      - name: Re-fetch upstream CelesTrak OMM for P7 candidate only
+        working-directory: overpass/upstream
+        run: npx tsx scripts/fetch-catalog.ts public/data/catalog.json
+      - name: Validate the Watched v2 compact catalog and complete names
+        run: node overpass/scripts/p7-catalog-gate.mjs --release
+      - name: Prime GeoGeek published data supply and refresh orbit-active
+        run: |
+          node scripts/prime-data-supply-from-live.mjs
+          node scripts/prepare-data-references.mjs
+          ORBIT_FORCE_REFRESH=1 node scripts/update-orbit-catalog.mjs
+      - name: Validate independently refreshed GeoGeek orbital metadata
+        run: |
+          node --input-type=module -e "import {readFileSync} from 'node:fs'; import {inspectGeoGeekMeta} from './overpass/scripts/p7-readiness.mjs'; const result=inspectGeoGeekMeta(JSON.parse(readFileSync('site/orbital/data/active.meta.json')),Date.now()); console.log(result); if(result.stale)process.exit(1);"
+      - name: Upload candidate data for separately reviewed versioned publication
+        uses: actions/upload-artifact@v4
+        with:
+          name: overpass-p7-catalog-refresh-candidate
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            overpass/upstream/public/data/catalog.json
+            overpass/upstream/public/data/catalog-names.json
+            site/orbital/data/active.json
+            site/orbital/data/active.meta.json
+            overpass/reports/p7-catalog-freshness.json
