@@ -250,7 +250,8 @@ async function mount({signal,stage}={}){
     fctx.restore();
   }
   function animateRelease(dt){
-    if(!wind)return;
+    // A derived experiment starts with a seed. Empty screens have no elapsed release time.
+    if(!wind||!state.release.length)return;
     const clock=frameClock(dt,'release');
     fctx.save();fctx.fillStyle='rgba(5,10,7,.07)';fctx.fillRect(0,0,W,H);
     const survivors=[];
@@ -278,6 +279,7 @@ async function mount({signal,stage}={}){
     state.release=survivors;
     updateReleaseStats();
     fctx.restore();
+    if(!survivors.length)clearFx();
   }
   function qPath(a,b,curve=.22){const dx=b[0]-a[0],dy=b[1]-a[1],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,n=Math.hypot(dx,dy)||1,cx=mx-dy/n*n*curve,cy=my+dx/n*n*curve;return`M${a[0].toFixed(1)},${a[1].toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${b[0].toFixed(1)},${b[1].toFixed(1)}`}
   function renderOD(){const sorted=[...OD].sort((a,b)=>b.value-a.value).slice(0,state.top),used=new Set();svg.innerHTML='';for(const e of sorted){used.add(e.a);used.add(e.b);const A=NODES[e.a],B=NODES[e.b],a=project(A[0],A[1]),b=project(B[0],B[1]),p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',state.curves?qPath(a,b,.16):`M${a[0]},${a[1]}L${b[0]},${b[1]}`);p.setAttribute('fill','none');p.setAttribute('stroke','rgba(209,99,57,.62)');p.setAttribute('stroke-width',String(1.2+e.value/34));p.setAttribute('stroke-linecap','round');p.setAttribute('class','flow-overlay-hit');p.dataset.type='od';p.dataset.id=e.id;svg.appendChild(p)}for(const id of used){const n=NODES[id],p=project(n[0],n[1]),c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r','3.2');c.setAttribute('fill','#f1efe7');c.setAttribute('stroke','rgba(5,10,7,.8)');c.setAttribute('stroke-width','1.2');c.dataset.type='node';c.dataset.id=id;c.style.pointerEvents='all';c.style.cursor='pointer';svg.appendChild(c)}}
