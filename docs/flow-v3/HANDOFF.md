@@ -88,3 +88,10 @@ Stage 2 acceptance is conditional on the green CI run for the latest PR head. Do
 5. Repair mobile tap sampling, keyboard alternatives, focus/escape priority and selected-state URL cleanup.
 6. Preserve the tested four-mode scientific semantics and Stage 2 time/physics boundaries.
 7. Stage 3 must not merge PR #200; the PR stays Draft through Stage 7.
+
+## Stage 2 verification evidence
+
+- Scientific Core CI: https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43553043378 — success, 22/22 browser tests (desktop and mobile), Node suite failures: 0.
+- This run includes the invalid-release guard and the Stage 1/Round2 regressions. A later Stage 2 commit additionally asserts that global RESET immediately updates the TRIPS range; its final head CI is tracked in PR #200.
+- Production publishing remains forbidden until Stage 7. The PR stays Draft.
+- The model-wind snapshot remains static; SIM TIME speeds up frozen-field integration only. Do not interpret longer simulated trajectories as a meteorological forecast.
