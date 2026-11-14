@@ -127,3 +127,25 @@
 
 /* Show the signed difference only after the revealed intervention. */
 .play-v2-shell[data-play-kind="light"][data-light-compare="baseline"] .light-change-readout{display:none}
+
+/* Grazing-incidence evidence uses angle on X instead of a flat wavelength trace.
+   The full response curve and active marker stay concealed until reveal. */
+.play-v2-shell[data-play-kind="light"] .light-angle-response-markers{display:none}
+.play-v2-shell[data-play-kind="light"][data-light-chart="angle"] .light-angle-response-markers{display:inline}
+.play-v2-shell[data-play-kind="light"][data-light-chart="angle"] .light-spectrum-after{
+  stroke:var(--play-action,#d8794e);stroke-width:2.2;filter:none;
+}
+.play-v2-shell[data-play-kind="light"] .light-angle-response-guide{
+  stroke:rgba(242,240,232,.44);stroke-width:1;stroke-dasharray:3 4;
+  vector-effect:non-scaling-stroke;
+}
+.play-v2-shell[data-play-kind="light"] .light-angle-baseline-dot{
+  fill:var(--play-v2-fg,#f2f0e8);stroke:#101913;stroke-width:2;
+  vector-effect:non-scaling-stroke;
+}
+.play-v2-shell[data-play-kind="light"] .light-angle-active-dot{
+  fill:var(--play-action,#d8794e);stroke:#101913;stroke-width:2;
+  vector-effect:non-scaling-stroke;
+}
+.play-v2-shell[data-play-kind="light"][data-light-chart="angle"][data-light-compare="baseline"]
+  :is(.light-angle-response-guide,.light-angle-active-dot){display:none}
