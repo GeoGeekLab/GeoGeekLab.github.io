@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "project": "Geographic Flow Laboratory V3",
+  "status": "design-contract-not-runtime",
+  "owner": "Flow V3",
+  "fourModes": {
+    "field": {
+      "kind": "eulerian",
+      "attachedTo": "space",
+      "time": "snapshot",
+      "inputs": [
+        "10 m model wind u/v",
+        "sample timestamp",
+        "spatial domain"
+      ],
+      "question": "How is the medium moving at a location?",
+      "forbidden": [
+        "particle trail is an observed track",
+        "snapshot is a future forecast"
+      ],
+      "coreOutputs": [
+        "u_mps",
+        "v_mps",
+        "speed_mps",
+        "from_degrees",
+        "validity"
+      ]
+    },
+    "od": {
+      "kind": "aggregate-network",
+      "attachedTo": "directed-place-pair",
+      "time": "aggregate",
+      "inputs": [
+        "locations",
+        "origin-destination weights",
+        "unit definition"
+      ],
+      "question": "How much movement connects two places, in which direction?",
+      "forbidden": [
+        "schematic arc is a traveled route",
+        "normalized demonstration weights are observations"
+      ],
+      "coreOutputs": [
+        "outflow",
+        "inflow",
+        "netflow",
+        "weight_unit",
+        "flow_direction"
+      ]
+    },
+    "trips": {
+      "kind": "timestamped-positions",
+      "attachedTo": "moving-entity",
+      "time": "sequence",
+      "inputs": [
+        "ordered sampled coordinates",
+        "sample times"
+      ],
+      "question": "Where was an entity observed, and when?",
+      "forbidden": [
+        "interpolated position is an observation"
+      ],
+      "coreOutputs": [
+        "sample_markers",
+        "interpolated_segments",
+        "time_unit",
+        "distance"
+      ]
+    },
+    "release": {
+      "kind": "frozen-field-experiment",
+      "attachedTo": "particle-ensemble",
+      "time": "derived",
+      "inputs": [
+        "initial-seed-geometry",
+        "field snapshot",
+        "integrator settings"
+      ],
+      "question": "Where might particles advect in this fixed vector field?",
+      "forbidden": [
+        "frozen-field numerical experiment is an operational forecast",
+        "particle spread quantifies uncertainty without an uncertainty model"
+      ],
+      "coreOutputs": [
+        "elapsed_simulation_seconds",
+        "seed_count",
+        "integration_method",
+        "validity"
+      ]
+    }
+  },
+  "invariants": {
+    "primaryModeNames": [
+      "field",
+      "od",
+      "trips",
+      "release"
+    ],
+    "fieldVectorConvention": "u east-positive, v north-positive, meteorological direction is FROM clockwise from north",
+    "baseMapProjection": "Plate Carree only if nominal 2:1 aspect is preserved; show viewport stretch separately",
+    "unitTime": "simulated_seconds = real_elapsed_seconds * dimensionless_rate",
+    "outsideField": "do not silently extrapolate outside source spatial coverage",
+    "geographicSeam": "never connect an antimeridian discontinuity or particle respawn with a drawn trajectory",
+    "selectedState": "only one authoritative controller for mode, play, time, and URL selection state",
+    "sourceLabels": "MODEL_CURRENT, MODEL_ARCHIVE, SYNTHETIC_FALLBACK, TEACHING_REFERENCE",
+    "urlIsolation": "preserve non-Flow search parameters while replacing only validated flow-prefixed keys",
+    "reducedMotion": "respect system preference and offer persistent pause",
+    "cleanup": "listeners, intervals, animation frames and observers are removed on unmount"
+  },
+  "uiTargets": {
+    "mapControlOverlayFractionMax": 0.08,
+    "tooltipCollisionPixelsMax": 0,
+    "mapReadability": "all mode-critical controls are outside map content in WORK and INSPECT",
+    "touchTargetMinCssPx": 44,
+    "focusMode": "map-focused layout remains interactive; controls are accessible without blocking geography",
+    "mobile": "no overlapping controls and map; touch inspection has a persistent result"
+  },
+  "stageGates": {
+    "stage1": [
+      "source audit complete",
+      "draft PR open",
+      "Node grammar-contract suite green",
+      "desktop and mobile characterization evidence stored"
+    ],
+    "stage2": [
+      "fixed-time integration invariance",
+      "no reset or wrap streaks",
+      "domain-mask verified",
+      "unified playback state"
+    ],
+    "stage3": [
+      "map occlusion geometry and screenshots",
+      "desktop/tablet/mobile interactions",
+      "keyboard and screen-reader paths"
+    ],
+    "stage4": [
+      "field vector/speed validated",
+      "release integrator validated",
+      "source and uncertainty flags shown"
+    ],
+    "stage5": [
+      "OD direction and normalized units validated",
+      "trip sampled points vs interpolation distinct",
+      "time controls synchronized"
+    ],
+    "stage6": [
+      "data provenance and caching validated",
+      "dependency license reviewed",
+      "performance measured before GPU rewrite"
+    ],
+    "stage7": [
+      "all mandatory GitHub checks success",
+      "visual and numeric evidence archived",
+      "PR reviewed and merged",
+      "main SHA and deployment status verified"
+    ]
+  }
+}
