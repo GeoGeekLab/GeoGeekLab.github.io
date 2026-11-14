@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test'
 import { writeFileSync } from 'node:fs'
-import { join } from 'node:path'
 
 const LOCAL='http://127.0.0.1:4173'
 const ARCHIVE_HOSTS=['planetarycomputer.microsoft.com','earth-search.aws.element84.com','gibs.earthdata.nasa.gov','view.eumetsat.int']
@@ -39,7 +38,7 @@ test('real Waterloo query computes Results and timeline on /overpass/', async ({
     evidenceMode:hasGallery?'archive imagery shown':'geometry and archive-outage/lag fallback',
     archiveResponses:archive,localErrors,uncaughtExceptions:exceptions
   }
-  writeFileSync(join(info.outputDir,'archive-observation.json'),JSON.stringify(out,null,2))
+  writeFileSync(info.outputPath('archive-observation.json'),JSON.stringify(out,null,2))
   await page.screenshot({path:info.outputPath('results.png'),fullPage:true})
   expect(localErrors,'Missing /overpass/ local assets').toEqual([])
   expect(exceptions,'App runtime exception').toEqual([])
