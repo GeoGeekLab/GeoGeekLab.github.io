@@ -57,7 +57,7 @@
   const REFINEMENTS = {
     orbit:'orbital/orbit-round2.js?v=20261113b',
     earth:'earth-observation-v3/earth-round2.js?v=20261002a',
-    flow:'flow/flow-round2.js?v=20261114-flow-v3-s2',
+    flow:'flow/flow-round2.js?v=20261114-flow-v3-s3',
     pulse:'pulse/pulse-round6.js?v=20261009navfix1'
   };
   const refinementLoads = new Map();
