@@ -11,7 +11,7 @@ const polish=read('site/flow-lab-polish.js');
 
 test('Flow V3 specification covers four non-interchangeable movement models',()=>{
   assert.equal(contract.schemaVersion,1);
-  assert.match(contract.status,/^stage2-scientific-core-(implemented|verified)/);
+  assert.match(contract.status,/^(stage2-scientific-core-(implemented|verified)|stage3-map-first-ux-verified)/);
   const modes=contract.invariants.primaryModeNames;
   assert.deepEqual(modes,['field','od','trips','release']);
   assert.deepEqual(Object.keys(contract.fourModes),modes);
