@@ -237,3 +237,41 @@ A second main commit landed during Stage 5 validation. Current inspected `main` 
 **Stage 7 guardrail:** refresh the merge base against current main and validate the release/Pages workflow, not just the standalone Flow PR workflow. Do not assume the original Stage 1 base SHA remains suitable for a merge.
 
 **Final Stage 5 PR head before this addendum:** `45e08b369335126307fff13787fa61b23f17dbf8`. [Flow V3 Movement Acceptance final-head run 43564501860](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43564501860) passed with **35 Node tests, 0 failures; 45 browser passes, 1 platform-specific skip**. A new HEAD is created by this addendum and its CI must be rechecked before marking the entire handoff verified.
+
+
+---
+
+## Stage 6 implementation — data, provenance, performance and accessibility hardening (2026-11-14)
+
+**Branch/PR:** `feat/flow-lab-v3`, Draft PR #200; **no merge or deployment**.
+
+### Implemented
+
+- `site/flow/v3/core/source-policy.mjs` validates 84 wind grid positions (nearest model-cell tolerance), one UTC valid time, m/s units, GFS U/V headers and finite vectors. It classifies fresh/stale/future/archived/synthetic provenance without treating retrieval time as model validity.
+- Live Open-Meteo wind uses `cache:'no-store'`. Natural Earth GeoJSON is pinned at `0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e`; GFS remains pinned at `5f091f0c3b60aa38a996a886985bacb3673d16c3`. Both immutable resources may use `force-cache`.
+- World data and weather are requested concurrently. The visible source card reports model time, UTC retrieval time, cache semantics, availability failures, model coverage and source terms. Live failure attempts archived data, then a clearly synthetic fallback.
+- `site/flow/v3/core/telemetry.mjs` provides bounded JS-draw measurements, surface/allocation estimates and explicit budgets. The base engine suppresses hidden-tab simulation advancement and unregisters the visibility listener, RAF and ResizeObserver during unmount.
+- The Round2 refinement coalesces pointer callbacks, bounds deferred timeouts, disconnects observers and removes its Escape listener at close. A global scan observer watches the instrument stage instead of unrelated page content.
+- `tests/flow-v3/hardening.test.mjs` verifies UTC, cache, grid order, source metadata and telemetry. `tests/browser/flow-v3-hardening.spec.mjs` adds fresh-reload, failure cascade, stale source, 250/900/1800-particle × desktop/tablet/mobile stress, repeated close/reopen and Chromium heap measurements.
+- `tests/browser/flow-v3-accessibility.spec.mjs` audits all four modes with axe-core WCAG A/AA on both Chromium projects, plus FOCUS/keyboard/live-announcement tests. Existing Stage 1–5 regression suites remain included.
+- No runtime npm dependency added. Provider terms and limitations are recorded in [STAGE6-AUDIT.md](STAGE6-AUDIT.md).
+
+### First green evidence, followed by memory-gate extension
+
+[Stage 6 first successful implementation run 43573738355](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43573738355) passed 41/41 Node tests and 67/68 browser tests (one intentional platform-specific skip). Its 18 performance cases measured maximum drawing P95 **28.53 ms** and maximum Canvas RGBA estimate **21.16 MiB**. Eight axe mode/project scans found no WCAG A/AA violations. This initial run did not yet include the subsequent CDP forced-GC memory assertion.
+
+The final Stage 6 HEAD must pass a new run with the CDP heap assertion and overlay-per-second budget. Do not copy the first-run verdict to the last commit without checking GitHub Actions.
+
+## Stage 7 handoff — integration, final approval, merge and release
+
+1. **Freeze the candidate and main.** Record PR #200 head SHA and latest main SHA. Stage 1 base was `ed78ba052b48434aa0b16081c03d778d2b5fa3c0`; main inspected on 2026-11-14 is `64b6a281d345bd6dc9b92698d252ba419a1f4ed0`. Its two intervening commits changed Light, `site/lab.html` and the Pages runner. Recheck the actual diff just before release.
+2. **Reconcile merge base.** Resolve any updated `lab.html`, Pages workflow or shared runtime conflicts without overriding Light changes. Do not force-push away unrelated main work. Capture a new candidate SHA and review its full staged diff.
+3. **Re-run mandatory checks at the candidate SHA.** Require Flow V3 Hardening Acceptance (all Node and desktop/mobile browser tests), GeoGeek Quality, Orbit Acceptance, Earth Pulse Regression, Earth Pulse Source Preflight and Pages build checks. A previous green run at a different SHA is not release evidence.
+4. **Validate the science in the release build.** Inspect FIELD snapshot/fallback labels, OD directed totals, TRIPS relative authored time and RELEASE frozen-field numerical semantics. Test live CORS/provider failures and network timing separately from controlled fixtures.
+5. **Review external terms.** Confirm the actual deployment remains within Open-Meteo Free API non-commercial terms or has a commercial license, and maintain CC BY attribution. Confirm historical GFS sample redistribution terms; Natural Earth is public-domain source geometry.
+6. **Review accessibility and performance.** Check desktop, tablet and narrow mobile screenshots, map-control occlusion, keyboard/FOCUS/INSPECT, reduced motion and 44 px targets. Review the 18 density/viewport metric rows, CDP forced-GC heap result and an actual-device smoke test where possible. Do not call the 3-cycle test a full leak soak.
+7. **Review PR #200.** Verify sign-off, evidence archive, no unresolved critical defects and explicit approval. Only Stage 7 may change Draft to Ready and merge. If gates are incomplete, keep the PR Draft and unmerged.
+8. **Verify published GitHub Pages.** After merging, capture the deployed main SHA/URL, confirm loaded asset versions, check live source provenance in the browser, ensure the four deep-linked modes work, and verify rollback steps before declaring release complete.
+
+**Stage 7 stopping rule:** any failed required check, data/attribution ambiguity, merge conflict, production source mismatch, or unresolved accessibility/performance blocker means **do not merge**.
+
