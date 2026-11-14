@@ -300,7 +300,7 @@ test('Orbit validates observer ellipsoid height and applies it to the slant rang
   await page.locator('#orbitPlay').click();
   await expect(page.locator('#orbitPosition')).toContainText(/[NS].*[EW]/,{timeout:20000});
   const position=await page.locator('#orbitPosition').textContent();
-  const match=position?.match(/([\\d.]+)°\\s*([NS]).*?([\\d.]+)°\\s*([EW])/);
+  const match=position?.match(/([\d.]+)°\s*([NS]).*?([\d.]+)°\s*([EW])/);
   expect(match,'propagated satellite position should contain geodetic coordinates').toBeTruthy();
   const lat=Number(match[1])*(match[2]==='S'?-1:1);
   const lon=Number(match[3])*(match[4]==='W'?-1:1);
