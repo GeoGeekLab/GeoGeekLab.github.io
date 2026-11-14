@@ -23,7 +23,8 @@
     "qa:swath": "node --test tests/swath/*.test.mjs",
     "qa:world": "node --test tests/world/*.test.mjs",
     "qa:lab": "node --test tests/lab/*.test.mjs",
-    "award:capture": "node scripts/capture-award-submission.mjs"
+    "award:capture": "node scripts/capture-award-submission.mjs",
+    "qa:flow-v3": "node --test tests/flow-v3/*.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

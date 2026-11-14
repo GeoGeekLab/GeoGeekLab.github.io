@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "project": "Geographic Flow Laboratory V3",
+  "status": "stage6-hardening-verified",
+  "owner": "Flow V3",
+  "fourModes": {
+    "field": {
+      "kind": "eulerian",
+      "attachedTo": "space",
+      "time": "snapshot",
+      "inputs": [
+        "10 m model wind u/v",
+        "sample timestamp",
+        "spatial domain"
+      ],
+      "question": "How is the medium moving at a location?",
+      "forbidden": [
+        "particle trail is an observed track",
+        "snapshot is a future forecast"
+      ],
+      "coreOutputs": [
+        "u_mps",
+        "v_mps",
+        "speed_mps",
+        "from_degrees",
+        "validity"
+      ]
+    },
+    "od": {
+      "kind": "aggregate-network",
+      "attachedTo": "directed-place-pair",
+      "time": "aggregate",
+      "inputs": [
+        "locations",
+        "origin-destination weights",
+        "unit definition"
+      ],
+      "question": "How much movement connects two places, in which direction?",
+      "forbidden": [
+        "schematic arc is a traveled route",
+        "normalized demonstration weights are observations"
+      ],
+      "coreOutputs": [
+        "outflow",
+        "inflow",
+        "netflow",
+        "weight_unit",
+        "flow_direction"
+      ]
+    },
+    "trips": {
+      "kind": "timestamped-positions",
+      "attachedTo": "moving-entity",
+      "time": "sequence",
+      "inputs": [
+        "ordered sampled coordinates",
+        "sample times"
+      ],
+      "question": "Where was an entity observed, and when?",
+      "forbidden": [
+        "interpolated position is an observation"
+      ],
+      "coreOutputs": [
+        "sample_markers",
+        "interpolated_segments",
+        "time_unit",
+        "distance"
+      ]
+    },
+    "release": {
+      "kind": "frozen-field-experiment",
+      "attachedTo": "particle-ensemble",
+      "time": "derived",
+      "inputs": [
+        "initial-seed-geometry",
+        "field snapshot",
+        "integrator settings"
+      ],
+      "question": "Where might particles advect in this fixed vector field?",
+      "forbidden": [
+        "frozen-field numerical experiment is an operational forecast",
+        "particle spread quantifies uncertainty without an uncertainty model"
+      ],
+      "coreOutputs": [
+        "elapsed_simulation_seconds",
+        "seed_count",
+        "integration_method",
+        "validity"
+      ]
+    }
+  },
+  "invariants": {
+    "primaryModeNames": [
+      "field",
+      "od",
+      "trips",
+      "release"
+    ],
+    "fieldVectorConvention": "u east-positive, v north-positive, meteorological direction is FROM clockwise from north",
+    "baseMapProjection": "Plate Carree only if nominal 2:1 aspect is preserved; show viewport stretch separately",
+    "unitTime": "simulated_seconds = min(real_elapsed_ms,100ms)/1000 * dimensionless_rate; bounded per foreground frame after tab suspension",
+    "outsideField": "do not silently extrapolate outside source spatial coverage",
+    "geographicSeam": "never connect an antimeridian discontinuity or particle respawn with a drawn trajectory",
+    "selectedState": "only one authoritative controller for mode, play, time, and URL selection state",
+    "sourceLabels": "MODEL_CURRENT, MODEL_ARCHIVE, SYNTHETIC_FALLBACK, TEACHING_REFERENCE",
+    "urlIsolation": "preserve non-Flow search parameters while replacing only validated flow-prefixed keys",
+    "reducedMotion": "respect system preference and offer persistent pause",
+    "cleanup": "listeners, intervals, animation frames and observers are removed on unmount",
+    "fieldLineage": "field sampled as instantaneous model snapshot; fixed-step RK2 path is a frozen-field experiment, not an actual tracked object",
+    "noExtrapolation": "regular or GFS samples outside latitude coverage return {valid:false} rather than clamping",
+    "onePlaybackController": "base flow-lab.js owns mode, pause, tripPlay, tripTime and all simulation progression; Round2 never installs a second interval",
+    "projection": "Plate Carree fits a true 2:1 world pixel rectangle at all viewport sizes; inverse coordinates reject letterboxed margins",
+    "flowSelection": "OD place and TRIPS teaching track selection support keyboard-accessible native selects in WORK, INSPECT and FOCUS",
+    "pinnedSample": "Touch or keyboard sample yields a visible map-footer readout in every workspace mode",
+    "releaseIntegrator": "Euler/RK2/RK4 steps use one sampled frozen field and check all intermediate points for domain validity",
+    "releaseClock": "elapsed release time advances only with active seeds, and resets when the experiment is cleared",
+    "releaseUncertainty": "spherical-cap seed spread represents chosen initial conditions only; it is not quantified forecast uncertainty",
+    "windColor": "speed color is a fixed 0–30+ metres/second quantitative scale; model color has no observational or uncertainty meaning",
+    "canonicalMovementData": "one site/flow/v3/core/movement.mjs source defines directed OD weights, nodes and authored teaching TRIPS points for both renderers",
+    "odDirection": "A to B and B to A remain distinct directed normalized teaching weights; net outflow equals out minus in",
+    "odFiltering": "Top-N filters visible directed edges without mutating all-network totals",
+    "tripInterpolation": "hollow markers encode supplied teaching sample positions; derived great-circle display positions are not observations",
+    "tripTime": "authored relative teaching units only, never UTC or measured hours; one base timeline and global PAUSE govern WORK, FOCUS and INSPECT",
+    "tripDistance": "computed spherical great-circle arc lengths between supplied teaching samples in km, not a measured track or km/h",
+    "sourceCache": "Live Open-Meteo no-store; pinned Natural Earth/GFS force-cache; source metadata records UTC valid and retrieval times separately",
+    "sourceRecovery": "Invalid coordinate/time/unit grid rejects live data; GFS archived fallback then explicit synthetic field with labeled source failures",
+    "performanceEvidence": "Bounded JS draw p95 measurements and CDP forced-GC heap evidence; viewport emulation is not physical mobile GPU validation",
+    "lifecycle": "Base cancels its RAF/ResizeObserver and removes visibility listener; Round2 disconnects observers, cancels pointer RAF and deferred timers",
+    "stage6SourceFreshness": "Live 84-point model field has one UTC valid time; stale and future valid times are explicitly disclosed, and archive/synthetic are not current conditions",
+    "stage6Cache": "Live Open-Meteo no-store; immutable pinned source assets force-cache; source-failure cascade is visible and tested",
+    "stage6ResourceCleanup": "Base RAF/ResizeObserver and refinement DOM observer/pointer timers removed on close; three-cycle forced-GC heap growth must not exceed 20 MiB",
+    "stage6Performance": "Quantitative budget includes >=30 sampled frames per density/viewport; P95 JS draw <=45ms desktop/tablet or 75ms mobile; Canvas <=70MiB, DOM nodes <=850, SVG paths <=180, overlay <=75/sec"
+  },
+  "uiTargets": {
+    "mapControlOverlayFractionMax": 0.08,
+    "tooltipCollisionPixelsMax": 0,
+    "mapReadability": "all mode-critical controls are outside map content in WORK and INSPECT",
+    "touchTargetMinCssPx": 44,
+    "focusMode": "map-focused layout remains interactive; controls are accessible without blocking geography",
+    "mobile": "no overlapping controls and map; touch inspection has a persistent result"
+  },
+  "stageGates": {
+    "stage1": [
+      "source audit complete",
+      "draft PR open",
+      "Node grammar-contract suite green",
+      "desktop and mobile characterization evidence stored"
+    ],
+    "stage2": [
+      "fixed-time integration invariance",
+      "no reset or wrap streaks",
+      "domain-mask verified",
+      "unified playback state"
+    ],
+    "stage3": [
+      "map occlusion geometry and screenshots",
+      "desktop/tablet/mobile interactions",
+      "keyboard and screen-reader paths"
+    ],
+    "stage4": [
+      "field vector/speed validated",
+      "release integrator validated",
+      "source and uncertainty flags shown"
+    ],
+    "stage5": [
+      "OD direction and normalized units validated",
+      "trip sampled points vs interpolation distinct",
+      "time controls synchronized"
+    ],
+    "stage6": [
+      "data provenance and caching validated",
+      "dependency license reviewed",
+      "performance measured before GPU rewrite"
+    ],
+    "stage7": [
+      "all mandatory GitHub checks success",
+      "visual and numeric evidence archived",
+      "PR reviewed and merged",
+      "main SHA and deployment status verified"
+    ]
+  },
+  "stageProgress": {
+    "stage1": "baseline-passed",
+    "stage2": "scientific-core-ci-verified",
+    "stage3": "workbench-ci-verified",
+    "stage4": "numeric-and-browser-ci-verified",
+    "stage5": "numeric-and-browser-ci-verified",
+    "stage6": "final-head-ci-verified",
+    "stage7": "pending"
+  },
+  "stageEvidence": {
+    "stage1": {
+      "browser": "14/14 passed",
+      "source": "Flow V3 Baseline"
+    },
+    "stage2": {
+      "browser": "22/22 passed",
+      "runUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43553043378",
+      "numeric": "node --test tests/flow-v3/*.test.mjs failures 0"
+    },
+    "stage3": {
+      "runUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43557165166",
+      "browser": "29 passed, 1 touch-specific desktop skip",
+      "numeric": "node --test tests/flow-v3/*.test.mjs 0 failures",
+      "sizes": [
+        "1440×900",
+        "900×980",
+        "390×844"
+      ]
+    },
+    "stage4": {
+      "runUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43561173094",
+      "browser": "37 passed, 1 desktop-only touch skip",
+      "numeric": "26 Node tests, 0 failures",
+      "modes": [
+        "field",
+        "release"
+      ],
+      "evidenceArtifact": "flow-v3-stage4-evidence"
+    },
+    "stage5": {
+      "runUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43563975374",
+      "numeric": "34 Node tests, 0 failures",
+      "browser": "45 passed, 1 desktop-only touch skip",
+      "modes": [
+        "od",
+        "trips"
+      ],
+      "sizes": [
+        "1440×900",
+        "900×980",
+        "390×844"
+      ],
+      "evidenceArtifact": "flow-v3-stage5-evidence"
+    },
+    "stage6": {
+      "preliminaryRunUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43573738355",
+      "preliminaryNumeric": "41 Node tests, 0 failures",
+      "preliminaryBrowser": "67 passed, 1 platform-specific skip",
+      "maxObservedP95JsDrawMs": 28.53,
+      "maxCanvasSurfaceMiB": 21.16,
+      "axeAAViolations": 0,
+      "finalHeadCheck": "documentation-closeout-ci-pending",
+      "auditFile": "docs/flow-v3/STAGE6-AUDIT.md",
+      "finalRunUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43574807208",
+      "finalImplementationHead": "23303baa94c1786e53dfee34160f53414aa63eb6",
+      "finalImplementationNode": "42/42 passed, 0 failures",
+      "finalImplementationBrowser": "67 passed, 1 platform-specific skip, 0 failures",
+      "independentChecks": {
+        "orbit": "success",
+        "earthPulsePreflight": "success",
+        "earthPulseRegression": "success",
+        "geogeekQuality": "success"
+      },
+      "evidenceArtifact": "flow-v3-stage6-evidence",
+      "limits": "CDP forced-GC three-cycle heap is not a long-duration memory leak guarantee; Pages live deployment and commercial licensing remain Stage 7"
+    }
+  }
+}
