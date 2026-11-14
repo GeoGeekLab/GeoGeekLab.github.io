@@ -15,6 +15,7 @@ export const FLOW_PERF_BUDGET=Object.freeze({
   maxFlowDomNodes:850,
   maxCanvasSurfaceMiB:70,
   maxOverlayRenderPerSecond:75,
+  maxForcedGcHeapGrowthMiB:20,
   minTouchCssPx:44
 });
 export class FlowTelemetry{
