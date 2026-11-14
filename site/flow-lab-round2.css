@@ -519,8 +519,8 @@
 @media(max-width:700px){
   .flow-lab[data-flow-round2="1"] .flow-main {
     height:auto;
-    min-height:430px;
-    grid-template-rows:auto minmax(220px,1fr) auto;
+    min-height:480px;
+    grid-template-rows:auto minmax(275px,1fr) auto;
   }
   .flow-lab[data-flow-round2="1"] .flow-workbar {
     display:grid;
