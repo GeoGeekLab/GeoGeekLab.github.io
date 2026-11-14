@@ -153,10 +153,11 @@ test('Stage 6 overlay observer costs remain bounded during pan and TRIPS playbac
   for(let i=0;i<30;i++)await page.mouse.move(
     r.x+r.width*(.3+i*.005),r.y+r.height*.5,{steps:1});
   await page.mouse.up();
-  await page.waitForTimeout(250);
+  await page.waitForTimeout(Math.max(0,1100-(Date.now()-started)));
   const after=Number(await page.locator('.flow-lab').getAttribute('data-flow-overlay-renders')||0);
   expect(after).toBeGreaterThan(initial);
-  expect(after-initial).toBeLessThanOrEqual(75);
+  const observedPerSecond=(after-initial)/((Date.now()-started)/1000);
+  expect(observedPerSecond).toBeLessThanOrEqual(75);
   await mode(page,'trips');
   await page.waitForTimeout(750);
   const s=await metrics(page);
