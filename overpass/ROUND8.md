@@ -39,3 +39,7 @@ records, plus human approval.
 Watched's author distinguishes forks from the official Watched brand.
 OVERPASS must retain attribution without suggesting official affiliation.
 No automatic approval JSON will be generated.
+
+The six-hour catalog cron is disabled in the code-only merge. It may run
+only after a separate approved release activates scheduling. Manual dispatch
+still produces a candidate dataset without automatic deployment.

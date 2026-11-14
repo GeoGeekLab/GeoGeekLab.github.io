@@ -16,9 +16,10 @@ test('P8 rollback is not accepted when the candidate card remains deployed',()=>
 })
 test('P8 disallows public OVERPASS activation during code-only merge',()=>{
  const o={pages:'push:\n    branches: [main]\n',content:'window.GEOGEEK_ARCHIVE = {}',
-  labHtml:'<div id="l13"></div>',submodule:'[submodule "overpass/upstream"]\nurl = https://github.com/dev-Armaan/satellites',approvals:false}
+  labHtml:'<div id="l13"></div>',submodule:'[submodule "overpass/upstream"]\nurl = https://github.com/dev-Armaan/satellites',approvals:false,refreshWorkflow:'on:\n  workflow_dispatch:'}
  assert(assertCodeOnly(o).codeMergeEligible)
  assert.throws(()=>assertCodeOnly({...o,pages:o.pages+'node overpass/scripts/prepare-p7-source.mjs'}))
  assert.throws(()=>assertCodeOnly({...o,content:'"ref": "lab:l17"'}))
  assert.throws(()=>assertCodeOnly({...o,approvals:true}))
+ assert.throws(()=>assertCodeOnly({...o,refreshWorkflow:'on:\n  schedule:\n    - cron: 0 0 * * *'}))
 })

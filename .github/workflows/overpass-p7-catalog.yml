@@ -1,10 +1,8 @@
 name: OVERPASS / catalog refresh candidate (never auto-deploy)
 on:
   workflow_dispatch:
-  schedule:
-    # CelesTrak asks clients not to re-fetch the same data within 2h.
-    # Scheduled workflows only activate after this workflow reaches default branch.
-    - cron: '41 */6 * * *'
+  # Scheduling remains disabled until independent release approval.
+  # Manual dispatch makes catalog data a reviewable candidate only.
 permissions:
   contents: read
 jobs:
