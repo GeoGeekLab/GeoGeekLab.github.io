@@ -38,6 +38,7 @@ test('Light unlocks three continuous optical experiments after the core journey'
       await expect(shell.locator('.light-spectrum-xmax')).toHaveText('85°');
       await expect(shell.locator('.light-angle-active-dot')).toBeHidden();
       await expect(shell.locator('.light-spectrum-after')).toHaveCSS('opacity','0');
+      await expect(shell.locator('.light-spectrum-after')).toHaveCSS('transition-duration','0s');
     }
     await shell.getByRole('button',{name:action,exact:true}).click();
     const slider=shell.getByRole('slider',{name:control});
