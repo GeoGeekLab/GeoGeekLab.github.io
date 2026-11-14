@@ -120,10 +120,10 @@ jobs:
           test -s overpass/reports/p7-rollback-exercise.json
       - name: Browser acceptance of original Results plus Lab navigation and return
         run: |
+          npx playwright test -c playwright.overpass-p7.config.mjs
+          npx playwright test -c playwright.overpass-p6.config.mjs
           npx playwright test -c playwright.overpass-p4.config.mjs
           npx playwright test -c playwright.overpass-p5.config.mjs
-          npx playwright test -c playwright.overpass-p6.config.mjs
-          npx playwright test -c playwright.overpass-p7.config.mjs
       - name: Upload live archive observations and catalog report
         if: always()
         uses: actions/upload-artifact@v4
