@@ -1,5 +1,9 @@
 name: OVERPASS / P9 real desktop 1080 MP4 acceptance (manual)
 on:
+  push:
+    branches: [feature/overpass-p9-release-readiness]
+    paths:
+      - '.github/workflows/overpass-p9-desktop.yml'
   workflow_dispatch:
 permissions:
   contents: read
