@@ -122,16 +122,23 @@
 .orbit-v2 .orbit-step-row button{min-height:30px}
 .orbit-v2 .orbit-station-editor{
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr) 52px 92px;
+  grid-template-columns:repeat(6,minmax(0,1fr));
   gap:6px;
   margin:9px 0 12px;
 }
 .orbit-v2 .orbit-station-editor label{
+  grid-column:span 2;
   display:grid;
   gap:5px;
   color:#7f8c83;
   font:700 9px/1 var(--mono);
   letter-spacing:.08em;
+}
+.orbit-v2 .orbit-station-editor button{grid-column:span 3}
+.orbit-v2 .orbit-station-editor .orbit-station-message{
+  grid-column:1/-1;
+  color:#9ba89f;
+  font:500 10px/1.5 var(--mono);
 }
 .orbit-v2 .orbit-station-editor input{
   width:100%;
@@ -183,7 +190,7 @@
   .orbit-v2 .orbit-enhancement-tools{top:82px}
   .orbit-v2 .orbit-enhancement-help{top:126px}
   .orbit-v2 .orbit-preset-row{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .orbit-v2 .orbit-station-editor{grid-template-columns:1fr 1fr}
+  .orbit-v2 .orbit-station-editor{grid-template-columns:repeat(6,minmax(0,1fr))}
 }
 @media(max-width:760px){
   .orbit-v2 .orbit-enhancement-tools{top:74px;right:10px}
@@ -191,5 +198,5 @@
   .orbit-v2 .orbit-enhancement-help{top:116px;right:10px}
   .orbit-v2 .orbit-step-row{grid-template-columns:1fr repeat(2,44px)}
   .orbit-v2 .orbit-step-row>span{grid-column:1/-1}
-  .orbit-v2 .orbit-station-editor{grid-template-columns:1fr 1fr}
+  .orbit-v2 .orbit-station-editor{grid-template-columns:repeat(6,minmax(0,1fr))}
 }

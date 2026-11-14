@@ -34,15 +34,31 @@
     if (active !== desired) button.click();
   }
 
+  const PRESETS = {
+    relations: { graticule:true, shells:true, orbit:true, ground:true },
+    trace: { graticule:false, shells:false, orbit:true, ground:true },
+    field: { graticule:true, shells:true, orbit:false, ground:false },
+    clean: { graticule:false, shells:false, orbit:false, ground:false },
+  };
+
+  function activePreset(root) {
+    return Object.keys(PRESETS).find(preset => Object.entries(PRESETS[preset]).every(
+      ([key, expected]) => $('[data-layer="'+key+'"]',root)?.classList.contains('is-active') === expected
+    )) || null;
+  }
+
+  function syncPreset(root, viewCard) {
+    const active=activePreset(root);
+    $$('[data-orbit-preset]',viewCard).forEach(button=>{
+      const pressed=button.dataset.orbitPreset===active;
+      button.classList.toggle('is-active',pressed);
+      button.setAttribute('aria-pressed',String(pressed));
+    });
+  }
+
   function applyPreset(root, preset) {
-    const defs = {
-      relations: { graticule:true, shells:true, orbit:true, ground:true },
-      trace: { graticule:false, shells:false, orbit:true, ground:true },
-      field: { graticule:true, shells:true, orbit:false, ground:false },
-      clean: { graticule:false, shells:false, orbit:false, ground:false },
-    };
-    const config = defs[preset];
-    if (!config) return;
+    const config=PRESETS[preset];
+    if(!config)return;
     Object.entries(config).forEach(([key, desired]) => clickIfNeeded(root, `[data-layer="${key}"]`, desired));
   }
 
@@ -54,16 +70,9 @@
     }));
   }
 
-  function mapEventForCoordinate(canvas, lat, lon) {
-    const r = canvas.getBoundingClientRect();
-    const x = r.left + ((Number(lon) + 180) / 360) * r.width;
-    const y = r.top + ((90 - Number(lat)) / 180) * r.height;
-    canvas.dispatchEvent(new MouseEvent('click', {
-      bubbles:true,
-      cancelable:true,
-      clientX:x,
-      clientY:y,
-      view:window,
+  function setStation(root, lat, lon, heightMeters) {
+    root.dispatchEvent(new CustomEvent('geogeek:orbit-set-observer', {
+      detail:{lat,lon,heightKm:heightMeters/1000}
     }));
   }
 
@@ -71,9 +80,10 @@
     return `${Math.abs(value).toFixed(3)}° ${value >= 0 ? positive : negative}`;
   }
 
-  function updateStationInputs(canvas, latInput, lonInput, lat, lon) {
+  function updateStationInputs(canvas, latInput, lonInput, lat, lon, heightInput) {
     latInput.value = Number(lat).toFixed(4);
     lonInput.value = Number(lon).toFixed(4);
+    if(heightInput)heightInput.value='0';
     const card = canvas.closest('.orbit-card');
     const title = $('#orbitObserverTitle', card);
     if (title) title.title = `${formatCoord(lat,'N','S')} · ${formatCoord(lon,'E','W')}`;
@@ -297,11 +307,13 @@
     const relationCard = groundCanvas.closest('.orbit-card');
     const station = document.createElement('div');
     station.className = 'orbit-station-editor';
-    station.innerHTML = '<label>LAT<input type="number" inputmode="decimal" min="-90" max="90" step="0.0001" data-station-lat placeholder="35.6895"></label><label>LON<input type="number" inputmode="decimal" min="-180" max="180" step="0.0001" data-station-lon placeholder="139.6917"></label><button type="button" data-station-set>SET</button><button type="button" data-station-locate>MY LOCATION</button>';
+    station.innerHTML = '<label>LAT °<input type="number" inputmode="decimal" min="-90" max="90" step="0.0001" data-station-lat placeholder="35.6895"></label><label>LON °<input type="number" inputmode="decimal" min="-180" max="180" step="0.0001" data-station-lon placeholder="139.6917"></label><label>HEIGHT m<input type="number" inputmode="decimal" min="-500" max="9000" step="1" value="0" data-station-height title="Height in metres relative to the WGS84 reference ellipsoid"></label><button type="button" data-station-set>SET</button><button type="button" data-station-locate>MY LOCATION</button><span class="orbit-station-message" role="status" aria-live="polite">Height uses the WGS84 reference ellipsoid, not terrain elevation.</span>';
     const stats = $('.orbit-ground-stats', relationCard);
     relationCard?.insertBefore(station, stats || null);
     const latInput = $('[data-station-lat]', station);
     const lonInput = $('[data-station-lon]', station);
+    const heightInput = $('[data-station-height]', station);
+    const stationMessage = $('.orbit-station-message',station);
 
     const wrap = groundCanvas.parentElement;
     if (wrap) {
@@ -354,12 +366,15 @@
       const preset=event.target.closest('[data-orbit-preset]');
       if(preset) {
         applyPreset(root,preset.dataset.orbitPreset);
-        $$('[data-orbit-preset]',viewCard).forEach(b=>b.classList.toggle('is-active',b===preset));
+        syncPreset(root,viewCard);
         return;
       }
       const step=event.target.closest('[data-orbit-step]');
       if(step) stepTime(root,Number(step.dataset.orbitStep));
     });
+
+    syncPreset(root,viewCard);
+    root.addEventListener('geogeek:orbit-layers-changed',()=>syncPreset(root,viewCard));
 
     const wheelForward = event => {
       if (event.target === canvas || event.target.closest('.orbit-panel,input,button,a')) return;
@@ -403,7 +418,7 @@
       if(event.key==='+'||event.key==='=') {event.preventDefault();dispatchWheel(canvas,-180);}
       else if(event.key==='-'||event.key==='_') {event.preventDefault();dispatchWheel(canvas,180);}
       else if(event.key.toLowerCase()==='f') {event.preventDefault();$('#orbitFocus',root)?.click();}
-      else if(event.key.toLowerCase()==='r') {event.preventDefault();$('[data-view="equator"]',root)?.click();}
+      else if(event.key.toLowerCase()==='r') {event.preventDefault();$('#orbitResetView',root)?.click();}
       else if(event.key.toLowerCase()==='n') {event.preventDefault();$('#orbitNow',root)?.click();}
       else if(event.key.toLowerCase()==='t') {event.preventDefault();$('#orbitTrack',root)?.click();}
       else if(event.key===' ') {event.preventDefault();$('#orbitPlay',root)?.click();}
@@ -431,18 +446,27 @@
 
     groundCanvas.addEventListener('click',event=>{
       const stationPoint=stationFromPointer(groundCanvas,event);
-      if(stationPoint) updateStationInputs(groundCanvas,latInput,lonInput,stationPoint.lat,stationPoint.lon);
+      if(stationPoint){
+        updateStationInputs(groundCanvas,latInput,lonInput,stationPoint.lat,stationPoint.lon,heightInput);
+        station.classList.remove('has-error');
+        stationMessage.textContent='Map observer set · height reset to 0 m (ellipsoid).';
+      }
     },true);
 
     $('[data-station-set]',station)?.addEventListener('click',()=>{
       const lat=Number(latInput.value);
       const lon=Number(lonInput.value);
-      if(!latInput.value.trim()||!lonInput.value.trim()||!Number.isFinite(lat)||!Number.isFinite(lon)||lat<-90||lat>90||lon<-180||lon>180) {
+      const heightMeters=Number(heightInput.value);
+      if(!latInput.value.trim()||!lonInput.value.trim()||!heightInput.value.trim()||
+         !Number.isFinite(lat)||!Number.isFinite(lon)||!Number.isFinite(heightMeters)||
+         lat<-90||lat>90||lon<-180||lon>180||heightMeters<-500||heightMeters>9000) {
         station.classList.add('has-error');
+        stationMessage.textContent='Enter valid latitude, longitude and ellipsoid height (−500 to 9,000 m).';
         return;
       }
       station.classList.remove('has-error');
-      mapEventForCoordinate(groundCanvas,lat,lon);
+      stationMessage.textContent=`Observer set · ${heightMeters.toLocaleString()} m above reference ellipsoid.`;
+      setStation(root,lat,lon,heightMeters);
     });
 
     $('[data-station-locate]',station)?.addEventListener('click',event=>{
@@ -456,8 +480,10 @@
         pos=>{
           const lat=pos.coords.latitude;
           const lon=pos.coords.longitude;
-          updateStationInputs(groundCanvas,latInput,lonInput,lat,lon);
-          mapEventForCoordinate(groundCanvas,lat,lon);
+          updateStationInputs(groundCanvas,latInput,lonInput,lat,lon,heightInput);
+          station.classList.remove('has-error');
+          stationMessage.textContent='Location set · height defaults to 0 m (ellipsoid).';
+          setStation(root,lat,lon,0);
           button.textContent='MY LOCATION';
         },
         ()=>{
