@@ -5,6 +5,8 @@ test('About preserves the original Watched maker and states static data/hosting 
  const bad=[]
  page.on('pageerror',e=>bad.push(e.message))
  await page.goto('/overpass/',{waitUntil:'domcontentloaded'})
+ // The boot curtain must leave before the About screenshot can be accepted.
+ await expect(page.locator('#boot-static')).toHaveCount(0,{timeout:30000})
  await page.getByRole('button',{name:/How this works/i}).click()
  const dialog=page.getByRole('dialog').first()
  await expect(dialog).toBeVisible({timeout:30000})
