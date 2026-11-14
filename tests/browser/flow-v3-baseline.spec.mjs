@@ -64,7 +64,8 @@ test('V3 baseline: FIELD, OD, TRIPS, RELEASE retain distinct source semantics an
   await expect(page.locator('#flReleaseLife')).toBeVisible();
   await expect(page.locator('#flSeedGlobal')).toBeVisible();
   await expect(page.locator('#flClearRelease')).toBeVisible();
-  await expect(page.locator('.flow-active-summary')).toContainText('IF FIELD FROZE');
+  await expect(page.locator('.flow-active-summary')).toContainText('Where could material move in a frozen field?');
+  await expect(page.locator('[data-flow-time]')).toHaveText('DERIVED');
 });
 
 test('V3 baseline: deep links preserve unrelated Earth/Orbit state on mode changes',async({page})=>{
