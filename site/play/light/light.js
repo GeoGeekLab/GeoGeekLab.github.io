@@ -27,6 +27,8 @@
       onCommit:()=>game?.commit(),
       onPerturb:()=>game?.perturb(),
       onNext:()=>game?.next(),
+      onBeginAdvanced:()=>game?.beginAdvanced(),
+      onExplore:value=>game?.explore(value),
       onRestart:()=>{
         traced.clear();
         game?.restart();
@@ -37,8 +39,12 @@
     function render(snapshot,meta) {
       if (signal?.aborted) return;
       const chartMode=snapshot.experiment?.chartMode || 'sky';
-      const scene=physics.buildScene({waterOutput,mechanisms:snapshot.mechanisms,chartMode});
-      view.render(snapshot,scene);
+      const scene=physics.buildScene({
+        waterOutput,mechanisms:snapshot.mechanisms,chartMode,
+        interventionId:snapshot.interventionId,
+        exploreValue:snapshot.exploreValue
+      });
+      view.render(snapshot,scene,meta);
 
       if (snapshot.phase==='revealed' && snapshot.experiment && !traced.has(snapshot.experiment.id)) {
         traced.add(snapshot.experiment.id);
@@ -46,7 +52,10 @@
           play:'light',
           trialId:snapshot.experiment.id,
           judgment:{prediction:snapshot.selection,correct:snapshot.correct},
-          relation:{mechanism:snapshot.experiment.mechanism},
+          relation:{
+            mechanism:snapshot.experiment.mechanism||null,
+            intervention:snapshot.experiment.intervention?.id||null
+          },
           conditions:{
             before:{atmosphericScattering:true,waterBackscatter:true,surfaceReflection:true},
             after:snapshot.mechanisms
@@ -54,7 +63,8 @@
           result:{
             chartMode,
             waterRrs550:waterOutput.Rrs[150],
-            mechanismRemoved:true
+            mechanismRemoved:!snapshot.experiment.intervention,
+            parameterValue:snapshot.experiment.intervention?.defaultValue??null
           },
           effect:{predictionRevised:!snapshot.correct}
         });
