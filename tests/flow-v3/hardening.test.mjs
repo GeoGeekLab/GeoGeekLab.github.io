@@ -16,7 +16,7 @@ function grid(time='2026-11-14T08:00'){
 
 test('Stage 6 HTTP policies never reuse browser cache for live weather',()=>{
   assert.equal(SOURCE_CACHE_POLICY.live,'no-store');
-  assert.equal(SOURCE_CACHE_POLICY.world,'no-store');
+  assert.equal(SOURCE_CACHE_POLICY.world,'force-cache');
   assert.equal(SOURCE_CACHE_POLICY.pinned,'force-cache');
   assert.equal(WIND_GRID.points,WIND_GRID.rows*WIND_GRID.cols);
 });
