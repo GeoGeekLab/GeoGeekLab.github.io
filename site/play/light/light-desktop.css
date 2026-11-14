@@ -410,3 +410,36 @@
     left:22px;right:auto;top:105px;max-width:62%;
   }
 }
+
+
+/* L7 / hierarchy: one visible question or result, not a long explanation
+   competing with the central scene. The full interpretation lives in the sheet. */
+@media(min-width:1024px){
+  .play-v2-shell[data-play-kind="light"] .light-panel.is-revealed{gap:12px}
+  .play-v2-shell[data-play-kind="light"] .light-panel.is-revealed>.light-result-title{
+    font-size:clamp(28px,2.15vw,36px);max-width:16ch;
+    text-wrap:balance;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-panel.is-revealed .light-verdict{
+    margin:0 0 6px;padding:10px 0;
+    border-top:1px solid var(--play-line,rgba(237,236,229,.18));
+    border-bottom:0;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-panel.is-revealed .light-verdict small{
+    color:var(--play-reference,#8fb5ac);font-size:10px;letter-spacing:.07em;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-explain-action{
+    background:var(--play-action,#d8794e);border-color:var(--play-action,#d8794e);
+    color:#0c1510;min-height:46px;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-explain-action::after{
+    content:"↗";margin-left:10px;font-size:16px;font-weight:400;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-evidence-scope{
+    margin-top:12px;padding-top:12px;
+  }
+}
+@media(min-width:1024px) and (max-height:790px){
+  .play-v2-shell[data-play-kind="light"] .light-panel.is-revealed{gap:9px}
+  .play-v2-shell[data-play-kind="light"] .light-panel.is-revealed>.light-result-title{font-size:28px}
+}
