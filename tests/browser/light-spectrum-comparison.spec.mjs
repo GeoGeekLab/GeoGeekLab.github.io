@@ -103,6 +103,7 @@ test('LIGHT keeps the result concealed until reveal and preserves keyboard focus
   await expect(after).toHaveText('PENDING');
   await expect(chart).toHaveAttribute('aria-label','Baseline spectrum; result is hidden until reveal');
   await expect(shell.locator('.light-spectrum-after')).toHaveCSS('opacity','0');
+  await expect(shell.locator('.light-spectrum-after')).toHaveCSS('transition-duration','0s');
   await expect(shell.locator('.light-spectrum-y-max')).toContainText('MAX');
   await expect(status).toContainText('Experiment 1 of 3');
 
