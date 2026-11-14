@@ -443,7 +443,7 @@
         panel.classList.add(snapshot.correct?'is-correct':'is-revised');
         const verdict=document.createElement('div');
         verdict.className='light-verdict';
-        verdict.innerHTML=`<small>${snapshot.correct?'PREDICTION HELD':'PREDICTION REVISED'}</small><strong>${snapshot.correct?'CORRECT PREDICTION':'NEW EVIDENCE'}</strong>`;
+        verdict.innerHTML=`<small>YOUR PREDICTION · ${snapshot.correct?'MATCHED':'REVISED'}</small>`;
         panel.appendChild(verdict);
         if (exp.intervention) {
           const config=exp.intervention;
