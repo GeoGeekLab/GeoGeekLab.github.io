@@ -440,7 +440,7 @@
         panel.appendChild(committed);
         panel.appendChild(button(exp.action,callbacks.onPerturb,{action:'perturb'}));
       } else if (snapshot.phase==='revealed') {
-        panel.classList.add(snapshot.correct?'is-correct':'is-revised');
+        panel.classList.add('is-revealed',snapshot.correct?'is-correct':'is-revised');
         const verdict=document.createElement('div');
         verdict.className='light-verdict';
         verdict.innerHTML=`<small>YOUR PREDICTION · ${snapshot.correct?'MATCHED':'REVISED'}</small>`;
