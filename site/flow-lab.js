@@ -8,26 +8,7 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const wrapLon=lon=>((lon+180)%360+360)%360-180;
 
-const NODES={
-  nyc:[-74.006,40.713,'New York'], lon:[-0.128,51.507,'London'], par:[2.352,48.857,'Paris'], dub:[55.270,25.205,'Dubai'],
-  sin:[103.820,1.352,'Singapore'], tok:[139.692,35.690,'Tokyo'], lax:[-118.244,34.052,'Los Angeles'], mex:[-99.133,19.433,'Mexico City'],
-  sao:[-46.633,-23.550,'São Paulo'], jnb:[28.047,-26.204,'Johannesburg'], syd:[151.209,-33.869,'Sydney'], del:[77.209,28.614,'Delhi']
-};
-const OD=[
-  ['nyc','lon',94],['lon','par',72],['par','dub',61],['dub','del',68],['del','sin',57],['sin','tok',76],['tok','lax',89],['lax','nyc',84],
-  ['mex','lax',55],['mex','nyc',47],['sao','nyc',58],['sao','jnb',32],['jnb','dub',46],['jnb','lon',41],['syd','sin',64],['syd','tok',51],
-  ['dub','sin',59],['lon','nyc',88],['tok','sin',69],['par','nyc',63],['del','dub',62],['lax','tok',77],['sin','syd',56],['nyc','sao',44]
-].map(([a,b,value],i)=>({id:i,a,b,value}));
-const TRIPS=[
-  {name:'Pacific corridor A',color:'warm',pts:[[-122.42,37.77,0],[-150,35,18],[178,34,36],[160,35,55],[139.69,35.69,72]]},
-  {name:'Atlantic corridor B',color:'pale',pts:[[-74.0,40.71,3],[-50,45,18],[-28,49,34],[-10,51,49],[2.35,48.86,64]]},
-  {name:'Indian Ocean C',color:'warm',pts:[[55.27,25.2,0],[67,18,16],[78,11,31],[91,7,47],[103.82,1.35,66]]},
-  {name:'Southern corridor D',color:'pale',pts:[[151.21,-33.87,8],[139,-27,22],[122,-20,39],[112,-10,55],[103.82,1.35,72]]},
-  {name:'South Atlantic E',color:'warm',pts:[[-46.63,-23.55,4],[-28,-28,21],[-8,-30,39],[10,-29,55],[28.05,-26.2,73]]},
-  {name:'Eurasia F',color:'pale',pts:[[2.35,48.86,2],[23,48,18],[44,46,36],[62,39,52],[77.21,28.61,70]]},
-  {name:'North America G',color:'warm',pts:[[-118.24,34.05,0],[-108,37,15],[-96,39,31],[-84,40,47],[-74,40.71,62]]},
-  {name:'SE Asia H',color:'pale',pts:[[77.21,28.61,10],[85,23,26],[94,16,42],[100,8,57],[103.82,1.35,71]]}
-];
+// Canonical teaching datasets now live in flow/v3/core/movement.mjs.
 
 function style(){
   if($('#ggFlowLabStyle'))return;
@@ -72,13 +53,15 @@ async function mount({signal,stage}={}){
     {advanceFixedClock,advanceTripTime,playbackCanAdvance},
     {createPlateCarreeViewport},
     {advanceFrozenField},
-    {windSpeedColor,WIND_COLOR_STOPS,fieldMetadata,seedDisk}
+    {windSpeedColor,WIND_COLOR_STOPS,fieldMetadata,seedDisk},
+    {NODES,OD,TRIPS,sortedEdges,odNodeTotals,odNetworkTotals,tripMetrics,tripPosition}
   ]=await Promise.all([
     import(new URL('flow/v3/core/field.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/clock.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/projection.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/integrator.mjs',document.baseURI).href),
-    import(new URL('flow/v3/core/analysis.mjs',document.baseURI).href)
+    import(new URL('flow/v3/core/analysis.mjs',document.baseURI).href),
+    import(new URL('flow/v3/core/movement.mjs',document.baseURI).href)
   ]);
   if(signal?.aborted)return()=>{};
   style();setConditions();
