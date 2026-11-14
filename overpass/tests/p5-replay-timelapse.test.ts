@@ -5,7 +5,7 @@ import {replayWindow,windowFraction,replayDone,REPLAY_RATES} from '@/ui/results/
 import {motionVector,revealProgress,sweepRange,scannedPolygon} from '@/ui/results/lib/pushbroom'
 import {hasTimelapse} from '@/ui/results/TimelapseEntry'
 import {timelapseLink} from '@/ui/timelapse/link'
-import {timelapseParam,useTimelapseUi} from '@/state/timelapse'
+import {timelapseParam} from '@/state/timelapse'
 import {planVideo,videoFileName} from '@/ui/timelapse/video'
 
 describe('P5 replay, time-lapse and static provenance',()=>{
