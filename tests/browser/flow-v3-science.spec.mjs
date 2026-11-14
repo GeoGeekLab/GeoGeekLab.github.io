@@ -82,6 +82,9 @@ test('Flow V3 Stage 2: global PAUSE freezes TRIPS and native playback resumes',a
   const stopped=await time.inputValue();
   await page.waitForTimeout(250);
   expect(await time.inputValue()).toBe(stopped);
+  await page.locator('#flReset').click();
+  await expect(time).toHaveValue('30');
+  await expect(page.locator('#flTripOut')).toHaveText('30');
 });
 
 test('Flow V3 Stage 2: source and time transitions survive close and reopen',async({page})=>{
