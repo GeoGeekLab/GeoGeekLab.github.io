@@ -1,4 +1,4 @@
-name: Flow V3 Baseline
+name: Flow V3 Scientific Core
 
 on:
   pull_request:
@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   characterize:
-    name: Node contracts + desktop/mobile characterization
+    name: Stage 2 scientific core + browser regression
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify V3 grammar and baseline contracts
+      - name: Verify scientific core and four mode contracts
         run: npm run qa:flow-v3
 
       - name: Check existing Flow source syntax
@@ -54,14 +54,14 @@ jobs:
           mkdir -p dist
           cp -a site/. dist/
 
-      - name: Characterize Flow V3 and existing Round2 on desktop and mobile
-        run: npx playwright test tests/browser/flow-v3-baseline.spec.mjs tests/browser/flow-round2.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Verify Stage 2 scientific core plus existing desktop/mobile regressions
+        run: npx playwright test tests/browser/flow-v3-baseline.spec.mjs tests/browser/flow-v3-science.spec.mjs tests/browser/flow-round2.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
 
       - name: Upload baseline geometry, screenshots and traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: flow-v3-stage1-evidence
+          name: flow-v3-stage2-evidence
           retention-days: 21
           if-no-files-found: ignore
           include-hidden-files: true
