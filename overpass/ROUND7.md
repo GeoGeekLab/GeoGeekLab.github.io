@@ -15,8 +15,10 @@ P7 prepares an authored GeoGeek source candidate before running the original
 site compiler. It adds lab:l17 to the archive source model, conditions and
 native Lab registry; updates first-paint rendering from 13 to 14; adds a
 normal standalone route anchor rather than a Lab dialog button; and updates
-the record and model deep-link contract. The existing GeoGeek build should
-emit /records/lab-l17.html itself. No custom replacement record HTML is used.
+the record and model deep-link contract. P7 derives the native
+site/records/lab-l17.html source page from the existing Lab record template.
+The ordinary GeoGeek compiler publishes this source-owned record page.
+The old P6 postbuild replacement page is not used.
 
 The process has fail-closed source signature checks. It logs SHA-256 for each
 source input and output. It runs in the isolated CI checkout, not directly
@@ -44,7 +46,9 @@ Watched 48-hour policy.
 
 The candidate workflow emits a machine-readable release-readiness verdict
 and does not publish. Release mode blocks stale catalogs, missing notices,
-missing assets or failed rollback. A six-hour cadence workflow (inactive
+missing assets or failed rollback. It also requires separately approved
+HTTPS staging and live rollback, historical MP4 export, provider terms,
+and the disposition of optional dynamic backend/shortlink routes. A six-hour cadence workflow (inactive
 until installed on the default branch) fetches BOTH catalogs as separately
 reviewable Actions artifacts. It never commits or deploys automatically.
 
@@ -68,3 +72,6 @@ that a live GitHub Pages deployment can be rolled back.
 - Real staging deployment, smoke tests and rollback before promotion to main.
 
 Do not infer production readiness merely from successful build or CI.
+The build can pass while releaseEligible=false. Positive release approval
+requires four documented sign-offs in overpass/approvals; no CI run creates
+or fabricates those approvals.
