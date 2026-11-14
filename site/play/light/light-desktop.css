@@ -312,14 +312,22 @@
   .play-v2-shell[data-play-kind="light"] .light-path-legend [data-path="depth"]::before{
     border-top-color:#8ec5b4;border-top-style:dashed;
   }
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="sunset"] .light-sun,
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="grazing"] .light-sun{
+    top:var(--light-sun-top,15%);right:var(--light-sun-right,20%);
+    transition:top 280ms cubic-bezier(.2,0,0,1),right 280ms cubic-bezier(.2,0,0,1),background 200ms ease;
+  }
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="sunset"] .light-sky::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(35,34,41,.78),rgba(232,128,73,.8));
+    opacity:var(--light-sunset-strength,0);
+  }
   .play-v2-shell[data-play-kind="light"][data-light-phenomenon="sunset"] .light-sun{
-    transition:top 480ms cubic-bezier(.2,0,0,1),background 300ms ease;
+    background:#ffcd96;
   }
-  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="sunset"][data-light-compare="revealed"] .light-sun{
-    top:calc(100% - 24px);background:#ffcc97;
-  }
-  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="sunset"][data-light-compare="revealed"] .light-sky{
-    background:linear-gradient(180deg,#2b4954 0%,#936a57 61%,#df9d71 100%);
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="sunset"] .light-sky::after,
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="grazing"] .light-sky::after{
+    background:radial-gradient(circle at calc(100% - var(--light-sun-right,20%)) var(--light-sun-top,15%),rgba(255,246,205,.24),transparent 22%);
   }
   .play-v2-shell[data-play-kind="light"][data-light-phenomenon="depth"] .light-ocean::after{
     content:"";position:absolute;inset:0;pointer-events:none;z-index:4;
