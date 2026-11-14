@@ -377,3 +377,36 @@
     transition:none!important;
   }
 }
+
+/* The teaching glyphs follow model parameters. They are not a ray-tracing solution. */
+@media (min-width:1024px){
+  .play-v2-shell[data-play-kind="light"] .light-incidence-guide,
+  .play-v2-shell[data-play-kind="light"] .light-depth-label{display:none}
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="grazing"] .light-incidence-guide{display:block}
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="depth"][data-light-compare="revealed"] .light-depth-label{display:block}
+  .play-v2-shell[data-play-kind="light"] .light-angle-normal{
+    fill:none;stroke:rgba(242,240,232,.56);stroke-width:1;
+    stroke-dasharray:4 7;vector-effect:non-scaling-stroke;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-angle-arc{
+    fill:none;stroke:var(--play-action,#d8794e);stroke-width:2;
+    vector-effect:non-scaling-stroke;
+  }
+  .play-v2-shell[data-play-kind="light"] :is(.light-angle-label,.light-normal-label,.light-depth-label){
+    fill:var(--play-fg,#edece5);
+    font:700 13px/1 var(--play-font-data,monospace);
+    letter-spacing:.02em;paint-order:stroke fill;
+    stroke:rgba(5,13,12,.7);stroke-width:3;
+  }
+  .play-v2-shell[data-play-kind="light"] .light-normal-label{
+    font-size:10px;fill:rgba(242,240,232,.65);
+  }
+  .play-v2-shell[data-play-kind="light"] .light-depth-label{
+    fill:#b5e0d0;stroke-width:2.5;
+  }
+  /* The baseline Sun sits near the right header in the depth illustration.
+     Shift the variable readout away instead of covering the modeled light source. */
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="depth"] .light-mechanism-readout{
+    left:22px;right:auto;top:105px;max-width:62%;
+  }
+}
