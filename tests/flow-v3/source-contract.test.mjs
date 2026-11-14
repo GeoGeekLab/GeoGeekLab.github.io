@@ -11,7 +11,7 @@ const polish=read('site/flow-lab-polish.js');
 
 test('Flow V3 specification covers four non-interchangeable movement models',()=>{
   assert.equal(contract.schemaVersion,1);
-  assert.match(contract.status,/^(stage2-scientific-core-(implemented|verified)|stage3-map-first-ux-verified|stage4-field-release-analysis-verified)/);
+  assert.match(contract.status,/^(stage2-scientific-core-(implemented|verified)|stage3-map-first-ux-verified|stage4-field-release-analysis-verified|stage5-od-trips-analysis-verified)/);
   const modes=contract.invariants.primaryModeNames;
   assert.deepEqual(modes,['field','od','trips','release']);
   assert.deepEqual(Object.keys(contract.fourModes),modes);
@@ -78,6 +78,19 @@ test('acceptance targets are measurable and do not imply Stage 1 repairs',()=>{
   assert.ok(uiTargets.touchTargetMinCssPx>=44);
   assert.equal(Object.keys(stageGates).length,7);
   assert.ok(stageGates.stage7.some(x=>x.includes('merged')));
+});
+
+test('Stage 5 directed network and relative teaching time are executable invariants',()=>{
+  const suite=read('tests/flow-v3/movement.test.mjs');
+  assert.match(suite,/odNodeTotals/);
+  assert.match(suite,/odPairTotals/);
+  assert.match(suite,/tripPosition/);
+  assert.match(suite,/tripMetrics/);
+  assert.equal(contract.stageProgress.stage5,'numeric-and-browser-ci-verified');
+  assert.match(contract.invariants.tripTime,/never UTC/);
+  assert.match(contract.invariants.canonicalMovementData,/movement\.mjs/);
+  assert.match(base,/flow\/v3\/core\/movement\.mjs/);
+  assert.match(round2,/from '\.\/flow\/v3\/core\/movement\.mjs'/);
 });
 
 test('Stage 2 scientific invariants are backed by executable core tests',()=>{
