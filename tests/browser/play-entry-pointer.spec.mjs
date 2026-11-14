@@ -295,7 +295,8 @@ test('PLAY rapid A-B-A clicks honor the final request after both older loads fin
 });
 
 
-test('LIGHT exposes choice controls at the 1843 by 832 Chrome viewport', async ({ page }) => {
+test('LIGHT exposes choice controls at the 1843 by 832 Chrome viewport', async ({ page }, info) => {
+  test.skip(info.project.name!=='desktop-chromium','Light experiment controls are desktop-only');
   await page.setViewportSize({ width:1843, height:832 });
   await page.goto('/lab.html?instrument=light', { waitUntil:'domcontentloaded' });
   const shell = page.locator('.play-v2-shell[data-play-kind="light"]');
