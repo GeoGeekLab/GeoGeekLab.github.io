@@ -33,3 +33,7 @@ an Overpass compile defect. R2 now validates GeoGeek's existing source/Lab
 contracts, then serves the complete /overpass/ artifact from a separate
 preview root. It does NOT claim a complete GeoGeek site build. Full host
 integration and preview-capture prerequisites are an R6 acceptance gate.
+
+R2 browser runner correction: ubuntu-latest resolved to Ubuntu 26.04,
+which the currently locked Playwright version does not support for
+Chromium installation. Pin OVERPASS browser CI to ubuntu-24.04.
