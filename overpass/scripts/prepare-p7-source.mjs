@@ -120,8 +120,9 @@ export function patchOptimization(source){
   "const trigger = card.querySelector('[data-instrument]') || card.querySelector('[data-instrument-route]');",
   'card record conditions')
  s=once(s,"addConditions(card, trigger.dataset.instrument);",
-   "addConditions(card, trigger.dataset.instrument || 'overpass');",
-   'external conditions')
+   "if (trigger.hasAttribute('data-instrument-route')) trigger.setAttribute('aria-label', 'Open OVERPASS instrument');\n"+
+   "      addConditions(card, trigger.dataset.instrument || 'overpass');",
+   'external conditions and accessible link label')
  return s
 }
 export function patchLabRecordDetail(source){
