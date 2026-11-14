@@ -73,6 +73,19 @@ test('Light unlocks three continuous optical experiments after the core journey'
     await expect(slider).toHaveValue(max);
     await expect.poll(()=>shell.locator('.light-after-value').innerText()).not.toBe(original);
     await expect(shell.locator('.light-explore-live')).toContainText(max);
+    // Detailed science is available on demand; opening it must not reset
+    // the experiment, current slider, or the revealed evidence.
+    const why=shell.getByRole('button',{name:'SEE WHY'});
+    await why.click();
+    const explanation=shell.getByRole('dialog');
+    await expect(explanation).toBeVisible();
+    await expect(explanation.locator('.light-explanation-summary')).not.toBeEmpty();
+    await expect(explanation.locator('.light-explanation-equation')).not.toBeEmpty();
+    await expect(explanation.locator('.light-explanation-method')).not.toHaveAttribute('open','');
+    await explanation.getByRole('button',{name:'RETURN TO EXPERIMENT'}).click();
+    await expect(explanation).toBeHidden();
+    await expect(why).toBeFocused();
+    await expect(slider).toHaveValue(max);
     if (mode==='grazing') {
       await expect(shell.locator('.light-angle-label')).toContainText('θ 85°');
       expect(await shell.locator('.light-angle-arc').getAttribute('d')).not.toBe(initialArc);
