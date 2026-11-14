@@ -67,3 +67,14 @@ test('OMM mapping keeps all orbital mean elements and UTC epoch',()=>{
   assert.equal(omm.INCLINATION,98)
   assert.equal(median([1,3,5,7]),4)
 })
+
+test('Watched and GeoGeek enforce separate 48h and 8h age policies',()=>{
+  const w=watchedFixture(),g=geoFixture()
+  const asOf=Date.parse(zero)+9*3600000
+  const result=compareCatalogs(parseWatched(w),parseGeoGeek(g.raw,g.meta),asOf).result
+  assert.equal(result.watched.health.policyStaleAfterHours,48)
+  assert.equal(result.geoGeek.health.policyStaleAfterHours,8)
+  assert.equal(result.watched.health.policyStale,false)
+  assert.equal(result.geoGeek.health.policyStale,true)
+  assert.equal(result.geoGeek.health.snapshotStale48h,false)
+})
