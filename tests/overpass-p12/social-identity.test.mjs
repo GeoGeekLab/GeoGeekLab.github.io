@@ -14,7 +14,7 @@ test('server-generated OG wordmark uses independent derivative name',()=>{
  const source=[
  "export const WORDMARK_PATH='a'",
  "export function wordmarkSvg(fill: string, signal = '#FF6A1A'): string {",
- "  return '<svg><path d=\"Watched\"/></svg>'",
+ "  return '<svg><path d=\"'+WORDMARK_PATH+'\"/></svg>'",
  "}"
  ].join('\n')
  const result=patchWordmark(source)
