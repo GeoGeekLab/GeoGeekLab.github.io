@@ -63,6 +63,7 @@ test('Stage 6 current wind fetch bypasses cache across repeated visits and expos
   await expect(page.locator('.flow-lab')).toHaveAttribute('data-source-cache','no-store');
   await expect(page.locator('.flow-lab')).toHaveAttribute('data-source-class','recent');
   await expect(page.locator('#flDataProvenance')).toContainText('Weather data: Open-Meteo');
+  await expect(page.locator('#flDataProvenance')).toContainText('RETRIEVED UTC · 20');
   await expect(page.locator('#flDataProvenance a[href*="open-meteo.com/en/terms"]')).toBeVisible();
   expect(await sampleCenter(page)).toContain('8.0 metres per second');
   await page.reload({waitUntil:'domcontentloaded'});
