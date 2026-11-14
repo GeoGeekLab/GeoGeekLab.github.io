@@ -93,11 +93,16 @@ export function parseGeoGeek(file, meta) {
   return {map,count:map.size,rawCount:file.length,duplicates,fetchedAt:meta.fetchedAt,epochs,source:meta.source,format:'CCSDS OMM JSON (CelesTrak active only)'}
 }
 export function compareCatalogs(watched,geo,nowMs) {
-  const matched=[]
+  const matched=[], missingProfileRows=[], watchedOnlySample=[]
   let watchedOnly=0,geoOnly=0,featuredOnly=0,featuredShared=0
   for(const [id,w] of watched.map){
     const g=geo.map.get(id)
-    if(!g){watchedOnly++;if(w.name)featuredOnly++;continue}
+    if(!g){
+      watchedOnly++
+      if(w.name){featuredOnly++;missingProfileRows.push({norad:id,name:w.name,elementEpoch:new Date(w.epochMs).toISOString()})}
+      if(watchedOnlySample.length<12)watchedOnlySample.push({norad:id,name:w.name||'(unprofiled)'})
+      continue
+    }
     if(w.name)featuredShared++
     matched.push({id,w,g,absEpochDeltaHours:Math.abs(w.epochMs-g.epochMs)/HOUR_MS})
   }
@@ -111,6 +116,7 @@ export function compareCatalogs(watched,geo,nowMs) {
     overlap:{
       shared:matched.length,watchedOnly,geoGeekOnly:geoOnly,
       namedProfileRowsShared:featuredShared,namedProfileRowsMissingFromGeoGeekActive:featuredOnly,
+      missingProfileRows,watchedOnlySample,
       nearEpochWithin1h:near.length,
       medianEpochDeltaHours:median(mismatchDistances),
       p95EpochDeltaHours:quantile(mismatchDistances,0.95)
