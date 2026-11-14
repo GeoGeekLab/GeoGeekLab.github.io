@@ -291,3 +291,54 @@ test('Orbit visual workbench keeps HUD, selection, zoom and time dock separate',
     contentType:'image/png',
   });
 });
+
+
+test('Orbit validates observer ellipsoid height and applies it to the slant range', async ({page}) => {
+  test.setTimeout(50_000);
+  await page.goto('/lab.html?instrument=orbit&sat=25544#l04',{waitUntil:'domcontentloaded'});
+  await expect(page.locator('#orbitNorad')).toContainText('25544',{timeout:30000});
+  await page.locator('#orbitPlay').click();
+  await expect(page.locator('#orbitPosition')).toContainText(/[NS].*[EW]/,{timeout:20000});
+  const position=await page.locator('#orbitPosition').textContent();
+  const match=position?.match(/([\\d.]+)°\\s*([NS]).*?([\\d.]+)°\\s*([EW])/);
+  expect(match,'propagated satellite position should contain geodetic coordinates').toBeTruthy();
+  const lat=Number(match[1])*(match[2]==='S'?-1:1);
+  const lon=Number(match[3])*(match[4]==='W'?-1:1);
+  await page.locator('.orbit-extras > summary').click();
+  await page.locator('[data-station-lat]').fill(String(lat));
+  await page.locator('[data-station-lon]').fill(String(lon));
+  await page.locator('[data-station-height]').fill('-501');
+  await page.locator('[data-station-set]').click();
+  await expect(page.locator('.orbit-station-editor')).toHaveClass(/has-error/);
+  await expect(page.locator('#orbitHorizonState')).toHaveText('NO STATION');
+
+  await page.locator('[data-station-height]').fill('0');
+  await page.locator('[data-station-set]').click();
+  await expect(page.locator('#orbitObserverTitle')).toContainText('0 m ELLIPSOID');
+  await expect(page.locator('#orbitRange')).toContainText('km');
+  const seaLevel=Number.parseFloat((await page.locator('#orbitRange').textContent())||'');
+  expect(Number.isFinite(seaLevel)).toBe(true);
+
+  await page.locator('[data-station-height]').fill('9000');
+  await page.locator('[data-station-set]').click();
+  await expect(page.locator('#orbitObserverTitle')).toContainText('9,000 m ELLIPSOID');
+  await expect.poll(async ()=>
+    Number.parseFloat((await page.locator('#orbitRange').textContent())||'')
+  ).toBeLessThan(seaLevel-4);
+});
+
+test('Orbit keeps preset feedback consistent after manual layer changes', async ({page}) => {
+  await page.goto('/lab.html?instrument=orbit#l04',{waitUntil:'domcontentloaded'});
+  await expect(page.locator('.orbit-v2')).toBeVisible({timeout:30000});
+  await page.locator('.orbit-view-more > summary').click();
+  const relations=page.locator('[data-orbit-preset="relations"]');
+  const trace=page.locator('[data-orbit-preset="trace"]');
+  await expect(relations).toHaveAttribute('aria-pressed','true');
+  await page.locator('[data-layer="orbit"]').click();
+  await expect(relations).toHaveAttribute('aria-pressed','false');
+  await expect(trace).toHaveAttribute('aria-pressed','false');
+  await trace.click();
+  await expect(trace).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('[data-layer="orbit"]')).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('[data-layer="graticule"]')).toHaveAttribute('aria-pressed','false');
+});
