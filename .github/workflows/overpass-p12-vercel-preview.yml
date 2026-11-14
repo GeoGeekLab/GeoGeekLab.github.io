@@ -1,0 +1,73 @@
+name: OVERPASS / P12 independent full Vercel HTTPS preview (manual only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: overpass-full-preview
+  cancel-in-progress: false
+jobs:
+  deploy-preview:
+    environment: overpass-full-backend-preview
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Fail closed without explicit Vercel project credentials
+        run: |
+          test -n "$VERCEL_ORG_ID"
+          test -n "$VERCEL_PROJECT_ID"
+          test -n "$VERCEL_TOKEN"
+      - name: Install dependency lock and preserve backend tests
+        run: |
+          (cd overpass/upstream && npm ci --no-audit --no-fund)
+          (cd overpass/upstream && npm run test:backend)
+      - name: Prepare pinned OVERPASS frontend and original four API source functions
+        run: |
+          node overpass/scripts/assert-upstream.mjs
+          node overpass/scripts/prepare-r2.mjs
+          node overpass/scripts/prepare-p4.mjs
+          node overpass/scripts/prepare-p5.mjs
+          node overpass/scripts/prepare-p12-full-runtime.mjs
+          node overpass/scripts/p12-celestrak-policy.mjs
+          node overpass/scripts/p12-social-identity.mjs
+          node overpass/scripts/p12-bake-og.mjs
+          (cd overpass/upstream && npx tsx scripts/p12-bake-og.mjs)
+      - name: Install Vercel CLI and load isolated Preview environment
+        run: |
+          npm install --global vercel@latest
+          vercel pull --yes --environment=preview --cwd overpass/upstream --token="$VERCEL_TOKEN"
+      - name: Fail closed unless database, pan API and origin are configured
+        run: |
+          node overpass/scripts/p12-runtime-preflight.mjs overpass/upstream/.vercel/.env.preview.local --probe-supabase
+      - name: Produce a real Vercel serverless build with Preview credentials
+        run: vercel build --cwd overpass/upstream --token="$VERCEL_TOKEN"
+      - name: Deploy isolated immutable Vercel Preview (never --prod)
+        run: |
+          mkdir -p overpass/reports
+          vercel deploy --prebuilt --cwd overpass/upstream --token="$VERCEL_TOKEN" > overpass/reports/p12-vercel-preview-url.txt
+          test -s overpass/reports/p12-vercel-preview-url.txt
+      - name: Observe actual dynamic HTTPS API routes, original MIT license and notices
+        run: |
+          url="$(cat overpass/reports/p12-vercel-preview-url.txt)"
+          node overpass/scripts/p12-live-runtime-smoke.mjs "$url" overpass/reports/p12-live-full-runtime.json
+      - name: Retain hosted route evidence (never credential files)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p12-independent-full-backend-preview-evidence
+          path: |
+            overpass/reports/p12-vercel-preview-url.txt
+            overpass/reports/p12-live-full-runtime.json
+          if-no-files-found: warn
+          retention-days: 30
