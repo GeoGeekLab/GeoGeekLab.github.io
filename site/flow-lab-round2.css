@@ -84,7 +84,8 @@
   border-right:1px solid rgba(241,239,231,.07);
   border-radius:0;
   background:transparent;
-  color:rgba(241,239,231,.46);
+  /* Production-contrast: inactive navigation must remain legible on the dark rail. */
+  color:#b8cabe;
   font:700 7px/1 var(--mono);
   letter-spacing:.085em;
   cursor:pointer;
