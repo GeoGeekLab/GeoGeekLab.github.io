@@ -24,6 +24,6 @@ patch(P,'const url = timelapseLink(location.origin, place)','const url = timelap
 patch(P,"import { WORDMARK_BOX, WORDMARK_DOT, WORDMARK_PATH } from '../../../api/_lib/wordmark'","import { WORDMARK_BOX, WORDMARK_DOT } from '../../../api/_lib/wordmark'")
 patch(P,'<path d={WORDMARK_PATH} fill="currentColor" />','<text x="0" y="59.4" textLength="275" lengthAdjust="spacingAndGlyphs" fontFamily="Instrument Serif, Georgia, serif" fontSize="70" fill="currentColor">Overpass</text>')
 const V='src/ui/timelapse/video.ts', tick=String.fromCharCode(96)
-patch(V,'return '+tick+'watched-','return '+tick+'$'+"{import.meta.env.BASE_URL === '/overpass/' ? 'overpass' : 'watched'}-")
+patch(V,'return '+tick+'watched-','return '+tick+'$'+"{(import.meta.env.BASE_URL === '/overpass/' || import.meta.env.VITE_OVERPASS_STATIC === '1') ? 'overpass' : 'watched'}-")
 patch(V,'ctx.fill(a.wordmark)',"ctx.font = '66px Instrument Serif, Georgia, serif'\n  ctx.fillText('Overpass', 0, 60)")
 console.log('P5 temporary source overlay applied')
