@@ -183,3 +183,48 @@ Stage 2 acceptance is conditional on the green CI run for the latest PR head. Do
 5. Add rigorous Node calculation tests, browser source checks, interaction and URL-persistence tests, plus desktop/mobile screenshot evidence.
 6. Preserve the Stage 2 scientific core, Stage 3 map-first layout and Stage 4 provenance + color scale.
 7. Continue on `feat/flow-lab-v3` and **Draft PR #200**; do not merge before Stage 7.
+
+
+---
+
+## Stage 5 implementation — OD + TRIPS analytical expansion (2026-11-14)
+
+**Scope delivered:** directed and normalized OD analysis; authored teaching samples versus geodesic TRIPS interpolation; one playback timeline across WORK / FOCUS / INSPECT. FIELD and RELEASE remain governed by Stage 2–4 scientific contracts. No production release.
+
+### Architecture and mathematics
+
+- `site/flow/v3/core/movement.mjs` is now the canonical source for all 12 node coordinates, 24 directed OD weights and 8 authored teaching tracks. Both `site/flow-lab.js` and `site/flow-lab-round2.js` import these datasets rather than maintaining independent copies.
+- `odNodeTotals()` defines **outflow, inflow and net = out − in**, all in *normalized teaching units*. `odPairTotals()` calculates A→B and B→A independently; it does not conflate reciprocal directed connections.
+- `sortedEdges()` supports deterministic Top-N ordering by weight, then ID. The analytics panel labels full-dataset totals separately from currently displayed edges.
+- OD schematic and geodesic connections retain distinct geometry modes. Direction arrowheads are on directed edges in both geometries. Neither is an observed route.
+- `tripPosition()` distinguishes an **authored teaching sample**, a **derived great-circle interpolation**, and a **clamped position outside the authored sample window**. Authored samples render as hollow markers; current display heads are filled markers.
+- `tripMetrics()` calculates great-circle arc lengths (km), each sample interval, total sample-to-sample arc length and temporal spacing. Trip times are **relative teaching units**, not UTC or measured hours. Calculated arc length does not establish a measured path or speed in km/h.
+- Stage 3's responsive map-first controls remain outside geography. The Focus workspace moves the **original** native `.flow-timeline` into the visible workbar and moves it back in WORK/INSPECT. The base `flow-lab.js` retains the only clock; no second timer was introduced.
+- The selected OD place, selected track and comparison peer have validated `flowNode`, `flowTrip`, `flowPeer` URL values. Invalid keys are discarded when appropriate. Other instrument query parameters are preserved.
+- Native selectors and playback have descriptive keyboard/screen-reader labels. No new external dependency was added.
+
+### Stage 5 verification evidence
+
+- Scientific suites: `tests/flow-v3/movement.test.mjs` adds strict tests for directed-flow conservation, reciprocal pairs, Top-N filtering, geodesic distance and antimeridian behavior, sample classification and authored relative time.
+- Browser suites: `tests/browser/flow-v3-movement.spec.mjs` exercises OD counts, arrows, pair comparisons, URL isolation, TRIPS sampled/interpolated states, Focus timeline, global PAUSE and screenshots at desktop/tablet/mobile sizes.
+- [Verified implementation-run CI 43563975374](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43563975374): **34 Node tests, 0 failures; 45 Playwright tests passed, 1 desktop-only touch skip**. The pipeline also ran all Stage 1–4 Flow regressions.
+- Visual evidence: `flow-v3-stage5-evidence` artifact, screenshots at 1440×900, 900×980 and 390×844. The CI's basemap is a controlled fixture without real country boundaries.
+- Visual review: OD arrowheads are legible; sampled teaching markers and current heads have distinct encodings; all mode-critical controls remain outside map content. Mobile analytics are below the initial fold by design and accessible by scrolling.
+- Subsequent hardening added explicit native timeline labels and synchronized the peer deep link when the primary OD place changes. **Check the final HEAD run** for these last changes, not merely the successful implementation run.
+
+### Source and merge notes
+
+- The Stage 4 branch base was `ed78ba052b48434aa0b16081c03d778d2b5fa3c0`.
+- During Stage 5, `main` was `c020b1880eff671c171ceed299f60fe3fa19e54b`. Its single intervening commit changed Light instrument files and two lines in `site/lab.html`; no Flow runtime file was changed by that commit.
+- **Do not treat the old base as current at merge time.** Refresh from latest main, review the combined diff and rerun independent checks at Stage 7.
+- Draft PR #200 remains unmerged and unapproved for production.
+
+## Stage 6 handoff — data, provenance, accessibility and performance hardening
+
+1. Audit provenance, model-validity timestamps, source failure recovery, stale caches and deterministic fallback labels across all four Flow modes.
+2. Measure frame times, Canvas redraw cost, SVG path counts, observer frequency and memory/cleanup behavior before adding a GPU renderer or external library.
+3. Enforce performance budgets on desktop/tablet/mobile and reduced-motion behavior; profile at minimum, default and maximum particle densities.
+4. Review dependency licenses, external model data terms, source attribution and network/CORS behavior. Keep user-facing scientific claims aligned with actual model provenance.
+5. Audit keyboard/focus lifecycle, screen-reader status repetition, native tap target sizes and the mobile analytical panel's vertical density.
+6. Add controlled source-failure, cache invalidation, stress, viewport and numeric regression tests. Preserve all Stage 1–5 suites and workflow evidence.
+7. Stay on `feat/flow-lab-v3` and Draft PR #200. Stage 6 does **not** merge; Stage 7 owns final approval, main synchronization, merge and deployment validation.
