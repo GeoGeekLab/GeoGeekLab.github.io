@@ -112,11 +112,22 @@
       });
     }
     if (mode==='grazing') {
+      const selectedAngleDeg=exploreValue??75;
+      const anglesDeg=Object.freeze(Array.from({length:86},(_,i)=>i));
+      const reflectance=Object.freeze(anglesDeg.map(angle=>fresnelUnpolarized(angle)));
       return Object.freeze({
         wavelengthNm:DEFAULT_WAVELENGTHS,
         before:grazingReflectionFraction(DEFAULT_WAVELENGTHS,40),
-        after:grazingReflectionFraction(DEFAULT_WAVELENGTHS,exploreValue??75),
-        unit:'fraction'
+        after:grazingReflectionFraction(DEFAULT_WAVELENGTHS,selectedAngleDeg),
+        unit:'fraction',
+        // The meaningful independent variable is incidence angle, not λ.
+        // Keep the baseline/after fractions for comparison readouts.
+        angleResponse:Object.freeze({
+          anglesDeg,
+          reflectance,
+          baselineAngleDeg:40,
+          selectedAngleDeg
+        })
       });
     }
     if (mode==='water') {
