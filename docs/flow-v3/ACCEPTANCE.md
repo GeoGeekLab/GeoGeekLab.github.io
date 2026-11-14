@@ -79,3 +79,30 @@ Each mode must support:
 - `FLOW-P1-01` map-top controls and grammar strip occupying map content.
 
 These are **tracked pending fixes**, not waived by Stage 1 green CI. A future implementation is accepted only when corresponding tests change from pending/characterization to strict functional assertions.
+
+
+## Stage 6 quantitative acceptance — enforced in CI
+
+The Stage 6 hardening workflow adds `tests/flow-v3/hardening.test.mjs`,
+`tests/browser/flow-v3-hardening.spec.mjs`, and `tests/browser/flow-v3-accessibility.spec.mjs`.
+It retains every Stage 1–5 Flow test.
+
+| Measurement | Required pass condition |
+|---|---|
+| Model source | 84 ordered nearest-cell positions; coherent parseable UTC validity; wind units m/s; invalid samples and inconsistent GFS U/V headers rejected |
+| Cache/fallback | live uses `no-store`; pinned Natural Earth/GFS use immutable SHA and `force-cache`; source failure cascade is visible |
+| Model age | UTC valid time and UTC retrieval time distinguished; stale >6 h labeled; archive/synthetic never described as current |
+| Script drawing time | ≥30 samples per load/density; P95 ≤45 ms desktop/tablet and ≤75 ms mobile viewport |
+| Surface/memory | Canvas RGBA surface estimate ≤70 MiB; Flow descendant nodes ≤850; SVG paths ≤180 |
+| Overlay responsiveness | ≤75 Round2 rendered overlays per elapsed second during controlled 30-step drag |
+| Cleanup | Three full open/close cycles; no surviving mounted Flow; base and Round2 disposal counts equal completed cycles |
+| JavaScript heap | Chromium CDP `Runtime.getHeapUsage` after forced GC: growth ≤20 MiB over three cycles |
+| Accessibility | zero axe WCAG 2.0/2.1 A/AA serious or critical violations in FIELD/OD/TRIPS/RELEASE on desktop and mobile-emulated Chromium |
+| Reduced motion | initial PAUSE, no simulated time advance, keyboard map inspection still available |
+| UI geometry | no horizontal overflow at 390 CSS px; interactive primary controls ≥44 CSS px high |
+
+The JS render P95 is **not** end-to-end FPS or GPU frame time. Canvas MiB is an RGBA pixel-surface estimate, not browser heap or GPU allocation. Forced-GC heap delta is a short-term stress signal, not a complete leak proof. Performance acceptance on emulated devices does not substitute for real mobile hardware.
+
+The source and license matrix, exact measurement boundaries, first-pass evidence and remaining Stage 7 risks are in [STAGE6-AUDIT.md](STAGE6-AUDIT.md).
+
+**Stage 7 release must not proceed** unless the final PR HEAD passes the full Flow hardening workflow, required independent GitHub checks, conflict review against latest main, code review and actual Pages deployment verification.
