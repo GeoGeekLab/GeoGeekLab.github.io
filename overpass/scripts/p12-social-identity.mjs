@@ -20,7 +20,8 @@ export function patchHtml(source) {
 }
 export function patchWordmark(source) {
  const original=/export function wordmarkSvg\(fill: string, signal = '#FF6A1A'\): string \{[\s\S]*?^\}/m
- assert(original.test(source),'Expected pinned upstream wordmarkSvg')
+ const match=source.match(original)
+ assert(match && match[0].includes('WORDMARK_PATH'),'Expected pinned glyph-based upstream wordmarkSvg; refuse a second patch')
  return source.replace(original,()=>[
   "export function wordmarkSvg(fill: string, signal = '#FF6A1A'): string {",
   "  return '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300.51 72.54\" width=\"300.51\" height=\"72.54\"><text x=\"2\" y=\"57\" fill=\"'+fill+'\" font-family=\"Georgia,serif\" font-size=\"63\" textLength=\"275\" lengthAdjust=\"spacingAndGlyphs\">Overpass</text><circle cx=\"291.28\" cy=\"63\" r=\"6.6\" fill=\"'+signal+'\"/></svg>'",
