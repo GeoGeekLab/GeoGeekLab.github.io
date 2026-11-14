@@ -43,3 +43,22 @@ No automatic approval JSON will be generated.
 The six-hour catalog cron is disabled in the code-only merge. It may run
 only after a separate approved release activates scheduling. Manual dispatch
 still produces a candidate dataset without automatic deployment.
+
+## Verified real Chromium history/MP4 evidence (2026-11-14)
+
+- Run: https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43583150768
+- Place: Singapore; actual public Planetary Computer Sentinel-2 archives,
+  no URL interceptions or synthetic frames.
+- 77 captured provider HTTP requests were 2xx; eight clear historical image
+  frames were used, with years spanning 2017 to 2026.
+- Browser created an MP4 named overpass-singapore-2017-2026.mp4.
+  ffprobe: VP9, 720 x 720 pixels, 11.4 seconds, 6,010,608 bytes.
+- The original desktop 1080px Chromium software encode timed out at 98%;
+  the unchanged mobile export path at 720px passed. Desktop performance
+  remains a distinct release test and cannot be represented as passing.
+- VP9-in-MP4 is not proof of Safari/iPhone playback. A supported H.264 path
+  or a clearly documented incompatibility still requires approval.
+- No independent HTTPS staging URL or real production rollback evidence was
+  available for this code-only merge. The release gate stays closed.
+
+This document records a passed test, not human authorization to deploy.
