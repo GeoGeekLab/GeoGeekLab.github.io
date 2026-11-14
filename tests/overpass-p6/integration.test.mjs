@@ -25,7 +25,7 @@ test('P6 extends 13-card static Lab without touching other IDs',()=>{
  assert.throws(()=>integrateLab(html,'capture'),/twice/)
 })
 test('P6 refuses to build from an incomplete or different Lab source',()=>{
- assert.throws(()=>integrateLab(fixture.replace('id="l04"','id="gone"'),'v'),/missing instrument/)
+ assert.throws(()=>integrateLab(fixture.replace('id="l04"','id="gone"'),'v'),/instrument missing/)
 })
 test('P6 runtime guard preserves the first-paint 14 cards and external navigation',()=>{
  const app="const required = ['l04','l05','l06','l10','l11','l12','l13',\n 'l07','l08','l09','l14','l15','l16'];\n if (cards.length === 13 && required.every(x=>x)) return;"
