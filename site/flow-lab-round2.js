@@ -40,7 +40,7 @@
     if (document.querySelector('link[data-flow-round2]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = new URL('./flow-lab-round2.css?v=20261114-flow-v3-s3', import.meta.url).href;
+    link.href = new URL('./flow-lab-round2.css?v=20261114-flow-v3-s4', import.meta.url).href;
     link.dataset.flowRound2 = '1';
     document.head.appendChild(link);
   }
