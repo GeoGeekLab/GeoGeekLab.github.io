@@ -121,7 +121,7 @@
       <div class="light-evidence-legend-title">PATH STATUS / CONCEPTUAL</div>
       <div class="light-evidence-legend"></div>
       <div class="light-evidence-spectrum"></div>
-      <details class="light-evidence-method"><summary>MODEL SCOPE <span>VIEW LIMITS</span></summary><p class="light-evidence-limit">Scene geometry and color are illustrative. Sky and surface curves are relative teaching models. Only the water experiment shows modeled Rrs (sr⁻¹). TOA radiance is not modeled.</p></details>
+      <p class="light-evidence-scope">MODEL / IDEALIZED · NOT OBSERVED</p>
       <p class="light-phase-announcement" role="status" aria-live="polite" aria-atomic="true"></p>`;
 
     const root=shell.root;
@@ -140,6 +140,99 @@
       <a class="light-desktop-gate-link" href="/lab.html">RETURN TO LAB <span aria-hidden="true">↗</span></a>
       <span class="light-desktop-gate-foot">SCATTERING / ABSORPTION / INTERFACE</span>`;
     root.append(desktopGate);
+
+    // The complete interpretation is an optional, focus-managed floating sheet.
+    // Keep it outside the re-rendered question panel and scientific scene.
+    const explanation=document.createElement('div');
+    explanation.className='light-explanation';
+    explanation.hidden=true;
+    explanation.innerHTML=`
+      <section class="light-explanation-sheet" role="dialog" aria-modal="true"
+        aria-labelledby="lightExplanationTitle" aria-describedby="lightExplanationSummary" tabindex="-1">
+        <header class="light-explanation-header">
+          <span class="light-explanation-index">LIGHT / EXPLAINED <span class="light-explanation-number"></span></span>
+          <button type="button" class="light-explanation-close" aria-label="Close explanation">CLOSE <span aria-hidden="true">×</span></button>
+        </header>
+        <div class="light-explanation-body">
+          <p class="light-explanation-eyebrow">WHAT THE EXPERIMENT SHOWS</p>
+          <h2 id="lightExplanationTitle"></h2>
+          <p id="lightExplanationSummary" class="light-explanation-summary"></p>
+          <div class="light-explanation-relation">
+            <span>PHYSICAL RELATION</span>
+            <code class="light-explanation-equation"></code>
+          </div>
+          <details class="light-explanation-method">
+            <summary>MODEL ASSUMPTIONS &amp; LIMITS <span aria-hidden="true">+</span></summary>
+            <p class="light-explanation-limit"></p>
+          </details>
+        </div>
+        <footer class="light-explanation-footer">
+          <span>CONCEPTUAL PATHS / MODELED EVIDENCE</span>
+          <button type="button" class="light-explanation-return">RETURN TO EXPERIMENT</button>
+        </footer>
+      </section>`;
+    root.append(explanation);
+    let explanationTrigger=null;
+    const explanationSheet=explanation.querySelector('.light-explanation-sheet');
+    const explanationClose=explanation.querySelector('.light-explanation-close');
+    const explanationReturn=explanation.querySelector('.light-explanation-return');
+    function closeExplanation({restoreFocus=true}={}) {
+      if (explanation.hidden) return;
+      explanation.hidden=true;
+      shell.overlay.inert=false;
+      shell.viewport.inert=false;
+      shell.hud.inert=false;
+      const target=explanationTrigger;
+      explanationTrigger=null;
+      if (restoreFocus && target?.isConnected) target.focus({preventScroll:true});
+    }
+    function openExplanation(snapshot,trigger) {
+      if (snapshot.phase!=='revealed' || !snapshot.experiment) return;
+      const exp=snapshot.experiment;
+      explanationTrigger=trigger;
+      explanation.querySelector('.light-explanation-number').textContent=`${exp.index} / ${snapshot.total}`;
+      explanation.querySelector('#lightExplanationTitle').textContent=exp.revealTitle;
+      explanation.querySelector('#lightExplanationSummary').textContent=exp.reveal;
+      explanation.querySelector('.light-explanation-equation').textContent=exp.equation;
+      explanation.querySelector('.light-explanation-limit').textContent=exp.limit;
+      explanation.querySelector('.light-explanation-method').open=false;
+      explanation.querySelector('.light-explanation-body').scrollTop=0;
+      explanation.hidden=false;
+      shell.overlay.inert=true;
+      shell.viewport.inert=true;
+      shell.hud.inert=true;
+      explanationClose.focus({preventScroll:true});
+    }
+    explanationClose.addEventListener('click',()=>closeExplanation());
+    explanationReturn.addEventListener('click',()=>closeExplanation());
+    explanation.addEventListener('click',event=>{
+      if (event.target===explanation) closeExplanation();
+    });
+    function onExplanationKeydown(event) {
+      if (explanation.hidden) return;
+      if (event.key==='Escape') {
+        event.preventDefault();
+        closeExplanation();
+        return;
+      }
+      if (event.key!=='Tab') return;
+      const focusable=[...explanation.querySelectorAll('button:not(:disabled),summary')].filter(node=>node.getClientRects().length);
+      if (!focusable.length) return;
+      const first=focusable[0],last=focusable[focusable.length-1];
+      if (event.shiftKey && (document.activeElement===first || document.activeElement===explanationSheet)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement===last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    explanation.addEventListener('keydown',onExplanationKeydown);
+    const unsupportedDevice=window.matchMedia('(max-width:780px), (hover:none) and (pointer:coarse)');
+    function onUnsupportedDeviceChange() {
+      if (unsupportedDevice.matches) closeExplanation({restoreFocus:false});
+    }
+    unsupportedDevice.addEventListener('change',onUnsupportedDeviceChange);
 
     const sky=root.querySelector('.light-sky');
     const ocean=root.querySelector('.light-ocean');
@@ -166,7 +259,7 @@
     const phaseAnnouncement=root.querySelector('.light-phase-announcement');
     const sceneFocus=root.querySelector('.light-scene-focus');
     const evidenceTarget=root.querySelector('.light-evidence-target');
-    const evidenceScope=root.querySelector('.light-evidence-limit');
+    const evidenceScope=root.querySelector('.light-evidence-scope');
     const modelType=root.querySelector('.light-model-type');
     const progressChapter=root.querySelector('.light-journey-chapter');
     const progressState=root.querySelector('.light-journey-state');
@@ -299,6 +392,7 @@
 
     function renderPanel(snapshot) {
       const exp=snapshot.experiment;
+      closeExplanation({restoreFocus:false});
       const previousAction=shell.overlay.contains(document.activeElement)?document.activeElement?.dataset.lightAction:null;
       shell.overlay.innerHTML='';
       const panel=document.createElement('section');
@@ -322,7 +416,9 @@
         return;
       }
 
-      panel.innerHTML=`<span>${exp.index} / ${snapshot.index<3?'CORE MECHANISM':'PROPAGATION EXPERIMENT'}</span><h2>${exp.title}</h2><p>${exp.question}</p>`;
+      panel.innerHTML=snapshot.phase==='revealed'
+        ?`<span>${exp.index} / RESULT REVEALED</span><h2 class="light-result-title">${exp.revealTitle}</h2>`
+        :`<span>${exp.index} / ${snapshot.index<3?'CORE MECHANISM':'PROPAGATION EXPERIMENT'}</span><h2>${exp.title}</h2><p>${exp.question}</p>`;
 
       if (snapshot.phase==='question') {
         const choices=document.createElement('div');
@@ -345,11 +441,10 @@
         panel.appendChild(button(exp.action,callbacks.onPerturb,{action:'perturb'}));
       } else if (snapshot.phase==='revealed') {
         panel.classList.add(snapshot.correct?'is-correct':'is-revised');
-        panel.innerHTML+=`
-          <div class="light-verdict"><small>${snapshot.correct?'PREDICTION HELD':'PREDICTION REVISED'}</small><strong>${exp.revealTitle}</strong></div>
-          <p>${exp.reveal}</p>
-          <code>${exp.equation}</code>
-          <div class="light-limit">${exp.limit}</div>`;
+        const verdict=document.createElement('div');
+        verdict.className='light-verdict';
+        verdict.innerHTML=`<small>${snapshot.correct?'PREDICTION HELD':'PREDICTION REVISED'}</small><strong>${snapshot.correct?'CORRECT PREDICTION':'NEW EVIDENCE'}</strong>`;
+        panel.appendChild(verdict);
         if (exp.intervention) {
           const config=exp.intervention;
           const explorer=document.createElement('div');
@@ -361,7 +456,10 @@
           explorer.querySelector('input').addEventListener('input',event=>callbacks.onExplore(Number(event.target.value)));
           panel.appendChild(explorer);
         }
-        panel.appendChild(button(snapshot.index===snapshot.total-1?'FINISH TRACE':'NEXT EXPERIMENT',callbacks.onNext,{action:'next'}));
+        const why=button('SEE WHY',()=>openExplanation(snapshot,why),{action:'explain'});
+        why.classList.add('light-explain-action');
+        panel.appendChild(why);
+        panel.appendChild(button(snapshot.index===snapshot.total-1?'FINISH TRACE':'NEXT EXPERIMENT',callbacks.onNext,{secondary:true,action:'next'}));
       }
       shell.overlay.appendChild(panel);
       restorePanelFocus(panel,previousAction);
@@ -392,7 +490,9 @@
         node.classList.toggle('is-locked',index>=3&&!snapshot.advancedUnlocked);
       });
       modelType.textContent=snapshot.experiment?.intervention?'PATH PARAMETER':'PATH ABLATION';
-      evidenceScope.textContent=`Scene geometry and display color are illustrative. TOA radiance is not modeled. ${snapshot.experiment?.limit||'The three core paths are separate teaching mechanisms.'}`;
+      evidenceScope.textContent=snapshot.experiment?.chartMode==='water'
+        ?'WATER / MODELED Rrs · NOT OBSERVED'
+        :'MODEL / IDEALIZED · NOT OBSERVED';
       const mode=snapshot.experiment?.chartMode||'sky';
       root.dataset.lightPhenomenon=mode;
       root.dataset.lightIntervention=snapshot.interventionId||'none';
@@ -500,7 +600,13 @@
 
     return Object.freeze({
       render,
-      dispose() { desktopQuery.removeEventListener('change',positionEvidence); }
+      dispose() {
+        closeExplanation({restoreFocus:false});
+        unsupportedDevice.removeEventListener('change',onUnsupportedDeviceChange);
+        explanation.removeEventListener('keydown',onExplanationKeydown);
+        desktopQuery.removeEventListener('change',positionEvidence);
+        explanation.remove();
+      }
     });
   }
 
