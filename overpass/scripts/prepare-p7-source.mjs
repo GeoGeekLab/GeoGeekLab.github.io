@@ -124,10 +124,52 @@ export function patchOptimization(source){
    'external conditions')
  return s
 }
-export function patchLabRecord(source){
- // No handwritten HTML page: GeoGeek's original record pipeline emits
- // records/lab-l17.html from the authored archive, just as for l04..l16.
- return source
+export function patchLabRecordDetail(source){
+ const anchor="    }\n  };\n\n  const ref = document.body?.dataset?.recordRef || '';"
+ assert(source.includes(anchor),'Missing final Lab record map anchor')
+ const body=[
+  '<article class="lab-record-detail" aria-label="OVERPASS instrument notes">',
+  '<section class="lab-record-block"><div class="lab-record-block-label">PURPOSE</div>',
+  '<div class="lab-record-copy"><h2>Make the observation conditions visible.</h2>',
+  '<p>Explore which satellites may have passed an Earth coordinate during the previous seven days.',
+  'Check the separate public image archive before treating a pass as an actual capture.</p></div></section>',
+  '<section class="lab-record-block"><div class="lab-record-block-label">METHOD</div>',
+  '<div class="lab-record-copy"><p>SGP4 propagates publicly supplied orbital elements.',
+  'The curated sensor profile predicts a nominal swath and crossing time.',
+  'Public image searches then resolve independently against their archive metadata.</p></div></section>',
+  '<section class="lab-record-block"><div class="lab-record-block-label">LIMITS</div>',
+  '<div class="lab-record-copy"><p>Catalog age, element epoch, cloud, acquisition mode, sensor coverage',
+  'and archive latency are distinct uncertainties. An orbital pass is not proof of a photo.</p>',
+  '<p>A static GitHub Pages build has no live catalog refresh by itself.',
+  'Dynamic social preview, 15 m pan sharpening and event endpoints need a separate backend.</p></div></section>',
+  '<section class="lab-record-block"><div class="lab-record-block-label">CREDITS</div>',
+  '<div class="lab-record-copy lab-record-links">',
+  '<p>Original Watched by Armaan Gupta (MIT); OVERPASS adaptation by GeoGeek.</p>',
+  '<p><a href="/overpass/LICENSE">Watched license ↗</a> · ',
+  '<a href="/overpass/THIRD_PARTY_NOTICES.md">Third-party notices ↗</a></p>',
+  '</div></section></article>'
+ ].join(' ')
+ const extra="    },\n    l17: {\n      detailLabel: 'INSTRUMENT NOTES',\n"+
+ "      recordConditions: [['source','CelesTrak OMM · public image archives'],\n"+
+ "        ['method','SGP4 satellite passes · sensor reach'],\n"+
+ "        ['window','Seven days relative to archived element data'],\n"+
+ "        ['limit','A pass is not a photo · independent catalog freshness']],\n"+
+ "      bodyHtml: "+JSON.stringify(body)+"\n    }\n  };\n\n  const ref = document.body?.dataset?.recordRef || '';"
+ return once(source,anchor,extra,'l17 native record details')
+}
+export function makeRecordPage(source){
+ let page=once(source,'data-record-ref="lab:l13"','data-record-ref="lab:l17"','record reference')
+ page=once(page,'<title>Water as Spectrum — GeoGeek</title>',
+  '<title>OVERPASS — GeoGeek</title>','record title')
+ page=once(page,'<h1 id="recordTitle">Water as Spectrum</h1>',
+  '<h1 id="recordTitle">OVERPASS</h1>','record heading')
+ page=once(page,'<meta property="og:title" content="Water as Spectrum"/>',
+  '<meta property="og:title" content="OVERPASS"/>','record metadata')
+ page=once(page,'<meta name="description" content="An interactive water-colour remote-sensing theory instrument linking water IOPs, above-water Rrs, a first-order atmosphere, sensor sampling, and an atmospheric-correction experiment."/>',
+  '<meta name="description" content="OVERPASS explores estimated satellite passes and publicly archived imagery with declared source, time and sensor limits."/>','record description')
+ page=once(page,'<meta property="og:description" content="Water-colour remote sensing from IOPs to Rrs, pedagogical TOA reflectance, sensor bands, and a controlled atmospheric-correction inverse."/>',
+  '<meta property="og:description" content="SGP4 pass predictions, public imagery and their observation limits; adapted from Watched by Armaan Gupta."/>','record social description')
+ return page
 }
 const patches={
  'site/content.js':patchContent,
@@ -137,7 +179,8 @@ const patches={
  'site/lab-page.js':patchLabPage,
  'site/core/site-model.js':patchSiteModel,
  'site/lab-real-previews.js':patchRealPreviews,
- 'site/lab-optimization.js':patchOptimization
+ 'site/lab-optimization.js':patchOptimization,
+ 'site/lab-record-detail.js':patchLabRecordDetail
 }
 export function prepare(root){
  const screenshot=join(root,'dist/assets/lab/previews/overpass.jpg')
@@ -149,7 +192,13 @@ export function prepare(root){
  assert(!existsSync(siteShot),'P7 source preview cannot overwrite a prior source asset')
  mkdirSync(dirname(siteShot),{recursive:true})
  copyFileSync(screenshot,siteShot)
- const changes=[]
+ const template=join(root,'site/records/lab-l13.html')
+ const outputRecord=join(root,'site/records/lab-l17.html')
+ assert(!existsSync(outputRecord),'P7 refuses to overwrite an existing l17 record page')
+ writeFileSync(outputRecord,makeRecordPage(readFileSync(template,'utf8')))
+ const changes=[{path:'site/records/lab-l17.html',
+  sourceTemplate:'site/records/lab-l13.html',
+  after:createHash('sha256').update(readFileSync(outputRecord)).digest('hex')}]
  for(const [rel,patch] of Object.entries(patches)){
   const file=join(root,rel),content=readFileSync(file,'utf8')
   const updated=patch(content)
