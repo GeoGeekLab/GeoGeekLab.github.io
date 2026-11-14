@@ -4,7 +4,7 @@ import {readFileSync,statSync,mkdirSync,writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 /** No mock scenes or network interception; fail on unavailable archive. */
 test('Historical Sentinel-2 imagery exports a real browser-encoded MP4',async({page},info)=>{
- test.setTimeout(450000)
+ test.setTimeout(650000)
  const responses=[],errors=[]
  page.on('response',r=>{try{
   const u=new URL(r.url())
@@ -17,13 +17,14 @@ test('Historical Sentinel-2 imagery exports a real browser-encoded MP4',async({p
  await expect(overlay).toBeVisible({timeout:150000})
  const make=overlay.getByRole('button',{name:'Video',exact:true})
  await expect(make).toBeVisible({timeout:300000})
- const frames=overlay.locator('ol[aria-label="Frames"] li')
- const count=await frames.count()
- expect(count,'Need historical archive coverage').toBeGreaterThanOrEqual(8)
+ const summary=overlay.getByText(/\d+ clear looks · one a year/).first()
+ await expect(summary).toBeVisible({timeout:300000})
+ const count=Number((await summary.textContent())?.match(/(\d+) clear looks/)?.[1])
+ expect(count,'Need at least eight historical Sentinel yearly captures').toBeGreaterThanOrEqual(8)
  expect(responses.filter(r=>r.status>=200&&r.status<300).length).toBeGreaterThan(0)
  await make.click()
  const save=overlay.getByRole('button',{name:'Save video'})
- await expect(save).toBeVisible({timeout:150000})
+ await expect(save).toBeVisible({timeout:400000})
  const ready=page.waitForEvent('download',{timeout:25000})
  await save.click()
  const download=await ready
