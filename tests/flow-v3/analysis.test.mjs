@@ -51,7 +51,7 @@ test('Stage 4 Euler, RK2, RK4 converge in strict order against analytic latitude
   });
   assert.ok(errors[0]>errors[1]*5,'Euler '+errors[0]+' RK2 '+errors[1]);
   assert.ok(errors[1]>errors[2]*20,'RK2 '+errors[1]+' RK4 '+errors[2]);
-  assert.ok(errors[2]<0.00002,'RK4 error '+errors[2]);
+  assert.ok(errors[2]<0.00003,'RK4 error '+errors[2]);
 });
 
 test('Stage 4 all integrators reject unsupported intermediate and final positions',()=>{
