@@ -129,6 +129,7 @@ test('Light desktop shows concise results and an optional scientific explanation
   await expect(source).toContainText('IDEALIZED');
   await expect(explainer).toBeHidden();
   await expect(shell.getByRole('button',{name:'SEE WHY'})).toHaveCount(0);
+  await expect(shell.locator('.light-mechanism-readout')).toBeHidden();
   await expect(shell.locator('.light-spectrum-y-max')).toHaveAttribute('text-anchor','end');
   const sourceBox=await source.boundingBox(),hudBox=await hud.boundingBox();
   expect(sourceBox).toBeTruthy();
