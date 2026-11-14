@@ -2,7 +2,7 @@
 'use strict';
 
 const V='20261002a';
-const WORLD='https://raw.githubusercontent.com/martynafford/natural-earth-geojson/master/110m/cultural/ne_110m_admin_0_countries.json';
+const WORLD='https://raw.githubusercontent.com/martynafford/natural-earth-geojson/0b9a6ceb0a7032713abd9460ac1e995a9c60cd1e/110m/cultural/ne_110m_admin_0_countries.json';
 const GFS='https://raw.githubusercontent.com/cambecc/earth/5f091f0c3b60aa38a996a886985bacb3673d16c3/public/data/weather/current/current-wind-surface-level-gfs-1.0.json';
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
