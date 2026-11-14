@@ -443,3 +443,15 @@
   .play-v2-shell[data-play-kind="light"] .light-panel.is-revealed{gap:9px}
   .play-v2-shell[data-play-kind="light"] .light-panel.is-revealed>.light-result-title{font-size:28px}
 }
+
+
+/* L7: numeric-variable readouts stay in the quiet left portion of the scene.
+   The Sun occupies the upper-right optical path; do not cover it with text. */
+@media(min-width:1024px){
+  .play-v2-shell[data-play-kind="light"] .light-mechanism-readout{
+    left:22px;right:auto;top:74px;max-width:60%;
+  }
+}
+@media(min-width:1024px) and (max-height:790px){
+  .play-v2-shell[data-play-kind="light"] .light-mechanism-readout{top:62px;}
+}
