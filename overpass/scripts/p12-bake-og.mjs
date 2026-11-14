@@ -19,7 +19,7 @@ export const BAKE_SCRIPT = [
 ].join('\n')+'\n'
 
 export function prepare(root) {
- const script=resolve(root,'overpass/upstream/scripts/p12-bake-og.ts')
+ const script=resolve(root,'overpass/upstream/scripts/p12-bake-og.mjs')
  assert(script.includes('/overpass/upstream/scripts/'),'Only a disposable upstream checkout may be used')
  mkdirSync(dirname(script),{recursive:true})
  writeFileSync(script,BAKE_SCRIPT)
