@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Geographic Flow Laboratory V3",
-  "status": "stage2-scientific-core-implemented-pending-ci",
+  "status": "stage2-scientific-core-verified",
   "owner": "Flow V3",
   "fourModes": {
     "field": {
@@ -160,11 +160,22 @@
   },
   "stageProgress": {
     "stage1": "baseline-passed",
-    "stage2": "implemented-pending-ci",
+    "stage2": "scientific-core-ci-verified",
     "stage3": "pending",
     "stage4": "pending",
     "stage5": "pending",
     "stage6": "pending",
     "stage7": "pending"
+  },
+  "stageEvidence": {
+    "stage1": {
+      "browser": "14/14 passed",
+      "source": "Flow V3 Baseline"
+    },
+    "stage2": {
+      "browser": "22/22 passed",
+      "runUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43553043378",
+      "numeric": "node --test tests/flow-v3/*.test.mjs failures 0"
+    }
   }
 }
