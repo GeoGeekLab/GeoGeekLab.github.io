@@ -33,7 +33,7 @@
 .light-spectrum-before,.light-spectrum-after{fill:none;vector-effect:non-scaling-stroke}
 .light-spectrum-before{stroke:rgba(242,240,232,.65);stroke-width:1.4;stroke-dasharray:6 4}
 .light-spectrum-after{stroke:#87aaa5;stroke-width:2.2;filter:drop-shadow(0 0 5px rgba(135,170,165,.16));transition:d .5s ease,opacity .22s ease}
-.play-v2-shell[data-play-kind="light"][data-light-compare="baseline"] .light-spectrum-after{opacity:0}
+.play-v2-shell[data-play-kind="light"][data-light-compare="baseline"] .light-spectrum-after{opacity:0;transition:none!important}
 .light-spectrum-y-max{fill:rgba(242,240,232,.75)!important;letter-spacing:0!important}
 .light-spectrum-zero{fill:rgba(242,240,232,.58)!important;letter-spacing:0!important}
 .play-v2-shell[data-play-kind="light"] :is(.light-phase-announcement,.light-scene-summary){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
