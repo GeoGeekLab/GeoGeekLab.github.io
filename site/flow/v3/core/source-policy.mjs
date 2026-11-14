@@ -4,7 +4,9 @@ export const SOURCE_CACHE_POLICY=Object.freeze({
   live:'no-store',world:'no-store',pinned:'force-cache'
 });
 export const WIND_GRID=Object.freeze({rows:7,cols:12,lat0:-60,lon0:-180,dy:20,dx:30,points:84});
-const close=(a,b)=>Number.isFinite(a)&&Math.abs(a-b)<=0.001;
+// Open-Meteo returns the nearest model-cell center, not necessarily the requested point.
+const close=(a,b,tolerance=2)=>Number.isFinite(a)&&Math.abs(a-b)<=tolerance;
+const closeLon=(a,b)=>Number.isFinite(a)&&Math.abs((((a-b)+540)%360)-180)<=2;
 export function parseUtcMs(value){
   if(typeof value!=='string'||!value.trim())return null;
   const text=value.trim().replace(' ','T');
@@ -27,7 +29,7 @@ export function validateLiveGrid(raw){
   for(let i=0;i<grid.points;i++){
     const entry=arr[i],row=Math.floor(i/grid.cols),col=i%grid.cols;
     if(!close(Number(entry?.latitude),grid.lat0+row*grid.dy)||
-       !close(Number(entry?.longitude),grid.lon0+col*grid.dx))
+       !closeLon(Number(entry?.longitude),grid.lon0+col*grid.dx))
       throw new Error('Wind grid coordinate/order mismatch');
     const windSpeed=entry?.current?.wind_speed_10m;
     const direction=entry?.current?.wind_direction_10m;
