@@ -1,7 +1,7 @@
 // Stage 6 data boundary: these policies must not turn a source timestamp
 // into an observation time, or a pinned archive into current conditions.
 export const SOURCE_CACHE_POLICY=Object.freeze({
-  live:'no-store',world:'no-store',pinned:'force-cache'
+  live:'no-store',world:'force-cache',pinned:'force-cache'
 });
 export const WIND_GRID=Object.freeze({rows:7,cols:12,lat0:-60,lon0:-180,dy:20,dx:30,points:84});
 // Open-Meteo returns the nearest model-cell center, not necessarily the requested point.
