@@ -42,7 +42,7 @@ jobs:
           node overpass/scripts/p12-celestrak-policy.mjs
           node overpass/scripts/p12-social-identity.mjs
           node overpass/scripts/p12-bake-og.mjs
-          (cd overpass/upstream && npx tsx scripts/p12-bake-og.ts)
+          (cd overpass/upstream && npx tsx scripts/p12-bake-og.mjs)
       - name: Install Vercel CLI and load isolated Preview environment
         run: |
           npm install --global vercel@latest
