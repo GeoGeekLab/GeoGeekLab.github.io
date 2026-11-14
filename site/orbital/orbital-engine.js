@@ -239,7 +239,7 @@ function renderLayout(container, sourceMode) {
         <div class="orbit-card-head"><div><span>FIELD VIEW</span><strong>Change representation, not the orbit.</strong></div><em id="orbitScaleBadge">COMPRESSED</em></div>
         <div class="orbit-scale-row"><button type="button" data-scale="compressed" class="is-active">COMPRESSED</button><button type="button" data-scale="physical">PHYSICAL</button></div>
         <div class="orbit-view-row"><button type="button" data-view="equator" class="is-active">EQUATOR</button><button type="button" data-view="polar">POLAR</button></div>
-        <div class="orbit-toggle-grid"><button type="button" data-layer="graticule" class="is-active">GRATICULE</button><button type="button" data-layer="shells" class="is-active">ORBIT SHELLS</button><button type="button" data-layer="orbit" class="is-active">ORBIT TRACE</button><button type="button" data-layer="ground" class="is-active">GROUND TRACE</button></div>
+        <div class="orbit-toggle-grid"><button type="button" data-layer="graticule" class="is-active" aria-pressed="true">GRATICULE</button><button type="button" data-layer="shells" class="is-active" aria-pressed="true">ORBIT SHELLS</button><button type="button" data-layer="orbit" class="is-active" aria-pressed="true">ORBIT TRACE</button><button type="button" data-layer="ground" class="is-active" aria-pressed="true">GROUND TRACE</button></div>
       </section>
       <section class="orbit-card">
         <div class="orbit-card-head"><div><span>GROUND RELATION</span><strong id="orbitObserverTitle">Place an observer on Earth.</strong></div><em id="orbitHorizonState">NO STATION</em></div>
@@ -354,7 +354,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, .02, 80);
   const state = {
-    meta:[], counts:{}, filter:'ALL', query:'', searchSort:'relevance', searchPage:0, selectedId:null, selectedState:null, observer:null, pass:null, passRequestId:0, followSelected:false,
+    meta:[], counts:{}, filter:'ALL', query:'', searchSort:'relevance', searchPage:0, selectedId:null, selectedState:null, selectedMeta:null, observer:null, pass:null, passRequestId:0, followSelected:false,
     radial:'compressed', layers:{ graticule:true, shells:true, orbit:true, ground:true },
     camera:{ yaw:.52, pitch:.22, distance:3.35 },
     time:{ baseMs:Date.now(), perfBase:performance.now(), running:true, rate:1 }, simulationTimeMs:Date.now(),
@@ -505,21 +505,37 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   });
   function selectByIndex(index) {
     const meta=state.meta[index]; if(!meta)return;
-    state.selectedId=meta.id;state.followSelected=false;updateTrackUi();state.query='';state.searchPage=0;state.filter='ALL';search.value='';search.setAttribute('aria-expanded','false');searchResults.classList.remove('is-open');searchResults.innerHTML='';$$('[data-filter]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.filter==='ALL'));
+    state.selectedId=meta.id;state.selectedMeta=meta;state.followSelected=false;updateTrackUi();state.query='';state.searchPage=0;state.filter='ALL';search.value='';search.setAttribute('aria-expanded','false');searchResults.classList.remove('is-open');searchResults.innerHTML='';$$('[data-filter]',container).forEach(b=>b.classList.toggle('is-active',b.dataset.filter==='ALL'));
     selectedName.textContent=meta.name; selectedClass.textContent=meta.orbitClass; inspectorEmpty.hidden=true;inspectorDl.hidden=false;actions.hidden=false;
-    noradEl.textContent=`${meta.id}${meta.objectId?` · ${meta.objectId}`:''}`;inclinationEl.textContent=`${fmt(meta.inclination,2)}°`;periodEl.textContent=meta.periodMin?`${fmt(meta.periodMin,1)} min`:'—';perigeeEl.textContent=Number.isFinite(meta.perigeeKm)?`${fmt(meta.perigeeKm,0)} km`:'—';apogeeEl.textContent=Number.isFinite(meta.apogeeKm)?`${fmt(meta.apogeeKm,0)} km`:'—';eccentricityEl.textContent=Number.isFinite(meta.eccentricity)?Number(meta.eccentricity).toFixed(6):'—';epochEl.textContent=meta.epochMs?`${formatUtc(meta.epochMs)} · ${formatAge(meta.epochMs)} old`:'—';
+    noradEl.textContent=`${meta.id}${meta.objectId?` · ${meta.objectId}`:''}`;inclinationEl.textContent=`${fmt(meta.inclination,2)}°`;periodEl.textContent=meta.periodMin?`${fmt(meta.periodMin,1)} min`:'—';perigeeEl.textContent=Number.isFinite(meta.perigeeKm)?`${fmt(meta.perigeeKm,0)} km`:'—';apogeeEl.textContent=Number.isFinite(meta.apogeeKm)?`${fmt(meta.apogeeKm,0)} km`:'—';eccentricityEl.textContent=Number.isFinite(meta.eccentricity)?Number(meta.eccentricity).toFixed(6):'—';epochEl.textContent='—';
     sourceObject.href=`https://celestrak.org/NORAD/elements/gp.php?CATNR=${encodeURIComponent(meta.id)}&FORMAT=JSON-PRETTY`;
     requestPositions(true);requestTrace(true);requestPass();
   }
 
-  function clearSelection(){state.followSelected=false;updateTrackUi();state.passRequestId+=1;const url=new URL(location.href);if(url.searchParams.has('sat')){url.searchParams.delete('sat');history.replaceState(history.state,'',url.pathname+url.search+url.hash);}state.selectedId=null;state.selectedState=null;state.trace=null;state.selectedWorldVisible=false;clearTraceObjects();selectedName.textContent='NONE';selectedClass.textContent='—';inspectorEmpty.hidden=false;inspectorDl.hidden=true;actions.hidden=true;renderObserverRelation();renderPass();drawGroundMap(groundCanvas,state,state.coastRings);}
+  function clearSelection(){state.followSelected=false;updateTrackUi();state.passRequestId+=1;const url=new URL(location.href);if(url.searchParams.has('sat')){url.searchParams.delete('sat');history.replaceState(history.state,'',url.pathname+url.search+url.hash);}state.selectedId=null;state.selectedState=null;state.selectedMeta=null;state.trace=null;state.selectedWorldVisible=false;clearTraceObjects();selectedName.textContent='NONE';selectedClass.textContent='—';inspectorEmpty.hidden=false;inspectorDl.hidden=true;actions.hidden=true;renderObserverRelation();renderPass();drawGroundMap(groundCanvas,state,state.coastRings);}
 
-  function updateInspectorDynamic(){const p=state.selectedState;if(!p)return;positionEl.textContent=`${Math.abs(p.lat).toFixed(2)}° ${p.lat>=0?'N':'S'} · ${Math.abs(p.lon).toFixed(2)}° ${p.lon>=0?'E':'W'}`;altitudeEl.textContent=`${fmt(p.altitude,1)} km`;velocityEl.textContent=`${fmt(p.velocity,3)} km/s`;renderObserverRelation();}
+  function updateInspectorDynamic(){
+    const meta=state.selectedMeta;
+    if(meta?.epochMs!=null){
+      // Report the element epoch against simulation time, not wall-clock time.
+      const offsetHours=(simulationNow(state)-meta.epochMs)/3600000;
+      const magnitude=Math.abs(offsetHours);
+      const offset=magnitude<48?`${magnitude.toFixed(1)} h`:`${(magnitude/24).toFixed(1)} d`;
+      epochEl.textContent=`${formatUtc(meta.epochMs)} · ${offset} ${offsetHours>=0?'AFTER':'BEFORE'} EPOCH`;
+      epochEl.title='Propagation offset from the loaded element epoch. This is not a position-accuracy estimate.';
+    }
+    const p=state.selectedState;
+    if(!p)return;
+    positionEl.textContent=`${Math.abs(p.lat).toFixed(2)}° ${p.lat>=0?'N':'S'} · ${Math.abs(p.lon).toFixed(2)}° ${p.lon>=0?'E':'W'}`;
+    altitudeEl.textContent=`${fmt(p.altitude,1)} km`;
+    velocityEl.textContent=`${fmt(p.velocity,3)} km/s`;
+    renderObserverRelation();
+  }
 
   function renderObserverRelation(){
     const look=state.selectedState?.look;
     if(!state.observer){observerTitle.textContent='Place an observer on Earth.';horizonState.textContent='NO STATION';azimuthEl.textContent=elevationEl.textContent=rangeEl.textContent='—';return;}
-    observerTitle.textContent=`${Math.abs(state.observer.lat).toFixed(2)}° ${state.observer.lat>=0?'N':'S'} · ${Math.abs(state.observer.lon).toFixed(2)}° ${state.observer.lon>=0?'E':'W'}`;
+    observerTitle.textContent=`${Math.abs(state.observer.lat).toFixed(2)}° ${state.observer.lat>=0?'N':'S'} · ${Math.abs(state.observer.lon).toFixed(2)}° ${state.observer.lon>=0?'E':'W'} · ${Math.round(state.observer.height*1000).toLocaleString()} m ELLIPSOID`;
     if(!look){horizonState.textContent=state.selectedId?'CALCULATING':'SELECT OBJECT';azimuthEl.textContent=elevationEl.textContent=rangeEl.textContent='—';return;}
     azimuthEl.textContent=`${fmt(((look.azimuth % 360) + 360) % 360,1)}°`;
     elevationEl.textContent=`${fmt(look.elevation,1)}°`;rangeEl.textContent=`${fmt(look.range,0)} km`;horizonState.textContent=look.elevation>0?'ABOVE HORIZON':'BELOW HORIZON';
@@ -676,7 +692,7 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
     const filter=e.target.closest('[data-filter]');if(filter){setFilter(filter.dataset.filter);return;}
     const scale=e.target.closest('[data-scale]');if(scale){applyRadialMode(scale.dataset.scale);return;}
     const view=e.target.closest('[data-view]');if(view){setView(view.dataset.view);return;}
-    const layer=e.target.closest('[data-layer]');if(layer){const key=layer.dataset.layer;state.layers[key]=!state.layers[key];layer.classList.toggle('is-active',state.layers[key]);if(key==='graticule')graticule.visible=state.layers[key];if(key==='shells')shellGroup.visible=state.layers[key];applyTraceVisibility();drawGroundMap(groundCanvas,state,state.coastRings);}
+    const layer=e.target.closest('[data-layer]');if(layer){const key=layer.dataset.layer;state.layers[key]=!state.layers[key];layer.classList.toggle('is-active',state.layers[key]);layer.setAttribute('aria-pressed',String(state.layers[key]));if(key==='graticule')graticule.visible=state.layers[key];if(key==='shells')shellGroup.visible=state.layers[key];applyTraceVisibility();drawGroundMap(groundCanvas,state,state.coastRings);}
   });
   $('#orbitResetView',container).addEventListener('click',()=>{state.followSelected=false;updateTrackUi();setView('equator');state.camera.distance=state.radial==='physical'?18:3.35;setCameraFromState(camera,state);});
   $('#orbitFocus',container).addEventListener('click',()=>centerSelected(true));
@@ -797,7 +813,27 @@ export async function mountOrbitalLab({ container, signal, statusCallback } = {}
   canvas.addEventListener('pointerleave', () => { if (!dragPointer) clearHover(); });
   canvas.addEventListener('wheel',e=>{e.preventDefault();const min=1.65,max=state.radial==='physical'?34:8;state.camera.distance=clamp(state.camera.distance*Math.exp(e.deltaY*.0012),min,max);setCameraFromState(camera,state);},{passive:false});
   canvas.addEventListener('dblclick',e=>{e.preventDefault();clearSelection();});
-  groundCanvas.addEventListener('click',e=>{const r=groundCanvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;state.observer={lon:x*360-180,lat:90-y*180,height:0};renderObserverRelation();drawGroundMap(groundCanvas,state,state.coastRings);requestPositions(true);requestPass();});
+  function setObserverStation(lat,lon,heightKm=0){
+    if(!Number.isFinite(lat)||!Number.isFinite(lon)||!Number.isFinite(heightKm)||
+       lat < -90||lat > 90||lon < -180||lon > 180||heightKm < -.5||heightKm > 9)return;
+    state.observer={lat,lon,height:heightKm}; // satellite.js expects kilometres above the WGS84 ellipsoid.
+    if(state.selectedState)state.selectedState.look=null;
+    renderObserverRelation();
+    drawGroundMap(groundCanvas,state,state.coastRings);
+    requestPositions(true);
+    requestPass();
+  }
+  $('.orbit-v2',container)?.addEventListener('geogeek:orbit-set-observer',event=>{
+    const {lat,lon,heightKm}=event.detail||{};
+    setObserverStation(Number(lat),Number(lon),Number(heightKm));
+  });
+  groundCanvas.addEventListener('click',e=>{
+    const r=groundCanvas.getBoundingClientRect();
+    if(!r.width||!r.height)return;
+    const x=clamp((e.clientX-r.left)/r.width,0,1);
+    const y=clamp((e.clientY-r.top)/r.height,0,1);
+    setObserverStation(90-y*180,x*360-180,0);
+  });
 
   graticule.visible=true;renderPass();drawGroundMap(groundCanvas,state,state.coastRings);
   return () => {
