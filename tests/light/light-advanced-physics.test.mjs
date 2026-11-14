@@ -43,5 +43,18 @@ test('Three advanced chart modes provide unit-consistent, finite results',async(
     assert.ok(scene.chart.before.every(x=>x>=0&&x<=1));
     assert.ok(scene.chart.after.every(x=>x>=0&&x<=1));
     assert.equal(scene.visualValue,value);
+    if (mode==='grazing') {
+      const response=scene.chart.angleResponse;
+      assert.equal(response.anglesDeg.length,86);
+      assert.equal(response.reflectance.length,86);
+      assert.equal(response.baselineAngleDeg,40);
+      assert.equal(response.selectedAngleDeg,75);
+      assert.ok(Math.abs(response.reflectance[40]-scene.chart.before[0])<1e-12);
+      assert.ok(Math.abs(response.reflectance[75]-scene.chart.after[0])<1e-12);
+      assert.ok(response.reflectance[85]>response.reflectance[75]);
+      assert.ok(response.reflectance.every(x=>Number.isFinite(x)&&x>=0&&x<=1));
+    } else {
+      assert.equal(scene.chart.angleResponse,undefined);
+    }
   }
 });
