@@ -644,3 +644,129 @@
     order:0;
   }
 }
+
+
+/* Stage 4 — quantitative FIELD and RELEASE analysis, outside geographic content. */
+.flow-lab[data-flow-round2="1"] .flow-map-footer .flow-speed-legend{
+  display:grid;
+  grid-template-columns:auto 105px auto;
+  align-items:center;
+  gap:7px;
+  padding:3px 5px;
+  color:#e3ebe6;
+  font:700 9px/1.35 var(--mono);
+  min-width:0;
+}
+.flow-lab[data-flow-round2="1"] .flow-map-footer .flow-speed-legend strong{
+  color:#e2efe6;
+  font-size:9px;
+  white-space:nowrap;
+}
+.flow-lab[data-flow-round2="1"] .flow-map-footer .flow-speed-bar{
+  display:block;
+  width:105px;
+  height:12px;
+  padding:0;
+  margin:0;
+  border:1px solid rgba(241,239,231,.3);
+  border-radius:0;
+  box-shadow:0 0 0 1px rgba(0,0,0,.2);
+}
+.flow-lab[data-flow-round2="1"] .flow-map-footer .flow-speed-ticks{
+  display:block;
+  padding:0;
+  margin:0;
+  color:#c7d5c9;
+  font:650 8px/1.5 var(--mono);
+  background:transparent;
+  white-space:nowrap;
+}
+.flow-lab[data-flow-round2="1"] .flow-map-footer .flow-wind-time{
+  color:#b5d8c7;
+  border:1px solid rgba(110,179,144,.22);
+  background:rgba(66,128,89,.08);
+  font:700 8.5px/1.5 var(--mono);
+  white-space:normal;
+}
+.flow-lab[data-flow-round2="1"] .flow-data-provenance{
+  display:grid;
+  gap:7px;
+  padding:12px;
+  border-left:2px solid rgba(133,194,176,.6);
+  background:rgba(29,56,47,.22);
+  color:#c5d8cf;
+  font:550 10px/1.45 var(--mono);
+}
+.flow-lab[data-flow-round2="1"] .flow-data-provenance strong{
+  color:#e6f2e8;
+  font:700 10px/1.35 var(--mono);
+  letter-spacing:.055em;
+}
+.flow-lab[data-flow-round2="1"] .flow-data-provenance small{
+  font:500 11px/1.5 var(--sans);
+  color:#c8d0c8;
+}
+.flow-lab[data-flow-round2="1"] .flow-integrator-label{
+  display:grid;
+  gap:7px;
+  color:#d3e0d6;
+  font:700 9px/1.4 var(--mono);
+}
+.flow-lab[data-flow-round2="1"] .flow-integrator-label select{
+  min-height:44px;
+  width:100%;
+  background:#111e18;
+  color:#edf4ef;
+  padding:0 10px;
+  border:1px solid rgba(241,239,231,.26);
+  font:550 12px/1.4 var(--sans);
+}
+.flow-lab[data-flow-round2="1"] .flow-release-stats{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.flow-lab[data-flow-round2="1"] .flow-release-stats>span{
+  display:grid;
+  gap:6px;
+  padding:10px 8px;
+  border:1px solid rgba(241,239,231,.13);
+  color:#b3c8bc;
+  font:700 8px/1.4 var(--mono);
+}
+.flow-lab[data-flow-round2="1"] .flow-release-stats output{
+  color:#f0f3ed;
+  font:600 15px/1.2 var(--sans);
+}
+.flow-lab[data-flow-round2="1"] .flow-sim-rate{
+  display:block;
+  color:#c4d0c9;
+  font:500 11px/1.55 var(--sans);
+}
+.flow-lab[data-flow-round2="1"] .flow-controls>.flow-btn{
+  min-height:44px;
+}
+.flow-lab[data-flow-round2="1"] .flow-controls input[type="range"]{
+  min-height:24px;
+}
+.flow-lab[data-flow-round2="1"] .flow-controls button:focus-visible,
+.flow-lab[data-flow-round2="1"] .flow-controls select:focus-visible{
+  outline:2px solid #dd916b;
+  outline-offset:2px;
+}
+@media(max-width:700px){
+  .flow-lab[data-flow-round2="1"] .flow-map-footer .flow-speed-legend{
+    grid-template-columns:auto minmax(55px,90px);
+    gap:5px;
+    padding:2px;
+  }
+  .flow-lab[data-flow-round2="1"] .flow-map-footer .flow-speed-bar{width:100%}
+  .flow-lab[data-flow-round2="1"] .flow-map-footer .flow-speed-ticks{
+    grid-column:1/-1;
+    white-space:normal;
+  }
+  .flow-lab[data-flow-round2="1"] .flow-map-footer .flow-wind-time{
+    max-width:100%;
+    overflow-wrap:anywhere;
+  }
+}
