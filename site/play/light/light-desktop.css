@@ -297,10 +297,12 @@
   .play-v2-shell[data-play-kind="light"] .light-ray-depth{
     stroke:#8ec5b4;stroke-dasharray:4 7;
   }
-  .play-v2-shell[data-play-kind="light"] [data-path="direct"],
-  .play-v2-shell[data-play-kind="light"] [data-path="depth"]{display:none}
-  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="sunset"] [data-path="direct"],
-  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="depth"] [data-path="depth"]{
+  /* Match specificity of the base .light-path-legend span rule.
+     Unrelated routes must not appear in the optical evidence legend. */
+  .play-v2-shell[data-play-kind="light"] .light-path-legend [data-path="direct"],
+  .play-v2-shell[data-play-kind="light"] .light-path-legend [data-path="depth"]{display:none}
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="sunset"] .light-path-legend [data-path="direct"],
+  .play-v2-shell[data-play-kind="light"][data-light-phenomenon="depth"] .light-path-legend [data-path="depth"]{
     display:flex;
   }
   .play-v2-shell[data-play-kind="light"][data-light-phenomenon="sunset"] .light-ray-direct.is-focus{
