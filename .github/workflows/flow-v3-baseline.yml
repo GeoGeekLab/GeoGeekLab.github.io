@@ -1,4 +1,4 @@
-name: Flow V3 Analytical Acceptance
+name: Flow V3 Movement Acceptance
 
 on:
   pull_request:
@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   characterize:
-    name: Stage 4 FIELD RELEASE analysis and Stage 1-3 regression
+    name: Stage 5 OD TRIPS analysis and Stage 1-4 regression
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -48,6 +48,7 @@ jobs:
           node --check site/flow/v3/core/projection.mjs
           node --check site/flow/v3/core/integrator.mjs
           node --check site/flow/v3/core/analysis.mjs
+          node --check site/flow/v3/core/movement.mjs
           node --check site/flow-lab-round2.js
 
       - name: Install Chromium
@@ -58,14 +59,14 @@ jobs:
           mkdir -p dist
           cp -a site/. dist/
 
-      - name: Verify Stage 4 FIELD/RELEASE and existing desktop/mobile regressions
-        run: npx playwright test tests/browser/flow-v3-baseline.spec.mjs tests/browser/flow-v3-science.spec.mjs tests/browser/flow-v3-workbench.spec.mjs tests/browser/flow-v3-analysis.spec.mjs tests/browser/flow-round2.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+      - name: Verify Stage 5 OD/TRIPS and full desktop/mobile Flow regressions
+        run: npx playwright test tests/browser/flow-v3-baseline.spec.mjs tests/browser/flow-v3-science.spec.mjs tests/browser/flow-v3-workbench.spec.mjs tests/browser/flow-v3-analysis.spec.mjs tests/browser/flow-v3-movement.spec.mjs tests/browser/flow-round2.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
 
       - name: Upload baseline geometry, screenshots and traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: flow-v3-stage4-evidence
+          name: flow-v3-stage5-evidence
           retention-days: 21
           if-no-files-found: ignore
           include-hidden-files: true
