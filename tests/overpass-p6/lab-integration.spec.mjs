@@ -26,6 +26,7 @@ test('Lab card uses an actual render and opens OVERPASS, which returns to the sa
  await card.getByRole('link',{name:'Open OVERPASS instrument'}).click()
  await expect(page).toHaveURL(/\/overpass\/\?from=lab/)
  await expect(page).toHaveTitle(/OVERPASS/i)
+ await expect(page.locator('#boot-static')).toHaveCount(0,{timeout:45000})
  const back=page.getByRole('link',{name:'Back to GeoGeek Lab'})
  await expect(back).toBeVisible({timeout:25000})
  await page.screenshot({path:info.outputPath('overpass-from-lab.png'),fullPage:true})
@@ -50,6 +51,7 @@ test('Direct OVERPASS deep links preserve scientific coordinates and use a non-i
  test.setTimeout(140000)
  const original='/overpass/?q=36.4837,130.4737&n=Selected%20location'
  await page.goto(original,{waitUntil:'domcontentloaded'})
+ await expect(page.locator('#boot-static')).toHaveCount(0,{timeout:45000})
  const back=page.getByRole('link',{name:'Back to GeoGeek Lab'})
  await expect(back).toBeVisible({timeout:30000})
  await expect(back).toHaveAttribute('href','/lab.html#l17')
