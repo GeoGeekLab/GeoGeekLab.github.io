@@ -770,3 +770,106 @@
     overflow-wrap:anywhere;
   }
 }
+
+
+/* Stage 5: network and teaching-trajectory analytics remain outside the map. */
+.flow-lab[data-flow-round2="1"] .flow-movement-analysis {
+  display:grid;
+  gap:10px;
+  padding:12px 0 0;
+  border-top:1px solid rgba(241,239,231,.14);
+}
+.flow-lab[data-flow-round2="1"] .flow-movement-analysis[hidden] {display:none!important}
+.flow-lab[data-flow-round2="1"] .flow-analysis-head{display:grid;gap:5px}
+.flow-lab[data-flow-round2="1"] .flow-analysis-head strong{
+  color:#f2f3e9;font:700 10px/1.4 var(--mono);letter-spacing:.045em
+}
+.flow-lab[data-flow-round2="1"] .flow-analysis-head small{
+  color:#b7cbbc;font:500 11px/1.45 var(--sans)
+}
+.flow-lab[data-flow-round2="1"] .flow-analysis-metrics{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px
+}
+.flow-lab[data-flow-round2="1"] .flow-analysis-metrics>div{
+  display:grid;gap:5px;min-width:0;padding:8px;
+  background:rgba(28,49,37,.45);border:1px solid rgba(241,239,231,.12)
+}
+.flow-lab[data-flow-round2="1"] .flow-analysis-metrics span{
+  color:#afc5b7;font:700 8px/1.4 var(--mono)
+}
+.flow-lab[data-flow-round2="1"] .flow-analysis-metrics strong{
+  color:#f1f3ec;font:650 15px/1.2 var(--sans);overflow-wrap:anywhere
+}
+.flow-lab[data-flow-round2="1"] .flow-analysis-note{
+  margin:0;color:#c3d0c6;font:500 11px/1.55 var(--sans)
+}
+.flow-lab[data-flow-round2="1"] .flow-analysis-note strong,
+.flow-lab[data-flow-round2="1"] .flow-analysis-note b{color:#f6e9d5}
+.flow-lab[data-flow-round2="1"] .flow-analysis-peer-label{
+  display:grid;gap:6px;color:#b4cabe;font:700 9px/1.4 var(--mono)
+}
+.flow-lab[data-flow-round2="1"] .flow-analysis-peer-label select{
+  width:100%;min-height:44px;padding:0 10px;
+  background:#111e18;color:#eff4ee;border:1px solid rgba(241,239,231,.25);
+  font:600 12px/1.4 var(--sans)
+}
+.flow-lab[data-flow-round2="1"] .flow-analysis-peer-label select:focus-visible{
+  outline:2px solid #e19d7d;outline-offset:2px
+}
+.flow-lab[data-flow-round2="1"] .flow-pair-table{display:grid;gap:7px}
+.flow-lab[data-flow-round2="1"] .flow-pair-table>div{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:5px;
+  color:#d3e0d5;font:550 10px/1.5 var(--sans)
+}
+.flow-lab[data-flow-round2="1"] .flow-pair-table strong{
+  color:#f1efe7;font:700 10px/1.4 var(--mono)
+}
+.flow-lab[data-flow-round2="1"] .flow-pair-bar{
+  display:block;grid-column:1/-1;height:7px;overflow:hidden;
+  background:rgba(255,255,255,.08)
+}
+.flow-lab[data-flow-round2="1"] .flow-pair-bar i{
+  display:block;height:100%;background:#ce8464
+}
+.flow-lab[data-flow-round2="1"] .flow-segment-list{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px
+}
+.flow-lab[data-flow-round2="1"] .flow-segment-list>div{
+  display:grid;gap:4px;padding:8px;border:1px solid rgba(241,239,231,.12);
+  color:#bfcfc2;font:600 9px/1.4 var(--mono)
+}
+.flow-lab[data-flow-round2="1"] .flow-segment-list strong{
+  font:600 12px/1.25 var(--sans);color:#f3eee4
+}
+.flow-lab[data-flow-round2="1"] .flow-segment-list small{color:#a5b5a8}
+.flow-lab[data-flow-round2="1"] .flow-map-footer .flow-trip-sample-legend{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:1 1 100%;
+  color:#bdd8cd;font:700 9px/1.5 var(--mono)
+}
+.flow-lab[data-flow-round2="1"] .flow-map-footer .flow-trip-sample-legend span{
+  padding:5px 7px;border:1px solid rgba(241,239,231,.13);
+  background:transparent
+}
+.flow-lab[data-flow-round2="1"] .flow-geo-overlay .flow-r2-sample-marker{
+  vector-effect:non-scaling-stroke
+}
+.flow-lab[data-flow-round2="1"] .flow-time-unit{
+  color:#c6d3c8;font:700 9px/1.35 var(--mono)
+}
+.instrument-dialog[data-workspace-mode="focus"] .flow-lab[data-flow-round2="1"] .flow-workbar .flow-timeline{
+  display:grid;grid-template-columns:44px minmax(95px,1fr) 40px;
+  align-items:center;gap:6px;min-width:185px;flex:1 1 250px
+}
+.instrument-dialog[data-workspace-mode="focus"] .flow-lab[data-flow-round2="1"] .flow-workbar .flow-timeline button{
+  width:44px;min-height:44px
+}
+.instrument-dialog[data-workspace-mode="focus"] .flow-lab[data-flow-round2="1"] .flow-workbar .flow-timeline input{
+  min-width:0;min-height:30px
+}
+@media(max-width:700px){
+  .flow-lab[data-flow-round2="1"] .flow-analysis-metrics strong{font-size:13px}
+  .flow-lab[data-flow-round2="1"] .flow-segment-list{grid-template-columns:minmax(0,1fr)}
+  .instrument-dialog[data-workspace-mode="focus"] .flow-lab[data-flow-round2="1"] .flow-workbar .flow-timeline{
+    min-width:0;width:100%;flex:1 1 100%
+  }
+}
