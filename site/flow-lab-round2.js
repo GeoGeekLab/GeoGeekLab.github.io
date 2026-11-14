@@ -223,7 +223,12 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
     if(!/^[0-7]$/.test(selectedTrip))selectedTrip='';
     let odPeer = new URL(location.href).searchParams.get('flowPeer') || 'lon';
     if(!Object.hasOwn(NODES,odPeer))odPeer='lon';
-    let overlayRaf = 0;
+    let overlayRaf=0, pointerRaf=0, overlayFrames=0;
+    const ownedTimeouts=new Set();
+    function deferOverlay(fn,delay=0){
+      const id=setTimeout(()=>{ownedTimeouts.delete(id);if(root.isConnected)fn();},delay);
+      ownedTimeouts.add(id);
+    }
 
     function mode() { return shell.dataset.mode || 'field'; }
 
@@ -450,9 +455,11 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
       $$('[data-type="node"]', svg).forEach(node => node.classList.toggle('flow-r2-selected', node.dataset.id === selectedNode));
     }
 
-    function renderOverlay() {
+    function renderOverlay(){
       cancelAnimationFrame(overlayRaf);
-      overlayRaf = requestAnimationFrame(() => {
+      overlayRaf=requestAnimationFrame(()=>{
+        overlayFrames++;
+        shell.dataset.flowOverlayRenders=String(overlayFrames);
         restoreBaseGeometry();
         const active = mode();
         if (active === 'trips') renderTripsOverlay();
@@ -614,7 +621,10 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
       $$('[data-flow-jump]', nav).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
       if (name === 'source') activateWorkspaceMode('inspect');
       const target = name === 'control' ? controlCard : name === 'read' ? readCard : sourceCard;
-      setTimeout(() => target?.scrollIntoView({ block:'start', behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }), name === 'source' ? 80 : 0);
+      deferOverlay(()=>target?.scrollIntoView({
+        block:'start',
+        behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'
+      }),name==='source'?80:0);
     });
 
     tabs.addEventListener('keydown', event => {
@@ -653,9 +663,11 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
       chooseTrip(trip.dataset.flowTrip);
     });
 
-    map.addEventListener('pointermove', () => {
-      requestAnimationFrame(() => {
-        if (!['field','release'].includes(mode())) return;
+    map.addEventListener('pointermove',()=>{
+      if(pointerRaf)return;
+      pointerRaf=requestAnimationFrame(()=>{
+        pointerRaf=0;
+        if(!root.isConnected||!['field','release'].includes(mode()))return;
         const row = $$('.flow-inspect div', root).find(div => $('dt', div)?.textContent === 'POSITION');
         const text = row ? $('dd', row)?.textContent || '' : '';
         const match = text.match(/(-?\d+(?:\.\d+)?)°/);
@@ -669,15 +681,15 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
       });
     }, { passive:true });
 
-    map.addEventListener('wheel', () => setTimeout(renderOverlay, 0), { passive:true });
-    map.addEventListener('pointerup', () => setTimeout(renderOverlay, 0));
-    dynamic.addEventListener('input', () => setTimeout(()=>{
+    map.addEventListener('wheel',()=>deferOverlay(renderOverlay),{passive:true});
+    map.addEventListener('pointerup',()=>deferOverlay(renderOverlay));
+    dynamic.addEventListener('input',()=>deferOverlay(()=>{
       syncMovementAnalysis();renderOverlay();
       if(selectedTrip&&mode()==='trips')inspectSelectedTrip(selectedTrip);
-    }, 0));
-    dynamic.addEventListener('click', () => setTimeout(()=>{
+    }));
+    dynamic.addEventListener('click',()=>deferOverlay(()=>{
       ensureOdGeometryControl();syncMovementAnalysis();renderOverlay();
-    }, 0));
+    }));
 
     function onEscape(event){
       if(event.key!=='Escape'||event.defaultPrevented||!root.isConnected||
@@ -710,10 +722,19 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
     if (MODES.includes(initialMode) && initialMode !== mode()) $(`[data-mode="${initialMode}"]`, tabs)?.click();
     syncMode(); syncWorkspace();
 
-    root._flowRound2Cleanup = () => {
-      shellObserver.disconnect();svgObserver.disconnect();workspaceObserver.disconnect();resizeObserver?.disconnect();
+    let cleaned=false;
+    root._flowRound2Cleanup=()=>{
+      if(cleaned)return;
+      cleaned=true;
+      shellObserver.disconnect();svgObserver.disconnect();
+      workspaceObserver.disconnect();resizeObserver?.disconnect();
       document.removeEventListener('keydown',onEscape);
       cancelAnimationFrame(overlayRaf);
+      cancelAnimationFrame(pointerRaf);
+      for(const timer of ownedTimeouts)clearTimeout(timer);
+      ownedTimeouts.clear();
+      root.dataset.flowRound2Cleanup='complete';
+      root.dataset.flowRefinementDisposedCount=String(1+Number(root.dataset.flowRefinementDisposedCount||0));
     };
   }
 
@@ -725,10 +746,15 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
   }
 
   ensureStyle(); scan();
-  const observer = new MutationObserver(scan);
-  observer.observe(document.documentElement, { childList:true, subtree:true });
-  window.addEventListener('pagehide', () => {
+  let scanRaf=0;
+  const observer=new MutationObserver(()=>{
+    if(scanRaf)return;
+    scanRaf=requestAnimationFrame(()=>{scanRaf=0;scan();});
+  });
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+  window.addEventListener('pagehide',()=>{
     observer.disconnect();
-    $$('.instrument-stage').forEach(stage => stage._flowRound2Cleanup?.());
-  }, { once:true });
+    if(scanRaf)cancelAnimationFrame(scanRaf);
+    $('.instrument-stage').forEach(stage=>stage._flowRound2Cleanup?.());
+  },{once:true});
 })();
