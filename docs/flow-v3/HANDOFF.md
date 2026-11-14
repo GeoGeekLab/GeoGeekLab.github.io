@@ -138,3 +138,48 @@ Stage 2 acceptance is conditional on the green CI run for the latest PR head. Do
 5. Expose RELEASE seed radius, simulation time and integration settings. Distinguish ensemble seeding spread from model uncertainty.
 6. Preserve map-first layout, fixed-step time, reduced motion, URL isolation and the whole Stage 1–3 regression suite.
 7. Continue on `feat/flow-lab-v3` and Draft PR #200. **Do not merge before Stage 7.**
+
+
+---
+
+## Stage 4 implementation — FIELD + RELEASE analytical expansion (2026-11-14)
+
+**Scope implemented:** quantitative frozen-field wind magnitude, distinct FIELD arrow / streamline display choices, source-domain visibility and provenance, and controlled RELEASE experiments. OD and TRIPS data models were not changed.
+
+### Code and scientific semantics
+
+- `site/flow/v3/core/analysis.mjs` supplies a fixed 0–30+ m/s wind-speed palette, mode-specific provenance and UTC labels, explicit latitude coverage, and seed disks sampled uniformly over a *spherical cap* (not Cartesian longitude/latitude jitter).
+- `site/flow/v3/core/integrator.mjs` implements pure Euler, midpoint RK2 and fourth-order RK4 steps in geographic coordinates with domain validation at every internal step. The `sampleWind` function remains the only wind source.
+- `site/flow-lab.js` applies wind speed to vector glyph colors, draws frozen-field streamlines from the same sampled grid, and hatches invalid polar belts. The Streamlines control describes flow structure, **not** observed paths or a forecast.
+- FIELD / RELEASE show the source type (model snapshot / pinned model / synthetic), UTC validity or lack thereof, sampled grid resolution, coverage, and explicit absence of a quantified uncertainty model.
+- RELEASE now allows a 0–300 km release disk, 20–240 seeds per action, Euler/RK2/RK4 choice (RK4 default), simulated elapsed hours, active seed count, and a global-coverage seeding action.
+- RELEASE experiment time advances only when at least one particle exists. Clearing releases resets experiment time; the final particle's removal clears rendered trajectories.
+- Open-Meteo's 84 requested grid points must share one valid time. Mixed model times fail the snapshot import rather than masquerading as one coherent field; fallback provenance remains visible.
+- No new external runtime dependency was introduced.
+
+### Numerical and browser evidence
+
+- Numeric suite: `tests/flow-v3/analysis.test.mjs` compares Euler, RK2 and RK4 to analytic exponential latitude growth, tests intermediate/final domain rejection and antimeridian continuity, checks the exact 300 km spherical-cap perimeter and samples source metadata.
+- Browser suite: `tests/browser/flow-v3-analysis.spec.mjs` checks the quantitative legend, coverage, Field display switches, source time, RELEASE integrator/radius/clock/count, empty experiment behavior and source fallback. All previous Stage 1–3 Flow browser tests remain enforced.
+- **Verified Stage 4 CI**: [Flow V3 Analytical Acceptance run 43561173094](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43561173094). Node tests: 26, failures: 0; browser tests: 37 passed, one desktop-only touch-specific skip. CI screenshot evidence is stored in the `flow-v3-stage4-evidence` artifact.
+- Visual review: permanent controls remain outside geography. At mobile width 390 px the legend/provenance occupy considerable vertical space; a more compact mobile analytic summary is a Stage 5/6 opportunity, not a waived functional defect.
+
+### Known limits that must stay visible
+
+1. Open-Meteo 84-point sampling uses a 20° × 30° grid inside ±60° latitude. The result is an interpolated coarse **model snapshot** and never an operational trajectory forecast.
+2. GFS fallback is a pinned sample; its reference time is not interchangeable with the live snapshot valid time.
+3. Synthetic fallback is teaching data, not measured weather.
+4. Spherical-cap seed spread describes chosen initial conditions. **It is not an ensemble uncertainty probability.**
+5. Euler/RK2/RK4 numerical convergence does not establish accuracy of the meteorological source model.
+6. Global PAUSE gates the original FIELD, RELEASE and TRIPS controller. Time scaling remains bounded after background-tab suspension.
+7. Do not change OD directed normalized flow semantics or the fact that TRIPS samples are authored teaching positions.
+
+## Stage 5 handoff — OD + TRIPS analytical expansion
+
+1. Preserve directed OD edges and their normalized demonstration units. Add in/out/net totals, clear arrow direction, two-way comparisons, and filtering that does not imply actual routes.
+2. Keep schematic connection arcs and geodesic visualizations distinguishable. The chart must not claim that a geodesic line is an observed trip.
+3. Distinguish observed teaching sample points from interpolated TRIPS display segments. Report distances, time units, sample spacing and interpolation status.
+4. Keep one TRIPS playback controller; do not add independent intervals. Preserve global PAUSE and a consistent timeline across WORK/FOCUS/INSPECT.
+5. Add rigorous Node calculation tests, browser source checks, interaction and URL-persistence tests, plus desktop/mobile screenshot evidence.
+6. Preserve the Stage 2 scientific core, Stage 3 map-first layout and Stage 4 provenance + color scale.
+7. Continue on `feat/flow-lab-v3` and **Draft PR #200**; do not merge before Stage 7.
