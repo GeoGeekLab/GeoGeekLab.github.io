@@ -89,7 +89,8 @@ async function mount({signal,stage}={}){
     {advanceFrozenField},
     {windSpeedColor,WIND_COLOR_STOPS,fieldMetadata,seedDisk},
     {NODES,OD,TRIPS,sortedEdges,odNodeTotals,odNetworkTotals,tripMetrics,tripPosition},
-    sourcePolicy
+    sourcePolicy,
+    {FlowTelemetry,FLOW_PERF_BUDGET}
   ]=await Promise.all([
     import(new URL('flow/v3/core/field.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/clock.mjs',document.baseURI).href),
@@ -97,7 +98,8 @@ async function mount({signal,stage}={}){
     import(new URL('flow/v3/core/integrator.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/analysis.mjs',document.baseURI).href),
     import(new URL('flow/v3/core/movement.mjs',document.baseURI).href),
-    import(new URL('flow/v3/core/source-policy.mjs',document.baseURI).href)
+    import(new URL('flow/v3/core/source-policy.mjs',document.baseURI).href),
+    import(new URL('flow/v3/core/telemetry.mjs',document.baseURI).href)
   ]);
   if(signal?.aborted)return()=>{};
   style();setConditions();
@@ -144,6 +146,21 @@ async function mount({signal,stage}={}){
   shell.dataset.modelValidUtc=provenance.validTimeUtc===null?'':new Date(provenance.validTimeUtc).toISOString();
     const bctx=base.getContext('2d'),fctx=fx.getContext('2d');
   const reduce=matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  const telemetry=new FlowTelemetry();
+  const flowDiagnostics=()=>{
+    const canvasBytes=base.width*base.height*4+fx.width*fx.height*4;
+    return telemetry.snapshot({
+      mode:state.mode,density:state.density,paused:state.paused,reducedMotion:!!reduce,
+      documentHidden:document.hidden,activeRelease:state.release.length,
+      svgPaths:svg.querySelectorAll('path').length,
+      domNodes:shell.querySelectorAll('*').length,
+      canvasSurfaceMiB:canvasBytes/(1024*1024),
+      sourceClass:provenance.status,
+      budgets:FLOW_PERF_BUDGET,
+      cleanupComplete:destroyed
+    });
+  };
+  shell._flowDiagnostics=flowDiagnostics;
   const state={mode:'field',zoom:1,panX:0,panY:0,paused:!!reduce,density:900,speed:36000,simulatedSeconds:0,vectors:true,fieldStyle:'glyphs',top:12,curves:true,tripTime:30,tripPlay:!reduce,trail:22,releaseCount:80,releaseLife:180,releaseRadiusKm:60,releaseIntegrator:'rk4',releaseElapsedSeconds:0,release:[]};
   let W=1,H=1,dpr=1,particles=[],raf=0,last=performance.now(),tripLast=last,fieldCarry=0,releaseCarry=0,drag=null,resizer=null,destroyed=false;
   let projection=createPlateCarreeViewport(W,H);
@@ -160,7 +177,7 @@ async function mount({signal,stage}={}){
   function resize(){const r=map.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);refreshProjection();dpr=Math.min(2,devicePixelRatio||1);setCanvas(base,bctx);setCanvas(fx,fctx);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);drawBase();renderStatic();clearFx()}
   function clearFx(){fctx.setTransform(dpr,0,0,dpr,0,0);fctx.clearRect(0,0,W,H)}
   function pathRing(ring){if(!ring?.length)return;bctx.beginPath();ring.forEach((p,i)=>{const q=project(p[0],p[1]);i?bctx.lineTo(q[0],q[1]):bctx.moveTo(q[0],q[1])});bctx.closePath();bctx.fill();bctx.stroke()}
-  function drawBase(){bctx.setTransform(dpr,0,0,dpr,0,0);bctx.clearRect(0,0,W,H);const g=bctx.createRadialGradient(W*.5,H*.45,20,W*.5,H*.45,Math.max(W,H)*.65);g.addColorStop(0,'#101d16');g.addColorStop(1,'#050a07');bctx.fillStyle=g;bctx.fillRect(0,0,W,H);bctx.save();bctx.strokeStyle='rgba(241,239,231,.055)';bctx.lineWidth=.7;for(let lon=-150;lon<=150;lon+=30){const a=project(lon,-80),z=project(lon,80);bctx.beginPath();bctx.moveTo(a[0],a[1]);bctx.lineTo(z[0],z[1]);bctx.stroke()}for(let lat=-60;lat<=60;lat+=20){const a=project(-180,lat),z=project(180,lat);bctx.beginPath();bctx.moveTo(a[0],a[1]);bctx.lineTo(z[0],z[1]);bctx.stroke()}if(world?.features){bctx.fillStyle='rgba(157,170,160,.18)';bctx.strokeStyle='rgba(241,239,231,.19)';bctx.lineWidth=.65;for(const f of world.features){const g=f.geometry;if(!g)continue;if(g.type==='Polygon')g.coordinates.forEach(pathRing);else if(g.type==='MultiPolygon')g.coordinates.forEach(poly=>poly.forEach(pathRing))}}bctx.restore();if(state.mode==='field'||state.mode==='release'){drawCoverageMask();drawVectors()}}
+  function drawBase(){telemetry.baseRedraws++;bctx.setTransform(dpr,0,0,dpr,0,0);bctx.clearRect(0,0,W,H);const g=bctx.createRadialGradient(W*.5,H*.45,20,W*.5,H*.45,Math.max(W,H)*.65);g.addColorStop(0,'#101d16');g.addColorStop(1,'#050a07');bctx.fillStyle=g;bctx.fillRect(0,0,W,H);bctx.save();bctx.strokeStyle='rgba(241,239,231,.055)';bctx.lineWidth=.7;for(let lon=-150;lon<=150;lon+=30){const a=project(lon,-80),z=project(lon,80);bctx.beginPath();bctx.moveTo(a[0],a[1]);bctx.lineTo(z[0],z[1]);bctx.stroke()}for(let lat=-60;lat<=60;lat+=20){const a=project(-180,lat),z=project(180,lat);bctx.beginPath();bctx.moveTo(a[0],a[1]);bctx.lineTo(z[0],z[1]);bctx.stroke()}if(world?.features){bctx.fillStyle='rgba(157,170,160,.18)';bctx.strokeStyle='rgba(241,239,231,.19)';bctx.lineWidth=.65;for(const f of world.features){const g=f.geometry;if(!g)continue;if(g.type==='Polygon')g.coordinates.forEach(pathRing);else if(g.type==='MultiPolygon')g.coordinates.forEach(poly=>poly.forEach(pathRing))}}bctx.restore();if(state.mode==='field'||state.mode==='release'){drawCoverageMask();drawVectors()}}
   function drawCoverageMask(){
     if(!wind)return;
     // The missing-data texture is a statement about source coverage, not wind speed.
@@ -361,28 +378,32 @@ async function mount({signal,stage}={}){
   function tripPoint(trip,t){const pts=trip.pts;if(t<=pts[0][2])return pts[0];if(t>=pts[pts.length-1][2])return pts[pts.length-1];for(let i=1;i<pts.length;i++)if(t<=pts[i][2]){const a=pts[i-1],b=pts[i],f=(t-a[2])/(b[2]-a[2]);return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,t]}return pts.at(-1)}
   function tripTrail(trip,t,trail){const start=Math.max(0,t-trail),points=[];for(let q=start;q<t;q+=3)points.push(tripPoint(trip,q));points.push(tripPoint(trip,t));return points}
   function renderTrips(){shell.dataset.tripTime=state.tripTime.toFixed(2);svg.innerHTML='';for(let ti=0;ti<TRIPS.length;ti++){const tr=TRIPS[ti],pts=tripTrail(tr,state.tripTime,state.trail);if(pts.length<2)continue;const d=pts.map((q,i)=>{const p=project(q[0],q[1]);return`${i?'L':'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`}).join(' '),path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);path.setAttribute('fill','none');path.setAttribute('stroke',tr.color==='warm'?'rgba(209,99,57,.85)':'rgba(241,239,231,.62)');path.setAttribute('stroke-width','2');path.setAttribute('stroke-linecap','round');path.setAttribute('class','flow-overlay-hit');path.dataset.type='trip';path.dataset.id=ti;svg.appendChild(path);const head=project(...tripPoint(tr,state.tripTime));const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',head[0]);c.setAttribute('cy',head[1]);c.setAttribute('r','2.7');c.setAttribute('fill',tr.color==='warm'?'#e57449':'#f1efe7');svg.appendChild(c)}}
-  function renderStatic(){svg.innerHTML='';if(state.mode==='od')renderOD();if(state.mode==='trips')renderTrips()}
+  function renderStatic(){telemetry.svgRedraws++;svg.innerHTML='';if(state.mode==='od')renderOD();if(state.mode==='trips')renderTrips()}
   function tick(now){
     if(destroyed)return;
+    const started=performance.now();
     const dt=Math.max(0,Math.min(100,now-last));
     last=now;
-    if(playbackCanAdvance(state)){
-      if(state.mode==='field')drawFieldFrame(dt);
-      else if(state.mode==='release')animateRelease(dt);
-    }
-    if(state.mode==='trips'){
-      if(playbackCanAdvance(state)&&now-tripLast>=140){
-        const elapsed=now-tripLast;
-        tripLast=now;
-        state.tripTime=advanceTripTime(state.tripTime,elapsed);
-        const range=$('#flTripTime',stage);
-        if(range){
-          range.value=String(Math.round(state.tripTime));
-          $('#flTripOut',stage).textContent=String(Math.round(state.tripTime));
-          renderTrips();
-        }
-      }else if(!playbackCanAdvance(state))tripLast=now;
+    if(!document.hidden){
+      if(playbackCanAdvance(state)){
+        if(state.mode==='field')drawFieldFrame(dt);
+        else if(state.mode==='release')animateRelease(dt);
+      }
+      if(state.mode==='trips'){
+        if(playbackCanAdvance(state)&&now-tripLast>=140){
+          const elapsed=now-tripLast;
+          tripLast=now;
+          state.tripTime=advanceTripTime(state.tripTime,elapsed);
+          const range=$('#flTripTime',stage);
+          if(range){
+            range.value=String(Math.round(state.tripTime));
+            $('#flTripOut',stage).textContent=String(Math.round(state.tripTime));
+            renderTrips();
+          }
+        }else if(!playbackCanAdvance(state))tripLast=now;
+      }else tripLast=now;
     }else tripLast=now;
+    telemetry.frame(performance.now()-started);
     raf=requestAnimationFrame(tick);
   }
 
@@ -588,8 +609,17 @@ async function mount({signal,stage}={}){
   pauseBtn.addEventListener('click',()=>{state.paused=!state.paused;pauseBtn.textContent=state.paused?'PLAY':'PAUSE';if(!state.paused){last=performance.now();tripLast=last}});
   $('#flReset',stage).addEventListener('click',()=>{const pinned=$('#flSampleReadout',stage);if(pinned)pinned.hidden=true;resetView();state.release=[];state.releaseElapsedSeconds=0;state.tripTime=30;state.simulatedSeconds=0;shell.dataset.simulatedSeconds='0';fieldCarry=0;releaseCarry=0;tripLast=performance.now();const time=$('#flTripTime',stage),out=$('#flTripOut',stage);if(time)time.value='30';if(out)out.textContent='30';seedParticles();renderStatic();updateReleaseStats();clearFx()});
 
+  const onVisibility=()=>{last=performance.now();tripLast=last;};
+  document.addEventListener('visibilitychange',onVisibility);
   seedParticles();dynamicControls();legend.innerHTML=windLegend();sourceLabel.textContent=windMeta.timeLabel;shell.dataset.fieldStyle=state.fieldStyle;resize();if('ResizeObserver'in window){resizer=new ResizeObserver(resize);resizer.observe(map)}pauseBtn.textContent=state.paused?'PLAY':'PAUSE';raf=requestAnimationFrame(tick);
-  return()=>{destroyed=true;cancelAnimationFrame(raf);resizer?.disconnect();if(stage.isConnected)stage.innerHTML=''};
+  return()=>{
+    if(destroyed)return;
+    destroyed=true;cancelAnimationFrame(raf);resizer?.disconnect();
+    document.removeEventListener('visibilitychange',onVisibility);
+    shell.dataset.flowCleanup='complete';
+    stage.dataset.flowDisposedCount=String(1+Number(stage.dataset.flowDisposedCount||0));
+    if(stage.isConnected)stage.innerHTML='';
+  };
 }
 
 const mounts=window.GeoGeekInstrumentMounts=window.GeoGeekInstrumentMounts||{};
