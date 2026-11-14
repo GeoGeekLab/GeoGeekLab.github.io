@@ -117,7 +117,7 @@ test('Stage 5 time-unit guard prevents UTC and false observed speeds',()=>{
   assert.equal(state.sampled,false);
   assert.equal(state.time,30);
   assert.match(state.timeUnit,/relative teaching/);
-  assert.doesNotMatch(tripMetrics(TRIPS[0]).note,/km\/h/);
+  assert.match(tripMetrics(TRIPS[0]).note,/not measured.*km\/h/);
   assert.throws(()=>tripPosition(TRIPS[0],Number.NaN),RangeError);
   assert.throws(()=>greatCirclePoint([0,0],[1,1],1.5),RangeError);
 });
