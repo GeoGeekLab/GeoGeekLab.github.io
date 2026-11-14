@@ -572,3 +572,23 @@
   .flow-lab[data-flow-round2="1"] .flow-active-summary,
   .flow-lab[data-flow-round2="1"] .flow-grammar-strip {grid-column:1}
 }
+
+
+/* Flow-only mobile shell adjustments: do not truncate the instrument title. */
+@media(max-width:700px){
+  .instrument-dialog[data-instrument-kind="flow"][data-lab-award-shell="a4"] .instrument-head h2 {
+    overflow:visible;
+    text-overflow:clip;
+    white-space:normal;
+    overflow-wrap:normal;
+    font-size:clamp(27px,7.3vw,34px);
+    line-height:1.04;
+  }
+  .instrument-dialog[data-instrument-kind="flow"] .instrument-workspace-modes button {
+    min-height:44px;
+  }
+  .instrument-dialog[data-instrument-kind="flow"] .instrument-workspace-modes {
+    flex-wrap:wrap;
+    max-width:100%;
+  }
+}
