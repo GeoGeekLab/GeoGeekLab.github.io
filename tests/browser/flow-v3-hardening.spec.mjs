@@ -189,6 +189,19 @@ test('Stage 6 unmount/remount disconnects frames, observers and workbench handle
       await expect(page.locator('.flow-lab[data-flow-round2="1"]')).toBeVisible({timeout:20000});
     }
   }
+  await session.send('HeapProfiler.collectGarbage');
+  const afterHeap=await session.send('Runtime.getHeapUsage');
+  const deltaMiB=(afterHeap.usedSize-beforeHeap.usedSize)/(1024*1024);
+  await session.detach();
+  await test.info().attach('stage6-flow-js-heap.json',{
+    body:Buffer.from(JSON.stringify({
+      beforeUsedMiB:beforeHeap.usedSize/(1024*1024),
+      afterUsedMiB:afterHeap.usedSize/(1024*1024),
+      deltaMiB,cycles:3,
+      note:'CDP forced-GC JS heap only; excludes Canvas/GPU surfaces and is not a long-duration leak proof.'
+    },null,2)),contentType:'application/json'
+  });
+  expect(deltaMiB,'JS heap growth after three closed Flow instances').toBeLessThanOrEqual(20);
 });
 
 test('Stage 6 reduced-motion starts paused yet permits keyboard inspection and full mode cycle',async({page})=>{
