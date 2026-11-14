@@ -354,12 +354,36 @@
       waterSignal.style.opacity=scene.mechanisms.waterBackscatter?'1':'0.05';
       const surfaceContribution=scene.mechanisms.surfaceReflection && scene.mechanisms.atmosphericScattering;
       reflection.style.opacity=surfaceContribution?String(Math.min(.8,.18+scene.surfaceReflectance*2.3)):'0';
-      directPath.setAttribute('d',mode==='grazing' && snapshot.interventionId==='grazing'
-        ?'M945 185 C800 210 662 246 540 282'
-        :'M770 70 C690 150 610 220 540 282');
-      depthPath.classList.toggle('is-off',mode!=='depth');
+      // Geometry is schematic, but every movement follows the selected
+      // intervention value. Air mass uses the plane-parallel m≈sec(theta)
+      // approximation only to position the conceptual Sun.
+      const airMass=mode==='sunset'?(snapshot.interventionId==='sunset'?Number(scene.visualValue):1.2):null;
+      const angleDeg=mode==='grazing'
+        ?(snapshot.interventionId==='grazing'?Number(scene.visualValue):40)
+        :airMass?Math.acos(Math.min(1,1/airMass))*180/Math.PI:null;
+      if (angleDeg!==null) {
+        const rad=angleDeg*Math.PI/180;
+        const originX=540+250*Math.sin(rad);
+        const originY=282-250*Math.cos(rad);
+        directPath.setAttribute('d',`M${originX.toFixed(1)} ${originY.toFixed(1)} L540 282`);
+        root.style.setProperty('--light-sun-top',`${Math.max(4,Math.min(95,originY/297*100)).toFixed(2)}%`);
+        root.style.setProperty('--light-sun-right',`${((1000-originX)/10).toFixed(2)}%`);
+        if (mode==='grazing') {
+          const endpointX=540-250*Math.sin(rad);
+          const endpointY=282-250*Math.cos(rad);
+          root.querySelector('.light-ray-surface').setAttribute('d',
+            `M540 282 L${endpointX.toFixed(1)} ${endpointY.toFixed(1)}`);
+        }
+      } else {
+        directPath.setAttribute('d','M770 70 C690 150 610 220 540 282');
+      }
+      if (mode!=='grazing') root.querySelector('.light-ray-surface').setAttribute('d','M540 282 C645 220 735 205 835 176');
+      const sunsetStrength=mode==='sunset'?Math.max(0,Math.min(1,(airMass-1.2)/6.8)):0;
+      root.style.setProperty('--light-sunset-strength',String(sunsetStrength));
       const depthLength=mode==='depth' && snapshot.interventionId==='depth'?Number(scene.visualValue):0;
-      depthPath.style.opacity=mode==='depth'?String(Math.max(.24,1-depthLength/12)):'0';
+      depthPath.setAttribute('d',`M540 285 L${(540+depthLength*5).toFixed(1)} ${(285+depthLength*25).toFixed(1)}`);
+      depthPath.classList.toggle('is-off',mode!=='depth');
+      depthPath.style.opacity=mode==='depth'&&depthLength>0?String(Math.max(.28,1-depthLength/12)):'0';
       root.style.setProperty('--light-depth-strength',String(Math.min(.85,depthLength/9)));
 
       root.querySelector('.light-ray-atmosphere').classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
