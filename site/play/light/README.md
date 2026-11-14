@@ -124,6 +124,56 @@ The production preview pipeline also captures `assets/lab/previews/light.jpg`.
 ## L5 compact desktop evidence readability
 
 - The spectral range maximum sits at the top-right of the SVG instead of overlapping the high end of the curve.
-- The right rail displays a native keyboard-accessible **MODEL SCOPE / VIEW LIMITS** disclosure. Its full model qualification is available without occupying the small 1366×768 default reading area.
+- The full model qualification stays accessible without occupying the small 1366×768 default reading area. **L7 moves it into the optional explanation sheet** rather than retaining a second disclosure in the right rail.
 - Removed-path labels stay legible; dashed swatches and explicit **REMOVED** / **NO SKY SOURCE** statuses carry the meaning without strike-through.
 - The rail retains native vertical scrolling when the disclosure is open. The conceptual scene and task area keep their desktop dimensions.
+
+## L6 · Six experiments in two acts
+
+Act I retains the three original ablation experiments. After completing them, users can optionally begin Act II with three interactive propagation experiments. Act II reveals a continuous parameter slider only after a prediction and intervention.
+
+| Act II question | Model | Controlled parameter | Important limitation |
+|---|---|---|---|
+| Sunset reddening | T(λ)=exp(−m·0.12·(550/λ)^4) | air mass m (1–8), 1.2→6 initially | Simplified Rayleigh-only **direct sunlight** transmission; not real-sky radiance or color |
+| Red light disappearing underwater | T(λ,z)=exp(−a_total(λ)z) | absorption path z (0–8 m), 0→5 initially | Absorption-only homogeneous medium; not total diffuse underwater illumination or Kd |
+| Grazing reflection | R_F(θ)=(R_s+R_p)/2 | angle from surface normal (0–85°), 40→75 initially | Smooth air–water surface, unpolarized, n_air=1.00 and n_water=1.34; no waves or glint |
+
+The advanced charts use fractions, not satellite Rrs. Sunset and underwater experiments retain spectra against wavelength. The Fresnel experiment displays reflectance **against incidence angle (0–85°)** because the baseline spectral plot was flat and less informative. Before intervention, the chart shows only the baseline point at 40°. After intervention, it reveals the angle-response curve and a movable selected-angle marker. This curve comes from the same unpolarized Fresnel calculation as the comparison values. Before and after readouts share the same 0–1 range, and sliders update the view without rebuilding the active control. `PLAY AGAIN` returns to the first three experiments.
+
+### L6 visual design direction
+
+The Watched.earth reference informs the precision of labeling, hairline geometry, tabular readouts, state feedback and restrained motion. GeoGeek's own green-black environment, warm off-white body text, Play typography and scientific color semantics remain authoritative. The central schematic and its optical paths stay conceptual; no ray tracing or numerical sky rendering is claimed. Light remains desktop-only.
+
+## L7 · Question first, explanation on demand
+
+The desktop Light interface follows a three-layer hierarchy, not an always-visible essay:
+
+```text
+QUESTION: one prediction + three choices
+    → COMMIT: your selected prediction + the mechanism intervention
+    → RESULT: one outcome sentence + small verdict + optional parameter slider
+         ├── SEE WHY → focus-managed floating explanation
+         │             interpretation → physical relation → expandable model limits
+         └── NEXT EXPERIMENT → next question without requiring the explanation
+```
+
+### Scientific integrity
+
+- The experiment must not display the scientific explanation, answer, or formula before the user applies the intervention.
+- After the intervention, the result is visible even if the user skips the explanation. The explanation is optional, not a mandatory gate.
+- The floating explanation is the **single location** for the complete scientific interpretation, formula and the experiment-specific limitation text.
+- The right evidence rail shows the current physical model status and quantitative chart, plus one quiet provenance label. It does not duplicate the full limitations.
+- In the second act, the range slider stays in the result panel. Opening/closing the explanation does not reset its position or the model curves.
+
+### Interaction and accessibility
+
+- Open with `SEE WHY` only in the `revealed` phase. The floating sheet uses `role=dialog`, `aria-modal=true`, an accessible title and description.
+- Close with Escape, a header close button, the footer return button or by clicking outside the sheet.
+- Background controls become inert while open. Tab stays within the dialog; closing restores keyboard focus to the triggering action.
+- The model-limits section inside the dialog uses a native `details/summary` disclosure and is collapsed initially.
+- Do not rerender the experiment panel merely to open/close the sheet. Hide the sheet and release its event listeners when the instrument unmounts.
+- At mobile widths and coarse-pointer devices, preserve the existing **desktop-only notice**. Do not implement a mobile experiment or modal.
+
+### UI principle
+
+This is progressive disclosure, not content deletion. Prefer one clear main action and concise feedback. The model equations and limitations remain available to users who request them. Use the existing GeoGeek green-black, mineral/cyan, warm-white and restrained editorial typography. The floating sheet must not imitate a separate branded website.

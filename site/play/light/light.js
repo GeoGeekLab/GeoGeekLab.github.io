@@ -12,8 +12,8 @@
     if (!GeoPlay?.core || !GeoPlay?.shell?.createV2 || !GeoPlay?.trace) throw new Error('GeoPlay V2 runtime incomplete.');
     if (!content || !physics || !experiments || !viewApi) throw new Error('Light Play modules incomplete.');
 
-    GeoPlay.core.ensureStyle('play/light/light.css?v=20261114-light-l5a','light-play');
-    GeoPlay.core.ensureStyle('play/light/light-desktop.css?v=20261114-light-l5a','light-desktop');
+    GeoPlay.core.ensureStyle('play/light/light.css?v=20261114-light-l7a','light-play');
+    GeoPlay.core.ensureStyle('play/light/light-desktop.css?v=20261114-light-l7a','light-desktop');
     const water=await window.GeoModules.loadModule('water/water-model.js?v=20261007a');
     if (signal?.aborted) return()=>{};
     const waterOutput=water.computeWaterOptics(content.WATER_STATE);
@@ -27,6 +27,8 @@
       onCommit:()=>game?.commit(),
       onPerturb:()=>game?.perturb(),
       onNext:()=>game?.next(),
+      onBeginAdvanced:()=>game?.beginAdvanced(),
+      onExplore:value=>game?.explore(value),
       onRestart:()=>{
         traced.clear();
         game?.restart();
@@ -37,8 +39,12 @@
     function render(snapshot,meta) {
       if (signal?.aborted) return;
       const chartMode=snapshot.experiment?.chartMode || 'sky';
-      const scene=physics.buildScene({waterOutput,mechanisms:snapshot.mechanisms,chartMode});
-      view.render(snapshot,scene);
+      const scene=physics.buildScene({
+        waterOutput,mechanisms:snapshot.mechanisms,chartMode,
+        interventionId:snapshot.interventionId,
+        exploreValue:snapshot.exploreValue
+      });
+      view.render(snapshot,scene,meta);
 
       if (snapshot.phase==='revealed' && snapshot.experiment && !traced.has(snapshot.experiment.id)) {
         traced.add(snapshot.experiment.id);
@@ -46,7 +52,10 @@
           play:'light',
           trialId:snapshot.experiment.id,
           judgment:{prediction:snapshot.selection,correct:snapshot.correct},
-          relation:{mechanism:snapshot.experiment.mechanism},
+          relation:{
+            mechanism:snapshot.experiment.mechanism||null,
+            intervention:snapshot.experiment.intervention?.id||null
+          },
           conditions:{
             before:{atmosphericScattering:true,waterBackscatter:true,surfaceReflection:true},
             after:snapshot.mechanisms
@@ -54,7 +63,8 @@
           result:{
             chartMode,
             waterRrs550:waterOutput.Rrs[150],
-            mechanismRemoved:true
+            mechanismRemoved:!snapshot.experiment.intervention,
+            parameterValue:snapshot.experiment.intervention?.defaultValue??null
           },
           effect:{predictionRevised:!snapshot.correct}
         });

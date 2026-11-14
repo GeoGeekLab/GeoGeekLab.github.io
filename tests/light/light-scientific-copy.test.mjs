@@ -8,7 +8,7 @@ test('Light copy distinguishes numerically tested water model from field evidenc
   const context=vm.createContext({window:{}});
   vm.runInContext(source,context);
   const items=context.window.GeoPlayLightContent.EXPERIMENTS;
-  assert.equal(items.length,3);
+  assert.equal(items.length,6);
   const [sky,water,surface]=items;
   assert.match(sky.limit,/not a solved TOA radiance field/i);
   assert.match(water.limit,/idealized, numerically tested Water as Spectrum model/i);
