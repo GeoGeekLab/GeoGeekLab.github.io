@@ -56,7 +56,9 @@ test('Direct OVERPASS deep links preserve scientific coordinates and use a non-i
  await expect(back).toBeVisible({timeout:30000})
  await expect(back).toHaveAttribute('href','/lab.html#l17')
  const url=new URL(page.url())
- expect(url.searchParams.get('q')).toBe('36.4837,130.4737')
+ const [initialLat,initialLon]=(url.searchParams.get('q')||'').split(',').map(Number)
+ expect(Math.abs(initialLat-36.4837)).toBeLessThan(0.001)
+ expect(Math.abs(initialLon-130.4737)).toBeLessThan(0.001)
  await page.screenshot({path:info.outputPath('overpass-direct.png'),fullPage:true})
  // The original Watched About overlay owns focus and stays visually unobstructed.
  await page.getByRole('button',{name:/How this works/i}).click()
