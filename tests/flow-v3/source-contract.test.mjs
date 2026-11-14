@@ -11,7 +11,7 @@ const polish=read('site/flow-lab-polish.js');
 
 test('Flow V3 specification covers four non-interchangeable movement models',()=>{
   assert.equal(contract.schemaVersion,1);
-  assert.equal(contract.status,'design-contract-not-runtime');
+  assert.match(contract.status,/^stage2-scientific-core-implemented/);
   const modes=contract.invariants.primaryModeNames;
   assert.deepEqual(modes,['field','od','trips','release']);
   assert.deepEqual(Object.keys(contract.fourModes),modes);
@@ -64,7 +64,8 @@ test('the present wind conversion uses meteorological FROM convention',()=>{
 test('the V3 baseline maps the active extension chain and cleanup owners',()=>{
   assert.match(polish,/mounts\.flow = resilientMount/);
   assert.match(round2,/window\.addEventListener\('pagehide'/);
-  assert.match(flowEntry,/tripTimer = controlledTripPlaying \? setInterval/);
+  assert.doesNotMatch(flowEntry,/setInterval\(/);
+  assert.match(flowEntry,/one source of playback truth/);
   assert.match(flowEntry,/stage\?\._flowRound2Cleanup\?\.\(\)/);
   assert.match(base,/cancelAnimationFrame\(raf\)/);
   assert.match(base,/resizer\?\.disconnect\(\)/);
@@ -79,9 +80,10 @@ test('acceptance targets are measurable and do not imply Stage 1 repairs',()=>{
   assert.ok(stageGates.stage7.some(x=>x.includes('merged')));
 });
 
-// These are documented release blockers, not hidden assertions of correctness.
-// Stage 2 replaces each TODO with a deterministic production-code test.
-test.todo('FLOW-P0-01: respawn and antimeridian changes never draw streaks');
-test.todo('FLOW-P0-02: simulation time advances in seconds independent of rendered FPS');
-test.todo('FLOW-P0-03: out-of-domain wind requests return invalid, not poleward clamp');
-test.todo('FLOW-P0-04: one authoritative controller governs all playback modes');
+test('Stage 2 scientific invariants are backed by executable core tests',()=>{
+  const suite=read('tests/flow-v3/scientific-core.test.mjs');
+  for(const id of ['FLOW-P0-01','FLOW-P0-02','FLOW-P0-03','FLOW-P0-04'])
+    assert.ok(suite.includes(id),id+' must have a strict scientific test');
+  assert.equal(contract.stageProgress.stage1,'baseline-passed');
+  assert.ok(contract.invariants.onePlaybackController.includes('Round2 never installs'));
+});
