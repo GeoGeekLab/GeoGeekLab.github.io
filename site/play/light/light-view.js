@@ -210,25 +210,63 @@
 
     function renderSpectrum(snapshot,scene) {
       const chart=scene.chart;
-      // Fraction experiments keep a fixed 0–1 axis during parameter scrubbing.
+      const angle=chart.angleResponse||null;
+      // Fractions keep an invariant 0–1 axis during continuous exploration.
       const domainMax=chart.unit==='fraction'?1:spectrumDomain(chart.before,chart.after);
-      // The baseline is y=126 in the 138-unit SVG viewBox. Both traces
-      // share the same Y domain, so removing a signal cannot rescale it.
-      beforePath.setAttribute('d',pathD(chart.before,520,138,domainMax));
-      afterPath.setAttribute('d',pathD(chart.after,520,138,domainMax));
-      spectrumSvg.dataset.yMax=String(domainMax);
-      maxLabel.textContent=`MAX ${formatValue(domainMax,chart.unit)}`;
       const revealed=snapshot.phase==='revealed'||snapshot.phase==='complete';
       root.dataset.lightCompare=revealed?'revealed':'baseline';
-      spectrumSvg.setAttribute('aria-label',revealed?'Before and after spectra on the same vertical scale':'Baseline spectrum; result is hidden until reveal');
-      spectrumMode.textContent=snapshot.experiment?.chartLabel || '—';
-      const wavelengths=chart.wavelengthNm || [];
+      root.dataset.lightChart=angle?'angle':'spectrum';
+      chartCard.setAttribute('aria-label',angle?'Fresnel angular response':'Spectral consequence');
+      chartTitle.textContent=angle?'ANGLE RESPONSE':'SPECTRUM';
+      spectrumSvg.dataset.yMax=String(domainMax);
+      maxLabel.textContent=`MAX ${formatValue(domainMax,chart.unit)}`;
+      spectrumMode.textContent=snapshot.experiment?.chartLabel||'—';
+
+      if (angle) {
+        // Reveal a full physical response curve only after the prediction.
+        // BEFORE is a baseline point at 40°, AFTER is the selected angle.
+        beforePath.setAttribute('d','');
+        afterPath.setAttribute('d',pathD(angle.reflectance,520,138,domainMax));
+        const x=degrees=>12+496*degrees/85;
+        const y=fraction=>126-114*fraction/domainMax;
+        const baseValue=angle.reflectance[angle.baselineAngleDeg];
+        const activeValue=angle.reflectance[Math.round(angle.selectedAngleDeg)];
+        const baseX=x(angle.baselineAngleDeg),activeX=x(angle.selectedAngleDeg);
+        const baseY=y(baseValue),activeY=y(activeValue);
+        baselineDot.setAttribute('cx',baseX.toFixed(1));
+        baselineDot.setAttribute('cy',baseY.toFixed(1));
+        activeDot.setAttribute('cx',activeX.toFixed(1));
+        activeDot.setAttribute('cy',activeY.toFixed(1));
+        activeGuide.setAttribute('x1',activeX.toFixed(1));
+        activeGuide.setAttribute('x2',activeX.toFixed(1));
+        activeGuide.setAttribute('y1',activeY.toFixed(1));
+        activeGuide.setAttribute('y2','126');
+        xStartLabel.textContent='0°';
+        xMiddleLabel.textContent='40°';
+        xEndLabel.textContent='85°';
+        spectrumSvg.setAttribute('aria-label',revealed
+          ?`Smooth-surface Fresnel reflectance by incidence angle; 40 degree baseline and ${angle.selectedAngleDeg} degree selected point`
+          :'Smooth-surface Fresnel reflectance; baseline at 40 degrees, response curve hidden until reveal');
+      } else {
+        beforePath.setAttribute('d',pathD(chart.before,520,138,domainMax));
+        afterPath.setAttribute('d',pathD(chart.after,520,138,domainMax));
+        xStartLabel.textContent='400';
+        xMiddleLabel.textContent='550';
+        xEndLabel.textContent='700 nm';
+        spectrumSvg.setAttribute('aria-label',revealed
+          ?'Before and after spectra on the same vertical scale'
+          :'Baseline spectrum; result is hidden until reveal');
+      }
+
+      const wavelengths=chart.wavelengthNm||[];
       const probeIndex=wavelengths.length
-        ? wavelengths.reduce((best,wavelength,index)=>
+        ?wavelengths.reduce((best,wavelength,index)=>
           Math.abs(wavelength-550)<Math.abs(wavelengths[best]-550)?index:best,0)
-        : 0;
+        :0;
       const probeNm=wavelengths[probeIndex]??550;
-      probeLabel.textContent=`${probeNm} NM · ${chart.unit==='sr⁻¹'?'Rrs / sr⁻¹':chart.unit==='fraction'?(snapshot.experiment?.chartMode==='grazing'?'FRESNEL / FRACTION':'TRANSMISSION / FRACTION'):'RELATIVE'}`;
+      probeLabel.textContent=angle
+        ?`θ ${angle.baselineAngleDeg}° → ${revealed?angle.selectedAngleDeg+'°':'PENDING'} · FRESNEL / FRACTION`
+        :`${probeNm} NM · ${chart.unit==='sr⁻¹'?'Rrs / sr⁻¹':chart.unit==='fraction'?'TRANSMISSION / FRACTION':'RELATIVE'}`;
       beforeValue.textContent=formatValue(chart.before[probeIndex]??0,chart.unit);
       afterValue.textContent=revealed?formatValue(chart.after[probeIndex]??0,chart.unit):'PENDING';
       changeValue.textContent=revealed?formatValue(chart.after[probeIndex]-chart.before[probeIndex],chart.unit):'—';
