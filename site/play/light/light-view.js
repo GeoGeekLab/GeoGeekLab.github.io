@@ -179,7 +179,8 @@
 
     function renderSpectrum(snapshot,scene) {
       const chart=scene.chart;
-      const domainMax=spectrumDomain(chart.before,chart.after);
+      // Fraction experiments keep a fixed 0–1 axis during parameter scrubbing.
+      const domainMax=chart.unit==='fraction'?1:spectrumDomain(chart.before,chart.after);
       // The baseline is y=126 in the 138-unit SVG viewBox. Both traces
       // share the same Y domain, so removing a signal cannot rescale it.
       beforePath.setAttribute('d',pathD(chart.before,520,138,domainMax));
@@ -196,7 +197,7 @@
           Math.abs(wavelength-550)<Math.abs(wavelengths[best]-550)?index:best,0)
         : 0;
       const probeNm=wavelengths[probeIndex]??550;
-      probeLabel.textContent=`${probeNm} NM · ${chart.unit==='sr⁻¹'?'Rrs / sr⁻¹':'RELATIVE'}`;
+      probeLabel.textContent=`${probeNm} NM · ${chart.unit==='sr⁻¹'?'Rrs / sr⁻¹':chart.unit==='fraction'?(snapshot.experiment?.chartMode==='grazing'?'FRESNEL / FRACTION':'TRANSMISSION / FRACTION'):'RELATIVE'}`;
       beforeValue.textContent=formatValue(chart.before[probeIndex]??0,chart.unit);
       afterValue.textContent=revealed?formatValue(chart.after[probeIndex]??0,chart.unit):'PENDING';
       changeValue.textContent=revealed?formatValue(chart.after[probeIndex]-chart.before[probeIndex],chart.unit):'—';
