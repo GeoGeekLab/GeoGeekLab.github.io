@@ -80,3 +80,21 @@ The mobile project emulates a Pixel 7 viewport/device in Chromium on the CI host
 7. Keep the four scientific grammars separate. Do not call interpolated teaching paths observations or release spread uncertainty.
 
 Stage 6 is a **hardening stage**. Stage 7 owns conflict resolution, final independent checks, review, merge and post-deployment verification.
+
+
+## 5. Completed implementation-head CI and authoritative source checks
+
+- Verified implementation HEAD: `23303baa94c1786e53dfee34160f53414aa63eb6`.
+- [Flow V3 Hardening Acceptance run 43574807208](https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43574807208): **success**; **42/42 Node cases passed; 67 browser cases passed, one intentional platform-specific skip; zero failures**. The browser run includes the full Stage 1–5 suites plus Stage 6 source, accessibility, device stress and memory-gate tests.
+- Independent checks for the **same HEAD**: Orbit Acceptance, Earth Pulse Source Preflight, Earth Pulse Regression and GeoGeek Quality all concluded **success**.
+- Final test artifact: `flow-v3-stage6-evidence` (run 43574807208; retained by GitHub Actions). The earlier implementation-run maxima (P95 28.53 ms, Canvas 21.16 MiB, zero reported axe violations) remain specifically labeled as **first-run measurements**, not automatically substituted for numbers from the final run.
+- The CDP forced-GC heap assertion and per-second overlay budget were enabled in the final successful run. The heap criterion remains a **≤20 MiB delta over three close/reopen cycles**, not proof of long-term leak freedom.
+- GitHub Pages deployment checks are a separate Stage 7 release gate; **no merge, no production approval** is inferred from these successful PR checks.
+
+### Terms review and explicit production decision
+
+The [Open-Meteo Free API terms](https://open-meteo.com/en/terms) state non-commercial usage only with rate limits, including fewer than 10,000 calls/day; data is licensed CC BY 4.0. The [Natural Earth terms](https://www.naturalearthdata.com/about/terms-of-use/) identify the source cartography as public domain. Neither term verification constitutes an unrestricted license for distributing the pinned GFS JSON, nor permission to use the Open-Meteo Free endpoint for an advertising/subscription-supported site.
+
+Stage 7 must verify the deployment's actual commercial status, quota, source attribution and archive redistribution rights. Do not hide those open questions behind a passing test suite.
+
+**Document closeout note:** This section changes the PR HEAD after the successful implementation run. The *new* HEAD CI, when available, is authoritative for final Stage 6 signoff.
