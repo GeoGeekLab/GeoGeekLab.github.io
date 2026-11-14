@@ -12,6 +12,9 @@
     let index=0;
     let selection=null;
     let mechanisms=normalMechanisms();
+    let advancedUnlocked=false;
+    let interventionId=null;
+    let exploreValue=null;
 
     function normalMechanisms() {
       return {atmosphericScattering:true,waterBackscatter:true,surfaceReflection:true};
@@ -24,7 +27,10 @@
       return Object.freeze({
         phase:machine.state,
         index,
-        total:content.EXPERIMENTS.length,
+        total:advancedUnlocked?content.EXPERIMENTS.length:Math.min(3,content.EXPERIMENTS.length),
+        advancedUnlocked,
+        interventionId,
+        exploreValue,
         experiment:current,
         selection,
         correct:current ? selection===current.correct : null,
@@ -53,7 +59,15 @@
     function perturb() {
       if (machine.state!=='committed') return false;
       const current=experiment();
-      mechanisms={...normalMechanisms(),[current.mechanism]:false};
+      if (current.intervention) {
+        mechanisms=normalMechanisms();
+        interventionId=current.intervention.id;
+        exploreValue=current.intervention.defaultValue;
+      } else {
+        mechanisms={...normalMechanisms(),[current.mechanism]:false};
+        interventionId=null;
+        exploreValue=null;
+      }
       machine.set('revealed',{type:'perturb'});
       emit({type:'perturb'});
       return true;
@@ -61,7 +75,8 @@
 
     function next() {
       if (machine.state!=='revealed') return false;
-      if (index>=content.EXPERIMENTS.length-1) {
+      const lastIndex=advancedUnlocked?content.EXPERIMENTS.length-1:Math.min(2,content.EXPERIMENTS.length-1);
+      if (index>=lastIndex) {
         machine.set('complete',{type:'complete'});
         emit({type:'complete'});
         return true;
@@ -69,8 +84,33 @@
       index+=1;
       selection=null;
       mechanisms=normalMechanisms();
+      interventionId=null;
+      exploreValue=null;
       machine.set('question',{type:'next'});
       emit({type:'next'});
+      return true;
+    }
+
+    function beginAdvanced() {
+      if (machine.state!=='complete' || advancedUnlocked || content.EXPERIMENTS.length<=3) return false;
+      advancedUnlocked=true;
+      index=3;
+      selection=null;
+      mechanisms=normalMechanisms();
+      interventionId=null;
+      exploreValue=null;
+      machine.set('question',{type:'beginAdvanced'});
+      emit({type:'beginAdvanced'});
+      return true;
+    }
+
+    function explore(value) {
+      const config=experiment()?.intervention;
+      if (machine.state!=='revealed'||!config) return false;
+      const v=Number(value);
+      if (!Number.isFinite(v)||v<config.min||v>config.max) return false;
+      exploreValue=v;
+      emit({type:'explore'});
       return true;
     }
 
@@ -78,6 +118,9 @@
       index=0;
       selection=null;
       mechanisms=normalMechanisms();
+      advancedUnlocked=false;
+      interventionId=null;
+      exploreValue=null;
       if (machine.state!=='question') machine.set('question',{type:'restart'});
       emit({type:'restart'});
       return true;
@@ -85,7 +128,7 @@
 
     return Object.freeze({
       get snapshot(){return snapshot();},
-      select,commit,perturb,next,restart
+      select,commit,perturb,next,beginAdvanced,explore,restart
     });
   }
 

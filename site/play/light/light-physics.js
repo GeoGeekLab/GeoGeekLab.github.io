@@ -67,7 +67,58 @@
     return Object.freeze({r,g,b,css:`rgb(${r} ${g} ${b})`});
   }
 
-  function chartFor(mode,waterOutput,mechanisms) {
+
+  // These three advanced comparisons change one physical path parameter.
+  // They never claim that the simplified transmission is observed radiance.
+  function atmosphericDirectTransmission(wavelengths=DEFAULT_WAVELENGTHS,airMass=1.2) {
+    if (!(Number.isFinite(airMass) && airMass>=1 && airMass<=8)) throw new RangeError('air mass must be 1–8');
+    const tau550=0.12;
+    return wavelengths.map(lambda=>Math.exp(-airMass*tau550*Math.pow(550/lambda,4)));
+  }
+
+  function absorptionOnlyTransmission(waterOutput,pathLengthM=0) {
+    if (!(Number.isFinite(pathLengthM) && pathLengthM>=0 && pathLengthM<=8)) throw new RangeError('water path length must be 0–8 m');
+    const coefficients=waterOutput?.absorption?.total;
+    if (!Array.isArray(coefficients)||coefficients.length!==waterOutput?.wavelengthNm?.length) {
+      throw new TypeError('absorption-only transmission requires Water as Spectrum absorption arrays');
+    }
+    return coefficients.map(value=>{
+      if (!(Number.isFinite(value) && value>=0)) throw new RangeError('Water absorption must be nonnegative and finite');
+      return Math.exp(-value*pathLengthM);
+    });
+  }
+
+  function grazingReflectionFraction(wavelengths=DEFAULT_WAVELENGTHS,angleDeg=40) {
+    if (!(Number.isFinite(angleDeg) && angleDeg>=0 && angleDeg<=85)) throw new RangeError('incidence angle must be 0–85°');
+    const reflectance=fresnelUnpolarized(angleDeg);
+    return wavelengths.map(()=>reflectance);
+  }
+
+  function chartFor(mode,waterOutput,mechanisms,exploreValue) {
+    if (mode==='sunset') {
+      return Object.freeze({
+        wavelengthNm:DEFAULT_WAVELENGTHS,
+        before:atmosphericDirectTransmission(DEFAULT_WAVELENGTHS,1.2),
+        after:atmosphericDirectTransmission(DEFAULT_WAVELENGTHS,exploreValue??6),
+        unit:'fraction'
+      });
+    }
+    if (mode==='depth') {
+      return Object.freeze({
+        wavelengthNm:waterOutput.wavelengthNm,
+        before:absorptionOnlyTransmission(waterOutput,0),
+        after:absorptionOnlyTransmission(waterOutput,exploreValue??5),
+        unit:'fraction'
+      });
+    }
+    if (mode==='grazing') {
+      return Object.freeze({
+        wavelengthNm:DEFAULT_WAVELENGTHS,
+        before:grazingReflectionFraction(DEFAULT_WAVELENGTHS,40),
+        after:grazingReflectionFraction(DEFAULT_WAVELENGTHS,exploreValue??75),
+        unit:'fraction'
+      });
+    }
     if (mode==='water') {
       return Object.freeze({
         wavelengthNm:waterOutput.wavelengthNm,
@@ -94,7 +145,7 @@
     });
   }
 
-  function buildScene({waterOutput,mechanisms,chartMode='sky'}={}) {
+  function buildScene({waterOutput,mechanisms,chartMode='sky',interventionId=null,exploreValue=null}={}) {
     const state={
       atmosphericScattering:mechanisms?.atmosphericScattering!==false,
       waterBackscatter:mechanisms?.waterBackscatter!==false,
@@ -103,14 +154,18 @@
     const sky=rayleighRelativeSpectrum(DEFAULT_WAVELENGTHS,state.atmosphericScattering);
     const surface=surfaceReflectionRelative(sky,{enabled:state.surfaceReflection});
     const waterSignal=waterLeavingSpectrum(waterOutput,state.waterBackscatter);
+    const visualValue=interventionId?exploreValue:null;
+    const visualReflectance=chartMode==='grazing' && interventionId==='grazing'?fresnelUnpolarized(visualValue??75):fresnelUnpolarized(40);
     return Object.freeze({
       mechanisms:Object.freeze(state),
       skySpectrum:Object.freeze(sky),
       surfaceSpectrum:Object.freeze(surface),
       waterSignal:Object.freeze(waterSignal),
       waterColor:illustrativeWaterRgb(waterOutput,state.waterBackscatter),
-      surfaceReflectance:fresnelUnpolarized(40),
-      chart:chartFor(chartMode,waterOutput,state)
+      surfaceReflectance:visualReflectance,
+      interventionId,
+      visualValue,
+      chart:chartFor(chartMode,waterOutput,state,exploreValue)
     });
   }
 
@@ -120,6 +175,9 @@
     rayleighRelativeSpectrum,
     fresnelUnpolarized,
     surfaceReflectionRelative,
+    atmosphericDirectTransmission,
+    absorptionOnlyTransmission,
+    grazingReflectionFraction,
     waterLeavingSpectrum,
     illustrativeWaterRgb,
     buildScene
