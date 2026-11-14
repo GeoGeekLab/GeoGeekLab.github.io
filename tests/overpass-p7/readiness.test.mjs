@@ -14,7 +14,7 @@ test('P7 rollout never calls CI success proof of live-data freshness',()=>{
  const r=evaluate({watched:{stale:true},geoGeek:{stale:false},legal:true,rollback:true,assets:true})
  assert.equal(r.releaseEligible,false)
  assert(r.blockers.some(x=>x.includes('Watched')))
- assert(r.limitations.some(x=>x.includes('MP4')))
+ assert(r.blockers.some(x=>x.includes('MP4')))
 })
 test('P7 legal, rollback and static route gates all block missing evidence',()=>{
  const r=evaluate({watched:{stale:false},geoGeek:{stale:false},legal:false,rollback:false,assets:false})
