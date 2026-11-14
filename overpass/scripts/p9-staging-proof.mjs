@@ -19,6 +19,7 @@ const criticalRollback=[
   'lab.html','app.js','core/modules.js',
   'assets/lab/previews/orbit.jpg','assets/lab/previews/earth.jpg'
 ]
+const absentAfterRollback=['overpass/','records/lab-l17.html','assets/lab/previews/overpass.jpg']
 const hash=b=>createHash('sha256').update(b).digest('hex')
 const sha40=s=>typeof s==='string'&&/^[a-f0-9]{40}$/.test(s)
 const sha64=s=>typeof s==='string'&&/^[a-f0-9]{64}$/.test(s)
@@ -34,7 +35,7 @@ export function validateStageUrl(raw) {
   assert(!/^(localhost|0\.0\.0\.0|127(?:\.\d+){3}|geogeeklab\.github\.io|(?:www\.)?watched\.earth)$/.test(host),'Loopback or production origin rejected')
   assert(!/(\.localhost|\.local|\.internal|\.test|\.invalid)$/.test(host),'Non-public stage hostname rejected')
   assert(!/^\d+\.\d+\.\d+\.\d+$/.test(host) && !host.includes(':'),'IP address staging is not accepted')
-  assert(!u.pathname.split('/').includes('..'),'Invalid staging path')
+  assert.equal(u.pathname,'/','Independent stage must serve the production-equivalent routes at origin root')
   return u
 }
 export function inspectLab(html,phase) {
@@ -63,7 +64,7 @@ export function verifyManifest(m,phase) {
   assert.equal(m.schema,'overpass-p9-stage-manifest-v1')
   assert.equal(m.kind,phaseKind(phase),'Phase and manifest kind differ')
   assert(sha40(m.sourceSha),'Missing source commit')
-  assert.deepEqual(Object.keys(m.files).sort(),pathsFor(phase).sort(),'Unexpected manifest paths')
+  assert.deepEqual(Object.keys(m.files).sort(),[...pathsFor(phase)].sort(),'Unexpected manifest paths')
   for(const data of Object.values(m.files)) {
     assert(sha64(data.sha256)&&Number.isSafeInteger(data.bytes)&&data.bytes>0,'Bad manifest file hash or size')
   }
@@ -78,6 +79,12 @@ async function fetchFile(base,p) {
     headers:{'Cache-Control':'no-cache','Pragma':'no-cache'}})
   assert.equal(response.status,200,'Staging HTTP '+response.status+' at '+url.href)
   return Buffer.from(await response.arrayBuffer())
+}
+async function assertAbsent(base,p) {
+  const url=new URL(p,base)
+  const response=await fetch(url,{redirect:'manual',signal:AbortSignal.timeout(20000),
+    headers:{'Cache-Control':'no-cache','Pragma':'no-cache'}})
+  assert([404,410].includes(response.status),'Rollback retained OVERPASS route or asset: '+p+' HTTP '+response.status)
 }
 export async function probe(phase,stageUrl,manifest,deploymentRef) {
   assert(PHASES.includes(phase),'Unknown phase')
@@ -96,10 +103,12 @@ export async function probe(phase,stageUrl,manifest,deploymentRef) {
       'OVERPASS base path invalid')
     observations[p]=actual
   }
+  const absentPaths=phase==='rollback'?[...absentAfterRollback]:[]
+  for(const p of absentPaths)await assertAbsent(base,p)
   return {schema:'overpass-p9-staging-observation-v1',phase,
     stageUrl:base.href,sourceSha:manifest.sourceSha,manifestSha256:manifest.manifestSha256,
     deploymentRef,checkedAt:new Date().toISOString(),files:observations,
-    verifiedCriticalPaths:pathsFor(phase).length,
+    absentPaths,verifiedCriticalPaths:pathsFor(phase).length,
     fullArtifactVerified:false,hostingDeploymentVerified:false,releaseApproved:false}
 }
 export function verifySequence(reports) {
@@ -110,7 +119,9 @@ export function verifySequence(reports) {
     assert(sha40(r.sourceSha)&&sha64(r.manifestSha256),'Invalid source/manifest digest')
     assert.equal(r.hostingDeploymentVerified,false,'Hosting evidence cannot be self-approved')
     assert.equal(r.releaseApproved,false,'No automatic release approval')
-    assert.deepEqual(Object.keys(r.files).sort(),pathsFor(r.phase).sort())
+    assert.deepEqual(Object.keys(r.files).sort(),[...pathsFor(r.phase)].sort())
+    assert.deepEqual(r.absentPaths,r.phase==='rollback'?absentAfterRollback:[],
+      'Unapproved OVERPASS route/asset absence not observed')
     for(const file of Object.values(r.files))assert(sha64(file.sha256)&&file.bytes>0)
   })
   const [candidate,rollback,redeploy]=reports
@@ -129,7 +140,7 @@ export function verifySequence(reports) {
   return {schema:'overpass-p9-sequence-verification-v1',stageUrl:candidate.stageUrl,
     phases:PHASES,observedDeploymentRefs:reports.map(r=>r.deploymentRef),
     candidateSourceSha:candidate.sourceSha,rollbackSourceSha:rollback.sourceSha,
-    expectedArtifactRestored:true,httpSequenceConsistent:true,
+    criticalPathsRestored:true,httpSequenceConsistent:true,
     actualHostingRollbackProven:false,independentBrowserSmokePassed:false,
     humanApprovalGranted:false,releaseApproved:false}
 }
