@@ -24,7 +24,7 @@ jobs:
   characterize:
     name: Stage 6 provenance, accessibility, performance and Stage 1-5 regression
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -61,7 +61,7 @@ jobs:
           cp -a site/. dist/
 
       - name: Verify Stage 6 hardening and full desktop/mobile Flow regressions
-        run: npx playwright test tests/browser/flow-v3-baseline.spec.mjs tests/browser/flow-v3-science.spec.mjs tests/browser/flow-v3-workbench.spec.mjs tests/browser/flow-v3-analysis.spec.mjs tests/browser/flow-v3-movement.spec.mjs tests/browser/flow-v3-hardening.spec.mjs tests/browser/flow-round2.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
+        run: npx playwright test tests/browser/flow-v3-baseline.spec.mjs tests/browser/flow-v3-science.spec.mjs tests/browser/flow-v3-workbench.spec.mjs tests/browser/flow-v3-analysis.spec.mjs tests/browser/flow-v3-movement.spec.mjs tests/browser/flow-v3-hardening.spec.mjs tests/browser/flow-v3-accessibility.spec.mjs tests/browser/flow-round2.spec.mjs --project=desktop-chromium --project=mobile-chromium --workers=2
 
       - name: Upload baseline geometry, screenshots and traces
         if: always()
