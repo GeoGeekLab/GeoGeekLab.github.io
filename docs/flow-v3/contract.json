@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Geographic Flow Laboratory V3",
-  "status": "stage4-field-release-analysis-verified",
+  "status": "stage5-od-trips-analysis-verified",
   "owner": "Flow V3",
   "fourModes": {
     "field": {
@@ -115,7 +115,13 @@
     "releaseIntegrator": "Euler/RK2/RK4 steps use one sampled frozen field and check all intermediate points for domain validity",
     "releaseClock": "elapsed release time advances only with active seeds, and resets when the experiment is cleared",
     "releaseUncertainty": "spherical-cap seed spread represents chosen initial conditions only; it is not quantified forecast uncertainty",
-    "windColor": "speed color is a fixed 0–30+ metres/second quantitative scale; model color has no observational or uncertainty meaning"
+    "windColor": "speed color is a fixed 0–30+ metres/second quantitative scale; model color has no observational or uncertainty meaning",
+    "canonicalMovementData": "one site/flow/v3/core/movement.mjs source defines directed OD weights, nodes and authored teaching TRIPS points for both renderers",
+    "odDirection": "A to B and B to A remain distinct directed normalized teaching weights; net outflow equals out minus in",
+    "odFiltering": "Top-N filters visible directed edges without mutating all-network totals",
+    "tripInterpolation": "hollow markers encode supplied teaching sample positions; derived great-circle display positions are not observations",
+    "tripTime": "authored relative teaching units only, never UTC or measured hours; one base timeline and global PAUSE govern WORK, FOCUS and INSPECT",
+    "tripDistance": "computed spherical great-circle arc lengths between supplied teaching samples in km, not a measured track or km/h"
   },
   "uiTargets": {
     "mapControlOverlayFractionMax": 0.08,
@@ -170,7 +176,7 @@
     "stage2": "scientific-core-ci-verified",
     "stage3": "workbench-ci-verified",
     "stage4": "numeric-and-browser-ci-verified",
-    "stage5": "pending",
+    "stage5": "numeric-and-browser-ci-verified",
     "stage6": "pending",
     "stage7": "pending"
   },
@@ -203,6 +209,21 @@
         "release"
       ],
       "evidenceArtifact": "flow-v3-stage4-evidence"
+    },
+    "stage5": {
+      "runUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43563975374",
+      "numeric": "34 Node tests, 0 failures",
+      "browser": "45 passed, 1 desktop-only touch skip",
+      "modes": [
+        "od",
+        "trips"
+      ],
+      "sizes": [
+        "1440×900",
+        "900×980",
+        "390×844"
+      ],
+      "evidenceArtifact": "flow-v3-stage5-evidence"
     }
   }
 }
