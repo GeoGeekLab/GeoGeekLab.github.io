@@ -56,17 +56,9 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
     return pts.at(-1);
   }
 
-  function geoTripPoint(trip, t) {
-    const pts = trip.pts;
-    if (t <= pts[0][2]) return pts[0];
-    if (t >= pts.at(-1)[2]) return pts.at(-1);
-    for (let i = 1; i < pts.length; i += 1) {
-      if (t > pts[i][2]) continue;
-      const a = pts[i-1], b = pts[i], f = (t-a[2])/(b[2]-a[2]);
-      const p = sphericalInterpolate(a, b, f);
-      return [p[0], p[1], t];
-    }
-    return pts.at(-1);
+  function geoTripPoint(trip,t){
+    const result=tripPosition(trip,t);
+    return [result.position[0],result.position[1],result.time];
   }
 
   function geoTripTrail(trip, t, trail) {
@@ -534,6 +526,17 @@ import {NODES,OD,TRIPS,OD_UNIT,TRIP_TIME_UNIT,sortedEdges,odNodeTotals,odNetwork
     function syncMode(){
       syncTabs();syncSummary();ensureOdGeometryControl();
       const active=mode(),cleanup={};
+      if(active==='od'){
+        const requested=new URL(location.href).searchParams;
+        if(requested.has('flowNode')&&!selectedNode)cleanup.flowNode=null;
+        if(requested.has('flowPeer')&&
+          (!Object.hasOwn(NODES,requested.get('flowPeer'))||
+            requested.get('flowPeer')===(selectedNode||'nyc')))cleanup.flowPeer=null;
+      }
+      if(active==='trips'){
+        const requested=new URL(location.href).searchParams;
+        if(requested.has('flowTrip')&&!selectedTrip)cleanup.flowTrip=null;
+      }
       if(active!=='od'){
         selectedNode='';
         if(new URL(location.href).searchParams.has('flowNode'))cleanup.flowNode=null;
