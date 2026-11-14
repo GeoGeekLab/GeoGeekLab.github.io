@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Geographic Flow Laboratory V3",
-  "status": "stage5-od-trips-analysis-verified",
+  "status": "stage6-hardening-implemented-pending-final-ci",
   "owner": "Flow V3",
   "fourModes": {
     "field": {
@@ -121,7 +121,11 @@
     "odFiltering": "Top-N filters visible directed edges without mutating all-network totals",
     "tripInterpolation": "hollow markers encode supplied teaching sample positions; derived great-circle display positions are not observations",
     "tripTime": "authored relative teaching units only, never UTC or measured hours; one base timeline and global PAUSE govern WORK, FOCUS and INSPECT",
-    "tripDistance": "computed spherical great-circle arc lengths between supplied teaching samples in km, not a measured track or km/h"
+    "tripDistance": "computed spherical great-circle arc lengths between supplied teaching samples in km, not a measured track or km/h",
+    "sourceCache": "Live Open-Meteo no-store; pinned Natural Earth/GFS force-cache; source metadata records UTC valid and retrieval times separately",
+    "sourceRecovery": "Invalid coordinate/time/unit grid rejects live data; GFS archived fallback then explicit synthetic field with labeled source failures",
+    "performanceEvidence": "Bounded JS draw p95 measurements and CDP forced-GC heap evidence; viewport emulation is not physical mobile GPU validation",
+    "lifecycle": "Base cancels its RAF/ResizeObserver and removes visibility listener; Round2 disconnects observers, cancels pointer RAF and deferred timers"
   },
   "uiTargets": {
     "mapControlOverlayFractionMax": 0.08,
@@ -177,7 +181,7 @@
     "stage3": "workbench-ci-verified",
     "stage4": "numeric-and-browser-ci-verified",
     "stage5": "numeric-and-browser-ci-verified",
-    "stage6": "pending",
+    "stage6": "implementation-complete-final-head-ci-pending",
     "stage7": "pending"
   },
   "stageEvidence": {
@@ -224,6 +228,16 @@
         "390×844"
       ],
       "evidenceArtifact": "flow-v3-stage5-evidence"
+    },
+    "stage6": {
+      "preliminaryRunUrl": "https://github.com/GeoGeekLab/GeoGeekLab.github.io/actions/runs/43573738355",
+      "preliminaryNumeric": "41 Node tests, 0 failures",
+      "preliminaryBrowser": "67 passed, 1 platform-specific skip",
+      "maxObservedP95JsDrawMs": 28.53,
+      "maxCanvasSurfaceMiB": 21.16,
+      "axeAAViolations": 0,
+      "finalHeadCheck": "pending",
+      "auditFile": "docs/flow-v3/STAGE6-AUDIT.md"
     }
   }
 }
