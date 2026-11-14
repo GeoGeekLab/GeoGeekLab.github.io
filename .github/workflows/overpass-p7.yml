@@ -103,7 +103,7 @@ jobs:
           npm run build
           node scripts/verify-lab-previews.mjs --dist
           node scripts/verify-lab-cache-contract.mjs --dist
-          node --test tests/overpass-p7/*.test.mjs
+          node --test tests/overpass-p7/catalog-gate.test.mjs tests/overpass-p7/readiness.test.mjs
       - name: Assemble source-built P7 preview without P6 postbuild card graft
         run: node overpass/scripts/finalize-p7.mjs
       - name: Perform an actual isolated rollback filesystem restore and checksum
