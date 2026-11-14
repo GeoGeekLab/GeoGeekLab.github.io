@@ -297,30 +297,56 @@
       restorePanelFocus(panel,previousAction);
     }
 
-    function render(snapshot,scene) {
+    function render(snapshot,scene,meta={}) {
       shell.setState(snapshot.phase);
-      shell.setStatus(snapshot.phase==='revealed'?'MECHANISM REMOVED':snapshot.phase==='complete'?'TRACE COMPLETE':snapshot.phase==='committed'?'PREDICTION LOCKED':'NORMAL WORLD');
+      shell.setStatus(snapshot.phase==='revealed'
+        ?(snapshot.experiment?.intervention?'PARAMETER CHANGED':'MECHANISM REMOVED')
+        :snapshot.phase==='complete'?'TRACE COMPLETE'
+        :snapshot.phase==='committed'?'PREDICTION LOCKED':'NORMAL WORLD');
       const currentPhase=`${snapshot.index}:${snapshot.phase}`;
       if (currentPhase!==announcedPhase) {
         announcedPhase=currentPhase;
-        phaseAnnouncement.textContent=snapshot.phase==='complete'?'All three experiments complete. Play again to restart.'
-          :snapshot.phase==='committed'?'Prediction locked. Remove the selected mechanism to reveal its effect.'
+        phaseAnnouncement.textContent=snapshot.phase==='complete'
+          ?(snapshot.advancedUnlocked?'All six experiments complete. Play again to restart.':'Three core experiments complete. Continue or play again.')
+          :snapshot.phase==='committed'?'Prediction locked. Apply the intervention to reveal its effect.'
           :snapshot.phase==='revealed'?`${snapshot.experiment.revealTitle} Before and after spectra are now available.`
           :`Experiment ${snapshot.index+1} of ${snapshot.total}. ${snapshot.experiment.title}`;
       }
       count.textContent=`${String(Math.min(snapshot.index+1,snapshot.total)).padStart(2,'0')} / ${String(snapshot.total).padStart(2,'0')}`;
+      progressChapter.textContent=snapshot.index<3?'ACT I / ORIGINS & PATHS':'ACT II / LIGHT IN MOTION';
+      progressState.textContent=`${String(Math.min(snapshot.index+1,snapshot.total)).padStart(2,'0')} OF ${String(snapshot.total).padStart(2,'0')}`;
+      progressTrack.setAttribute('aria-label',`Experiment ${Math.min(snapshot.index+1,snapshot.total)} of ${snapshot.total}. ${snapshot.index<3?'Core':'Advanced'} chapter.`);
+      progressTrack.querySelectorAll('[data-stage]').forEach((node,index)=>{
+        node.classList.toggle('is-active',index===snapshot.index && snapshot.phase!=='complete');
+        node.classList.toggle('is-done',index<snapshot.index||(index===snapshot.index&&snapshot.phase==='complete'));
+        node.classList.toggle('is-locked',index>=3&&!snapshot.advancedUnlocked);
+      });
+      modelType.textContent=snapshot.experiment?.intervention?'PATH PARAMETER':'PATH ABLATION';
+      evidenceScope.textContent=`Scene geometry and display color are illustrative. No TOA radiance is modeled. ${snapshot.experiment?.limit||'The three core paths are separate teaching mechanisms.'}`;
+      const mode=snapshot.experiment?.chartMode||'sky';
+      root.dataset.lightPhenomenon=mode;
+      root.dataset.lightIntervention=snapshot.interventionId||'none';
 
       root.dataset.atmosphericScattering=scene.mechanisms.atmosphericScattering?'on':'off';
       root.dataset.waterBackscatter=scene.mechanisms.waterBackscatter?'on':'off';
       root.dataset.surfaceReflection=scene.mechanisms.surfaceReflection?'on':'off';
-      const focusedPath=snapshot.phase==='complete'?'none':(pathForMechanism[snapshot.experiment?.mechanism]||'none');
+      const modeFocus={sunset:'direct',depth:'depth',grazing:'surface'};
+      const focusedPath=snapshot.phase==='complete'?'none':(modeFocus[mode]||pathForMechanism[snapshot.experiment?.mechanism]||'none');
       root.dataset.lightFocus=focusedPath;
-      sceneFocus.textContent=focusedPath==='none'?'THREE PATHS · ONE VISIBLE WORLD':`UNDER TEST / ${pathTitle[focusedPath]}`;
+      sceneFocus.textContent=focusedPath==='none'?'LIGHT / EXPERIMENT COMPLETE':`UNDER TEST / ${pathTitle[focusedPath]}`;
+      const experimentConfig=snapshot.experiment?.intervention;
+      const variableValue=snapshot.phase==='revealed'&&snapshot.interventionId?scene.visualValue:experimentConfig?.baseline;
+      mechanismReadout.textContent=experimentConfig
+        ?`${experimentConfig.label} / ${Number(variableValue).toFixed(experimentConfig.step<1?1:0)} ${experimentConfig.unit}`
+        :`${pathTitle[focusedPath]||'THREE PATHS'} / ${snapshot.phase==='revealed'?'CHANGED':'BASELINE'}`;
+      mechanismReadout.parentElement.hidden=snapshot.phase==='complete';
       evidenceTarget.textContent=focusedPath==='none'?'Three distinct optical paths':pathTitle[focusedPath];
       const reflectedSkyStatus=!scene.mechanisms.atmosphericScattering && scene.mechanisms.surfaceReflection
         ?'has no scattered-sky source'
         :(scene.mechanisms.surfaceReflection?'present':'removed');
-      sceneSummary.textContent=`Conceptual scene. Scattered sky ${scene.mechanisms.atmosphericScattering?'present':'removed'}; reflected-sky surface path ${reflectedSkyStatus}; water-leaving path ${scene.mechanisms.waterBackscatter?'present':'removed'}. Display color and geometry are illustrative.`;
+      sceneSummary.textContent=experimentConfig
+        ?`Conceptual geometry, not a solved light field. ${experimentConfig.label} is ${Number(variableValue).toFixed(experimentConfig.step<1?1:0)} ${experimentConfig.unit}. ${snapshot.experiment.limit}`
+        :`Conceptual scene. Scattered sky ${scene.mechanisms.atmosphericScattering?'present':'removed'}; reflected-sky surface path ${reflectedSkyStatus}; water-leaving path ${scene.mechanisms.waterBackscatter?'present':'removed'}. Display color and geometry are illustrative.`;
 
       sky.classList.toggle('is-off',!scene.mechanisms.atmosphericScattering);
       ocean.style.setProperty('--light-water-color',scene.waterColor.css);
