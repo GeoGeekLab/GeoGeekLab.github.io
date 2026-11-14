@@ -1,0 +1,40 @@
+name: OVERPASS / P9 release evidence contracts (no production deployment)
+on:
+  push:
+    branches: [feature/overpass-p9-release-readiness]
+    paths:
+      - '.github/workflows/overpass-p9.yml'
+      - 'overpass/scripts/p9-staging-proof.mjs'
+      - 'tests/overpass-p9/**'
+      - 'overpass/ROUND9.md'
+      - 'playwright.overpass-p9-desktop.config.mjs'
+      - 'tests/overpass-p8/timelapse-real-mp4.spec.mjs'
+      - '.github/workflows/overpass-p9-desktop.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/overpass-p9.yml'
+      - 'overpass/scripts/p9-staging-proof.mjs'
+      - 'tests/overpass-p9/**'
+      - 'overpass/ROUND9.md'
+      - 'playwright.overpass-p9-desktop.config.mjs'
+      - 'tests/overpass-p8/timelapse-real-mp4.spec.mjs'
+      - '.github/workflows/overpass-p9-desktop.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evidence-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify staging proof, fail-closed release safety and existing P8 contracts
+        run: |
+          node --test tests/overpass-p9/staging-proof.test.mjs
+          node --test tests/overpass-p8/safe-merge.test.mjs
+          node overpass/scripts/p8-code-only-merge-gate.mjs
