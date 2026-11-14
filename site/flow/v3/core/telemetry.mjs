@@ -28,6 +28,10 @@ export class FlowTelemetry{
     this.svgRedraws=0;
     this.overlayRenders=0;
   }
+  reset(){
+    this.times=[];this.count=0;this.totalDrawMs=0;this.maxDrawMs=0;
+    this.baseRedraws=0;this.svgRedraws=0;this.overlayRenders=0;
+  }
   frame(ms){
     if(!Number.isFinite(ms)||ms<0)return;
     this.count++;
