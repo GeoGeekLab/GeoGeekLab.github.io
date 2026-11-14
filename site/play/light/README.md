@@ -120,3 +120,10 @@ The production preview pipeline also captures `assets/lab/previews/light.jpg`.
 - The evidence rail displays a signed `Δ = AFTER − BEFORE` at 550 nm only after the mechanism intervention is revealed.
 - It uses the same unit as the active teaching curve (relative sky/surface; sr⁻¹ water) and never combines unrelated physical paths.
 - The delta resets to hidden when the next experiment starts. The physics model and prediction state are unchanged.
+
+## L5 compact desktop evidence readability
+
+- The spectral range maximum sits at the top-right of the SVG instead of overlapping the high end of the curve.
+- The right rail displays a native keyboard-accessible **MODEL SCOPE / VIEW LIMITS** disclosure. Its full model qualification is available without occupying the small 1366×768 default reading area.
+- Removed-path labels stay legible; dashed swatches and explicit **REMOVED** / **NO SKY SOURCE** statuses carry the meaning without strike-through.
+- The rail retains native vertical scrolling when the disclosure is open. The conceptual scene and task area keep their desktop dimensions.

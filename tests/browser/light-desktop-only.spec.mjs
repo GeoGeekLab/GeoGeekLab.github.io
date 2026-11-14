@@ -117,3 +117,37 @@ test('Light only reveals a signed, unit-consistent delta after an intervention',
   await shell.getByRole('button',{name:'NEXT EXPERIMENT'}).click();
   await expect(delta).toBeHidden();
 });
+
+test('Light compact desktop evidence exposes readable scale and model scope',async({page},info)=>{
+  test.skip(info.project.name!=='desktop-chromium','Desktop-only visual evidence');
+  await page.setViewportSize({width:1366,height:768});
+  const shell=await openLight(page);
+  const hud=shell.locator('.play-v2-hud');
+  const scope=shell.locator('.light-evidence-method');
+  const summary=scope.locator('summary');
+  await expect(summary).toBeVisible();
+  await expect(scope).not.toHaveAttribute('open','');
+  await expect(scope.locator('.light-evidence-limit')).toBeHidden();
+  await expect(shell.locator('.light-spectrum-y-max')).toHaveAttribute('text-anchor','end');
+  const summaryBox=await summary.boundingBox();
+  const hudBox=await hud.boundingBox();
+  expect(summaryBox).toBeTruthy();
+  expect(hudBox).toBeTruthy();
+  expect(summaryBox.y).toBeLessThan(hudBox.y+hudBox.height-8);
+  await info.attach('light-l5-evidence-1366-closed',{body:await page.screenshot({animations:'disabled'}),contentType:'image/png'});
+
+  await shell.getByRole('button',{name:'BLACK'}).click();
+  await shell.getByRole('button',{name:'COMMIT PREDICTION'}).click();
+  await shell.getByRole('button',{name:'REMOVE SCATTERING'}).click();
+  const removed=shell.locator('[data-path="atmosphere"]');
+  await expect(removed).toContainText('REMOVED');
+  expect(await removed.evaluate(el=>getComputedStyle(el).textDecorationLine)).toBe('none');
+  await summary.focus();
+  await page.keyboard.press('Enter');
+  await expect(scope).toHaveAttribute('open','');
+  await expect(scope.locator('.light-evidence-limit')).toBeVisible();
+  await expect(scope.locator('.light-evidence-limit')).toContainText('TOA radiance is not modeled.');
+  await info.attach('light-l5-evidence-1366-expanded',{body:await page.screenshot({animations:'disabled'}),contentType:'image/png'});
+  await page.keyboard.press('Enter');
+  await expect(scope).not.toHaveAttribute('open','');
+});

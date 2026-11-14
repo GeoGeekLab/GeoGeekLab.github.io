@@ -12,8 +12,8 @@
     if (!GeoPlay?.core || !GeoPlay?.shell?.createV2 || !GeoPlay?.trace) throw new Error('GeoPlay V2 runtime incomplete.');
     if (!content || !physics || !experiments || !viewApi) throw new Error('Light Play modules incomplete.');
 
-    GeoPlay.core.ensureStyle('play/light/light.css?v=20261114-light-l4a','light-play');
-    GeoPlay.core.ensureStyle('play/light/light-desktop.css?v=20261114-light-l4a','light-desktop');
+    GeoPlay.core.ensureStyle('play/light/light.css?v=20261114-light-l5a','light-play');
+    GeoPlay.core.ensureStyle('play/light/light-desktop.css?v=20261114-light-l5a','light-desktop');
     const water=await window.GeoModules.loadModule('water/water-model.js?v=20261007a');
     if (signal?.aborted) return()=>{};
     const waterOutput=water.computeWaterOptics(content.WATER_STATE);
