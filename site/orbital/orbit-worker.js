@@ -67,7 +67,7 @@ function observerLook(observer, propagated) {
   const gd = {
     longitude: satellite.degreesToRadians(Number(observer.lon || 0)),
     latitude: satellite.degreesToRadians(Number(observer.lat || 0)),
-    height: Math.max(0, Number(observer.height || 0)),
+    height: Math.max(-0.5, Math.min(9, Number(observer.height || 0))),
   };
   const look = satellite.ecfToLookAngles(gd, propagated.ecf);
   if (!look) return null;
