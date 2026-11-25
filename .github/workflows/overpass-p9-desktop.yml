@@ -1,0 +1,49 @@
+name: OVERPASS / P9 real desktop 1080 MP4 acceptance (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-desktop-1080:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install pinned dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          (cd overpass/upstream && npm ci --no-audit --no-fund)
+      - name: Build real static OVERPASS candidate without touching GeoGeek production
+        run: |
+          node overpass/scripts/assert-upstream.mjs
+          node overpass/scripts/prepare-r2.mjs
+          node overpass/scripts/prepare-p4.mjs
+          node overpass/scripts/prepare-p5.mjs
+          (cd overpass/upstream && VITE_SITE_ORIGIN=https://geogeeklab.github.io/overpass VITE_OVERPASS_STATIC=1 npm run build)
+          node overpass/scripts/adapt-dist.mjs
+          node overpass/scripts/license-p5.mjs
+          node overpass/scripts/assemble-preview.mjs
+      - name: Install Chromium and ffprobe
+        run: |
+          npx playwright install --with-deps chromium
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Encode real historical desktop MP4 and enforce provisional 1080 width and 9-minute budget
+        env:
+          P9_MIN_MP4_WIDTH: '1080'
+          P9_MAX_EXPORT_MS: '540000'
+        run: npx playwright test -c playwright.overpass-p9-desktop.config.mjs
+      - name: Keep actual FFprobe output, downloaded video and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p9-real-desktop-1080-evidence
+          path: test-results/overpass-p9-desktop/
+          retention-days: 14
+          if-no-files-found: warn
